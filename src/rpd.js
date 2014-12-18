@@ -65,3 +65,33 @@ function linktype(id, def) {
 function channeltype(id, def) {
     channeltypes[name] = def;
 }
+
+/* console.log('----');
+
+var nodes = Kefir.emitter();
+var targets = Kefir.emitter();
+var renderers = Kefir.emitter();
+
+var joined = Kefir.combine([
+nodes.scan(function(prev, next) { return [ prev, next, 'bar' ]; }),
+targets.scan(function(prev, next) { return [ prev, next, 'foo' ]; }),
+renderers]);
+
+joined.log();
+targets.emit('t-abcdefgh-1');
+renderers.emit('r-abcdefgh-1');
+renderers.emit('r-abcdefgh-2');
+targets.emit('t-abcdefgh-2');
+nodes.emit('n-a');
+nodes.emit('n-b');
+nodes.emit('n-c');
+nodes.emit('n-d');
+renderers.emit('r-efgh');
+nodes.emit('n-e');
+targets.emit('t-fgh');
+nodes.emit('n-f');
+targets.emit('t-gh-1');
+targets.emit('t-gh-2');
+nodes.emit('n-g');
+renderers.emit('r-h');
+nodes.emit('n-h'); */
