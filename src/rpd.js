@@ -6,7 +6,52 @@ function Model() {
     this.nodes = Kefir.emitter();
     this.targets = Kefir.emitter();
     this.renderers = Kefir.emitter();
-    // var sampler = Kefir.sampledBy([nodes.bufferBy(targets.combine(renderers))], [targets, renderers]);
+
+    var chain = function(prev, next) {
+        return { prev: prev, next: next };
+    };
+
+    Kefir.combine([ this.nodes,
+                    this.targets.scan(chain),
+                    this.renderers.scan(chain) ]).onValue(
+        function(value) {
+            var node = value[0], last_target = value[1],
+                                 last_renderer = value[2];
+            console.log('update');
+            console.log(node, last_target, last_renderer);
+            var last_target = last_target,
+                last_renderer = last_renderer;
+            while (last_target.prev) {
+                last_target = last_target.prev;
+                while (last_renderer.prev) {
+                    last_renderer = last_renderer.prev;
+                    console.log(node, last_target, last_renderer);
+                }
+            }
+        }
+    );
+
+    var nodes = this.nodes;
+    var targets = this.targets;
+    var renderers = this.renderers;
+
+    targets.emit('t-abcdefgh-1');
+    renderers.emit('r-abcdefgh-1');
+    renderers.emit('r-abcdefgh-2');
+    targets.emit('t-abcdefgh-2');
+    nodes.emit('n-a');
+    nodes.emit('n-b');
+    nodes.emit('n-c');
+    nodes.emit('n-d');
+    renderers.emit('r-efgh');
+    nodes.emit('n-e');
+    targets.emit('t-fgh');
+    nodes.emit('n-f');
+    targets.emit('t-gh-1');
+    targets.emit('t-gh-2');
+    nodes.emit('n-g');
+    renderers.emit('r-h');
+    nodes.emit('n-h');
 }
 Model.prototype.attach = function(elm) {
     this.targets.emit(elm);
@@ -65,37 +110,3 @@ function linktype(id, def) {
 function channeltype(id, def) {
     channeltypes[name] = def;
 }
-
-/* var nodes = Kefir.emitter();
-var targets = Kefir.emitter();
-var renderers = Kefir.emitter();
-
-var linker = function(prev, next) {
-    return { prev: prev, next: next };
-};
-
-var joined = Kefir.combine([ nodes,
-                             targets.scan(linker),
-                             renderers.scan(linker) ]);
-// var joined = Kefir.sampledBy([ targets.scan(linker),
-//                                renderers.scan(linker) ],
-//                              [ nodes ]);
-
-joined.log();
-targets.emit('t-abcdefgh-1');
-renderers.emit('r-abcdefgh-1');
-renderers.emit('r-abcdefgh-2');
-targets.emit('t-abcdefgh-2');
-nodes.emit('n-a');
-nodes.emit('n-b');
-nodes.emit('n-c');
-nodes.emit('n-d');
-renderers.emit('r-efgh');
-nodes.emit('n-e');
-targets.emit('t-fgh');
-nodes.emit('n-f');
-targets.emit('t-gh-1');
-targets.emit('t-gh-2');
-nodes.emit('n-g');
-renderers.emit('r-h');
-nodes.emit('n-h'); */
