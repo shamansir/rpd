@@ -21,6 +21,9 @@ function Model() {
 
     function walk_rev_cons(cell, f) {
         if (!cell) return;
+        // rev_cons is not called for a stream with just one item, so cell
+        // may be a first object itself, unpacked. since we don't use arrays
+        // as values of these streams, it's a safe check
         if (!Array.isArray(cell)) { f(cell); return; }
         f(cell[0]); walk_cons(cell[1], f);
     }
@@ -104,5 +107,5 @@ function channeltype(id, def) {
 }
 
 function renderer(alias, f) {
-    renderers[alias] = f;
+    renderer_registry[alias] = f;
 }
