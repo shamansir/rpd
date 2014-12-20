@@ -7,27 +7,28 @@ function Model() {
     this.targets = Kefir.emitter();
     this.renderers = Kefir.emitter();
 
-    var chain = function(prev, next) {
-        return { prev: prev, next: next };
+    function rev_cons(prev, cur) {
+        return [ cur, Array.isArray(prev) ? prev : [ prev, null ] ];
     };
 
+    function walk_cons(cell, f) {
+        if (!cell) return;
+        if (cell[0]) f(cell[0]);
+        walk_cons(cell[1], f);
+    }
+
     Kefir.combine([ this.nodes,
-                    this.targets.scan(chain),
-                    this.renderers.scan(chain) ]).onValue(
+                    this.targets.scan(rev_cons),
+                    this.renderers.scan(rev_cons) ]).onValue(
         function(value) {
-            var node = value[0], last_target = value[1],
-                                 last_renderer = value[2];
+            var node = value[0], targets = value[1],
+                                 renderers = value[2];
             console.log('update');
-            console.log(node, last_target, last_renderer);
-            var last_target = last_target,
-                last_renderer = last_renderer;
-            while (last_target.prev) {
-                last_target = last_target.prev;
-                while (last_renderer.prev) {
-                    last_renderer = last_renderer.prev;
-                    console.log(node, last_target, last_renderer);
-                }
-            }
+            walk_cons(targets, function(target) {
+                walk_cons(renderers, function(renderer) {
+                    console.log(node, target, renderer);
+                });
+            });
         }
     );
 
@@ -35,22 +36,22 @@ function Model() {
     var targets = this.targets;
     var renderers = this.renderers;
 
-    targets.emit('t-abcdefgh-1');
-    renderers.emit('r-abcdefgh-1');
-    renderers.emit('r-abcdefgh-2');
-    targets.emit('t-abcdefgh-2');
+    targets.emit('t-1');
+    renderers.emit('r-1');
+    renderers.emit('r-2');
+    targets.emit('t-2');
     nodes.emit('n-a');
     nodes.emit('n-b');
     nodes.emit('n-c');
     nodes.emit('n-d');
-    renderers.emit('r-efgh');
+    renderers.emit('r-3');
     nodes.emit('n-e');
-    targets.emit('t-fgh');
+    targets.emit('t-3');
     nodes.emit('n-f');
-    targets.emit('t-gh-1');
-    targets.emit('t-gh-2');
+    targets.emit('t-4');
+    targets.emit('t-5');
     nodes.emit('n-g');
-    renderers.emit('r-h');
+    renderers.emit('r-4');
     nodes.emit('n-h');
 }
 Model.prototype.attach = function(elm) {
