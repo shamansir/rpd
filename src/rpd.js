@@ -19,8 +19,9 @@ function Model() {
         return [ cur, Array.isArray(prev) ? prev : [ prev, null ] ];
     };
 
-    function walk_cons(cell, f) {
+    function walk_rev_cons(cell, f) {
         if (!cell) return;
+        if (!Array.isArray(cell)) { f(cell); return; }
         f(cell[0]); walk_cons(cell[1], f);
     }
 
@@ -30,8 +31,8 @@ function Model() {
         function(value) {
             var node = value[0], targets = value[1],
                                  renderers = value[2];
-            walk_cons(targets, function(target) {
-                walk_cons(renderers, function(renderer) {
+            walk_rev_cons(targets, function(target) {
+                walk_rev_cons(renderers, function(renderer) {
                     if (!renderer_registry[renderer]) report_error('Renderer ' + renderer +
                                                                    ' is not registered.');
                     renderer_registry[renderer](target, node);
