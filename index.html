@@ -5,11 +5,13 @@
         <script src="./src/rpd.js"></script>
         <script src="./src/toolkit/core.js"></script>
         <script src="./src/render/core.html.js"></script>
-        <script>
-            new Model().attach(document.body).start();
-        </script>
     </head>
 
     <body>
+        <script>
+            new Model().add(new Node('core/empty', 'Test'))
+                       .attachTo(document.body)
+                       .renderWith('html');
+        </script>
     </body>
 </html>

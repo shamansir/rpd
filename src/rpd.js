@@ -2,6 +2,14 @@ var nodetypes = {};
 var linktypes = {};
 var channeltypes = {};
 
+var renderer_registry = {};
+
+function report_error(desc, err) {
+    var err = err || new Error(desc);
+    if (console) (console.error ? console.error(err) : console.log(err));
+    throw err;
+}
+
 function Model() {
     this.nodes = Kefir.emitter();
     this.targets = Kefir.emitter();
@@ -13,8 +21,7 @@ function Model() {
 
     function walk_cons(cell, f) {
         if (!cell) return;
-        if (cell[0]) f(cell[0]);
-        walk_cons(cell[1], f);
+        f(cell[0]); walk_cons(cell[1], f);
     }
 
     Kefir.combine([ this.nodes,
@@ -23,38 +30,17 @@ function Model() {
         function(value) {
             var node = value[0], targets = value[1],
                                  renderers = value[2];
-            console.log('update');
             walk_cons(targets, function(target) {
                 walk_cons(renderers, function(renderer) {
-                    console.log(node, target, renderer);
+                    if (!renderer_registry[renderer]) report_error('Renderer ' + renderer +
+                                                                   ' is not registered.');
+                    renderer_registry[renderer](target, node);
                 });
             });
         }
     );
-
-    var nodes = this.nodes;
-    var targets = this.targets;
-    var renderers = this.renderers;
-
-    targets.emit('t-1');
-    renderers.emit('r-1');
-    renderers.emit('r-2');
-    targets.emit('t-2');
-    nodes.emit('n-a');
-    nodes.emit('n-b');
-    nodes.emit('n-c');
-    nodes.emit('n-d');
-    renderers.emit('r-3');
-    nodes.emit('n-e');
-    targets.emit('t-3');
-    nodes.emit('n-f');
-    targets.emit('t-4');
-    targets.emit('t-5');
-    nodes.emit('n-g');
-    renderers.emit('r-4');
-    nodes.emit('n-h');
 }
-Model.prototype.attach = function(elm) {
+Model.prototype.attachTo = function(elm) {
     this.targets.emit(elm);
     return this;
 }
@@ -62,14 +48,19 @@ Model.prototype.add = function(node) {
     this.nodes.emit(node);
     return this;
 }
-Model.prototype.start = function() {
+Model.prototype.update = function(node) {
+    this.nodes.emit(node);
+    return this;
+}
+Model.prototype.renderWith = function(alias) {
+    this.renderers.emit(alias);
     return this;
 }
 
 function Node(type, name) {
     this.type = type || 'core/empty';
     var def = nodetypes[this.type];
-    if (!def) throw new Error('Node type' + this.type + ' is not registered!');
+    if (!def) report_error('Node type ' + this.type + ' is not registered!');
     this.def = def;
 
     this.name = name || def.name || 'Unnamed';
@@ -81,7 +72,7 @@ function Node(type, name) {
 function Link(type, name) {
     this.type = type || 'core/direct';
     var def = linktypes[this.type];
-    if (!def) throw new Error('Node type' + this.type + ' is not registered!');
+    if (!def) report_error('Link type ' + this.type + ' is not registered!');
     this.def = def;
 
     this.name = name || def.name || '';
@@ -92,7 +83,7 @@ function Link(type, name) {
 function Channel(type, name) {
     this.type = type || 'core/bool';
     var def = linktypes[this.type];
-    if (!def) throw new Error('Channel type' + this.type + ' is not registered!');
+    if (!def) report_error('Channel type ' + this.type + ' is not registered!');
     this.def = def;
 
     this.name = name || def.name || 'Unnamed';
@@ -100,14 +91,17 @@ function Channel(type, name) {
 }
 
 function nodetype(id, def) {
-    nodetypes[name] = def;
+    nodetypes[id] = def;
 }
 
-
 function linktype(id, def) {
-    linktypes[name] = def;
+    linktypes[id] = def;
 }
 
 function channeltype(id, def) {
-    channeltypes[name] = def;
+    channeltypes[id] = def;
+}
+
+function renderer(alias, f) {
+    renderers[alias] = f;
 }
