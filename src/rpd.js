@@ -11,7 +11,7 @@ function report_error(desc, err) {
 }
 
 function short_uid() {
-    return ("0000" + (Math.random()*Math.pow(36,4) << 0).toString(36)).slice(-4)
+    return ("0000" + (Math.random() * Math.pow(36,4) << 0).toString(36)).slice(-4);
 }
 
 function Model() {
@@ -77,18 +77,37 @@ function Node(type, name) {
     this.outlets = [];
     this.def = def;
 }
+Node.prototype.addInlet = function(pos, type, value, name) {
+    this.inlets.push(new Channel(type, this, name));
+    return this;
+}
+Node.prototype.addOutlet = function(pos, type, value, name) {
+    this.outlets.push(new Channel(type, this, name));
+    return this;
+}
+Node.prototype.connect = function(outlet_id, other, inlet_id) {
+    // TODO
+    return this;
+}
 
-function Channel(type, name) { // a.k.a. Outlet/Inlet
+function Channel(type, node, name) { // a.k.a. Outlet/Inlet
     this.type = type || 'core/bool';
-    var def = linktypes[this.type];
+    var def = channeltypes[this.type];
     if (!def) report_error('Channel type ' + this.type + ' is not registered!');
     this.def = def;
 
     this.name = name || def.name || 'Unnamed';
+    this.value = def.value;
     this.node = null;
 }
+Channel.prototype.set = function(value) {
+    this.value = value;
+}
+Channel.prototype.get = function() {
+    return this.value;
+}
 
-function Link(type, name) {
+function Link(type, from, to, name) {
     this.type = type || 'core/direct';
     var def = linktypes[this.type];
     if (!def) report_error('Link type ' + this.type + ' is not registered!');
