@@ -10,6 +10,10 @@ function report_error(desc, err) {
     throw err;
 }
 
+function short_uid() {
+    return ("0000" + (Math.random()*Math.pow(36,4) << 0).toString(36)).slice(-4)
+}
+
 function Model() {
     this.nodes = Kefir.emitter();
     this.targets = Kefir.emitter();
@@ -63,6 +67,7 @@ Model.prototype.renderWith = function(alias) {
 
 function Node(type, name) {
     this.type = type || 'core/empty';
+    this.id = short_uid();
     var def = nodetypes[this.type];
     if (!def) report_error('Node type ' + this.type + ' is not registered!');
     this.def = def;
@@ -71,6 +76,16 @@ function Node(type, name) {
     this.inlets = [];
     this.outlets = [];
     this.def = def;
+}
+
+function Channel(type, name) { // a.k.a. Outlet/Inlet
+    this.type = type || 'core/bool';
+    var def = linktypes[this.type];
+    if (!def) report_error('Channel type ' + this.type + ' is not registered!');
+    this.def = def;
+
+    this.name = name || def.name || 'Unnamed';
+    this.node = null;
 }
 
 function Link(type, name) {
@@ -82,16 +97,6 @@ function Link(type, name) {
     this.name = name || def.name || '';
     this.start = null;
     this.end = [];
-}
-
-function Channel(type, name) {
-    this.type = type || 'core/bool';
-    var def = linktypes[this.type];
-    if (!def) report_error('Channel type ' + this.type + ' is not registered!');
-    this.def = def;
-
-    this.name = name || def.name || 'Unnamed';
-    this.node = null;
 }
 
 function nodetype(id, def) {
