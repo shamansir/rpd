@@ -19,6 +19,7 @@
             first.connect(2, second, 6, function(in) { (in === true) ? 1 : 0 });
             first.send(2, false);
             first.setChannel(2, Kefir.repeatedly(100, [true, false]));
+            //first.send(2, true);
             new Model().add(first)
                        .add(second)
                        .attachTo(document.body)

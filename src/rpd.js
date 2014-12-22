@@ -32,17 +32,19 @@ function Model() {
         f(cell[0]); walk_cons(cell[1], f);
     }
 
-    Kefir.combine([ this.nodes,
+    this.updates = Kefir.poll().plug(this.nodes);
+
+    Kefir.combine([ this.updates,
                     this.targets.scan(rev_cons),
                     this.renderers.scan(rev_cons) ]).onValue(
         function(value) {
-            var node = value[0], targets = value[1],
+            var update = value[0], targets = value[1],
                                  renderers = value[2];
             walk_rev_cons(targets, function(target) {
                 walk_rev_cons(renderers, function(renderer) {
                     if (!renderer_registry[renderer]) report_error('Renderer ' + renderer +
                                                                    ' is not registered.');
-                    renderer(target, node);
+                    renderer(target, update);
                 });
             });
         }
@@ -53,11 +55,19 @@ Model.prototype.attachTo = function(elm) {
     return this;
 }
 Model.prototype.add = function(node) {
-    this.nodes.emit(node);
+    this.nodes.emit({
+        type: 'node/add',
+        subject: node
+    });
+    this.updates.plug(node.updates);
     return this;
 }
-Model.prototype.update = function(node) {
-    this.nodes.emit(node);
+Model.prototype.remove = function(node) {
+    this.nodes.emit({
+        type: 'node/remove',
+        subject: node
+    });
+    this.updates.unplug(node.updates);
     return this;
 }
 Model.prototype.renderWith = function(alias) {
@@ -74,49 +84,84 @@ function Node(type, name) {
     this.def = def;
 
     this.name = name || def.name || 'Unnamed';
-    this.inlets = [];
-    this.outlets = [];
     this.def = def;
+
+    this.channels = Kefir.emitter();
+    this.links = Kefir.emitter();
+    this.updates = Kefir.poll().plug(this.channels).plug(this.links);
 }
 Node.prototype.addInlet = function(pos, type, name) {
-    this.inlets.push(new Channel(type, this, name));
-    return this;
+    var inlet = new Channel(type, 'in', this, pos, name);
+    this.channels.emit({
+        type: 'inlet/new',
+        subject: inlet
+    });
+    this.updates.plug(inlet.value.map(function(value) {
+        return {
+            type: 'inlet/update',
+            subject: [ inlet, value ]
+        })
+    });
+    return this; // return inlet?
 }
 Node.prototype.addOutlet = function(pos, type, value, name) {
-    this.outlets.push(new Channel(type, this, name));
-    return this;
+    var outlet = new Channel(type, 'out', this, pos, name);
+    this.channels.emit({
+        type: 'outlet/new',
+        subject: outlet
+    });
+    this.updates.plug(outlet.value.map(function(value) {
+        return {
+            type: 'outlet/update',
+            subject: [ outlet, value ]
+        })
+    });
+    outlet.set(value);
+    return this; // return outlet?
 }
-Node.prototype.connect = function(outlet_id, other, inlet_id) {
-    // TODO
+Node.prototype.removeChannel = function(channel) {
+    // TODO:
+}
+Node.prototype.connect = function(outlet_id, other, inlet_id, f) {
+    var link = new Link((f ? 'core/adapted' : 'core/direct'),
+                        outlet_id, this, inlet_id, f);
+    this.links.emit({
+        type: 'link/new',
+        subject: link
+    });
     return this;
 }
 
-function Channel(type, node, name) { // a.k.a. Outlet/Inlet
+function Channel(type, dir, node, pos, name) {
     this.type = type || 'core/bool';
+    this.direction = dir;
     var def = channeltypes[this.type];
     if (!def) report_error('Channel type ' + this.type + ' is not registered!');
     this.def = def;
 
     this.name = name || def.name || 'Unnamed';
-    this.value = undefined;
-    this.node = node;
+
+    this.value = Kefir.poll();
 }
 Channel.prototype.set = function(value) {
-    this.value = value;
-}
-Channel.prototype.get = function() {
-    return this.value;
+    this.value.plug(value);
+    return this;
 }
 
-function Link(type, from, to, name) {
+function Link(type, from_pos, from_node, to_pos, to_node, f, name) {
     this.type = type || 'core/direct';
     var def = linktypes[this.type];
     if (!def) report_error('Link type ' + this.type + ' is not registered!');
     this.def = def;
 
     this.name = name || def.name || '';
-    this.start = null;
-    this.end = [];
+
+    this.from_pos = from_pos;
+    this.from_node = from_node;
+    this.to_pos = to_pos;
+    this.to_node = to_node;
+
+    this.adapter = f || def.f || undefined;
 }
 
 function nodetype(id, def) {
