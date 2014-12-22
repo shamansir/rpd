@@ -9,7 +9,18 @@
 
     <body>
         <script>
-            new Model().add(new Node('core/empty', 'Test'))
+            var first = new Node('core/empty', 'Test');
+            first.addOutlet(2, 'core/bool', true);
+            var second = new Node('core/empty', 'Foo');
+            second.addInlet(4, 'core/bool');
+            second.addInlet(6, 'core/number');
+            first.connect(2, second, 4);
+            try { first.connect(2, second, 6); } catch(e) {};
+            first.connect(2, second, 6, function(in) { (in === true) ? 1 : 0 });
+            first.send(2, false);
+            first.setChannel(2, Kefir.repeatedly(100, [true, false]));
+            new Model().add(first)
+                       .add(second)
                        .attachTo(document.body)
                        .renderWith('html');
         </script>

@@ -42,7 +42,7 @@ function Model() {
                 walk_rev_cons(renderers, function(renderer) {
                     if (!renderer_registry[renderer]) report_error('Renderer ' + renderer +
                                                                    ' is not registered.');
-                    renderer_registry[renderer](target, node);
+                    renderer(target, node);
                 });
             });
         }
@@ -61,7 +61,8 @@ Model.prototype.update = function(node) {
     return this;
 }
 Model.prototype.renderWith = function(alias) {
-    this.renderers.emit(alias);
+    if (!renderer_registry[renderer]) throw new Error('Renderer ' + alias + ' is not registered');
+    this.renderers.emit(renderer_registry[renderer]);
     return this;
 }
 
@@ -77,7 +78,7 @@ function Node(type, name) {
     this.outlets = [];
     this.def = def;
 }
-Node.prototype.addInlet = function(pos, type, value, name) {
+Node.prototype.addInlet = function(pos, type, name) {
     this.inlets.push(new Channel(type, this, name));
     return this;
 }
@@ -97,8 +98,8 @@ function Channel(type, node, name) { // a.k.a. Outlet/Inlet
     this.def = def;
 
     this.name = name || def.name || 'Unnamed';
-    this.value = def.value;
-    this.node = null;
+    this.value = undefined;
+    this.node = node;
 }
 Channel.prototype.set = function(value) {
     this.value = value;
