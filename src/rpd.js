@@ -32,7 +32,7 @@ function Model() {
         f(cell[0]); walk_cons(cell[1], f);
     }
 
-    this.updates = Kefir.poll().plug(this.nodes);
+    this.updates = Kefir.pool().plug(this.nodes);
 
     Kefir.combine([ this.updates,
                     this.targets.scan(rev_cons),
@@ -88,7 +88,7 @@ function Node(type, name) {
 
     this.channels = Kefir.emitter();
     this.links = Kefir.emitter();
-    this.updates = Kefir.poll().plug(this.channels).plug(this.links);
+    this.updates = Kefir.pool().plug(this.channels).plug(this.links);
 }
 Node.prototype.addInlet = function(pos, type, name) {
     var inlet = new Channel(type, 'in', this, pos, name);
@@ -100,8 +100,8 @@ Node.prototype.addInlet = function(pos, type, name) {
         return {
             type: 'inlet/update',
             subject: [ inlet, value ]
-        })
-    });
+        }
+    }));
     return this; // return inlet?
 }
 Node.prototype.addOutlet = function(pos, type, value, name) {
@@ -114,8 +114,8 @@ Node.prototype.addOutlet = function(pos, type, value, name) {
         return {
             type: 'outlet/update',
             subject: [ outlet, value ]
-        })
-    });
+        }
+    }));
     outlet.set(value);
     return this; // return outlet?
 }
@@ -141,7 +141,7 @@ function Channel(type, dir, node, pos, name) {
 
     this.name = name || def.name || 'Unnamed';
 
-    this.value = Kefir.poll();
+    this.value = Kefir.pool();
 }
 Channel.prototype.set = function(value) {
     this.value.plug(value);

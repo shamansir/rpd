@@ -16,7 +16,7 @@
             second.addInlet(6, 'core/number');
             first.connect(2, second, 4);
             try { first.connect(2, second, 6); } catch(e) {};
-            first.connect(2, second, 6, function(in) { (in === true) ? 1 : 0 });
+            first.connect(2, second, 6, function(val) { return (val === true) ? 1 : 0 });
             first.send(2, false);
             first.setChannel(2, Kefir.repeatedly(100, [true, false]));
             //first.send(2, true);
