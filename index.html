@@ -10,18 +10,18 @@
     <body>
         <script>
             var first = new Node('core/empty', 'Test');
-            first.addOutlet(2, 'core/bool', true);
+            var boolOutlet = first.addOutlet('core/bool', true);
+            first.addOutlet('core/number');
             var second = new Node('core/empty', 'Foo');
-            second.addInlet(4, 'core/bool');
-            second.addInlet(6, 'core/number');
-            first.connect(2, second, 4);
-            try { first.connect(2, second, 6); } catch(e) {};
-            first.connect(2, second, 6, function(val) { return (val === true) ? 1 : 0 });
-            first.send(2, false);
-            first.setChannel(2, Kefir.repeatedly(100, [true, false]));
+            var boolInlet = second.addInlet('core/bool');
+            var numInlet = second.addInlet('core/number');
+            boolOutlet.connect(boolInlet);
+            boolOutlet.connect(numInlet, function(val) { return (val === true) ? 1 : 0 });
+            boolOutlet.send(false);
+            boolOutlet.stream(Kefir.repeatedly(100, [true, false]));
             //first.send(2, true);
-            new Model().add(first)
-                       .add(second)
+            new Model().addNode(first)
+                       .addNode(second)
                        .attachTo(document.body)
                        .renderWith('html');
         </script>
