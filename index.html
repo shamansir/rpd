@@ -19,7 +19,8 @@
             boolOutlet.connect(numInlet, function(val) { return (val === true) ? 1 : 0 });
             boolOutlet.send(false);
             boolOutlet.stream(Kefir.repeatedly(100, [true, false]));
-            //first.send(2, true);
+            //boolOutlet.disconnect(boolInlet);
+            //second.removeInlet(boolInlet)
             new Model().addNode(first)
                        .addNode(second)
                        .attachTo(document.body)
