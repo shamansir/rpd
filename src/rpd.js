@@ -51,8 +51,6 @@ function Model() {
                                  renderers = value[2];
             walk_rev_cons(targets, function(target) {
                 walk_rev_cons(renderers, function(renderer) {
-                    if (!renderer_registry[renderer]) report_error('Renderer ' + renderer +
-                                                                   ' is not registered.');
                     renderer(target, update);
                 });
             });
@@ -63,21 +61,21 @@ Model.prototype.attachTo = function(elm) {
     this.targets.emit(elm);
     return this;
 }
-Model.prototype.add = function(node) {
+Model.prototype.addNode = function(node) {
     this.events['node/add'].emit(node);
     this.updates.plug(node.updates);
     // TODO: node.turnOn
     return this;
 }
-Model.prototype.remove = function(node) {
+Model.prototype.removeNode = function(node) {
     this.events['node/remove'].emit(node);
     this.updates.unplug(node.updates);
     // TODO: node.turnOff
     return this;
 }
 Model.prototype.renderWith = function(alias) {
-    if (!renderer_registry[renderer]) throw new Error('Renderer ' + alias + ' is not registered');
-    this.renderers.emit(renderer_registry[renderer]);
+    if (!renderer_registry[alias]) throw new Error('Renderer ' + alias + ' is not registered');
+    this.renderers.emit(renderer_registry[alias]);
     return this;
 }
 
@@ -123,16 +121,17 @@ Node.prototype.addOutlet = function(type, value, name) {
     outlet.send(value);
     return outlet;
 }
-/* Node.prototype.removeChannel = function(channel) {
+/* Node.prototype.removeInlet = function(inlet) {
+    // TODO:
+} */
+/* Node.prototype.removeOutlet = function(outlet) {
     // TODO:
 } */
 
-
-function Channel(what, type, node, name) {
+function Inlet(type, node, name) {
     this.type = type || 'core/bool';
-    this.what = what;
     var def = channeltypes[this.type];
-    if (!def) report_error('Channel type ' + this.type + ' is not registered!');
+    if (!def) report_error('Inlet type ' + this.type + ' is not registered!');
     this.def = def;
 
     this.name = name || def.name || 'Unnamed';
@@ -140,38 +139,53 @@ function Channel(what, type, node, name) {
     this.value = Kefir.pool();
 
     this.events = {};
-    this.events[what + '/update'] = Kefir.emitter().merge(this.value);
-    this.events[what + '/connect'] = Kefir.emitter();
+    this.events['inlet/update'] = Kefir.emitter().merge(this.value);
 
-    this.updates = Kefir.pool().plug(this.events[what + '/update'].map(function(subj) {
-                                         var res = {};
-                                         res.type = what + '/update'; res[what] = subj;
-                                         return res;
-                                     }))
-                               .plug(this.events[what + '/connect'].map(function(subj) {
-                                         var res = {};
-                                         res.type = what + '/connect'; res[what] = subj;
-                                         return res;
+    this.updates = Kefir.pool().plug(this.events['inlet/update'].map(function(inlet) {
+                                         return { type: 'inlet/update', inlet: inlet };
                                      }));
 
 }
-Channel.prototype.connect = function(other, f) {
+
+function Outlet(type, node, name) {
+    this.type = type || 'core/bool';
+    var def = channeltypes[this.type];
+    if (!def) report_error('Outlet type ' + this.type + ' is not registered!');
+    this.def = def;
+
+    this.name = name || def.name || 'Unnamed';
+
+    this.value = Kefir.pool();
+
+    this.events = {};
+    this.events['outlet/update'] = Kefir.emitter().merge(this.value);
+    this.events['outlet/connect'] = Kefir.emitter();
+
+    this.updates = Kefir.pool().plug(this.events['outlet/update'].map(function(outlet) {
+                                         return { type: 'outlet/update', outlet: outlet };
+                                     }))
+                               .plug(this.events['outlet/connect'].map(function(outlet) {
+                                         return { type: 'outlet/connect', outlet: outlet };
+                                     }));
+
+}
+Outlet.prototype.connect = function(inlet, f) {
     var link = new Link((f ? 'core/adapted' : 'core/direct'),
-                        this, other, f);
-    this.events[this.concavity + '/connect'].emit(link);
+                        this, inlet, f);
+    this.events['outlet/connect'].emit(link);
     return this;
 }
-Channel.prototype.send = function(value) {
+/* Outlet.prototype.disconnect = function(outlet) {
+    // TODO:
+} */
+Outlet.prototype.send = function(value) {
     this.value.plug(Kefir.constant(value));
     return this;
 }
-Channel.prototype.stream = function(stream) {
+Outlet.prototype.stream = function(stream) {
     this.value.plug(stream);
     return this;
 }
-function Inlet() { return Channel.call(this, ['in'].concat(arguments)); }
-function Outlet() { return Channel.call(this, ['out'].concat(arguments)); }
-Outlet.prototype.send = Channel.prototype.send;
 
 function Link(type, outlet, inlet, f, name) {
     this.type = type || 'core/direct';
