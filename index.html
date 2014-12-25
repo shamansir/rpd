@@ -13,6 +13,7 @@
                                      .renderWith('html');
             var first = new Node('core/empty', 'Test');
             var boolOutlet = first.addOutlet('core/bool', true);
+            first.addOutlet('core/number', 1);
             first.addOutlet('core/number');
             var second = new Node('core/empty', 'Foo');
             var boolInlet = second.addInlet('core/bool');

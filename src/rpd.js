@@ -191,11 +191,11 @@ function Outlet(type, node, name) {
                                      }));
 
 }
-Outlet.prototype.connect = function(inlet, f) {
-    var link = new Link((f ? 'core/adapted' : 'core/direct'),
-                        this, inlet, f);
+Outlet.prototype.connect = function(inlet, adapter) {
+    var link = new Link(null, this, inlet, adapter);
     this.events['outlet/connect'].emit(link);
-    this.value.onValue(function(x) { inlet.receive(x); });
+    this.updates.plug(link.updates);
+    this.value.onValue(function(x) { inlet.receive(link.adapt(x)); });
 }
 /* Outlet.prototype.disconnect = function(inlet) {
     // TODO:
@@ -207,7 +207,7 @@ Outlet.prototype.stream = function(stream) {
     this.value.plug(stream);
 }
 
-function Link(type, outlet, inlet, f, name) {
+function Link(type, outlet, inlet, adapter, name) {
     this.type = type || 'core/direct';
     var def = linktypes[this.type];
     if (!def) report_error('Link type ' + this.type + ' is not registered!');
@@ -218,9 +218,35 @@ function Link(type, outlet, inlet, f, name) {
     this.outlet = outlet;
     this.inlet = inlet;
 
-    this.adapter = f || def.f || undefined;
+    this.adapter = adapter || def.adapter || undefined;
 
-    // TODO: link/convert event?
+    this.events = {
+        'link/adapt': Kefir.emitter(),
+        'link/error': Kefir.emitter()
+    };
+
+    var me = this;
+    this.updates = Kefir.pool().plug(this.events['link/adapt'].map(function(values) {
+                                         return { type: 'link/adapt', link: me, before: values[0], after: values[1] };
+                                     }))
+                               .plug(this.events['link/error'].map(function(error) {
+                                         return { type: 'link/error', link: me, error: error };
+                                     }));
+}
+Link.prototype.adapt = function(before) {
+    if (this.adapter) {
+        try {
+            var after = this.adapter(before);
+            this.events['link/adapt'].emit([before, after]);
+            return after;
+        } catch(err) {
+            this.events['link/error'].emit(err);
+            return;
+        }
+    } else {
+        this.events['link/adapt'].emit([before, before]);
+        return before;
+    }
 }
 
 function nodetype(id, def) {
