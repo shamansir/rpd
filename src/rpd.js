@@ -27,7 +27,12 @@ function walk_rev_cons(cell, f) {
     f(cell[0]); walk_cons(cell[1], f);
 }
 
-function Model() {
+var cur_model = -1;
+var models = [];
+
+function Model(name) {
+    this.name = name;
+
     this.targets = Kefir.emitter();
     this.renderers = Kefir.emitter();
 
@@ -78,6 +83,12 @@ Model.prototype.renderWith = function(alias) {
     this.renderers.emit(renderer_registry[alias]);
     return this;
 }
+Model.start = function(name) {
+    var instance = new Model(name);
+    models.push(instance);
+    cur_model++;
+    return instance;
+}
 
 function Node(type, name) {
     this.type = type || 'core/empty';
@@ -107,6 +118,12 @@ function Node(type, name) {
                                .plug(this.events['outlet/remove'].map(function(outlet) {
                                          return { type: 'outlet/remove', outlet: outlet };
                                      }));
+
+    if (models[cur_model]) {
+        models[cur_model].addNode(this);
+    } else {
+        report_error('No model started!');
+    }
 }
 Node.prototype.addInlet = function(type, name) {
     var inlet = new Inlet(type, this, name);
@@ -136,15 +153,19 @@ function Inlet(type, node, name) {
 
     this.name = name || def.name || 'Unnamed';
 
-    this.value = Kefir.pool();
+    this.value = Kefir.emitter();
 
     this.events = {};
     this.events['inlet/update'] = Kefir.emitter().merge(this.value);
 
-    this.updates = Kefir.pool().plug(this.events['inlet/update'].map(function(inlet) {
-                                         return { type: 'inlet/update', inlet: inlet };
+    var me = this;
+    this.updates = Kefir.pool().plug(this.events['inlet/update'].map(function(value) {
+                                         return { type: 'inlet/update', inlet: me, value: value };
                                      }));
 
+}
+Inlet.prototype.receive = function(value) {
+    this.value.emit(value);
 }
 
 function Outlet(type, node, name) {
@@ -161,11 +182,12 @@ function Outlet(type, node, name) {
     this.events['outlet/update'] = Kefir.emitter().merge(this.value);
     this.events['outlet/connect'] = Kefir.emitter();
 
-    this.updates = Kefir.pool().plug(this.events['outlet/update'].map(function(outlet) {
-                                         return { type: 'outlet/update', outlet: outlet };
+    var me = this;
+    this.updates = Kefir.pool().plug(this.events['outlet/update'].map(function(value) {
+                                         return { type: 'outlet/update', outlet: me, value: value };
                                      }))
-                               .plug(this.events['outlet/connect'].map(function(outlet) {
-                                         return { type: 'outlet/connect', outlet: outlet };
+                               .plug(this.events['outlet/connect'].map(function(link) {
+                                         return { type: 'outlet/connect', outlet: me, link: link };
                                      }));
 
 }
@@ -173,18 +195,16 @@ Outlet.prototype.connect = function(inlet, f) {
     var link = new Link((f ? 'core/adapted' : 'core/direct'),
                         this, inlet, f);
     this.events['outlet/connect'].emit(link);
-    return this;
+    this.value.onValue(function(x) { inlet.receive(x); });
 }
-/* Outlet.prototype.disconnect = function(outlet) {
+/* Outlet.prototype.disconnect = function(inlet) {
     // TODO:
 } */
 Outlet.prototype.send = function(value) {
     this.value.plug(Kefir.constant(value));
-    return this;
 }
 Outlet.prototype.stream = function(stream) {
     this.value.plug(stream);
-    return this;
 }
 
 function Link(type, outlet, inlet, f, name) {
