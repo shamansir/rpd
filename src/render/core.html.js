@@ -6,19 +6,11 @@ var CoreHtmlRenderer = {
 
         var node = update.node;
 
-        var nodeElm = document.createElement('div');
+        var nodeElm = quickElm('div', 'rpd-node');
         nodes[node.id] = { elm: nodeElm, inlets: {}, outlets: {} };
-        nodeElm.className = 'rpd-node';
 
-        var nameElm = document.createElement('span');
-        nameElm.className = 'rpd-name';
-        nameElm.innerText = node.name;
-        nodeElm.appendChild(nameElm);
-
-        var typeElm = document.createElement('span');
-        typeElm.className = 'rpd-type';
-        typeElm.innerText = node.type;
-        nodeElm.appendChild(typeElm);
+        nodeElm.appendChild(quickElmVal('span', 'rpd-name', node.name));
+        nodeElm.appendChild(quickElmVal('span', 'rpd-type', node.type));
 
         root.appendChild(nodeElm);
 
@@ -33,22 +25,14 @@ var CoreHtmlRenderer = {
         var nodeData = nodes[inlet.node.id];
         var nodeElm = nodeData.elm;
 
-        var inletElm = document.createElement('div');
-        var valueElm = document.createElement('span');
-        nodeData.inlets[inlet.id] = { elm: inletElm, valueElm: valueElm };
-        inletElm.className = 'rpd-inlet';
-        valueElm.className = 'rpd-value';
+        var inletElm = quickElm('div', 'rpd-inlet');
+        var valueElm = quickElm('span', 'rpd-value rpd-stale');
         inletElm.appendChild(valueElm);
 
-        var nameElm = document.createElement('span');
-        nameElm.className = 'rpd-name';
-        nameElm.innerText = inlet.name;
-        inletElm.appendChild(nameElm);
+        nodeData.inlets[inlet.id] = { elm: inletElm, valueElm: valueElm };
 
-        var typeElm = document.createElement('span');
-        typeElm.className = 'rpd-type';
-        typeElm.innerText = inlet.type;
-        inletElm.appendChild(typeElm);
+        inletElm.appendChild(quickElmVal('span', 'rpd-name', inlet.name));
+        inletElm.appendChild(quickElmVal('span', 'rpd-type', inlet.type));
 
         nodeElm.appendChild(inletElm);
 
@@ -64,9 +48,8 @@ var CoreHtmlRenderer = {
         var inletData = nodeData.inlets[inlet.id];
 
         var valueElm = inletData.valueElm;
-        if (valueElm.classList) valueElm.classList.add("rpd-update");
-        // TODO: remove by timeout
         valueElm.innerText = update.value;
+        valueUpdateEffect(inletData, valueElm);
 
     },
 
@@ -77,22 +60,14 @@ var CoreHtmlRenderer = {
         var nodeData = nodes[outlet.node.id];
         var nodeElm = nodeData.elm;
 
-        var outletElm = document.createElement('div');
-        var valueElm = document.createElement('span');
-        nodeData.outlets[outlet.id] = { elm: outletElm, valueElm: valueElm };
-        outletElm.className = 'rpd-inlet';
-        valueElm.className = 'rpd-value';
+        var outletElm = quickElm('div', 'rpd-outlet');
+        var valueElm = quickElm('span', 'rpd-value rpd-stale');
         outletElm.appendChild(valueElm);
 
-        var nameElm = document.createElement('span');
-        nameElm.className = 'rpd-name';
-        nameElm.innerText = outlet.name;
-        outletElm.appendChild(nameElm);
+        nodeData.outlets[outlet.id] = { elm: outletElm, valueElm: valueElm };
 
-        var typeElm = document.createElement('span');
-        typeElm.className = 'rpd-type';
-        typeElm.innerText = outlet.type;
-        outletElm.appendChild(typeElm);
+        outletElm.appendChild(quickElmVal('span', 'rpd-name', outlet.name));
+        outletElm.appendChild(quickElmVal('span', 'rpd-type', outlet.type));
 
         nodeElm.appendChild(outletElm);
 
@@ -109,6 +84,7 @@ var CoreHtmlRenderer = {
 
         var valueElm = outletData.valueElm;
         valueElm.innerText = update.value;
+        valueUpdateEffect(outletData, valueElm);
 
     },
 
@@ -123,3 +99,30 @@ renderer('html', function(root, update) {
     CoreHtmlRenderer[update.type](root, update);
 
 });
+
+
+function quickElm(type, cls) {
+    var elm = document.createElement(type);
+    elm.className = cls;
+    return elm;
+}
+
+function quickElmVal(type, cls, value) {
+    var elm = document.createElement(type);
+    elm.className = cls;
+    elm.innerText = value;
+    return elm;
+}
+
+function valueUpdateEffect(storage, valueElm) {
+    if (valueElm.classList) {
+        valueElm.classList.remove("rpd-stale");
+        valueElm.classList.add("rpd-fresh");
+        if (storage.removeTimeout) clearTimeout(storage.removeTimeout);
+        storage.removeTimeout = setTimeout(function() {
+            valueElm.classList.remove("rpd-fresh");
+            valueElm.classList.add("rpd-stale");
+            storage.removeTimeout = null;
+        }, 1000);
+    }
+}
