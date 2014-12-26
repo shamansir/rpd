@@ -147,12 +147,14 @@ Node.prototype.addOutlet = function(type, value, name) {
 
 function Inlet(type, node, name) {
     this.type = type || 'core/bool';
+    this.id = short_uid();
     var def = channeltypes[this.type];
     if (!def) report_error('Inlet type ' + this.type + ' is not registered!');
     this.def = def;
 
     this.name = name || def.name || 'Unnamed';
 
+    this.node = node;
     this.value = Kefir.emitter();
 
     this.events = {};
@@ -170,12 +172,14 @@ Inlet.prototype.receive = function(value) {
 
 function Outlet(type, node, name) {
     this.type = type || 'core/bool';
+    this.id = short_uid();
     var def = channeltypes[this.type];
     if (!def) report_error('Outlet type ' + this.type + ' is not registered!');
     this.def = def;
 
     this.name = name || def.name || 'Unnamed';
 
+    this.node = node;
     this.value = Kefir.pool();
 
     this.events = {};
@@ -208,7 +212,8 @@ Outlet.prototype.stream = function(stream) {
 }
 
 function Link(type, outlet, inlet, adapter, name) {
-    this.type = type || 'core/direct';
+    this.type = type || 'core/normal';
+    this.id = short_uid();
     var def = linktypes[this.type];
     if (!def) report_error('Link type ' + this.type + ' is not registered!');
     this.def = def;

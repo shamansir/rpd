@@ -11,10 +11,6 @@ channeltype('core/number', {
 });
 
 
-linktype('core/direct', {
-    name: 'Direct'
-});
-
-linktype('core/adapted', {
-    name: 'Adapted'
+linktype('core/normal', {
+    name: 'Normal'
 });
