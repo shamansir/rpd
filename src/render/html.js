@@ -1,5 +1,8 @@
 var nodes = {};
 
+var default_margin = 30;
+var node_rects = [];
+
 var HtmlRenderer = {
 
     'node/add': function(root, update) {
@@ -7,10 +10,16 @@ var HtmlRenderer = {
         var node = update.node;
 
         var nodeElm = quickElm('div', 'rpd-node');
-        nodes[node.id] = { elm: nodeElm, inlets: {}, outlets: {} };
+        nodes[node.id] = { elm: nodeElm, inlets: {}, outlets: {}, inletsNum: 0, outletsNum: 0 };
 
         nodeElm.appendChild(quickElmVal('span', 'rpd-name', node.name));
         nodeElm.appendChild(quickElmVal('span', 'rpd-type', node.type));
+
+        //var next_rect = findNextNodeRect(node);
+        //nodeElm.style.left = next_rect[0] + 'px';
+        //nodeElm.style.top = next_rect[1] + 'px';
+        //nodeElm.style.width = next_rect[2] + 'px';
+        //nodeElm.style.height = next_rect[3] + 'px';
 
         root.appendChild(nodeElm);
 
@@ -35,6 +44,8 @@ var HtmlRenderer = {
         inletElm.appendChild(quickElmVal('span', 'rpd-type', inlet.type));
 
         nodeElm.appendChild(inletElm);
+
+        nodeData.inletsNum++;
 
     },
 
@@ -71,6 +82,8 @@ var HtmlRenderer = {
 
         nodeElm.appendChild(outletElm);
 
+        nodeData.outletsNum++;
+
     },
 
     'outlet/remove': function(root, update) {},
@@ -88,7 +101,15 @@ var HtmlRenderer = {
 
     },
 
-    'outlet/connect': function(root, update) {},
+    'outlet/connect': function(root, update) {
+
+        var outlet = update.outlet;
+        var inlet  = update.inlet;
+
+        var inletElm  = nodes[inlet.node.id].inlets[inlet.id];
+        var outletElm = nodes[outlet.node.id].outlets[outlet.id];
+
+    },
     'link/adapt': function(root, update) {},
     'link/error': function(root, update) {}
 };

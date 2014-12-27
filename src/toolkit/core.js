@@ -1,5 +1,6 @@
 nodetype('core/empty', {
-    name: 'Empty'
+    name: 'Empty',
+    maxHeight: 100
 });
 
 channeltype('core/bool', {

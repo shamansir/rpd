@@ -2,7 +2,7 @@
 
 **[IN PROGRESS]**
 
-RPD is a super-minimal plugin-based JS-driven engine for node editors — like Pure Data, Quartz Composer or some Shader/Material Composing View in your favorite 3D Editor.
+RPD is a super-minimal plugin-based JS-driven engine for node editors — like Pure Data, Quartz Composer, Reaktor or some Shader/Material Composing View in your favorite 3D Editor.
 
 Moreover, it's built with the help of Reactive programming (thanks to [Kefir.js](http://pozadi.github.io/kefir/)), which allows a programmer to treat any data flow as a stream, so:
 
@@ -31,6 +31,7 @@ RPD provides following features:
 * Plugin system allows to easily add renderers (HTML, SVG and Canvas will be provided) or importers/exporters (PureData will be provided) for specific Toolkits;
 * Programmer is free to use any helper library (while RPD tries to use only Kefir and nothing else), and it is very easy: i.e.
 * Node model may be easily programmed and updated on-the-fly (i.e. while nodes are already send data);
+* Node model has no side-effects in functional meaning, except it produces errors (temporarily), every change or update is provided through event streams, no data is stored or changed (expect constructors); plugins, on the other hand, are completely free to use any programming model they prefer;
 
 ## Usage
 

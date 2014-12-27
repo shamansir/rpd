@@ -167,6 +167,7 @@ function Inlet(type, node, name) {
 
 }
 Inlet.prototype.receive = function(value) {
+    // TODO: pass to the node, so it will process outlet values
     this.value.emit(value);
 }
 
