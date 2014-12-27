@@ -48,15 +48,15 @@ RPD provides following features:
 ## Programming model
 
 ```js
-var model = Model.start().attachTo(document.body)
-.renderWith('html');
+var model = Rpd.Model.start().attachTo(document.body)
+                             .renderWith('html');
 
-var first = new Node('core/empty', 'Test');
+var first = new Rpd.Node('core/empty', 'Test');
 var boolOutlet = first.addOutlet('core/bool', true);
 first.addOutlet('core/number', 1);
 first.addOutlet('core/number');
 
-var second = new Node('core/empty', 'Foo');
+var second = new Rpd.Node('core/empty', 'Foo');
 var boolInlet = second.addInlet('core/bool');
 var numInlet = second.addInlet('core/number');
 

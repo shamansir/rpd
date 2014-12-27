@@ -1,3 +1,5 @@
+(function() {
+
 var nodes = {};
 
 var links = {};
@@ -7,7 +9,8 @@ var config = {
     layout: 'horizontal'
 };
 
-// ========= HtmlRenderer =========
+// ============================= HtmlRenderer ==================================
+// =============================================================================
 
 var HtmlRenderer = {
 
@@ -144,7 +147,8 @@ var HtmlRenderer = {
     'link/error': function(root, update) {}
 };
 
-// ========= utils =========
+// ================================ utils ======================================
+// =============================================================================
 
 function quickElm(type, cls) {
     var elm = document.createElement(type);
@@ -224,9 +228,12 @@ function applyNextNodeRect(node, nodeElm, limits) {
     node_rects.push(new_rect);
 }
 
-// ========= registration =========
+// =========================== registration ====================================
+// =============================================================================
 
-renderer('html', function(user_conf) {
+Rpd.HtmlRenderer = HtmlRenderer;
+
+Rpd.renderer('html', function(user_conf) {
 
     if (user_conf) {
         for (var prop in user_conf) {
@@ -241,3 +248,5 @@ renderer('html', function(user_conf) {
     }
 
 });
+
+})();

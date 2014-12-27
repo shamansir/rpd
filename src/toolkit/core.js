@@ -1,22 +1,22 @@
-nodetype('core/empty', {
+Rpd.nodetype('core/empty', {
     name: 'Empty',
     minHeight: 100
 });
 
-nodetype('core/custom', {
+Rpd.nodetype('core/custom', {
     name: 'Custom',
     minHeight: 100
 });
 
-channeltype('core/bool', {
+Rpd.channeltype('core/bool', {
     name: 'Boolean'
 });
 
-channeltype('core/number', {
+Rpd.channeltype('core/number', {
     name: 'Number'
 });
 
 
-linktype('core/normal', {
+Rpd.linktype('core/normal', {
     name: 'Normal'
 });

@@ -1,3 +1,5 @@
+var Rpd = (function() {
+
 var nodetypes = {};
 var linktypes = {};
 var channeltypes = {};
@@ -298,3 +300,20 @@ function channeltype(id, def) {
 function renderer(alias, f) {
     renderer_registry[alias] = f;
 }
+
+// =============================== export ======================================
+// =============================================================================
+
+return {
+    'Model': Model,
+    'Node': Node,
+    'Inlet': Inlet,
+    'Outlet': Outlet,
+    'Link': Link,
+    'nodetype': nodetype,
+    'linktype': linktype,
+    'channeltype': channeltype,
+    'renderer': renderer
+}
+
+})();
