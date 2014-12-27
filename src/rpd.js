@@ -4,31 +4,11 @@ var channeltypes = {};
 
 var renderer_registry = {};
 
-function report_error(desc, err) {
-    var err = err || new Error(desc);
-    if (console) (console.error ? console.error(err) : console.log(err));
-    throw err;
-}
-
-function short_uid() {
-    return ("0000" + (Math.random() * Math.pow(36,4) << 0).toString(36)).slice(-4);
-}
-
-function rev_cons(prev, cur) {
-    return [ cur, Array.isArray(prev) ? prev : [ prev, null ] ];
-};
-
-function walk_rev_cons(cell, f) {
-    if (!cell) return;
-    // rev_cons is not called for a stream with just one item, so cell
-    // may be a first object itself, unpacked. since we don't use arrays
-    // as values of these streams, it's a safe check
-    if (!Array.isArray(cell)) { f(cell); return; }
-    f(cell[0]); walk_cons(cell[1], f);
-}
-
 var cur_model = -1;
 var models = [];
+
+// ================================== Model ====================================
+// =============================================================================
 
 function Model(name) {
     this.name = name;
@@ -37,11 +17,15 @@ function Model(name) {
     this.renderers = Kefir.emitter();
 
     this.events = {
+        'model/new': Kefir.emitter(),
         'node/add': Kefir.emitter(),
         'node/remove': Kefir.emitter(),
     };
 
-    this.updates = Kefir.pool().plug(this.events['node/add'].map(function(node) {
+    this.updates = Kefir.pool().plug(this.events['model/new'].map(function(model) {
+                                         return { type: 'model/new', model: model };
+                                     }))
+                               .plug(this.events['node/add'].map(function(node) {
                                          return { type: 'node/add', node: node };
                                      }))
                                .plug(this.events['node/remove'].map(function(node) {
@@ -61,6 +45,8 @@ function Model(name) {
             });
         }
     );
+
+    this.events['model/new'].emit(this);
 }
 Model.prototype.attachTo = function(elm) {
     this.targets.emit(elm);
@@ -78,7 +64,7 @@ Model.prototype.removeNode = function(node) {
     // TODO: node.turnOff
     return this;
 }
-Model.prototype.renderWith = function(alias) {
+Model.prototype.renderWith = function(alias, conf) {
     if (!renderer_registry[alias]) throw new Error('Renderer ' + alias + ' is not registered');
     this.renderers.emit(renderer_registry[alias]);
     return this;
@@ -89,6 +75,9 @@ Model.start = function(name) {
     cur_model++;
     return instance;
 }
+
+// ================================= Node ======================================
+// =============================================================================
 
 function Node(type, name) {
     this.type = type || 'core/empty';
@@ -101,6 +90,7 @@ function Node(type, name) {
     this.def = def;
 
     this.events = {
+        // TODO: node/process
         'inlet/add': Kefir.emitter(),
         'inlet/remove': Kefir.emitter(),
         'outlet/add': Kefir.emitter(),
@@ -145,6 +135,9 @@ Node.prototype.addOutlet = function(type, value, name) {
     // TODO:
 } */
 
+// ================================== Inlet ====================================
+// =============================================================================
+
 function Inlet(type, node, name) {
     this.type = type || 'core/bool';
     this.id = short_uid();
@@ -171,6 +164,9 @@ Inlet.prototype.receive = function(value) {
     this.value.emit(value);
 }
 
+// ================================= Outlet ====================================
+// =============================================================================
+
 function Outlet(type, node, name) {
     this.type = type || 'core/bool';
     this.id = short_uid();
@@ -181,7 +177,7 @@ function Outlet(type, node, name) {
     this.name = name || def.name || 'Unnamed';
 
     this.node = node;
-    this.value = Kefir.pool();
+    this.value = Kefir.bus();
 
     this.events = {};
     this.events['outlet/update'] = Kefir.emitter().merge(this.value);
@@ -211,6 +207,9 @@ Outlet.prototype.send = function(value) {
 Outlet.prototype.stream = function(stream) {
     this.value.plug(stream);
 }
+
+// ================================= Link ======================================
+// =============================================================================
 
 function Link(type, outlet, inlet, adapter, name) {
     this.type = type || 'core/normal';
@@ -254,6 +253,35 @@ Link.prototype.adapt = function(before) {
         return before;
     }
 }
+
+// ================================== utils ====================================
+// =============================================================================
+
+function report_error(desc, err) {
+    var err = err || new Error(desc);
+    if (console) (console.error ? console.error(err) : console.log(err));
+    throw err;
+}
+
+function short_uid() {
+    return ("0000" + (Math.random() * Math.pow(36,4) << 0).toString(36)).slice(-4);
+}
+
+function rev_cons(prev, cur) {
+    return [ cur, Array.isArray(prev) ? prev : [ prev, null ] ];
+};
+
+function walk_rev_cons(cell, f) {
+    if (!cell) return;
+    // rev_cons is not called for a stream with just one item, so cell
+    // may be a first object itself, unpacked. since we don't use arrays
+    // as values of these streams, it's a safe check
+    if (!Array.isArray(cell)) { f(cell); return; }
+    f(cell[0]); walk_cons(cell[1], f);
+}
+
+// =========================== registration ====================================
+// =============================================================================
 
 function nodetype(id, def) {
     nodetypes[id] = def;

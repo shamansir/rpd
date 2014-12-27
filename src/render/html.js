@@ -1,27 +1,37 @@
 var nodes = {};
 
-var default_margin = 30;
-var node_rects = [];
+// ========= HtmlRenderer =========
 
 var HtmlRenderer = {
+
+    'model/new': function(root, update) {
+
+        if (root.classList) root.classList.add('rpd-model');
+
+    },
 
     'node/add': function(root, update) {
 
         var node = update.node;
 
+        var nodeBox = quickElm('div', 'rpd-node-box');
         var nodeElm = quickElm('div', 'rpd-node');
-        nodes[node.id] = { elm: nodeElm, inlets: {}, outlets: {}, inletsNum: 0, outletsNum: 0 };
+        var bodyElm = quickElm('div', 'rpd-body');
+        nodes[node.id] = { box: nodeBox, elm: nodeElm, body: bodyElm, inlets: {}, outlets: {}, inletsNum: 0, outletsNum: 0 };
 
-        nodeElm.appendChild(quickElmVal('span', 'rpd-name', node.name));
-        nodeElm.appendChild(quickElmVal('span', 'rpd-type', node.type));
+        var titleElm = quickElm('div', 'rpd-title');
+        titleElm.appendChild(quickElmVal('span', 'rpd-name', node.name));
+        titleElm.appendChild(quickElmVal('span', 'rpd-type', node.type));
+        nodeElm.appendChild(titleElm);
+        nodeElm.appendChild(bodyElm);
 
-        //var next_rect = findNextNodeRect(node);
-        //nodeElm.style.left = next_rect[0] + 'px';
-        //nodeElm.style.top = next_rect[1] + 'px';
-        //nodeElm.style.width = next_rect[2] + 'px';
-        //nodeElm.style.height = next_rect[3] + 'px';
+        if (nodeElm.classList) nodeElm.classList.add('rpd-'+node.type.replace('/','-'));
 
-        root.appendChild(nodeElm);
+        applyNextNodeRect(node, nodeBox);
+
+        nodeBox.appendChild(nodeElm);
+
+        root.appendChild(nodeBox);
 
     },
 
@@ -32,7 +42,7 @@ var HtmlRenderer = {
         var inlet = update.inlet;
 
         var nodeData = nodes[inlet.node.id];
-        var nodeElm = nodeData.elm;
+        var nodeBodyElm = nodeData.body;
 
         var inletElm = quickElm('div', 'rpd-inlet');
         var valueElm = quickElm('span', 'rpd-value rpd-stale');
@@ -43,7 +53,9 @@ var HtmlRenderer = {
         inletElm.appendChild(quickElmVal('span', 'rpd-name', inlet.name));
         inletElm.appendChild(quickElmVal('span', 'rpd-type', inlet.type));
 
-        nodeElm.appendChild(inletElm);
+        if (inletElm.classList) inletElm.classList.add('rpd-'+inlet.type.replace('/','-'));
+
+        nodeBodyElm.appendChild(inletElm);
 
         nodeData.inletsNum++;
 
@@ -69,7 +81,7 @@ var HtmlRenderer = {
         var outlet = update.outlet;
 
         var nodeData = nodes[outlet.node.id];
-        var nodeElm = nodeData.elm;
+        var nodeBodyElm = nodeData.body;
 
         var outletElm = quickElm('div', 'rpd-outlet');
         var valueElm = quickElm('span', 'rpd-value rpd-stale');
@@ -80,7 +92,9 @@ var HtmlRenderer = {
         outletElm.appendChild(quickElmVal('span', 'rpd-name', outlet.name));
         outletElm.appendChild(quickElmVal('span', 'rpd-type', outlet.type));
 
-        nodeElm.appendChild(outletElm);
+        if (outletElm.classList) outletElm.classList.add('rpd-'+outlet.type.replace('/','-'));
+
+        nodeBodyElm.appendChild(outletElm);
 
         nodeData.outletsNum++;
 
@@ -106,14 +120,15 @@ var HtmlRenderer = {
         var outlet = update.outlet;
         var inlet  = update.inlet;
 
-        var inletElm  = nodes[inlet.node.id].inlets[inlet.id];
-        var outletElm = nodes[outlet.node.id].outlets[outlet.id];
+        //var inletElm  = nodes[inlet.node.id].inlets[inlet.id];
+        //var outletElm = nodes[outlet.node.id].outlets[outlet.id];
 
     },
     'link/adapt': function(root, update) {},
     'link/error': function(root, update) {}
 };
 
+// ========= utils =========
 
 function quickElm(type, cls) {
     var elm = document.createElement(type);
@@ -158,6 +173,37 @@ function rotateArrow(root, degree) {
     root.style.transform = 'rotateZ(' + deg + 'deg)';
 }
 
+var default_width = 100,
+    default_height = 50,
+    default_x_margin = 30;
+    default_y_margin = 20,
+    default_limits = [ 1000, 1000 ];
+
+var node_rects = [];
+
+function applyNextNodeRect(node, nodeElm, limits) {
+    var width = node.def.minWidth || default_width,
+        height = node.def.minHeight || default_height,
+        limits = limits || default_limits;
+    /*var w_sum = 0, h_sum = 0;
+    for (var i = 0, il = node_rects.length; i < il; i++) {
+        node_rects[i]
+    } TODO */
+    var new_rect;
+    if (node_rects.length) {
+        var last_rect = node_rects[node_rects.length-1];
+        new_rect = [ last_rect[0], last_rect[1] + last_rect[3] + default_y_margin, width, height ];
+    } else {
+        new_rect = [ 0, 0, width, height ];
+    }
+    nodeElm.style.left = new_rect[0] + 'px';
+    nodeElm.style.top = new_rect[1] + 'px';
+    nodeElm.style.minWidth = new_rect[2] + 'px';
+    nodeElm.style.minHeight = new_rect[3] + 'px';
+    node_rects.push(new_rect);
+}
+
+// ========= registration =========
 
 renderer('html', function(root, update) {
 

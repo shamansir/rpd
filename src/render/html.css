@@ -1,9 +1,41 @@
-.rpd-value.rpd-stale {
-    background-color: #fff;
+.rpd-model {
+    font-family: 'PT Mono', 'Andale Mono', 'Fira mono', 'Menlo', sans-serif;
+    font-size: 0.7em;
+    color: #111;
+    background-color: #3c464c;
+    margin: 0;
+}
+
+.rpd-node-box {
+    display: inline-block;
+    max-width: 300px;
+}
+
+.rpd-node {
+    border: 1px solid rgba(255,255,255,0.3);
+    /* box-shadow: inset 0px 0px 0px 3px rgba(255,255,255,0.7); */
+    background-color: #ccc;
+    margin: 20px 50px;
+}
+
+.rpd-node .rpd-title {
+    background-color: #617b79;
+    padding: 3px 5px;
+    color: #eee;
+}
+
+.rpd-node .rpd-type {
+    margin-left: 4px;
+    font-size: 0.8em;
+    color: rgba(255,255,255,0.7);
+}
+
+.rpd-node .rpd-value.rpd-stale {
+    background-color: transparent;
     transition: background-color .3s;
 }
 
-.rpd-value.rpd-fresh {
+.rpd-node .rpd-value.rpd-fresh {
     background-color: #f00;
     transition: background-color .3s;
 }

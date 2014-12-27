@@ -68,8 +68,10 @@ boolOutlet.stream(Kefir.repeatedly(10, [true, false]));
 
 ## Events
 
+* `model/new`
 * `node/add`:
 * `node/remove`:
+* `node/process`
 * `inlet/add`:
 * `inlet/remove`:
 * `inlet/update`:
