@@ -14,7 +14,7 @@
     <body>
         <script>
             var model = Model.start().attachTo(document.body)
-                                     .renderWith('html');
+                                     .renderWith('html', { debug: true });
 
             var first = new Node('core/empty', 'Test');
             var boolOutlet = first.addOutlet('core/bool', true);

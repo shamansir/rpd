@@ -2,6 +2,11 @@ var nodes = {};
 
 var links = {};
 
+var config = {
+    debug: false,
+    layout: 'horizontal'
+};
+
 // ========= HtmlRenderer =========
 
 var HtmlRenderer = {
@@ -25,7 +30,7 @@ var HtmlRenderer = {
 
         var titleElm = quickElm('div', 'rpd-title');
         titleElm.appendChild(quickElmVal('span', 'rpd-name', node.name));
-        titleElm.appendChild(quickElmVal('span', 'rpd-type', node.type));
+        if (config.debug) titleElm.appendChild(quickElmVal('span', 'rpd-type', node.type));
         nodeElm.appendChild(titleElm);
         nodeElm.appendChild(bodyElm);
 
@@ -55,7 +60,7 @@ var HtmlRenderer = {
         nodeData.inlets[inlet.id] = { elm: inletElm, valueElm: valueElm };
 
         inletElm.appendChild(quickElmVal('span', 'rpd-name', inlet.name));
-        inletElm.appendChild(quickElmVal('span', 'rpd-type', inlet.type));
+        if (config.debug) inletElm.appendChild(quickElmVal('span', 'rpd-type', inlet.type));
 
         if (inletElm.classList) inletElm.classList.add('rpd-'+inlet.type.replace('/','-'));
 
@@ -94,7 +99,7 @@ var HtmlRenderer = {
         nodeData.outlets[outlet.id] = { elm: outletElm, valueElm: valueElm };
 
         outletElm.appendChild(quickElmVal('span', 'rpd-name', outlet.name));
-        outletElm.appendChild(quickElmVal('span', 'rpd-type', outlet.type));
+        if (config.debug) outletElm.appendChild(quickElmVal('span', 'rpd-type', outlet.type));
 
         if (outletElm.classList) outletElm.classList.add('rpd-'+outlet.type.replace('/','-'));
 
@@ -221,9 +226,18 @@ function applyNextNodeRect(node, nodeElm, limits) {
 
 // ========= registration =========
 
-renderer('html', function(root, update) {
+renderer('html', function(user_conf) {
 
-    //console.log(root, update);
-    HtmlRenderer[update.type](root, update);
+    if (user_conf) {
+        for (var prop in user_conf) {
+            config[prop] = user_conf[prop];
+        }
+    }
+
+    return function(root, update) {
+
+        HtmlRenderer[update.type](root, update);
+
+    }
 
 });

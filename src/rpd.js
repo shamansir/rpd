@@ -66,7 +66,7 @@ Model.prototype.removeNode = function(node) {
 }
 Model.prototype.renderWith = function(alias, conf) {
     if (!renderer_registry[alias]) throw new Error('Renderer ' + alias + ' is not registered');
-    this.renderers.emit(renderer_registry[alias]);
+    this.renderers.emit(renderer_registry[alias](conf));
     return this;
 }
 Model.start = function(name) {
