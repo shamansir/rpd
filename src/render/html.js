@@ -1,5 +1,7 @@
 var nodes = {};
 
+var links = {};
+
 // ========= HtmlRenderer =========
 
 var HtmlRenderer = {
@@ -17,7 +19,9 @@ var HtmlRenderer = {
         var nodeBox = quickElm('div', 'rpd-node-box');
         var nodeElm = quickElm('div', 'rpd-node');
         var bodyElm = quickElm('div', 'rpd-body');
-        nodes[node.id] = { box: nodeBox, elm: nodeElm, body: bodyElm, inlets: {}, outlets: {}, inletsNum: 0, outletsNum: 0 };
+        nodes[node.id] = { box: nodeBox, elm: nodeElm, body: bodyElm,
+                           inlets: {}, outlets: {},
+                           inletsNum: 0, outletsNum: 0 };
 
         var titleElm = quickElm('div', 'rpd-title');
         titleElm.appendChild(quickElmVal('span', 'rpd-name', node.name));
@@ -71,7 +75,7 @@ var HtmlRenderer = {
         var inletData = nodeData.inlets[inlet.id];
 
         var valueElm = inletData.valueElm;
-        valueElm.innerText = update.value;
+        valueElm.innerText = valueElm.textContent = update.value;
         valueUpdateEffect(inletData, valueElm);
 
     },
@@ -110,18 +114,25 @@ var HtmlRenderer = {
         var outletData = nodeData.outlets[outlet.id];
 
         var valueElm = outletData.valueElm;
-        valueElm.innerText = update.value;
+        valueElm.innerText = valueElm.textContent = update.value;
         valueUpdateEffect(outletData, valueElm);
 
     },
 
     'outlet/connect': function(root, update) {
 
-        var outlet = update.outlet;
-        var inlet  = update.inlet;
+        var link = update.link;
+        var outlet = link.outlet;
+        var inlet  = link.inlet;
 
-        //var inletElm  = nodes[inlet.node.id].inlets[inlet.id];
-        //var outletElm = nodes[outlet.node.id].outlets[outlet.id];
+        var outletElm = nodes[outlet.node.id].outlets[outlet.id].elm;
+        var inletElm  = nodes[inlet.node.id].inlets[inlet.id].elm;
+
+        var linkElm = createLink(outletElm, inletElm);
+
+        links[link.id] = { elm: linkElm };
+
+        root.appendChild(linkElm);
 
     },
     'link/adapt': function(root, update) {},
@@ -139,7 +150,7 @@ function quickElm(type, cls) {
 function quickElmVal(type, cls, value) {
     var elm = document.createElement(type);
     elm.className = cls;
-    elm.innerText = value;
+    elm.innerText = elm.textContent = value;
     return elm;
 }
 
@@ -156,21 +167,26 @@ function valueUpdateEffect(storage, valueElm) {
     }
 }
 
-function createArrow(x, y, degree) {
-    var root = document.createElement('div');
-    root.className = 'rpd-arrow';
-    root.style.top = x ? (x + 'px') : '0';
-    root.style.left = y ? (y + 'px') : '0';
-    root.style.transform = 'rotateZ(' + deg + 'deg)';
-    var wrapper = document.createElement('div');
-    wrapper.appendChild(document.createElement('div'));
-    wrapper.appendChild(document.createElement('div'));
-    root.appendChild(wrapper);
-    return root;
+function createLink(outletElm, inletElm) {
+    var a = outletElm.getBoundingClientRect();
+    var b = inletElm.getBoundingClientRect();
+
+    var distance = Math.sqrt(((a.left - b.left) * (a.left - b.left)) +
+                             ((a.top  - b.top ) * (a.top  - b.top )));
+    var angle = Math.atan2(b.top - a.top, b.left - a.left);
+
+    var linkElm = quickElm('span','rpd-link');
+    linkElm.style.position = 'absolute';
+    linkElm.style.width = Math.floor(distance) + 'px';
+    linkElm.style.left = a.left + 'px';
+    linkElm.style.top = a.top + 'px';
+    linkElm.style.transformOrigin = 'left top';
+    linkElm.style.transform = 'rotateZ(' + angle + 'rad)';
+    return linkElm;
 }
 
-function rotateArrow(root, degree) {
-    root.style.transform = 'rotateZ(' + deg + 'deg)';
+function rotateLink(root, degree) {
+    // TODO:
 }
 
 var default_width = 100,

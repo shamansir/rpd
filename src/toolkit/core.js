@@ -3,6 +3,11 @@ nodetype('core/empty', {
     minHeight: 100
 });
 
+nodetype('core/custom', {
+    name: 'Custom',
+    minHeight: 100
+});
+
 channeltype('core/bool', {
     name: 'Boolean'
 });
