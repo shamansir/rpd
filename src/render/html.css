@@ -12,16 +12,27 @@
 }
 
 .rpd-node {
-    border: 1px solid rgba(255,255,255,0.3);
     /* box-shadow: inset 0px 0px 0px 3px rgba(255,255,255,0.7); */
     background-color: #ccc;
     margin: 20px 50px;
+    background-clip: border-box;
 }
 
 .rpd-node .rpd-title {
+    border-color: rgba(255,255,255,0.4);
+    border-width: 1px 1px 0 1px;
+    border-style: solid;
     background-color: #617b79;
     padding: 3px 5px;
     color: #eee;
+    background-clip: border-box;
+}
+
+.rpd-node .rpd-body {
+    border-color: rgba(255,255,255,0.4);
+    border-width: 0 1px 1px 1px;
+    border-style: solid;
+    background-clip: border-box;
 }
 
 .rpd-node .rpd-type {
