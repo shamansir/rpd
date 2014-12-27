@@ -1,5 +1,7 @@
 # RPD — Reactive Pure Data
 
+**[IN PROGRESS]**
+
 RPD is a super-minimal plugin-based JS-driven engine for node editors — like Pure Data, Quartz Composer or some Shader/Material Composing View in your favorite 3D Editor.
 
 Moreover, it's built with the help of Reactive programming (thanks to [Kefir.js](http://pozadi.github.io/kefir/)), which allows a programmer to treat any data flow as a stream, so:
@@ -32,12 +34,66 @@ RPD provides following features:
 
 ## Usage
 
+```html
+<script src="./src/vendor/kefir.min.js"></script>
+<script src="./src/rpd.js"></script>
+<script src="./src/toolkit/core.js"></script>
+<script src="./src/render/core.html.js"></script>
+<link rel="stylesheet" href="./src/render/core.html.css"></style>
+```
+
 ## Programming model
+
+```js
+var model = Model.start().attachTo(document.body)
+.renderWith('html');
+
+var first = new Node('core/empty', 'Test');
+var boolOutlet = first.addOutlet('core/bool', true);
+first.addOutlet('core/number', 1);
+first.addOutlet('core/number');
+
+var second = new Node('core/empty', 'Foo');
+var boolInlet = second.addInlet('core/bool');
+var numInlet = second.addInlet('core/number');
+
+boolOutlet.connect(boolInlet);
+boolOutlet.connect(numInlet, function(val) { return (val === true) ? 1 : 0 });
+boolOutlet.send(false);
+boolOutlet.stream(Kefir.repeatedly(10, [true, false]));
+```
 
 ## Events
 
+* `node/add`:
+* `node/remove`:
+* `inlet/add`:
+* `inlet/remove`:
+* `inlet/update`:
+* `outlet/add`:
+* `outlet/remove`:
+* `outlet/update`:
+* `outlet/connect`:
+* `link/adapt`:
+* `link/error`:
+
 ## Toolkits
+
+* `core/*`
+   * `core/bool`
+   * `core/number`
+* `pd/*`
+
+### Custom Toolkits
 
 ## Renderers
 
+* HTML
+* SVG
+* Canvas
+
+### Custom Renderers
+
 ## Import/Export
+
+### Custom Import/Export
