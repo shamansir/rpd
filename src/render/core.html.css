@@ -1,9 +1,0 @@
-.rpd-value.rpd-stale {
-    background-color: #fff;
-    transition: background-color .3s;
-}
-
-.rpd-value.rpd-fresh {
-    background-color: #f00;
-    transition: background-color .3s;
-}

@@ -4,7 +4,9 @@
         <script src="./src/vendor/kefir.min.js"></script>
         <script src="./src/rpd.js"></script>
         <script src="./src/toolkit/core.js"></script>
+        <script src="./src/render/html.js"></script>
         <script src="./src/render/core.html.js"></script>
+        <link rel="stylesheet" href="./src/render/html.css"></style>
         <link rel="stylesheet" href="./src/render/core.html.css"></style>
     </head>
 
@@ -25,7 +27,7 @@
             boolOutlet.connect(boolInlet);
             boolOutlet.connect(numInlet, function(val) { return (val === true) ? 1 : 0 });
             boolOutlet.send(false);
-            boolOutlet.stream(Kefir.repeatedly(500, [true, false]));
+            boolOutlet.stream(Kefir.repeatedly(10, [true, false]));
             //boolOutlet.disconnect(boolInlet);
             //second.removeInlet(boolInlet)
         </script>

@@ -38,7 +38,9 @@ RPD provides following features:
 <script src="./src/vendor/kefir.min.js"></script>
 <script src="./src/rpd.js"></script>
 <script src="./src/toolkit/core.js"></script>
+<script src="./src/render/html.js"></script>
 <script src="./src/render/core.html.js"></script>
+<link rel="stylesheet" href="./src/render/html.css"></style>
 <link rel="stylesheet" href="./src/render/core.html.css"></style>
 ```
 
@@ -80,8 +82,12 @@ boolOutlet.stream(Kefir.repeatedly(10, [true, false]));
 ## Toolkits
 
 * `core/*`
-   * `core/bool`
-   * `core/number`
+    * _Nodes_
+        * `core/empty`
+        * `core/default`
+    * _Inlets/Outlets_
+        * `core/bool`
+        * `core/number`
 * `pd/*`
 
 ### Custom Toolkits
