@@ -141,12 +141,14 @@ Node.prototype.addOutlet = function(type, value, name) {
     outlet.send(value);
     return outlet;
 }
-/* Node.prototype.removeInlet = function(inlet) {
-    // TODO:
-} */
-/* Node.prototype.removeOutlet = function(outlet) {
-    // TODO:
-} */
+Node.prototype.removeInlet = function(inlet) {
+    this.event['inlet/remove'].emit(inlet);
+    this.events.unplug(inlet.events);
+}
+Node.prototype.removeOutlet = function(outlet) {
+    this.event['outlet/remove'].emit(outlet);
+    this.events.unplug(outlet.events);
+}
 
 // ================================== Inlet ====================================
 // =============================================================================
@@ -161,7 +163,8 @@ function Inlet(type, node, name) {
     this.name = name || def.name || 'Unnamed';
 
     this.node = node;
-    this.value = Kefir.emitter();
+
+    this.value = Kefir.bus();
 
     var myself = this;
     var event_conf = {
@@ -172,8 +175,10 @@ function Inlet(type, node, name) {
     this.events = events_stream(event_conf, this.event);
 }
 Inlet.prototype.receive = function(value) {
-    // TODO: pass to the node, so it will process outlet values
     this.value.emit(value);
+}
+Inlet.prototype.stream = function(stream) {
+    this.value.plug(stream);
 }
 
 // ================================= Outlet ====================================
@@ -193,8 +198,9 @@ function Outlet(type, node, name) {
 
     var myself = this;
     var event_conf = {
-        'outlet/update':  function(value) { return { outlet: myself, value: value } },
-        'outlet/connect': function(link)  { return { outlet: myself, link: link } }
+        'outlet/update':     function(value) { return { outlet: myself, value: value } },
+        'outlet/connect':    function(link)  { return { outlet: myself, link: link } },
+        'outlet/disconnect': function(link) { return { outlet: myself, link: link } }
     };
     this.event = event_map(event_conf);
     this.event['outlet/update'] = this.event['outlet/update'].merge(this.value);
@@ -205,13 +211,15 @@ Outlet.prototype.connect = function(inlet, adapter) {
     var link = new Link(null, this, inlet, adapter);
     this.events.plug(link.events);
     this.event['outlet/connect'].emit(link);
-    this.value.onValue(function(x) { inlet.receive(link.adapt(x)); });
+    this.value.onValue(link.receiver);
 }
-/* Outlet.prototype.disconnect = function(inlet) {
-    // TODO:
-} */
+Outlet.prototype.disconnect = function(link) {
+    this.value.offValue(link.receiver);
+    this.event['outlet/disconnect'].emit(link);
+    this.events.unplug(link.events);
+}
 Outlet.prototype.send = function(value) {
-    this.value.plug(Kefir.constant(value));
+    this.value.emit(value);
 }
 Outlet.prototype.stream = function(stream) {
     this.value.plug(stream);
@@ -235,6 +243,11 @@ function Link(type, outlet, inlet, adapter, name) {
     this.adapter = adapter || def.adapter || undefined;
 
     var myself = this;
+
+    this.receiver = function(x) {
+        inlet.receive(myself.adapt(x));
+    };
+
     var event_conf = {
         'link/adapt': function(values) { return { link: myself, before: values[0], after: values[1] } },
         'link/error': function(error) { return { link: myself, error: error } }
