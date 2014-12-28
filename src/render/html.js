@@ -27,9 +27,27 @@ var HtmlRenderer = {
         var nodeBox = quickElm('div', 'rpd-node-box');
         var nodeElm = quickElm('div', 'rpd-node');
         var bodyElm = quickElm('div', 'rpd-body');
+
+        var inletsElm = quickElm('ul', 'rpd-inlets');
+        function addInlet(inletElm) {
+            var holder = quickElm('li', 'rpd-inlet');
+            holder.appendChild(inletElm);
+            inletsElm.appendChild(holder);
+        }
+        var outletsElm = quickElm('ul', 'rpd-outlets');
+        function addOutlet(outletElm) {
+            var holder = quickElm('li', 'rpd-outlet');
+            holder.appendChild(outletElm);
+            outletsElm.appendChild(holder);
+        }
+
         nodes[node.id] = { box: nodeBox, elm: nodeElm, body: bodyElm,
+                           addInlet: addInlet, addOutlet: addOutlet,
                            inlets: {}, outlets: {},
                            inletsNum: 0, outletsNum: 0 };
+
+        bodyElm.appendChild(inletsElm);
+        bodyElm.appendChild(outletsElm);
 
         var titleElm = quickElm('div', 'rpd-title');
         titleElm.appendChild(quickElmVal('span', 'rpd-name', node.name));
@@ -54,7 +72,7 @@ var HtmlRenderer = {
         var inlet = update.inlet;
 
         var nodeData = nodes[inlet.node.id];
-        var nodeBodyElm = nodeData.body;
+        var addInletF = nodeData.addInlet;
 
         var inletElm = quickElm('div', 'rpd-inlet');
         var valueElm = quickElm('span', 'rpd-value rpd-stale');
@@ -67,7 +85,7 @@ var HtmlRenderer = {
 
         if (inletElm.classList) inletElm.classList.add('rpd-'+inlet.type.replace('/','-'));
 
-        nodeBodyElm.appendChild(inletElm);
+        addInletF(inletElm);
 
         nodeData.inletsNum++;
 
@@ -93,7 +111,7 @@ var HtmlRenderer = {
         var outlet = update.outlet;
 
         var nodeData = nodes[outlet.node.id];
-        var nodeBodyElm = nodeData.body;
+        var addOutletF = nodeData.addOutlet;
 
         var outletElm = quickElm('div', 'rpd-outlet');
         var valueElm = quickElm('span', 'rpd-value rpd-stale');
@@ -106,7 +124,7 @@ var HtmlRenderer = {
 
         if (outletElm.classList) outletElm.classList.add('rpd-'+outlet.type.replace('/','-'));
 
-        nodeBodyElm.appendChild(outletElm);
+        addOutletF(outletElm);
 
         nodeData.outletsNum++;
 
@@ -152,7 +170,7 @@ var HtmlRenderer = {
 
 function quickElm(type, cls) {
     var elm = document.createElement(type);
-    elm.className = cls;
+    if (cls) elm.className = cls;
     return elm;
 }
 
