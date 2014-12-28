@@ -35,13 +35,13 @@ function Model(name) {
                                      }));
 
     Kefir.combine([ this.updates,
-                    this.targets.scan(rev_cons),
-                    this.renderers.scan(rev_cons) ]).onValue(
+                    this.targets.scan(cons),
+                    this.renderers.scan(cons) ]).onValue(
         function(value) {
             var update = value[0], targets = value[1],
                                  renderers = value[2];
-            walk_rev_cons(targets, function(target) {
-                walk_rev_cons(renderers, function(renderer) {
+            walk_cons(targets, function(target) {
+                walk_cons(renderers, function(renderer) {
                     renderer(target, update);
                 });
             });
@@ -55,8 +55,8 @@ Model.prototype.attachTo = function(elm) {
     return this;
 }
 Model.prototype.addNode = function(node) {
-    this.events['node/add'].emit(node);
     this.updates.plug(node.updates);
+    this.events['node/add'].emit(node);
     // TODO: node.turnOn
     return this;
 }
@@ -92,13 +92,17 @@ function Node(type, name) {
     this.def = def;
 
     this.events = {
-        // TODO: node/process
+        'node/process': Kefir.emitter(),
         'inlet/add': Kefir.emitter(),
         'inlet/remove': Kefir.emitter(),
         'outlet/add': Kefir.emitter(),
         'outlet/remove': Kefir.emitter()
     };
-    this.updates = Kefir.pool().plug(this.events['inlet/add'].map(function(inlet) {
+
+    this.updates = Kefir.pool().plug(this.events['node/process'].map(function(inlets, outlets) {
+                                         return { type: 'node/process', inlets: inlets, outlets: outlets };
+                                     }))
+                               .plug(this.events['inlet/add'].map(function(inlet) {
                                          return { type: 'inlet/add', inlet: inlet };
                                      }))
                                .plug(this.events['inlet/remove'].map(function(inlet) {
@@ -116,17 +120,44 @@ function Node(type, name) {
     } else {
         report_error('No model started!');
     }
+
+    if (this.def.process) {
+        var process_f = this.def.process;
+        Kefir.combine([
+            this.events['inlet/add'].flatMap(function(inlet) {
+                return inlet.events['inlet/update'].map(function(value) {
+                    return { inlet: inlet.name, value: value };
+                });
+            }).scan(function(values, update) {
+                var values = values || {};
+                var inlet = update.inlet;
+                values[inlet] = update.value;
+                return values;
+            }, null),
+            this.events['outlet/add'].scan(function(outlets, outlet) {
+                var outlets = outlets || {};
+                outlets[outlet.name] = outlet;
+                return outlets;
+            }, null)
+        ]).onValue(function(value) {
+            var inlets_vals = value[0]; var outlets = value[1];
+            var outlets_vals = process_f(inlets_vals || {});
+            for (var outlet_name in outlets_vals) {
+                outlets[outlet_name].stream(outlets_vals[outlet_name]);
+            }
+        });
+    }
 }
 Node.prototype.addInlet = function(type, name) {
     var inlet = new Inlet(type, this, name);
-    this.events['inlet/add'].emit(inlet);
     this.updates.plug(inlet.updates);
+    this.events['inlet/add'].emit(inlet);
     return inlet;
 }
 Node.prototype.addOutlet = function(type, value, name) {
     var outlet = new Outlet(type, this, name);
-    this.events['outlet/add'].emit(outlet);
     this.updates.plug(outlet.updates);
+    this.events['outlet/add'].emit(outlet);
     outlet.send(value);
     return outlet;
 }
@@ -196,8 +227,8 @@ function Outlet(type, node, name) {
 }
 Outlet.prototype.connect = function(inlet, adapter) {
     var link = new Link(null, this, inlet, adapter);
-    this.events['outlet/connect'].emit(link);
     this.updates.plug(link.updates);
+    this.events['outlet/connect'].emit(link);
     this.value.onValue(function(x) { inlet.receive(link.adapt(x)); });
 }
 /* Outlet.prototype.disconnect = function(inlet) {
@@ -269,15 +300,14 @@ function short_uid() {
     return ("0000" + (Math.random() * Math.pow(36,4) << 0).toString(36)).slice(-4);
 }
 
-function rev_cons(prev, cur) {
+function cons(prev, cur) {
     return [ cur, Array.isArray(prev) ? prev : [ prev, null ] ];
 };
 
-function walk_rev_cons(cell, f) {
+function walk_cons(cell, f) {
     if (!cell) return;
-    // rev_cons is not called for a stream with just one item, so cell
-    // may be a first object itself, unpacked. since we don't use arrays
-    // as values of these streams, it's a safe check
+    // seed for .scan is not set in our case, so first item it is called
+    // with first cell
     if (!Array.isArray(cell)) { f(cell); return; }
     f(cell[0]); walk_cons(cell[1], f);
 }

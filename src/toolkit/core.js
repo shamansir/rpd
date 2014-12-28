@@ -5,7 +5,11 @@ Rpd.nodetype('core/empty', {
 
 Rpd.nodetype('core/custom', {
     name: 'Custom',
-    minHeight: 100
+    minHeight: 100,
+    process: function(inlets) {
+        //console.log('process', inlets);
+        return {};
+    }
 });
 
 Rpd.channeltype('core/bool', {
