@@ -243,7 +243,9 @@ Rpd.renderer('html', function(user_conf) {
 
     return function(root, update) {
 
-        HtmlRenderer[update.type](root, update);
+        if (HtmlRenderer[update.type]) {
+            HtmlRenderer[update.type](root, update);
+        }
 
     }
 

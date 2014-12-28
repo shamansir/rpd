@@ -18,23 +18,15 @@ function Model(name) {
     this.targets = Kefir.emitter();
     this.renderers = Kefir.emitter();
 
-    this.events = {
-        'model/new': Kefir.emitter(),
-        'node/add': Kefir.emitter(),
-        'node/remove': Kefir.emitter(),
+    var event_conf = {
+        'model/new':   function(model) { return { model: model }; },
+        'node/add':    function(node) { return { node: node }; },
+        'node/remove': function(node) { return { node: node }; }
     };
+    this.event = event_map(event_conf);
+    this.events = events_stream(event_conf, this.event);
 
-    this.updates = Kefir.pool().plug(this.events['model/new'].map(function(model) {
-                                         return { type: 'model/new', model: model };
-                                     }))
-                               .plug(this.events['node/add'].map(function(node) {
-                                         return { type: 'node/add', node: node };
-                                     }))
-                               .plug(this.events['node/remove'].map(function(node) {
-                                         return { type: 'node/remove', node: node };
-                                     }));
-
-    Kefir.combine([ this.updates,
+    Kefir.combine([ this.events,
                     this.targets.scan(cons),
                     this.renderers.scan(cons) ]).onValue(
         function(value) {
@@ -48,21 +40,21 @@ function Model(name) {
         }
     );
 
-    this.events['model/new'].emit(this);
+    this.event['model/new'].emit(this);
 }
 Model.prototype.attachTo = function(elm) {
     this.targets.emit(elm);
     return this;
 }
 Model.prototype.addNode = function(node) {
-    this.updates.plug(node.updates);
-    this.events['node/add'].emit(node);
+    this.events.plug(node.events);
+    this.event['node/add'].emit(node);
     // TODO: node.turnOn
     return this;
 }
 Model.prototype.removeNode = function(node) {
-    this.events['node/remove'].emit(node);
-    this.updates.unplug(node.updates);
+    this.event['node/remove'].emit(node);
+    this.events.unplug(node.events);
     // TODO: node.turnOff
     return this;
 }
@@ -91,29 +83,15 @@ function Node(type, name) {
     this.name = name || def.name || 'Unnamed';
     this.def = def;
 
-    this.events = {
-        'node/process': Kefir.emitter(),
-        'inlet/add': Kefir.emitter(),
-        'inlet/remove': Kefir.emitter(),
-        'outlet/add': Kefir.emitter(),
-        'outlet/remove': Kefir.emitter()
+    var event_conf = {
+        'node/process':  function(channels) { return { inlets: channels[0], outlets: channels[1] } },
+        'inlet/add':     function(inlet) { return { inlet: inlet } },
+        'inlet/remove':  function(inlet) { return { inlet: inlet } },
+        'outlet/add':    function(outlet) { return { outlet: outlet } },
+        'outlet/remove': function(outlet) { return { outlet: outlet } },
     };
-
-    this.updates = Kefir.pool().plug(this.events['node/process'].map(function(inlets, outlets) {
-                                         return { type: 'node/process', inlets: inlets, outlets: outlets };
-                                     }))
-                               .plug(this.events['inlet/add'].map(function(inlet) {
-                                         return { type: 'inlet/add', inlet: inlet };
-                                     }))
-                               .plug(this.events['inlet/remove'].map(function(inlet) {
-                                         return { type: 'inlet/remove', inlet: inlet };
-                                     }))
-                               .plug(this.events['outlet/add'].map(function(outlet) {
-                                         return { type: 'outlet/add', outlet: outlet };
-                                     }))
-                               .plug(this.events['outlet/remove'].map(function(outlet) {
-                                         return { type: 'outlet/remove', outlet: outlet };
-                                     }));
+    this.event = event_map(event_conf);
+    this.events = events_stream(event_conf, this.event);
 
     if (models[cur_model]) {
         models[cur_model].addNode(this);
@@ -123,9 +101,10 @@ function Node(type, name) {
 
     if (this.def.process) {
         var process_f = this.def.process;
+        var myself = this;
         Kefir.combine([
-            this.events['inlet/add'].flatMap(function(inlet) {
-                return inlet.events['inlet/update'].map(function(value) {
+            this.event['inlet/add'].flatMap(function(inlet) {
+                return inlet.event['inlet/update'].map(function(value) {
                     return { inlet: inlet.name, value: value };
                 });
             }).scan(function(values, update) {
@@ -134,7 +113,7 @@ function Node(type, name) {
                 values[inlet] = update.value;
                 return values;
             }, null),
-            this.events['outlet/add'].scan(function(outlets, outlet) {
+            this.event['outlet/add'].scan(function(outlets, outlet) {
                 var outlets = outlets || {};
                 outlets[outlet.name] = outlet;
                 return outlets;
@@ -142,6 +121,7 @@ function Node(type, name) {
         ]).onValue(function(value) {
             var inlets_vals = value[0]; var outlets = value[1];
             var outlets_vals = process_f(inlets_vals || {});
+            myself.event['node/process'].emit([inlets_vals, outlets_vals]);
             for (var outlet_name in outlets_vals) {
                 outlets[outlet_name].stream(outlets_vals[outlet_name]);
             }
@@ -150,14 +130,14 @@ function Node(type, name) {
 }
 Node.prototype.addInlet = function(type, name) {
     var inlet = new Inlet(type, this, name);
-    this.updates.plug(inlet.updates);
-    this.events['inlet/add'].emit(inlet);
+    this.events.plug(inlet.events);
+    this.event['inlet/add'].emit(inlet);
     return inlet;
 }
 Node.prototype.addOutlet = function(type, value, name) {
     var outlet = new Outlet(type, this, name);
-    this.updates.plug(outlet.updates);
-    this.events['outlet/add'].emit(outlet);
+    this.events.plug(outlet.events);
+    this.event['outlet/add'].emit(outlet);
     outlet.send(value);
     return outlet;
 }
@@ -183,14 +163,13 @@ function Inlet(type, node, name) {
     this.node = node;
     this.value = Kefir.emitter();
 
-    this.events = {};
-    this.events['inlet/update'] = Kefir.emitter().merge(this.value);
-
-    var me = this;
-    this.updates = Kefir.pool().plug(this.events['inlet/update'].map(function(value) {
-                                         return { type: 'inlet/update', inlet: me, value: value };
-                                     }));
-
+    var myself = this;
+    var event_conf = {
+        'inlet/update': function(value) { return { inlet: myself, value: value } }
+    };
+    this.event = event_map(event_conf);
+    this.event['inlet/update'] = this.event['inlet/update'].merge(this.value);
+    this.events = events_stream(event_conf, this.event);
 }
 Inlet.prototype.receive = function(value) {
     // TODO: pass to the node, so it will process outlet values
@@ -212,23 +191,20 @@ function Outlet(type, node, name) {
     this.node = node;
     this.value = Kefir.bus();
 
-    this.events = {};
-    this.events['outlet/update'] = Kefir.emitter().merge(this.value);
-    this.events['outlet/connect'] = Kefir.emitter();
-
-    var me = this;
-    this.updates = Kefir.pool().plug(this.events['outlet/update'].map(function(value) {
-                                         return { type: 'outlet/update', outlet: me, value: value };
-                                     }))
-                               .plug(this.events['outlet/connect'].map(function(link) {
-                                         return { type: 'outlet/connect', outlet: me, link: link };
-                                     }));
+    var myself = this;
+    var event_conf = {
+        'outlet/update':  function(value) { return { outlet: myself, value: value } },
+        'outlet/connect': function(link)  { return { outlet: myself, link: link } }
+    };
+    this.event = event_map(event_conf);
+    this.event['outlet/update'] = this.event['outlet/update'].merge(this.value);
+    this.events = events_stream(event_conf, this.event);
 
 }
 Outlet.prototype.connect = function(inlet, adapter) {
     var link = new Link(null, this, inlet, adapter);
-    this.updates.plug(link.updates);
-    this.events['outlet/connect'].emit(link);
+    this.events.plug(link.events);
+    this.event['outlet/connect'].emit(link);
     this.value.onValue(function(x) { inlet.receive(link.adapt(x)); });
 }
 /* Outlet.prototype.disconnect = function(inlet) {
@@ -258,37 +234,55 @@ function Link(type, outlet, inlet, adapter, name) {
 
     this.adapter = adapter || def.adapter || undefined;
 
-    this.events = {
-        'link/adapt': Kefir.emitter(),
-        'link/error': Kefir.emitter()
+    var myself = this;
+    var event_conf = {
+        'link/adapt': function(values) { return { link: myself, before: values[0], after: values[1] } },
+        'link/error': function(error) { return { link: myself, error: error } }
     };
-
-    var me = this;
-    this.updates = Kefir.pool().plug(this.events['link/adapt'].map(function(values) {
-                                         return { type: 'link/adapt', link: me, before: values[0], after: values[1] };
-                                     }))
-                               .plug(this.events['link/error'].map(function(error) {
-                                         return { type: 'link/error', link: me, error: error };
-                                     }));
+    this.event = event_map(event_conf);
+    this.events = events_stream(event_conf, this.event);
 }
 Link.prototype.adapt = function(before) {
     if (this.adapter) {
         try {
             var after = this.adapter(before);
-            this.events['link/adapt'].emit([before, after]);
+            this.event['link/adapt'].emit([before, after]);
             return after;
         } catch(err) {
-            this.events['link/error'].emit(err);
+            this.event['link/error'].emit(err);
             return;
         }
     } else {
-        this.events['link/adapt'].emit([before, before]);
+        this.event['link/adapt'].emit([before, before]);
         return before;
     }
 }
 
 // ================================== utils ====================================
 // =============================================================================
+
+function event_map(conf) {
+    var map = {};
+    for (var event_name in conf) {
+        map[event_name] = Kefir.emitter();
+    }
+    return map;
+}
+
+function events_stream(conf, event_map) {
+    var stream = Kefir.pool();
+    for (var event_name in conf) {
+        var handler = conf[event_name];
+        (function(event_name, handler) {
+            stream.plug(event_map[event_name].map(function(value) {
+                var result = handler(value);
+                result.type = event_name;
+                return result;
+            }));
+        })(event_name, handler);
+    }
+    return stream;
+}
 
 function report_error(desc, err) {
     var err = err || new Error(desc);
