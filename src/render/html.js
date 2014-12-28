@@ -1,172 +1,203 @@
 (function() {
 
-var nodes = {};
-
-var links = {};
-
-var config = {
+var default_config = {
     debug: false,
-    layout: 'horizontal'
+    layout: 'quartz'
 };
 
 // ============================= HtmlRenderer ==================================
 // =============================================================================
 
-var HtmlRenderer = {
+function HtmlRenderer(user_config) {
 
-    'model/new': function(root, update) {
+    var nodes, links;
 
-        if (root.classList) root.classList.add('rpd-model');
+    var config = mergeConfig(user_config, default_config);
 
-    },
+    return {
 
-    'node/add': function(root, update) {
+        'model/new': function(root, update) {
 
-        var node = update.node;
+            nodes = {}; links = {};
 
-        var nodeBox = quickElm('div', 'rpd-node-box');
-        var nodeElm = quickElm('div', 'rpd-node');
-        var bodyElm = quickElm('div', 'rpd-body');
+            if (root.classList) {
+                root.classList.add('rpd-model');
+                if (config.layout) root.classList.add('rpd-layout-' + config.layout);
+            }
 
-        var inletsElm = quickElm('ul', 'rpd-inlets');
-        function addInlet(inletElm) {
-            var holder = quickElm('li', 'rpd-inlet');
-            holder.appendChild(inletElm);
-            inletsElm.appendChild(holder);
-        }
-        var outletsElm = quickElm('ul', 'rpd-outlets');
-        function addOutlet(outletElm) {
-            var holder = quickElm('li', 'rpd-outlet');
-            holder.appendChild(outletElm);
-            outletsElm.appendChild(holder);
-        }
+        },
 
-        nodes[node.id] = { box: nodeBox, elm: nodeElm, body: bodyElm,
-                           addInlet: addInlet, addOutlet: addOutlet,
-                           inlets: {}, outlets: {},
-                           inletsNum: 0, outletsNum: 0 };
+        'node/add': function(root, update) {
 
-        bodyElm.appendChild(inletsElm);
-        bodyElm.appendChild(outletsElm);
+            var node = update.node;
 
-        var titleElm = quickElm('div', 'rpd-title');
-        titleElm.appendChild(quickElmVal('span', 'rpd-name', node.name));
-        if (config.debug) titleElm.appendChild(quickElmVal('span', 'rpd-type', node.type));
-        nodeElm.appendChild(titleElm);
-        nodeElm.appendChild(bodyElm);
+            var nodeBox = quickElm('div', 'rpd-node-box');
+            var nodeElm = quickElm('div', 'rpd-node');
+            var bodyElm = quickElm('div', 'rpd-body');
 
-        if (nodeElm.classList) nodeElm.classList.add('rpd-'+node.type.replace('/','-'));
+            var inletsElm = quickElm('ul', 'rpd-inlets');
+            function addInlet(inletElm) {
+                var holder = quickElm('li', 'rpd-inlet');
+                holder.appendChild(inletElm);
+                inletsElm.appendChild(holder);
+            }
+            var outletsElm = quickElm('ul', 'rpd-outlets');
+            function addOutlet(outletElm) {
+                var holder = quickElm('li', 'rpd-outlet');
+                holder.appendChild(outletElm);
+                outletsElm.appendChild(holder);
+            }
 
-        applyNextNodeRect(node, nodeBox);
+            nodes[node.id] = { box: nodeBox, elm: nodeElm, body: bodyElm,
+                               addInlet: addInlet, addOutlet: addOutlet,
+                               inlets: {}, outlets: {},
+                               inletsNum: 0, outletsNum: 0 };
 
-        nodeBox.appendChild(nodeElm);
+            var titleElm = quickElm('div', 'rpd-title');
+            titleElm.appendChild(quickElmVal('span', 'rpd-name', node.name));
+            if (config.debug) titleElm.appendChild(quickElmVal('span', 'rpd-type', node.type));
 
-        root.appendChild(nodeBox);
+            if (!config.layout || (config.layout == 'quartz')) {
 
-    },
+                bodyElm.appendChild(inletsElm);
+                bodyElm.appendChild(outletsElm);
 
-    'node/remove': function(root, update) {},
+                nodeElm.appendChild(titleElm);
+                nodeElm.appendChild(bodyElm);
 
-    'inlet/add': function(root, update) {
+            } else if (config.layout == 'pd') {
 
-        var inlet = update.inlet;
+                nodeElm.appendChild(inletsElm);
+                bodyElm.appendChild(titleElm);
+                nodeElm.appendChild(bodyElm);
+                nodeElm.appendChild(outletsElm);
 
-        var nodeData = nodes[inlet.node.id];
-        var addInletF = nodeData.addInlet;
+            }
 
-        var inletElm = quickElm('div', 'rpd-inlet');
-        var valueElm = quickElm('span', 'rpd-value rpd-stale');
-        inletElm.appendChild(valueElm);
+            if (nodeElm.classList) nodeElm.classList.add('rpd-'+node.type.replace('/','-'));
 
-        nodeData.inlets[inlet.id] = { elm: inletElm, valueElm: valueElm };
+            applyNextNodeRect(node, nodeBox);
 
-        inletElm.appendChild(quickElmVal('span', 'rpd-name', inlet.name));
-        if (config.debug) inletElm.appendChild(quickElmVal('span', 'rpd-type', inlet.type));
+            nodeBox.appendChild(nodeElm);
 
-        if (inletElm.classList) inletElm.classList.add('rpd-'+inlet.type.replace('/','-'));
+            root.appendChild(nodeBox);
 
-        addInletF(inletElm);
+        },
 
-        nodeData.inletsNum++;
+        'node/remove': function(root, update) {},
 
-    },
+        'inlet/add': function(root, update) {
 
-    'inlet/remove': function(root, update) {},
+            var inlet = update.inlet;
 
-    'inlet/update': function(root, update) {
+            var nodeData = nodes[inlet.node.id];
+            var addInletF = nodeData.addInlet;
 
-        var inlet = update.inlet;
+            var inletElm = quickElm('div', 'rpd-inlet');
+            var valueElm = quickElm('span', 'rpd-value rpd-stale');
+            inletElm.appendChild(valueElm);
 
-        var nodeData = nodes[inlet.node.id];
-        var inletData = nodeData.inlets[inlet.id];
+            nodeData.inlets[inlet.id] = { elm: inletElm, valueElm: valueElm };
 
-        var valueElm = inletData.valueElm;
-        valueElm.innerText = valueElm.textContent = update.value;
-        valueUpdateEffect(inletData, valueElm);
+            inletElm.appendChild(quickElmVal('span', 'rpd-name', inlet.name));
+            if (config.debug) inletElm.appendChild(quickElmVal('span', 'rpd-type', inlet.type));
 
-    },
+            if (inletElm.classList) inletElm.classList.add('rpd-'+inlet.type.replace('/','-'));
 
-    'outlet/add': function(root, update) {
+            addInletF(inletElm);
 
-        var outlet = update.outlet;
+            nodeData.inletsNum++;
 
-        var nodeData = nodes[outlet.node.id];
-        var addOutletF = nodeData.addOutlet;
+        },
 
-        var outletElm = quickElm('div', 'rpd-outlet');
-        var valueElm = quickElm('span', 'rpd-value rpd-stale');
-        outletElm.appendChild(valueElm);
+        'inlet/remove': function(root, update) {},
 
-        nodeData.outlets[outlet.id] = { elm: outletElm, valueElm: valueElm };
+        'inlet/update': function(root, update) {
 
-        outletElm.appendChild(quickElmVal('span', 'rpd-name', outlet.name));
-        if (config.debug) outletElm.appendChild(quickElmVal('span', 'rpd-type', outlet.type));
+            var inlet = update.inlet;
 
-        if (outletElm.classList) outletElm.classList.add('rpd-'+outlet.type.replace('/','-'));
+            var nodeData = nodes[inlet.node.id];
+            var inletData = nodeData.inlets[inlet.id];
 
-        addOutletF(outletElm);
+            var valueElm = inletData.valueElm;
+            valueElm.innerText = valueElm.textContent = update.value;
+            valueUpdateEffect(inletData, valueElm);
 
-        nodeData.outletsNum++;
+        },
 
-    },
+        'outlet/add': function(root, update) {
 
-    'outlet/remove': function(root, update) {},
+            var outlet = update.outlet;
 
-    'outlet/update': function(root, update) {
+            var nodeData = nodes[outlet.node.id];
+            var addOutletF = nodeData.addOutlet;
 
-        var outlet = update.outlet;
+            var outletElm = quickElm('div', 'rpd-outlet');
+            var valueElm = quickElm('span', 'rpd-value rpd-stale');
+            outletElm.appendChild(valueElm);
 
-        var nodeData = nodes[outlet.node.id];
-        var outletData = nodeData.outlets[outlet.id];
+            nodeData.outlets[outlet.id] = { elm: outletElm, valueElm: valueElm };
 
-        var valueElm = outletData.valueElm;
-        valueElm.innerText = valueElm.textContent = update.value;
-        valueUpdateEffect(outletData, valueElm);
+            outletElm.appendChild(quickElmVal('span', 'rpd-name', outlet.name));
+            if (config.debug) outletElm.appendChild(quickElmVal('span', 'rpd-type', outlet.type));
 
-    },
+            if (outletElm.classList) outletElm.classList.add('rpd-'+outlet.type.replace('/','-'));
 
-    'outlet/connect': function(root, update) {
+            addOutletF(outletElm);
 
-        var link = update.link;
-        var outlet = link.outlet;
-        var inlet  = link.inlet;
+            nodeData.outletsNum++;
 
-        var outletElm = nodes[outlet.node.id].outlets[outlet.id].elm;
-        var inletElm  = nodes[inlet.node.id].inlets[inlet.id].elm;
+        },
 
-        var linkElm = createLink(outletElm, inletElm);
+        'outlet/remove': function(root, update) {},
 
-        links[link.id] = { elm: linkElm };
+        'outlet/update': function(root, update) {
 
-        root.appendChild(linkElm);
+            var outlet = update.outlet;
 
-    },
-    'link/adapt': function(root, update) {},
-    'link/error': function(root, update) {}
-};
+            var nodeData = nodes[outlet.node.id];
+            var outletData = nodeData.outlets[outlet.id];
+
+            var valueElm = outletData.valueElm;
+            valueElm.innerText = valueElm.textContent = update.value;
+            valueUpdateEffect(outletData, valueElm);
+
+        },
+
+        'outlet/connect': function(root, update) {
+
+            var link = update.link;
+            var outlet = link.outlet;
+            var inlet  = link.inlet;
+
+            var outletElm = nodes[outlet.node.id].outlets[outlet.id].elm;
+            var inletElm  = nodes[inlet.node.id].inlets[inlet.id].elm;
+
+            var linkElm = createLink(outletElm, inletElm);
+
+            links[link.id] = { elm: linkElm };
+
+            root.appendChild(linkElm);
+
+        },
+        'link/adapt': function(root, update) {},
+        'link/error': function(root, update) {}
+
+    }; // return
+
+} // function
 
 // ================================ utils ======================================
 // =============================================================================
+
+function mergeConfig(user_conf, defaults) {
+    if (user_conf) {
+        var merged = {};
+        for (var prop in defaults)  { merged[prop] = defaults[prop]; }
+        for (var prop in user_conf) { merged[prop] = user_conf[prop]; }
+        return merged;
+    } else return defaults;
+}
 
 function quickElm(type, cls) {
     var elm = document.createElement(type);
@@ -253,16 +284,12 @@ Rpd.HtmlRenderer = HtmlRenderer;
 
 Rpd.renderer('html', function(user_conf) {
 
-    if (user_conf) {
-        for (var prop in user_conf) {
-            config[prop] = user_conf[prop];
-        }
-    }
+    var instance = HtmlRenderer(user_conf);
 
     return function(root, update) {
 
-        if (HtmlRenderer[update.type]) {
-            HtmlRenderer[update.type](root, update);
+        if (instance[update.type]) {
+            instance[update.type](root, update);
         }
 
     }
