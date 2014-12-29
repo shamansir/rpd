@@ -134,7 +134,7 @@ Node.prototype.addInlet = function(type, name) {
     this.event['inlet/add'].emit(inlet);
     return inlet;
 }
-Node.prototype.addOutlet = function(type, value, name) {
+Node.prototype.addOutlet = function(type, name, value) {
     var outlet = new Outlet(type, this, name);
     this.events.plug(outlet.events);
     this.event['outlet/add'].emit(outlet);

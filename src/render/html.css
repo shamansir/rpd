@@ -33,7 +33,7 @@
     background-clip: border-box;
 }
 
-.rpd-node .rpd-body {
+.rpd-node .rpd-content {
     border-color: rgba(255,255,255,0.4);
     border-width: 0 1px 1px 1px;
     border-style: solid;
@@ -54,4 +54,19 @@
 .rpd-node .rpd-value.rpd-fresh {
     background-color: #f00;
     transition: background-color .3s;
+}
+
+
+.rpd-inlets, .rpd-outlets {
+    margin: 0;
+    padding: 2px;
+    list-style-type: none;
+}
+
+.rpd-layout-quartz table.rpd-node {
+    border-collapse: collapse;
+}
+
+.rpd-layout-quartz table.rpd-node thead.rpd-title th {
+    font-weight: normal;
 }

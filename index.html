@@ -17,13 +17,15 @@
                                          .renderWith('html', { debug: true });
 
             var first = new Rpd.Node('core/custom', 'Test');
-            var boolOutlet = first.addOutlet('core/bool', true);
-            first.addOutlet('core/number', 1);
-            first.addOutlet('core/number');
+            first.addInlet('core/number', 'BarIn');
+            var boolOutlet = first.addOutlet('core/bool', 'BoolOut', true);
+            first.addOutlet('core/number', 'NumOut1', 1);
+            first.addOutlet('core/number', 'NumOut2');
 
             var second = new Rpd.Node('core/custom', 'Foo');
-            var boolInlet = second.addInlet('core/bool');
-            var numInlet = second.addInlet('core/number');
+            var boolInlet = second.addInlet('core/bool', 'BoolIn');
+            var numInlet = second.addInlet('core/number', 'NumIn');
+            second.addOutlet('core/number', 'FooOut');
 
             boolOutlet.connect(boolInlet);
             boolOutlet.connect(numInlet, function(val) { return (val === true) ? 1 : 0 });

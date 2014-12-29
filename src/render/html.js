@@ -1,8 +1,11 @@
 (function() {
 
+var QUARTZ_LAYOUT = 'quartz',
+    PD_LAYOUT = 'pd';
+
 var default_config = {
     debug: false,
-    layout: 'quartz'
+    layout: QUARTZ_LAYOUT
 };
 
 // ============================= HtmlRenderer ==================================
@@ -32,49 +35,68 @@ function HtmlRenderer(user_config) {
             var node = update.node;
 
             var nodeBox = quickElm('div', 'rpd-node-box');
-            var nodeElm = quickElm('div', 'rpd-node');
-            var bodyElm = quickElm('div', 'rpd-body');
+            var nodeElm = quickElm('table', 'rpd-node');
 
-            var inletsElm = quickElm('ul', 'rpd-inlets');
-            function addInlet(inletElm) {
-                var holder = quickElm('li', 'rpd-inlet');
-                holder.appendChild(inletElm);
-                inletsElm.appendChild(holder);
-            }
-            var outletsElm = quickElm('ul', 'rpd-outlets');
-            function addOutlet(outletElm) {
-                var holder = quickElm('li', 'rpd-outlet');
-                holder.appendChild(outletElm);
-                outletsElm.appendChild(holder);
-            }
+            var inletsTrg, outletsTrg;
 
-            nodes[node.id] = { box: nodeBox, elm: nodeElm, body: bodyElm,
-                               addInlet: addInlet, addOutlet: addOutlet,
-                               inlets: {}, outlets: {},
-                               inletsNum: 0, outletsNum: 0 };
+            if (config.layout == QUARTZ_LAYOUT) {
 
-            var titleElm = quickElm('div', 'rpd-title');
-            titleElm.appendChild(quickElmVal('span', 'rpd-name', node.name));
-            if (config.debug) titleElm.appendChild(quickElmVal('span', 'rpd-type', node.type));
+                var headElm = quickElm('thead', 'rpd-title');
+                var headRow = quickElm('tr');
 
-            if (!config.layout || (config.layout == 'quartz')) {
+                if (node.def.icon) {
+                    // TODO
+                }
 
-                bodyElm.appendChild(inletsElm);
-                bodyElm.appendChild(outletsElm);
+                headRow.appendChild(quickElmVal('th', 'rpd-name', node.name));
+                if (config.debug) headRow.appendChild(quickElmVal('th', 'rpd-type', node.type));
 
-                nodeElm.appendChild(titleElm);
-                nodeElm.appendChild(bodyElm);
+                headElm.appendChild(headRow);
 
-            } else if (config.layout == 'pd') {
+                var contentElm = quickElm('tbody', 'rpd-node-content');
+                var contentRow = quickElm('tr');
 
-                nodeElm.appendChild(inletsElm);
-                bodyElm.appendChild(titleElm);
-                nodeElm.appendChild(bodyElm);
-                nodeElm.appendChild(outletsElm);
+                var inletsCell = quickElm('td', 'rpd-inlets');
+                var inletsTable = quickElm('table');
+                var inletsBody = quickElm('tbody');
+
+                inletsTrg = inletsBody;
+
+                inletsTable.appendChild(inletsBody);
+                inletsCell.appendChild(inletsTable);
+
+                var bodyCell = quickElm('td', 'rpd-body');
+                var bodyTable = quickElm('table');
+
+                var outletsCell = quickElm('td', 'rpd-outlets');
+                var outletsTable = quickElm('table');
+                var outletsBody = quickElm('tbody');
+
+                outletsTrg = outletsBody;
+
+                outletsTable.appendChild(outletsBody);
+                outletsCell.appendChild(outletsTable);
+
+                contentRow.appendChild(inletsCell);
+                contentRow.appendChild(bodyCell);
+                contentRow.appendChild(outletsCell);
+                contentElm.appendChild(contentRow);
+
+                nodeElm.appendChild(headElm);
+                nodeElm.appendChild(contentElm);
+
+            } else if (config.layout == PD_LAYOUT) {
+
+                // TODO:
 
             }
 
             if (nodeElm.classList) nodeElm.classList.add('rpd-'+node.type.replace('/','-'));
+
+            nodes[node.id] = { elm: nodeElm,
+                               inletsTrg: inletsTrg, outletsTrg: outletsTrg,
+                               inlets: {}, outlets: {},
+                               inletsNum: 0, outletsNum: 0 };
 
             applyNextNodeRect(node, nodeBox);
 
@@ -91,20 +113,30 @@ function HtmlRenderer(user_config) {
             var inlet = update.inlet;
 
             var nodeData = nodes[inlet.node.id];
-            var addInletF = nodeData.addInlet;
+            var inletsTrg = nodeData.inletsTrg;
 
-            var inletElm = quickElm('div', 'rpd-inlet');
-            var valueElm = quickElm('span', 'rpd-value rpd-stale');
-            inletElm.appendChild(valueElm);
+            var inletElm, valueElm;
 
-            nodeData.inlets[inlet.id] = { elm: inletElm, valueElm: valueElm };
+            if (config.layout == QUARTZ_LAYOUT) {
 
-            inletElm.appendChild(quickElmVal('span', 'rpd-name', inlet.name));
-            if (config.debug) inletElm.appendChild(quickElmVal('span', 'rpd-type', inlet.type));
+                inletElm = quickElm('tr', 'rpd-inlet-body');
+                valueElm = quickElm('td', 'rpd-value rpd-stale');
+                inletElm.appendChild(valueElm);
+
+                inletElm.appendChild(quickElmVal('td', 'rpd-name', inlet.name));
+                if (config.debug) inletElm.appendChild(quickElmVal('td', 'rpd-type', inlet.type));
+
+            } else if (config.layout == PD_LAYOUT) {
+
+                // TODO:
+
+            }
 
             if (inletElm.classList) inletElm.classList.add('rpd-'+inlet.type.replace('/','-'));
 
-            addInletF(inletElm);
+            inletsTrg.appendChild(inletElm);
+
+            nodeData.inlets[inlet.id] = { elm: inletElm, valueElm: valueElm };
 
             nodeData.inletsNum++;
 
@@ -130,20 +162,30 @@ function HtmlRenderer(user_config) {
             var outlet = update.outlet;
 
             var nodeData = nodes[outlet.node.id];
-            var addOutletF = nodeData.addOutlet;
+            var outletsTrg = nodeData.outletsTrg;
 
-            var outletElm = quickElm('div', 'rpd-outlet');
-            var valueElm = quickElm('span', 'rpd-value rpd-stale');
-            outletElm.appendChild(valueElm);
+            var outletElm, valueElm;
 
-            nodeData.outlets[outlet.id] = { elm: outletElm, valueElm: valueElm };
+            if (config.layout == QUARTZ_LAYOUT) {
 
-            outletElm.appendChild(quickElmVal('span', 'rpd-name', outlet.name));
-            if (config.debug) outletElm.appendChild(quickElmVal('span', 'rpd-type', outlet.type));
+                outletElm = quickElm('tr', 'rpd-outlet-body');
+                valueElm = quickElm('td', 'rpd-value rpd-stale');
+
+                if (config.debug) outletElm.appendChild(quickElmVal('td', 'rpd-type', outlet.type));
+                outletElm.appendChild(quickElmVal('td', 'rpd-name', outlet.name));
+                outletElm.appendChild(valueElm);
+
+            } else if (config.layout == PD_LAYOUT) {
+
+                // TODO:
+
+            }
 
             if (outletElm.classList) outletElm.classList.add('rpd-'+outlet.type.replace('/','-'));
 
-            addOutletF(outletElm);
+            outletsTrg.appendChild(outletElm);
+
+            nodeData.outlets[outlet.id] = { elm: outletElm, valueElm: valueElm };
 
             nodeData.outletsNum++;
 
