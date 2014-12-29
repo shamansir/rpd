@@ -118,14 +118,15 @@ function HtmlRenderer(user_config) {
             var nodeData = nodes[inlet.node.id];
             var inletsTrg = nodeData.inletsTrg;
 
-            var inletElm, valueElm;
+            var inletElm, valueElm, connectorElm;
 
             if (config.layout == QUARTZ_LAYOUT) {
 
                 inletElm = quickElm('tr', 'rpd-inlet-body');
+                connectorElm = quickElm('td', 'rpd-connector');
                 valueElm = quickElm('td', 'rpd-value rpd-stale');
+                inletElm.appendChild(connectorElm);
                 inletElm.appendChild(valueElm);
-
                 inletElm.appendChild(quickElmVal('td', 'rpd-name', inlet.name));
                 if (config.debug) inletElm.appendChild(quickElmVal('td', 'rpd-type', inlet.type));
 
@@ -139,7 +140,8 @@ function HtmlRenderer(user_config) {
 
             inletsTrg.appendChild(inletElm);
 
-            nodeData.inlets[inlet.id] = { elm: inletElm, valueElm: valueElm };
+            nodeData.inlets[inlet.id] = { elm: inletElm, valueElm: valueElm ,
+                                                         connectorElm: connectorElm };
 
             nodeData.inletsNum++;
 

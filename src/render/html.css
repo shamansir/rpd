@@ -64,6 +64,10 @@
     list-style-type: none;
 }
 
+.rpd-layout-quartz .rpd-title {
+    display: table-caption;
+}
+
 .rpd-layout-quartz table.rpd-node {
     border-collapse: collapse;
 }
@@ -72,4 +76,14 @@
     padding: 2px;
     text-align: left;
     font-weight: normal;
+}
+
+.rpd-layout-quartz .rpd-connector {
+    float: left;
+    position: relative;
+    top: 3px;
+    margin-left: -9px;
+    border-radius: 6px;
+    border: 3px solid #f00;
+    background-color: #ff0;
 }
