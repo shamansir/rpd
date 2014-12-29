@@ -122,9 +122,9 @@ function HtmlRenderer(user_config) {
 
             if (config.layout == QUARTZ_LAYOUT) {
 
-                inletElm = quickElm('tr', 'rpd-inlet-body');
+                inletElm = quickElm('tr', 'rpd-inlet rpd-stale');
                 connectorElm = quickElm('td', 'rpd-connector');
-                valueElm = quickElm('td', 'rpd-value rpd-stale');
+                valueElm = quickElm('td', 'rpd-value');
                 inletElm.appendChild(connectorElm);
                 inletElm.appendChild(valueElm);
                 inletElm.appendChild(quickElmVal('td', 'rpd-name', inlet.name));
@@ -155,10 +155,11 @@ function HtmlRenderer(user_config) {
 
             var nodeData = nodes[inlet.node.id];
             var inletData = nodeData.inlets[inlet.id];
+            var inletElm = inletData.elm;
 
             var valueElm = inletData.valueElm;
             valueElm.innerText = valueElm.textContent = update.value;
-            valueUpdateEffect(inletData, valueElm);
+            valueUpdateEffect(inletData, inletElm);
 
         },
 
@@ -173,12 +174,14 @@ function HtmlRenderer(user_config) {
 
             if (config.layout == QUARTZ_LAYOUT) {
 
-                outletElm = quickElm('tr', 'rpd-outlet-body');
-                valueElm = quickElm('td', 'rpd-value rpd-stale');
+                outletElm = quickElm('tr', 'rpd-outlet rpd-stale');
+                connectorElm = quickElm('td', 'rpd-connector');
+                valueElm = quickElm('td', 'rpd-value');
 
                 if (config.debug) outletElm.appendChild(quickElmVal('td', 'rpd-type', outlet.type));
                 outletElm.appendChild(quickElmVal('td', 'rpd-name', outlet.name));
                 outletElm.appendChild(valueElm);
+                outletElm.appendChild(connectorElm);
 
             } else if (config.layout == PD_LAYOUT) {
 
@@ -204,10 +207,11 @@ function HtmlRenderer(user_config) {
 
             var nodeData = nodes[outlet.node.id];
             var outletData = nodeData.outlets[outlet.id];
+            var outletElm = outletData.elm;
 
             var valueElm = outletData.valueElm;
             valueElm.innerText = valueElm.textContent = update.value;
-            valueUpdateEffect(outletData, valueElm);
+            valueUpdateEffect(outletData, outletElm);
 
         },
 
@@ -259,14 +263,14 @@ function quickElmVal(type, cls, value) {
     return elm;
 }
 
-function valueUpdateEffect(storage, valueElm) {
-    if (valueElm.classList) {
-        valueElm.classList.remove("rpd-stale");
-        valueElm.classList.add("rpd-fresh");
+function valueUpdateEffect(storage, elmHolder) {
+    if (elmHolder.classList) {
+        elmHolder.classList.remove("rpd-stale");
+        elmHolder.classList.add("rpd-fresh");
         if (storage.removeTimeout) clearTimeout(storage.removeTimeout);
         storage.removeTimeout = setTimeout(function() {
-            valueElm.classList.remove("rpd-fresh");
-            valueElm.classList.add("rpd-stale");
+            elmHolder.classList.remove("rpd-fresh");
+            elmHolder.classList.add("rpd-stale");
             storage.removeTimeout = null;
         }, 1000);
     }
