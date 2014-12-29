@@ -25,6 +25,7 @@ function HtmlRenderer(user_config) {
 
             if (root.classList) {
                 root.classList.add('rpd-model');
+                if (config.debug) root.classList.add('rpd-debug');
                 if (config.layout) root.classList.add('rpd-layout-' + config.layout);
             }
 
@@ -140,7 +141,7 @@ function HtmlRenderer(user_config) {
 
             inletsTrg.appendChild(inletElm);
 
-            nodeData.inlets[inlet.id] = { elm: inletElm, valueElm: valueElm ,
+            nodeData.inlets[inlet.id] = { elm: inletElm, valueElm: valueElm,
                                                          connectorElm: connectorElm };
 
             nodeData.inletsNum++;
@@ -170,7 +171,7 @@ function HtmlRenderer(user_config) {
             var nodeData = nodes[outlet.node.id];
             var outletsTrg = nodeData.outletsTrg;
 
-            var outletElm, valueElm;
+            var outletElm, valueElm, connectorElm;
 
             if (config.layout == QUARTZ_LAYOUT) {
 
@@ -193,7 +194,9 @@ function HtmlRenderer(user_config) {
 
             outletsTrg.appendChild(outletElm);
 
-            nodeData.outlets[outlet.id] = { elm: outletElm, valueElm: valueElm };
+            nodeData.outlets[outlet.id] = { elm: outletElm,
+                                            valueElm: valueElm,
+                                            connectorElm: connectorElm };
 
             nodeData.outletsNum++;
 
@@ -221,10 +224,10 @@ function HtmlRenderer(user_config) {
             var outlet = link.outlet;
             var inlet  = link.inlet;
 
-            var outletElm = nodes[outlet.node.id].outlets[outlet.id].elm;
-            var inletElm  = nodes[inlet.node.id].inlets[inlet.id].elm;
+            var outletConnector = nodes[outlet.node.id].outlets[outlet.id].connectorElm;
+            var inletConnector  = nodes[inlet.node.id].inlets[inlet.id].connectorElm;
 
-            var linkElm = createLink(outletElm, inletElm);
+            var linkElm = createLink(outletConnector, inletConnector);
 
             links[link.id] = { elm: linkElm };
 
@@ -276,9 +279,9 @@ function valueUpdateEffect(storage, elmHolder) {
     }
 }
 
-function createLink(outletElm, inletElm) {
-    var a = outletElm.getBoundingClientRect();
-    var b = inletElm.getBoundingClientRect();
+function createLink(outletConnector, inletConnector) {
+    var a = outletConnector.getBoundingClientRect();
+    var b = inletConnector.getBoundingClientRect();
 
     var distance = Math.sqrt(((a.left - b.left) * (a.left - b.left)) +
                              ((a.top  - b.top ) * (a.top  - b.top )));
@@ -287,10 +290,12 @@ function createLink(outletElm, inletElm) {
     var linkElm = quickElm('span','rpd-link');
     linkElm.style.position = 'absolute';
     linkElm.style.width = Math.floor(distance) + 'px';
-    linkElm.style.left = a.left + 'px';
-    linkElm.style.top = a.top + 'px';
+    linkElm.style.left = (a.left + 3) + 'px';
+    linkElm.style.top = (a.top + 4.5) + 'px';
     linkElm.style.transformOrigin = 'left top';
+    linkElm.style.webkitTransformOrigin = 'left top';
     linkElm.style.transform = 'rotateZ(' + angle + 'rad)';
+    linkElm.style.webkitTransform = 'rotateZ(' + angle + 'rad)';
     return linkElm;
 }
 
