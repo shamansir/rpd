@@ -13,11 +13,12 @@
 
 .rpd-node-box {
     display: inline-block;
-    max-width: 300px;
+    max-width: 250px;
 }
 
 .rpd-node {
-    /* box-shadow: inset 0px 0px 0px 3px rgba(255,255,255,0.7); */
+    /* box-shadow: 3px 3px 14px 1px rgba(33,33,33,0.7); */
+    /* box-shadow: -1px 5px 13px 1px rgba(30,30,30,0.8); */
     background-color: #ccc;
     margin: 20px 50px;
     background-clip: border-box;
@@ -68,5 +69,7 @@
 }
 
 .rpd-layout-quartz table.rpd-node thead.rpd-title th {
+    padding: 2px;
+    text-align: left;
     font-weight: normal;
 }

@@ -48,12 +48,15 @@ function HtmlRenderer(user_config) {
                     // TODO
                 }
 
-                headRow.appendChild(quickElmVal('th', 'rpd-name', node.name));
-                if (config.debug) headRow.appendChild(quickElmVal('th', 'rpd-type', node.type));
+                var headCell = quickElm('th');
+                headCell.setAttribute('colspan', 3);
+                headCell.appendChild(quickElmVal('span', 'rpd-name', node.name));
+                if (config.debug) headCell.appendChild(quickElmVal('span', 'rpd-type', node.type));
+                headRow.appendChild(headCell);
 
                 headElm.appendChild(headRow);
 
-                var contentElm = quickElm('tbody', 'rpd-node-content');
+                var contentElm = quickElm('tbody', 'rpd-content');
                 var contentRow = quickElm('tr');
 
                 var inletsCell = quickElm('td', 'rpd-inlets');
