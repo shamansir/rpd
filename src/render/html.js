@@ -19,6 +19,8 @@ function HtmlRenderer(user_config) {
 
     return {
 
+        // ============================ model/new ==============================
+
         'model/new': function(root, update) {
 
             nodes = {}; links = {};
@@ -30,6 +32,8 @@ function HtmlRenderer(user_config) {
             }
 
         },
+
+        // ============================ node/add ===============================
 
         'node/add': function(root, update) {
 
@@ -72,6 +76,10 @@ function HtmlRenderer(user_config) {
                 var bodyCell = quickElm('td', 'rpd-body');
                 var bodyTable = quickElm('table');
 
+                // TODO
+
+                bodyCell.appendChild(bodyTable);
+
                 var outletsCell = quickElm('td', 'rpd-outlets');
                 var outletsTable = quickElm('table');
                 var outletsBody = quickElm('tbody');
@@ -91,7 +99,52 @@ function HtmlRenderer(user_config) {
 
             } else if (config.layout == PD_LAYOUT) {
 
-                // TODO:
+                var inletsRow = quickElm('tr', 'rpd-inlets');
+
+                var inletsCell = quickElm('td');
+                var inletsTable = quickElm('table');
+                var inletsBody = quickElm('tbody');
+
+                inletsTrg = inletsBody;
+
+                inletsTable.appendChild(inletsBody);
+                inletsCell.appendChild(inletsTable);
+                inletsRow.appendChild(inletsCell)
+                nodeElm.appendChild(inletsRow);
+
+                var headRow = quickElm('tr', 'rpd-title');
+
+                if (node.def.icon) {
+                    // TODO
+                }
+
+                var headCell = quickElm('td');
+                //headCell.setAttribute('colspan', 3);
+                headCell.appendChild(quickElmVal('span', 'rpd-name', node.name));
+                if (config.debug) headCell.appendChild(quickElmVal('span', 'rpd-type', node.type));
+                headRow.appendChild(headCell);
+
+                var bodyCell = quickElm('td', 'rpd-body');
+                var bodyTable = quickElm('table');
+
+                // TODO
+
+                bodyCell.appendChild(bodyTable);
+                headRow.appendChild(bodyCell);
+                nodeElm.appendChild(headRow);
+
+                var outletsRow = quickElm('tr', 'rpd-outlets');
+
+                var outletsCell = quickElm('td');
+                var outletsTable = quickElm('table');
+                var outletsBody = quickElm('tbody');
+
+                outletsTrg = outletsBody;
+
+                outletsTable.appendChild(outletsBody);
+                outletsCell.appendChild(outletsTable);
+                outletsRow.appendChild(outletsCell)
+                nodeElm.appendChild(outletsRow);
 
             }
 
@@ -110,7 +163,15 @@ function HtmlRenderer(user_config) {
 
         },
 
+        // ============================ node/process ===========================
+
+        'node/process': function(root, update) {},
+
+        // ============================ node/remove ============================
+
         'node/remove': function(root, update) {},
+
+        // ============================ inlet/add ==============================
 
         'inlet/add': function(root, update) {
 
@@ -133,7 +194,13 @@ function HtmlRenderer(user_config) {
 
             } else if (config.layout == PD_LAYOUT) {
 
-                // TODO:
+                inletElm = quickElm('td', 'rpd-inlet rpd-stale');
+                connectorElm = quickElm('span', 'rpd-connector');
+                valueElm = quickElm('span', 'rpd-value');
+                inletElm.appendChild(connectorElm);
+                inletElm.appendChild(quickElmVal('span', 'rpd-name', inlet.name));
+                inletElm.appendChild(valueElm);
+                if (config.debug) inletElm.appendChild(quickElmVal('span', 'rpd-type', inlet.type));
 
             }
 
@@ -148,7 +215,11 @@ function HtmlRenderer(user_config) {
 
         },
 
+        // ============================ inlet/remove ===========================
+
         'inlet/remove': function(root, update) {},
+
+        // ============================ inlet/update ===========================
 
         'inlet/update': function(root, update) {
 
@@ -163,6 +234,8 @@ function HtmlRenderer(user_config) {
             valueUpdateEffect(inletData, inletElm);
 
         },
+
+        // ============================ outlet/add =============================
 
         'outlet/add': function(root, update) {
 
@@ -186,7 +259,13 @@ function HtmlRenderer(user_config) {
 
             } else if (config.layout == PD_LAYOUT) {
 
-                // TODO:
+                outletElm = quickElm('td', 'rpd-outlet rpd-stale');
+                connectorElm = quickElm('span', 'rpd-connector');
+                valueElm = quickElm('span', 'rpd-value');
+                outletElm.appendChild(connectorElm);
+                outletElm.appendChild(quickElmVal('span', 'rpd-name', outlet.name));
+                outletElm.appendChild(valueElm);
+                if (config.debug) outletElm.appendChild(quickElmVal('span', 'rpd-type', outlet.type));
 
             }
 
@@ -202,7 +281,11 @@ function HtmlRenderer(user_config) {
 
         },
 
+        // ============================ outlet/remove ==========================
+
         'outlet/remove': function(root, update) {},
+
+        // ============================ outlet/update ==========================
 
         'outlet/update': function(root, update) {
 
@@ -217,6 +300,8 @@ function HtmlRenderer(user_config) {
             valueUpdateEffect(outletData, outletElm);
 
         },
+
+        // ============================ outlet/connect =========================
 
         'outlet/connect': function(root, update) {
 
@@ -234,7 +319,13 @@ function HtmlRenderer(user_config) {
             root.appendChild(linkElm);
 
         },
+
+        // ============================ link/adapt =============================
+
         'link/adapt': function(root, update) {},
+
+        // ============================ link/error =============================
+
         'link/error': function(root, update) {}
 
     }; // return
@@ -290,8 +381,8 @@ function createLink(outletConnector, inletConnector) {
     var linkElm = quickElm('span','rpd-link');
     linkElm.style.position = 'absolute';
     linkElm.style.width = Math.floor(distance) + 'px';
-    linkElm.style.left = (a.left + 3) + 'px';
-    linkElm.style.top = (a.top + 4.5) + 'px';
+    linkElm.style.left = a.left + 'px';
+    linkElm.style.top = a.top + 'px';
     linkElm.style.transformOrigin = 'left top';
     linkElm.style.webkitTransformOrigin = 'left top';
     linkElm.style.transform = 'rotateZ(' + angle + 'rad)';

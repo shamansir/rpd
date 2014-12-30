@@ -60,16 +60,35 @@
     transition: background-color .3s;
 }
 
-
 .rpd-inlets, .rpd-outlets {
     margin: 0;
     padding: 2px;
-    list-style-type: none;
 }
 
 .rpd-connector {
     cursor: pointer;
 }
+
+.rpd-inlet .rpd-connector,
+.rpd-outlet .rpd-connector {
+    border-radius: 6px;
+    border-width: 3px;
+    border-style: solid;
+}
+
+.rpd-fresh .rpd-connector {
+    border-color: #c00;
+    background-color: #ff0;
+    transition: border-color .3s;
+}
+
+.rpd-stale .rpd-connector {
+    border-color: #000;
+    background-color: #fff;
+    transition: border-color .3s;
+}
+
+/* QUARTZ COMPOSER STYLE */
 
 .rpd-layout-quartz .rpd-title {
     display: table-caption;
@@ -103,25 +122,6 @@
 
 .rpd-layout-quartz .rpd-outlet .rpd-name {
     text-align: right;
-}
-
-.rpd-layout-quartz .rpd-inlet .rpd-connector,
-.rpd-layout-quartz .rpd-outlet .rpd-connector {
-    border-radius: 6px;
-    border-width: 3px;
-    border-style: solid;
-}
-
-.rpd-layout-quartz .rpd-fresh .rpd-connector {
-    border-color: #c00;
-    background-color: #ff0;
-    transition: border-color .3s;
-}
-
-.rpd-layout-quartz .rpd-stale .rpd-connector {
-    border-color: #000;
-    background-color: #fff;
-    transition: border-color .3s;
 }
 
 .rpd-layout-quartz .rpd-inlet .rpd-connector {
@@ -164,4 +164,52 @@
 .rpd-layout-quartz .rpd-inlet:hover .rpd-name,
 .rpd-layout-quartz .rpd-outlet:hover .rpd-name {
     background-color: rgba(255,255,255,0.1);
+}
+
+.rpd-layout-quartz .rpd-link {
+    margin-left: 3px;
+    margin-top: 4.5px;
+}
+
+.rpd-layout-pd .rpd-node {
+    border-collapse: collapse;
+}
+
+.rpd-layout-pd .rpd-title > td {
+    padding: 8px;
+}
+
+.rpd-layout-pd .rpd-inlet,
+.rpd-layout-pd .rpd-outlet {
+    position: relative;
+}
+
+.rpd-layout-pd .rpd-inlet .rpd-connector,
+.rpd-layout-pd .rpd-outlet .rpd-connector {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+}
+
+.rpd-layout-pd .rpd-inlet .rpd-connector {
+    top: 1.3em;
+}
+
+.rpd-layout-pd .rpd-outlet .rpd-connector {
+    top: -0.6em;
+}
+
+.rpd-layout-pd .rpd-inlet .rpd-type,
+.rpd-layout-pd .rpd-outlet .rpd-type {
+    position: absolute;
+}
+
+.rpd-layout-pd .rpd-inlet .rpd-value,
+.rpd-layout-pd .rpd-outlet .rpd-value {
+    position: absolute;
+}
+
+.rpd-layout-pd .rpd-link {
+    margin-left: 4.3px;
+    margin-top: 4px;
 }
