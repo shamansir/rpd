@@ -34,6 +34,10 @@
     color: rgba(255,255,255,0.5);
 }
 
+.rpd-node .rpd-value {
+    font-size: 0.7em;
+}
+
 .rpd-node .rpd-value.rpd-stale {
     background-color: transparent;
     transition: background-color .3s;
@@ -70,6 +74,26 @@
     border-color: #000;
     background-color: #fff;
     transition: border-color .3s;
+}
+
+.rpd-inlet .rpd-value,
+.rpd-outlet .rpd-value {
+    color: rgba(200, 200, 200, 0.7);
+    display: none;
+}
+
+.rpd-debug .rpd-inlet .rpd-value,
+.rpd-debug .rpd-outlet .rpd-value {
+    display: block;
+}
+
+.rpd-inlet:hover .rpd-value,
+.rpd-outlet:hover .rpd-value {
+    display: block;
+}
+
+.rpd-body {
+    min-width: 20px;
 }
 
 /* QUARTZ COMPOSER LAYOUT STYLE */
@@ -111,9 +135,7 @@
 }
 
 .rpd-layout-quartz .rpd-value {
-    font-size: 0.7em;
-    margin-top: 1px;
-    color: rgba(200, 200, 200, 0.7);
+    margin: 1px 3px 0px 3px;
 }
 
 .rpd-layout-quartz .rpd-name {
@@ -149,21 +171,6 @@
 .rpd-layout-quartz .rpd-outlet .rpd-value {
     position: absolute;
     left: 103%;
-}
-
-.rpd-layout-quartz .rpd-inlet .rpd-value,
-.rpd-layout-quartz .rpd-outlet .rpd-value {
-    display: none;
-}
-
-.rpd-layout-quartz.rpd-debug .rpd-inlet .rpd-value,
-.rpd-layout-quartz.rpd-debug .rpd-outlet .rpd-value {
-    display: block;
-}
-
-.rpd-layout-quartz .rpd-inlet:hover .rpd-value,
-.rpd-layout-quartz .rpd-outlet:hover .rpd-value {
-    display: block;
 }
 
 .rpd-layout-quartz .rpd-inlet:hover .rpd-name,
@@ -217,14 +224,38 @@
 .rpd-layout-pd .rpd-inlet .rpd-type,
 .rpd-layout-pd .rpd-outlet .rpd-type {
     position: absolute;
+    margin-left: 0;
+    left: 0;
+}
+
+.rpd-layout-pd .rpd-inlet .rpd-type {
+    top: -2.2em;
+}
+
+.rpd-layout-pd .rpd-outlet .rpd-type {
+    top: 3em;
 }
 
 .rpd-layout-pd .rpd-inlet .rpd-value,
 .rpd-layout-pd .rpd-outlet .rpd-value {
     position: absolute;
+    margin-left: 0;
+    left: 0;
+}
+
+.rpd-layout-pd .rpd-inlet .rpd-value {
+    top: -1.2em;
+}
+
+.rpd-layout-pd .rpd-outlet .rpd-value {
+    top: 2em;
 }
 
 .rpd-layout-pd .rpd-link {
     margin-left: 4.3px;
     margin-top: 4px;
+}
+
+.rpd-layout-pd .rpd-content {
+    width: 100%;
 }

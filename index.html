@@ -14,7 +14,7 @@
     <body>
         <script>
             var model = Rpd.Model.start().attachTo(document.body)
-                                         .renderWith('html', { debug: true, layout: 'pd' });
+                                         .renderWith('html', { debug: false, layout: 'pd' });
 
             var first = new Rpd.Node('core/custom', 'Test');
             first.addInlet('core/number', 'BarIn');
