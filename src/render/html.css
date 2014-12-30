@@ -23,25 +23,9 @@
 }
 
 .rpd-node .rpd-title {
-    border-color: rgba(255,255,255,0.4);
-    border-width: 1px 1px 0 1px;
-    border-radius: 2px 2px 0 0;
-    /* border-radius: 4px 4px 0 0; */
-    /* border-radius: 4px 0 0 0; */
-    border-style: solid;
     background-color: #617b79;
     padding: 3px 5px;
     color: #eee;
-    background-clip: border-box;
-}
-
-.rpd-node .rpd-content {
-    border-color: rgba(255,255,255,0.4);
-    border-width: 0 1px 1px 1px;
-    /* border-radius: 0 0 4px 4px; */
-    border-style: solid;
-    background-color: #50607e;
-    background-clip: border-box;
 }
 
 .rpd-node .rpd-type {
@@ -88,10 +72,31 @@
     transition: border-color .3s;
 }
 
-/* QUARTZ COMPOSER STYLE */
+/* QUARTZ COMPOSER LAYOUT STYLE */
 
-.rpd-layout-quartz .rpd-title {
+.rpd-layout-quartz .rpd-node .rpd-title {
     display: table-caption;
+    background-clip: border-box;
+    border-style: solid;
+    border-color: rgba(255,255,255,0.4);
+    border-width: 1px 1px 0 1px;
+    border-radius: 2px 2px 0 0;
+    /* border-radius: 4px 4px 0 0; */
+    /* border-radius: 4px 0 0 0; */
+}
+
+.rpd-layout-quartz .rpd-node .rpd-content {
+    border-color: rgba(255,255,255,0.4);
+    border-width: 0 1px 1px 1px;
+    /* border-radius: 0 0 4px 4px; */
+    border-style: solid;
+    background-color: #50607e;
+    background-clip: border-box;
+}
+
+.rpd-layout-quartz .rpd-node {
+    /* box-shadow: 3px 3px 14px 1px rgba(33,33,33,0.7); */
+    /* box-shadow: -1px 5px 13px 1px rgba(30,30,30,0.8); */
 }
 
 .rpd-layout-quartz table.rpd-node {
@@ -171,11 +176,21 @@
     margin-top: 4.5px;
 }
 
-.rpd-layout-pd .rpd-node {
+/* PURE DATA LAYOUT STYLE */
+
+.rpd-layout-pd .rpd-content {
+    background-color: #617b79;
+    color: #eee;
+    display: table;
+    /* box-shadow: 3px 3px 14px 1px rgba(33,33,33,0.7); */
+    /* box-shadow: -1px 5px 13px 1px rgba(30,30,30,0.8); */
+}
+
+.rpd-layout-pd table.rpd-node {
     border-collapse: collapse;
 }
 
-.rpd-layout-pd .rpd-title > td {
+.rpd-layout-pd .rpd-content > td {
     padding: 8px;
 }
 
