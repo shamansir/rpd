@@ -17,6 +17,8 @@ function HtmlRenderer(user_config) {
 
     var config = mergeConfig(user_config, default_config);
 
+    var linkDragging = null;
+
     return {
 
         // ============================ model/new ==============================
@@ -315,6 +317,18 @@ function HtmlRenderer(user_config) {
             var linkElm = createLink(outletConnector, inletConnector);
 
             links[link.id] = { elm: linkElm };
+
+            Kefir.fromEvent(outletConnector, 'click').take(1)
+                                                     .onValue(link.disconnectOutlet)
+                                                     .flatMap(function() {
+                                                         return Kefir.fromEvent(root, 'mousemove')
+                                                            .takeWhile(function(x) {
+
+                                                                });
+                                                     });
+
+            /* Kefir.fromEvent(root, 'mousemove').filter(function() { return linkDragging; })
+                            .map(function(evt) { return { x: evt.x, y: evt.y } }); */
 
             root.appendChild(linkElm);
 
