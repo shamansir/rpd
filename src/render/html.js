@@ -320,11 +320,11 @@ function HtmlRenderer(user_config) {
 
             Kefir.fromEvent(outletConnector, 'click').take(1)
                                                      .onValue(link.disconnectOutlet)
-                                                     .flatMap(function() {
-                                                         return Kefir.fromEvent(root, 'mousemove')
-                                                            .takeWhile(function(x) {
-
-                                                                });
+                                                     .onEnd(function() {
+                                                         Kefir.fromEvent(root, 'mousemove')
+                                                            .takeUntilBy(Kefir.fromEvent(root, 'click').skip(1).take(1))
+                                                            .onValue(function() { console.log('moving link'); })
+                                                            .onEnd(function() { console.log('stopped moving link'); });
                                                      });
 
             /* Kefir.fromEvent(root, 'mousemove').filter(function() { return linkDragging; })

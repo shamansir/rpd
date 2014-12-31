@@ -270,6 +270,9 @@ Link.prototype.adapt = function(before) {
         return before;
     }
 }
+Link.prototype.disconnectOutlet = function() {
+    console.log('disconnect outlet');
+}
 
 // ================================== utils ====================================
 // =============================================================================
