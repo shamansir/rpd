@@ -163,7 +163,6 @@ function Inlet(type, node, name) {
     this.name = name || def.name || 'Unnamed';
 
     this.node = node;
-
     this.value = Kefir.bus();
 
     var myself = this;
@@ -272,6 +271,9 @@ Link.prototype.adapt = function(before) {
 }
 Link.prototype.disconnectOutlet = function() {
     console.log('disconnect outlet');
+}
+Link.prototype.disconnectInlet = function() {
+    console.log('disconnect inlet');
 }
 
 // ================================== utils ====================================

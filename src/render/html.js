@@ -17,7 +17,7 @@ function HtmlRenderer(user_config) {
 
     var config = mergeConfig(user_config, default_config);
 
-    var linkDragging = null;
+    var linkInMotion = null;
 
     return {
 
@@ -129,7 +129,7 @@ function HtmlRenderer(user_config) {
                 var bodyCell = quickElm('td', 'rpd-body');
                 var bodyTable = quickElm('table');
 
-                // TODO
+                // TODO add body
 
                 bodyCell.appendChild(bodyTable);
                 contentRow.appendChild(bodyCell);
@@ -206,12 +206,21 @@ function HtmlRenderer(user_config) {
 
             }
 
+            // TODO: add editor
+
             if (inletElm.classList) inletElm.classList.add('rpd-'+inlet.type.replace('/','-'));
 
             inletsTrg.appendChild(inletElm);
 
             nodeData.inlets[inlet.id] = { elm: inletElm, valueElm: valueElm,
                                                          connectorElm: connectorElm };
+
+            Kefir.fromEvent(connectorElm, 'click').filter(function() { return linkInMotion; })
+                                                  .take(1)
+                                                  .onValue(function() {
+                                                     console.log('connect link to', inlet);
+                                                     linkInMotion = null;
+                                                  });
 
             nodeData.inletsNum++;
 
@@ -271,6 +280,8 @@ function HtmlRenderer(user_config) {
 
             }
 
+            // TODO: add editor
+
             if (outletElm.classList) outletElm.classList.add('rpd-'+outlet.type.replace('/','-'));
 
             outletsTrg.appendChild(outletElm);
@@ -278,6 +289,13 @@ function HtmlRenderer(user_config) {
             nodeData.outlets[outlet.id] = { elm: outletElm,
                                             valueElm: valueElm,
                                             connectorElm: connectorElm };
+
+            Kefir.fromEvent(connectorElm, 'click').filter(function() { return linkInMotion; })
+                                                  .take(1)
+                                                  .onValue(function() {
+                                                      console.log('connect link to', outlet);
+                                                      linkInMotion = null;
+                                                  });
 
             nodeData.outletsNum++;
 
@@ -318,14 +336,33 @@ function HtmlRenderer(user_config) {
 
             links[link.id] = { elm: linkElm };
 
-            Kefir.fromEvent(outletConnector, 'click').take(1)
-                                                     .onValue(link.disconnectOutlet)
-                                                     .onEnd(function() {
-                                                         Kefir.fromEvent(root, 'mousemove')
-                                                            .takeUntilBy(Kefir.fromEvent(root, 'click').skip(1).take(1))
-                                                            .onValue(function() { console.log('moving link'); })
-                                                            .onEnd(function() { console.log('stopped moving link'); });
-                                                     });
+            Kefir.fromEvent(inletConnector, 'click')
+                 .take(1)
+                 .onValue(link.disconnectInlet)
+                 .onEnd(function() {
+                     Kefir.fromEvent(root, 'mousemove')
+                          .takeUntilBy(Kefir.fromEvent(root, 'click').skip(1).take(1))
+                          .onValue(function() { linkInMotion = link;
+                                                console.log('moving link', link); })
+                          .onEnd(function() { if (linkInMotion) { // if link wasn't already connected
+                                                  linkInMotion = null;
+                                                  console.log('put a link back', link);
+                                              } });
+                     });
+
+            Kefir.fromEvent(outletConnector, 'click')
+                 .take(1)
+                 .onValue(link.disconnectOutlet)
+                 .onEnd(function() {
+                     Kefir.fromEvent(root, 'mousemove')
+                          .takeUntilBy(Kefir.fromEvent(root, 'click').skip(1).take(1))
+                          .onValue(function() { linkInMotion = link;
+                                                console.log('moving link', link); })
+                          .onEnd(function() { if (linkInMotion) { // if link wasn't already connected
+                                                  linkInMotion = null;
+                                                  console.log('put a link back', link);
+                                              } );
+                     });
 
             /* Kefir.fromEvent(root, 'mousemove').filter(function() { return linkDragging; })
                             .map(function(evt) { return { x: evt.x, y: evt.y } }); */
