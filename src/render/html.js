@@ -17,8 +17,6 @@ function HtmlRenderer(user_config) {
 
     var config = mergeConfig(user_config, default_config);
 
-    var linkInMotion = null;
-
     return {
 
         // ============================ model/new ==============================
@@ -213,19 +211,8 @@ function HtmlRenderer(user_config) {
             inletsTrg.appendChild(inletElm);
 
             nodeData.inlets[inlet.id] = { elm: inletElm, valueElm: valueElm,
-                                                         connectorElm: connectorElm };
-
-            Kefir.fromEvent(connectorElm, 'click').filter(function() { return linkInMotion; })
-                                                  .onValue(function() {
-                                                     console.log('connect link to', inlet);
-                                                     linkInMotion = null;
-                                                  });
-
-            Kefir.fromEvent(connectorElm, 'click').filter(function() { return !linkInMotion; })
-                                                  .onValue(function() {
-                                                      linkInMotion = link;
-                                                      console.log('moving link', link);
-                                                  });
+                                                         connectorElm: connectorElm,
+                                          links: [] };
 
             nodeData.inletsNum++;
 
@@ -293,19 +280,8 @@ function HtmlRenderer(user_config) {
 
             nodeData.outlets[outlet.id] = { elm: outletElm,
                                             valueElm: valueElm,
-                                            connectorElm: connectorElm };
-
-            Kefir.fromEvent(connectorElm, 'click').filter(function() { return linkInMotion; })
-                                                  .onValue(function() {
-                                                      console.log('connect link to', outlet);
-                                                      linkInMotion = null;
-                                                  });
-
-            Kefir.fromEvent(connectorElm, 'click').filter(function() { return !linkInMotion; })
-                                                  .onValue(function() {
-                                                      linkInMotion = link;
-                                                      console.log('moving link', link);
-                                                  });
+                                            connectorElm: connectorElm,
+                                            links: [] };
 
             nodeData.outletsNum++;
 
@@ -345,37 +321,6 @@ function HtmlRenderer(user_config) {
             var linkElm = createLink(outletConnector, inletConnector);
 
             links[link.id] = { elm: linkElm };
-
-            Kefir.fromEvent(inletConnector, 'click')
-                 .take(1)
-                 .onValue(link.disconnectInlet)
-                 .onEnd(function() {
-                     Kefir.fromEvent(root, 'mousemove')
-                          .takeUntilBy(Kefir.fromEvent(root, 'click').skip(1).take(1))
-                          .onValue(function() { linkInMotion = link;
-                                                console.log('moving link', link); })
-                          .onEnd(function() { if (linkInMotion) { // if link wasn't already connected
-                                                  linkInMotion = null;
-                                                  console.log('put a link back', link);
-                                              } });
-                     });
-
-            Kefir.fromEvent(outletConnector, 'click')
-                 .take(1)
-                 .onValue(link.disconnectOutlet)
-                 .onEnd(function() {
-                     Kefir.fromEvent(root, 'mousemove')
-                          .takeUntilBy(Kefir.fromEvent(root, 'click').skip(1).take(1))
-                          .onValue(function() { linkInMotion = link;
-                                                console.log('moving link', link); })
-                          .onEnd(function() { if (linkInMotion) { // if link wasn't already connected
-                                                  linkInMotion = null;
-                                                  console.log('put a link back', link);
-                                              } });
-                     });
-
-            /* Kefir.fromEvent(root, 'mousemove').filter(function() { return linkDragging; })
-                            .map(function(evt) { return { x: evt.x, y: evt.y } }); */
 
             root.appendChild(linkElm);
 
