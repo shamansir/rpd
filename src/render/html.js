@@ -216,10 +216,15 @@ function HtmlRenderer(user_config) {
                                                          connectorElm: connectorElm };
 
             Kefir.fromEvent(connectorElm, 'click').filter(function() { return linkInMotion; })
-                                                  .take(1)
                                                   .onValue(function() {
                                                      console.log('connect link to', inlet);
                                                      linkInMotion = null;
+                                                  });
+
+            Kefir.fromEvent(connectorElm, 'click').filter(function() { return !linkInMotion; })
+                                                  .onValue(function() {
+                                                      linkInMotion = link;
+                                                      console.log('moving link', link);
                                                   });
 
             nodeData.inletsNum++;
@@ -291,10 +296,15 @@ function HtmlRenderer(user_config) {
                                             connectorElm: connectorElm };
 
             Kefir.fromEvent(connectorElm, 'click').filter(function() { return linkInMotion; })
-                                                  .take(1)
                                                   .onValue(function() {
                                                       console.log('connect link to', outlet);
                                                       linkInMotion = null;
+                                                  });
+
+            Kefir.fromEvent(connectorElm, 'click').filter(function() { return !linkInMotion; })
+                                                  .onValue(function() {
+                                                      linkInMotion = link;
+                                                      console.log('moving link', link);
                                                   });
 
             nodeData.outletsNum++;
@@ -361,7 +371,7 @@ function HtmlRenderer(user_config) {
                           .onEnd(function() { if (linkInMotion) { // if link wasn't already connected
                                                   linkInMotion = null;
                                                   console.log('put a link back', link);
-                                              } );
+                                              } });
                      });
 
             /* Kefir.fromEvent(root, 'mousemove').filter(function() { return linkDragging; })
