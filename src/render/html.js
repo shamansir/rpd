@@ -17,6 +17,11 @@ function HtmlRenderer(user_config) {
 
     var config = mergeConfig(user_config, default_config);
 
+    var linkInMotion = null,
+        linkFromInlet = null,
+        linkFromOutlet = null,
+        linkConnected = Kefir.emitter();
+
     return {
 
         // ============================ model/new ==============================
@@ -210,9 +215,54 @@ function HtmlRenderer(user_config) {
 
             inletsTrg.appendChild(inletElm);
 
-            nodeData.inlets[inlet.id] = { elm: inletElm, valueElm: valueElm,
-                                                         connectorElm: connectorElm,
-                                          links: [] };
+            var inletData = { elm: inletElm, valueElm: valueElm,
+                                             connectorElm: connectorElm,
+                              links: [] }
+
+            nodeData.inlets[inlet.id] = inletData;
+
+            Kefir.fromEvent(connectorElm, 'click').flatMap(function(evt) {
+                evt.stopPropagation();
+                if (linkFromOutlet) {
+                    if (linkInMotion) {
+                        console.log('disconnect', linkInMotion, 'from', linkFromOutlet);
+                        //linkFromOutlet.disconnect(linkInMotion);
+                    }
+                    console.log('remove ghost');
+                    console.log('connect', linkFromOutlet, 'to', inlet);
+                    //linkFromOutlet.connect(inlet);
+                    linkFromOutlet = null;
+                    linkInMotion = null;
+                    linkConnected.emit();
+                    return Kefir.never();
+                } else if (linkFromInlet) {
+                    if (linkInMotion) console.log('remove link', linkInMotion, 'from', linkFromInlet);
+                    console.log('remove ghost');
+                    linkFromInlet = null;
+                    linkInMotion = null;
+                    return Kefir.never();
+                };
+                linkFromInlet = inlet;
+                linkInMotion = inletData.links.pop() || null;
+                /* if (linkInMotion) {
+                    console.log('disconnect', linkInMotion, 'from', inlet);
+                } */
+                console.log('create ghost, for', linkInMotion || 'new link');
+                return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
+                    Kefir.fromEvent(connectorElm, 'click')
+                         .merge(Kefir.fromEvent(root, 'click'))
+                         .merge(linkConnected)
+                ).onEnd(function() {
+                    if (linkFromInlet) {
+                        console.log('remove ghost');
+                        if (linkInMotion) console.log('remove link', linkInMotion, 'from', linkFromInlet);
+                        linkFromInlet = null;
+                        linkInMotion = null;
+                    }
+                });
+            }).onValue(function(evt) {
+                console.log('move ghost');
+            });
 
             nodeData.inletsNum++;
 
@@ -278,12 +328,57 @@ function HtmlRenderer(user_config) {
 
             outletsTrg.appendChild(outletElm);
 
-            nodeData.outlets[outlet.id] = { elm: outletElm,
-                                            valueElm: valueElm,
-                                            connectorElm: connectorElm,
-                                            links: [] };
+            var outletData = { elm: outletElm,
+                               valueElm: valueElm,
+                               connectorElm: connectorElm,
+                               links: [] };
+
+            nodeData.outlets[outlet.id] = outletData;
 
             nodeData.outletsNum++;
+
+            Kefir.fromEvent(connectorElm, 'click').flatMap(function(evt) {
+                evt.stopPropagation();
+                if (linkFromInlet) {
+                    if (linkInMotion) {
+                        console.log('disconnect', linkInMotion, 'from', linkFromInlet);
+                        //linkFromOutlet.disconnect(linkInMotion);
+                    }
+                    console.log('remove ghost');
+                    console.log('connect', linkFromInlet, 'to', outlet);
+                    //linkFromOutlet.connect(inlet);
+                    linkFromInlet = null;
+                    linkInMotion = null;
+                    linkConnected.emit();
+                    return Kefir.never();
+                } else if (linkFromOutlet) {
+                    if (linkInMotion) console.log('disconnect', linkInMotion, 'from', linkFromOutlet);
+                    console.log('remove ghost');
+                    linkFromOutlet = null;
+                    linkInMotion = null;
+                    return Kefir.never();
+                };
+                linkFromOutlet = outlet;
+                linkInMotion = outletData.links.pop() || null;
+                /* if (linkInMotion) {
+                    console.log('disconnect', linkInMotion, 'from', outlet);
+                } */
+                console.log('create ghost, for', linkInMotion || 'new link');
+                return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
+                    Kefir.fromEvent(root, 'click')
+                         .merge(Kefir.fromEvent(connectorElm, 'click'))
+                         .merge(linkConnected)
+                ).onEnd(function() {
+                    if (linkFromOutlet) {
+                        console.log('remove ghost');
+                        if (linkInMotion) console.log('disconnect', linkInMotion, 'from', linkFromOutlet);
+                        linkFromOutlet = null;
+                        linkInMotion = null;
+                    }
+                });
+            }).onValue(function(evt) {
+                console.log('move ghost');
+            });
 
         },
 
@@ -315,8 +410,14 @@ function HtmlRenderer(user_config) {
             var outlet = link.outlet;
             var inlet  = link.inlet;
 
-            var outletConnector = nodes[outlet.node.id].outlets[outlet.id].connectorElm;
-            var inletConnector  = nodes[inlet.node.id].inlets[inlet.id].connectorElm;
+            var outletData = nodes[outlet.node.id].outlets[outlet.id];
+            var inletData = nodes[inlet.node.id].inlets[inlet.id];
+
+            var outletConnector = outletData.connectorElm;
+            var inletConnector  = inletData.connectorElm;
+
+            outletData.links.push(link);
+            inletData.links.push(link);
 
             var linkElm = createLink(outletConnector, inletConnector);
 
