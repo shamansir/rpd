@@ -20,6 +20,8 @@ function HtmlRenderer(user_config) {
     var linkInMotion = null,
         linkFromInlet = null,
         linkFromOutlet = null,
+        linkGhost = null,
+        linkGrostPos = null,
         linkResolved = Kefir.emitter();
 
     return {
@@ -221,23 +223,35 @@ function HtmlRenderer(user_config) {
 
             nodeData.inlets[inlet.id] = inletData;
 
+            nodeData.inletsNum++;
+
             Kefir.fromEvent(connectorElm, 'click').flatMap(function(evt) {
                 evt.stopPropagation();
                 if (linkFromOutlet) {
                     if (linkInMotion) {
                         console.log('disconnect', linkInMotion, 'from', linkFromOutlet);
-                        //linkFromOutlet.disconnect(linkInMotion);
+                        inletData.links.pop();
+                        linkFromOutlet.disconnect(linkInMotion);
+                        links[linkInMotion.id] = null;
                     }
                     console.log('remove ghost');
+                    root.removeChild(linkGhost);
                     console.log('connect', linkFromOutlet, 'to', inlet);
-                    //linkFromOutlet.connect(inlet);
+                    linkFromOutlet.connect(inlet);
                     linkFromOutlet = null;
                     linkInMotion = null;
                     linkResolved.emit();
                     return Kefir.never();
                 } else if (linkFromInlet) {
-                    if (linkInMotion) console.log('remove link', linkInMotion, 'from', linkFromInlet);
+                    if (linkInMotion) {
+                        console.log('disconnect', linkInMotion, 'from', linkFromInlet);
+                        var linkElm = links[linkInMotion.id].elm;
+                        root.removeChild(linkElm);
+                        linkInMotion.outlet.disconnect(linkInMotion);
+                        links[linkInMotion.id] = null;
+                    }
                     console.log('remove ghost');
+                    root.removeChild(linkGhost);
                     linkFromInlet = null;
                     linkInMotion = null;
                     linkResolved.emit();
@@ -245,10 +259,15 @@ function HtmlRenderer(user_config) {
                 };
                 linkFromInlet = inlet;
                 linkInMotion = inletData.links.pop() || null;
-                /* if (linkInMotion) {
-                    console.log('disconnect', linkInMotion, 'from', inlet);
-                } */
+                if (linkInMotion) {
+                    console.log('remove DOM element of', linkInMotion);
+                    var linkElm = links[linkInMotion.id].elm;
+                    root.removeChild(linkElm);
+                }
                 console.log('create ghost, for', linkInMotion || 'new link');
+                linkGhostPos = connectorElm.getBoundingClientRect();
+                linkGhost = createLink(linkGhostPos.left, linkGhostPos.top, evt.clientX, evt.clientY);
+                root.appendChild(linkGhost);
                 return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
                     Kefir.fromEvent(connectorElm, 'click')
                          .merge(Kefir.fromEvent(root, 'click'))
@@ -256,16 +275,23 @@ function HtmlRenderer(user_config) {
                 ).onEnd(function() {
                     if (linkFromInlet) {
                         console.log('remove ghost');
-                        if (linkInMotion) console.log('remove link', linkInMotion, 'from', linkFromInlet);
+                        root.removeChild(linkGhost);
+                        if (linkInMotion) {
+                            console.log('disconnect', linkInMotion, 'from', linkFromInlet);
+                            var linkElm = links[linkInMotion.id].elm;
+                            root.removeChild(linkElm);
+                            linkInMotion.outlet.disconnect(linkInMotion);
+                            links[linkInMotion.id] = null;
+                        }
                         linkFromInlet = null;
                         linkInMotion = null;
                     }
                 });
             }).onValue(function(evt) {
-                console.log('move ghost');
+                console.log('move ghost to', evt.clientX, evt.clientY);
+                rotateLink(linkGhost, linkGhostPos.left, linkGhostPos.top,
+                                      evt.clientX, evt.clientY);
             });
-
-            nodeData.inletsNum++;
 
         },
 
@@ -343,18 +369,28 @@ function HtmlRenderer(user_config) {
                 if (linkFromInlet) {
                     if (linkInMotion) {
                         console.log('disconnect', linkInMotion, 'from', linkFromInlet);
-                        //linkFromOutlet.disconnect(linkInMotion);
+                        outletData.links.pop();
+                        /*linkInMotion.*/outlet.disconnect(linkInMotion);
+                        links[linkInMotion.id] = null;
                     }
                     console.log('remove ghost');
+                    root.removeChild(linkGhost);
                     console.log('connect', linkFromInlet, 'to', outlet);
-                    //linkFromOutlet.connect(inlet);
+                    linkFromInlet.outlet.connect(inlet);
                     linkFromInlet = null;
                     linkInMotion = null;
                     linkResolved.emit();
                     return Kefir.never();
                 } else if (linkFromOutlet) {
-                    if (linkInMotion) console.log('disconnect', linkInMotion, 'from', linkFromOutlet);
+                    if (linkInMotion) {
+                        console.log('disconnect', linkInMotion, 'from', linkFromOutlet);
+                        var linkElm = links[linkInMotion.id].elm;
+                        root.removeChild(linkElm);
+                        linkFromOutlet.disconnect(linkInMotion);
+                        links[linkInMotion.id] = null;
+                    }
                     console.log('remove ghost');
+                    root.removeChild(linkGhost);
                     linkFromOutlet = null;
                     linkInMotion = null;
                     linkResolved.emit();
@@ -362,10 +398,15 @@ function HtmlRenderer(user_config) {
                 };
                 linkFromOutlet = outlet;
                 linkInMotion = outletData.links.pop() || null;
-                /* if (linkInMotion) {
-                    console.log('disconnect', linkInMotion, 'from', outlet);
-                } */
+                if (linkInMotion) {
+                    console.log('remove DOM element of', linkInMotion);
+                    var linkElm = links[linkInMotion.id].elm;
+                    root.removeChild(linkElm);
+                }
                 console.log('create ghost, for', linkInMotion || 'new link');
+                linkGhostPos = connectorElm.getBoundingClientRect();
+                linkGhost = createLink(linkGhostPos.left, linkGhostPos.top, evt.clientX, evt.clientY);
+                root.appendChild(linkGhost);
                 return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
                     Kefir.fromEvent(root, 'click')
                          .merge(Kefir.fromEvent(connectorElm, 'click'))
@@ -373,13 +414,22 @@ function HtmlRenderer(user_config) {
                 ).onEnd(function() {
                     if (linkFromOutlet) {
                         console.log('remove ghost');
-                        if (linkInMotion) console.log('disconnect', linkInMotion, 'from', linkFromOutlet);
+                        root.removeChild(linkGhost);
+                        if (linkInMotion) {
+                            console.log('disconnect', linkInMotion, 'from', linkFromOutlet);
+                            var linkElm = links[linkInMotion.id].elm;
+                            root.removeChild(linkElm);
+                            linkInMotion.outlet.disconnect(linkInMotion);
+                            links[linkInMotion.id] = null;
+                        }
                         linkFromOutlet = null;
                         linkInMotion = null;
                     }
                 });
             }).onValue(function(evt) {
-                console.log('move ghost');
+                console.log('move ghost to', evt.clientX, evt.clientY);
+                rotateLink(linkGhost, linkGhostPos.left, linkGhostPos.top,
+                                      evt.clientX, evt.clientY);
             });
 
         },
@@ -421,7 +471,9 @@ function HtmlRenderer(user_config) {
             outletData.links.push(link);
             inletData.links.push(link);
 
-            var linkElm = createLink(outletConnector, inletConnector);
+            var p0 = outletConnector.getBoundingClientRect(),
+                p1 = inletConnector.getBoundingClientRect();
+            var linkElm = createLink(p0.left, p0.top, p1.left, p1.top);
 
             links[link.id] = { elm: linkElm };
 
@@ -479,19 +531,16 @@ function valueUpdateEffect(storage, elmHolder) {
     }
 }
 
-function createLink(outletConnector, inletConnector) {
-    var a = outletConnector.getBoundingClientRect();
-    var b = inletConnector.getBoundingClientRect();
-
-    var distance = Math.sqrt(((a.left - b.left) * (a.left - b.left)) +
-                             ((a.top  - b.top ) * (a.top  - b.top )));
-    var angle = Math.atan2(b.top - a.top, b.left - a.left);
+function createLink(x0, y0, x1, y1) {
+    var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
+                             ((y0 - y1) * (y0 - y1)));
+    var angle = Math.atan2(y1 - y0, x1 - x0);
 
     var linkElm = quickElm('span','rpd-link');
     linkElm.style.position = 'absolute';
     linkElm.style.width = Math.floor(distance) + 'px';
-    linkElm.style.left = a.left + 'px';
-    linkElm.style.top = a.top + 'px';
+    linkElm.style.left = x0 + 'px';
+    linkElm.style.top = y0 + 'px';
     linkElm.style.transformOrigin = 'left top';
     linkElm.style.webkitTransformOrigin = 'left top';
     linkElm.style.transform = 'rotateZ(' + angle + 'rad)';
@@ -499,8 +548,13 @@ function createLink(outletConnector, inletConnector) {
     return linkElm;
 }
 
-function rotateLink(root, degree) {
-    // TODO:
+function rotateLink(linkElm, x0, y0, x1, y1) {
+    var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
+                             ((y0 - y1) * (y0 - y1)));
+    var angle = Math.atan2(y1 - y0, x1 - x0);
+    linkElm.style.width = Math.floor(distance) + 'px';
+    linkElm.style.transform = 'rotateZ(' + angle + 'rad)';
+    linkElm.style.webkitTransform = 'rotateZ(' + angle + 'rad)';
 }
 
 var default_width = 100,
