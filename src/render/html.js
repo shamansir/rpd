@@ -20,7 +20,7 @@ function HtmlRenderer(user_config) {
     var linkInMotion = null,
         linkFromInlet = null,
         linkFromOutlet = null,
-        linkConnected = Kefir.emitter();
+        linkResolved = Kefir.emitter();
 
     return {
 
@@ -233,13 +233,14 @@ function HtmlRenderer(user_config) {
                     //linkFromOutlet.connect(inlet);
                     linkFromOutlet = null;
                     linkInMotion = null;
-                    linkConnected.emit();
+                    linkResolved.emit();
                     return Kefir.never();
                 } else if (linkFromInlet) {
                     if (linkInMotion) console.log('remove link', linkInMotion, 'from', linkFromInlet);
                     console.log('remove ghost');
                     linkFromInlet = null;
                     linkInMotion = null;
+                    linkResolved.emit();
                     return Kefir.never();
                 };
                 linkFromInlet = inlet;
@@ -251,7 +252,7 @@ function HtmlRenderer(user_config) {
                 return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
                     Kefir.fromEvent(connectorElm, 'click')
                          .merge(Kefir.fromEvent(root, 'click'))
-                         .merge(linkConnected)
+                         .merge(linkResolved)
                 ).onEnd(function() {
                     if (linkFromInlet) {
                         console.log('remove ghost');
@@ -349,13 +350,14 @@ function HtmlRenderer(user_config) {
                     //linkFromOutlet.connect(inlet);
                     linkFromInlet = null;
                     linkInMotion = null;
-                    linkConnected.emit();
+                    linkResolved.emit();
                     return Kefir.never();
                 } else if (linkFromOutlet) {
                     if (linkInMotion) console.log('disconnect', linkInMotion, 'from', linkFromOutlet);
                     console.log('remove ghost');
                     linkFromOutlet = null;
                     linkInMotion = null;
+                    linkResolved.emit();
                     return Kefir.never();
                 };
                 linkFromOutlet = outlet;
@@ -367,7 +369,7 @@ function HtmlRenderer(user_config) {
                 return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
                     Kefir.fromEvent(root, 'click')
                          .merge(Kefir.fromEvent(connectorElm, 'click'))
-                         .merge(linkConnected)
+                         .merge(linkResolved)
                 ).onEnd(function() {
                     if (linkFromOutlet) {
                         console.log('remove ghost');
