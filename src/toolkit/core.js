@@ -13,11 +13,11 @@ Rpd.nodetype('core/custom', {
 });
 
 Rpd.channeltype('core/bool', {
-    name: 'BooleanCh'
+    name: 'Boolean'
 });
 
 Rpd.channeltype('core/number', {
-    name: 'NumberCh'
+    name: 'Number'
 });
 
 

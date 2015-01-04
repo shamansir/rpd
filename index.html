@@ -25,6 +25,7 @@
             var second = new Rpd.Node('core/custom', 'Foo');
             var boolInlet = second.addInlet('core/bool', 'BoolIn');
             var numInlet = second.addInlet('core/number', 'NumIn');
+            second.addInlet('core/bool');
             second.addOutlet('core/number', 'FooOut');
 
             boolOutlet.connect(boolInlet);
