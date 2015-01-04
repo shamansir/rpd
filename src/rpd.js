@@ -269,11 +269,8 @@ Link.prototype.adapt = function(before) {
         return before;
     }
 }
-Link.prototype.disconnectOutlet = function() {
-    console.log('disconnect outlet');
-}
-Link.prototype.disconnectInlet = function() {
-    console.log('disconnect inlet');
+Link.prototype.disconnect = function() {
+    this.outlet.disconnect(this);
 }
 
 // ================================== utils ====================================

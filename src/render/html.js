@@ -17,11 +17,9 @@ function HtmlRenderer(user_config) {
 
     var config = mergeConfig(user_config, default_config);
 
-    var linkInMotion = null,
-        linkFromInlet = null,
-        linkFromOutlet = null,
-        linkGhost = null,
-        linkGrostPos = null,
+    var linkGhost = null
+        linkGhostPos = null
+        linkSrc = null,
         linkResolved = Kefir.emitter();
 
     return {
@@ -65,7 +63,6 @@ function HtmlRenderer(user_config) {
                 headCell.appendChild(quickElmVal('span', 'rpd-name', node.name));
                 if (config.debug) headCell.appendChild(quickElmVal('span', 'rpd-type', node.type));
                 headRow.appendChild(headCell);
-
                 headElm.appendChild(headRow);
 
                 var contentElm = quickElm('tbody', 'rpd-content');
@@ -219,78 +216,25 @@ function HtmlRenderer(user_config) {
 
             var inletData = { elm: inletElm, valueElm: valueElm,
                                              connectorElm: connectorElm,
-                              links: [] }
+                              link: null }
 
             nodeData.inlets[inlet.id] = inletData;
 
             nodeData.inletsNum++;
 
-            Kefir.fromEvent(connectorElm, 'click').flatMap(function(evt) {
+            Kefir.fromEvent(connectorElm, 'click').onValue(function(evt) {
+                evt.preventDefault();
                 evt.stopPropagation();
-                if (linkFromOutlet) {
-                    if (linkInMotion) {
-                        console.log('disconnect', linkInMotion, 'from', linkFromOutlet);
-                        inletData.links.pop();
-                        linkFromOutlet.disconnect(linkInMotion);
-                        links[linkInMotion.id] = null;
-                    }
-                    console.log('remove ghost');
-                    root.removeChild(linkGhost);
-                    console.log('connect', linkFromOutlet, 'to', inlet);
-                    linkFromOutlet.connect(inlet);
-                    linkFromOutlet = null;
-                    linkInMotion = null;
-                    linkResolved.emit();
-                    return Kefir.never();
-                } else if (linkFromInlet) {
-                    if (linkInMotion) {
-                        console.log('disconnect', linkInMotion, 'from', linkFromInlet);
-                        var linkElm = links[linkInMotion.id].elm;
-                        root.removeChild(linkElm);
-                        linkInMotion.outlet.disconnect(linkInMotion);
-                        links[linkInMotion.id] = null;
-                    }
-                    console.log('remove ghost');
-                    root.removeChild(linkGhost);
-                    linkFromInlet = null;
-                    linkInMotion = null;
-                    linkResolved.emit();
-                    return Kefir.never();
-                };
-                linkFromInlet = inlet;
-                linkInMotion = inletData.links.pop() || null;
-                if (linkInMotion) {
-                    console.log('remove DOM element of', linkInMotion);
-                    var linkElm = links[linkInMotion.id].elm;
-                    root.removeChild(linkElm);
+                if (!linkGhost) return;
+                if (inletData.link) {
+                    inletData.link.disconnect();
+                    root.removeChild(links[inletData.link.id].elm);
+                    inletData.link = null;
                 }
-                console.log('create ghost, for', linkInMotion || 'new link');
-                linkGhostPos = connectorElm.getBoundingClientRect();
-                linkGhost = createLink(linkGhostPos.left, linkGhostPos.top, evt.clientX, evt.clientY);
-                root.appendChild(linkGhost);
-                return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
-                    Kefir.fromEvent(connectorElm, 'click')
-                         .merge(Kefir.fromEvent(root, 'click'))
-                         .merge(linkResolved)
-                ).onEnd(function() {
-                    if (linkFromInlet) {
-                        console.log('remove ghost');
-                        root.removeChild(linkGhost);
-                        if (linkInMotion) {
-                            console.log('disconnect', linkInMotion, 'from', linkFromInlet);
-                            var linkElm = links[linkInMotion.id].elm;
-                            root.removeChild(linkElm);
-                            linkInMotion.outlet.disconnect(linkInMotion);
-                            links[linkInMotion.id] = null;
-                        }
-                        linkFromInlet = null;
-                        linkInMotion = null;
-                    }
-                });
-            }).onValue(function(evt) {
-                console.log('move ghost to', evt.clientX, evt.clientY);
-                rotateLink(linkGhost, linkGhostPos.left, linkGhostPos.top,
-                                      evt.clientX, evt.clientY);
+                root.removeChild(linkGhost);
+                linkGhost = null;
+                linkSrc.connect(inlet);
+                linkResolved.emit();
             });
 
         },
@@ -365,69 +309,25 @@ function HtmlRenderer(user_config) {
             nodeData.outletsNum++;
 
             Kefir.fromEvent(connectorElm, 'click').flatMap(function(evt) {
+                evt.preventDefault();
                 evt.stopPropagation();
-                if (linkFromInlet) {
-                    if (linkInMotion) {
-                        console.log('disconnect', linkInMotion, 'from', linkFromInlet);
-                        outletData.links.pop();
-                        /*linkInMotion.*/outlet.disconnect(linkInMotion);
-                        links[linkInMotion.id] = null;
-                    }
-                    console.log('remove ghost');
-                    root.removeChild(linkGhost);
-                    console.log('connect', linkFromInlet, 'to', outlet);
-                    linkFromInlet.outlet.connect(inlet);
-                    linkFromInlet = null;
-                    linkInMotion = null;
-                    linkResolved.emit();
-                    return Kefir.never();
-                } else if (linkFromOutlet) {
-                    if (linkInMotion) {
-                        console.log('disconnect', linkInMotion, 'from', linkFromOutlet);
-                        var linkElm = links[linkInMotion.id].elm;
-                        root.removeChild(linkElm);
-                        linkFromOutlet.disconnect(linkInMotion);
-                        links[linkInMotion.id] = null;
-                    }
-                    console.log('remove ghost');
-                    root.removeChild(linkGhost);
-                    linkFromOutlet = null;
-                    linkInMotion = null;
-                    linkResolved.emit();
-                    return Kefir.never();
-                };
-                linkFromOutlet = outlet;
-                linkInMotion = outletData.links.pop() || null;
-                if (linkInMotion) {
-                    console.log('remove DOM element of', linkInMotion);
-                    var linkElm = links[linkInMotion.id].elm;
-                    root.removeChild(linkElm);
-                }
-                console.log('create ghost, for', linkInMotion || 'new link');
+                if (linkGhost) return Kefir.never();
                 linkGhostPos = connectorElm.getBoundingClientRect();
-                linkGhost = createLink(linkGhostPos.left, linkGhostPos.top, evt.clientX, evt.clientY);
+                linkGhost = createLink(linkGhostPos.left, linkGhostPos.top,
+                                       evt.clientX, evt.clientY);
+                linkSrc = outlet;
                 root.appendChild(linkGhost);
                 return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
                     Kefir.fromEvent(root, 'click')
                          .merge(Kefir.fromEvent(connectorElm, 'click'))
                          .merge(linkResolved)
                 ).onEnd(function() {
-                    if (linkFromOutlet) {
-                        console.log('remove ghost');
+                    if (linkGhost) {
                         root.removeChild(linkGhost);
-                        if (linkInMotion) {
-                            console.log('disconnect', linkInMotion, 'from', linkFromOutlet);
-                            var linkElm = links[linkInMotion.id].elm;
-                            root.removeChild(linkElm);
-                            linkInMotion.outlet.disconnect(linkInMotion);
-                            links[linkInMotion.id] = null;
-                        }
-                        linkFromOutlet = null;
-                        linkInMotion = null;
+                        linkGhost = null;
                     }
                 });
             }).onValue(function(evt) {
-                console.log('move ghost to', evt.clientX, evt.clientY);
                 rotateLink(linkGhost, linkGhostPos.left, linkGhostPos.top,
                                       evt.clientX, evt.clientY);
             });
@@ -469,7 +369,8 @@ function HtmlRenderer(user_config) {
             var inletConnector  = inletData.connectorElm;
 
             outletData.links.push(link);
-            inletData.links.push(link);
+            if (inletData.link) throw new Error('Inlet is already connected to a link');
+            inletData.link = link;
 
             var p0 = outletConnector.getBoundingClientRect(),
                 p1 = inletConnector.getBoundingClientRect();
