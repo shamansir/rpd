@@ -26,7 +26,6 @@ Rpd.nodetype('core/sum-of-three', {
         'sum': { type: 'core/number', default: 0, name: '∑' }
     },
     process: function(inlets) {
-        console.log(inlets);
         return { 'sum': (inlets.a || 0) + (inlets.b || 0) + (inlets.c || 0) };
     },
     render: {

@@ -79,16 +79,20 @@
 .rpd-inlet .rpd-value,
 .rpd-outlet .rpd-value {
     color: rgba(200, 200, 200, 0.7);
+}
+
+.rpd-values-on-hover .rpd-inlet .rpd-value,
+.rpd-values-on-hover .rpd-outlet .rpd-value {
     display: none;
 }
 
-.rpd-debug .rpd-inlet .rpd-value,
-.rpd-debug .rpd-outlet .rpd-value {
+.rpd-values-on-hover .rpd-inlet:hover .rpd-value,
+.rpd-values-on-hover .rpd-outlet:hover .rpd-value {
     display: block;
 }
 
-.rpd-inlet:hover .rpd-value,
-.rpd-outlet:hover .rpd-value {
+.rpd-values-always-shown .rpd-inlet .rpd-value,
+.rpd-values-always-shown .rpd-outlet .rpd-value {
     display: block;
 }
 
@@ -136,7 +140,7 @@
 }
 
 .rpd-layout-quartz .rpd-value {
-    margin: 1px 3px 0px 3px;
+    margin: 2px 4px 0px 4px;
 }
 
 .rpd-layout-quartz .rpd-name {
