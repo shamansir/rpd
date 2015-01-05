@@ -26,6 +26,8 @@ function HtmlRenderer(user_config) {
         removeLink = Kefir.emitter(),
         linkResolved = Kefir.emitter();
 
+    var wereClicks = false;
+
     return {
 
         // ============================ model/new ==============================
@@ -276,9 +278,12 @@ function HtmlRenderer(user_config) {
                 }
                 createLink.emit({ inlet: inlet, outlet: outlet });
                 linkResolved.emit();
+                wereClicks = true;
+                setTimeout(function() { wereClicks = false; }, 200);
             });
 
             Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost.not())
+                                                  .filter(function() { return !wereClicks; })
                                                   .filter(function() { return inletData.link; })
                                                   .map(function(evt) { return { x: evt.clientX, y: evt.clientY }})
                                                   .flatMap(function(pt) {
@@ -422,9 +427,12 @@ function HtmlRenderer(user_config) {
                                                   .onValue(function() {
                 console.log('outlet-ghost');
                 removeGhost.emit();
+                wereClicks = true;
+                setTimeout(function() { wereClicks = false; }, 200);
             });
 
             Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost.not())
+                                                  .filter(function() { return !wereClicks; })
                                                   .map(function(evt) { return { x: evt.clientX, y: evt.clientY }})
                                                   .flatMap(function(pt) {
                 console.log('outlet-no-ghost');
