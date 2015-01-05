@@ -52,8 +52,10 @@ function HtmlRenderer(user_config) {
                 root.appendChild(currentGhost);
             }).log('create-ghost');
             moveGhost.onValue(function(pt) {
-                var pivot = currentGhostPivot;
-                rotateLink(currentGhost, pivot.x, pivot.y, pt.x, pt.y);
+                if (currentGhost) {
+                    var pivot = currentGhostPivot;
+                    rotateLink(currentGhost, pivot.x, pivot.y, pt.x, pt.y);
+                }
             }).log('move-ghost');
             removeGhost.filter(function() { return currentGhost })
                        .onValue(function() {
@@ -265,11 +267,12 @@ function HtmlRenderer(user_config) {
                 evt.stopPropagation();
             });
 
-            Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost)
-                                                  .zip(createGhost)
-                                                  .map(function(value) { return value[1].outlet; })
+            Kefir.sampledBy([createGhost], [Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost)])
+            /* Kefir.fromEvent(connectorElm, 'click').sampledBy(createGhost)
+                                                  .filterBy(doingGhost) */
+                                                  .map(function(value) { console.log(value); return value[0].outlet; })
                                                   .onValue(function(outlet) {
-                console.log('inlet-ghost');
+                console.log('inlet-ghost', outlet);
                 removeGhost.emit();
                 if (inletData.link) {
                     var link = inletData.link;
@@ -278,12 +281,12 @@ function HtmlRenderer(user_config) {
                 }
                 createLink.emit({ inlet: inlet, outlet: outlet });
                 linkResolved.emit();
-                wereClicks = true;
-                setTimeout(function() { wereClicks = false; }, 200);
+                // wereClicks = true; // FIXME: use stream approach, debounce doesn't help
+                // setTimeout(function() { wereClicks = false; }, 200);
             });
 
             Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost.not())
-                                                  .filter(function() { return !wereClicks; })
+                                                  //.filter(function() { return !wereClicks; })
                                                   .filter(function() { return inletData.link; })
                                                   .map(function(evt) { return { x: evt.clientX, y: evt.clientY }})
                                                   .flatMap(function(pt) {
@@ -309,41 +312,6 @@ function HtmlRenderer(user_config) {
                 console.log('mm-inlet');
                 moveGhost.emit(pt);
             });
-
-            /* Kefir.fromEvent(connectorElm, 'click').flatMap(function(evt) {
-                evt.preventDefault();
-                evt.stopPropagation();
-                if (inletData.link) {
-                    inletData.link.disconnect();
-                    root.removeChild(links[inletData.link.id].elm);
-                    if (linkGhost) {
-                        root.removeChild(linkGhost);
-                        linkGhost = null;
-                        linkSrc.connect(inlet);
-                        inletData.link = null;
-                        linkResolved.emit();
-                        return Kefir.never();
-                    } else {
-                        linkGhostPos = connectorElm.getBoundingClientRect();
-                        linkGhost = createLink(linkGhostPos.left, linkGhostPos.top,
-                                               evt.clientX, evt.clientY);
-                        linkSrc = inletData.link.outlet;
-                        root.appendChild(linkGhost);
-                    }
-                }
-                return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
-                    Kefir.fromEvent(root, 'click')
-                         .merge(Kefir.fromEvent(connectorElm, 'click'))
-                ).onEnd(function() {
-                    if (linkGhost) {
-                        root.removeChild(linkGhost);
-                        linkGhost = null;
-                    }
-                });
-            }).onValue(function(evt) {
-                rotateLink(linkGhost, linkGhostPos.left, linkGhostPos.top,
-                                      evt.clientX, evt.clientY);
-            }); */
 
         },
 
@@ -427,12 +395,12 @@ function HtmlRenderer(user_config) {
                                                   .onValue(function() {
                 console.log('outlet-ghost');
                 removeGhost.emit();
-                wereClicks = true;
-                setTimeout(function() { wereClicks = false; }, 200);
+                // wereClicks = true; // FIXME: use stream approach, throttle doesn't help
+                // setTimeout(function() { wereClicks = false; }, 200);
             });
 
             Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost.not())
-                                                  .filter(function() { return !wereClicks; })
+                                                  //.filter(function() { return !wereClicks; })
                                                   .map(function(evt) { return { x: evt.clientX, y: evt.clientY }})
                                                   .flatMap(function(pt) {
                 console.log('outlet-no-ghost');
@@ -453,30 +421,6 @@ function HtmlRenderer(user_config) {
                 console.log('mm-outlet');
                 moveGhost.emit(pt);
             });
-
-            /* Kefir.fromEvent(connectorElm, 'click').flatMap(function(evt) {
-                evt.preventDefault();
-                evt.stopPropagation();
-                if (linkGhost) return Kefir.never();
-                linkGhostPos = connectorElm.getBoundingClientRect();
-                linkGhost = createLink(linkGhostPos.left, linkGhostPos.top,
-                                       evt.clientX, evt.clientY);
-                linkSrc = outlet;
-                root.appendChild(linkGhost);
-                return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
-                    Kefir.fromEvent(root, 'click')
-                         .merge(Kefir.fromEvent(connectorElm, 'click'))
-                         .merge(linkResolved)
-                ).onEnd(function() {
-                    if (linkGhost) {
-                        root.removeChild(linkGhost);
-                        linkGhost = null;
-                    }
-                });
-            }).onValue(function(evt) {
-                rotateLink(linkGhost, linkGhostPos.left, linkGhostPos.top,
-                                      evt.clientX, evt.clientY);
-            }); */
 
         },
 
