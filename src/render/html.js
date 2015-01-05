@@ -19,7 +19,7 @@ function HtmlRenderer(user_config) {
 
     var config = mergeConfig(user_config, default_config);
 
-    var createGhost = Kefir.emitter(),
+    /* var createGhost = Kefir.emitter(),
         moveGhost = Kefir.emitter(),
         removeGhost = Kefir.emitter(),
         doingGhost = Kefir.merge([createGhost.mapTo(true), removeGhost.mapTo(false)]).toProperty(false);
@@ -28,7 +28,7 @@ function HtmlRenderer(user_config) {
         removeLink = Kefir.emitter(),
         linkResolved = Kefir.emitter();
 
-    var wereClicks = false;
+    var wereClicks = false; */
 
     return {
 
@@ -48,7 +48,7 @@ function HtmlRenderer(user_config) {
                 }
             }
 
-            var currentGhost = null,
+            /* var currentGhost = null,
                 currentGhostPivot = null;
 
             createGhost.onValue(function(value) {
@@ -78,7 +78,7 @@ function HtmlRenderer(user_config) {
                 link.disconnect();
                 root.removeChild(links[link.id].elm);
                 links[link.id] = null;
-            }).log('remove-link');
+            }).log('remove-link'); */
 
         },
 
@@ -283,16 +283,14 @@ function HtmlRenderer(user_config) {
 
             nodeData.inletsNum++;
 
-            Kefir.fromEvent(connectorElm, 'click').onValue(function(evt) {
+            /* Kefir.fromEvent(connectorElm, 'click').onValue(function(evt) {
                 evt.preventDefault();
                 evt.stopPropagation();
             });
 
             Kefir.sampledBy([createGhost], [Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost)])
-            /* Kefir.fromEvent(connectorElm, 'click').sampledBy(createGhost)
-                                                  .filterBy(doingGhost) */
-                                                  .map(function(value) { console.log(value); return value[0].outlet; })
-                                                  .onValue(function(outlet) {
+                                                 .map(function(value) { console.log(value); return value[0].outlet; })
+                                                 .onValue(function(outlet) {
                 console.log('inlet-ghost', outlet);
                 removeGhost.emit();
                 if (inletData.link) {
@@ -301,13 +299,9 @@ function HtmlRenderer(user_config) {
                     removeLink.emit(link);
                 }
                 createLink.emit({ inlet: inlet, outlet: outlet });
-                linkResolved.emit();
-                // wereClicks = true; // FIXME: use stream approach, debounce doesn't help
-                // setTimeout(function() { wereClicks = false; }, 200);
             });
 
             Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost.not())
-                                                  //.filter(function() { return !wereClicks; })
                                                   .filter(function() { return inletData.link; })
                                                   .map(function(evt) { return { x: evt.clientX, y: evt.clientY }})
                                                   .flatMap(function(pt) {
@@ -332,7 +326,7 @@ function HtmlRenderer(user_config) {
             }).onValue(function(pt) {
                 console.log('mm-inlet');
                 moveGhost.emit(pt);
-            });
+            }); */
 
         },
 
@@ -407,7 +401,7 @@ function HtmlRenderer(user_config) {
 
             nodeData.outletsNum++;
 
-            Kefir.fromEvent(connectorElm, 'click').onValue(function(evt) {
+            /* Kefir.fromEvent(connectorElm, 'click').onValue(function(evt) {
                 evt.preventDefault();
                 evt.stopPropagation();
             });
@@ -441,7 +435,7 @@ function HtmlRenderer(user_config) {
             }).onValue(function(pt) {
                 console.log('mm-outlet');
                 moveGhost.emit(pt);
-            });
+            }); */
 
         },
 
