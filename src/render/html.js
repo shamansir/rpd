@@ -85,7 +85,7 @@ function HtmlRenderer(user_config) {
             var nodeBox = quickElm('div', 'rpd-node-box');
             var nodeElm = quickElm('table', 'rpd-node');
 
-            var inletsTrg, outletsTrg;
+            var inletsTrg, outletsTrg, bodyElm;
 
             if (config.layout == QUARTZ_LAYOUT) {
 
@@ -115,12 +115,16 @@ function HtmlRenderer(user_config) {
                 inletsTable.appendChild(inletsBody);
                 inletsCell.appendChild(inletsTable);
 
+                bodyElm = quickElm('div');
+
                 var bodyCell = quickElm('td', 'rpd-body');
-                var bodyTable = quickElm('table');
-
-                // TODO
-
-                bodyCell.appendChild(bodyTable);
+                var innerBodyTable = quickElm('table');
+                var innerBodyRow = quickElm('tr');
+                var innerBodyCell = quickElm('td');
+                innerBodyCell.appendChild(bodyElm);
+                innerBodyRow.appendChild(innerBodyCell);
+                innerBodyTable.appendChild(innerBodyRow);
+                bodyCell.appendChild(innerBodyTable);
 
                 var outletsCell = quickElm('td', 'rpd-outlets');
                 var outletsTable = quickElm('table');
@@ -167,11 +171,15 @@ function HtmlRenderer(user_config) {
                 contentRow.appendChild(headCell);
 
                 var bodyCell = quickElm('td', 'rpd-body');
-                var bodyTable = quickElm('table');
+                var bodyElm = quickElm('div');
+                var innerBodyTable = quickElm('table');
+                var innerBodyRow = quickElm('tr');
+                var innerBodyCell = quickElm('td');
+                innerBodyCell.appendChild(bodyElm);
+                innerBodyRow.appendChild(innerBodyCell);
+                innerBodyTable.appendChild(innerBodyRow);
 
-                // TODO add body
-
-                bodyCell.appendChild(bodyTable);
+                bodyCell.appendChild(innerBodyTable);
                 contentRow.appendChild(bodyCell);
                 nodeElm.appendChild(contentRow);
 
@@ -193,6 +201,7 @@ function HtmlRenderer(user_config) {
             if (nodeElm.classList) nodeElm.classList.add('rpd-'+node.type.replace('/','-'));
 
             nodes[node.id] = { elm: nodeElm,
+                               body: bodyElm,
                                inletsTrg: inletsTrg, outletsTrg: outletsTrg,
                                inlets: {}, outlets: {},
                                inletsNum: 0, outletsNum: 0 };
@@ -207,7 +216,13 @@ function HtmlRenderer(user_config) {
 
         // ============================ node/process ===========================
 
-        'node/process': function(root, update) {},
+        'node/process': function(root, update) {
+            var node = update.node;
+            if (node.render.html) {
+                var bodyElm = nodes[node.id].body;
+                node.render.html(bodyElm, update.inlets, update.outlets);
+            }
+        },
 
         // ============================ node/remove ============================
 

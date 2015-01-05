@@ -3,6 +3,7 @@ var Rpd = (function() {
 var nodetypes = {};
 var linktypes = {};
 var channeltypes = {};
+var rendernodes = {};
 
 var renderer_registry = {};
 
@@ -83,8 +84,11 @@ function Node(type, name) {
     this.name = name || def.name || 'Unnamed';
     this.def = def;
 
+    this.render = def.render || {};
+
+    var myself = this;
     var event_conf = {
-        'node/process':  function(channels) { return { inlets: channels[0], outlets: channels[1] } },
+        'node/process':  function(channels) { return { inlets: channels[0], outlets: channels[1], node: myself } },
         'inlet/add':     function(inlet) { return { inlet: inlet } },
         'inlet/remove':  function(inlet) { return { inlet: inlet } },
         'outlet/add':    function(outlet) { return { outlet: outlet } },
@@ -120,7 +124,7 @@ function Node(type, name) {
             }, null)
         ]).onValue(function(value) {
             var inlets_vals = value[0] || {}; var outlets = value[1] || {};
-            var outlets_vals = process_f(inlets_vals || {});
+            var outlets_vals = process_f(inlets_vals);
             myself.event['node/process'].emit([inlets_vals, outlets_vals]);
             for (var outlet_name in outlets_vals) {
                 if (outlets[outlet_name]) {
@@ -129,6 +133,9 @@ function Node(type, name) {
             }
         });
     }
+
+    // only inlets / outlets from type definition are stored, to let
+    // user easily connect to them
 
     if (this.def.inlets) {
         this.inlets = {};
