@@ -27,14 +27,14 @@ Rpd.nodetype('core/sum-of-three', {
     },
     process: function(inlets) {
         return { 'sum': (inlets.a || 0) + (inlets.b || 0) + (inlets.c || 0) };
-    },
+    }/* ,
     render: {
         'html': function(bodyElm, inlets, outlets) {
             bodyElm.innerHTML = '∑ (' + (inlets.a || '?') + ', '
                                       + (inlets.b || '?') + ', '
                                       + (inlets.c || '?') + ') = ' + (outlets.sum || '?');
         }
-    }
+    } */
 });
 
 Rpd.channeltype('core/bool', { });

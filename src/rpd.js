@@ -3,7 +3,6 @@ var Rpd = (function() {
 var nodetypes = {};
 var linktypes = {};
 var channeltypes = {};
-var rendernodes = {};
 
 var renderer_registry = {};
 
@@ -373,6 +372,12 @@ function renderer(alias, f) {
     renderer_registry[alias] = f;
 }
 
+function noderenderer(type, alias, f) {
+    if (!nodetypes[type]) throw new Error('Node type ' + type + ' is not registered');
+    if (!nodetypes[type].render) nodetypes[type].render = {};
+    nodetypes[type].render[alias] = f;
+}
+
 // =============================== export ======================================
 // =============================================================================
 
@@ -385,7 +390,8 @@ return {
     'nodetype': nodetype,
     'linktype': linktype,
     'channeltype': channeltype,
-    'renderer': renderer
+    'renderer': renderer,
+    'noderenderer': noderenderer
 }
 
 })();
