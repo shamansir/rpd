@@ -105,7 +105,7 @@ function Node(type, name) {
         Kefir.combine([
             this.event['inlet/add'].flatMap(function(inlet) {
                 return inlet.event['inlet/update'].map(function(value) {
-                    return { inlet: inlet.name, value: value };
+                    return { inlet: inlet.alias, value: value };
                 });
             }).scan(function(values, update) {
                 var values = values || {};
@@ -115,30 +115,50 @@ function Node(type, name) {
             }, null),
             this.event['outlet/add'].scan(function(outlets, outlet) {
                 var outlets = outlets || {};
-                outlets[outlet.name] = outlet;
+                outlets[outlet.alias] = outlet;
                 return outlets;
             }, null)
         ]).onValue(function(value) {
-            var inlets_vals = value[0]; var outlets = value[1];
+            var inlets_vals = value[0] || {}; var outlets = value[1] || {};
             var outlets_vals = process_f(inlets_vals || {});
             myself.event['node/process'].emit([inlets_vals, outlets_vals]);
             for (var outlet_name in outlets_vals) {
-                outlets[outlet_name].stream(outlets_vals[outlet_name]);
+                if (outlets[outlet_name]) {
+                    outlets[outlet_name].send(outlets_vals[outlet_name]);
+                };
             }
         });
     }
+
+    if (this.def.inlets) {
+        this.inlets = {};
+        for (var alias in this.def.inlets) {
+            var conf = this.def.inlets[alias];
+            var inlet = this.addInlet(conf.type, alias, conf.name, conf.hidden);
+            this.inlets[alias] = inlet;
+        }
+    }
+
+    if (this.def.outlets) {
+        this.outlets = {};
+        for (var alias in this.def.outlets) {
+            var conf = this.def.outlets[alias];
+            var outlet = this.addOutlet(conf.type, alias, conf.name, conf.default);
+            this.outlets[alias] = outlet;
+        }
+    }
 }
-Node.prototype.addInlet = function(type, name) {
-    var inlet = new Inlet(type, this, name);
+Node.prototype.addInlet = function(type, alias, name, hidden) {
+    var inlet = new Inlet(type, this, alias, name);
     this.events.plug(inlet.events);
     this.event['inlet/add'].emit(inlet);
     return inlet;
 }
-Node.prototype.addOutlet = function(type, name, value) {
-    var outlet = new Outlet(type, this, name);
+Node.prototype.addOutlet = function(type, alias, name, _default) {
+    var outlet = new Outlet(type, this, alias, name);
     this.events.plug(outlet.events);
     this.event['outlet/add'].emit(outlet);
-    outlet.send(value);
+    outlet.send(_default || outlet.default);
     return outlet;
 }
 Node.prototype.removeInlet = function(inlet) {
@@ -153,16 +173,19 @@ Node.prototype.removeOutlet = function(outlet) {
 // ================================== Inlet ====================================
 // =============================================================================
 
-function Inlet(type, node, name) {
+function Inlet(type, node, alias, name, hidden) {
     this.type = type || 'core/bool';
     this.id = short_uid();
     var def = channeltypes[this.type];
     if (!def) report_error('Inlet type ' + this.type + ' is not registered!');
     this.def = def;
 
-    this.name = name || def.name || 'Unnamed';
+    this.alias = alias || name || def.alias;
+    if (!this.alias) report_error('Outlet should have either alias or name');
+    this.name = name || this.alias || def.name || 'Unnamed';
 
     this.node = node;
+    this.hidden = hidden || false;
     this.value = Kefir.bus();
 
     var myself = this;
@@ -183,16 +206,19 @@ Inlet.prototype.stream = function(stream) {
 // ================================= Outlet ====================================
 // =============================================================================
 
-function Outlet(type, node, name) {
+function Outlet(type, node, alias, name) {
     this.type = type || 'core/bool';
     this.id = short_uid();
     var def = channeltypes[this.type];
     if (!def) report_error('Outlet type ' + this.type + ' is not registered!');
     this.def = def;
 
-    this.name = name || def.name || 'Unnamed';
+    this.alias = alias || name || def.alias;
+    if (!this.alias) report_error('Outlet should have either alias or name');
+    this.name = name || this.alias || def.name || 'Unnamed';
 
     this.node = node;
+    this.default = def.default;
     this.value = Kefir.bus();
 
     var myself = this;

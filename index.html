@@ -16,7 +16,7 @@
             var model = Rpd.Model.start().attachTo(document.body)
                                          .renderWith('html');
 
-            var first = new Rpd.Node('core/custom', 'Test');
+            /* var first = new Rpd.Node('core/custom', 'Test');
             first.addInlet('core/number', 'BarIn');
             var boolOutlet = first.addOutlet('core/bool', 'BoolOut', true);
             first.addOutlet('core/number', 'NumOut1', 1);
@@ -31,7 +31,24 @@
             boolOutlet.connect(boolInlet);
             boolOutlet.connect(numInlet, function(val) { return (val === true) ? 1 : 0 });
             boolOutlet.send(false);
-            boolOutlet.stream(Kefir.repeatedly(1000, [true, false]));
+            boolOutlet.stream(Kefir.repeatedly(1000, [true, false])); */
+
+            var sumOfThree = new Rpd.Node('core/sum-of-three', 'Sum');
+            var inA = sumOfThree.inlets['a'];
+            var inB = sumOfThree.inlets['b'];
+
+            var genA = new Rpd.Node('core/custom', 'Generate A');
+            var outA = genA.addOutlet('core/number', 'A');
+
+            var genA = new Rpd.Node('core/custom', 'Generate B');
+            var outB = genA.addOutlet('core/number', 'B', '', 1);
+
+            outA.connect(inA);
+            outB.connect(inB);
+
+            outA.stream(Kefir.repeatedly(1000, [1, 2, 3]));
+            outB.stream(Kefir.repeatedly(2000, [4, 5, 6]));
+
             //boolOutlet.disconnect(boolInlet);
             //second.removeInlet(boolInlet)
         </script>
