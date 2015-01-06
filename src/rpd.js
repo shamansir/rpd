@@ -96,6 +96,14 @@ function Node(type, name) {
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
 
+    if (this.def.handle) {
+        this.events.onValue(function(update) {
+            if (myself.def.handle[update.type]) {
+                myself.def.handle[update.type](update);
+            };
+        });
+    }
+
     if (models[cur_model]) {
         models[cur_model].addNode(this);
     } else {
@@ -153,6 +161,8 @@ function Node(type, name) {
             this.outlets[alias] = outlet;
         }
     }
+
+    if (this.def.prepare) this.def.prepare(this.inlets, this.outlets);
 }
 Node.prototype.addInlet = function(type, alias, name, hidden) {
     var inlet = new Inlet(type, this, alias, name);

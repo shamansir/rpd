@@ -572,8 +572,8 @@ var default_width = 100,
 var node_rects = [];
 
 function applyNextNodeRect(node, nodeElm, limits) {
-    var width = node.def.minWidth || default_width,
-        height = node.def.minHeight || default_height,
+    var width = node.def.boxWidth || default_width,
+        height = node.def.boxHeight || default_height,
         limits = limits || default_limits;
     /*var w_sum = 0, h_sum = 0;
     for (var i = 0, il = node_rects.length; i < il; i++) {
