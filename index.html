@@ -33,7 +33,7 @@
             boolOutlet.send(false);
             boolOutlet.stream(Kefir.repeatedly(1000, [true, false])); */
 
-            var sumOfThree = new Rpd.Node('core/sum-of-three', 'Sum');
+            var sumOfThree = new Rpd.Node('core/sum-of-three-with-body', 'Sum');
             var inA = sumOfThree.inlets['a'];
             var inB = sumOfThree.inlets['b'];
 

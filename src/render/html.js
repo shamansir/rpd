@@ -216,6 +216,10 @@ function HtmlRenderer(user_config) {
 
             nodeBox.appendChild(nodeElm);
 
+            if (node.renderfirst.html) {
+                node.renderfirst.html(bodyElm, node.inlets, node.outlets);
+            }
+
             root.appendChild(nodeBox);
 
         },

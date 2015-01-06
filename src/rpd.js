@@ -84,6 +84,7 @@ function Node(type, name) {
     this.def = def;
 
     this.render = def.render || {};
+    this.renderfirst = def.renderfirst || {};
 
     var myself = this;
     var event_conf = {
@@ -103,6 +104,8 @@ function Node(type, name) {
             };
         });
     }
+
+    // add node to the model so it will receive events from methods below
 
     if (models[cur_model]) {
         models[cur_model].addNode(this);
@@ -163,6 +166,7 @@ function Node(type, name) {
     }
 
     if (this.def.prepare) this.def.prepare(this.inlets, this.outlets);
+
 }
 Node.prototype.addInlet = function(type, alias, name, hidden) {
     var inlet = new Inlet(type, this, alias, name);
