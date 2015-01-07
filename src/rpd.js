@@ -88,6 +88,7 @@ function Node(type, name) {
 
     var myself = this;
     var event_conf = {
+        'node/ready':    function(node) { return { node: myself } },
         'node/process':  function(channels) { return { inlets: channels[0], outlets: channels[1], node: myself } },
         'inlet/add':     function(inlet) { return { inlet: inlet } },
         'inlet/remove':  function(inlet) { return { inlet: inlet } },
@@ -97,20 +98,20 @@ function Node(type, name) {
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
 
-    if (this.def.handle) {
-        this.events.onValue(function(update) {
-            if (myself.def.handle[update.type]) {
-                myself.def.handle[update.type](update);
-            };
-        });
-    }
-
     // add node to the model so it will receive events from methods below
 
     if (models[cur_model]) {
         models[cur_model].addNode(this);
     } else {
         report_error('No model started!');
+    }
+
+    if (this.def.handle) {
+        this.events.onValue(function(update) {
+            if (myself.def.handle[update.type]) {
+                myself.def.handle[update.type](update);
+            };
+        });
     }
 
     if (this.def.process) {
@@ -166,6 +167,8 @@ function Node(type, name) {
     }
 
     if (this.def.prepare) this.def.prepare(this.inlets, this.outlets);
+
+    this.event['node/ready'].emit(this);
 
 }
 Node.prototype.addInlet = function(type, alias, name, hidden) {
