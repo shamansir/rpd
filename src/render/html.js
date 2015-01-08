@@ -218,18 +218,18 @@ function HtmlRenderer(user_config) {
 
             root.appendChild(nodeBox);
 
+            var node = update.node;
+
+            if (node.renderfirst.html) {
+                var bodyElm = nodes[node.id].body;
+                node.renderfirst.html(bodyElm, node.event);
+            }
+
         },
 
         // ============================ node/ready =============================
 
         'node/ready': function(root, update) {
-
-            var node = update.node;
-
-            if (node.renderfirst.html) {
-                var bodyElm = nodes[node.id].body;
-                node.renderfirst.html(bodyElm, node.inlets, node.outlets);
-            }
 
         },
 
@@ -252,6 +252,8 @@ function HtmlRenderer(user_config) {
         'inlet/add': function(root, update) {
 
             var inlet = update.inlet;
+
+            if (inlet.hidden) return;
 
             var nodeData = nodes[inlet.node.id];
             var inletsTrg = nodeData.inletsTrg;
@@ -353,6 +355,8 @@ function HtmlRenderer(user_config) {
 
             var inlet = update.inlet;
 
+            if (inlet.hidden) return;
+
             var nodeData = nodes[inlet.node.id];
             var inletData = nodeData.inlets[inlet.id];
             var inletElm = inletData.elm;
@@ -368,6 +372,8 @@ function HtmlRenderer(user_config) {
         'outlet/add': function(root, update) {
 
             var outlet = update.outlet;
+
+            if (outlet.hidden) return;
 
             var nodeData = nodes[outlet.node.id];
             var outletsTrg = nodeData.outletsTrg;

@@ -48,7 +48,7 @@ Rpd.nodetype('core/sum-of-three-with-body', (function() {
         name: 'Sum of Three',
         boxWidth: 300,
         inlets: {
-            'a': { type: 'core/number', name: 'A' },
+            'a': { type: 'core/number', name: 'A', default: 1 },
             'b': { type: 'core/number', name: 'B' },
             'c': { type: 'core/number', name: 'C', hidden: true }
         },
@@ -59,14 +59,19 @@ Rpd.nodetype('core/sum-of-three-with-body', (function() {
             return { 'sum': (inlets.a || 0) + (inlets.b || 0) + (inlets.c || 0) };
         },
         renderfirst: {
-            'html': function(bodyElm, inlets) {
+            'html': function(bodyElm, event) {
                 var cValInput = document.createElement('input');
                 cValInput.style.display = 'block';
                 cValInput.type = 'number';
                 cValInput.min = 0;
                 cValInput.max = 10;
-                Kefir.fromEvent(cValInput, 'change').onValue(function() {
-                    inlets['c'].send(cValInput.value);
+                event['inlet/add'].filter(function(inlet) { return inlet.alias == 'c' })
+                                  .onValue(function(inlet) {
+                    cValInput.value = 0;
+                    inlet.receive(0);
+                    Kefir.fromEvent(cValInput, 'change').onValue(function() {
+                        inlet.receive(cValInput.value);
+                    });
                 });
                 bodyElm.appendChild(cValInput);
                 sumContent = document.createElement('span');

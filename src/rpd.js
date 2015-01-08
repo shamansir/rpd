@@ -172,7 +172,7 @@ function Node(type, name) {
 
 }
 Node.prototype.addInlet = function(type, alias, name, hidden) {
-    var inlet = new Inlet(type, this, alias, name);
+    var inlet = new Inlet(type, this, alias, name, hidden);
     this.events.plug(inlet.events);
     this.event['inlet/add'].emit(inlet);
     return inlet;

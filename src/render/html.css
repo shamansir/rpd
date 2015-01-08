@@ -100,9 +100,20 @@
     min-width: 20px;
 }
 
+.rpd-body input {
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #111;
+    background-color: rgba(201, 201, 220, 0.6);
+    margin: 6px 2px;
+}
+
+.rpd-body input[type="number"] {
+    width: 30px;
+}
+
 /* QUARTZ COMPOSER LAYOUT STYLE */
 
-.rpd-layout-quartz .rpd-node {
+.rpd-layout-quartz .rpd-node, .rpd-layout-quartz .rpd-node > .rpd-title {
     /* box-shadow: 3px 3px 14px 1px rgba(33,33,33,0.7); */
     /* box-shadow: -1px 5px 13px 1px rgba(30,30,30,0.8); */
 }
