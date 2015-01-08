@@ -104,7 +104,11 @@
     border: 1px solid rgba(255,255,255,0.2);
     color: #111;
     background-color: rgba(201, 201, 220, 0.6);
-    margin: 6px 2px;
+    margin: 4px 4px 9px 0px;
+}
+
+.rpd-body input:focus {
+    border: 1px solid #000;
 }
 
 .rpd-body input[type="number"] {
@@ -115,7 +119,7 @@
 
 .rpd-layout-quartz .rpd-node, .rpd-layout-quartz .rpd-node > .rpd-title {
     /* box-shadow: 3px 3px 14px 1px rgba(33,33,33,0.7); */
-    /* box-shadow: -1px 5px 13px 1px rgba(30,30,30,0.8); */
+    box-shadow: -1px 5px 13px 1px rgba(30,30,30,0.8);
 }
 
 .rpd-layout-quartz .rpd-node .rpd-title {
@@ -142,12 +146,17 @@
     position: relative;
     border-collapse: collapse;
     min-width: 100px;
+    min-height: 30px;
 }
 
 .rpd-layout-quartz table.rpd-node thead.rpd-title th {
     padding: 2px;
     text-align: left;
     font-weight: normal;
+}
+
+.rpd-layout-quartz .rpd-body {
+    padding: 9px 6px;
 }
 
 .rpd-layout-quartz .rpd-value {
@@ -157,6 +166,11 @@
 .rpd-layout-quartz .rpd-name {
     padding: 1px 0;
     color: rgba(255, 255, 255, 0.9);
+}
+
+.rpd-layout-quartz .rpd-inlet,
+.rpd-layout-quartz .rpd-outlet {
+    min-height: 20px;
 }
 
 .rpd-layout-quartz .rpd-inlet .rpd-name {
@@ -209,7 +223,7 @@
     background-color: #617b79;
     color: #eee;
     display: table;
-    /* box-shadow: 3px 3px 14px 1px rgba(33,33,33,0.7); */
+    box-shadow: 3px 3px 14px 1px rgba(33,33,33,0.7);
     /* box-shadow: -1px 5px 13px 1px rgba(30,30,30,0.8); */
     border: 1px solid rgba(255,255,255,0.4);
 }
@@ -262,7 +276,7 @@
 .rpd-layout-pd .rpd-outlet .rpd-value {
     position: absolute;
     margin-left: 0;
-    left: 0;
+    left: 2px;
 }
 
 .rpd-layout-pd .rpd-inlet .rpd-value {
