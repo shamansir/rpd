@@ -85,6 +85,7 @@ function Node(type, name) {
 
     this.render = def.render || {};
     this.renderfirst = def.renderfirst || {};
+    this.renderreplace = def.renderreplace || {};
 
     var myself = this;
     var event_conf = {
@@ -152,7 +153,7 @@ function Node(type, name) {
         this.inlets = {};
         for (var alias in this.def.inlets) {
             var conf = this.def.inlets[alias];
-            var inlet = this.addInlet(conf.type, alias, conf.name, conf.hidden);
+            var inlet = this.addInlet(conf.type, alias, conf.name, conf.default, conf.hidden);
             this.inlets[alias] = inlet;
         }
     }
@@ -171,17 +172,18 @@ function Node(type, name) {
     this.event['node/ready'].emit(this);
 
 }
-Node.prototype.addInlet = function(type, alias, name, hidden) {
-    var inlet = new Inlet(type, this, alias, name, hidden);
+Node.prototype.addInlet = function(type, alias, name, _default, hidden) {
+    var inlet = new Inlet(type, this, alias, name, _default, hidden);
     this.events.plug(inlet.events);
     this.event['inlet/add'].emit(inlet);
+    inlet.toDefault();
     return inlet;
 }
 Node.prototype.addOutlet = function(type, alias, name, _default) {
-    var outlet = new Outlet(type, this, alias, name);
+    var outlet = new Outlet(type, this, alias, name, _default);
     this.events.plug(outlet.events);
     this.event['outlet/add'].emit(outlet);
-    outlet.send(_default || outlet.default);
+    outlet.toDefault();
     return outlet;
 }
 Node.prototype.removeInlet = function(inlet) {
@@ -196,7 +198,7 @@ Node.prototype.removeOutlet = function(outlet) {
 // ================================== Inlet ====================================
 // =============================================================================
 
-function Inlet(type, node, alias, name, hidden) {
+function Inlet(type, node, alias, name, _default, hidden) {
     this.type = type || 'core/bool';
     this.id = short_uid();
     var def = channeltypes[this.type];
@@ -209,8 +211,12 @@ function Inlet(type, node, alias, name, hidden) {
 
     this.node = node;
     this.hidden = hidden || false;
-    this.adapt = this.def.adapt;
+    this.default = is_defined(_default) ? _default : def.default;
+    this.adapt = def.adapt;
     this.value = Kefir.bus();
+
+    this.render = def.render || {};
+    this.renderedit = def.renderedit || {};
 
     var myself = this;
     var event_conf = {
@@ -226,11 +232,16 @@ Inlet.prototype.receive = function(value) {
 Inlet.prototype.stream = function(stream) {
     this.value.plug(this.adapt ? stream.map(this.adapt) : stream);
 }
+Inlet.prototype.toDefault = function() {
+    if (is_defined(this.default) && (this.default instanceof Kefir.Stream)) {
+        this.stream(this.default);
+    } else this.receive(this.default);
+}
 
 // ================================= Outlet ====================================
 // =============================================================================
 
-function Outlet(type, node, alias, name) {
+function Outlet(type, node, alias, name, _default) {
     this.type = type || 'core/bool';
     this.id = short_uid();
     var def = channeltypes[this.type];
@@ -242,9 +253,12 @@ function Outlet(type, node, alias, name) {
     this.name = name || this.alias || def.name || 'Unnamed';
 
     this.node = node;
-    this.default = def.default;
-    this.adapt = this.def.adapt;
+    this.default = is_defined(_default) ? _default : def.default;
+    this.adapt = def.adapt;
     this.value = Kefir.bus();
+
+    this.render = def.render || {};
+    // outlets values are not editable
 
     var myself = this;
     var event_conf = {
@@ -273,6 +287,11 @@ Outlet.prototype.send = function(value) {
 }
 Outlet.prototype.stream = function(stream) {
     this.value.plug(this.adapt ? stream.map(this.adapt) : stream);
+}
+Outlet.prototype.toDefault = function() {
+    if (is_defined(this.default) && (this.default instanceof Kefir.Stream)) {
+        this.stream(this.default);
+    } else this.send(this.default);
 }
 
 // ================================= Link ======================================
@@ -326,6 +345,10 @@ Link.prototype.disconnect = function() {
 
 // ================================== utils ====================================
 // =============================================================================
+
+function is_defined(val) {
+    return (typeof val !== 'undefined');
+}
 
 function event_map(conf) {
     var map = {};
@@ -391,10 +414,28 @@ function renderer(alias, f) {
     renderer_registry[alias] = f;
 }
 
-function noderenderer(type, alias, f) {
+function noderenderer(type, alias, obj) {
     if (!nodetypes[type]) throw new Error('Node type ' + type + ' is not registered');
-    if (!nodetypes[type].render) nodetypes[type].render = {};
-    nodetypes[type].render[alias] = f;
+    if (obj.always) {
+        if (!nodetypes[type].render) nodetypes[type].render = {};
+        nodetypes[type].render[alias] = obj.always;
+    }
+    if (obj.first) {
+        if (!nodetypes[type].renderfirst) nodetypes[type].renderfirst = {};
+        nodetypes[type].renderfirst[alias] = obj.first;
+    }
+}
+
+function channelrender(type, alias, obj) {
+    if (!channeltypes[type]) throw new Error('Channel type ' + type + ' is not registered');
+    if (obj.show) {
+        if (!channeltypes[type].render) channeltypes[type].render = {};
+        channeltypes[type].render[alias] = obj.show;
+    }
+    if (obj.edit) {
+        if (!channeltypes[type].renderedit) channeltypes[type].renderedit = {};
+        channeltypes[type].renderedit[alias] = obj.edit;
+    }
 }
 
 // =============================== export ======================================
