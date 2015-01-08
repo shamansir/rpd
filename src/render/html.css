@@ -160,11 +160,11 @@
 }
 
 .rpd-layout-quartz .rpd-value {
-    margin: 2px 4px 0px 4px;
+    margin: 0.6em 5px 0px 5px;
 }
 
 .rpd-layout-quartz .rpd-name {
-    padding: 1px 0;
+    padding: 4px 2px;
     color: rgba(255, 255, 255, 0.9);
 }
 
@@ -183,13 +183,13 @@
 
 .rpd-layout-quartz .rpd-inlet .rpd-connector {
     position: absolute;
-    margin-top: 3px;
+    margin-top: 0.5em;
     left: -4px;
 }
 
 .rpd-layout-quartz .rpd-outlet .rpd-connector {
     position: absolute;
-    margin-top: 3px;
+    margin-top: 0.5em;
     right: -5px;
 }
 
@@ -213,8 +213,8 @@
 }
 
 .rpd-layout-quartz .rpd-link {
-    margin-left: 3px;
-    margin-top: 4.5px;
+    margin-left: 4px;
+    margin-top: 0.5em;
 }
 
 /* PURE DATA LAYOUT STYLE */
