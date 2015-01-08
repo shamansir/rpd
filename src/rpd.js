@@ -209,6 +209,7 @@ function Inlet(type, node, alias, name, hidden) {
 
     this.node = node;
     this.hidden = hidden || false;
+    this.adapt = this.def.adapt;
     this.value = Kefir.bus();
 
     var myself = this;
@@ -220,10 +221,10 @@ function Inlet(type, node, alias, name, hidden) {
     this.events = events_stream(event_conf, this.event);
 }
 Inlet.prototype.receive = function(value) {
-    this.value.emit(value);
+    this.value.emit(this.adapt ? this.adapt(value) : value);
 }
 Inlet.prototype.stream = function(stream) {
-    this.value.plug(stream);
+    this.value.plug(this.adapt ? stream.map(this.adapt) : stream);
 }
 
 // ================================= Outlet ====================================
@@ -242,6 +243,7 @@ function Outlet(type, node, alias, name) {
 
     this.node = node;
     this.default = def.default;
+    this.adapt = this.def.adapt;
     this.value = Kefir.bus();
 
     var myself = this;
@@ -267,10 +269,10 @@ Outlet.prototype.disconnect = function(link) {
     this.events.unplug(link.events);
 }
 Outlet.prototype.send = function(value) {
-    this.value.emit(value);
+    this.value.emit(this.adapt ? this.adapt(value) : value);
 }
 Outlet.prototype.stream = function(stream) {
-    this.value.plug(stream);
+    this.value.plug(this.adapt ? stream.map(this.adapt) : stream);
 }
 
 // ================================= Link ======================================

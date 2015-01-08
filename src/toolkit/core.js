@@ -91,6 +91,9 @@ Rpd.nodetype('core/sum-of-three-with-body', (function() {
 
 Rpd.channeltype('core/bool', { });
 
-Rpd.channeltype('core/number', { });
+Rpd.channeltype('core/number', { default: 0,
+                                 adapt: function(val) {
+                                     return parseFloat(val);
+                                 } });
 
 Rpd.linktype('core/normal', { });
