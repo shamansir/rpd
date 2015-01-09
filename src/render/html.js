@@ -19,16 +19,7 @@ function HtmlRenderer(user_config) {
 
     var config = mergeConfig(user_config, default_config);
 
-    /* var createGhost = Kefir.emitter(),
-        moveGhost = Kefir.emitter(),
-        removeGhost = Kefir.emitter(),
-        doingGhost = Kefir.merge([createGhost.mapTo(true), removeGhost.mapTo(false)]).toProperty(false);
-
-    var createLink = Kefir.emitter(),
-        removeLink = Kefir.emitter(),
-        linkResolved = Kefir.emitter();
-
-    var wereClicks = false; */
+    // var editingLinks = EditLinks();
 
     return {
 
@@ -48,37 +39,7 @@ function HtmlRenderer(user_config) {
                 }
             }
 
-            /* var currentGhost = null,
-                currentGhostPivot = null;
-
-            createGhost.onValue(function(value) {
-                var pivot = value.pivot, pt = value.pt;
-                currentGhostPivot = pivot;
-                currentGhost = constructLink(pivot.x, pivot.y, pt.x, pt.y);
-                root.appendChild(currentGhost);
-            }).log('create-ghost');
-            moveGhost.onValue(function(pt) {
-                if (currentGhost) {
-                    var pivot = currentGhostPivot;
-                    rotateLink(currentGhost, pivot.x, pivot.y, pt.x, pt.y);
-                }
-            }).log('move-ghost');
-            removeGhost.filter(function() { return currentGhost })
-                       .onValue(function() {
-                root.removeChild(currentGhost);
-                currentGhost = null;
-                currentGhostPivot = null;
-            }).log('remove-ghost');
-
-            createLink.onValue(function(value) {
-                var outlet = value.outlet, inlet = value.inlet;
-                outlet.connect(inlet);
-            }).log('create-link');
-            removeLink.onValue(function(link) {
-                link.disconnect();
-                root.removeChild(links[link.id].elm);
-                links[link.id] = null;
-            }).log('remove-link'); */
+            // editingLinks.onNewModel();
 
         },
 
@@ -88,12 +49,22 @@ function HtmlRenderer(user_config) {
 
             var node = update.node;
 
+            // div.rpd-node-box
+            //   table.rpd-node
+            //     ...
+
             var nodeBox = quickElm('div', 'rpd-node-box');
             var nodeElm = quickElm('table', 'rpd-node');
 
             var inletsTrg, outletsTrg, bodyElm;
 
             if (config.layout == QUARTZ_LAYOUT) {
+
+                // thead.rpd-title
+                //   tr
+                //     th[colspan=3]
+                //       span.rpd-name: node.name
+                //       span.rpd-type: node.type
 
                 var headElm = quickElm('thead', 'rpd-title');
                 var headRow = quickElm('tr');
@@ -108,6 +79,22 @@ function HtmlRenderer(user_config) {
                 if (config.showTypes) headCell.appendChild(quickElmVal('span', 'rpd-type', node.type));
                 headRow.appendChild(headCell);
                 headElm.appendChild(headRow);
+
+                // tbody.rpd-content
+                //   tr
+                //     td.rpd-inlets
+                //       table
+                //         tbody
+                //           ... (see inlet/add)
+                //     td.rpd-body
+                //       table
+                //         tr
+                //           td
+                //             ... (see node/process)
+                //     td.rpd-outlets
+                //       table
+                //         tbody
+                //           ... (see outlet/add)
 
                 var contentElm = quickElm('tbody', 'rpd-content');
                 var contentRow = quickElm('tr');
@@ -150,6 +137,27 @@ function HtmlRenderer(user_config) {
                 nodeElm.appendChild(contentElm);
 
             } else if (config.layout == PD_LAYOUT) {
+
+                // tr.rpd-inlets
+                //   td
+                //     table
+                //       tbody
+                //         ... (see inlet/add)
+                // tr.rpd-content
+                //   td.rpd-title
+                //     span.rpd-name: node.name
+                //     span.rpd-type: node.type
+                //   td.rpd-body
+                //     div
+                //       table
+                //         tr
+                //           td
+                //             ... (see node/process)
+                // tr.rpd-outlets
+                //   td
+                //     table
+                //       tbody
+                //         ... (see outlet/add)
 
                 var inletsRow = quickElm('tr', 'rpd-inlets');
 
@@ -262,6 +270,12 @@ function HtmlRenderer(user_config) {
 
             if (config.layout == QUARTZ_LAYOUT) {
 
+                // tr.rpd-inlet.rpd-stale
+                //    td.rpd-connector
+                //    td.rpd-value
+                //    td.rpd-name: inlet.name
+                //    td.rpd-type: inlet.type
+
                 inletElm = quickElm('tr', 'rpd-inlet rpd-stale');
                 connectorElm = quickElm('td', 'rpd-connector');
                 valueElm = quickElm('td', 'rpd-value');
@@ -271,6 +285,12 @@ function HtmlRenderer(user_config) {
                 if (config.showTypes) inletElm.appendChild(quickElmVal('td', 'rpd-type', inlet.type));
 
             } else if (config.layout == PD_LAYOUT) {
+
+                // td.rpd-inlet.rpd-stale
+                //    span.rpd-connector
+                //    span.rpd-name: inlet.name
+                //    span.rpd-value
+                //    span.rpd-type: inlet.type
 
                 inletElm = quickElm('td', 'rpd-inlet rpd-stale');
                 connectorElm = quickElm('span', 'rpd-connector');
@@ -298,50 +318,7 @@ function HtmlRenderer(user_config) {
 
             nodeData.inletsNum++;
 
-            /* Kefir.fromEvent(connectorElm, 'click').onValue(function(evt) {
-                evt.preventDefault();
-                evt.stopPropagation();
-            });
-
-            Kefir.sampledBy([createGhost], [Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost)])
-                                                 .map(function(value) { console.log(value); return value[0].outlet; })
-                                                 .onValue(function(outlet) {
-                console.log('inlet-ghost', outlet);
-                removeGhost.emit();
-                if (inletData.link) {
-                    var link = inletData.link;
-                    inletData.link = null;
-                    removeLink.emit(link);
-                }
-                createLink.emit({ inlet: inlet, outlet: outlet });
-            });
-
-            Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost.not())
-                                                  .filter(function() { return inletData.link; })
-                                                  .map(function(evt) { return { x: evt.clientX, y: evt.clientY }})
-                                                  .flatMap(function(pt) {
-                console.log('inlet-no-ghost');
-                var srcOutlet = inletData.link.outlet;
-                var link = inletData.link;
-                inletData.link = null;
-                removeLink.emit(link);
-                var connectorBounds = connectors[srcOutlet.id].getBoundingClientRect();
-                createGhost.emit({ outlet: srcOutlet,
-                                   pivot: { x: connectorBounds.left,
-                                            y: connectorBounds.top },
-                                   pt: pt });
-                return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
-                    Kefir.fromEvent(root, 'click')
-                         .merge(Kefir.fromEvent(connectorElm, 'click'))
-                         .merge(linkResolved)
-                ).onEnd(function() {
-                    console.log('inlet-no-ghost-rm');
-                    removeGhost.emit();
-                });
-            }).onValue(function(pt) {
-                console.log('mm-inlet');
-                moveGhost.emit(pt);
-            }); */
+            // editingLinks.onInletAdd()
 
         },
 
@@ -382,6 +359,12 @@ function HtmlRenderer(user_config) {
 
             if (config.layout == QUARTZ_LAYOUT) {
 
+                // tr.rpd-outlet.rpd-stale
+                //    td.rpd-connector
+                //    td.rpd-value
+                //    td.rpd-name: inlet.name
+                //    td.rpd-type: inlet.type
+
                 outletElm = quickElm('tr', 'rpd-outlet rpd-stale');
                 connectorElm = quickElm('td', 'rpd-connector');
                 valueElm = quickElm('td', 'rpd-value');
@@ -393,6 +376,12 @@ function HtmlRenderer(user_config) {
 
             } else if (config.layout == PD_LAYOUT) {
 
+                // td.rpd-outlet.rpd-stale
+                //    span.rpd-connector
+                //    span.rpd-name: inlet.name
+                //    span.rpd-value
+                //    span.rpd-type: inlet.type
+
                 outletElm = quickElm('td', 'rpd-outlet rpd-stale');
                 connectorElm = quickElm('span', 'rpd-connector');
                 valueElm = quickElm('span', 'rpd-value');
@@ -402,8 +391,6 @@ function HtmlRenderer(user_config) {
                 if (config.showTypes) outletElm.appendChild(quickElmVal('span', 'rpd-type', outlet.type));
 
             }
-
-            // TODO: add editor
 
             if (outletElm.classList) outletElm.classList.add('rpd-'+outlet.type.replace('/','-'));
 
@@ -420,42 +407,7 @@ function HtmlRenderer(user_config) {
 
             nodeData.outletsNum++;
 
-            /* Kefir.fromEvent(connectorElm, 'click').onValue(function(evt) {
-                evt.preventDefault();
-                evt.stopPropagation();
-            });
-
-            Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost)
-                                                  .onValue(function() {
-                console.log('outlet-ghost');
-                removeGhost.emit();
-                // wereClicks = true; // FIXME: use stream approach, throttle doesn't help
-                // setTimeout(function() { wereClicks = false; }, 200);
-            });
-
-            Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost.not())
-                                                  //.filter(function() { return !wereClicks; })
-                                                  .map(function(evt) { return { x: evt.clientX, y: evt.clientY }})
-                                                  .flatMap(function(pt) {
-                console.log('outlet-no-ghost');
-                var connectorBounds = connectorElm.getBoundingClientRect();
-                createGhost.emit({ outlet: outlet,
-                                   pivot: { x: connectorBounds.left,
-                                            y: connectorBounds.top },
-                                   pt: pt });
-                return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
-                    Kefir.fromEvent(root, 'click')
-                         .merge(Kefir.fromEvent(connectorElm, 'click'))
-                         .merge(linkResolved)
-                ).onEnd(function() {
-                    console.log('outlet-no-ghost-rm');
-                    removeGhost.emit();
-                });
-            }).onValue(function(pt) {
-                console.log('mm-outlet');
-                moveGhost.emit(pt);
-            }); */
-
+            // editingLinks.onOutletAdd();
         },
 
         // ============================ outlet/remove ==========================
@@ -517,6 +469,143 @@ function HtmlRenderer(user_config) {
     }; // return
 
 } // function
+
+// ============================== EditLinks ====================================
+// =============================================================================
+
+function EditLinks() {
+
+    /* var createGhost = Kefir.emitter(),
+        moveGhost = Kefir.emitter(),
+        removeGhost = Kefir.emitter(),
+        doingGhost = Kefir.merge([createGhost.mapTo(true), removeGhost.mapTo(false)]).toProperty(false);
+
+    var createLink = Kefir.emitter(),
+        removeLink = Kefir.emitter(),
+        linkResolved = Kefir.emitter();
+
+    var wereClicks = false; */
+
+    return {
+        onNewModel: function() {
+            /* var currentGhost = null,
+                   currentGhostPivot = null;
+
+            createGhost.onValue(function(value) {
+                var pivot = value.pivot, pt = value.pt;
+                currentGhostPivot = pivot;
+                currentGhost = constructLink(pivot.x, pivot.y, pt.x, pt.y);
+                root.appendChild(currentGhost);
+            }).log('create-ghost');
+            moveGhost.onValue(function(pt) {
+                if (currentGhost) {
+                    var pivot = currentGhostPivot;
+                    rotateLink(currentGhost, pivot.x, pivot.y, pt.x, pt.y);
+                }
+            }).log('move-ghost');
+            removeGhost.filter(function() { return currentGhost })
+                       .onValue(function() {
+                root.removeChild(currentGhost);
+                currentGhost = null;
+                currentGhostPivot = null;
+            }).log('remove-ghost');
+
+            createLink.onValue(function(value) {
+                var outlet = value.outlet, inlet = value.inlet;
+                outlet.connect(inlet);
+            }).log('create-link');
+            removeLink.onValue(function(link) {
+                link.disconnect();
+                root.removeChild(links[link.id].elm);
+                links[link.id] = null;
+            }).log('remove-link'); */
+        },
+        onInletAdd: function() {
+            /* Kefir.fromEvent(connectorElm, 'click').onValue(function(evt) {
+                evt.preventDefault();
+                evt.stopPropagation();
+            });
+
+            Kefir.sampledBy([createGhost], [Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost)])
+                                                 .map(function(value) { console.log(value); return value[0].outlet; })
+                                                 .onValue(function(outlet) {
+                console.log('inlet-ghost', outlet);
+                removeGhost.emit();
+                if (inletData.link) {
+                    var link = inletData.link;
+                    inletData.link = null;
+                    removeLink.emit(link);
+                }
+                createLink.emit({ inlet: inlet, outlet: outlet });
+            });
+
+            Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost.not())
+                                                  .filter(function() { return inletData.link; })
+                                                  .map(function(evt) { return { x: evt.clientX, y: evt.clientY }})
+                                                  .flatMap(function(pt) {
+                console.log('inlet-no-ghost');
+                var srcOutlet = inletData.link.outlet;
+                var link = inletData.link;
+                inletData.link = null;
+                removeLink.emit(link);
+                var connectorBounds = connectors[srcOutlet.id].getBoundingClientRect();
+                createGhost.emit({ outlet: srcOutlet,
+                                   pivot: { x: connectorBounds.left,
+                                            y: connectorBounds.top },
+                                   pt: pt });
+                return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
+                    Kefir.fromEvent(root, 'click')
+                         .merge(Kefir.fromEvent(connectorElm, 'click'))
+                         .merge(linkResolved)
+                ).onEnd(function() {
+                    console.log('inlet-no-ghost-rm');
+                    removeGhost.emit();
+                });
+            }).onValue(function(pt) {
+                console.log('mm-inlet');
+                moveGhost.emit(pt);
+            }); */
+        },
+        onOutletAdd: function() {
+            /* Kefir.fromEvent(connectorElm, 'click').onValue(function(evt) {
+                evt.preventDefault();
+                evt.stopPropagation();
+            });
+
+            Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost)
+                                                  .onValue(function() {
+                console.log('outlet-ghost');
+                removeGhost.emit();
+                // wereClicks = true; // FIXME: use stream approach, throttle doesn't help
+                // setTimeout(function() { wereClicks = false; }, 200);
+            });
+
+            Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost.not())
+                                                  //.filter(function() { return !wereClicks; })
+                                                  .map(function(evt) { return { x: evt.clientX, y: evt.clientY }})
+                                                  .flatMap(function(pt) {
+                console.log('outlet-no-ghost');
+                var connectorBounds = connectorElm.getBoundingClientRect();
+                createGhost.emit({ outlet: outlet,
+                                   pivot: { x: connectorBounds.left,
+                                            y: connectorBounds.top },
+                                   pt: pt });
+                return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
+                    Kefir.fromEvent(root, 'click')
+                         .merge(Kefir.fromEvent(connectorElm, 'click'))
+                         .merge(linkResolved)
+                ).onEnd(function() {
+                    console.log('outlet-no-ghost-rm');
+                    removeGhost.emit();
+                });
+            }).onValue(function(pt) {
+                console.log('mm-outlet');
+                moveGhost.emit(pt);
+            }); */
+        }
+    }
+
+}
 
 // ================================ utils ======================================
 // =============================================================================
