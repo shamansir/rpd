@@ -477,12 +477,13 @@ function HtmlRenderer(user_config) {
 
 } // function
 
-// ============================== EditLinks ====================================
+// ============================== Connections ==================================
 // =============================================================================
 
 function Connections() {
 
-    var inletClicks,
+    var rootClicks,
+        inletClicks,
         outletClicks;
 
     var startLink,
@@ -490,12 +491,31 @@ function Connections() {
         doingLink;
 
     function stopPropagation(event) { evt.stopPropagation(); };
+    function extractPos(event) { return { x: event.clientX,
+                                          y: event.clientY }; };
+    function getPos(elm) { var bounds = elm.getBoundingClienRect();
+                           return { x: bounds.top, y: bounds.left } };
+    function addInlet(inlet) {
+        return function(pos) {
+            return { pos: pos, inlet: inlet };
+        }
+    }
 
-    //function success() { return { success: true } }
+    function addSuccess(value) {
+        return function(pos) {
+            return { pos: pos, inlet: inlet };
+        }
+    }
+
+
+    //currentGhost = constructLink(pivot.x, pivot.y, pt.x, pt.y);
+    //rotateLink(currentGhost, pivot.x, pivot.y, pt.x, pt.y);
+    //root.removeChild(currentGhost);
 
     return {
-        onNewModel: function() {
+        onNewModel: function(root) {
 
+            rootClicks = Kefir.fromEvent(root, 'click');
             inletClicks = Kefir.pool(),
             outletClicks = Kefir.pool();
 
@@ -505,56 +525,53 @@ function Connections() {
                                       finishLink.mapTo(false) ]).toProperty(false);
 
         },
-        onInletAdd: function() {
-
-            log('in: prepare ' + id);
-
-            redClicks.plug(Kefir.fromEvent(redElm, 'click'));
-
-            Kefir.fromEvent(redElm, 'click').tap(stopPropagation)
-                                            .filterBy(redClicks.awaiting(doingLink))
-                                            .onValue(function() {
-                log('in/start linking from ' + redElm.id);
-                startLink.emit();
-                return Kefir.fromEvent(root, 'mousemove')
-                            .takeUntilBy(Kefir.merge([ greenClicks.mapTo({ success: true }),
-                                                       redClicks.mapTo({ success: false }),
-                                                       Kefir.fromEvent(root, 'click')
-                                                            .mapTo({ success: false }) ])
-                                              .take(1)
-                                              .onValue(function(val) { log('in/success: ' + val.success); }))
-                            .onValue(function(evt) {
-                                log('in/move link');
-                            }).onEnd(function() {
-                                log('in/end');
-                                finishLink.emit();
-                            });
-            });
-
-
-        },
-        onOutletAdd: function() {
+        onOutletAdd: function(outlet, connector) {
 
             log('out: prepare ' + id);
 
-            greenClicks.plug(Kefir.fromEvent(greenElm, 'click'));
+            outletClicks.plug(Kefir.fromEvent(connector, 'click'));
 
-            Kefir.fromEvent(redElm, 'click').tap(stopPropagation)
-                                            .filterBy(redClicks.awaiting(doingLink))
-                                            .onValue(function() {
-                log('out/start linking from ' + redElm.id);
+            Kefir.fromEvent(connector, 'click').tap(stopPropagation)
+                                               .filterBy(outletClicks.awaiting(doingLink))
+                                               .onValue(function() {
+                log('out/start linking from ' + outlet.alias);
                 startLink.emit();
                 return Kefir.fromEvent(root, 'mousemove')
-                            .takeUntilBy(Kefir.merge([ greenClicks.mapTo({ success: true }),
-                                                       redClicks.mapTo({ success: false }),
-                                                       Kefir.fromEvent(root, 'click')
-                                                            .mapTo({ success: false }) ])
+                            .takeUntilBy(Kefir.merge([ inletClicks.mapTo(true),
+                                                       outletClicks.mapTo(false),
+                                                       rootClicks.mapTo(false) ])
                                               .take(1)
                                               .onValue(function(val) { log('out/success: ' + val.success); }))
                             .onValue(function(evt) {
                                 log('out/move link');
                             }).onEnd(function() {
                                 log('out/end');
+                                finishLink.emit();
+                            });
+            });
+
+        },
+        onInletAdd: function(inlet, connector) {
+
+            log('in: prepare ' + id);
+
+            inletClicks.plug(Kefir.fromEvent(connector, 'click').map(extractPos).map(addInlet(inlet)));
+
+            Kefir.fromEvent(connector, 'click').tap(stopPropagation)
+                                               .filterBy(inletClicks.awaiting(doingLink))
+                                               .onValue(function() {
+                log('in/start linking from ' + redElm.id);
+                startLink.emit();
+                return Kefir.fromEvent(root, 'mousemove')
+                            .takeUntilBy(Kefir.merge([ inletClicks.mapTo(true),
+                                                       outletClicks.mapTo(false),
+                                                       rootClicks.mapTo(false) ])
+                                              .take(1)
+                                              .onValue(function(success) { log('out/success: ' + val.success); }))
+                            .onValue(function(evt) {
+                                log('in/move link');
+                            }).onEnd(function() {
+                                log('in/end');
                                 finishLink.emit();
                             });
             });
