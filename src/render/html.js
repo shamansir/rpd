@@ -19,7 +19,7 @@ function HtmlRenderer(user_config) {
 
     var config = mergeConfig(user_config, default_config);
 
-    // var editingLinks = EditLinks();
+    var connections = Connections();
 
     return {
 
@@ -39,7 +39,7 @@ function HtmlRenderer(user_config) {
                 }
             }
 
-            // editingLinks.onNewModel();
+            connections.onNewModel();
 
         },
 
@@ -318,7 +318,7 @@ function HtmlRenderer(user_config) {
 
             nodeData.inletsNum++;
 
-            // editingLinks.onInletAdd()
+            connections.onInletAdd();
 
         },
 
@@ -407,7 +407,7 @@ function HtmlRenderer(user_config) {
 
             nodeData.outletsNum++;
 
-            // editingLinks.onOutletAdd();
+            // connections.onOutletAdd();
         },
 
         // ============================ outlet/remove ==========================
@@ -480,135 +480,85 @@ function HtmlRenderer(user_config) {
 // ============================== EditLinks ====================================
 // =============================================================================
 
-function EditLinks() {
+function Connections() {
 
-    /* var createGhost = Kefir.emitter(),
-        moveGhost = Kefir.emitter(),
-        removeGhost = Kefir.emitter(),
-        doingGhost = Kefir.merge([createGhost.mapTo(true), removeGhost.mapTo(false)]).toProperty(false);
+    var inletClicks,
+        outletClicks;
 
-    var createLink = Kefir.emitter(),
-        removeLink = Kefir.emitter(),
-        linkResolved = Kefir.emitter();
+    var startLink,
+        finishLink,
+        doingLink;
 
-    var wereClicks = false; */
+    function stopPropagation(event) { evt.stopPropagation(); };
+
+    //function success() { return { success: true } }
 
     return {
         onNewModel: function() {
-            /* var currentGhost = null,
-                   currentGhostPivot = null;
 
-            createGhost.onValue(function(value) {
-                var pivot = value.pivot, pt = value.pt;
-                currentGhostPivot = pivot;
-                currentGhost = constructLink(pivot.x, pivot.y, pt.x, pt.y);
-                root.appendChild(currentGhost);
-            }).log('create-ghost');
-            moveGhost.onValue(function(pt) {
-                if (currentGhost) {
-                    var pivot = currentGhostPivot;
-                    rotateLink(currentGhost, pivot.x, pivot.y, pt.x, pt.y);
-                }
-            }).log('move-ghost');
-            removeGhost.filter(function() { return currentGhost })
-                       .onValue(function() {
-                root.removeChild(currentGhost);
-                currentGhost = null;
-                currentGhostPivot = null;
-            }).log('remove-ghost');
+            inletClicks = Kefir.pool(),
+            outletClicks = Kefir.pool();
 
-            createLink.onValue(function(value) {
-                var outlet = value.outlet, inlet = value.inlet;
-                outlet.connect(inlet);
-            }).log('create-link');
-            removeLink.onValue(function(link) {
-                link.disconnect();
-                root.removeChild(links[link.id].elm);
-                links[link.id] = null;
-            }).log('remove-link'); */
+            startLink = Kefir.emitter(),
+            finishLink = Kefir.emitter(),
+            doingLink = Kefir.merge([ startLink.mapTo(true),
+                                      finishLink.mapTo(false) ]).toProperty(false);
+
         },
         onInletAdd: function() {
-            /* Kefir.fromEvent(connectorElm, 'click').onValue(function(evt) {
-                evt.preventDefault();
-                evt.stopPropagation();
+
+            log('in: prepare ' + id);
+
+            redClicks.plug(Kefir.fromEvent(redElm, 'click'));
+
+            Kefir.fromEvent(redElm, 'click').tap(stopPropagation)
+                                            .filterBy(redClicks.awaiting(doingLink))
+                                            .onValue(function() {
+                log('in/start linking from ' + redElm.id);
+                startLink.emit();
+                return Kefir.fromEvent(root, 'mousemove')
+                            .takeUntilBy(Kefir.merge([ greenClicks.mapTo({ success: true }),
+                                                       redClicks.mapTo({ success: false }),
+                                                       Kefir.fromEvent(root, 'click')
+                                                            .mapTo({ success: false }) ])
+                                              .take(1)
+                                              .onValue(function(val) { log('in/success: ' + val.success); }))
+                            .onValue(function(evt) {
+                                log('in/move link');
+                            }).onEnd(function() {
+                                log('in/end');
+                                finishLink.emit();
+                            });
             });
 
-            Kefir.sampledBy([createGhost], [Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost)])
-                                                 .map(function(value) { console.log(value); return value[0].outlet; })
-                                                 .onValue(function(outlet) {
-                console.log('inlet-ghost', outlet);
-                removeGhost.emit();
-                if (inletData.link) {
-                    var link = inletData.link;
-                    inletData.link = null;
-                    removeLink.emit(link);
-                }
-                createLink.emit({ inlet: inlet, outlet: outlet });
-            });
 
-            Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost.not())
-                                                  .filter(function() { return inletData.link; })
-                                                  .map(function(evt) { return { x: evt.clientX, y: evt.clientY }})
-                                                  .flatMap(function(pt) {
-                console.log('inlet-no-ghost');
-                var srcOutlet = inletData.link.outlet;
-                var link = inletData.link;
-                inletData.link = null;
-                removeLink.emit(link);
-                var connectorBounds = connectors[srcOutlet.id].getBoundingClientRect();
-                createGhost.emit({ outlet: srcOutlet,
-                                   pivot: { x: connectorBounds.left,
-                                            y: connectorBounds.top },
-                                   pt: pt });
-                return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
-                    Kefir.fromEvent(root, 'click')
-                         .merge(Kefir.fromEvent(connectorElm, 'click'))
-                         .merge(linkResolved)
-                ).onEnd(function() {
-                    console.log('inlet-no-ghost-rm');
-                    removeGhost.emit();
-                });
-            }).onValue(function(pt) {
-                console.log('mm-inlet');
-                moveGhost.emit(pt);
-            }); */
         },
         onOutletAdd: function() {
-            /* Kefir.fromEvent(connectorElm, 'click').onValue(function(evt) {
-                evt.preventDefault();
-                evt.stopPropagation();
+
+            log('out: prepare ' + id);
+
+            greenClicks.plug(Kefir.fromEvent(greenElm, 'click'));
+
+            Kefir.fromEvent(redElm, 'click').tap(stopPropagation)
+                                            .filterBy(redClicks.awaiting(doingLink))
+                                            .onValue(function() {
+                log('out/start linking from ' + redElm.id);
+                startLink.emit();
+                return Kefir.fromEvent(root, 'mousemove')
+                            .takeUntilBy(Kefir.merge([ greenClicks.mapTo({ success: true }),
+                                                       redClicks.mapTo({ success: false }),
+                                                       Kefir.fromEvent(root, 'click')
+                                                            .mapTo({ success: false }) ])
+                                              .take(1)
+                                              .onValue(function(val) { log('out/success: ' + val.success); }))
+                            .onValue(function(evt) {
+                                log('out/move link');
+                            }).onEnd(function() {
+                                log('out/end');
+                                finishLink.emit();
+                            });
             });
 
-            Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost)
-                                                  .onValue(function() {
-                console.log('outlet-ghost');
-                removeGhost.emit();
-                // wereClicks = true; // FIXME: use stream approach, throttle doesn't help
-                // setTimeout(function() { wereClicks = false; }, 200);
-            });
-
-            Kefir.fromEvent(connectorElm, 'click').filterBy(doingGhost.not())
-                                                  //.filter(function() { return !wereClicks; })
-                                                  .map(function(evt) { return { x: evt.clientX, y: evt.clientY }})
-                                                  .flatMap(function(pt) {
-                console.log('outlet-no-ghost');
-                var connectorBounds = connectorElm.getBoundingClientRect();
-                createGhost.emit({ outlet: outlet,
-                                   pivot: { x: connectorBounds.left,
-                                            y: connectorBounds.top },
-                                   pt: pt });
-                return Kefir.fromEvent(root, 'mousemove').takeUntilBy(
-                    Kefir.fromEvent(root, 'click')
-                         .merge(Kefir.fromEvent(connectorElm, 'click'))
-                         .merge(linkResolved)
-                ).onEnd(function() {
-                    console.log('outlet-no-ghost-rm');
-                    removeGhost.emit();
-                });
-            }).onValue(function(pt) {
-                console.log('mm-outlet');
-                moveGhost.emit(pt);
-            }); */
         }
     }
 
