@@ -269,6 +269,7 @@ function Outlet(type, node, alias, name, _default) {
     this.event = event_map(event_conf);
     this.event['outlet/update'] = this.event['outlet/update'].merge(this.value);
     this.events = events_stream(event_conf, this.event);
+    // merge outlet/update with outlet/connect, take 1, so on connect last update will be delivered
 
 }
 Outlet.prototype.connect = function(inlet, adapter) {
@@ -276,6 +277,7 @@ Outlet.prototype.connect = function(inlet, adapter) {
     this.events.plug(link.events);
     this.event['outlet/connect'].emit(link);
     this.value.onValue(link.receiver);
+    //this.toDefaultValue();
 }
 Outlet.prototype.disconnect = function(link) {
     this.value.offValue(link.receiver);
@@ -292,6 +294,11 @@ Outlet.prototype.toDefault = function() {
     if (is_defined(this.default) && (this.default instanceof Kefir.Stream)) {
         this.stream(this.default);
     } else this.send(this.default);
+}
+Outlet.prototype.toDefaultValue = function() {
+    if (is_defined(this.default) && !(this.default instanceof Kefir.Stream)) {
+        this.send(this.default);
+    }
 }
 
 // ================================= Link ======================================

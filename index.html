@@ -46,8 +46,8 @@
             outA.connect(inA);
             outB.connect(inB);
 
-            outA.stream(Kefir.repeatedly(10, [1, 2, 3]));
-            outB.stream(Kefir.repeatedly(20, [4, 5, 6]));
+            outA.stream(Kefir.repeatedly(1000, [1, 2, 3]));
+            outB.stream(Kefir.repeatedly(2000, [4, 5, 6]));
 
             //boolOutlet.disconnect(boolInlet);
             //second.removeInlet(boolInlet)

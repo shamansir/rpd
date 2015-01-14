@@ -426,6 +426,13 @@ function HtmlRenderer(user_config) {
 
             var valueElm = outletData.valueElm;
             valueElm.innerText = valueElm.textContent = update.value;
+            /* if (outlet.render.html) {
+                if (!outlet.readonly) {
+                    outlet.renderedit.html
+                }
+            } else {
+                valueElm.innerText = valueElm.textContent = update.value;
+            } */
             valueUpdateEffect(outletData, outletElm);
 
         },
