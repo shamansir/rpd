@@ -1,12 +1,16 @@
 (function() {
 
+    // inlets/outlets are at the left/right sides of a node body
 var QUARTZ_LAYOUT = 'quartz',
+    // inlets/outlets are at the top/bottom sides of a node body
     PD_LAYOUT = 'pd';
 
 var default_config = {
-    debug: false,
     layout: QUARTZ_LAYOUT,
+    // show inlet/outlet value only when user hovers over its connector
+    // (always showing, by default)
     valuesOnHover: false,
+    // show inlets/outlets and node types for debugging purposes
     showTypes: false
 };
 
@@ -15,13 +19,25 @@ var default_config = {
 
 function HtmlRenderer(user_config) {
 
+    // these objects store elements and data corresponding to given nodes,
+    // inlets, outlets, links... as hashes, by their ID;
+    // it's not pure functional way, especially in comparison to RPD engine code,
+    // but in this case semi-imperative way appeared to be easier and faster;
     var nodes, links, connectors;
 
     var config = mergeConfig(user_config, default_config);
 
+    // Connections object manages only the run-time editing of the links,
+    // it's completely written in FRP style;
     var connections = Connections();
 
     return {
+
+        // the object below reacts on every Model event and constructs according
+        // HTML structures in response, or modifies them; some blocks of code
+        // are really huge because of createElement, appendChild and stuff,
+        // but I decided that it is the only way which needs no external library
+        // to build required DOM;
 
         // ============================ model/new ==============================
 
@@ -459,7 +475,7 @@ function HtmlRenderer(user_config) {
                 p1 = inletConnector.getBoundingClientRect();
             var linkElm = constructLink(p0.left, p0.top, p1.left, p1.top);
 
-            links[link.id] = { elm: linkElm };
+            links[link.id] = linkElm;
 
             root.appendChild(linkElm);
 
@@ -488,11 +504,13 @@ function HtmlRenderer(user_config) {
             finishLink,
             doingLink;
 
-        function stopPropagation(event) { evt.stopPropagation(); };
-        function extractPos(event) { return { x: event.clientX,
-                                              y: event.clientY }; };
-        function getPos(elm) { var bounds = elm.getBoundingClienRect();
-                               return { x: bounds.top, y: bounds.left } };
+        var root;
+
+        function stopPropagation(evt) { evt.stopPropagation(); };
+        function extractPos(evt) { return { x: evt.clientX,
+                                            y: evt.clientY }; };
+        function getPos(elm) { var bounds = elm.getBoundingClientRect();
+                               return { x: bounds.left, y: bounds.top } };
         function addTarget(target) {
             return function(pos) {
                 return { pos: pos, target: target };
@@ -503,23 +521,19 @@ function HtmlRenderer(user_config) {
             var inletData = nodeData.inlets[inlet.id];
             return inletData.link;
         };
-        function hasLink(inlet) { return getLink; };
+        var hasLink = getLink;
         function getConnector(outlet) {
             var nodeData = nodes[outlet.node.id];
             var outletData = nodeData.outlets[inlet.id];
             return outletData.link;
         }
 
-        //currentGhost = constructLink(pivot.x, pivot.y, pt.x, pt.y);
-        //rotateLink(currentGhost, pivot.x, pivot.y, pt.x, pt.y);
-        //root.removeChild(currentGhost);
-
         return {
-            init: function(root) {
+            init: function(rootElm) {
 
-                links = linksHash;
+                root = rootElm;
 
-                rootClicks = Kefir.fromEvent(root, 'click');
+                rootClicks = Kefir.fromEvent(rootElm, 'click');
                 inletClicks = Kefir.pool(),
                 outletClicks = Kefir.pool();
 
@@ -530,8 +544,6 @@ function HtmlRenderer(user_config) {
 
             },
             subscribeOutlet: function(outlet, connector) {
-
-                log('out: prepare ' + id);
 
                 outletClicks.plug(Kefir.fromEvent(connector, 'click')
                                        .map(extractPos)
@@ -552,11 +564,18 @@ function HtmlRenderer(user_config) {
                                                   .take(1)
                                                   .onValue(function(success) {
                                                       if (!success) return;
-                                                      outlet.connect(success.target);
+                                                      var inlet = success.target,
+                                                          prevLink = getLink(inlet);
+                                                      if (prevLink) {
+                                                          var otherOutlet = prevLink.outlet;
+                                                          otherOutlet.disconnect(prevLink);
+                                                          root.removeChild(links[prevLink.id]);
+                                                      }
+                                                      outlet.connect(inlet);
                                                   }))
-                                .mapTo(extractPos)
-                                .onValue(function(pt) {
-                                    rotateLink(ghost, pivot.x, pivot.y, pt.x, pt.y);
+                                .map(extractPos)
+                                .onValue(function(pos) {
+                                    rotateLink(ghost, pivot.x, pivot.y, pos.x, pos.y);
                                 }).onEnd(function() {
                                     root.removeChild(ghost);
                                     finishLink.emit();
@@ -566,18 +585,19 @@ function HtmlRenderer(user_config) {
             },
             subscribeInlet: function(inlet, connector) {
 
-                log('in: prepare ' + id);
-
                 inletClicks.plug(Kefir.fromEvent(connector, 'click')
                                       .map(extractPos)
-                                      .map(addTarget(inlet, connector)));
+                                      .map(addTarget(inlet)));
 
                 Kefir.fromEvent(connector, 'click').tap(stopPropagation)
                                                    .filterBy(inletClicks.awaiting(doingLink))
                                                    .filter(hasLink(inlet))
                                                    .onValue(function(pos) {
+                    var prevLink = getLink(inlet);
+                    var outlet = prevLink.outlet;
+                    outlet.disconnect(links[prevLink.id]);
+                    root.removeChild(prevLink);
                     startLink.emit();
-                    var outlet = getLink(inlet).outlet;
                     var pivot = getPos(connectors[outlet.id]);
                     var ghost = constructLink(pivot.x, pivot.y, pos.x, pos.y);
                     root.appendChild(ghost);
@@ -590,8 +610,9 @@ function HtmlRenderer(user_config) {
                                                       if (!success) return;
                                                       outlet.connect(success.target);
                                                   }))
-                                .onValue(function(evt) {
-                                    rotateLink(ghost, pivot.x, pivot.y, pt.x, pt.y);
+                                .map(extractPos)
+                                .onValue(function(pos) {
+                                    rotateLink(ghost, pivot.x, pivot.y, pos.x, pos.y);
                                 }).onEnd(function() {
                                     root.removeChild(ghost);
                                     finishLink.emit();
