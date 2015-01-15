@@ -20,10 +20,10 @@ var default_config = {
 function HtmlRenderer(user_config) {
 
     // these objects store elements and data corresponding to given nodes,
-    // inlets, outlets, links... as hashes, by their ID;
+    // inlets, outlets, links as hashes, by their ID;
     // it's not pure functional way, especially in comparison to RPD engine code,
     // but in this case semi-imperative way appeared to be easier and faster;
-    var nodes, links, connectors;
+    var nodes, outlets, inlets, links;
 
     var config = mergeConfig(user_config, default_config);
 
@@ -33,17 +33,21 @@ function HtmlRenderer(user_config) {
 
     return {
 
-        // the object below reacts on every Model event and constructs according
+        // the object below reacts on every Model event and constructs corresponding
         // HTML structures in response, or modifies them; some blocks of code
-        // are really huge because of createElement, appendChild and stuff,
+        // are really huge because of massive createElement, appendChild and stuff,
         // but I decided that it is the only way which needs no external library
-        // to build required DOM;
+        // to build required DOM; may be later I'll decide to use `shaven` templates
+        // or something similar, but actually it's not a lot to build here, it just
+        // looks massive;
 
         // ============================ model/new ==============================
 
         'model/new': function(root, update) {
 
-            nodes = {}; links = {}; connectors = {};
+            nodes = {}; outlets = {}; inlets = {}, links = {};
+
+            /* <build HTML> */
 
             if (root.classList) {
                 root.classList.add('rpd-model');
@@ -55,6 +59,9 @@ function HtmlRenderer(user_config) {
                 }
             }
 
+            /* </build HTML> */
+
+            // initialize connection editor
             connections.init(root);
 
         },
@@ -64,6 +71,8 @@ function HtmlRenderer(user_config) {
         'node/add': function(root, update) {
 
             var node = update.node;
+
+            /* <build HTML> */
 
             // div.rpd-node-box
             //   table.rpd-node
@@ -228,24 +237,24 @@ function HtmlRenderer(user_config) {
 
             }
 
+            /* </build HTML> */
+
             if (nodeElm.classList) nodeElm.classList.add('rpd-'+node.type.replace('/','-'));
 
-            nodes[node.id] = { elm: nodeElm,
-                               body: bodyElm,
-                               inletsTrg: inletsTrg, outletsTrg: outletsTrg,
-                               inlets: {}, outlets: {},
-                               inletsNum: 0, outletsNum: 0 };
-
+            // place node box wrapper in a suitable empty space in layout
             applyNextNodeRect(node, nodeBox);
 
             nodeBox.appendChild(nodeElm);
 
             root.appendChild(nodeBox);
 
-            var node = update.node;
+            // save node data
+            nodes[node.id] = { elm: nodeElm,
+                body: bodyElm,
+                inletsTrg: inletsTrg, outletsTrg: outletsTrg };
 
+            // use custom node body renderer, if defined
             if (node.renderfirst.html) {
-                var bodyElm = nodes[node.id].body;
                 node.renderfirst.html(bodyElm, node.event);
             }
 
@@ -260,11 +269,15 @@ function HtmlRenderer(user_config) {
         // ============================ node/process ===========================
 
         'node/process': function(root, update) {
+
             var node = update.node;
+
+            // update node body with custom renderer, if defined
             if (node.render.html) {
                 var bodyElm = nodes[node.id].body;
                 node.render.html(bodyElm, update.inlets, update.outlets);
             }
+
         },
 
         // ============================ node/remove ============================
@@ -280,6 +293,9 @@ function HtmlRenderer(user_config) {
             if (inlet.hidden) return;
 
             var nodeData = nodes[inlet.node.id];
+
+            /* <build HTML> */
+
             var inletsTrg = nodeData.inletsTrg;
 
             var inletElm, valueElm, connectorElm;
@@ -324,15 +340,13 @@ function HtmlRenderer(user_config) {
 
             inletsTrg.appendChild(inletElm);
 
-            connectors[inlet.id] = connectorElm;
+            /* </build HTML> */
 
             var inletData = { elm: inletElm, valueElm: valueElm,
                                              connectorElm: connectorElm,
-                              link: null };
+                              links: {} };
 
-            nodeData.inlets[inlet.id] = inletData;
-
-            nodeData.inletsNum++;
+            inlets[inlet.id] = inletData;
 
             connections.subscribeInlet(inlet, connectorElm);
 
@@ -350,8 +364,7 @@ function HtmlRenderer(user_config) {
 
             if (inlet.hidden) return;
 
-            var nodeData = nodes[inlet.node.id];
-            var inletData = nodeData.inlets[inlet.id];
+            var inletData = inlets[inlet.id];
             var inletElm = inletData.elm;
 
             var valueElm = inletData.valueElm;
@@ -367,6 +380,8 @@ function HtmlRenderer(user_config) {
             var outlet = update.outlet;
 
             if (outlet.hidden) return;
+
+            /* <build HTML> */
 
             var nodeData = nodes[outlet.node.id];
             var outletsTrg = nodeData.outletsTrg;
@@ -412,16 +427,14 @@ function HtmlRenderer(user_config) {
 
             outletsTrg.appendChild(outletElm);
 
-            connectors[outlet.id] = connectorElm;
+            /* </build HTML> */
 
             var outletData = { elm: outletElm,
                                valueElm: valueElm,
                                connectorElm: connectorElm,
-                               links: [] };
+                               links: {} };
 
-            nodeData.outlets[outlet.id] = outletData;
-
-            nodeData.outletsNum++;
+            outlets[outlet.id] = outletData;
 
             connections.subscribeOutlet(outlet, connectorElm);
         },
@@ -436,8 +449,7 @@ function HtmlRenderer(user_config) {
 
             var outlet = update.outlet;
 
-            var nodeData = nodes[outlet.node.id];
-            var outletData = nodeData.outlets[outlet.id];
+            var outletData = outlets[outlet.id];
             var outletElm = outletData.elm;
 
             var valueElm = outletData.valueElm;
@@ -461,13 +473,13 @@ function HtmlRenderer(user_config) {
             var outlet = link.outlet;
             var inlet  = link.inlet;
 
-            var outletData = nodes[outlet.node.id].outlets[outlet.id];
-            var inletData = nodes[inlet.node.id].inlets[inlet.id];
+            var outletData = outlets[outlet.id];
+            var inletData = inlets[inlet.id];
 
             var outletConnector = outletData.connectorElm;
             var inletConnector  = inletData.connectorElm;
 
-            outletData.links.push(link);
+            outletData.links[outlet.id] = link;
             if (inletData.link) throw new Error('Inlet is already connected to a link');
             inletData.link = link;
 
@@ -479,6 +491,27 @@ function HtmlRenderer(user_config) {
 
             root.appendChild(linkElm);
 
+        },
+
+        // ============================ outlet/disconnect ======================
+
+        'outlet/disconnect': function(root, update) {
+
+            var link = update.link;
+            var linkElm = links[link.id];
+
+            var outlet = link.outlet;
+            var inlet  = link.inlet;
+
+            var outletData = outlets[outlet.id];
+            var inletData = inlets[inlet.id];
+
+            outletData.links[link.id] = null;
+            inletData.link = null;
+
+            links[link.id] = null;
+
+            root.removeChild(linkElm);
         },
 
         // ============================ link/adapt =============================
@@ -517,15 +550,11 @@ function HtmlRenderer(user_config) {
             }
         };
         function getLink(inlet) {
-            var nodeData = nodes[inlet.node.id];
-            var inletData = nodeData.inlets[inlet.id];
-            return inletData.link;
+            return inlets[inlet.id].link;
         };
         var hasLink = getLink;
         function getConnector(outlet) {
-            var nodeData = nodes[outlet.node.id];
-            var outletData = nodeData.outlets[inlet.id];
-            return outletData.link;
+            return outlets[outlet.id].connectorElm;
         }
 
         return {
@@ -569,7 +598,6 @@ function HtmlRenderer(user_config) {
                                                       if (prevLink) {
                                                           var otherOutlet = prevLink.outlet;
                                                           otherOutlet.disconnect(prevLink);
-                                                          root.removeChild(links[prevLink.id]);
                                                       }
                                                       outlet.connect(inlet);
                                                   }))
@@ -595,10 +623,9 @@ function HtmlRenderer(user_config) {
                                                    .onValue(function(pos) {
                     var prevLink = getLink(inlet);
                     var outlet = prevLink.outlet;
-                    outlet.disconnect(links[prevLink.id]);
-                    root.removeChild(prevLink);
+                    outlet.disconnect(prevLink);
                     startLink.emit();
-                    var pivot = getPos(connectors[outlet.id]);
+                    var pivot = getPos(getConnector(outlet));
                     var ghost = constructLink(pivot.x, pivot.y, pos.x, pos.y);
                     root.appendChild(ghost);
                     return Kefir.fromEvent(root, 'mousemove')
