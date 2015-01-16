@@ -12,6 +12,7 @@
 }
 
 .rpd-node-box {
+    position: relative;
     max-width: 250px;
 }
 

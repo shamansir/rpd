@@ -81,6 +81,8 @@ function HtmlRenderer(user_config) {
             var nodeBox = quickElm('div', 'rpd-node-box');
             var nodeElm = quickElm('table', 'rpd-node');
 
+            var dragTrg;
+
             var inletsTrg, outletsTrg, bodyElm;
 
             if (config.layout == QUARTZ_LAYOUT) {
@@ -161,6 +163,8 @@ function HtmlRenderer(user_config) {
                 nodeElm.appendChild(headElm);
                 nodeElm.appendChild(contentElm);
 
+                dragTrg = headElm;
+
             } else if (config.layout == PD_LAYOUT) {
 
                 // tr.rpd-inlets
@@ -235,6 +239,8 @@ function HtmlRenderer(user_config) {
                 outletsRow.appendChild(outletsCell)
                 nodeElm.appendChild(outletsRow);
 
+                dragTrg = headCell;
+
             }
 
             /* </build HTML> */
@@ -257,6 +263,8 @@ function HtmlRenderer(user_config) {
             if (node.renderfirst.html) {
                 node.renderfirst.html(bodyElm, node.event);
             }
+
+            addDragNDrop(node, root, dragTrg, nodeBox);
 
         },
 
@@ -532,8 +540,21 @@ function HtmlRenderer(user_config) {
 
     }; // return
 
-    // ============================== Connections ==================================
-    // =============================================================================
+    // ============================== helpers for FRP ==========================
+
+    function stopPropagation(evt) { evt.preventDefault(); evt.stopPropagation(); };
+    function extractPos(evt) { return { x: evt.clientX,
+                                        y: evt.clientY }; };
+    function getPos(elm) { var bounds = elm.getBoundingClientRect();
+                           return { x: bounds.left, y: bounds.top } };
+    function addTarget(target) {
+        return function(pos) {
+            return { pos: pos, target: target };
+        }
+    };
+
+    // ============================== Connections ==============================
+    // =========================================================================
 
     // FRP-based connection (links b/w outlets and inlets) editor logic
 
@@ -551,16 +572,6 @@ function HtmlRenderer(user_config) {
 
         // helper functions
 
-        function stopPropagation(evt) { evt.stopPropagation(); };
-        function extractPos(evt) { return { x: evt.clientX,
-                                            y: evt.clientY }; };
-        function getPos(elm) { var bounds = elm.getBoundingClientRect();
-                               return { x: bounds.left, y: bounds.top } };
-        function addTarget(target) {
-            return function(pos) {
-                return { pos: pos, target: target };
-            }
-        };
         function getLink(inlet) {
             return inlets[inlet.id].link;
         };
@@ -589,6 +600,12 @@ function HtmlRenderer(user_config) {
 
             },
             subscribeOutlet: function(outlet, connector) {
+
+                // - Every time user clicks an outlet, a new link is created which user can drag, then:
+                // - If user clicks other outlet after that, linking process is cancelled;
+                // - If user clicks root element (like document.body), linking process is cancelled;
+                // - If user clicks an inlet, linking process is considered successful and finished, but also...
+                // - If this inlet had a link there connected, this previous link is removed and disconnected;
 
                 outletClicks.plug(Kefir.fromEvent(connector, 'click')
                                        .map(extractPos)
@@ -628,6 +645,14 @@ function HtmlRenderer(user_config) {
 
             },
             subscribeInlet: function(inlet, connector) {
+
+                // - Every time user clicks an inlet which has a link there connected:
+                // - This link becomes editable and so can be dragged by user,
+                // - If user clicks outlet after that, linking process is cancelled and this link is removed;
+                // - If user clicks root element (like document.body) after that, linking process is cancelled,
+                //   and this link is removed;
+                // - If user clicks other inlet, the link user drags/edits now is moved to be connected
+                //   to this other inlet, instead of first-clicked one;
 
                 inletClicks.plug(Kefir.fromEvent(connector, 'click')
                                       .map(extractPos)
@@ -673,6 +698,30 @@ function HtmlRenderer(user_config) {
         } // return
 
     } // Connections
+
+    // ============================== DragNDrop ================================
+    // =========================================================================
+
+    function addDragNDrop(node, root, handle, box) {
+        var nodeData = nodes[node.id];
+        Kefir.fromEvent(handle, 'mousedown').tap(stopPropagation)
+                                            .flatMap(function() {
+            box.classList.add('rpd-dragging');
+            var initPos = getPos(box);
+            return Kefir.fromEvent(root, 'mousemove')
+                        .takeUntilBy(Kefir.fromEvent(root, 'mouseup'))
+                        .map(extractPos)
+                        .map(function(absPos) {
+                            return { x: absPos.x - initPos.x,
+                                     y: absPos.y - initPos.y };
+                        });
+        }).onValue(function(pos) {
+            box.style.left = pos.x + 'px';
+            box.style.top  = pos.y + 'px';
+        }).onEnd(function() {
+            box.classList.remove('rpd-dragging');
+        });
+    }
 
 } // function
 
@@ -751,19 +800,10 @@ var node_rects = [];
 
 function applyNextNodeRect(node, nodeElm, limits) {
     var width = node.def.boxWidth || default_width,
-        height = node.def.boxHeight || default_height,
-        limits = limits || default_limits;
-    /*var w_sum = 0, h_sum = 0;
-    for (var i = 0, il = node_rects.length; i < il; i++) {
-        node_rects[i]
-    } TODO */
-    var new_rect;
-    if (node_rects.length) {
-        var last_rect = node_rects[node_rects.length-1];
-        new_rect = [ last_rect[0], last_rect[1] + last_rect[3] + default_y_margin, width, height ];
-    } else {
-        new_rect = [ 0, 0, width, height ];
-    }
+        height = node.def.boxHeight || default_height;
+    var new_rect = [ 0, (node_rects.length ? default_y_margin : 0),
+                     width, height ];
+    // relative positioning
     nodeElm.style.left = new_rect[0] + 'px';
     nodeElm.style.top = new_rect[1] + 'px';
     nodeElm.style.minWidth = new_rect[2] + 'px';
