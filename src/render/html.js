@@ -348,6 +348,7 @@ function HtmlRenderer(user_config) {
 
             inlets[inlet.id] = inletData;
 
+            // listen for clicks in connector and allow to edit links this way
             connections.subscribeInlet(inlet, connectorElm);
 
         },
@@ -436,6 +437,7 @@ function HtmlRenderer(user_config) {
 
             outlets[outlet.id] = outletData;
 
+            // listen for clicks in connector and allow to edit links this way
             connections.subscribeOutlet(outlet, connectorElm);
         },
 
@@ -461,6 +463,8 @@ function HtmlRenderer(user_config) {
             } else {
                 valueElm.innerText = valueElm.textContent = update.value;
             } */
+
+            // adds `rpd-fresh` CSS class and removes it by timeout
             valueUpdateEffect(outletData, outletElm);
 
         },
@@ -483,12 +487,14 @@ function HtmlRenderer(user_config) {
             if (inletData.link) throw new Error('Inlet is already connected to a link');
             inletData.link = link;
 
+            // visually link is just a CSS-rotated div with 1px border
             var p0 = outletConnector.getBoundingClientRect(),
                 p1 = inletConnector.getBoundingClientRect();
             var linkElm = constructLink(p0.left, p0.top, p1.left, p1.top);
 
             links[link.id] = linkElm;
 
+            // add link element
             root.appendChild(linkElm);
 
         },
@@ -506,11 +512,13 @@ function HtmlRenderer(user_config) {
             var outletData = outlets[outlet.id];
             var inletData = inlets[inlet.id];
 
+            // forget all references
             outletData.links[link.id] = null;
             inletData.link = null;
 
             links[link.id] = null;
 
+            // remove link element
             root.removeChild(linkElm);
         },
 
@@ -527,6 +535,8 @@ function HtmlRenderer(user_config) {
     // ============================== Connections ==================================
     // =============================================================================
 
+    // FRP-based connection (links b/w outlets and inlets) editor logic
+
     function Connections() {
 
         var rootClicks,
@@ -538,6 +548,8 @@ function HtmlRenderer(user_config) {
             doingLink;
 
         var root;
+
+        // helper functions
 
         function stopPropagation(evt) { evt.stopPropagation(); };
         function extractPos(evt) { return { x: evt.clientX,
@@ -552,7 +564,11 @@ function HtmlRenderer(user_config) {
         function getLink(inlet) {
             return inlets[inlet.id].link;
         };
-        var hasLink = getLink;
+        var hasLink = function(inlet) {
+            return function() {
+                return getLink(inlet);
+            };
+        };
         function getConnector(outlet) {
             return outlets[outlet.id].connectorElm;
         }
@@ -635,7 +651,13 @@ function HtmlRenderer(user_config) {
                                                   .take(1)
                                                   .onValue(function(success) {
                                                       if (!success) return;
-                                                      outlet.connect(success.target);
+                                                      var otherInlet = success.target,
+                                                          prevLink = getLink(otherInlet);
+                                                      if (prevLink) {
+                                                          var otherOutlet = prevLink.outlet;
+                                                          otherOutlet.disconnect(prevLink);
+                                                      }
+                                                      outlet.connect(otherInlet);
                                                   }))
                                 .map(extractPos)
                                 .onValue(function(pos) {
