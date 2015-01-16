@@ -320,8 +320,10 @@ function Link(type, outlet, inlet, adapter, name) {
 
     var myself = this;
 
-    this.receiver = function(x) {
+    this.receiver = (outlet.node.id !== inlet.node.id) ? function(x) {
         inlet.receive(myself.adapt(x));
+    } : function(x) {
+        setTimeout(function() { inlet.receive(myself.adapt(x)) }, 0);
     };
 
     var event_conf = {
