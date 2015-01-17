@@ -59,6 +59,12 @@ function HtmlRenderer(user_config) {
                 }
             }
 
+            root.style.height = window.innerHeight + 'px';
+
+            Kefir.fromEvent(root, 'resize').onValue(function() {
+                root.style.height = window.innerHeight + 'px';
+            });
+
             /* </build HTML> */
 
             // initialize connection editor
@@ -705,15 +711,18 @@ function HtmlRenderer(user_config) {
     function addDragNDrop(node, root, handle, box) {
         var nodeData = nodes[node.id];
         Kefir.fromEvent(handle, 'mousedown').tap(stopPropagation)
-                                            .flatMap(function() {
+                                            .map(extractPos)
+                                            .flatMap(function(pos) {
             box.classList.add('rpd-dragging');
-            var initPos = getPos(box);
+            var initPos = getPos(box),
+                diffPos = { x: pos.x - initPos.x,
+                            y: pos.y - initPos.y };
             return Kefir.fromEvent(root, 'mousemove')
                         .takeUntilBy(Kefir.fromEvent(root, 'mouseup'))
                         .map(extractPos)
                         .map(function(absPos) {
-                            return { x: absPos.x - initPos.x,
-                                     y: absPos.y - initPos.y };
+                            return { x: absPos.x - initPos.x - diffPos.x,
+                                     y: absPos.y - initPos.y - diffPos.y };
                         });
         }).onValue(function(pos) {
             box.style.left = pos.x + 'px';
