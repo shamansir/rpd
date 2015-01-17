@@ -11,7 +11,9 @@ var default_config = {
     // (always showing, by default)
     valuesOnHover: false,
     // show inlets/outlets and node types for debugging purposes
-    showTypes: false
+    showTypes: false,
+    // show node containers for debugging purposes
+    showBoxes: false
 };
 
 // ============================= HtmlRenderer ==================================
@@ -57,6 +59,7 @@ function HtmlRenderer(user_config) {
                 } else {
                     root.classList.add('rpd-values-always-shown');
                 }
+                if (config.showBoxes) root.classList.add('rpd-show-boxes');
             }
 
             root.style.height = window.innerHeight + 'px';
@@ -710,25 +713,26 @@ function HtmlRenderer(user_config) {
 
     function addDragNDrop(node, root, handle, box) {
         var nodeData = nodes[node.id];
-        Kefir.fromEvent(handle, 'mousedown').tap(stopPropagation)
-                                            .map(extractPos)
+        handle.classList.add('rpd-drag-handle');
+        Kefir.fromEvent(handle, 'mousedown').map(extractPos)
                                             .flatMap(function(pos) {
             box.classList.add('rpd-dragging');
             var initPos = getPos(box),
                 diffPos = { x: pos.x - initPos.x,
                             y: pos.y - initPos.y };
             return Kefir.fromEvent(root, 'mousemove')
+                        .tap(stopPropagation)
                         .takeUntilBy(Kefir.fromEvent(root, 'mouseup'))
                         .map(extractPos)
                         .map(function(absPos) {
-                            return { x: absPos.x - initPos.x - diffPos.x,
-                                     y: absPos.y - initPos.y - diffPos.y };
+                            return { x: absPos.x - diffPos.x,
+                                     y: absPos.y - diffPos.y };
+                        }).onEnd(function() {
+                            box.classList.remove('rpd-dragging');
                         });
         }).onValue(function(pos) {
             box.style.left = pos.x + 'px';
             box.style.top  = pos.y + 'px';
-        }).onEnd(function() {
-            box.classList.remove('rpd-dragging');
         });
     }
 
@@ -810,8 +814,12 @@ var node_rects = [];
 function applyNextNodeRect(node, nodeElm, limits) {
     var width = node.def.boxWidth || default_width,
         height = node.def.boxHeight || default_height;
-    var new_rect = [ 0, (node_rects.length ? default_y_margin : 0),
-                     width, height ];
+    var last_rect = (node_rects.length ? node_rects[node_rects.length-1] : null);
+    var new_rect = [ /* x */ last_rect ? last_rect[0] : 0,
+                     /* y */ last_rect ? (last_rect[1] + last_rect[3] + default_y_margin) : 0,
+                     width,
+                     height ];
+    node_rects.push(new_rect);
     // relative positioning
     nodeElm.style.left = new_rect[0] + 'px';
     nodeElm.style.top = new_rect[1] + 'px';

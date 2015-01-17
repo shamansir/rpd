@@ -12,7 +12,7 @@
 }
 
 .rpd-node-box {
-    position: relative;
+    position: absolute;
     max-width: 250px;
 }
 
@@ -116,11 +116,28 @@
     width: 30px;
 }
 
+.rpd-show-boxes .rpd-node-box {
+    border: 2px solid #f00;
+}
+
+.rpd-drag-handle:hover {
+    cursor: pointer;
+}
+
+/* .rpd-drag-handle:hover span {
+    cursor: text;
+} */
+
 /* QUARTZ COMPOSER LAYOUT STYLE */
 
 .rpd-layout-quartz .rpd-node, .rpd-layout-quartz .rpd-node > .rpd-title {
     /* box-shadow: 3px 3px 14px 1px rgba(33,33,33,0.7); */
     box-shadow: -1px 5px 13px 1px rgba(30,30,30,0.8);
+}
+
+.rpd-layout-quartz .rpd-dragging .rpd-node, .rpd-layout-quartz .rpd-dragging .rpd-node > .rpd-title {
+    box-shadow: 4px 8px 20px 0px rgba(30,30,30,0.8);
+    z-index: 100;
 }
 
 .rpd-layout-quartz .rpd-node .rpd-title {
