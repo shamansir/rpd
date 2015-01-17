@@ -13,7 +13,9 @@ var default_config = {
     // show inlets/outlets and node types for debugging purposes
     showTypes: false,
     // show node containers for debugging purposes
-    showBoxes: false
+    showBoxes: false,
+    // are nodes allowed to be dragged
+    nodesMovingAllowed: true
 };
 
 // ============================= HtmlRenderer ==================================
@@ -25,6 +27,10 @@ function HtmlRenderer(user_config) {
     // inlets, outlets, links as hashes, by their ID;
     // it's not pure functional way, especially in comparison to RPD engine code,
     // but in this case semi-imperative way appeared to be easier and faster;
+    // nodes:   { id: { elm, body, inletsTrg, outletsTrg }, ... }
+    // outlets: { id: { elm, valueElm, connectorElm, links }, ... }
+    // inlets:  { id: { elm, valueElm, connectorElm, link  }, ... }
+    // links:   { id: { elm, link  }, ... }
     var nodes, outlets, inlets, links;
 
     var config = mergeConfig(user_config, default_config);
@@ -264,8 +270,8 @@ function HtmlRenderer(user_config) {
             root.appendChild(nodeBox);
 
             // save node data
-            nodes[node.id] = { elm: nodeElm,
-                body: bodyElm,
+            nodes[node.id] = {
+                elm: nodeElm, body: bodyElm,
                 inletsTrg: inletsTrg, outletsTrg: outletsTrg };
 
             // use custom node body renderer, if defined
@@ -273,7 +279,9 @@ function HtmlRenderer(user_config) {
                 node.renderfirst.html(bodyElm, node.event);
             }
 
-            addDragNDrop(node, root, dragTrg, nodeBox);
+            if (config.nodesMovingAllowed) {
+                addDragNDrop(node, root, dragTrg, nodeBox);
+            }
 
         },
 
@@ -361,7 +369,7 @@ function HtmlRenderer(user_config) {
 
             var inletData = { elm: inletElm, valueElm: valueElm,
                                              connectorElm: connectorElm,
-                              links: {} };
+                              link: null };
 
             inlets[inlet.id] = inletData;
 
@@ -509,7 +517,8 @@ function HtmlRenderer(user_config) {
                 p1 = inletConnector.getBoundingClientRect();
             var linkElm = constructLink(p0.left, p0.top, p1.left, p1.top);
 
-            links[link.id] = linkElm;
+            links[link.id] = { elm: linkElm,
+                               link: link };
 
             // add link element
             root.appendChild(linkElm);
@@ -521,7 +530,7 @@ function HtmlRenderer(user_config) {
         'outlet/disconnect': function(root, update) {
 
             var link = update.link;
-            var linkElm = links[link.id];
+            var linkElm = links[link.id].elm;
 
             var outlet = link.outlet;
             var inlet  = link.inlet;
@@ -711,15 +720,45 @@ function HtmlRenderer(user_config) {
     // ============================== DragNDrop ================================
     // =========================================================================
 
+    function selectLinks(node) {
+        var selectedLinks = [], linkData, link;
+        for (var id in links) {
+            if (!links[id]) return;
+            linkData = links[id];
+            link = linkData.link;
+            if ((link.inlet.node.id  === node.id) ||
+                (link.outlet.node.id === node.id)) {
+                    selectedLinks.push(linkData);
+                }
+        }
+        return selectedLinks;
+    }
+
+    function updateLinks(node, selectedLinks) {
+        var link, linkElm, inletConnector, outletConnector,
+            inletPos, outletPos;
+        for (var i = 0, il = selectedLinks.length; i < il; i++) {
+            link = selectedLinks[i].link;
+            linkElm = selectedLinks[i].elm;
+            inletConnector = inlets[link.inlet.id].connectorElm;
+            outletConnector = outlets[link.outlet.id].connectorElm;
+            inletPos = getPos(inletConnector);
+            outletPos = getPos(outletConnector);
+            rotateLink(linkElm, outletPos.x, outletPos.y, inletPos.x, inletPos.y);
+        }
+    }
+
     function addDragNDrop(node, root, handle, box) {
         var nodeData = nodes[node.id];
         handle.classList.add('rpd-drag-handle');
+        var selectedLinks;
         Kefir.fromEvent(handle, 'mousedown').map(extractPos)
                                             .flatMap(function(pos) {
             box.classList.add('rpd-dragging');
             var initPos = getPos(box),
                 diffPos = { x: pos.x - initPos.x,
                             y: pos.y - initPos.y };
+            selectedLinks = null;
             return Kefir.fromEvent(root, 'mousemove')
                         .tap(stopPropagation)
                         .takeUntilBy(Kefir.fromEvent(root, 'mouseup'))
@@ -733,6 +772,8 @@ function HtmlRenderer(user_config) {
         }).onValue(function(pos) {
             box.style.left = pos.x + 'px';
             box.style.top  = pos.y + 'px';
+            if (!selectedLinks) selectedLinks = selectLinks(node);
+            updateLinks(node, selectedLinks);
         });
     }
 
