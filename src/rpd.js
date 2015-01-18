@@ -281,14 +281,11 @@ function Outlet(type, node, alias, name, _default) {
 Outlet.prototype.connect = function(inlet, adapter) {
     var link = new Link(null, this, inlet, adapter);
     this.events.plug(link.events);
-    this.value.takeUntilBy(this.event['outlet/disconnect'])
-              .filterBy(link.enabled) // should be done in a link, may be
-              .onValue(function(value) {
-        link.receiver(value);
-    });
+    this.value.onValue(link.receiver);
     this.event['outlet/connect'].emit(link);
 }
 Outlet.prototype.disconnect = function(link) {
+    this.value.offValue(link.receiver);
     this.event['outlet/disconnect'].emit(link);
     this.events.unplug(link.events);
 }
@@ -324,14 +321,16 @@ function Link(type, outlet, inlet, adapter, name) {
     var myself = this;
 
     this.receiver = (outlet.node.id !== inlet.node.id) ? function(x) {
-        inlet.receive(myself.adapt(x));
+        myself.pass(x);
     } : function(x) {
-        setTimeout(function() { inlet.receive(myself.adapt(x)) }, 0);
+        // this avoids stack overflow on recursive connections
+        setTimeout(function() { myself.pass(x); }, 0);
     };
 
     var event_conf = {
         'link/enable': function() { return { link: myself } },
         'link/disable': function() { return { link: myself } },
+        'link/pass': function(value) { return { link: myself, value: value } },
         'link/adapt': function(values) { return { link: myself, before: values[0], after: values[1] } },
         'link/error': function(error) { return { link: myself, error: error } }
     };
@@ -340,6 +339,13 @@ function Link(type, outlet, inlet, adapter, name) {
 
     this.enabled = Kefir.merge([ this.event['link/disable'].mapTo(false),
                                  this.event['link/enable'].mapTo(true) ]).toProperty(true);
+
+    this.event['link/pass'].filterBy(this.enabled).onValue(function(x) {
+        inlet.receive(myself.adapt(x));
+    });
+}
+Link.prototype.pass = function(value) {
+    this.event['link/pass'].emit(value);
 }
 Link.prototype.adapt = function(before) {
     if (this.adapter) {
