@@ -527,6 +527,8 @@ function HtmlRenderer(user_config) {
             links[link.id] = { elm: linkElm,
                                link: link };
 
+            //Kefir.fromEvent(linkElm, 'click').onValue(function() { link.disable(); })
+
             // add link element
             root.appendChild(linkElm);
 

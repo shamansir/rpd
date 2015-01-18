@@ -281,13 +281,15 @@ function Outlet(type, node, alias, name, _default) {
 Outlet.prototype.connect = function(inlet, adapter) {
     var link = new Link(null, this, inlet, adapter);
     this.events.plug(link.events);
-    this.value.onValue(link.receiver);
+    this.value.takeUntilBy(this.event['outlet/disconnect'])
+              .filterBy(link.enabled) // should be done in a link, may be
+              .onValue(function(value) {
+        link.receiver(value);
+    });
     this.event['outlet/connect'].emit(link);
-    //this.toDefaultValue();
 }
 Outlet.prototype.disconnect = function(link) {
     this.event['outlet/disconnect'].emit(link);
-    this.value.offValue(link.receiver);
     this.events.unplug(link.events);
 }
 Outlet.prototype.send = function(value) {
@@ -335,6 +337,9 @@ function Link(type, outlet, inlet, adapter, name) {
     };
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
+
+    this.enabled = Kefir.merge([ this.event['link/disable'].mapTo(false),
+                                 this.event['link/enable'].mapTo(true) ]).toProperty(true);
 }
 Link.prototype.adapt = function(before) {
     if (this.adapter) {
@@ -352,10 +357,10 @@ Link.prototype.adapt = function(before) {
     }
 }
 Link.prototype.enable = function() {
-
+    this.event['link/enable'].emit();
 }
 Link.prototype.disable = function() {
-
+    this.event['link/disable'].emit();
 }
 Link.prototype.disconnect = function() {
     this.outlet.disconnect(this);
