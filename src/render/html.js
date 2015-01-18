@@ -18,6 +18,12 @@ var default_config = {
     nodesMovingAllowed: true
 };
 
+// z-indexes
+var NODE_LAYER = 0,
+    NODEDRAG_LAYER = 1,
+    LINK_LAYER = 2,
+    LINKDRAG_LAYER = 3;
+
 // ============================= HtmlRenderer ==================================
 // =============================================================================
 
@@ -261,6 +267,7 @@ function HtmlRenderer(user_config) {
             /* </build HTML> */
 
             if (nodeElm.classList) nodeElm.classList.add('rpd-'+node.type.replace('/','-'));
+            nodeBox.style.zIndex = NODE_LAYER;
 
             // place node box wrapper in a suitable empty space in layout
             applyNextNodeRect(node, nodeBox);
@@ -723,12 +730,13 @@ function HtmlRenderer(user_config) {
     function selectLinks(node) {
         var selectedLinks = [], linkData, link;
         for (var id in links) {
-            if (!links[id]) return;
+            if (!links[id]) continue;
             linkData = links[id];
             link = linkData.link;
             if ((link.inlet.node.id  === node.id) ||
                 (link.outlet.node.id === node.id)) {
                     selectedLinks.push(linkData);
+                    linkData.elm.style.zIndex = LINKDRAG_LAYER;
                 }
         }
         return selectedLinks;
@@ -759,6 +767,7 @@ function HtmlRenderer(user_config) {
                 diffPos = { x: pos.x - initPos.x,
                             y: pos.y - initPos.y };
             selectedLinks = null;
+            box.style.zIndex = NODEDRAG_LAYER;
             return Kefir.fromEvent(root, 'mousemove')
                         .tap(stopPropagation)
                         .takeUntilBy(Kefir.fromEvent(root, 'mouseup'))
@@ -768,11 +777,19 @@ function HtmlRenderer(user_config) {
                                      y: absPos.y - diffPos.y };
                         }).onEnd(function() {
                             box.classList.remove('rpd-dragging');
+                            box.style.zIndex = NODE_LAYER;
+                            if (selectedLinks) {
+                                for (var i = 0, il = selectedLinks.length; i < il; i++) {
+                                    selectedLinks[i].elm.style.zIndex = LINK_LAYER;
+                                }
+                            }
                         });
         }).onValue(function(pos) {
             box.style.left = pos.x + 'px';
             box.style.top  = pos.y + 'px';
-            if (!selectedLinks) selectedLinks = selectLinks(node);
+            if (!selectedLinks) {
+                selectedLinks = selectLinks(node);
+            }
             updateLinks(node, selectedLinks);
         });
     }
@@ -825,6 +842,7 @@ function constructLink(x0, y0, x1, y1) {
 
     var linkElm = quickElm('span','rpd-link');
     linkElm.style.position = 'absolute';
+    linkElm.style.zIndex = LINK_LAYER;
     linkElm.style.width = Math.floor(distance) + 'px';
     linkElm.style.left = x0 + 'px';
     linkElm.style.top = y0 + 'px';
@@ -839,6 +857,8 @@ function rotateLink(linkElm, x0, y0, x1, y1) {
     var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
                              ((y0 - y1) * (y0 - y1)));
     var angle = Math.atan2(y1 - y0, x1 - x0);
+    linkElm.style.left = x0 + 'px';
+    linkElm.style.top = y0 + 'px';
     linkElm.style.width = Math.floor(distance) + 'px';
     linkElm.style.transform = 'rotateZ(' + angle + 'rad)';
     linkElm.style.webkitTransform = 'rotateZ(' + angle + 'rad)';
