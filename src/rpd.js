@@ -99,7 +99,7 @@ function Node(type, name) {
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
 
-    // add node to the model so it will receive events from methods below
+    // add node to the model so it will be able to receive events produced with methods below
 
     if (models[cur_model]) {
         models[cur_model].addNode(this);
@@ -146,8 +146,8 @@ function Node(type, name) {
         });
     }
 
-    // only inlets / outlets from type definition are stored, to let
-    // user easily connect to them
+    // only inlets / outlets described in type definition are stored inside
+    // (since they are constructed once), it lets user easily connect to them
 
     if (this.def.inlets) {
         this.inlets = {};
@@ -269,19 +269,25 @@ function Outlet(type, node, alias, name, _default) {
     this.event = event_map(event_conf);
     this.event['outlet/update'] = this.event['outlet/update'].merge(this.value);
     this.events = events_stream(event_conf, this.event);
-    // merge outlet/update with outlet/connect, take 1, so on connect last update will be delivered
+
+    // re-send last value on connection
+    Kefir.sampledBy([ this.event['outlet/update'] ],
+                    [ this.event['outlet/connect'] ])
+         .onValue(function(update) {
+             myself.value.emit(update[0]);
+         });
 
 }
 Outlet.prototype.connect = function(inlet, adapter) {
     var link = new Link(null, this, inlet, adapter);
     this.events.plug(link.events);
-    this.event['outlet/connect'].emit(link);
     this.value.onValue(link.receiver);
+    this.event['outlet/connect'].emit(link);
     //this.toDefaultValue();
 }
 Outlet.prototype.disconnect = function(link) {
-    this.value.offValue(link.receiver);
     this.event['outlet/disconnect'].emit(link);
+    this.value.offValue(link.receiver);
     this.events.unplug(link.events);
 }
 Outlet.prototype.send = function(value) {
@@ -294,11 +300,6 @@ Outlet.prototype.toDefault = function() {
     if (is_defined(this.default) && (this.default instanceof Kefir.Stream)) {
         this.stream(this.default);
     } else this.send(this.default);
-}
-Outlet.prototype.toDefaultValue = function() {
-    if (is_defined(this.default) && !(this.default instanceof Kefir.Stream)) {
-        this.send(this.default);
-    }
 }
 
 // ================================= Link ======================================
@@ -327,6 +328,8 @@ function Link(type, outlet, inlet, adapter, name) {
     };
 
     var event_conf = {
+        'link/enable': function() { return { link: myself } },
+        'link/disable': function() { return { link: myself } },
         'link/adapt': function(values) { return { link: myself, before: values[0], after: values[1] } },
         'link/error': function(error) { return { link: myself, error: error } }
     };
@@ -347,6 +350,12 @@ Link.prototype.adapt = function(before) {
         this.event['link/adapt'].emit([before, before]);
         return before;
     }
+}
+Link.prototype.enable = function() {
+
+}
+Link.prototype.disable = function() {
+
 }
 Link.prototype.disconnect = function() {
     this.outlet.disconnect(this);
