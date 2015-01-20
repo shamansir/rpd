@@ -11,6 +11,18 @@
     background-color: rgba(255,255,255,0.8);
 }
 
+.rpd-link.rpd-disabled {
+    background-color: rgba(255,255,255,0.3);
+}
+
+.rpd-link:hover {
+    cursor: crosshair;
+}
+
+.rpd-link.rpd-disabled:hover {
+    cursor: cell;
+}
+
 .rpd-node-box {
     position: absolute;
     max-width: 250px;

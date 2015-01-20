@@ -63,16 +63,14 @@ function HtmlRenderer(user_config) {
 
             /* <build HTML> */
 
-            if (root.classList) {
-                root.classList.add('rpd-model');
-                if (config.layout) root.classList.add('rpd-layout-' + config.layout);
-                if (config.valuesOnHover) {
-                    root.classList.add('rpd-values-on-hover');
-                } else {
-                    root.classList.add('rpd-values-always-shown');
-                }
-                if (config.showBoxes) root.classList.add('rpd-show-boxes');
+            root.classList.add('rpd-model');
+            if (config.layout) root.classList.add('rpd-layout-' + config.layout);
+            if (config.valuesOnHover) {
+                root.classList.add('rpd-values-on-hover');
+            } else {
+                root.classList.add('rpd-values-always-shown');
             }
+            if (config.showBoxes) root.classList.add('rpd-show-boxes');
 
             root.style.height = window.innerHeight + 'px';
 
@@ -84,6 +82,8 @@ function HtmlRenderer(user_config) {
 
             // initialize connection editor
             connections.init(root);
+
+            Kefir.fromEvent(root, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
 
         },
 
@@ -266,7 +266,7 @@ function HtmlRenderer(user_config) {
 
             /* </build HTML> */
 
-            if (nodeElm.classList) nodeElm.classList.add('rpd-'+node.type.replace('/','-'));
+            nodeElm.classList.add('rpd-'+node.type.replace('/','-'));
             nodeBox.style.zIndex = NODE_LAYER;
 
             // place node box wrapper in a suitable empty space in layout
@@ -368,7 +368,7 @@ function HtmlRenderer(user_config) {
 
             // TODO: add editor
 
-            if (inletElm.classList) inletElm.classList.add('rpd-'+inlet.type.replace('/','-'));
+            inletElm.classList.add('rpd-'+inlet.type.replace('/','-'));
 
             inletsTrg.appendChild(inletElm);
 
@@ -456,7 +456,7 @@ function HtmlRenderer(user_config) {
 
             }
 
-            if (outletElm.classList) outletElm.classList.add('rpd-'+outlet.type.replace('/','-'));
+            outletElm.classList.add('rpd-'+outlet.type.replace('/','-'));
 
             outletsTrg.appendChild(outletElm);
 
@@ -527,7 +527,14 @@ function HtmlRenderer(user_config) {
             links[link.id] = { elm: linkElm,
                                link: link };
 
-            //Kefir.fromEvent(linkElm, 'click').onValue(function() { link.disable(); })
+            Kefir.fromEvent(linkElm, 'click')
+                 .tap(stopPropagation)
+                 .mapTo(false)
+                 .scan(function(prev) {
+                     return !prev; // will toggle between true and false
+                 }).onValue(function(value) {
+                     if (value) { link.enable() } else { link.disable(); };
+                 });
 
             // add link element
             root.appendChild(linkElm);
@@ -555,6 +562,22 @@ function HtmlRenderer(user_config) {
 
             // remove link element
             root.removeChild(linkElm);
+        },
+
+        // ============================ link/enable ============================
+
+        'link/enable': function(root, update) {
+            var link = update.link;
+            var linkElm = links[link.id].elm;
+            linkElm.classList.remove('rpd-disabled');
+        },
+
+        // ============================ link/disable ===========================
+
+        'link/disable': function(root, update) {
+            var link = update.link;
+            var linkElm = links[link.id].elm;
+            linkElm.classList.add('rpd-disabled');
         },
 
         // ============================ link/adapt =============================
@@ -825,16 +848,14 @@ function quickElmVal(type, cls, value) {
 }
 
 function valueUpdateEffect(storage, elmHolder) {
-    if (elmHolder.classList) {
-        elmHolder.classList.remove("rpd-stale");
-        elmHolder.classList.add("rpd-fresh");
-        if (storage.removeTimeout) clearTimeout(storage.removeTimeout);
-        storage.removeTimeout = setTimeout(function() {
-            elmHolder.classList.remove("rpd-fresh");
-            elmHolder.classList.add("rpd-stale");
-            storage.removeTimeout = null;
-        }, 1000);
-    }
+    elmHolder.classList.remove("rpd-stale");
+    elmHolder.classList.add("rpd-fresh");
+    if (storage.removeTimeout) clearTimeout(storage.removeTimeout);
+    storage.removeTimeout = setTimeout(function() {
+        elmHolder.classList.remove("rpd-fresh");
+        elmHolder.classList.add("rpd-stale");
+        storage.removeTimeout = null;
+    }, 1000);
 }
 
 function constructLink(x0, y0, x1, y1) {
