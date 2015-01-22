@@ -37,6 +37,16 @@ Rpd.noderenderer('core/sum-of-three-with-body', 'html', (function() {
 })());
 
 Rpd.channelrenderer('core/number', 'html', {
-    show: function() { /* console.log('show', arguments); */ },
-    edit: function() { console.log('edit', arguments); }
+    /* show: function(target, value) { }, */
+    edit: function(target, inlet, valueIn) {
+        var valInput = document.createElement('input');
+        valInput.type = 'number';
+        valueIn.onValue(function(val) {
+            valInput.value = val;
+        })
+        Kefir.fromEvent(valInput, 'change').onValue(function() {
+            inlet.receive(valInput.value);
+        });
+        target.appendChild(valInput);
+    }
 });

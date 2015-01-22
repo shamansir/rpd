@@ -94,6 +94,10 @@
     color: rgba(200, 200, 200, 0.7);
 }
 
+.rpd-outlet .rpd-value {
+    cursor: default;
+}
+
 .rpd-values-on-hover .rpd-inlet .rpd-value-holder,
 .rpd-values-on-hover .rpd-outlet .rpd-value {
     display: none;
@@ -113,19 +117,30 @@
     min-width: 20px;
 }
 
-.rpd-body input {
+.rpd-body input,
+.rpd-value-holder input {
     border: 1px solid rgba(255,255,255,0.2);
     color: #111;
     background-color: rgba(201, 201, 220, 0.6);
     margin: 4px 4px 9px 0px;
 }
 
-.rpd-body input:focus {
+.rpd-body input:focus,
+.rpd-value-holder input:focus {
     border: 1px solid #000;
 }
 
 .rpd-body input[type="number"] {
     width: 30px;
+}
+
+.rpd-value-holder input[type="number"] {
+    font-size: 0.8em;
+    text-align: right;
+    width: 25px;
+    position: relative;
+    top: -4px;
+    left: 6px;
 }
 
 .rpd-show-boxes .rpd-node-box {
@@ -139,6 +154,18 @@
 /* .rpd-drag-handle:hover span {
     cursor: text;
 } */
+
+.rpd-inlet .rpd-value-holder .rpd-value-editor {
+    display: none;
+}
+
+.rpd-inlet .rpd-value-holder.rpd-editor-enabled .rpd-value {
+    display: none;
+}
+
+.rpd-inlet .rpd-value-holder.rpd-editor-enabled .rpd-value-editor {
+    display: block;
+}
 
 /* QUARTZ COMPOSER LAYOUT STYLE */
 

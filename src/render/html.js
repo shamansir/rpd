@@ -390,36 +390,7 @@ function HtmlRenderer(user_config) {
             inlets[inlet.id] = inletData;
 
             if (inlet.renderedit.html && !inlet.readonly) {
-                //addValueEditor(inlet, root, valueHolder, valueElm);
-                var editor = quickElm('div', 'rpd-value-editor');
-                valueHolder.classList.add('rpd-editor-disabled');
-                valueHolder.appendChild(editor);
-                var valueIn = Kefir.emitter(),
-                    disableEditor = Kefir.emitter();
-                inletData.disableEditor = disableEditor;
-                inlet.renderedit.html(editor, inlet, valueIn);
-                Kefir.sampledBy([ inlet.event['inlet/update'] ],
-                    [ Kefir.merge([
-                        Kefir.fromEvent(valueHolder, 'click')
-                             .tap(stopPropagation)
-                             .mapTo(true),
-                        Kefir.fromEvent(root, 'click')
-                             .merge(disableEditor)
-                             .mapTo(false) ])
-                      .toProperty(false)
-                      .skipDuplicates() ])
-                .map(function(val) { return { lastValue: val[0],
-                                              startEditing: val[1],
-                                              cancelEditing: !val[1] }; })
-                .onValue(function(conf) {
-                    if (conf.startEditing) {
-                        if (inletData.link) inletData.link.disable();
-                        valueIn.emit(conf.lastValue);
-                        valueHolder.classList.add('rpd-editor-enabled');
-                    } else if (conf.cancelEditing) {
-                        valueHolder.classList.add('rpd-editor-disabled');
-                    }
-                });
+                addValueEditor(inlet, inletData, root, valueHolder, valueElm);
             }
 
             // listen for clicks in connector and allow to edit links this way
@@ -656,8 +627,36 @@ function HtmlRenderer(user_config) {
 
     // ============================== ValueEdit ================================
 
-    function addValueEditor(inlet, root, valueHolderElm, valueElm) {
-        // TODO: move here from inlet/add
+    function addValueEditor(inlet, inletData, root, valueHolder, valueElm) {
+        var editor = quickElm('div', 'rpd-value-editor');
+        valueHolder.classList.add('rpd-editor-disabled');
+        valueHolder.appendChild(editor);
+        var valueIn = Kefir.emitter(),
+            disableEditor = Kefir.emitter();
+        inletData.disableEditor = disableEditor;
+        inlet.renderedit.html(editor, inlet, valueIn);
+        Kefir.sampledBy([ inlet.event['inlet/update'] ],
+            [ Kefir.merge([
+                Kefir.fromEvent(valueHolder, 'click')
+                     .tap(stopPropagation)
+                     .mapTo(true),
+                Kefir.fromEvent(root, 'click')
+                     .merge(disableEditor)
+                     .mapTo(false) ])
+              .toProperty(false)
+              .skipDuplicates() ])
+        .map(function(val) { return { lastValue: val[0],
+                                      startEditing: val[1],
+                                      cancelEditing: !val[1] }; })
+        .onValue(function(conf) {
+            if (conf.startEditing) {
+                if (inletData.link) inletData.link.disable();
+                valueIn.emit(conf.lastValue);
+                valueHolder.classList.add('rpd-editor-enabled');
+            } else if (conf.cancelEditing) {
+                valueHolder.classList.remove('rpd-editor-enabled');
+            }
+        });
     }
 
     // ============================== Connections ==============================
