@@ -320,12 +320,16 @@ function Link(type, outlet, inlet, adapter, name) {
 
     var myself = this;
 
-    this.receiver = (outlet.node.id !== inlet.node.id) ? function(x) {
-        myself.pass(x);
-    } : function(x) {
-        // this avoids stack overflow on recursive connections
-        setTimeout(function() { myself.pass(x); }, 0);
-    };
+    this.receiver = (outlet.node.id !== inlet.node.id)
+        ? (function(link) {
+            return function(x) {
+                link.pass(x);
+            }
+          })(myself)
+        : function(x) {
+            // this avoids stack overflow on recursive connections
+            setTimeout(function() { myself.pass(x); }, 0);
+        };
 
     var event_conf = {
         'link/enable': function() { return { link: myself } },
@@ -455,7 +459,7 @@ function noderenderer(type, alias, obj) {
     }
 }
 
-function channelrender(type, alias, obj) {
+function channelrenderer(type, alias, obj) {
     if (!channeltypes[type]) throw new Error('Channel type ' + type + ' is not registered');
     if (obj.show) {
         if (!channeltypes[type].render) channeltypes[type].render = {};
@@ -480,7 +484,8 @@ return {
     'linktype': linktype,
     'channeltype': channeltype,
     'renderer': renderer,
-    'noderenderer': noderenderer
+    'noderenderer': noderenderer,
+    'channelrenderer': channelrenderer
 }
 
 })();

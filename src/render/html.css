@@ -94,17 +94,17 @@
     color: rgba(200, 200, 200, 0.7);
 }
 
-.rpd-values-on-hover .rpd-inlet .rpd-value,
+.rpd-values-on-hover .rpd-inlet .rpd-value-holder,
 .rpd-values-on-hover .rpd-outlet .rpd-value {
     display: none;
 }
 
-.rpd-values-on-hover .rpd-inlet:hover .rpd-value,
+.rpd-values-on-hover .rpd-inlet:hover .rpd-value-holder,
 .rpd-values-on-hover .rpd-outlet:hover .rpd-value {
     display: block;
 }
 
-.rpd-values-always-shown .rpd-inlet .rpd-value,
+.rpd-values-always-shown .rpd-inlet .rpd-value-holder,
 .rpd-values-always-shown .rpd-outlet .rpd-value {
     display: block;
 }
@@ -189,7 +189,11 @@
     padding: 9px 6px;
 }
 
-.rpd-layout-quartz .rpd-value {
+.rpd-layout-quartz .rpd-inlet .rpd-value-holder {
+    margin: 0.2em 5px 0px 5px;
+}
+
+.rpd-layout-quartz .rpd-outlet .rpd-value {
     margin: 0.6em 5px 0px 5px;
 }
 
@@ -223,7 +227,7 @@
     right: -5px;
 }
 
-.rpd-layout-quartz .rpd-inlet .rpd-value {
+.rpd-layout-quartz .rpd-inlet .rpd-value-holder {
     position: absolute;
     right: 103%;
 }
@@ -302,14 +306,14 @@
     top: 3em;
 }
 
-.rpd-layout-pd .rpd-inlet .rpd-value,
+.rpd-layout-pd .rpd-inlet .rpd-value-holder,
 .rpd-layout-pd .rpd-outlet .rpd-value {
     position: absolute;
     margin-left: 0;
     left: 2px;
 }
 
-.rpd-layout-pd .rpd-inlet .rpd-value {
+.rpd-layout-pd .rpd-inlet .rpd-value-holder {
     top: -1.2em;
 }
 

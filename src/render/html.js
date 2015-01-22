@@ -335,38 +335,44 @@ function HtmlRenderer(user_config) {
             if (config.layout == QUARTZ_LAYOUT) {
 
                 // tr.rpd-inlet.rpd-stale
-                //    td.rpd-connector
-                //    td.rpd-value
-                //    td.rpd-name: inlet.name
-                //    td.rpd-type: inlet.type
+                //   td.rpd-connector
+                //   td.rpd-value-holder
+                //     span.rpd-value
+                //     [span.rpd-value-edit]
+                //   td.rpd-name: inlet.name
+                //   td.rpd-type: inlet.type
 
                 inletElm = quickElm('tr', 'rpd-inlet rpd-stale');
                 connectorElm = quickElm('td', 'rpd-connector');
-                valueElm = quickElm('td', 'rpd-value');
+                valueHolder = quickElm('td', 'rpd-value-holder');
+                valueElm = quickElm('span', 'rpd-value');
+                valueHolder.appendChild(valueElm);
                 inletElm.appendChild(connectorElm);
-                inletElm.appendChild(valueElm);
+                inletElm.appendChild(valueHolder);
                 inletElm.appendChild(quickElmVal('td', 'rpd-name', inlet.name));
                 if (config.showTypes) inletElm.appendChild(quickElmVal('td', 'rpd-type', inlet.type));
 
             } else if (config.layout == PD_LAYOUT) {
 
                 // td.rpd-inlet.rpd-stale
-                //    span.rpd-connector
-                //    span.rpd-name: inlet.name
-                //    span.rpd-value
-                //    span.rpd-type: inlet.type
+                //   span.rpd-connector
+                //   span.rpd-name: inlet.name
+                //   span.rpd-value-holder
+                //     span.rpd-value
+                //     [span.rpd-value-edit]
+                //   span.rpd-type: inlet.type
 
                 inletElm = quickElm('td', 'rpd-inlet rpd-stale');
                 connectorElm = quickElm('span', 'rpd-connector');
+                valueHolder = quickElm('span', 'rpd-value-holder');
                 valueElm = quickElm('span', 'rpd-value');
+                valueHolder.appendChild(valueElm);
                 inletElm.appendChild(connectorElm);
                 inletElm.appendChild(quickElmVal('span', 'rpd-name', inlet.name));
-                inletElm.appendChild(valueElm);
+                inletElm.appendChild(valueHolder);
                 if (config.showTypes) inletElm.appendChild(quickElmVal('span', 'rpd-type', inlet.type));
 
             }
-
-            // TODO: add editor
 
             inletElm.classList.add('rpd-'+inlet.type.replace('/','-'));
 
@@ -376,9 +382,45 @@ function HtmlRenderer(user_config) {
 
             var inletData = { elm: inletElm, valueElm: valueElm,
                                              connectorElm: connectorElm,
+                              disableEditor: null, // if inlet has a value editor, this way
+                                                   // we may disable it when new link
+                                                   // is connected to this inlet
                               link: null };
 
             inlets[inlet.id] = inletData;
+
+            if (inlet.renderedit.html && !inlet.readonly) {
+                //addValueEditor(inlet, root, valueHolder, valueElm);
+                var editor = quickElm('div', 'rpd-value-editor');
+                valueHolder.classList.add('rpd-editor-disabled');
+                valueHolder.appendChild(editor);
+                var valueIn = Kefir.emitter(),
+                    disableEditor = Kefir.emitter();
+                inletData.disableEditor = disableEditor;
+                inlet.renderedit.html(editor, inlet, valueIn);
+                Kefir.sampledBy([ inlet.event['inlet/update'] ],
+                    [ Kefir.merge([
+                        Kefir.fromEvent(valueHolder, 'click')
+                             .tap(stopPropagation)
+                             .mapTo(true),
+                        Kefir.fromEvent(root, 'click')
+                             .merge(disableEditor)
+                             .mapTo(false) ])
+                      .toProperty(false)
+                      .skipDuplicates() ])
+                .map(function(val) { return { lastValue: val[0],
+                                              startEditing: val[1],
+                                              cancelEditing: !val[1] }; })
+                .onValue(function(conf) {
+                    if (conf.startEditing) {
+                        if (inletData.link) inletData.link.disable();
+                        valueIn.emit(conf.lastValue);
+                        valueHolder.classList.add('rpd-editor-enabled');
+                    } else if (conf.cancelEditing) {
+                        valueHolder.classList.add('rpd-editor-disabled');
+                    }
+                });
+            }
 
             // listen for clicks in connector and allow to edit links this way
             connections.subscribeInlet(inlet, connectorElm);
@@ -402,6 +444,13 @@ function HtmlRenderer(user_config) {
 
             var valueElm = inletData.valueElm;
             valueElm.innerText = valueElm.textContent = update.value;
+
+            if (inlet.render.html) {
+                inlet.render.html(valueElm, update.value);
+            } else {
+                valueElm.innerText = valueElm.textContent = update.value;
+            }
+
             valueUpdateEffect(inletData, inletElm);
 
         },
@@ -488,13 +537,12 @@ function HtmlRenderer(user_config) {
 
             var valueElm = outletData.valueElm;
             valueElm.innerText = valueElm.textContent = update.value;
-            /* if (outlet.render.html) {
-                if (!outlet.readonly) {
-                    outlet.renderedit.html
-                }
+
+            if (outlet.render.html) {
+                outlet.render.html(valueElm, update.value);
             } else {
                 valueElm.innerText = valueElm.textContent = update.value;
-            } */
+            }
 
             // adds `rpd-fresh` CSS class and removes it by timeout
             valueUpdateEffect(outletData, outletElm);
@@ -518,6 +566,9 @@ function HtmlRenderer(user_config) {
             outletData.links[outlet.id] = link;
             if (inletData.link) throw new Error('Inlet is already connected to a link');
             inletData.link = link;
+
+            // disable value editor when connecting to inlet
+            if (inletData.disableEditor) inletData.disableEditor.emit();
 
             // visually link is just a CSS-rotated div with 1px border
             var p0 = outletConnector.getBoundingClientRect(),
@@ -602,6 +653,12 @@ function HtmlRenderer(user_config) {
             return { pos: pos, target: target };
         }
     };
+
+    // ============================== ValueEdit ================================
+
+    function addValueEditor(inlet, root, valueHolderElm, valueElm) {
+        // TODO: move here from inlet/add
+    }
 
     // ============================== Connections ==============================
     // =========================================================================

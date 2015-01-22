@@ -35,3 +35,8 @@ Rpd.noderenderer('core/sum-of-three-with-body', 'html', (function() {
         }
     };
 })());
+
+Rpd.channelrenderer('core/number', 'html', {
+    show: function() { /* console.log('show', arguments); */ },
+    edit: function() { console.log('edit', arguments); }
+});
