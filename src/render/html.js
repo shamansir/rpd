@@ -389,6 +389,8 @@ function HtmlRenderer(user_config) {
 
             inlets[inlet.id] = inletData;
 
+            if (inlet.readonly) inletElm.classList.add('rpd-readonly');
+
             if (inlet.renderedit.html && !inlet.readonly) {
                 addValueEditor(inlet, inletData, root, valueHolder, valueElm);
             }

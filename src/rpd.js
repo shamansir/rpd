@@ -198,7 +198,7 @@ Node.prototype.removeOutlet = function(outlet) {
 // ================================== Inlet ====================================
 // =============================================================================
 
-function Inlet(type, node, alias, name, _default, hidden) {
+function Inlet(type, node, alias, name, _default, hidden, readonly) {
     this.type = type || 'core/bool';
     this.id = short_uid();
     var def = channeltypes[this.type];
@@ -211,6 +211,7 @@ function Inlet(type, node, alias, name, _default, hidden) {
 
     this.node = node;
     this.hidden = hidden || false;
+    this.readonly = readonly || def.readonly || false;
     this.default = is_defined(_default) ? _default : def.default;
     this.adapt = def.adapt;
     this.value = Kefir.bus();

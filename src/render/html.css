@@ -94,7 +94,8 @@
     color: rgba(200, 200, 200, 0.7);
 }
 
-.rpd-outlet .rpd-value {
+.rpd-outlet .rpd-value,
+.rpd-inlet.rpd-readonly .rpd-value {
     cursor: default;
 }
 

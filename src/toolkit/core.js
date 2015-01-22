@@ -56,6 +56,7 @@ Rpd.channeltype('core/bool', { default: false,
                                } });
 
 Rpd.channeltype('core/number', { default: 0,
+                                 readonly: false,
                                  adapt: function(val) {
                                      return parseFloat(val);
                                  } });
