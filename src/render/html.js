@@ -15,7 +15,11 @@ var default_config = {
     // show node containers for debugging purposes
     showBoxes: false,
     // are nodes allowed to be dragged
-    nodesMovingAllowed: true
+    nodesMovingAllowed: true,
+    // show the list of nodes
+    renderNodeList: true,
+    // is node list collapsed by default, if shown
+    nodeListCollapsed: true
 };
 
 // z-indexes
@@ -82,6 +86,8 @@ function HtmlRenderer(user_config) {
 
             // initialize connection editor
             connections.init(root);
+
+            if (config.renderNodeList) addNodeList(root, Rpd.allNodeTypes);
 
             Kefir.fromEvent(root, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
 
@@ -294,9 +300,7 @@ function HtmlRenderer(user_config) {
 
         // ============================ node/ready =============================
 
-        'node/ready': function(root, update) {
-
-        },
+        'node/ready': function(root, update) { },
 
         // ============================ node/process ===========================
 
@@ -551,14 +555,9 @@ function HtmlRenderer(user_config) {
             links[link.id] = { elm: linkElm,
                                link: link };
 
-            Kefir.fromEvent(linkElm, 'click')
-                 .tap(stopPropagation)
-                 .mapTo(false)
-                 .scan(function(prev) {
-                     return !prev; // will toggle between true and false
-                 }).onValue(function(value) {
-                     if (value) { link.enable() } else { link.disable(); };
-                 });
+            addClickSwitch(linkElm,
+                           function() { link.enable(); },
+                           function() { link.disable(); });
 
             // add link element
             root.appendChild(linkElm);
@@ -626,8 +625,20 @@ function HtmlRenderer(user_config) {
             return { pos: pos, target: target };
         }
     };
+    function invertValue(prev) { return !prev; };
+    function addClickSwitch(elm, on_true, on_false, initial) {
+        Kefir.fromEvent(elm, 'click')
+             .tap(stopPropagation)
+             .mapTo(initial || false)
+             .scan(invertValue)  // will toggle between `true` and `false`
+             .onValue(function(val) {
+                 if (val) { on_true(); }
+                 else { on_false(); }
+             })
+    }
 
     // ============================== ValueEdit ================================
+    // =========================================================================
 
     function addValueEditor(inlet, inletData, root, valueHolder, valueElm) {
         var editor = quickElm('div', 'rpd-value-editor');
@@ -877,6 +888,83 @@ function HtmlRenderer(user_config) {
         });
     }
 
+    // ============================== NodeList =================================
+    // =========================================================================
+
+    function addNodeList(root, registeredNodeTypes) {
+        var toolkits = {},
+            typesList = [];
+
+        var toolkitElements = {},
+            nodeTitleElements = {},
+            nodeDescriptionElements = {};
+
+        var nodeType, toolkit, typeId, typeName;
+        for (nodeType in registeredNodeTypes) {
+            typeId = nodeType.split('/');
+            toolkit = typeId[0]; typeName = typeId[1];
+            typesList.push([ typeId, toolkit, typeName ]);
+            if (!toolkits[toolkit]) toolkits[toolkit] = {};
+            toolkits[toolkit][typeName] = registeredNodeTypes[nodeType];
+        }
+
+        var listRoot = quickElm('dl', 'rpd-nodelist');
+
+        var nodeTypes, typeDef;
+        var toolkitHolder, toolkitElm, toolkitNameElm, nodeTitleElm, nodeDescElm, addButton;
+        for (toolkit in toolkits) {
+            toolkitNameElm = quickElmVal('dd', 'rpd-toolkit-name', toolkit);
+            listRoot.appendChild(toolkitNameElm);
+            toolkitHolder = quickElm('dt');
+            toolkitElm = quickElm('dl', 'rpd-toolkit');
+            nodeTypes = toolkits[toolkit];
+            for (typeName in nodeTypes) {
+                nodeType = toolkit + '/' + typeName;
+                typeDef = nodeTypes[typeName];
+                nodeTitleElm = quickElmVal('dd', 'rpd-node-title', typeName);
+                addButton = quickElmVal('span', 'rpd-add-node', '+ Add');
+                nodeTitleElm.appendChild(addButton);
+                nodeTitleElements[nodeType] = nodeTitleElm;
+                nodeDescElm = quickElmVal('dd', 'rpd-node-description', typeDef.description || 'No Description');
+                nodeDescriptionElements[nodeType] = nodeDescElm;
+                toolkitElm.appendChild(nodeTitleElm);
+                toolkitElm.appendChild(nodeDescElm);
+
+                nodeDescElm.classList.add('rpd-collapsed');
+                (function(nodeDescElm) {
+                    addClickSwitch(nodeTitleElm,
+                        function() { nodeDescElm.classList.add('rpd-collapsed') },
+                        function() { nodeDescElm.classList.remove('rpd-collapsed'); });
+                })(nodeDescElm);
+
+                (function(nodeType) {
+                    Kefir.fromEvent(addButton, 'click')
+                         .tap(stopPropagation)
+                         .onValue(function() {
+                             (new Rpd.Node(nodeType));
+                         });
+                })(nodeType);
+
+            }
+            toolkitElements[toolkit] = toolkitHolder;
+            toolkitHolder.appendChild(toolkitElm);
+            listRoot.appendChild(toolkitHolder);
+
+            (function(toolkitElm) {
+                addClickSwitch(toolkitNameElm,
+                               function() { toolkitElm.classList.add('rpd-collapsed') },
+                               function() { toolkitElm.classList.remove('rpd-collapsed'); },
+                               true);
+            })(toolkitElm);
+        }
+
+        root.appendChild(listRoot);
+
+        var collapseButton = quickElm('span', 'rpd-collapse-nodelist');
+
+        root.appendChild(collapseButton);
+    }
+
 } // function
 
 
@@ -900,7 +988,7 @@ function quickElm(type, cls) {
 
 function quickElmVal(type, cls, value) {
     var elm = document.createElement(type);
-    elm.className = cls;
+    if (cls) elm.className = cls;
     elm.innerText = elm.textContent = value;
     return elm;
 }

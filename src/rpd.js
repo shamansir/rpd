@@ -476,17 +476,21 @@ function channelrenderer(type, alias, obj) {
 // =============================================================================
 
 return {
+
     'Model': Model,
     'Node': Node,
     'Inlet': Inlet,
     'Outlet': Outlet,
     'Link': Link,
+
     'nodetype': nodetype,
     'linktype': linktype,
     'channeltype': channeltype,
     'renderer': renderer,
     'noderenderer': noderenderer,
-    'channelrenderer': channelrenderer
+    'channelrenderer': channelrenderer,
+
+    'allNodeTypes': nodetypes
 }
 
 })();
