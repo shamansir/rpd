@@ -6,7 +6,7 @@ Rpd.noderenderer('core/sum-of-three', 'html', {
     }
 });
 
-Rpd.noderenderer('core/sum-of-three-with-body', 'html', (function() {
+Rpd.noderenderer('core/sum-of-three-with-body', 'html', function() {
     var sumContent;
     return {
         first: function(bodyElm, event) {
@@ -26,6 +26,7 @@ Rpd.noderenderer('core/sum-of-three-with-body', 'html', (function() {
             bodyElm.appendChild(cValInput);
             sumContent = document.createElement('span');
             bodyElm.appendChild(sumContent);
+            // TODO: return { c: valueOut }
         },
         always: function(bodyElm, inlets, outlets) {
             sumContent.innerHTML = sumContent.textContent =
@@ -34,7 +35,7 @@ Rpd.noderenderer('core/sum-of-three-with-body', 'html', (function() {
                           + (inlets.c || '0') + ') = ' + (outlets.sum || '?');
         }
     };
-})());
+});
 
 Rpd.channelrenderer('core/number', 'html', {
     /* show: function(target, value) { }, */
@@ -48,5 +49,6 @@ Rpd.channelrenderer('core/number', 'html', {
             inlet.receive(valInput.value);
         });
         target.appendChild(valInput);
+        // TODO: return valueOut
     }
 });

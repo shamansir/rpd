@@ -83,9 +83,7 @@ function Node(type, name) {
     this.name = name || def.name || 'Unnamed';
     this.def = def;
 
-    this.render = def.render || {};
-    this.renderfirst = def.renderfirst || {};
-    this.renderreplace = def.renderreplace || {};
+    this.render = prepare_render_obj(def.render);
 
     var myself = this;
     var event_conf = {
@@ -216,8 +214,7 @@ function Inlet(type, node, alias, name, _default, hidden, readonly) {
     this.adapt = def.adapt;
     this.value = Kefir.bus();
 
-    this.render = def.render || {};
-    this.renderedit = def.renderedit || {};
+    this.render = prepare_render_obj(def.render);
 
     var myself = this;
     var event_conf = {
@@ -258,7 +255,8 @@ function Outlet(type, node, alias, name, _default) {
     this.adapt = def.adapt;
     this.value = Kefir.bus();
 
-    this.render = def.render || {};
+    this.render = prepare_render_obj(def.render);
+
     // outlets values are not editable
 
     var myself = this;
@@ -384,6 +382,20 @@ function is_defined(val) {
     return (typeof val !== 'undefined');
 }
 
+function prepare_render_obj(template) {
+    if (!template) return {};
+    var render_obj = {};
+    var renderer;
+    for (var render_type in template) {
+        renderer = template[render_type]
+        if (!renderer) { render_obj[render_type] = null; }
+        else if (typeof renderer === 'function') {
+            render_obj[render_type] = renderer();
+        } else { render_obj[render_type] = renderer; }
+    }
+    return render_obj;
+}
+
 function event_map(conf) {
     var map = {};
     for (var event_name in conf) {
@@ -448,28 +460,16 @@ function renderer(alias, f) {
     renderer_registry[alias] = f;
 }
 
-function noderenderer(type, alias, obj) {
+function noderenderer(type, alias, data) {
     if (!nodetypes[type]) throw new Error('Node type ' + type + ' is not registered');
-    if (obj.always) {
-        if (!nodetypes[type].render) nodetypes[type].render = {};
-        nodetypes[type].render[alias] = obj.always;
-    }
-    if (obj.first) {
-        if (!nodetypes[type].renderfirst) nodetypes[type].renderfirst = {};
-        nodetypes[type].renderfirst[alias] = obj.first;
-    }
+    if (!nodetypes[type].render) nodetypes[type].render = {};
+    nodetypes[type].render[alias] = data;
 }
 
-function channelrenderer(type, alias, obj) {
+function channelrenderer(type, alias, data) {
     if (!channeltypes[type]) throw new Error('Channel type ' + type + ' is not registered');
-    if (obj.show) {
-        if (!channeltypes[type].render) channeltypes[type].render = {};
-        channeltypes[type].render[alias] = obj.show;
-    }
-    if (obj.edit) {
-        if (!channeltypes[type].renderedit) channeltypes[type].renderedit = {};
-        channeltypes[type].renderedit[alias] = obj.edit;
-    }
+    if (!channeltypes[type].render) channeltypes[type].render = {};
+    channeltypes[type].render[alias] = data;
 }
 
 // =============================== export ======================================

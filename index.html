@@ -40,12 +40,19 @@
             var genA = new Rpd.Node('core/custom', 'Generate B');
             var outB = genA.addOutlet('core/number', 'B', '', 1);
 
-            var sumOfThree = new Rpd.Node('core/sum-of-three-with-body', 'Sum');
+            var sumOfThree = new Rpd.Node('core/sum-of-three', 'Sum1');
             var inA = sumOfThree.inlets['a'];
             var inB = sumOfThree.inlets['b'];
 
             outA.connect(inA);
             outB.connect(inB);
+
+            var sumOfThreeBody = new Rpd.Node('core/sum-of-three-with-body', 'Sum2');
+            var inABody = sumOfThreeBody.inlets['a'];
+            var inBBody = sumOfThreeBody.inlets['b'];
+
+            outA.connect(inABody);
+            outB.connect(inBBody);
 
             outA.stream(Kefir.repeatedly(10, [1, 2, 3]));
             outB.stream(Kefir.repeatedly(20, [4, 5, 6]));

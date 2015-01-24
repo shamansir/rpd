@@ -288,8 +288,8 @@ function HtmlRenderer(user_config) {
                 inletsTrg: inletsTrg, outletsTrg: outletsTrg };
 
             // use custom node body renderer, if defined
-            if (node.renderfirst.html) {
-                node.renderfirst.html(bodyElm, node.event);
+            if (node.render.html && node.render.html.first) {
+                node.render.html.first(bodyElm, node.event);
             }
 
             if (config.nodesMovingAllowed) {
@@ -309,9 +309,9 @@ function HtmlRenderer(user_config) {
             var node = update.node;
 
             // update node body with custom renderer, if defined
-            if (node.render.html) {
+            if (node.render.html && node.render.html.always) {
                 var bodyElm = nodes[node.id].body;
-                node.render.html(bodyElm, update.inlets, update.outlets);
+                node.render.html.always(bodyElm, update.inlets, update.outlets);
             }
 
         },
@@ -395,7 +395,7 @@ function HtmlRenderer(user_config) {
 
             if (inlet.readonly) inletElm.classList.add('rpd-readonly');
 
-            if (inlet.renderedit.html && !inlet.readonly) {
+            if (!inlet.readonly && inlet.render.html && inlet.render.html.edit) {
                 addValueEditor(inlet, inletData, root, valueHolder, valueElm);
             }
 
@@ -422,8 +422,8 @@ function HtmlRenderer(user_config) {
             var valueElm = inletData.valueElm;
             valueElm.innerText = valueElm.textContent = update.value;
 
-            if (inlet.render.html) {
-                inlet.render.html(valueElm, update.value);
+            if (inlet.render.html && inlet.render.html.show) {
+                inlet.render.html.show(valueElm, update.value);
             } else {
                 valueElm.innerText = valueElm.textContent = update.value;
             }
@@ -437,8 +437,6 @@ function HtmlRenderer(user_config) {
         'outlet/add': function(root, update) {
 
             var outlet = update.outlet;
-
-            if (outlet.hidden) return;
 
             /* <build HTML> */
 
@@ -515,8 +513,8 @@ function HtmlRenderer(user_config) {
             var valueElm = outletData.valueElm;
             valueElm.innerText = valueElm.textContent = update.value;
 
-            if (outlet.render.html) {
-                outlet.render.html(valueElm, update.value);
+            if (outlet.render.html && outlet.render.html.show) {
+                outlet.render.html.show(valueElm, update.value);
             } else {
                 valueElm.innerText = valueElm.textContent = update.value;
             }
@@ -647,7 +645,7 @@ function HtmlRenderer(user_config) {
         var valueIn = Kefir.emitter(),
             disableEditor = Kefir.emitter();
         inletData.disableEditor = disableEditor;
-        inlet.renderedit.html(editor, inlet, valueIn);
+        inlet.render.html.edit(editor, inlet, valueIn);
         Kefir.sampledBy([ inlet.event['inlet/update'] ],
             [ Kefir.merge([
                 Kefir.fromEvent(valueHolder, 'click')
