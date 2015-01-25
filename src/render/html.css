@@ -167,6 +167,19 @@
     z-index: 1000;
 }
 
+.rpd-node .rpd-remove-button {
+    display: none;
+    background-color: rgba(30,30,30,0.2);
+    padding: 0 2px;
+    border-radius: 0 0 0 3px;
+    font-size: 0.7em;
+    cursor: pointer;
+}
+
+.rpd-node:hover .rpd-remove-button {
+    display: block;
+}
+
 /* QUARTZ COMPOSER LAYOUT STYLE */
 
 .rpd-layout-quartz .rpd-node {
@@ -208,6 +221,12 @@
     border-collapse: collapse;
     min-width: 100px;
     min-height: 30px;
+}
+
+.rpd-layout-quartz .rpd-node .rpd-remove-button {
+    position: absolute;
+    right: 0;
+    margin-top: -3px;
 }
 
 .rpd-layout-quartz table.rpd-node thead.rpd-title th {
@@ -307,19 +326,9 @@
 }
 
 .rpd-layout-pd .rpd-node .rpd-remove-button {
-    display: none;
     position: absolute;
     right: 12px;
-    background-color: rgba(30,30,30,0.2);
     margin-top: 1px;
-    padding: 0 2px;
-    border-radius: 0 0 0 3px;
-    font-size: 0.7em;
-    cursor: pointer;
-}
-
-.rpd-layout-pd .rpd-node:hover .rpd-remove-button {
-    display: block;
 }
 
 .rpd-layout-pd .rpd-content > td {

@@ -124,6 +124,8 @@ function HtmlRenderer(user_config) {
             if (config.layout == QUARTZ_LAYOUT) {
 
                 // thead.rpd-title
+                //   tr.rpd-remove-button
+                //     th
                 //   tr
                 //     th[colspan=3]
                 //       span.rpd-name: node.name
@@ -135,6 +137,13 @@ function HtmlRenderer(user_config) {
                 if (node.def.icon) {
                     // TODO
                 }
+
+                var removeButtonRow = quickElm('tr', 'rpd-remove-button');
+                removeButton = quickElm('th');
+                //removeButton.setAttribute('colspan', 3);
+                removeButton.innerText = removeButton.textContent = 'x';
+                removeButtonRow.appendChild(removeButton);
+                headElm.appendChild(removeButtonRow);
 
                 var headCell = quickElm('th');
                 headCell.setAttribute('colspan', 3);
