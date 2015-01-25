@@ -316,7 +316,7 @@ function HtmlRenderer(user_config) {
 
             // use custom node body renderer, if defined
             if (node.render.html && node.render.html.first) {
-                node.render.html.first(bodyElm, node.event);
+                subscribeUpdates(node, node.render.html.first(bodyElm));
             }
 
             if (config.nodesMovingAllowed) {
@@ -722,34 +722,35 @@ function HtmlRenderer(user_config) {
 
     function addValueEditor(inlet, inletData, root, valueHolder, valueElm) {
         var editor = quickElm('div', 'rpd-value-editor');
-        valueHolder.classList.add('rpd-editor-disabled');
-        valueHolder.appendChild(editor);
         var valueIn = Kefir.emitter(),
             disableEditor = Kefir.emitter();
         inletData.disableEditor = disableEditor;
-        inlet.render.html.edit(editor, inlet, valueIn);
+        var valueOut = inlet.render.html.edit(editor, inlet, valueIn);
+        valueOut.onValue(function(value) { inlet.receive(value); });
         Kefir.sampledBy([ inlet.event['inlet/update'] ],
-            [ Kefir.merge([
-                Kefir.fromEvent(valueHolder, 'click')
-                     .tap(stopPropagation)
-                     .mapTo(true),
-                Kefir.fromEvent(root, 'click')
-                     .merge(disableEditor)
-                     .mapTo(false) ])
-              .toProperty(false)
-              .skipDuplicates() ])
-        .map(function(val) { return { lastValue: val[0],
-                                      startEditing: val[1],
-                                      cancelEditing: !val[1] }; })
-        .onValue(function(conf) {
-            if (conf.startEditing) {
-                if (inletData.link) inletData.link.disable();
-                valueIn.emit(conf.lastValue);
-                valueHolder.classList.add('rpd-editor-enabled');
-            } else if (conf.cancelEditing) {
-                valueHolder.classList.remove('rpd-editor-enabled');
-            }
-        });
+                        [ Kefir.merge([
+                                    Kefir.fromEvent(valueHolder, 'click')
+                                         .tap(stopPropagation)
+                                         .mapTo(true),
+                                    Kefir.fromEvent(root, 'click')
+                                         .merge(disableEditor)
+                                         .mapTo(false) ])
+                               .toProperty(false)
+                               .skipDuplicates() ])
+             .map(function(val) { return { lastValue: val[0],
+                                           startEditing: val[1],
+                                           cancelEditing: !val[1] }; })
+             .onValue(function(conf) {
+                if (conf.startEditing) {
+                    if (inletData.link) inletData.link.disable();
+                    valueIn.emit(conf.lastValue);
+                    valueHolder.classList.add('rpd-editor-enabled');
+                } else if (conf.cancelEditing) {
+                    valueHolder.classList.remove('rpd-editor-enabled');
+                }
+             });
+        valueHolder.classList.add('rpd-editor-disabled');
+        valueHolder.appendChild(editor);
     }
 
     // ============================== Connections ==============================
@@ -899,6 +900,24 @@ function HtmlRenderer(user_config) {
         } // return
 
     } // Connections
+
+    // ============================== BodyInlets ===============================
+    // =========================================================================
+
+    function subscribeUpdates(node, subscriptions) {
+        for (var alias in subscriptions) {
+            (function(subscription, alias) {
+                node.event['inlet/add']
+                    .filter(function(inlet) { return inlet.alias === alias; })
+                    .onValue(function(inlet) {
+                        inlet.receive(subscription.default());
+                        subscription.valueOut.onValue(function(value) {
+                            inlet.receive(value);
+                        });
+                });
+            })(subscriptions[alias], alias);
+        }
+    }
 
     // ============================== DragNDrop ================================
     // =========================================================================
