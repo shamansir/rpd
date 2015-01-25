@@ -216,9 +216,9 @@ function Inlet(type, node, alias, name, _default, hidden, readonly) {
 
     this.node = node;
     this.hidden = hidden || false;
-    this.readonly = readonly || def.readonly || false;
+    this.readonly = is_defined(readonly || def.readonly) ? readonly || def.readonly : true;
     this.default = is_defined(_default) ? _default : def.default;
-    this.adapt = def.adapt;
+    this.adapt = def.adapt; this.show = def.show;
     this.value = Kefir.bus();
 
     this.render = prepare_render_obj(def.render);
@@ -259,7 +259,7 @@ function Outlet(type, node, alias, name, _default) {
 
     this.node = node;
     this.default = is_defined(_default) ? _default : def.default;
-    this.adapt = def.adapt;
+    this.adapt = def.adapt; this.show = def.show;
     this.value = Kefir.bus();
 
     this.render = prepare_render_obj(def.render);

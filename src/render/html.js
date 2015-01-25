@@ -488,7 +488,8 @@ function HtmlRenderer(user_config) {
             if (inlet.render.html && inlet.render.html.show) {
                 inlet.render.html.show(valueElm, update.value);
             } else {
-                valueElm.innerText = valueElm.textContent = update.value;
+                valueElm.innerText = valueElm.textContent = inlet.show ? inlet.show(update.value)
+                                                                       : update.value;
             }
 
             valueUpdateEffect(inletData, inletElm);
@@ -585,7 +586,8 @@ function HtmlRenderer(user_config) {
             if (outlet.render.html && outlet.render.html.show) {
                 outlet.render.html.show(valueElm, update.value);
             } else {
-                valueElm.innerText = valueElm.textContent = update.value;
+                valueElm.innerText = valueElm.textContent = outlet.show ? outlet.show(update.value)
+                                                                        : update.value;
             }
 
             // adds `rpd-fresh` CSS class and removes it by timeout

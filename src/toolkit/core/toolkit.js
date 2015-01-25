@@ -1,6 +1,5 @@
 Rpd.nodetype('core/empty', {
     name: 'Empty',
-    boxHeight: 100,
     handle: {
         'inlet/add': function() {
             throw new Error('Empty node can not have any inlets');
