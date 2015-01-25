@@ -411,6 +411,10 @@
     padding: 0px 10px 0px 10px;
 }
 
+.rpd-nodelist.rpd-collapsed {
+    display: none;
+}
+
 .rpd-nodelist .rpd-toolkit-name {
     padding: 6px 5px;
     font-weight: bold;
@@ -488,4 +492,16 @@
 
 .rpd-nodelist .rpd-toolkit .rpd-node-description.rpd-collapsed {
     display: none;
+}
+
+.rpd-collapse-nodelist {
+    cursor: pointer;
+    position: absolute;
+    top: 4px;
+    right: 16.5%;
+    color: rgba(200,200,200,0.7);
+}
+
+.rpd-collapse-nodelist.rpd-collapsed {
+    right: 4px;
 }
