@@ -18,9 +18,12 @@ Rpd.noderenderer('core/sum-of-three-with-body', 'html', function() {
             bodyElm.appendChild(cValInput);
             sumContent = document.createElement('span');
             bodyElm.appendChild(sumContent);
-            return { c: { default: function() { cValInput.value = 0; return 0; },
+            return { c:
+                        { default: function() { cValInput.value = 0; return 0; },
                           valueOut: Kefir.fromEvent(cValInput, 'change')
-                                         .map(function() { return cValInput.value; }) }
+                                         .map(function() { return cValInput.value; })
+                        }
+                   };
         },
         always: function(bodyElm, inlets, outlets) {
             sumContent.innerHTML = sumContent.textContent =
@@ -41,6 +44,6 @@ Rpd.channelrenderer('core/number', 'html', {
         });
         target.appendChild(valInput);
         return Kefir.fromEvent(valInput, 'change')
-                    .map(function() { return cValInput.value; });
+                    .map(function() { return valInput.value; });
     }
 });
