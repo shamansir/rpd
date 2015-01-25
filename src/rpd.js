@@ -5,6 +5,7 @@ var linktypes = {};
 var channeltypes = {};
 
 var renderer_registry = {};
+var subrenderers = {};
 
 var cur_model = -1;
 var models = [];
@@ -60,7 +61,13 @@ Model.prototype.removeNode = function(node) {
 }
 Model.prototype.renderWith = function(alias, conf) {
     if (!renderer_registry[alias]) throw new Error('Renderer ' + alias + ' is not registered');
-    this.renderers.emit(renderer_registry[alias](conf));
+    var main_renderer = renderer_registry[alias](conf);
+    if (!subrenderers[alias] || !subrenderers[alias].length) {
+        this.renderers.emit(main_renderer);
+    } else {
+        this.renderers.emit(join_subrenderers(main_renderer,
+                                              subrenderers[alias]), conf);
+    }
     return this;
 }
 Model.start = function(name) {
@@ -441,6 +448,21 @@ function walk_cons(cell, f) {
     f(cell[0]); walk_cons(cell[1], f);
 }
 
+function join_subrenderers(main_renderer, subrenderers, conf) {
+    var src = subrenderers;
+    var trg = [];
+    for (var i = 0, il = src.length; i < il; i++) {
+        trg.push(src[i](conf));
+    }
+    return function(target, update) {
+        main_renderer(target, update);
+        var renderers = trg;
+        for (var i = 0, il = renderers.length; i < il; i++) {
+            renderers[i](target, update);
+        }
+    };
+}
+
 // =========================== registration ====================================
 // =============================================================================
 
@@ -458,6 +480,11 @@ function channeltype(id, def) {
 
 function renderer(alias, f) {
     renderer_registry[alias] = f;
+}
+
+function subrenderer(alias, f) {
+    if (!subrenderers[alias]) subrenderers[alias] = [];
+    subrenderers[alias].push(f);
 }
 
 function noderenderer(type, alias, data) {
@@ -486,7 +513,9 @@ return {
     'nodetype': nodetype,
     'linktype': linktype,
     'channeltype': channeltype,
+
     'renderer': renderer,
+    'subrenderer': subrenderer,
     'noderenderer': noderenderer,
     'channelrenderer': channelrenderer,
 
