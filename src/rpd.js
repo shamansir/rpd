@@ -490,7 +490,9 @@ return {
     'noderenderer': noderenderer,
     'channelrenderer': channelrenderer,
 
-    'allNodeTypes': nodetypes
+    'allNodeTypes': nodetypes,
+
+    'currentModel': function() { return models[cur_model]; }
 }
 
 })();

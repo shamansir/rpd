@@ -306,6 +306,22 @@
     border-collapse: collapse;
 }
 
+.rpd-layout-pd .rpd-node .rpd-remove-button {
+    display: none;
+    position: absolute;
+    right: 12px;
+    background-color: rgba(30,30,30,0.2);
+    margin-top: 1px;
+    padding: 0 2px;
+    border-radius: 0 0 0 3px;
+    font-size: 0.7em;
+    cursor: pointer;
+}
+
+.rpd-layout-pd .rpd-node:hover .rpd-remove-button {
+    display: block;
+}
+
 .rpd-layout-pd .rpd-content > td {
     padding: 8px;
 }
@@ -497,6 +513,7 @@
 .rpd-collapse-nodelist {
     cursor: pointer;
     position: absolute;
+    z-index: 10000;
     top: 4px;
     right: 16.5%;
     color: rgba(200,200,200,0.7);

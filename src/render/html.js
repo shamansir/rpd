@@ -119,7 +119,7 @@ function HtmlRenderer(user_config) {
 
             var dragTrg;
 
-            var inletsTrg, outletsTrg, bodyElm;
+            var inletsTrg, outletsTrg, bodyElm, removeButton;
 
             if (config.layout == QUARTZ_LAYOUT) {
 
@@ -208,6 +208,8 @@ function HtmlRenderer(user_config) {
                 //     table
                 //       tbody
                 //         ... (see inlet/add)
+                // tr.rpd-remove-button
+                //   td
                 // tr.rpd-content
                 //   td.rpd-title
                 //     span.rpd-name: node.name
@@ -234,8 +236,14 @@ function HtmlRenderer(user_config) {
 
                 inletsTable.appendChild(inletsBody);
                 inletsCell.appendChild(inletsTable);
-                inletsRow.appendChild(inletsCell)
+                inletsRow.appendChild(inletsCell);
                 nodeElm.appendChild(inletsRow);
+
+                var removeButtonRow = quickElm('tr', 'rpd-remove-button');
+                removeButton = quickElm('td');
+                removeButton.innerText = removeButton.textContent = 'x';
+                removeButtonRow.appendChild(removeButton);
+                nodeElm.appendChild(removeButtonRow);
 
                 var contentRow = quickElm('tr', 'rpd-content');
 
@@ -272,7 +280,7 @@ function HtmlRenderer(user_config) {
 
                 outletsTable.appendChild(outletsBody);
                 outletsCell.appendChild(outletsTable);
-                outletsRow.appendChild(outletsCell)
+                outletsRow.appendChild(outletsCell);
                 nodeElm.appendChild(outletsRow);
 
                 dragTrg = headCell;
@@ -294,7 +302,7 @@ function HtmlRenderer(user_config) {
 
             // save node data
             nodes[node.id] = {
-                elm: nodeElm, body: bodyElm,
+                box: nodeBox, elm: nodeElm, body: bodyElm,
                 inletsTrg: inletsTrg, outletsTrg: outletsTrg };
 
             // use custom node body renderer, if defined
@@ -306,13 +314,19 @@ function HtmlRenderer(user_config) {
                 addDragNDrop(node, root, dragTrg, nodeBox);
             }
 
+            Kefir.fromEvent(removeButton, 'click')
+                 .tap(stopPropagation)
+                 .onValue(function() {
+                     Rpd.currentModel().removeNode(node);
+                 });
+
         },
 
         // =====================================================================
         // ============================ node/ready =============================
         // =====================================================================
 
-        'node/ready': function(root, update) { },
+        // 'node/ready': function(root, update) { },
 
         // =====================================================================
         // ============================ node/process ===========================
@@ -334,7 +348,25 @@ function HtmlRenderer(user_config) {
         // ============================ node/remove ============================
         // =====================================================================
 
-        'node/remove': function(root, update) {},
+        'node/remove': function(root, update) {
+
+            var node = update.node;
+
+            var nodeData = nodes[node.id];
+
+            var nodeLinks = selectLinks(node, links);
+
+            var linkData;
+            for (var i = 0, il = nodeLinks.length; i < il; i++) {
+                linkData = nodeLinks[i];
+                linkData.link.outlet.disconnect(linkData.link);
+            }
+
+            root.removeChild(nodeData.box);
+
+            nodes[node.id] = null;
+
+        },
 
         // =====================================================================
         // ============================ inlet/add ==============================
@@ -426,7 +458,7 @@ function HtmlRenderer(user_config) {
         // ============================ inlet/remove ===========================
         // =====================================================================
 
-        'inlet/remove': function(root, update) {},
+        // 'inlet/remove': function(root, update) {},
 
         // =====================================================================
         // ============================ inlet/update ===========================
@@ -525,7 +557,7 @@ function HtmlRenderer(user_config) {
         // ============================ outlet/remove ==========================
         // =====================================================================
 
-        'outlet/remove': function(root, update) {},
+        // 'outlet/remove': function(root, update) {},
 
         // =====================================================================
         // ============================ outlet/update ==========================
@@ -642,13 +674,13 @@ function HtmlRenderer(user_config) {
         // ============================ link/adapt =============================
         // =====================================================================
 
-        'link/adapt': function(root, update) {},
+        // 'link/adapt': function(root, update) {},
 
         // =====================================================================
         // ============================ link/error =============================
         // =====================================================================
 
-        'link/error': function(root, update) {}
+        // 'link/error': function(root, update) {}
 
     }; // return
 
@@ -862,21 +894,6 @@ function HtmlRenderer(user_config) {
     // ============================== DragNDrop ================================
     // =========================================================================
 
-    function selectLinks(node) {
-        var selectedLinks = [], linkData, link;
-        for (var id in links) {
-            if (!links[id]) continue;
-            linkData = links[id];
-            link = linkData.link;
-            if ((link.inlet.node.id  === node.id) ||
-                (link.outlet.node.id === node.id)) {
-                    selectedLinks.push(linkData);
-                    linkData.elm.style.zIndex = LINKDRAG_LAYER;
-                }
-        }
-        return selectedLinks;
-    }
-
     function updateLinks(node, selectedLinks) {
         var link, linkElm, inletConnector, outletConnector,
             inletPos, outletPos;
@@ -923,7 +940,10 @@ function HtmlRenderer(user_config) {
             box.style.left = pos.x + 'px';
             box.style.top  = pos.y + 'px';
             if (!selectedLinks) {
-                selectedLinks = selectLinks(node);
+                selectedLinks = selectLinks(node, links,
+                   function(linkData) {
+                       linkData.elm.style.zIndex = LINKDRAG_LAYER;
+                   });
             }
             updateLinks(node, selectedLinks);
         });
@@ -1082,6 +1102,21 @@ function rotateLink(linkElm, x0, y0, x1, y1) {
     linkElm.style.width = Math.floor(distance) + 'px';
     linkElm.style.transform = 'rotateZ(' + angle + 'rad)';
     linkElm.style.webkitTransform = 'rotateZ(' + angle + 'rad)';
+}
+
+function selectLinks(node, links, onEach) {
+    var selectedLinks = [], linkData, link;
+    for (var id in links) {
+        if (!links[id]) continue;
+        linkData = links[id];
+        link = linkData.link;
+        if ((link.inlet.node.id  === node.id) ||
+            (link.outlet.node.id === node.id)) {
+                selectedLinks.push(linkData);
+                if (onEach) onEach(linkData, link);
+        }
+    }
+    return selectedLinks;
 }
 
 var default_width = 1, // in boxes
