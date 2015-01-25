@@ -17,7 +17,7 @@ Rpd.nodetype('core/custom', {
 
 Rpd.nodetype('core/sum-of-three', {
     name: 'Sum of Three',
-    boxWidth: 300,
+    width: 1.8,
     inlets: {
         'a': { type: 'core/number', name: 'A' },
         'b': { type: 'core/number', name: 'B' },
@@ -36,7 +36,7 @@ Rpd.nodetype('core/sum-of-three', {
 
 Rpd.nodetype('core/sum-of-three-with-body', {
     name: 'Sum of Three w/Body',
-    boxWidth: 300,
+    width: 1.8,
     inlets: {
         'a': { type: 'core/number', name: 'A', default: 1 },
         'b': { type: 'core/number', name: 'B' },

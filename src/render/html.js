@@ -19,7 +19,11 @@ var default_config = {
     // show the list of nodes
     renderNodeList: true,
     // is node list collapsed by default, if shown
-    nodeListCollapsed: true
+    nodeListCollapsed: true,
+    // dimensions of the box used to measure everything
+    boxSize: [ 100, 40 ],
+    // width of a link, sometimes it's hard to catch so could be increased
+    linkWidth: null, // null means use the value from CSS
 };
 
 // z-indexes
@@ -76,10 +80,11 @@ function HtmlRenderer(user_config) {
             }
             if (config.showBoxes) root.classList.add('rpd-show-boxes');
 
-            root.style.height = window.innerHeight + 'px';
+            root.style.height = document.documentElement.clientHeight + 'px';
+            // window.innerHeight + 'px';
 
             Kefir.fromEvent(root, 'resize').onValue(function() {
-                root.style.height = window.innerHeight + 'px';
+                root.style.height = document.documentElement.clientHeight + 'px';
             });
 
             /* </build HTML> */
@@ -276,7 +281,8 @@ function HtmlRenderer(user_config) {
             nodeBox.style.zIndex = NODE_LAYER;
 
             // place node box wrapper in a suitable empty space in layout
-            applyNextNodeRect(node, nodeBox);
+            applyNextNodeRect(node, nodeBox, nodeElm, config.boxSize,
+                              [ root.offsetWidth, root.offsetHeight ]);
 
             nodeBox.appendChild(nodeElm);
 
@@ -548,7 +554,8 @@ function HtmlRenderer(user_config) {
             // visually link is just a CSS-rotated div with 1px border
             var p0 = outletConnector.getBoundingClientRect(),
                 p1 = inletConnector.getBoundingClientRect();
-            var linkElm = constructLink(p0.left, p0.top, p1.left, p1.top);
+            var linkElm = constructLink(p0.left, p0.top, p1.left, p1.top,
+                                        config.linkWidth);
 
             links[link.id] = { elm: linkElm,
                                link: link };
@@ -734,7 +741,8 @@ function HtmlRenderer(user_config) {
                                                    .onValue(function(pos) {
                     startLink.emit();
                     var pivot = getPos(connector);
-                    var ghost = constructLink(pivot.x, pivot.y, pos.x, pos.y);
+                    var ghost = constructLink(pivot.x, pivot.y, pos.x, pos.y,
+                                              config.linkWidth);
                     root.appendChild(ghost);
                     return Kefir.fromEvent(root, 'mousemove')
                                 .takeUntilBy(Kefir.merge([ inletClicks,
@@ -784,7 +792,8 @@ function HtmlRenderer(user_config) {
                     outlet.disconnect(prevLink);
                     startLink.emit();
                     var pivot = getPos(getConnector(outlet));
-                    var ghost = constructLink(pivot.x, pivot.y, pos.x, pos.y);
+                    var ghost = constructLink(pivot.x, pivot.y, pos.x, pos.y,
+                                              config.linkWidth);
                     root.appendChild(ghost);
                     return Kefir.fromEvent(root, 'mousemove')
                                 .takeUntilBy(Kefir.merge([ inletClicks,
@@ -1002,7 +1011,7 @@ function valueUpdateEffect(storage, elmHolder) {
     }, 1000);
 }
 
-function constructLink(x0, y0, x1, y1) {
+function constructLink(x0, y0, x1, y1, w) {
     var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
                              ((y0 - y1) * (y0 - y1)));
     var angle = Math.atan2(y1 - y0, x1 - x0);
@@ -1017,6 +1026,7 @@ function constructLink(x0, y0, x1, y1) {
     linkElm.style.webkitTransformOrigin = 'left top';
     linkElm.style.transform = 'rotateZ(' + angle + 'rad)';
     linkElm.style.webkitTransform = 'rotateZ(' + angle + 'rad)';
+    if (w) linkElm.style.height = w + 'px';
     return linkElm;
 }
 
@@ -1031,28 +1041,32 @@ function rotateLink(linkElm, x0, y0, x1, y1) {
     linkElm.style.webkitTransform = 'rotateZ(' + angle + 'rad)';
 }
 
-var default_width = 100,
-    default_height = 50,
-    default_x_margin = 30;
-    default_y_margin = 20,
-    default_limits = [ 1000, 1000 ];
+var default_width = 1, // in boxes
+    default_height = 1, // in boxes
+    default_x_margin = 0.5,  // in boxes
+    default_y_margin = 1, // in boxes
+    default_limits = [ 1000, 1000 ]; // in pixels
 
 var node_rects = [];
 
-function applyNextNodeRect(node, nodeElm, limits) {
-    var width = node.def.boxWidth || default_width,
-        height = node.def.boxHeight || default_height;
+function applyNextNodeRect(node, nodeBox, nodeElm, boxSize, limits) {
+    var width =  (node.def.width  || default_width)  * boxSize[0],
+        height = (node.def.height || default_height) * boxSize[1];
     var last_rect = (node_rects.length ? node_rects[node_rects.length-1] : null);
     var new_rect = [ /* x */ last_rect ? last_rect[0] : 0,
-                     /* y */ last_rect ? (last_rect[1] + last_rect[3] + default_y_margin) : 0,
+                     /* y */ last_rect ? (last_rect[1] + last_rect[3] + (default_y_margin * boxSize[1])) : 0,
                      width,
                      height ];
+    if ((new_rect[1] + boxSize[1]) > limits[1]) {
+        new_rect[0] = new_rect[0] + width + (default_x_margin * boxSize[0]);
+        new_rect[1] = 0;
+    }
     node_rects.push(new_rect);
     // relative positioning
-    nodeElm.style.left = new_rect[0] + 'px';
-    nodeElm.style.top = new_rect[1] + 'px';
-    nodeElm.style.minWidth = new_rect[2] + 'px';
-    nodeElm.style.minHeight = new_rect[3] + 'px';
+    nodeBox.style.left = Math.floor(new_rect[0]) + 'px';
+    nodeBox.style.top  = Math.floor(new_rect[1]) + 'px';
+    nodeElm.style.minWidth  = Math.floor(new_rect[2]) + 'px';
+    nodeElm.style.minHeight = Math.floor(new_rect[3]) + 'px';
     node_rects.push(new_rect);
 }
 

@@ -31,7 +31,7 @@
 .rpd-node {
     /* box-shadow: 3px 3px 14px 1px rgba(33,33,33,0.7); */
     /* box-shadow: -1px 5px 13px 1px rgba(30,30,30,0.8); */
-    margin: 20px 50px;
+    /* margin: 20px 50px; */
     background-clip: border-box;
 }
 
@@ -169,6 +169,10 @@
 
 /* QUARTZ COMPOSER LAYOUT STYLE */
 
+.rpd-layout-quartz .rpd-node {
+    margin: 9px 30px;
+}
+
 .rpd-layout-quartz .rpd-node, .rpd-layout-quartz .rpd-node > .rpd-title {
     /* box-shadow: 3px 3px 14px 1px rgba(33,33,33,0.7); */
     box-shadow: -1px 5px 13px 1px rgba(30,30,30,0.8);
@@ -285,6 +289,10 @@
 
 /* PURE DATA LAYOUT STYLE */
 
+.rpd-layout-pd .rpd-node {
+    margin: 15px 12px;
+}
+
 .rpd-layout-pd .rpd-content {
     background-color: #617b79;
     color: #eee;
@@ -400,7 +408,7 @@
 
 .rpd-nodelist {
     color: #ddd;
-    padding: 10px;
+    padding: 0px 10px 0px 10px;
 }
 
 .rpd-nodelist .rpd-toolkit-name {
@@ -412,6 +420,7 @@
     text-decoration: overline;
     cursor: pointer;
     border-radius: 4px 4px 0 0;
+    margin-top: 10px;
 }
 
 .rpd-nodelist .rpd-toolkit-name:hover {
