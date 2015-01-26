@@ -1,21 +1,19 @@
 Rpd.noderenderer('pd/number', 'html', function() {
-    var changeIn;
+    var change;
     return {
         first: function(bodyElm) {
             var spinner = document.createElement('span');
-            var change = attachSpinner(spinner, 0);
-            changeIn = change.in;
-            var changeOut = change.out;
+            change = attachSpinner(spinner, 0);
             bodyElm.appendChild(spinner);
             return { 'spinner':
-                { default: function() { changeOut.emit(0); return T(0); },
-                  valueOut: changeOut.map(function(val) { return T(parseFloat(val)); })
+                { default: function() { change.emit(0); return T(0); },
+                  valueOut: change.map(function(val) { return T(parseFloat(val)); })
                 }
             };
         },
         always: function(bodyElm, inlets, outlets) {
             if (inlets.spinner && inlets.in && (Date.now() - inlets.spinner.time) > 50) {
-                changeIn.emit(inlets.in.value);
+                change.emit(inlets.in.value);
             }
         }
     };
@@ -31,13 +29,12 @@ function attachSpinner(target, initial) {
     target.classList.add('rpd-pd-spinner');
     var initial = initial || 0;
     var state = { value: initial };
-    var change = { in: Kefir.emitter(),
-                   out: Kefir.emitter() };
-    change.out.merge(change.in).onValue(function(val) {
+    var change = Kefir.emitter();
+    change.onValue(function(val) {
         state.value = val;
         target.innerText = target.textContent = val;
     });
-    change.out.emit(initial);
+    change.emit(initial);
     Kefir.fromEvent(target, 'mousedown')
          .tap(stopPropagation)
          .map(extractPos)
@@ -48,7 +45,7 @@ function attachSpinner(target, initial) {
                          .map(extractPos)
                          .takeUntilBy(Kefir.fromEvent(document.body, 'mouseup'))
                          .onValue(function(value) {
-                             change.out.emit(start + (value.x - startPos.x));
+                             change.emit(start + (value.x - startPos.x));
                          })
          }).onEnd(function() {});
     return change;
