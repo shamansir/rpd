@@ -228,7 +228,7 @@ function Inlet(type, node, alias, name, _default, hidden, readonly) {
         'inlet/update': function(value) { return { inlet: myself, value: value } }
     };
     this.event = event_map(event_conf);
-    this.event['inlet/update'] = this.event['inlet/update'].merge(this.value);
+    this.event['inlet/update'] = this.event['inlet/update'].merge(this.value).onValue(function(){});
     this.events = events_stream(event_conf, this.event);
 }
 Inlet.prototype.receive = function(value) {
@@ -273,7 +273,7 @@ function Outlet(type, node, alias, name, _default) {
         'outlet/disconnect': function(link) { return { outlet: myself, link: link } }
     };
     this.event = event_map(event_conf);
-    this.event['outlet/update'] = this.event['outlet/update'].merge(this.value);
+    this.event['outlet/update'] = this.event['outlet/update'].merge(this.value).onValue(function(){});
     this.events = events_stream(event_conf, this.event);
 
     // re-send last value on connection

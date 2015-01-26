@@ -7,16 +7,39 @@ Rpd.noderenderer('pd/number', 'html', function() {
             bodyElm.appendChild(spinner);
             return { 'spinner':
                 { default: function() { change.emit(0); return T(0); },
-                  valueOut: change.map(function(val) { return T(parseFloat(val)); })
-                }
+                  valueOut: change.map(function(val) { return T(parseFloat(val)); }) }
             };
         },
-        always: function(bodyElm, inlets, outlets) {
-            if (inlets.spinner && inlets.in && (Date.now() - inlets.spinner.time) > 50) {
+        always: function(bodyElm, inlets) {
+            if (inlets.spinner && inlets.in && ((Date.now() - inlets.spinner.time) > 50)) {
                 change.emit(inlets.in.value);
             }
         }
     };
+});
+
+Rpd.noderenderer('pd/osc', 'html', {
+    always: function(bodyElm, inlets) {
+        bodyElm.innerText = bodyElm.textContent =
+            inlets.wave + '/' + inlets.freq;
+    }
+});
+
+Rpd.noderenderer('pd/plot', 'html', function() {
+    var plotElm;
+    return {
+        first: function(bodyElm) {
+            plotElm = document.createElement('canvas');
+            plotElm.width = 100;
+            plotElm.height = 100;
+            bodyElm.appendChild(plotElm);
+        },
+        always: function(bodyElm, inlets) {
+            if (inlets.sound) {
+                inlets.sound.plot({ target: plotElm });
+            }
+        }
+    }
 });
 
 // utils
