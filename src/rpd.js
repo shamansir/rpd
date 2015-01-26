@@ -353,6 +353,13 @@ function Link(type, outlet, inlet, adapter, name) {
     this.event['link/pass'].filterBy(this.enabled).onValue(function(x) {
         inlet.receive(myself.adapt(x));
     });
+
+    // re-send last value on enable
+    Kefir.sampledBy([ this.event['link/pass'] ],
+                    [ this.event['link/enable'] ])
+         .onValue(function(update) {
+              myself.pass(update[0]);
+          });
 }
 Link.prototype.pass = function(value) {
     this.event['link/pass'].emit(value);

@@ -6,9 +6,7 @@ Rpd.channeltype('pd/t-num', {
 
 Rpd.nodetype('pd/number', {
     name: 'num',
-    inlets: { 'in': { type: 'pd/t-num', default: T(0) } },
-    outlets: { 'out': { type: 'pd/t-num', default: T(0) } },
-    process: function(inlets) {
-                return { 'out': inlets.in };
-             }
+    inlets:  { 'in':      { type: 'pd/t-num', default: T(0) } },
+    outlets: { 'out':     { type: 'pd/t-num', default: T(0) } },
+    process: function(inlets) { return { 'out': inlets.in }; }
 });

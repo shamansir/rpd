@@ -912,10 +912,12 @@ function HtmlRenderer(user_config) {
                 node.event['inlet/add']
                     .filter(function(inlet) { return inlet.alias === alias; })
                     .onValue(function(inlet) {
-                        inlet.receive(subscription.default());
-                        subscription.valueOut.onValue(function(value) {
-                            inlet.receive(value);
-                        });
+                        if (subscription.default) inlet.receive(subscription.default());
+                        if (subscription.valueOut) {
+                            subscription.valueOut.onValue(function(value) {
+                                inlet.receive(value);
+                            });
+                        }
                 });
             })(subscriptions[alias], alias);
         }
