@@ -483,13 +483,13 @@ function HtmlRenderer(user_config) {
             var inletElm = inletData.elm;
 
             var valueElm = inletData.valueElm;
-            valueElm.innerText = valueElm.textContent = update.value;
 
+            var valueRepr = inlet.show ? inlet.show(update.value) : update.value;
+            valueElm.innerText = valueElm.textContent = valueRepr;
             if (inlet.render.html && inlet.render.html.show) {
-                inlet.render.html.show(valueElm, update.value);
+                inlet.render.html.show(valueElm, update.value, valueRepr);
             } else {
-                valueElm.innerText = valueElm.textContent = inlet.show ? inlet.show(update.value)
-                                                                       : update.value;
+                valueElm.innerText = valueElm.textContent = valueRepr;
             }
 
             valueUpdateEffect(inletData, inletElm);
