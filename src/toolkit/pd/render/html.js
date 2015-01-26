@@ -25,6 +25,27 @@ Rpd.noderenderer('pd/osc', 'html', {
     }
 });
 
+Rpd.noderenderer('pd/wave', 'html', {
+    first: function(bodyElm) {
+        var chooser = document.createElement('select');
+        chooser.appendChild(createOption('sin'));
+        chooser.appendChild(createOption('saw'));
+        chooser.appendChild(createOption('tri'));
+        chooser.appendChild(createOption('pulse'));
+        chooser.appendChild(createOption('fami'));
+        bodyElm.appendChild(chooser);
+        return {
+            'wave': {
+                default: function() { chooser.value = 'sin'; return 'sin'; },
+                valueOut: Kefir.fromEvent(chooser, 'change')
+                               .map(function() {
+                                    return chooser.options[chooser.selectedIndex].value;
+                               })
+            }
+        }
+    }
+});
+
 Rpd.noderenderer('pd/plot', 'html', function() {
     var plotElm;
     return {
@@ -43,6 +64,14 @@ Rpd.noderenderer('pd/plot', 'html', function() {
 });
 
 // utils
+
+function createOption(value, selected) {
+    var option = document.createElement('option');
+    option.value = value;
+    option.innerText = option.textContent = value;
+    if (selected) option.selected = 'selected';
+    return option;
+}
 
 function extractPos(evt) { return { x: evt.clientX,
                                     y: evt.clientY }; };

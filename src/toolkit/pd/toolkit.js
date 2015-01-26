@@ -41,8 +41,26 @@ Rpd.nodetype('pd/osc', {
     }
 });
 
+Rpd.nodetype('pd/wave', {
+    name: 'wave',
+    inlets: { 'wave': { type: 'pd/t-wave', default: 'sin', hidden: true } },
+    outlets: { 'wave': { type: 'pd/t-wave', default: 'sin' } },
+    process: function(inlets) { return { 'wave': inlets.wave } }
+});
+
 Rpd.nodetype('pd/plot', {
     name: 'plot',
     inlets: { 'sound': { type: 'pd/t-obj', default: null } },
     process: function() {}
+});
+
+Rpd.nodetype('pd/play', {
+    name: 'play',
+    inlets: { 'sound': { type: 'pd/t-obj', default: null } },
+    process: function(inlets) {
+        if (inlets.sound) {
+            // FIXME: stop the previous one
+            inlets.sound.play();
+        }
+    }
 });
