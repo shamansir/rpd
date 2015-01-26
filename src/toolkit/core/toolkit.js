@@ -60,4 +60,4 @@ Rpd.channeltype('core/number', { default: 0,
                                      return parseFloat(val);
                                  } });
 
-Rpd.linktype('core/normal', { });
+Rpd.linktype('core/value', { });

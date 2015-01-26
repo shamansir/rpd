@@ -311,7 +311,7 @@ Outlet.prototype.toDefault = function() {
 // =============================================================================
 
 function Link(type, outlet, inlet, adapter, name) {
-    this.type = type || 'core/normal';
+    this.type = type || 'core/value';
     this.id = short_uid();
     var def = linktypes[this.type];
     if (!def) report_error('Link type ' + this.type + ' is not registered!');

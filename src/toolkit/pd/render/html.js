@@ -1,23 +1,22 @@
 Rpd.noderenderer('pd/number', 'html', function() {
-    var changeIn, changeOut;
+    var changeIn;
     return {
         first: function(bodyElm) {
             var spinner = document.createElement('span');
-            var changes = attachSpinner(spinner, 0);
-            changeIn = changes[0], changeOut = changes[1];
+            var change = attachSpinner(spinner, 0);
+            changeIn = change.in;
+            var changeOut = change.out;
             bodyElm.appendChild(spinner);
-            return { 'in':
+            return { 'spinner':
                 { default: function() { changeOut.emit(0); return T(0); },
                   valueOut: changeOut.map(function(val) { return T(parseFloat(val)); })
-                  /* Kefir.fromEvent(valInput, 'change')
-                                 .map(function() { return T(parseFloat(valInput.value)); }) */
                 }
             };
         },
         always: function(bodyElm, inlets, outlets) {
-            //valInput.textContent = inlets.in.value
-            if (inlets.in) changeIn.emit(inlets.in.value);
-            //if (inlets.in) setTimeout(function() { change.emit(inlets.in.value) },1);
+            if (inlets.spinner && inlets.in && (Date.now() - inlets.spinner.time) > 50) {
+                changeIn.emit(inlets.in.value);
+            }
         }
     };
 });
@@ -32,13 +31,13 @@ function attachSpinner(target, initial) {
     target.classList.add('rpd-pd-spinner');
     var initial = initial || 0;
     var state = { value: initial };
-    var changeIn = Kefir.emitter(),
-        changeOut = Kefir.emitter();
-    changeOut.merge(changeIn).onValue(function(val) {
+    var change = { in: Kefir.emitter(),
+                   out: Kefir.emitter() };
+    change.out.merge(change.in).onValue(function(val) {
         state.value = val;
         target.innerText = target.textContent = val;
     });
-    changeOut.emit(initial);
+    change.out.emit(initial);
     Kefir.fromEvent(target, 'mousedown')
          .tap(stopPropagation)
          .map(extractPos)
@@ -49,8 +48,8 @@ function attachSpinner(target, initial) {
                          .map(extractPos)
                          .takeUntilBy(Kefir.fromEvent(document.body, 'mouseup'))
                          .onValue(function(value) {
-                             changeOut.emit(start + (value.x - startPos.x));
+                             change.out.emit(start + (value.x - startPos.x));
                          })
          }).onEnd(function() {});
-    return [ changeIn, changeOut ];
+    return change;
 }
