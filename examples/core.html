@@ -18,7 +18,7 @@
     <body>
         <script>
             var model = Rpd.Model.start().attachTo(document.body)
-                                         .renderWith('html', { /* layout: 'pd' */ } );
+                                         .renderWith('html', { /* layout: 'pd' */ });
 
             var genA = new Rpd.Node('core/custom', 'Generate A');
             var outA = genA.addOutlet('core/number', 'A');
@@ -40,8 +40,8 @@
             outA.connect(inABody);
             outB.connect(inBBody);
 
-            outA.stream(Kefir.repeatedly(1000, [1, 2, 3]));
-            outB.stream(Kefir.repeatedly(2000, [4, 5, 6]));
+            outA.stream(Kefir.repeatedly(10, [1, 2, 3]));
+            outB.stream(Kefir.repeatedly(20, [4, 5, 6]));
 
         </script>
     </body>

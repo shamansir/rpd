@@ -99,7 +99,7 @@ function Node(type, name) {
         'inlet/add':     function(inlet) { return { inlet: inlet } },
         'inlet/remove':  function(inlet) { return { inlet: inlet } },
         'outlet/add':    function(outlet) { return { outlet: outlet } },
-        'outlet/remove': function(outlet) { return { outlet: outlet } },
+        'outlet/remove': function(outlet) { return { outlet: outlet } }
     };
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
@@ -124,25 +124,42 @@ function Node(type, name) {
         var process_f = this.def.process;
         var myself = this;
         Kefir.combine([
+            // when new inlet was added, start monitoring its updates
             this.event['inlet/add'].flatMap(function(inlet) {
-                return inlet.event['inlet/update'].map(function(value) {
+                var updates = inlet.event['inlet/update'].map(function(value) {
                     return { inlet: inlet.alias, value: value };
                 });
+                if (myself.def.tune) updates = myself.def.tune(updates);
+                return updates;
+            // join inlet updates in one inlet_name=value hash, plus store
+            // previous values in a similar hash, return both
             }).scan(function(values, update) {
-                var values = values || {};
                 var inlet = update.inlet;
-                values[inlet] = update.value;
-                return values;
+                var prev_values, cur_values;
+                if (!values) {
+                    prev_values = {}; cur_values = {};
+                    cur_values[inlet] = update.value;
+                    return { prev: prev_values, cur: cur_values };
+                } else {
+                    prev_values = values.prev; cur_values  = values.cur;
+                    prev_values[inlet] = cur_values[inlet];
+                    cur_values[inlet]  = update.value;
+                    return values;
+                }
             }, null),
+            // prepare an object with all new outlets names to know which
+            // outlets are ready to be monitored for new values
             this.event['outlet/add'].scan(function(outlets, outlet) {
                 var outlets = outlets || {};
                 outlets[outlet.alias] = outlet;
                 return outlets;
             }, null)
         ]).onValue(function(value) {
-            var inlets_vals = value[0] || {}; var outlets = value[1] || {};
-            var outlets_vals = process_f(inlets_vals);
-            myself.event['node/process'].emit([inlets_vals, outlets_vals]);
+            // call a node/process event using collected inlet values
+            var inlets_vals = value[0] || { prev: {}, cur: {} }; var outlets = value[1] || {};
+            var outlets_vals = process_f(inlets_vals.cur, inlets_vals.prev);
+            myself.event['node/process'].emit([inlets_vals.cur, outlets_vals, inlets_vals.prev]);
+            // send the values provided from a `process` function to corresponding outlets
             for (var outlet_name in outlets_vals) {
                 if (outlets[outlet_name]) {
                     outlets[outlet_name].send(outlets_vals[outlet_name]);
@@ -283,6 +300,13 @@ function Outlet(type, node, alias, name, _default) {
              myself.value.emit(update[0]);
          });
 
+    // send "nothing" on disconnect
+    this.event['outlet/disconnect'].onValue(
+         function() {
+             myself.value.emit(null);
+         }
+    );
+
 }
 Outlet.prototype.connect = function(inlet, adapter) {
     var link = new Link(null, this, inlet, adapter);
@@ -291,8 +315,8 @@ Outlet.prototype.connect = function(inlet, adapter) {
     this.event['outlet/connect'].emit(link);
 }
 Outlet.prototype.disconnect = function(link) {
-    this.value.offValue(link.receiver);
     this.event['outlet/disconnect'].emit(link);
+    this.value.offValue(link.receiver);
     this.events.unplug(link.events);
 }
 Outlet.prototype.send = function(value) {

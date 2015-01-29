@@ -23,7 +23,7 @@ var default_config = {
     // dimensions of the box used to measure everything
     boxSize: [ 100, 40 ],
     // width of a link, sometimes it's hard to catch so could be increased
-    linkWidth: null, // null means use the value from CSS
+    linkWidth: null // null means use the value from CSS
 };
 
 // z-indexes
@@ -679,7 +679,7 @@ function HtmlRenderer(user_config) {
             var link = update.link;
             var linkElm = links[link.id].elm;
             linkElm.classList.add('rpd-disabled');
-        },
+        }
 
         // =====================================================================
         // ============================ link/adapt =============================

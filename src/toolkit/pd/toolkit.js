@@ -1,5 +1,5 @@
 Rpd.channeltype('pd/t-num', {
-    show: function(t_num) { return t_num.value; }
+    show: function(t_num) { return t_num ? t_num.value : '?'; }
 });
 
 Rpd.channeltype('pd/spinner', {
@@ -57,10 +57,9 @@ Rpd.nodetype('pd/plot', {
 Rpd.nodetype('pd/play', {
     name: 'play',
     inlets: { 'sound': { type: 'pd/t-obj', default: null } },
-    process: function(inlets) {
-        if (inlets.sound) {
-            // FIXME: stop the previous one
-            inlets.sound.play();
-        }
+    tune: function(updates) { return updates.throttle(50); },
+    process: function(inlets, inlets_prev) {
+        if (inlets_prev.sound) inlets_prev.sound.pause();
+        if (inlets.sound)  inlets.sound.play();
     }
 });
