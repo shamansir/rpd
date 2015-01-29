@@ -23,7 +23,7 @@ Rpd.nodetype('core/sum-of-three', {
         'c': { type: 'core/number', name: 'C' }
     },
     outlets: {
-        'sum': { type: 'core/number', default: 0, name: '∑' }
+        'sum': { type: 'core/number', name: '∑' }
     },
     /* prepare: function(inlets, outlets) {
         inlets['c'].stream(Kefir.repeatedly(3000, [12, 24, 32]).toProperty(0));
@@ -42,7 +42,7 @@ Rpd.nodetype('core/sum-of-three-with-body', {
         'c': { type: 'core/number', name: 'C', hidden: true }
     },
     outlets: {
-        'sum': { type: 'core/number', default: 0, name: '∑' }
+        'sum': { type: 'core/number', name: '∑' }
     },
     process: function(inlets) {
         return { 'sum': (inlets.a || 0) + (inlets.b || 0) + (inlets.c || 0) };
