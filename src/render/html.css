@@ -415,7 +415,7 @@
 .rpd-nodelist {
     float: right;
     position: relative;
-    min-width: 14%;
+    width: 200px;
     z-index: 1000;
     height: 100%;
     margin: 0;
@@ -524,7 +524,7 @@
     position: absolute;
     z-index: 10000;
     top: 4px;
-    right: 16.5%;
+    right: 228px;
     color: rgba(200,200,200,0.7);
 }
 
