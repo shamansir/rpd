@@ -88,12 +88,10 @@ function attachSpinner(target, initial) {
     });
     change.emit(initial);
     Kefir.fromEvent(target, 'mousedown')
-         .tap(stopPropagation)
          .map(extractPos)
          .flatMap(function(startPos) {
              var start = state.value;
              return Kefir.fromEvent(document.body, 'mousemove')
-                         .tap(stopPropagation)
                          .map(extractPos)
                          .takeUntilBy(Kefir.fromEvent(document.body, 'mouseup'))
                          .onValue(function(value) {

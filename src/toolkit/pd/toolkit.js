@@ -1,4 +1,5 @@
 Rpd.channeltype('pd/t-num', {
+    //accept: function(n) { return n.value ? true : false; },
     show: function(t_num) { return t_num ? t_num.value : '?'; }
 });
 

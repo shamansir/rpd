@@ -89,6 +89,12 @@
     transition: border-color .3s;
 }
 
+.rpd-error .rpd-connector {
+    border-color: #cc0;
+    background-color: #f00;
+    transition: border-color .3s;
+}
+
 .rpd-inlet .rpd-value,
 .rpd-outlet .rpd-value {
     color: rgba(200, 200, 200, 0.7);

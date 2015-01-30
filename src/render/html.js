@@ -23,7 +23,9 @@ var default_config = {
     // dimensions of the box used to measure everything
     boxSize: [ 100, 40 ],
     // width of a link, sometimes it's hard to catch so could be increased
-    linkWidth: null // null means use the value from CSS
+    linkWidth: null, // null means use the value from CSS
+    // a time for value update or error effects on inlets/outlets
+    effectTime: 1000
 };
 
 // z-indexes
@@ -458,6 +460,11 @@ function HtmlRenderer(user_config) {
                 addValueEditor(inlet, inletData, root, valueHolder, valueElm);
             }
 
+            // adds `rpd-error` CSS class and removes it by timeout
+            inlet.event['inlet/update'].onError(function() {
+                valueErrorEffect(inletData, inletElm, config.effectTime);
+            });
+
             // listen for clicks in connector and allow to edit links this way
             connections.subscribeInlet(inlet, connectorElm);
 
@@ -484,7 +491,7 @@ function HtmlRenderer(user_config) {
 
             var valueElm = inletData.valueElm;
 
-            var valueRepr = inlet.show ? inlet.show(update.value) : update.value;
+            var valueRepr = inlet.def.show ? inlet.def.show(update.value) : update.value;
             valueElm.innerText = valueElm.textContent = valueRepr;
             if (inlet.render.html && inlet.render.html.show) {
                 inlet.render.html.show(valueElm, update.value, valueRepr);
@@ -492,7 +499,8 @@ function HtmlRenderer(user_config) {
                 valueElm.innerText = valueElm.textContent = valueRepr;
             }
 
-            valueUpdateEffect(inletData, inletElm);
+            // adds `rpd-fresh` CSS class and removes it by timeout
+            valueUpdateEffect(inletData, inletElm, config.effectTime);
 
         },
 
@@ -586,12 +594,13 @@ function HtmlRenderer(user_config) {
             if (outlet.render.html && outlet.render.html.show) {
                 outlet.render.html.show(valueElm, update.value);
             } else {
-                valueElm.innerText = valueElm.textContent = outlet.show ? outlet.show(update.value)
-                                                                        : update.value;
+                valueElm.innerText = valueElm.textContent =
+                    outlet.def.show ? outlet.def.show(update.value)
+                                    : update.value;
             }
 
             // adds `rpd-fresh` CSS class and removes it by timeout
-            valueUpdateEffect(outletData, outletElm);
+            valueUpdateEffect(outletData, outletElm, config.effectTime);
 
         },
 
@@ -1095,15 +1104,24 @@ function quickElmVal(type, cls, value) {
     return elm;
 }
 
-function valueUpdateEffect(storage, elmHolder) {
+function valueErrorEffect(storage, elmHolder, duration) {
+    elmHolder.classList.add("rpd-error");
+    if (storage.errRemoveTimeout) clearTimeout(storage.errRemoveTimeout);
+    storage.errRemoveTimeout = setTimeout(function() {
+        elmHolder.classList.remove("rpd-error");
+        storage.errRemoveTimeout = null;
+    }, duration || 1);
+}
+
+function valueUpdateEffect(storage, elmHolder, duration) {
     elmHolder.classList.remove("rpd-stale");
     elmHolder.classList.add("rpd-fresh");
-    if (storage.removeTimeout) clearTimeout(storage.removeTimeout);
-    storage.removeTimeout = setTimeout(function() {
+    if (storage.updRemoveTimeout) clearTimeout(storage.updRemoveTimeout);
+    storage.updRemoveTimeout = setTimeout(function() {
         elmHolder.classList.remove("rpd-fresh");
         elmHolder.classList.add("rpd-stale");
-        storage.removeTimeout = null;
-    }, 1000);
+        storage.updRemoveTimeout = null;
+    }, duration || 1);
 }
 
 function constructLink(x0, y0, x1, y1, w) {

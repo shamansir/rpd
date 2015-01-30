@@ -242,7 +242,6 @@ function Inlet(type, node, alias, name, _default, hidden, readonly) {
     this.hidden = hidden || false;
     this.readonly = is_defined(readonly || def.readonly) ? readonly || def.readonly : true;
     this.default = is_defined(_default) ? _default : def.default;
-    this.adapt = def.adapt; this.show = def.show;
     this.value = Kefir.bus();
 
     this.render = prepare_render_obj(def.render);
@@ -252,14 +251,22 @@ function Inlet(type, node, alias, name, _default, hidden, readonly) {
         'inlet/update': function(value) { return { inlet: myself, value: value } }
     };
     this.event = event_map(event_conf);
-    this.event['inlet/update'] = this.event['inlet/update'].merge(this.value).onValue(function(){});
+    var orig_updates = this.event['inlet/update'];
+    var updates = orig_updates.merge(this.value);
+    if (def.tune) updates = def.tune(updates);
+    if (def.accept) updates = updates.flatten(function(v) {
+        if (def.accept(v)) { return [v]; } else { orig_updates.error(); return []; }
+    });
+    if (def.adapt) updates = updates.map(def.adapt);
+    // rewrire with the modified stream
+    this.event['inlet/update'] = updates.onValue(function(){});
     this.events = events_stream(event_conf, this.event);
 }
 Inlet.prototype.receive = function(value) {
-    this.value.emit(this.adapt ? this.adapt(value) : value);
+    this.value.emit(value);
 }
 Inlet.prototype.stream = function(stream) {
-    this.value.plug(this.adapt ? stream.map(this.adapt) : stream);
+    this.value.plug(stream);
 }
 Inlet.prototype.toDefault = function() {
     if (is_defined(this.default) && (this.default instanceof Kefir.Stream)) {
@@ -283,7 +290,6 @@ function Outlet(type, node, alias, name, _default) {
 
     this.node = node;
     this.default = is_defined(_default) ? _default : def.default;
-    this.adapt = def.adapt; this.show = def.show;
     this.value = Kefir.bus();
 
     this.render = prepare_render_obj(def.render);
@@ -341,7 +347,7 @@ function Link(type, outlet, inlet, adapter, name) {
     this.outlet = outlet;
     this.inlet = inlet;
 
-    this.adapter = adapter || def.adapter || undefined;
+    this.adapter = adapter || def.adapt || undefined;
 
     var myself = this;
 
@@ -360,8 +366,7 @@ function Link(type, outlet, inlet, adapter, name) {
         'link/enable': function() { return { link: myself } },
         'link/disable': function() { return { link: myself } },
         'link/pass': function(value) { return { link: myself, value: value } },
-        'link/adapt': function(values) { return { link: myself, before: values[0], after: values[1] } },
-        'link/error': function(error) { return { link: myself, error: error } }
+        'link/adapt': function(values) { return { link: myself, before: values[0], after: values[1] } }
     };
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
@@ -385,14 +390,9 @@ Link.prototype.pass = function(value) {
 }
 Link.prototype.adapt = function(before) {
     if (this.adapter) {
-        try {
-            var after = this.adapter(before);
-            this.event['link/adapt'].emit([before, after]);
-            return after;
-        } catch(err) {
-            this.event['link/error'].emit(err);
-            return;
-        }
+        var after = this.adapter(before);
+        this.event['link/adapt'].emit([before, after]);
+        return after;
     } else {
         this.event['link/adapt'].emit([before, before]);
         return before;
