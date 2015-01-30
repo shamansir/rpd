@@ -50,13 +50,13 @@ Model.prototype.attachTo = function(elm) {
 Model.prototype.addNode = function(node) {
     this.events.plug(node.events);
     this.event['node/add'].emit(node);
-    // TODO: node.turnOn
+    node.turnOn();
     return this;
 }
 Model.prototype.removeNode = function(node) {
+    node.turnOff();
     this.event['node/remove'].emit(node);
     this.events.unplug(node.events);
-    // TODO: node.turnOff
     return this;
 }
 Model.prototype.renderWith = function(alias, conf) {
@@ -83,7 +83,7 @@ Model.start = function(name) {
 function Node(type, name) {
     this.type = type || 'core/empty';
     this.id = short_uid();
-    var def = nodetypes[this.type];
+    var def = adapt_to_obj(nodetypes[this.type]);
     if (!def) report_error('Node type ' + this.type + ' is not registered!');
     this.def = def;
 
@@ -94,8 +94,10 @@ function Node(type, name) {
 
     var myself = this;
     var event_conf = {
+        'node/turn-on':  function(node) { return { node: myself } },
         'node/ready':    function(node) { return { node: myself } },
         'node/process':  function(channels) { return { inlets: channels[0], outlets: channels[1], node: myself } },
+        'node/turn-off': function(node) { return { node: myself } },
         'inlet/add':     function(inlet) { return { inlet: inlet } },
         'inlet/remove':  function(inlet) { return { inlet: inlet } },
         'outlet/add':    function(outlet) { return { outlet: outlet } },
@@ -194,6 +196,12 @@ function Node(type, name) {
     this.event['node/ready'].emit(this);
 
 }
+Node.prototype.turnOn = function() {
+    this.event['node/turn-on'].emit(this);
+}
+Node.prototype.turnOff = function() {
+    this.event['node/turn-off'].emit(this);
+}
 Node.prototype.addInlet = function(type, alias, name, _default, hidden) {
     var inlet = new Inlet(type, this, alias, name, _default, hidden);
     this.events.plug(inlet.events);
@@ -222,7 +230,7 @@ Node.prototype.removeOutlet = function(outlet) {
 function Inlet(type, node, alias, name, _default, hidden, readonly) {
     this.type = type || 'core/bool';
     this.id = short_uid();
-    var def = channeltypes[this.type];
+    var def = adapt_to_obj(channeltypes[this.type]);
     if (!def) report_error('Inlet type ' + this.type + ' is not registered!');
     this.def = def;
 
@@ -265,7 +273,7 @@ Inlet.prototype.toDefault = function() {
 function Outlet(type, node, alias, name, _default) {
     this.type = type || 'core/bool';
     this.id = short_uid();
-    var def = channeltypes[this.type];
+    var def = adapt_to_obj(channeltypes[this.type]);
     if (!def) report_error('Outlet type ' + this.type + ' is not registered!');
     this.def = def;
 
@@ -324,7 +332,7 @@ Outlet.prototype.stream = function(stream) {
 function Link(type, outlet, inlet, adapter, name) {
     this.type = type || 'core/value';
     this.id = short_uid();
-    var def = linktypes[this.type];
+    var def = adapt_to_obj(linktypes[this.type]);
     if (!def) report_error('Link type ' + this.type + ' is not registered!');
     this.def = def;
 
@@ -407,16 +415,17 @@ function is_defined(val) {
     return (typeof val !== 'undefined');
 }
 
+function adapt_to_obj(val) {
+    if (!val) return null;
+    if (typeof val === 'function') return val();
+    return val;
+}
+
 function prepare_render_obj(template) {
     if (!template) return {};
     var render_obj = {};
-    var renderer;
     for (var render_type in template) {
-        renderer = template[render_type]
-        if (!renderer) { render_obj[render_type] = null; }
-        else if (typeof renderer === 'function') {
-            render_obj[render_type] = renderer();
-        } else { render_obj[render_type] = renderer; }
+        render_obj[render_type] = adapt_to_obj(template[render_type]);
     }
     return render_obj;
 }

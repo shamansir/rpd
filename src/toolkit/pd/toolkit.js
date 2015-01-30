@@ -54,12 +54,23 @@ Rpd.nodetype('pd/plot', {
     process: function() {}
 });
 
-Rpd.nodetype('pd/play', {
-    name: 'play',
-    inlets: { 'sound': { type: 'pd/t-obj', default: null } },
-    tune: function(updates) { return updates.throttle(50); },
-    process: function(inlets, inlets_prev) {
-        if (inlets_prev.sound) inlets_prev.sound.pause();
-        if (inlets.sound)  inlets.sound.play();
+Rpd.nodetype('pd/play', function() {
+    var lastSound;
+    return {
+        name: 'play',
+        inlets: { 'sound': { type: 'pd/t-obj', default: null } },
+        tune: function(updates) { return updates.throttle(50); },
+        process: function(inlets, inlets_prev) {
+            if (inlets_prev.sound) inlets_prev.sound.pause();
+            if (inlets.sound) {
+                lastSound = inlets.sound;
+                inlets.sound.play();
+            }
+        },
+        handle: {
+            'node/turn-off': function() {
+                if (lastSound) lastSound.pause();
+            }
+        }
     }
 });
