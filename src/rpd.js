@@ -299,13 +299,6 @@ function Outlet(type, node, alias, name, _default) {
              myself.value.emit(update[0]);
          });
 
-    // send "nothing" on disconnect
-    this.event['outlet/disconnect'].onValue(
-         function() {
-             myself.value.emit(null);
-         }
-    );
-
 }
 Outlet.prototype.connect = function(inlet, adapter) {
     var link = new Link(null, this, inlet, adapter);
