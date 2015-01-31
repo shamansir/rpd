@@ -177,7 +177,7 @@ function Node(type, name) {
         this.inlets = {};
         for (var alias in this.def.inlets) {
             var conf = this.def.inlets[alias];
-            var inlet = this.addInlet(conf.type, alias, conf.name, conf.default, conf.hidden);
+            var inlet = this.addInlet(conf.type, alias, conf.name, conf.default, conf.hidden, conf.readonly);
             this.inlets[alias] = inlet;
         }
     }
@@ -202,8 +202,8 @@ Node.prototype.turnOn = function() {
 Node.prototype.turnOff = function() {
     this.event['node/turn-off'].emit(this);
 }
-Node.prototype.addInlet = function(type, alias, name, _default, hidden) {
-    var inlet = new Inlet(type, this, alias, name, _default, hidden);
+Node.prototype.addInlet = function(type, alias, name, _default, hidden, readonly) {
+    var inlet = new Inlet(type, this, alias, name, _default, hidden, readonly);
     this.events.plug(inlet.events);
     this.event['inlet/add'].emit(inlet);
     inlet.toDefault();
@@ -235,7 +235,7 @@ function Inlet(type, node, alias, name, _default, hidden, readonly) {
     this.def = def;
 
     this.alias = alias || name || def.alias;
-    if (!this.alias) report_error('Outlet should have either alias or name');
+    if (!this.alias) report_error('Inlet should have either alias or name');
     this.name = name || this.alias || def.name || 'Unnamed';
 
     this.node = node;
@@ -319,6 +319,7 @@ Outlet.prototype.connect = function(inlet, adapter) {
     this.events.plug(link.events);
     this.value.onValue(link.receiver);
     this.event['outlet/connect'].emit(link);
+    return link;
 }
 Outlet.prototype.disconnect = function(link) {
     this.event['outlet/disconnect'].emit(link);

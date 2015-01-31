@@ -916,6 +916,7 @@ function HtmlRenderer(user_config) {
     // =========================================================================
 
     function subscribeUpdates(node, subscriptions) {
+        if (!subscriptions) return;
         for (var alias in subscriptions) {
             (function(subscription, alias) {
                 node.event['inlet/add']
