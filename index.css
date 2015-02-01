@@ -1,0 +1,62 @@
+body {
+    font-family: "Input Sans Cond Ex Lt", "Geneva", "Georgia", serif;
+    margin: 30px 50px;
+    margin-bottom: 70px;
+}
+
+hr {
+    visibility: hidden;
+}
+
+h1 {
+    margin-bottom: 40px;
+    border-bottom: 2px solid;
+    padding-bottom: 15px;
+}
+
+body > p:nth-child(3) {
+    text-align: center;
+}
+
+body > p:nth-child(4) {
+    text-align: center;
+    left: 8px;
+    position: relative;
+    margin-bottom: 60px;
+}
+
+h2 {
+    margin-top: 30px;
+}
+
+pre {
+    font-family: "Input Mono", "PT Mono", monospace;
+    font-size: 0.9em;
+    background-color: #eee;
+    padding: 7px;
+    line-height: 1.3em;
+    border-radius: 5px;
+}
+
+code {
+    font-family: "Input Mono", "PT Mono", monospace;
+    background-color: #eee;
+    font-size: 0.9em;
+    padding: 2px;
+    border-radius: 3px;
+    position: relative;
+    top: -1px;
+}
+
+a {
+    color: #327ebd;
+}
+
+a:hover {
+    background-color: rgba(50, 126, 189, .2);
+    border-radius: 3px;
+}
+
+p > img {
+    margin: 50px 20px;
+}
