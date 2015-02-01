@@ -1,8 +1,10 @@
 # RPD — Reactive Pure Data
 
+[![logo][]](http://shamansir.github.io/rpd)
+
 **Version 0.1.0**
 
-A video of the engine in action demonstrates most of its features: [ [Watch][video] ].
+A video of the engine in action, demonstrates most of its features: [ [Watch][video] ].
 
 [![Watch][video-img]][video]
 
@@ -10,11 +12,20 @@ Play online: [ [Core Toolkit][hosted-core] ] | [ [PD Toolkit][hosted-pd] ]
 
 _(NB: Only modern browsers are supported, tested in Chrome and Safari, no mobile support for now)_
 
+----
+
+## Contents
+
+* [Intro](#intro)
 * [Features](#features)
 * [Planned Features](#planned-features)
 * [Using](#using)
 * [Participating](#participating)
 * [API Reference](#reference)
+
+----
+
+## Intro
 
 RPD is a super-minimal plugin-based JS-driven engine for Node-Based User Interfaces — the ones like Pure Data, Quartz Composer, Reaktor, NodeBox, VVVV or any Shader/Material Composing View in your favorite 3D Editor.
 
@@ -233,24 +244,24 @@ See a Reference below for details in programming Tollkits and different other th
 
 #### Cheatsheets:
 
-* [HTML Renderer Configuration](./wiki/Cheatsheet:HTML-Configuration)
-* [Definition Cheatsheet](./wiki/Cheatsheet:Definition)
-* [Event Cheatsheet](./wiki/Cheatsheet:Event)
-* [Build a network](./wiki/Cheatsheet:Network)
-* _(TODO)_ [CSS Styles List](./wiki/Cheatsheet:CSS)
+* [HTML Renderer Configuration](http://github.com/shamansir/rpd/wiki/Cheatsheet:HTML-Configuration)
+* [Definition Cheatsheet](http://github.com/shamansir/rpd/wiki/Cheatsheet:Definition)
+* [Event Cheatsheet](http://github.com/shamansir/rpd/wiki/Cheatsheet:Event)
+* [Build a network](http://github.com/shamansir/rpd/wiki/Cheatsheet:Network)
+* _(TODO)_ [CSS Styles List](http://github.com/shamansir/rpd/wiki/Cheatsheet:CSS)
 
 #### Toolkits:
 
-* [Core Toolkit](./wiki/Toolkit:Core)
-* [PD Toolkit](./wiki/Toolkit:PD)
+* [Core Toolkit](http://github.com/shamansir/rpd/wiki/Toolkit:Core)
+* [PD Toolkit](http://github.com/shamansir/rpd/wiki/Toolkit:PD)
 
 #### Class Reference:
 
-* [Model](./wiki/Ref:Model)
-* [Node](./wiki/Ref:Node)
-* [Inlet](./wiki/Ref:Inlet)
-* [Outlet](./wiki/Ref:Outlet)
-* [Link](./wiki/Ref:Link)
+* [Model](http://github.com/shamansir/rpd/wiki/Ref:Model)
+* [Node](http://github.com/shamansir/rpd/wiki/Ref:Node)
+* [Inlet](http://github.com/shamansir/rpd/wiki/Ref:Inlet)
+* [Outlet](http://github.com/shamansir/rpd/wiki/Ref:Outlet)
+* [Link](http://github.com/shamansir/rpd/wiki/Ref:Link)
 
 [hosted-core]: http://shamansir.github.io/rpd/examples/core.html
 [hosted-pd]: http://shamansir.github.io/rpd/examples/pd.html
@@ -275,3 +286,5 @@ See a Reference below for details in programming Tollkits and different other th
 
 [core-gif]: http://shamansir.github.io/rpd/core.gif
 [pd-gif]: http://shamansir.github.io/rpd/pd.gif
+
+[logo]: http://shamansir.github.io/rpd/logo-small.png
