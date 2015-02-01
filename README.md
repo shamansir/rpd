@@ -6,6 +6,10 @@ A video of the engine in action demonstrates most of its features: [ [Watch][vid
 
 [![Watch][video-img]][video]
 
+Play online: [Core Toolkit][hosted-core] | [PD Toolkit][hosted-pd]
+
+(Only modern browsers are supported, tested in Chrome and Safari, no mobile support for now)
+
 * [Features](#features)
 * [Planned Features](#planned-features)
 * [Using](#using)
@@ -247,6 +251,9 @@ See a Reference below for details in programming Tollkits and different other th
 * [Inlet](./wiki/Ref:Inlet)
 * [Outlet](./wiki/Ref:Outlet)
 * [Link](./wiki/Ref:Link)
+
+[hosted-core]: http://shamansir.github.io/rpd/examples/core.html
+[hosted-pd]: http://shamansir.github.io/rpd/examples/pd.html
 
 [issues]: https://github.com/shamansir/rpd/issues
 [video]: http://vimeo.com/118197237
