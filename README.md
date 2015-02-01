@@ -6,9 +6,9 @@ A video of the engine in action demonstrates most of its features: [ [Watch][vid
 
 [![Watch][video-img]][video]
 
-Play online: [Core Toolkit][hosted-core] | [PD Toolkit][hosted-pd]
+Play online: [ [Core Toolkit][hosted-core] ] | [ [PD Toolkit][hosted-pd] ]
 
-(Only modern browsers are supported, tested in Chrome and Safari, no mobile support for now)
+_(NB: Only modern browsers are supported, tested in Chrome and Safari, no mobile support for now)_
 
 * [Features](#features)
 * [Planned Features](#planned-features)
