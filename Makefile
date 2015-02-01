@@ -36,6 +36,7 @@ dist-html:
 
 	java -jar $(CLOSURE_COMPILER) --language_in $(JS_VERSION) \
 	                              --js ./$(SRC_DIR)/rpd.js \
+								  --js ./$(SRC_DIR)/render/html.js \
 	                              --js ./$(SRC_DIR)/toolkit/core/toolkit.js \
 							  	  --js ./$(SRC_DIR)/toolkit/core/render/html.js \
 								  --js_output_file ./$(DIST_DIR)/rpd-core-html.min.js
@@ -54,6 +55,7 @@ dist-pd-html:
 
 	java -jar $(CLOSURE_COMPILER) --language_in $(JS_VERSION) \
 	                              --js ./$(SRC_DIR)/rpd.js \
+								  --js ./$(SRC_DIR)/render/html.js \
 	                              --js ./$(SRC_DIR)/toolkit/core/toolkit.js \
 	                              --js ./$(SRC_DIR)/toolkit/core/render/html.js \
 								  --js ./$(SRC_DIR)/toolkit/pd/toolkit.js \
