@@ -489,7 +489,6 @@ function HtmlRenderer(user_config) {
             var valueElm = inletData.valueElm;
 
             var valueRepr = inlet.def.show ? inlet.def.show(update.value) : update.value;
-            valueElm.innerText = valueElm.textContent = valueRepr;
             if (inlet.render.html && inlet.render.html.show) {
                 inlet.render.html.show(valueElm, update.value, valueRepr);
             } else {
@@ -586,7 +585,6 @@ function HtmlRenderer(user_config) {
             var outletElm = outletData.elm;
 
             var valueElm = outletData.valueElm;
-            valueElm.innerText = valueElm.textContent = update.value;
 
             if (outlet.render.html && outlet.render.html.show) {
                 outlet.render.html.show(valueElm, update.value);
