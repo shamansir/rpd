@@ -455,6 +455,7 @@ function HtmlRenderer(user_config) {
             inlets[inlet.id] = inletData;
 
             if (inlet.readonly) inletElm.classList.add('rpd-readonly');
+            if (inlet.cold) inletElm.classList.add('rpd-cold');
 
             if (!inlet.readonly && inlet.render.html && inlet.render.html.edit) {
                 addValueEditor(inlet, inletData, root, valueHolder, valueElm);

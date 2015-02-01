@@ -44,10 +44,29 @@ Rpd.nodetype('core/sum-of-three-with-body', {
     outlets: {
         'sum': { type: 'core/number', name: '∑' }
     },
+    outlets: {
+        'sum': { type: 'core/number', name: '∑' }
+    },
     process: function(inlets) {
         return { 'sum': (inlets.a || 0) + (inlets.b || 0) + (inlets.c || 0) };
     }
 });
+
+Rpd.nodetype('core/hot-and-cold', {
+    name: 'Hot and Cold',
+    inlets: {
+        'hot': { type: 'core/number', name: 'A', default: 1 },
+        'cold': { type: 'core/number', name: 'B', default: 1, cold: true },
+    },
+    outlets: {
+        'value': { type: 'core/any' }
+    },
+    process: function(inlets) {
+        return { 'value': [ inlets.hot, inlets.cold ] };
+    }
+});
+
+Rpd.channeltype('core/any', { });
 
 Rpd.channeltype('core/boolean', { default: false,
                                   adapt: function(val) {
@@ -56,8 +75,12 @@ Rpd.channeltype('core/boolean', { default: false,
 
 Rpd.channeltype('core/number', { default: 0,
                                  readonly: false,
+                                 accept: function(val) {
+                                    var parsed = parseFloat(val);
+                                    return !isNaN(parsed) && isFinite(parsed);
+                                 },
                                  adapt: function(val) {
                                      return parseFloat(val);
                                  } });
 
-Rpd.linktype('core/value', { });
+Rpd.linktype('core/pass', { });

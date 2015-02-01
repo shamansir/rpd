@@ -129,26 +129,31 @@ function Node(type, name) {
             // when new inlet was added, start monitoring its updates
             this.event['inlet/add'].flatMap(function(inlet) {
                 var updates = inlet.event['inlet/update'].map(function(value) {
-                    return { inlet: inlet.alias, value: value };
+                    return { inlet: inlet, alias: inlet.alias, value: value };
                 });
                 if (myself.def.tune) updates = myself.def.tune(updates);
                 return updates;
-            // join inlet updates in one inlet_name=value hash, plus store
-            // previous values in a similar hash, return both
+            // join inlet updates in one inlet_alias=value hash, plus store
+            // previous values in a similar hash, add a source of update,
+            // and return all three
             }).scan(function(values, update) {
-                var inlet = update.inlet;
+                var alias = update.alias,
+                    inlet = update.inlet;
                 var prev_values, cur_values;
                 if (!values) {
                     prev_values = {}; cur_values = {};
-                    cur_values[inlet] = update.value;
-                    return { prev: prev_values, cur: cur_values };
+                    cur_values[alias] = update.value;
+                    return { prev: prev_values, cur: cur_values, source: inlet };
                 } else {
                     prev_values = values.prev; cur_values  = values.cur;
-                    prev_values[inlet] = cur_values[inlet];
-                    cur_values[inlet]  = update.value;
+                    prev_values[alias] = cur_values[alias];
+                    cur_values[alias]  = update.value;
+                    values.source = inlet;
                     return values;
                 }
-            }, null),
+            }, null).filter(function(updates) {
+                return !(updates && updates.source.cold);
+            }),
             // prepare an object with all new outlets names to know which
             // outlets are ready to be monitored for new values
             this.event['outlet/add'].scan(function(outlets, outlet) {
@@ -177,7 +182,7 @@ function Node(type, name) {
         this.inlets = {};
         for (var alias in this.def.inlets) {
             var conf = this.def.inlets[alias];
-            var inlet = this.addInlet(conf.type, alias, conf.name, conf.default, conf.hidden, conf.readonly);
+            var inlet = this.addInlet(conf.type, alias, conf.name, conf.default, conf.hidden, conf.readonly, conf.cold);
             this.inlets[alias] = inlet;
         }
     }
@@ -202,8 +207,8 @@ Node.prototype.turnOn = function() {
 Node.prototype.turnOff = function() {
     this.event['node/turn-off'].emit(this);
 }
-Node.prototype.addInlet = function(type, alias, name, _default, hidden, readonly) {
-    var inlet = new Inlet(type, this, alias, name, _default, hidden, readonly);
+Node.prototype.addInlet = function(type, alias, name, _default, hidden, readonly, cold) {
+    var inlet = new Inlet(type, this, alias, name, _default, hidden, readonly, cold);
     this.events.plug(inlet.events);
     this.event['inlet/add'].emit(inlet);
     inlet.toDefault();
@@ -227,7 +232,7 @@ Node.prototype.removeOutlet = function(outlet) {
 // ================================== Inlet ====================================
 // =============================================================================
 
-function Inlet(type, node, alias, name, _default, hidden, readonly) {
+function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
     this.type = type || 'core/bool';
     this.id = short_uid();
     var def = adapt_to_obj(channeltypes[this.type]);
@@ -241,6 +246,7 @@ function Inlet(type, node, alias, name, _default, hidden, readonly) {
     this.node = node;
     this.hidden = hidden || false;
     this.readonly = is_defined(readonly || def.readonly) ? readonly || def.readonly : true;
+    this.cold = cold || false;
     this.default = is_defined(_default) ? _default : def.default;
     this.value = Kefir.bus();
 
@@ -337,7 +343,7 @@ Outlet.prototype.stream = function(stream) {
 // =============================================================================
 
 function Link(type, outlet, inlet, adapter, name) {
-    this.type = type || 'core/value';
+    this.type = type || 'core/pass';
     this.id = short_uid();
     var def = adapt_to_obj(linktypes[this.type]);
     if (!def) report_error('Link type ' + this.type + ' is not registered!');

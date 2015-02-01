@@ -89,6 +89,10 @@
     transition: border-color .3s;
 }
 
+.rpd-cold .rpd-connector {
+    border-color: #009;
+}
+
 .rpd-error .rpd-connector {
     border-color: #cc0;
     background-color: #f00;
