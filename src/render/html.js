@@ -138,10 +138,6 @@ function HtmlRenderer(user_config) {
                 var headElm = quickElm('thead', 'rpd-title');
                 var headRow = quickElm('tr');
 
-                if (node.def.icon) {
-                    // TODO
-                }
-
                 var removeButtonRow = quickElm('tr', 'rpd-remove-button');
                 removeButton = quickElm('th');
                 //removeButton.setAttribute('colspan', 3);
@@ -259,10 +255,6 @@ function HtmlRenderer(user_config) {
                 nodeElm.appendChild(removeButtonRow);
 
                 var contentRow = quickElm('tr', 'rpd-content');
-
-                if (node.def.icon) {
-                    // TODO
-                }
 
                 var headCell = quickElm('td', 'rpd-title');
                 //headCell.setAttribute('colspan', 3);
