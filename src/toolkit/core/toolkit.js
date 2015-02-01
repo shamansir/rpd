@@ -49,10 +49,10 @@ Rpd.nodetype('core/sum-of-three-with-body', {
     }
 });
 
-Rpd.channeltype('core/bool', { default: false,
-                               adapt: function(val) {
-                                    return (val ? true : false);
-                               } });
+Rpd.channeltype('core/boolean', { default: false,
+                                  adapt: function(val) {
+                                      return (val ? true : false);
+                                  } });
 
 Rpd.channeltype('core/number', { default: 0,
                                  readonly: false,

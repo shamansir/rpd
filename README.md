@@ -2,9 +2,9 @@
 
 **Version 0.1.0**
 
-A video of the engine in action demonstrates most of the features:
+A video of the engine in action demonstrates most of its features: [ [Watch][video] ].
 
-<iframe src="//player.vimeo.com/video/118197237" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="http://vimeo.com/118197237">RPD Framework Introduction</a> from <a href="http://vimeo.com/shamansir">Ulric Wilfred</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+[![Watch][video-img]][video]
 
 * [Features](#features)
 * [Planned Features](#planned-features)
@@ -16,15 +16,15 @@ RPD is a super-minimal plugin-based JS-driven engine for Node-Based User Interfa
 
 And when I say _minimal_, I really mean it:
 
-* The engine code takes 550 lines of pure JS code with comments and stuff, it is 2.18 KB closure-compiled and gzipped;
-* The HTML renderer is 1200 lines or so, due to masses of DOM manipulation code, and anyway it is 2.58 KB when compiled;
-* [Kefir.js](), required for Reactive Streams support, is ~7KB when gzipped and compiled;
+* The engine code takes 560 lines of pure JS code with comments and stuff, it is 2.48KB closure-compiled and gzipped;
+* The HTML renderer is 1200 lines or so, due to masses of DOM manipulation code, and anyway it is 3.9KB when compiled;
+* [Kefir.js][kefir], required for Reactive Streams support, is ~7KB when gzipped and compiled, since it is also targeted as minimal;
 
-Together it takes only **13KB** when compiled and gzipped, but still provides tons (!) of aweseome features!
+Together it takes only **13-14KB** when compiled and gzipped, but still provides tons (!) of aweseome features!
 
-Moreover, it's built with the help of Reactive programming (thanks to [Kefir.js](http://pozadi.github.io/kefir/), and it is very minimal itself), and this way it allows a programmer to treat and process any data flow as a stream, so:
+Moreover, it's built with the help of Reactive programming (thanks to [Kefir.js][kefir]), and this way it allows a programmer to treat and process any data flow as a stream, so:
 
-```
+```javascript
 colorInlet.stream(Kefir.repeatedly(500, ['red', 'navy']));
 ```
 
@@ -32,7 +32,8 @@ Will send `red` and `navy` values every 500ms to a single color-value inlet in o
 
 Here are some GIFs in reduced quality, in addition to a video in rather good quality above, to help you decide if it worths to use this engine or not (also please take a look at code examples below!).
 
-<!-- TODO -->
+![Core GIF][core-gif]
+![PD GIF][pd-gif]
 
 The Engine API provides easy ways to program node networks. Or to define a custom node or a channel type. Even node sets (named _toolkits_) are enormously easy to build!
 
@@ -40,17 +41,67 @@ Let's switch to some simple examples. Detailed stuff is under the links below.
 
 Constructing a network of nodes:
 
-<!-- TODO -->
+```javascript
+var first = new Rpd.Node('core/custom', 'Test');
+var boolOutlet = first.addOutlet('core/bool', true);
+first.addOutlet('core/number', 1);
+first.addOutlet('core/number');
 
-Creating custom nodes is very easy:
+var second = new Rpd.Node('core/custom', 'Foo');
+var boolInlet = second.addInlet('core/boolean');
+var numInlet = second.addInlet('core/number');
 
-<!-- TODO -->
+boolOutlet.connect(boolInlet);
+boolOutlet.connect(numInlet, function(val) { return (val === true) ? 1 : 0 });
+boolOutlet.send(false);
+boolOutlet.stream(Kefir.repeatedly(10, [true, false]));
+```
+
+Creating custom node types is very easy:
+
+```javascript
+Rpd.nodetype('core/sum-of-three-with-body', {
+    name: 'Sum of Three w/Body',
+    inlets: {
+        'a': { type: 'core/number', name: 'A', default: 1 },
+        'b': { type: 'core/number', name: 'B' },
+        'c': { type: 'core/number', name: 'C', hidden: true }
+    },
+    outlets: {
+        'sum': { type: 'core/number', name: '∑' }
+    },
+    process: function(inlets) {
+        return { 'sum': (inlets.a || 0) + (inlets.b || 0) + (inlets.c || 0) };
+    }
+});
+```
 
 Even very complex ones:
 
-<!-- TODO -->
+```javascript
+Rpd.nodetype('pd/play', function() {
+    var lastSound;
+    return {
+        name: 'play',
+        inlets: { 'sound': { type: 'pd/t-obj', default: null } },
+        tune: function(updates) { return updates.throttle(50); },
+        process: function(inlets, inlets_prev) {
+            if (inlets_prev.sound) inlets_prev.sound.pause();
+            if (inlets.sound) {
+                lastSound = inlets.sound;
+                inlets.sound.play();
+            }
+        },
+        handle: {
+            'node/turn-off': function() {
+                if (lastSound) lastSound.pause();
+            }
+        }
+    }
+});
+```
 
-[Here's]() the engine code at a glance;
+[Here's][engine-source] the engine code at a glance;
 
 ## Features
 
@@ -74,7 +125,7 @@ RPD provides following features:
 
 ## Planned Features
 
-* [PureData]() and/or [Animatron]() node Toolkits as an examples out-of-the-box (partly or completely);
+* [PureData][puredata] and/or [Animatron][animatron] node Toolkits as an examples out-of-the-box (partly or completely);
 * Support Procedures (re-use node sequences by name);
 * SVG and Canvas renderers;
 * Pure-Data-compatible Import/Export or some special format;
@@ -83,22 +134,22 @@ RPD provides following features:
 * Smarter layouting;
 * Support mobile browsers;
 
-More may be seen in [Issues]() section.
+More may be seen in [Issues][issues] section.
 
 ## Using
 
-Download [`kefir.min.js`]().
+Download [`kefir.min.js`][kefir-src].
 
 Choose a distribution of RPD and download it:
 
-* [`rpd-core-html.min.js`]() : Core Toolkit, HTML Renderer
-* [`rpd-core-pd-html.min.js`]() : Core & PD Toolkits, HTML Renderer
+* [`rpd-core-html.min.js`][core-html-src] : Core Toolkit, HTML Renderer
+* [`rpd-core-pd-html.min.js`][core-pd-html-src] : Core & PD Toolkits, HTML Renderer
 * _(more to come)_
 
 If your choise of renderer is HTML, get a corresponding CSS file:
 
-* [`rpd-core.css`]() : for Core Toolkit
-* [`rpd-core-pd.css`]() : for Core & PD Toolkit
+* [`rpd-core.css`][core-style] : for Core Toolkit
+* [`rpd-core-pd.css`][core-pd-style] : for Core & PD Toolkit
 
 Add these files to a head of your page:
 
@@ -107,37 +158,37 @@ For Core Toolikit only:
 ```html
 <script src="./kefir.min.js"></script>
 <script src="./rpd-core-html.min.js"></script>
-<link rel="stylesheet" href="./rpd-core.css"></style>
+<link rel="stylesheet" href="./rpd-core.css"></link>
 ```
 
 For Core & PD Toolkits:
 
-Download [`timbre.js`]().
+Download [`timbre.js`][timbre-src].
 
 ```html
 <script src="./kefir.min.js"></script>
 <script src="./timbre.js"></script>
 <script src="./rpd-core-pd-html.min.js"></script>
-<link rel="stylesheet" href="./rpd-core-pd.css"></style>
+<link rel="stylesheet" href="./rpd-core-pd.css"></link>
 ```
 
 Now, you may just initialize user model and let him/her add nodes by himself/herself:
 
 ```javascript
 var model = Rpd.Model.start().attachTo(document.body)
-.renderWith('html');
+                             .renderWith('html');
 ```
 
 Or, you may add some prepared nodes after that (you may save them to a file, of course):
 
 ```javascript
-var first = new Rpd.Node('core/empty', 'Test');
+var first = new Rpd.Node('core/custom', 'Test');
 var boolOutlet = first.addOutlet('core/bool', true);
 first.addOutlet('core/number', 1);
 first.addOutlet('core/number');
 
-var second = new Rpd.Node('core/empty', 'Foo');
-var boolInlet = second.addInlet('core/bool');
+var second = new Rpd.Node('core/custom', 'Foo');
+var boolInlet = second.addInlet('core/boolean');
 var numInlet = second.addInlet('core/number');
 
 boolOutlet.connect(boolInlet);
@@ -150,7 +201,7 @@ boolOutlet.stream(Kefir.repeatedly(10, [true, false]));
 
 To participate, get a copy of repository:
 
-`git clone`
+`git clone git@github.com:shamansir/rpd.git`
 
 After that, get dependencies:
 
@@ -160,7 +211,7 @@ After that, get dependencies:
 
 Now you should be able to run examples from `./examples/*.html`.
 
-To minify and join sources (prepare for distribution), ensure you have [Closure Compiler](https://developers.google.com/closure/compiler/) installed, put (or link to) `compiler.jar` in the root directory of RPD, and then run, for HTML renderer case:
+To minify and join sources (prepare for distribution), ensure you have [Closure Compiler][closure-compiler] installed, put (or link to) `compiler.jar` in the root directory of RPD, and then run, for HTML renderer case:
 
 `make dist-html`
 
@@ -178,23 +229,42 @@ See a Reference below for details in programming Tollkits and different other th
 
 #### Cheatsheets:
 
-* [HTML Renderer Configuration](./Cheatsheet:HTML-Configuration)
-* [Definition Cheatsheet](./Cheatsheet:Definition)
-* [Event Cheatsheet](./Cheatsheet:Event)
-* [Build a network](./Cheatsheet:Network)
-* _(TODO)_ [CSS Styles List](./Cheatsheet:CSS)
+* [HTML Renderer Configuration](./wiki/Cheatsheet:HTML-Configuration)
+* [Definition Cheatsheet](./wiki/Cheatsheet:Definition)
+* [Event Cheatsheet](./wiki/Cheatsheet:Event)
+* [Build a network](./wiki/Cheatsheet:Network)
+* _(TODO)_ [CSS Styles List](./wiki/Cheatsheet:CSS)
 
 #### Toolkits:
 
-* [Core Toolkit](./Toolkit:Core)
-* [PD Toolkit](./Toolkit:PD)
+* [Core Toolkit](./wiki/Toolkit:Core)
+* [PD Toolkit](./wiki/Toolkit:PD)
 
 #### Class Reference:
 
-<!-- [General Notes](./Ref:General-Notes) -->
+* [Model](./wiki/Ref:Model)
+* [Node](./wiki/Ref:Node)
+* [Inlet](./wiki/Ref:Inlet)
+* [Outlet](./wiki/Ref:Outlet)
+* [Link](./wiki/Ref:Link)
 
-* [Model](./Ref:Model)
-* [Node](./Ref:Node)
-* [Inlet](./Ref:Inlet)
-* [Outlet](./Ref:Outlet)
-* [Link](./Ref:Link)
+[issues]: https://github.com/shamansir/rpd/issues
+[video]: http://vimeo.com/118197237
+[video-img]: http://shamansir.github.io/rpd/rpd-vimeo.png
+[kefir]: http://pozadi.github.io/kefir/
+[kefir-src]: http://pozadi.github.io/kefir/dist/kefir.min.js
+[timbre]: http://mohayonao.github.io/timbre.js/
+[timbre-src]: http://mohayonao.github.io/timbre.js/timbre.js
+[puredata]: http://puredata.info/
+[animatron]: http://animatron.com
+[closure-compiler]: https://developers.google.com/closure/compiler/
+
+[engine-source]: https://github.com/shamansir/rpd/blob/master/src/rpd.js
+
+[core-html-src]: http://shamansir.github.io/rpd/dist/rpd-core-html.min.js
+[core-pd-html-src]: http://shamansir.github.io/rpd/dist/rpd-core-pd-html.min.js
+[core-style]: http://shamansir.github.io/rpd/dist/rpd-core.css
+[core-pd-style]: http://shamansir.github.io/rpd/dist/rpd-core-pd.css
+
+[core-gif]: http://shamansir.github.io/rpd/core.gif
+[pd-gif]: http://shamansir.github.io/rpd/pd.gif
