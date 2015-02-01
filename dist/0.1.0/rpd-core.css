@@ -93,6 +93,10 @@
     transition: border-color .3s;
 }
 
+.rpd-cold .rpd-connector {
+    border-color: #009;
+}
+
 .rpd-error .rpd-connector {
     border-color: #cc0;
     background-color: #f00;
@@ -485,6 +489,10 @@
 .rpd-nodelist .rpd-toolkit .rpd-node-description {
     opacity: 0.6;
     border-bottom: 1px solid rgba(250,250,250,.5);
+    font-size: 0.9em;
+    line-height: 1.29em;
+    position: relative;
+    top: -6px;
 }
 
 .rpd-nodelist .rpd-toolkit .rpd-node-description:last-child {
