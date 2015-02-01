@@ -4,7 +4,7 @@
 
 **Version 0.1.0**
 
-A video of the engine in action demonstrates most of its features: [ [Watch][video] ].
+A video of the engine in action, demonstrates most of its features: [ [Watch][video] ].
 
 [![Watch][video-img]][video]
 
