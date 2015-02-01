@@ -4,7 +4,7 @@ body {
     margin-bottom: 70px;
 }
 
-p {
+p, ul {
     line-height: 1.4em;
 }
 
