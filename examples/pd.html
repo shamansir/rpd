@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <script src="../vendor/kefir.min.js"></script>
+        <script src="../vendor/timbre.min.js"></script>
+
+        <script src="../dist/rpd-core-pd-html.min.js"></script>
+        <link rel="stylesheet" href="../dist/rpd-core-pd.css"></link>
+
+    </head>
+
+    <body>
+        <script>
+            var model = Rpd.Model.start().attachTo(document.body)
+                                         .renderWith('html', { layout: 'pd' } );
+
+
+        </script>
+    </body>
+</html>
