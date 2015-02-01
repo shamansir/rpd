@@ -1,10 +1,10 @@
 # RPD — Reactive Pure Data
 
-**Version 0.1**
+**Version 0.1.0**
 
-A video of the engine in action demonstrates almost everything:
+A video of the engine in action demonstrates most of the features:
 
-<!-- TODO -->
+<iframe src="//player.vimeo.com/video/118197237" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="http://vimeo.com/118197237">RPD Framework Introduction</a> from <a href="http://vimeo.com/shamansir">Ulric Wilfred</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
 
 * [Features](#features)
 * [Planned Features](#planned-features)
@@ -112,8 +112,11 @@ For Core Toolikit only:
 
 For Core & PD Toolkits:
 
+Download [`timbre.js`]().
+
 ```html
 <script src="./kefir.min.js"></script>
+<script src="./timbre.js"></script>
 <script src="./rpd-core-pd-html.min.js"></script>
 <link rel="stylesheet" href="./rpd-core-pd.css"></style>
 ```
@@ -149,16 +152,49 @@ To participate, get a copy of repository:
 
 `git clone`
 
-Then run:
+After that, get dependencies:
 
-`npm devel`
+`make deps`
 
-To build, run:
+(Updating dependencies may be performed only once a version of RPD is increased, it is not required to get them before every build.)
 
-`npm build`
+Now you should be able to run examples from `./examples/*.html`.
+
+To minify and join sources (prepare for distribution), ensure you have [Closure Compiler](https://developers.google.com/closure/compiler/) installed, put (or link to) `compiler.jar` in the root directory of RPD, and then run, for HTML renderer case:
+
+`make dist-html`
+
+Or, to build a version with PD Toolkit included and HTML renderer, run:
+
+`make dist-pd-html`
+
+You'll find the results under `./dist` folder.
 
 Feel free to fix issues or do Pull Requests!
 
 See a Reference below for details in programming Tollkits and different other things.
 
 ## Reference
+
+#### Cheatsheets:
+
+* [HTML Renderer Configuration](./Cheatsheet:HTML-Configuration)
+* [Definition Cheatsheet](./Cheatsheet:Definition)
+* [Event Cheatsheet](./Cheatsheet:Event)
+* [Build a network](./Cheatsheet:Network)
+* _(TODO)_ [CSS Styles List](./Cheatsheet:CSS)
+
+#### Toolkits:
+
+* [Core Toolkit](./Toolkit:Core)
+* [PD Toolkit](./Toolkit:PD)
+
+#### Class Reference:
+
+<!-- [General Notes](./Ref:General-Notes) -->
+
+* [Model](./Ref:Model)
+* [Node](./Ref:Node)
+* [Inlet](./Ref:Inlet)
+* [Outlet](./Ref:Outlet)
+* [Link](./Ref:Link)

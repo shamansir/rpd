@@ -6,7 +6,7 @@
     "homepage": "http://shamansir.github.io/rpd",
     "repository": {
         "type": "git",
-        "url": "https://github.com/shamansir/rpd"
+        "url": "http://github.com/shamansir/rpd.git"
     },
     "bugs": {
         "url": "https://github.com/shamansir/rpd/issues"
@@ -17,5 +17,11 @@
         "streams",
         "user-interface"
     ],
-    "license": "Apache-2.0"
+    "dependencies": {
+        "kefir": "pozadi/kefir"
+    },
+    "devDependencies": {
+        "timbre": "mohayonao/timbre.js"
+    },
+    "license": "MIT"
 }
