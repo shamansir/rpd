@@ -1,7 +1,11 @@
 body {
-    font-family: "Input Sans Cond Ex Lt", "Geneva", "Georgia", serif;
+    font-family:  "Geneva", "Input Sans Cond Ex Lt", "Georgia", serif;
     margin: 30px 50px;
     margin-bottom: 70px;
+}
+
+p {
+    line-height: 1.4em;
 }
 
 hr {
@@ -9,6 +13,7 @@ hr {
 }
 
 h1 {
+    font-family: "Input Sans Cond Ex Lt", "Geneva", "Georgia", serif;
     margin-bottom: 40px;
     border-bottom: 2px solid;
     padding-bottom: 15px;
