@@ -10,11 +10,13 @@ VENDOR_DIR = vendor
 
 VERSION_FILE = VERSION
 
-KEFIR_FILENAME  = kefir.min.js
-TIMBRE_FILENAME = timbre.min.js
+KEFIR_FILENAME      = kefir.min.js
+TIMBRE_FILENAME     = timbre.min.js
+ANM_PLAYER_FILENAME = anm-player.min.js
 
-KEFIR_URL  = http://pozadi.github.io/kefir/dist/kefir.min.js
-TIMBRE_URL = http://mohayonao.github.io/timbre.js/timbre.js
+KEFIR_URL      = http://pozadi.github.io/kefir/dist/kefir.min.js
+TIMBRE_URL     = http://mohayonao.github.io/timbre.js/timbre.js
+ANM_PLAYER_URL = http://player.animatron.com/latest/bundle/animatron.min.js
 
 CLOSURE_COMPILER = ./compiler.jar
 
@@ -27,6 +29,7 @@ deps:
 
 	curl -o ./$(VENDOR_DIR)/$(KEFIR_FILENAME) $(KEFIR_URL)
 	curl -o ./$(VENDOR_DIR)/$(TIMBRE_FILENAME) $(TIMBRE_URL)
+	curl -sH 'Accept-encoding: gzip' --compressed $(ANM_PLAYER_URL) > ./$(VENDOR_DIR)/$(ANM_PLAYER_FILENAME)
 
 dist: dist-html
 
@@ -70,5 +73,27 @@ dist-pd-html:
 	echo $(LICENSE_LINE) | cat - ./$(DIST_DIR)/rpd-core-pd.css > ./tmp && mv ./tmp ./$(DIST_DIR)/rpd-core-pd.css
 	cp ./$(DIST_DIR)/rpd-core-pd.css ./$(DIST_DIR)/$(RPD_VERSION)/rpd-core-pd.css
 
-.PHONY:  all deps dist-html dist-pd-html
-.SILENT: all deps dist-html dist-pd-html
+dist-anm-html:
+
+	mkdir -p ./$(DIST_DIR)
+	mkdir -p ./$(DIST_DIR)/$(RPD_VERSION)
+
+	java -jar $(CLOSURE_COMPILER) --language_in $(JS_VERSION) \
+								--js ./$(SRC_DIR)/rpd.js \
+								--js ./$(SRC_DIR)/render/html.js \
+								--js ./$(SRC_DIR)/toolkit/core/toolkit.js \
+								--js ./$(SRC_DIR)/toolkit/core/render/html.js \
+								--js ./$(SRC_DIR)/toolkit/anm/toolkit.js \
+								--js ./$(SRC_DIR)/toolkit/anm/render/html.js \
+								--js_output_file ./$(DIST_DIR)/rpd-core-anm-html.min.js
+	echo $(LICENSE_LINE) | cat - ./$(DIST_DIR)/rpd-core-anm-html.min.js > ./tmp && mv ./tmp ./$(DIST_DIR)/rpd-core-anm-html.min.js
+	cp ./$(DIST_DIR)/rpd-core-anm-html.min.js ./$(DIST_DIR)/$(RPD_VERSION)
+
+	cat ./$(SRC_DIR)/render/html.css \
+		./$(SRC_DIR)/toolkit/core/render/html.css \
+		./$(SRC_DIR)/toolkit/anm/render/html.css > ./$(DIST_DIR)/rpd-core-anm.css
+	echo $(LICENSE_LINE) | cat - ./$(DIST_DIR)/rpd-core-anm.css > ./tmp && mv ./tmp ./$(DIST_DIR)/rpd-core-anm.css
+	cp ./$(DIST_DIR)/rpd-core-anm.css ./$(DIST_DIR)/$(RPD_VERSION)/rpd-core-anm.css
+
+.PHONY:  all deps dist-html dist-pd-html dist-anm-html
+.SILENT: all deps dist-html dist-pd-html dist-anm-html

@@ -1,0 +1,20 @@
+.rpd-anm-color-body {
+    width: 30px;
+    height: 30px;
+    border-radius: 3px;
+    border: 1px solid #000;
+}
+
+.rpd-inlet.rpd-anm-color .rpd-value,
+.rpd-outlet.rpd-anm-color .rpd-value {
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    border: 1px solid #000;
+}
+
+.rpd-inlet.rpd-anm-color .rpd-value {
+    position: relative;
+    top: 2px;
+}

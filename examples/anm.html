@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <script src="../vendor/kefir.min.js"></script>
+        <script src="../vendor/anm-player.min.js"></script>
+
+        <script src="../src/rpd.js"></script>
+
+        <script src="../src/render/html.js"></script>
+        <link rel="stylesheet" href="../src/render/html.css"></link>
+
+        <script src="../src/toolkit/core/toolkit.js"></script>
+        <script src="../src/toolkit/core/render/html.js"></script>
+        <link rel="stylesheet" href="../src/toolkit/core/render/html.css"></link>
+
+        <script src="../src/toolkit/anm/toolkit.js"></script>
+        <script src="../src/toolkit/anm/render/html.js"></script>
+        <link rel="stylesheet" href="../src/toolkit/anm/render/html.css"></link>
+
+    </head>
+
+    <body>
+        <script>
+            var model = Rpd.Model.start().attachTo(document.body)
+                                         .renderWith('html', { layout: 'pd' } );
+
+
+        </script>
+    </body>
+</html>
