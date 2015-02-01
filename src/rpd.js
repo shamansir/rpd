@@ -3,6 +3,7 @@ var Rpd = (function() {
 var nodetypes = {};
 var linktypes = {};
 var channeltypes = {};
+var nodedescriptions = {};
 
 var renderer_registry = {};
 var subrenderers = {};
@@ -500,16 +501,16 @@ function join_subrenderers(main_renderer, subrenderers, conf) {
 // =========================== registration ====================================
 // =============================================================================
 
-function nodetype(id, def) {
-    nodetypes[id] = def;
+function nodetype(type, def) {
+    nodetypes[type] = def;
 }
 
-function linktype(id, def) {
-    linktypes[id] = def;
+function linktype(type, def) {
+    linktypes[type] = def;
 }
 
-function channeltype(id, def) {
-    channeltypes[id] = def;
+function channeltype(type, def) {
+    channeltypes[type] = def;
 }
 
 function renderer(alias, f) {
@@ -533,6 +534,10 @@ function channelrenderer(type, alias, data) {
     channeltypes[type].render[alias] = data;
 }
 
+function nodedescription(type, description) {
+    nodedescriptions[type] = description;
+}
+
 // =============================== export ======================================
 // =============================================================================
 
@@ -547,6 +552,7 @@ return {
     'nodetype': nodetype,
     'linktype': linktype,
     'channeltype': channeltype,
+    'nodedescription': nodedescription,
 
     'renderer': renderer,
     'subrenderer': subrenderer,
@@ -554,6 +560,7 @@ return {
     'channelrenderer': channelrenderer,
 
     'allNodeTypes': nodetypes,
+    'allDescriptions': nodedescriptions,
 
     'currentModel': function() { return models[cur_model]; }
 }

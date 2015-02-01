@@ -13,6 +13,10 @@ Rpd.channeltype('pd/t-wave', { });
 
 Rpd.channeltype('pd/t-obj', { show: function(val) { return val ? '[Some]' : '[None]' } });
 
+// pd/number
+
+Rpd.nodedescription('pd/number',
+                    'Choose any number using a handy spinner.');
 Rpd.nodetype('pd/number', {
     name: 'num',
     inlets:  { 'in':      { type: 'pd/t-num',   default: T(0) },
@@ -30,8 +34,12 @@ Rpd.nodetype('pd/number', {
     }
 });
 
+// pd/osc
+
+Rpd.nodedescription('pd/osc', 'Oscillator. That\'s it.');
 Rpd.nodetype('pd/osc', {
     name: 'osc',
+    description: 'Oscillator. That\'s it.',
     inlets: { 'wave': { type: 'pd/t-wave', default: "sin" },
               'freq': { type: 'pd/t-num',  default: T(440) } },
     outlets: { 'sound': { type: 'pd/t-obj' } },
@@ -42,6 +50,9 @@ Rpd.nodetype('pd/osc', {
     }
 });
 
+// pd/wave
+
+Rpd.nodedescription('pd/wave', 'Choose a wave type, like sine or saw.');
 Rpd.nodetype('pd/wave', {
     name: 'wave',
     inlets: { 'wave': { type: 'pd/t-wave', default: 'sin', hidden: true } },
@@ -49,12 +60,18 @@ Rpd.nodetype('pd/wave', {
     process: function(inlets) { return { 'wave': inlets.wave } }
 });
 
+// pd/plot
+
+Rpd.nodedescription('pd/plot', 'Draw your sound wave on a Canvas.');
 Rpd.nodetype('pd/plot', {
     name: 'plot',
     inlets: { 'sound': { type: 'pd/t-obj', default: null } },
     process: function() {}
 });
 
+// pd/play
+
+Rpd.nodedescription('pd/play', 'Play a given sound. Control your volume safely.');
 Rpd.nodetype('pd/play', function() {
     var lastSound;
     return {

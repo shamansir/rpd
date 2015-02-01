@@ -1,3 +1,5 @@
+Rpd.nodedescription('core/empty',
+                    'Does not allow adding any inlets or outlets.');
 Rpd.nodetype('core/empty', {
     name: 'Empty',
     handle: {
@@ -10,6 +12,8 @@ Rpd.nodetype('core/empty', {
     }
 });
 
+Rpd.nodedescription('core/custom',
+                    'May have any number of inlets and outlets, a target for extension.');
 Rpd.nodetype('core/custom', {
     name: 'Custom'
 });
@@ -25,9 +29,6 @@ Rpd.nodetype('core/sum-of-three', {
     outlets: {
         'sum': { type: 'core/number', name: '∑' }
     },
-    /* prepare: function(inlets, outlets) {
-        inlets['c'].stream(Kefir.repeatedly(3000, [12, 24, 32]).toProperty(0));
-    }, */
     process: function(inlets) {
         return { 'sum': (inlets.a || 0) + (inlets.b || 0) + (inlets.c || 0) };
     }
@@ -44,14 +45,12 @@ Rpd.nodetype('core/sum-of-three-with-body', {
     outlets: {
         'sum': { type: 'core/number', name: '∑' }
     },
-    outlets: {
-        'sum': { type: 'core/number', name: '∑' }
-    },
     process: function(inlets) {
         return { 'sum': (inlets.a || 0) + (inlets.b || 0) + (inlets.c || 0) };
     }
 });
 
+Rpd.nodedescription('core/hot-and-cold', 'An example of cold inlet.');
 Rpd.nodetype('core/hot-and-cold', {
     name: 'Hot and Cold',
     inlets: {

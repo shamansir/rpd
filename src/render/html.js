@@ -55,6 +55,8 @@ function HtmlRenderer(user_config) {
     // it's completely written in FRP style;
     var connections = Connections();
 
+    var descriptions = Rpd.allDescriptions;
+
     return {
 
         // the object below reacts on every Model event and constructs corresponding
@@ -96,7 +98,7 @@ function HtmlRenderer(user_config) {
             // initialize connection editor
             connections.init(root);
 
-            if (config.renderNodeList) addNodeList(root, Rpd.allNodeTypes);
+            if (config.renderNodeList) addNodeList(root, Rpd.allNodeTypes, descriptions);
 
             Kefir.fromEvent(root, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
 
@@ -302,6 +304,8 @@ function HtmlRenderer(user_config) {
 
             nodeElm.classList.add('rpd-'+node.type.replace('/','-'));
             nodeBox.style.zIndex = NODE_LAYER;
+
+            if (descriptions[node.type]) headCell.title = descriptions[node.type];
 
             // place node box wrapper in a suitable empty space in layout
             applyNextNodeRect(node, nodeBox, nodeElm, config.boxSize,
@@ -995,7 +999,7 @@ function HtmlRenderer(user_config) {
     // ============================== NodeList =================================
     // =========================================================================
 
-    function addNodeList(root, registeredNodeTypes) {
+    function addNodeList(root, registeredNodeTypes, descriptions) {
         var toolkits = {},
             typesList = [];
 
@@ -1024,12 +1028,11 @@ function HtmlRenderer(user_config) {
             nodeTypes = toolkits[toolkit];
             for (typeName in nodeTypes) {
                 nodeType = toolkit + '/' + typeName;
-                typeDef = nodeTypes[typeName];
                 nodeTitleElm = quickElmVal('dd', 'rpd-node-title', typeName);
                 addButton = quickElmVal('span', 'rpd-add-node', '+ Add');
                 nodeTitleElm.appendChild(addButton);
                 nodeTitleElements[nodeType] = nodeTitleElm;
-                nodeDescElm = quickElmVal('dd', 'rpd-node-description', typeDef.description || 'No Description');
+                nodeDescElm = quickElmVal('dd', 'rpd-node-description', descriptions[nodeType] || '[No Description]');
                 nodeDescriptionElements[nodeType] = nodeDescElm;
                 toolkitElm.appendChild(nodeTitleElm);
                 toolkitElm.appendChild(nodeDescElm);
