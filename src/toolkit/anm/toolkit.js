@@ -6,7 +6,9 @@ Rpd.channeltype('anm/color', {
     }
 });
 
-Rpd.channeltype('anm/element', { });
+Rpd.channeltype('anm/element', {
+    show: function(val) { return val ? '[Element]' : '[Nothing]' }
+});
 
 Rpd.nodetype('anm/color', {
     name: 'color',
@@ -26,15 +28,27 @@ Rpd.nodetype('anm/color', {
     }
 })
 
-Rpd.nodetype('anm/element', {
-    name: 'element',
-    inlets: {
-        'x':     { type: 'core/number', default: 0 },
-        'y':     { type: 'core/number', default: 0 },
-        'color': { type: 'anm/color', default: 'rgba(99, 255, 255, 1)' }
-    },
-    outlets: {
-        'element': { type: 'anm/element', default: null }
-    },
-    process: function(inlets) {}
+Rpd.nodetype('anm/element', function() {
+    var element;
+    return {
+        name: 'element',
+        inlets: {
+            'x':     { type: 'core/number', default: 0 },
+            'y':     { type: 'core/number', default: 0 },
+            'color': { type: 'anm/color', default: 'rgba(99, 255, 255, 1)' }
+        },
+        outlets: {
+            'element': { type: 'anm/element', default: null }
+        },
+        process: function(inlets) {
+            if (!element) {
+                element = new anm.Element();
+                element.rect(0, 0, 20, 20);
+            }
+            element.x = inlets.x;
+            element.y = inlets.y;
+            element.fill(inlets.color);
+            return { 'element': element };
+        }
+    };
 });

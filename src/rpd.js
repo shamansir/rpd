@@ -3,6 +3,8 @@ var Rpd = (function() {
 var nodetypes = {};
 var linktypes = {};
 var channeltypes = {};
+var noderenderers = {};
+var channelrenderers = {};
 var nodedescriptions = {};
 
 var renderer_registry = {};
@@ -91,7 +93,7 @@ function Node(type, name) {
     this.name = name || def.name || 'Unnamed';
     this.def = def;
 
-    this.render = prepare_render_obj(def.render);
+    this.render = prepare_render_obj(noderenderers[this.type]);
 
     var myself = this;
     var event_conf = {
@@ -234,7 +236,7 @@ Node.prototype.removeOutlet = function(outlet) {
 // =============================================================================
 
 function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
-    this.type = type || 'core/bool';
+    this.type = type || 'core/number';
     this.id = short_uid();
     var def = adapt_to_obj(channeltypes[this.type]);
     if (!def) report_error('Inlet type ' + this.type + ' is not registered!');
@@ -251,7 +253,7 @@ function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
     this.default = is_defined(_default) ? _default : def.default;
     this.value = Kefir.bus();
 
-    this.render = prepare_render_obj(def.render);
+    this.render = prepare_render_obj(channelrenderers[this.type]);
 
     var myself = this;
     var event_conf = {
@@ -299,7 +301,7 @@ function Outlet(type, node, alias, name, _default) {
     this.default = is_defined(_default) ? _default : def.default;
     this.value = Kefir.bus();
 
-    this.render = prepare_render_obj(def.render);
+    this.render = prepare_render_obj(channelrenderers[this.type]);
 
     // outlets values are not editable
 
@@ -524,14 +526,14 @@ function subrenderer(alias, f) {
 
 function noderenderer(type, alias, data) {
     if (!nodetypes[type]) throw new Error('Node type ' + type + ' is not registered');
-    if (!nodetypes[type].render) nodetypes[type].render = {};
-    nodetypes[type].render[alias] = data;
+    if (!noderenderers[type]) noderenderers[type] = {};
+    noderenderers[type][alias] = data;
 }
 
 function channelrenderer(type, alias, data) {
     if (!channeltypes[type]) throw new Error('Channel type ' + type + ' is not registered');
-    if (!channeltypes[type].render) channeltypes[type].render = {};
-    channeltypes[type].render[alias] = data;
+    if (!channelrenderers[type]) channelrenderers[type] = {};
+    channelrenderers[type][alias] = data;
 }
 
 function nodedescription(type, description) {
@@ -561,6 +563,8 @@ return {
 
     'allNodeTypes': nodetypes,
     'allDescriptions': nodedescriptions,
+
+    'short_uid': short_uid,
 
     'currentModel': function() { return models[cur_model]; }
 }
