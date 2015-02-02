@@ -171,7 +171,7 @@ If your choise of renderer is HTML, get a corresponding CSS file:
 
 Add these files to a head of your page:
 
-For Core Toolikit only:
+For Core Toolkit only:
 
 ```html
 <script src="./kefir.min.js"></script>
@@ -188,6 +188,17 @@ Download [`timbre.js`][timbre-src].
 <script src="./timbre.js"></script>
 <script src="./rpd-core-pd-html.min.js"></script>
 <link rel="stylesheet" href="./rpd-core-pd.css"></link>
+```
+
+For Core & Animatron Toolkits:
+
+Download [`anm-player.min.js`][animatron-src].
+
+```html
+<script src="./kefir.min.js"></script>
+<script src="./anm-player.min.js"></script>
+<script src="./rpd-core-anm-html.min.js"></script>
+<link rel="stylesheet" href="./rpd-core-anm.css"></link>
 ```
 
 Now, you may just initialize user model and let him/her add nodes by himself/herself:
@@ -280,8 +291,10 @@ See a Reference below for details in programming Tollkits and different other th
 [kefir-src]: http://pozadi.github.io/kefir/dist/kefir.min.js
 [timbre]: http://mohayonao.github.io/timbre.js/
 [timbre-src]: http://mohayonao.github.io/timbre.js/timbre.js
-[puredata]: http://puredata.info/
 [animatron]: http://animatron.com
+<!-- [animatron-src]: http://player.animatron.com/latest/bundle/animatron.min.js -->
+[animatron-src]: http://shamansir.github.io/rpd/vendor/anm-player.min.js
+[puredata]: http://puredata.info/
 [closure-compiler]: https://developers.google.com/closure/compiler/
 
 [engine-source]: https://github.com/shamansir/rpd/blob/master/src/rpd.js
