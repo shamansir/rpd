@@ -64,4 +64,6 @@ a:hover {
 
 p > img {
     margin: 50px 20px;
+    width: 300px;
+    vertical-align: middle;
 }
