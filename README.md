@@ -8,7 +8,7 @@ A video of the engine in action, demonstrates most of its features: [ [Watch][vi
 
 [![Watch][video-img]][video]
 
-Play online: [ [Core Toolkit][hosted-core] ] | [ [PD Toolkit][hosted-pd] ]
+Play online: [ [Core Toolkit][hosted-core] ] | [ [PD Toolkit][hosted-pd] ] | [ [Animatron Toolkit][hosted-anm] ]
 
 _(NB: Only modern browsers are supported, tested in Chrome and Safari, no mobile support for now)_
 
@@ -49,6 +49,7 @@ Here are some GIFs in reduced quality, in addition to a video in rather good qua
 
 ![Core GIF][core-gif]
 ![PD GIF][pd-gif]
+![Animatron GIF][anm-gif]
 
 The Engine API provides easy ways to program node networks. Or to define a custom node or a channel type. Even node sets (named _toolkits_) are enormously easy to build!
 
@@ -140,7 +141,7 @@ RPD provides following features:
 
 ## Planned Features
 
-* [PureData][puredata] and/or [Animatron][animatron] node Toolkits as an examples out-of-the-box (partly or completely);
+* [PureData][puredata] and/or [Animatron][animatron] node Toolkits as an examples out-of-the-box (cover more abilities);
 * Support Procedures (re-use node sequences by name);
 * SVG and Canvas renderers;
 * Pure-Data-compatible Import/Export or some special format;
@@ -159,12 +160,14 @@ Choose a distribution of RPD and download it:
 
 * [`rpd-core-html.min.js`][core-html-src] : Core Toolkit, HTML Renderer
 * [`rpd-core-pd-html.min.js`][core-pd-html-src] : Core & PD Toolkits, HTML Renderer
+* [`rpd-core-anm-html.min.js`][core-anm-html-src] : Core & Animatron Toolkits, HTML Renderer
 * _(more to come)_
 
 If your choise of renderer is HTML, get a corresponding CSS file:
 
 * [`rpd-core.css`][core-style] : for Core Toolkit
 * [`rpd-core-pd.css`][core-pd-style] : for Core & PD Toolkit
+* [`rpd-core-anm.css`][core-pd-style] : for Core & Animatron Toolkit
 
 Add these files to a head of your page:
 
@@ -234,6 +237,8 @@ Or, to build a version with PD Toolkit included and HTML renderer, run:
 
 `make dist-pd-html`
 
+To build with Animatron toolkit, for example, just replace `-pd-` with `-anm-`.
+
 You'll find the results under `./dist` folder.
 
 Feel free to fix issues or do Pull Requests!
@@ -254,6 +259,7 @@ See a Reference below for details in programming Tollkits and different other th
 
 * [Core Toolkit](http://github.com/shamansir/rpd/wiki/Toolkit:Core)
 * [PD Toolkit](http://github.com/shamansir/rpd/wiki/Toolkit:PD)
+* _(TODO)_  [Animatron Toolkit](http://github.com/shamansir/rpd/wiki/Toolkit:Animatron)
 
 #### Class Reference:
 
@@ -265,6 +271,7 @@ See a Reference below for details in programming Tollkits and different other th
 
 [hosted-core]: http://shamansir.github.io/rpd/examples/core.html
 [hosted-pd]: http://shamansir.github.io/rpd/examples/pd.html
+[hosted-anm]: http://shamansir.github.io/rpd/examples/anm.html
 
 [issues]: https://github.com/shamansir/rpd/issues
 [video]: http://vimeo.com/118197237
@@ -281,10 +288,13 @@ See a Reference below for details in programming Tollkits and different other th
 
 [core-html-src]: http://shamansir.github.io/rpd/dist/rpd-core-html.min.js
 [core-pd-html-src]: http://shamansir.github.io/rpd/dist/rpd-core-pd-html.min.js
+[core-anm-html-src]: http://shamansir.github.io/rpd/dist/rpd-core-anm-html.min.js
 [core-style]: http://shamansir.github.io/rpd/dist/rpd-core.css
 [core-pd-style]: http://shamansir.github.io/rpd/dist/rpd-core-pd.css
+[core-anm-style]: http://shamansir.github.io/rpd/dist/rpd-core-anm.css
 
 [core-gif]: http://shamansir.github.io/rpd/core.gif
 [pd-gif]: http://shamansir.github.io/rpd/pd.gif
+[anm-gif]: http://shamansir.github.io/rpd/anm.gif
 
 [logo]: http://shamansir.github.io/rpd/logo-small.png
