@@ -1,5 +1,7 @@
 # RPD — Reactive Pure Data
 
+[![Join the chat at https://gitter.im/shamansir/rpd](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/shamansir/rpd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![logo][]](http://shamansir.github.io/rpd)
 
 **Version 0.1.0**
