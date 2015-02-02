@@ -163,7 +163,7 @@ Choose a distribution of RPD and download it:
 * [`rpd-core-anm-html.min.js`][core-anm-html-src] : Core & Animatron Toolkits, HTML Renderer
 * _(more to come)_
 
-If your choise of renderer is HTML, get a corresponding CSS file:
+If your choice of renderer is HTML, get a corresponding CSS file:
 
 * [`rpd-core.css`][core-style] : for Core Toolkit
 * [`rpd-core-pd.css`][core-pd-style] : for Core & PD Toolkit
