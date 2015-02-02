@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <script src="../vendor/kefir.min.js"></script>
+        <script src="../vendor/anm-player.min.js"></script>
+
+        <script src="../dist/rpd-core-anm-html.min.js"></script>
+        <link rel="stylesheet" href="../dist/rpd-core-anm.css"></link>
+
+    </head>
+
+    <body>
+        <script>
+            var model = Rpd.Model.start().attachTo(document.body)
+                                         .renderWith('html', { layout: 'pd' } );
+
+            var numberR = new Rpd.Node('anm/number');
+            var numberG = new Rpd.Node('anm/number');
+            var numberX = new Rpd.Node('anm/number');
+            var color = new Rpd.Node('anm/color');
+            var element = new Rpd.Node('anm/element');
+
+            numberR.outlets['out'].connect(color.inlets['red']);
+            numberG.outlets['out'].connect(color.inlets['green']);
+
+            numberX.outlets['out'].connect(element.inlets['x']);
+            color.outlets['color'].connect(element.inlets['color']);
+
+        </script>
+    </body>
+</html>
