@@ -75,8 +75,6 @@ function createOption(value, selected) {
 
 function extractPos(evt) { return { x: evt.clientX,
                                     y: evt.clientY }; };
-function stopPropagation(evt) { evt.stopPropagation(); }
-
 function attachSpinner(target, initial) {
     target.classList.add('rpd-pd-spinner');
     var initial = initial || 0;

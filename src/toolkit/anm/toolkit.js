@@ -52,3 +52,13 @@ Rpd.nodetype('anm/element', function() {
         }
     };
 });
+
+Rpd.nodetype('anm/number', {
+    name: 'number',
+    inlets:  { 'spinner': { type: 'core/number', default: 0, hidden: true } },
+    outlets: { 'out':     { type: 'core/number' } },
+    process: function(inlets) {
+        if (!inlets.hasOwnProperty('spinner')) return;
+        return { 'out': inlets.spinner };
+    }
+});
