@@ -1,3 +1,6 @@
 [submodule "src/toolkit/anm"]
 	path = src/toolkit/anm
 	url = git://github.com/shamansir/rpd-animatron.git
+[submodule "src/toolkit/pd"]
+	path = src/toolkit/pd
+	url = git://github.com/shamansir/rpd-puredata.git
