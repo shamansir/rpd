@@ -1,0 +1,3 @@
+[submodule "src/toolkit/anm"]
+	path = src/toolkit/anm
+	url = git://github.com/shamansir/rpd-animatron.git
