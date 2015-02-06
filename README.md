@@ -119,7 +119,10 @@ Rpd.nodetype('pd/play', function() {
 });
 ```
 
-[Here's][engine-source] the engine code at a glance;
+[Here's][engine-source] the engine code at a glance; 
+
+Here's the [Anitmatron Toolkit][anm-toolkit-src] and [its HTML Renderer][anm-renderer-src] source codes.
+Here's the [PureData Toolkit][pd-toolkit-src] and [its HTML Renderer][pd-renderer-src] source codes.
 
 ## Features
 
@@ -285,6 +288,11 @@ See a Reference below for details in programming Tollkits and different other th
 [hosted-core]: http://shamansir.github.io/rpd/examples/core.html
 [hosted-pd]: http://shamansir.github.io/rpd/examples/pd.html
 [hosted-anm]: http://shamansir.github.io/rpd/examples/anm.html
+
+[anm-toolkit-src]: https://github.com/shamansir/rpd-animatron/blob/master/toolkit.js
+[anm-renderer-src]: https://github.com/shamansir/rpd-animatron/blob/master/render/html.js
+[pd-toolkit-src]: https://github.com/shamansir/rpd-puredata/blob/master/toolkit.js
+[pd-renderer-src]: https://github.com/shamansir/rpd-puredata/blob/master/render/html.js 
 
 [issues]: https://github.com/shamansir/rpd/issues
 [video]: http://vimeo.com/118197237
