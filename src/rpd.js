@@ -267,7 +267,7 @@ function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
         if (def.accept(v)) { return [v]; } else { orig_updates.error(); return []; }
     });
     if (def.adapt) updates = updates.map(def.adapt);
-    // rewrire with the modified stream
+    // rewrite with the modified stream
     this.event['inlet/update'] = updates.onValue(function(){});
     this.events = events_stream(event_conf, this.event);
 }
@@ -312,7 +312,11 @@ function Outlet(type, node, alias, name, _default) {
         'outlet/disconnect': function(link) { return { outlet: myself, link: link } }
     };
     this.event = event_map(event_conf);
-    this.event['outlet/update'] = this.event['outlet/update'].merge(this.value).onValue(function(){});
+    var orig_updates = this.event['outlet/update'];
+    var updates = orig_updates.merge(this.value);
+    if (def.adapt) updates = updates.map(def.adapt);
+    // rewrite with the modified stream
+    this.event['outlet/update'] = updates.onValue(function(){});
     this.events = events_stream(event_conf, this.event);
 
     // re-send last value on connection
