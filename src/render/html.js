@@ -701,7 +701,7 @@ function HtmlRenderer(user_config) {
 
     // ============================== helpers for FRP ==========================
 
-    function stopPropagation(evt) { evt.preventDefault(); evt.stopPropagation(); };
+    function stopPropagation(evt) { evt.stopPropagation(); };
     function extractPos(evt) { return { x: evt.clientX,
                                         y: evt.clientY }; };
     function getPos(elm) { var bounds = elm.getBoundingClientRect();
