@@ -294,6 +294,7 @@ function HtmlRenderer(user_config) {
 
             /* </build HTML> */
 
+            nodeElm.classList.add('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-tk-node');
             nodeElm.classList.add('rpd-'+node.type.replace('/','-'));
             nodeBox.style.zIndex = NODE_LAYER;
 
