@@ -91,6 +91,7 @@ Rpd.nodetype('core/hot-and-cold', {
 Rpd.channeltype('core/any', { });
 
 Rpd.channeltype('core/boolean', { default: false,
+                                  readonly: false,
                                   adapt: function(val) {
                                       return (val ? true : false);
                                   } });

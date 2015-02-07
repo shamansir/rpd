@@ -54,6 +54,22 @@ Rpd.noderenderer('core/sum-of-three-with-body', 'html', function() {
     };
 });
 
+Rpd.channelrenderer('core/boolean', 'html', {
+    /* show: function(target, value) { }, */
+    edit: function(target, inlet, valueIn) {
+        var valInput = document.createElement('input');
+        valInput.type = 'checkbox';
+        valueIn.onValue(function(val) {
+            valInput.checked = val ? true : false;
+        });
+        target.appendChild(valInput);
+        return Kefir.fromEvent(valInput, 'change')
+                    .map(function() {
+                        return valInput.checked;
+                    }).toProperty(false);
+    }
+});
+
 Rpd.channelrenderer('core/number', 'html', {
     /* show: function(target, value) { }, */
     edit: function(target, inlet, valueIn) {
