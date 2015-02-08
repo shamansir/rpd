@@ -314,7 +314,10 @@ function HtmlRenderer(user_config) {
                 inletsTrg: inletsTrg, outletsTrg: outletsTrg,
                 links: {} };
 
-            addResizeUpdate(node, bodyElm);
+            if (node.render.html && node.render.html.always) {
+                // if node body should be re-rendered,
+                updateLinksOnChange(node, bodyElm);
+            }
 
             // use custom node body renderer, if defined
             if (node.render.html && node.render.html.first) {
@@ -1006,20 +1009,13 @@ function HtmlRenderer(user_config) {
         });
     }
 
-    function addResizeUpdate(node, nodeBody) {
+    function updateLinksOnChange(node, nodeBody) {
         // this code used getBoundingClientRect to determine if node body width/height
         // values were changed and update links only when they did, but it appeared to be
         // quite to check especially height value, since browsers keep it equal to 0
-        node.event['node/process'].map(function() {
-            var bounds = nodeBody.getBoundingClientRect();
-            return { w: nodeBody.offsetWidth, h: nodeBody.offsetHeight }
-        }).diff(function(prev, next) {
-                return (prev.w !== next.w) || (prev.h !== prev.h);
-            }, { w: nodeBody.offsetWidth, h: nodeBody.offsetHeight }
-        ).filter(
-            function(v) { return v; }
-        ).onValue(function() {
-            console.log('resized');
+        var nodeLinks = nodes[node.id].links;
+        node.event['node/process'].throttle(500).onValue(function() {
+            updateLinks(node, nodeLinks);
         });
     }
 
