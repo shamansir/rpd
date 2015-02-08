@@ -370,11 +370,9 @@ function HtmlRenderer(user_config) {
 
             var nodeLinks = nodeData.links;
 
-            var linkData;
-            for (var id in nodeLinks) {
-                linkData = nodeLinks[id];
+            eachLink(nodeLinks, function(linkData) {
                 linkData.link.outlet.disconnect(linkData.link);
-            }
+            });
 
             root.removeChild(nodeData.box);
 
