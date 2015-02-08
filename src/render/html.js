@@ -43,7 +43,7 @@ function HtmlRenderer(user_config) {
     // inlets, outlets, links as hashes, by their ID;
     // it's not pure functional way, especially in comparison to RPD engine code,
     // but in this case semi-imperative way appeared to be easier and faster;
-    // nodes:   { id: { elm, body, inletsTrg, outletsTrg }, ... }
+    // nodes:   { id: { elm, body, inletsTrg, outletsTrg, links }, ... }
     // outlets: { id: { elm, valueElm, connectorElm, links }, ... }
     // inlets:  { id: { elm, valueElm, connectorElm, link  }, ... }
     // links:   { id: { elm, link  }, ... }
@@ -311,7 +311,10 @@ function HtmlRenderer(user_config) {
             // save node data
             nodes[node.id] = {
                 box: nodeBox, elm: nodeElm, body: bodyElm,
-                inletsTrg: inletsTrg, outletsTrg: outletsTrg };
+                inletsTrg: inletsTrg, outletsTrg: outletsTrg,
+                links: {} };
+
+            addResizeUpdate(node, bodyElm);
 
             // use custom node body renderer, if defined
             if (node.render.html && node.render.html.first) {
@@ -362,11 +365,11 @@ function HtmlRenderer(user_config) {
 
             var nodeData = nodes[node.id];
 
-            var nodeLinks = selectLinks(node, links);
+            var nodeLinks = nodeData.links;
 
             var linkData;
-            for (var i = 0, il = nodeLinks.length; i < il; i++) {
-                linkData = nodeLinks[i];
+            for (var id in nodeLinks) {
+                linkData = nodeLinks[id];
                 linkData.link.outlet.disconnect(linkData.link);
             }
 
@@ -632,6 +635,11 @@ function HtmlRenderer(user_config) {
             links[link.id] = { elm: linkElm,
                                link: link };
 
+            var fromNode = nodes[outlet.node.id];
+            var toNode   = nodes[ inlet.node.id];
+            fromNode.links[link.id] = links[link.id];
+              toNode.links[link.id] = links[link.id];
+
             addClickSwitch(linkElm,
                            function() { link.enable(); },
                            function() { link.disable(); });
@@ -661,6 +669,11 @@ function HtmlRenderer(user_config) {
             inletData.link = null;
 
             links[link.id] = null;
+
+            var fromNode = nodes[outlet.node.id];
+            var toNode   = nodes[ inlet.node.id];
+            fromNode.links[link.id] = null;
+              toNode.links[link.id] = null;
 
             // remove link element
             root.removeChild(linkElm);
@@ -932,31 +945,39 @@ function HtmlRenderer(user_config) {
     // ============================== DragNDrop ================================
     // =========================================================================
 
-    function updateLinks(node, selectedLinks) {
+    function eachLink(links, f) {
+        if (!links) return;
+        for (var id in links) {
+            if (!links[id]) continue;
+            f(links[id]);
+        }
+    }
+
+    function updateLinks(node, nodeLinks) {
         var link, linkElm, inletConnector, outletConnector,
             inletPos, outletPos;
-        for (var i = 0, il = selectedLinks.length; i < il; i++) {
-            link = selectedLinks[i].link;
-            linkElm = selectedLinks[i].elm;
+        eachLink(nodeLinks, function(linkData) {
+            link = linkData.link;
+            linkElm = linkData.elm;
             inletConnector = inlets[link.inlet.id].connectorElm;
             outletConnector = outlets[link.outlet.id].connectorElm;
             inletPos = getPos(inletConnector);
             outletPos = getPos(outletConnector);
             rotateLink(linkElm, outletPos.x, outletPos.y, inletPos.x, inletPos.y);
-        }
+        });
     }
 
     function addDragNDrop(node, root, handle, box) {
         var nodeData = nodes[node.id];
         handle.classList.add('rpd-drag-handle');
-        var selectedLinks;
+        var nodeLinks;
         Kefir.fromEvent(handle, 'mousedown').map(extractPos)
                                             .flatMap(function(pos) {
             box.classList.add('rpd-dragging');
             var initPos = getPos(box),
                 diffPos = { x: pos.x - initPos.x,
                             y: pos.y - initPos.y };
-            selectedLinks = null;
+            nodeLinks = null;
             box.style.zIndex = NODEDRAG_LAYER;
             return Kefir.fromEvent(root, 'mousemove')
                         .tap(stopPropagation)
@@ -968,22 +989,37 @@ function HtmlRenderer(user_config) {
                         }).onEnd(function() {
                             box.classList.remove('rpd-dragging');
                             box.style.zIndex = NODE_LAYER;
-                            if (selectedLinks) {
-                                for (var i = 0, il = selectedLinks.length; i < il; i++) {
-                                    selectedLinks[i].elm.style.zIndex = LINK_LAYER;
-                                }
-                            }
+                            eachLink(nodeLinks, function(linkData) {
+                                linkData.elm.style.zIndex = LINK_LAYER;
+                            });
                         });
         }).onValue(function(pos) {
             box.style.left = pos.x + 'px';
             box.style.top  = pos.y + 'px';
-            if (!selectedLinks) {
-                selectedLinks = selectLinks(node, links,
-                   function(linkData) {
-                       linkData.elm.style.zIndex = LINKDRAG_LAYER;
-                   });
+            if (!nodeLinks) {
+                nodeLinks = nodes[node.id].links;
+                eachLink(nodeLinks, function(linkData) {
+                    linkData.elm.style.zIndex = LINKDRAG_LAYER;
+                });
             }
-            updateLinks(node, selectedLinks);
+            updateLinks(node, nodeLinks);
+        });
+    }
+
+    function addResizeUpdate(node, nodeBody) {
+        // this code used getBoundingClientRect to determine if node body width/height
+        // values were changed and update links only when they did, but it appeared to be
+        // quite to check especially height value, since browsers keep it equal to 0
+        node.event['node/process'].map(function() {
+            var bounds = nodeBody.getBoundingClientRect();
+            return { w: nodeBody.offsetWidth, h: nodeBody.offsetHeight }
+        }).diff(function(prev, next) {
+                return (prev.w !== next.w) || (prev.h !== prev.h);
+            }, { w: nodeBody.offsetWidth, h: nodeBody.offsetHeight }
+        ).filter(
+            function(v) { return v; }
+        ).onValue(function() {
+            console.log('resized');
         });
     }
 
@@ -1148,21 +1184,6 @@ function rotateLink(linkElm, x0, y0, x1, y1) {
     linkElm.style.width = Math.floor(distance) + 'px';
     linkElm.style.transform = 'rotateZ(' + angle + 'rad)';
     linkElm.style.webkitTransform = 'rotateZ(' + angle + 'rad)';
-}
-
-function selectLinks(node, links, onEach) {
-    var selectedLinks = [], linkData, link;
-    for (var id in links) {
-        if (!links[id]) continue;
-        linkData = links[id];
-        link = linkData.link;
-        if ((link.inlet.node.id  === node.id) ||
-            (link.outlet.node.id === node.id)) {
-                selectedLinks.push(linkData);
-                if (onEach) onEach(linkData, link);
-        }
-    }
-    return selectedLinks;
 }
 
 var default_width = 1, // in boxes
