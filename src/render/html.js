@@ -160,9 +160,10 @@ function HtmlRenderer(user_config) {
                 //           ... (see inlet/add)
                 //     td.rpd-body
                 //       table
-                //         tr
-                //           td
-                //             ... (see node/process)
+                //         tbody
+                //           tr
+                //             td
+                //               ... (see node/process)
                 //     td.rpd-outlets
                 //       table
                 //         tbody
@@ -184,11 +185,13 @@ function HtmlRenderer(user_config) {
 
                 var bodyCell = quickElm('td', 'rpd-body');
                 var innerBodyTable = quickElm('table');
+                var innerBodyBody = quickElm('tbody');
                 var innerBodyRow = quickElm('tr');
                 var innerBodyCell = quickElm('td');
                 innerBodyCell.appendChild(bodyElm);
                 innerBodyRow.appendChild(innerBodyCell);
-                innerBodyTable.appendChild(innerBodyRow);
+                innerBodyBody.appendChild(innerBodyRow);
+                innerBodyTable.appendChild(innerBodyBody);
                 bodyCell.appendChild(innerBodyTable);
 
                 var outletsCell = quickElm('td', 'rpd-outlets');
@@ -216,7 +219,8 @@ function HtmlRenderer(user_config) {
                 //   td
                 //     table
                 //       tbody
-                //         ... (see inlet/add)
+                //         tr
+                //           ... (see inlet/add)
                 // tr.rpd-remove-button
                 //   td
                 // tr.rpd-content
@@ -226,23 +230,27 @@ function HtmlRenderer(user_config) {
                 //   td.rpd-body
                 //     div
                 //       table
-                //         tr
-                //           td
-                //             ... (see node/process)
+                //         tbody
+                //           tr
+                //             td
+                //               ... (see node/process)
                 // tr.rpd-outlets
                 //   td
                 //     table
                 //       tbody
-                //         ... (see outlet/add)
+                //         tr
+                //           ... (see outlet/add)
 
                 var inletsRow = quickElm('tr', 'rpd-inlets');
 
                 var inletsCell = quickElm('td');
                 var inletsTable = quickElm('table');
                 var inletsBody = quickElm('tbody');
+                var inletsHolder = quickElm('tr');
 
-                inletsTrg = inletsBody;
+                inletsTrg = inletsHolder;
 
+                inletsBody.appendChild(inletsHolder);
                 inletsTable.appendChild(inletsBody);
                 inletsCell.appendChild(inletsTable);
                 inletsRow.appendChild(inletsCell);
@@ -265,11 +273,13 @@ function HtmlRenderer(user_config) {
                 var bodyCell = quickElm('td', 'rpd-body');
                 var bodyElm = quickElm('div');
                 var innerBodyTable = quickElm('table');
+                var innerBodyBody = quickElm('tbody');
                 var innerBodyRow = quickElm('tr');
                 var innerBodyCell = quickElm('td');
                 innerBodyCell.appendChild(bodyElm);
                 innerBodyRow.appendChild(innerBodyCell);
-                innerBodyTable.appendChild(innerBodyRow);
+                innerBodyBody.appendChild(innerBodyRow);
+                innerBodyTable.appendChild(innerBodyBody);
 
                 bodyCell.appendChild(innerBodyTable);
                 contentRow.appendChild(bodyCell);
@@ -280,9 +290,11 @@ function HtmlRenderer(user_config) {
                 var outletsCell = quickElm('td');
                 var outletsTable = quickElm('table');
                 var outletsBody = quickElm('tbody');
+                var outletsHolder = quickElm('tr');
 
-                outletsTrg = outletsBody;
+                outletsTrg = outletsHolder;
 
+                outletsBody.appendChild(outletsHolder);
                 outletsTable.appendChild(outletsBody);
                 outletsCell.appendChild(outletsTable);
                 outletsRow.appendChild(outletsCell);
@@ -523,10 +535,10 @@ function HtmlRenderer(user_config) {
             if (config.layout == QUARTZ_LAYOUT) {
 
                 // tr.rpd-outlet.rpd-stale
-                //    td.rpd-connector
-                //    td.rpd-value
-                //    td.rpd-name: inlet.name
-                //    td.rpd-type: inlet.type
+                //   td.rpd-connector
+                //   td.rpd-value
+                //   td.rpd-name: inlet.name
+                //   td.rpd-type: inlet.type
 
                 outletElm = quickElm('tr', 'rpd-outlet rpd-stale');
                 connectorElm = quickElm('td', 'rpd-connector');
@@ -540,10 +552,10 @@ function HtmlRenderer(user_config) {
             } else if (config.layout == PD_LAYOUT) {
 
                 // td.rpd-outlet.rpd-stale
-                //    span.rpd-connector
-                //    span.rpd-name: inlet.name
-                //    span.rpd-value
-                //    span.rpd-type: inlet.type
+                //   span.rpd-connector
+                //   span.rpd-name: inlet.name
+                //   span.rpd-value
+                //   span.rpd-type: inlet.type
 
                 outletElm = quickElm('td', 'rpd-outlet rpd-stale');
                 connectorElm = quickElm('span', 'rpd-connector');
