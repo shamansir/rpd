@@ -219,7 +219,8 @@ function HtmlRenderer(user_config) {
                 //   td
                 //     table
                 //       tbody
-                //         ... (see inlet/add)
+                //         tr
+                //           ... (see inlet/add)
                 // tr.rpd-remove-button
                 //   td
                 // tr.rpd-content
@@ -237,16 +238,19 @@ function HtmlRenderer(user_config) {
                 //   td
                 //     table
                 //       tbody
-                //         ... (see outlet/add)
+                //         tr
+                //           ... (see outlet/add)
 
                 var inletsRow = quickElm('tr', 'rpd-inlets');
 
                 var inletsCell = quickElm('td');
                 var inletsTable = quickElm('table');
                 var inletsBody = quickElm('tbody');
+                var inletsHolder = quickElm('tr');
 
-                inletsTrg = inletsBody;
+                inletsTrg = inletsHolder;
 
+                inletsBody.appendChild(inletsHolder);
                 inletsTable.appendChild(inletsBody);
                 inletsCell.appendChild(inletsTable);
                 inletsRow.appendChild(inletsCell);
@@ -286,9 +290,11 @@ function HtmlRenderer(user_config) {
                 var outletsCell = quickElm('td');
                 var outletsTable = quickElm('table');
                 var outletsBody = quickElm('tbody');
+                var outletsHolder = quickElm('tr');
 
-                outletsTrg = outletsBody;
+                outletsTrg = outletsHolder;
 
+                outletsBody.appendChild(outletsHolder);
                 outletsTable.appendChild(outletsBody);
                 outletsCell.appendChild(outletsTable);
                 outletsRow.appendChild(outletsCell);
@@ -426,26 +432,23 @@ function HtmlRenderer(user_config) {
 
             } else if (config.layout == PD_LAYOUT) {
 
-                // tr.rpd-inlet.rpd-stale
-                //   td
-                //     span.rpd-connector
-                //     span.rpd-name: inlet.name
-                //     span.rpd-value-holder
-                //       span.rpd-value
-                //       [span.rpd-value-edit]
-                //     span.rpd-type: inlet.type
+                // td.rpd-inlet.rpd-stale
+                //   span.rpd-connector
+                //   span.rpd-name: inlet.name
+                //   span.rpd-value-holder
+                //     span.rpd-value
+                //     [span.rpd-value-edit]
+                //   span.rpd-type: inlet.type
 
-                inletElm = quickElm('tr', 'rpd-inlet rpd-stale');
-                var cellElm = quickElm('td');
+                inletElm = quickElm('td', 'rpd-inlet rpd-stale');
                 connectorElm = quickElm('span', 'rpd-connector');
                 valueHolder = quickElm('span', 'rpd-value-holder');
                 valueElm = quickElm('span', 'rpd-value');
                 valueHolder.appendChild(valueElm);
-                cellElm.appendChild(connectorElm);
-                cellElm.appendChild(quickElmVal('span', 'rpd-name', inlet.name));
-                cellElm.appendChild(valueHolder);
-                if (config.showTypes) cellElm.appendChild(quickElmVal('span', 'rpd-type', inlet.type));
-                inletElm.appendChild(cellElm);
+                inletElm.appendChild(connectorElm);
+                inletElm.appendChild(quickElmVal('span', 'rpd-name', inlet.name));
+                inletElm.appendChild(valueHolder);
+                if (config.showTypes) inletElm.appendChild(quickElmVal('span', 'rpd-type', inlet.type));
 
             }
 
@@ -548,22 +551,19 @@ function HtmlRenderer(user_config) {
 
             } else if (config.layout == PD_LAYOUT) {
 
-                // tr.rpd-outlet.rpd-stale
-                //   td
-                //     span.rpd-connector
-                //     span.rpd-name: inlet.name
-                //     span.rpd-value
-                //     span.rpd-type: inlet.type
+                // td.rpd-outlet.rpd-stale
+                //   span.rpd-connector
+                //   span.rpd-name: inlet.name
+                //   span.rpd-value
+                //   span.rpd-type: inlet.type
 
-                outletElm = quickElm('tr', 'rpd-outlet rpd-stale');
-                var cellElm = quickElm('td');
+                outletElm = quickElm('td', 'rpd-outlet rpd-stale');
                 connectorElm = quickElm('span', 'rpd-connector');
                 valueElm = quickElm('span', 'rpd-value');
-                cellElm.appendChild(connectorElm);
-                cellElm.appendChild(quickElmVal('span', 'rpd-name', outlet.name));
-                cellElm.appendChild(valueElm);
-                if (config.showTypes) cellElm.appendChild(quickElmVal('span', 'rpd-type', outlet.type));
-                outletElm.appendChild(cellElm);
+                outletElm.appendChild(connectorElm);
+                outletElm.appendChild(quickElmVal('span', 'rpd-name', outlet.name));
+                outletElm.appendChild(valueElm);
+                if (config.showTypes) outletElm.appendChild(quickElmVal('span', 'rpd-type', outlet.type));
 
             }
 
