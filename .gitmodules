@@ -1,0 +1,8 @@
+[submodule "src/toolkit/anm"]
+	path = src/toolkit/anm
+	url = git://github.com/shamansir/rpd-animatron.git
+	branch = v0.1.5
+[submodule "src/toolkit/pd"]
+	path = src/toolkit/pd
+	url = git://github.com/shamansir/rpd-puredata.git
+	branch = v0.1.5

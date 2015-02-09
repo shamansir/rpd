@@ -83,6 +83,7 @@ dist-anm-html:
 								--js ./$(SRC_DIR)/render/html.js \
 								--js ./$(SRC_DIR)/toolkit/core/toolkit.js \
 								--js ./$(SRC_DIR)/toolkit/core/render/html.js \
+								--js ./$(SRC_DIR)/toolkit/anm/model.js \
 								--js ./$(SRC_DIR)/toolkit/anm/toolkit.js \
 								--js ./$(SRC_DIR)/toolkit/anm/render/html.js \
 								--js_output_file ./$(DIST_DIR)/rpd-core-anm-html.min.js

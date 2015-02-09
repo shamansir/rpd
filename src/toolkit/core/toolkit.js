@@ -18,6 +18,29 @@ Rpd.nodetype('core/custom', {
     name: 'Custom'
 });
 
+Rpd.channeltype('core/number', {
+    default: 0,
+    readonly: false,
+    accept: function(val) {
+        if (val === Infinity) return true;
+        var parsed = parseFloat(val);
+        return !isNaN(parsed) && isFinite(parsed);
+    },
+    adapt: function(val) { return parseFloat(val); }
+});
+
+Rpd.nodetype('core/number', {
+    name: 'number',
+    inlets:  { 'min': { type: 'core/number', default: 0 },
+               'max': { type: 'core/number', default: Infinity },
+               'spinner': { type: 'core/number', default: 0, hidden: true } },
+    outlets: { 'out':     { type: 'core/number' } },
+    process: function(inlets) {
+        if (!inlets.hasOwnProperty('spinner')) return;
+        return { 'out': inlets.spinner };
+    }
+});
+
 Rpd.nodetype('core/sum-of-three', {
     name: 'Sum of Three',
     width: 1.8,
@@ -68,18 +91,9 @@ Rpd.nodetype('core/hot-and-cold', {
 Rpd.channeltype('core/any', { });
 
 Rpd.channeltype('core/boolean', { default: false,
+                                  readonly: false,
                                   adapt: function(val) {
                                       return (val ? true : false);
                                   } });
-
-Rpd.channeltype('core/number', { default: 0,
-                                 readonly: false,
-                                 accept: function(val) {
-                                    var parsed = parseFloat(val);
-                                    return !isNaN(parsed) && isFinite(parsed);
-                                 },
-                                 adapt: function(val) {
-                                     return parseFloat(val);
-                                 } });
 
 Rpd.linktype('core/pass', { });

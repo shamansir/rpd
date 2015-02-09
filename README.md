@@ -1,5 +1,7 @@
 # RPD — Reactive Pure Data
 
+[![Join the chat at https://gitter.im/shamansir/rpd](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/shamansir/rpd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![logo][]](http://shamansir.github.io/rpd)
 
 **Version 0.1.0**
@@ -117,7 +119,10 @@ Rpd.nodetype('pd/play', function() {
 });
 ```
 
-[Here's][engine-source] the engine code at a glance;
+[Here's][engine-source] the engine code at a glance; 
+
+Here's the [Anitmatron Toolkit][anm-toolkit-src] and [its HTML Renderer][anm-renderer-src] source codes.
+Here's the [PureData Toolkit][pd-toolkit-src] and [its HTML Renderer][pd-renderer-src] source codes.
 
 ## Features
 
@@ -163,7 +168,7 @@ Choose a distribution of RPD and download it:
 * [`rpd-core-anm-html.min.js`][core-anm-html-src] : Core & Animatron Toolkits, HTML Renderer
 * _(more to come)_
 
-If your choise of renderer is HTML, get a corresponding CSS file:
+If your choice of renderer is HTML, get a corresponding CSS file:
 
 * [`rpd-core.css`][core-style] : for Core Toolkit
 * [`rpd-core-pd.css`][core-pd-style] : for Core & PD Toolkit
@@ -283,6 +288,11 @@ See a Reference below for details in programming Tollkits and different other th
 [hosted-core]: http://shamansir.github.io/rpd/examples/core.html
 [hosted-pd]: http://shamansir.github.io/rpd/examples/pd.html
 [hosted-anm]: http://shamansir.github.io/rpd/examples/anm.html
+
+[anm-toolkit-src]: https://github.com/shamansir/rpd-animatron/blob/master/toolkit.js
+[anm-renderer-src]: https://github.com/shamansir/rpd-animatron/blob/master/render/html.js
+[pd-toolkit-src]: https://github.com/shamansir/rpd-puredata/blob/master/toolkit.js
+[pd-renderer-src]: https://github.com/shamansir/rpd-puredata/blob/master/render/html.js 
 
 [issues]: https://github.com/shamansir/rpd/issues
 [video]: http://vimeo.com/118197237
