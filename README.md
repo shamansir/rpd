@@ -4,7 +4,7 @@
 
 [![logo][]](http://shamansir.github.io/rpd)
 
-**Version 0.1.0**
+**Version 0.1.5**
 
 A video of the engine in action, demonstrates most of its features: [ [Watch][video] ].
 
@@ -119,7 +119,7 @@ Rpd.nodetype('pd/play', function() {
 });
 ```
 
-[Here's][engine-source] the engine code at a glance; 
+[Here's][engine-source] the engine code at a glance;
 
 Here's the [Anitmatron Toolkit][anm-toolkit-src] and [its HTML Renderer][anm-renderer-src] source codes.
 Here's the [PureData Toolkit][pd-toolkit-src] and [its HTML Renderer][pd-renderer-src] source codes.
@@ -233,9 +233,9 @@ boolOutlet.stream(Kefir.repeatedly(10, [true, false]));
 
 ## Participating
 
-To participate, get a copy of repository:
+To participate, get a copy of repository including submodules (which are just optional example Toolkits ([animatron][anm-toolkit-repo] & [puredata][pd-toolkit-repo]), tied to main repository by version tag):
 
-`git clone git@github.com:shamansir/rpd.git`
+`git clone --recursive git@github.com:shamansir/rpd.git`
 
 After that, get dependencies:
 
@@ -289,10 +289,12 @@ See a Reference below for details in programming Tollkits and different other th
 [hosted-pd]: http://shamansir.github.io/rpd/examples/pd.html
 [hosted-anm]: http://shamansir.github.io/rpd/examples/anm.html
 
+[anm-toolkit-repo]: http://github.com/shamansir/rpd-animatron
 [anm-toolkit-src]: https://github.com/shamansir/rpd-animatron/blob/master/toolkit.js
 [anm-renderer-src]: https://github.com/shamansir/rpd-animatron/blob/master/render/html.js
+[pd-toolkit-repo]: http://github.com/shamansir/rpd-puredata
 [pd-toolkit-src]: https://github.com/shamansir/rpd-puredata/blob/master/toolkit.js
-[pd-renderer-src]: https://github.com/shamansir/rpd-puredata/blob/master/render/html.js 
+[pd-renderer-src]: https://github.com/shamansir/rpd-puredata/blob/master/render/html.js
 
 [issues]: https://github.com/shamansir/rpd/issues
 [video]: http://vimeo.com/118197237
