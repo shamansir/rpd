@@ -237,6 +237,10 @@ To participate, get a copy of repository including submodules (which are just op
 
 `git clone --recursive git@github.com:shamansir/rpd.git`
 
+If you already have a clone but have no submodules, do there:
+
+`git submodule update --init --recursive`
+
 After that, get dependencies:
 
 `make deps`
