@@ -90,7 +90,7 @@ function Node(type, name) {
     if (!def) report_error('Node type ' + this.type + ' is not registered!');
     this.def = def;
 
-    this.name = name || def.name || 'Unnamed';
+    this.name = name || def.name || type;
     this.def = def;
 
     this.render = prepare_render_obj(noderenderers[this.type]);
@@ -242,9 +242,9 @@ function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
     if (!def) report_error('Inlet type ' + this.type + ' is not registered!');
     this.def = def;
 
-    this.alias = alias || name || def.alias;
+    this.alias = alias || def.alias || name;
     if (!this.alias) report_error('Inlet should have either alias or name');
-    this.name = name || this.alias || def.name || 'Unnamed';
+    this.name = name || def.name || this.alias || type;
 
     this.node = node;
     this.hidden = hidden || false;
@@ -293,9 +293,9 @@ function Outlet(type, node, alias, name, _default) {
     if (!def) report_error('Outlet type ' + this.type + ' is not registered!');
     this.def = def;
 
-    this.alias = alias || name || def.alias;
+    this.alias = alias || def.alias || name;
     if (!this.alias) report_error('Outlet should have either alias or name');
-    this.name = name || this.alias || def.name || 'Unnamed';
+    this.name = name || this.alias || def.name || type;
 
     this.node = node;
     this.default = is_defined(_default) ? _default : def.default;
@@ -508,15 +508,15 @@ function join_subrenderers(main_renderer, subrenderers, conf) {
 // =============================================================================
 
 function nodetype(type, def) {
-    nodetypes[type] = def;
+    nodetypes[type] = def || {};
 }
 
 function linktype(type, def) {
-    linktypes[type] = def;
+    linktypes[type] = def || {};
 }
 
 function channeltype(type, def) {
-    channeltypes[type] = def;
+    channeltypes[type] = def || {};
 }
 
 function renderer(alias, f) {
