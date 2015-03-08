@@ -172,7 +172,11 @@ function Node(type, name) {
             // send the values provided from a `process` function to corresponding outlets
             for (var outlet_name in outlets_vals) {
                 if (outlets[outlet_name]) {
-                    outlets[outlet_name].send(outlets_vals[outlet_name]);
+                    if (outlets_vals[outlet_name] instanceof Kefir.Stream) {
+                        outlets[outlet_name].stream(outlets_vals[outlet_name]);
+                    } else {
+                        outlets[outlet_name].send(outlets_vals[outlet_name]);
+                    }
                 };
             }
         });

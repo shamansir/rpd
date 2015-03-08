@@ -26,7 +26,7 @@ Rpd.noderenderer('core/sum-of-three', 'html', {
     }
 });
 
-Rpd.noderenderer('core/sum-of-three-with-body', 'html', function() {
+/* Rpd.noderenderer('core/sum-of-three-with-body', 'html', function() {
     var sumContent;
     return {
         first: function(bodyElm) {
@@ -52,7 +52,7 @@ Rpd.noderenderer('core/sum-of-three-with-body', 'html', function() {
                           + (inlets.c || '0') + ') = ' + (outlets.sum || '?');
         }
     };
-});
+}); */
 
 Rpd.channelrenderer('core/boolean', 'html', {
     /* show: function(target, value) { }, */
