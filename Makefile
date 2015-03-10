@@ -31,6 +31,20 @@ deps:
 	curl -o ./$(VENDOR_DIR)/$(TIMBRE_FILENAME) $(TIMBRE_URL)
 	curl -sH 'Accept-encoding: gzip' --compressed $(ANM_PLAYER_URL) > ./$(VENDOR_DIR)/$(ANM_PLAYER_FILENAME)
 
+test-deps:
+	npm install jasmine
+	npm install phantom-jasmine
+	git clone https://github.com/jasmine/jasmine.git
+	mkdir ./spec/lib
+	cp ./jasmine/dist/jasmine-standalone-2.2.0.zip ./spec/lib
+	cd ./spec/lib
+	unzip ./jasmine-standalone-2.2.0.zip
+	cd ../..
+	rm -Rf ./jasmine
+
+test:
+	phantom-jasmine
+
 dist: dist-html
 
 dist-html:

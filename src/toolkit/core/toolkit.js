@@ -52,7 +52,7 @@ Rpd.nodetype('core/random', {
         return { 'out': Kefir.interval(5000/*inlets.period*/, {})
                              .map(function() { return Math.random() * inlets.max; }) };
     }
-)
+});
 
 Rpd.nodetype('core/sum-of-three', {
     name: 'Sum of Three',
