@@ -35,8 +35,7 @@ deps:
 
 test-deps:
 	-rm -R ./spec/lib
-	npm install -g jasmine
-	npm install -g jasmine-node
+	#npm install -g jasmine-node
 	mkdir ./spec/lib
 	curl -o ./spec/jasmine-standalone-$(JASMINE_VERSION).zip -LoK https://github.com/jasmine/jasmine/releases/download/v$(JASMINE_VERSION)/jasmine-standalone-$(JASMINE_VERSION).zip
 	unzip ./spec/jasmine-standalone-$(JASMINE_VERSION).zip MIT.LICENSE \
