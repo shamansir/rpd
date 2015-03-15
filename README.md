@@ -2,6 +2,8 @@
 
 [![Join the chat at https://gitter.im/shamansir/rpd](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/shamansir/rpd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+[![Build Status](https://travis-ci.org/shamansir/rpd.svg)](https://travis-ci.org/shamansir/rpd)
+
 [![logo][]](http://shamansir.github.io/rpd)
 
 **Version 0.1.5**

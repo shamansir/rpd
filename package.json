@@ -1,6 +1,6 @@
 {
     "name": "rpd",
-    "version": "0.1",
+    "version": "0.1.5",
     "description": "RPD is a minimal framework for building Node-Based User Interfaces, powered by Reactive Programming",
     "author": "Ulric Wilfred <shaman.sir@gmail.com>",
     "homepage": "http://shamansir.github.io/rpd",
@@ -21,7 +21,10 @@
         "kefir": "pozadi/kefir"
     },
     "devDependencies": {
-        "timbre": "mohayonao/timbre.js"
+        "jasmine-node" : "latest"
+    },
+    "scripts" : {
+        "test" : "jasmine-node ./spec"
     },
     "license": "MIT"
 }

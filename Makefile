@@ -33,7 +33,7 @@ deps:
 
 test-deps:
 	npm install jasmine
-	npm install phantom-jasmine
+	npm install jasmine-node
 	git clone https://github.com/jasmine/jasmine.git
 	mkdir ./spec/lib
 	cp ./jasmine/dist/jasmine-standalone-2.2.0.zip ./spec/lib
@@ -43,7 +43,7 @@ test-deps:
 	rm -Rf ./jasmine
 
 test:
-	phantom-jasmine
+	jasmine-node ./spec
 
 dist: dist-html
 
