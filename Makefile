@@ -34,8 +34,8 @@ deps:
 	curl -sH 'Accept-encoding: gzip' --compressed $(ANM_PLAYER_URL) > ./$(VENDOR_DIR)/$(ANM_PLAYER_FILENAME)
 
 test-deps:
+	curl -o ./$(VENDOR_DIR)/$(KEFIR_FILENAME) $(KEFIR_URL)
 	-rm -R ./spec/lib
-	#npm install -g jasmine-node
 	mkdir ./spec/lib
 	curl -o ./spec/jasmine-standalone-$(JASMINE_VERSION).zip -LoK https://github.com/jasmine/jasmine/releases/download/v$(JASMINE_VERSION)/jasmine-standalone-$(JASMINE_VERSION).zip
 	unzip ./spec/jasmine-standalone-$(JASMINE_VERSION).zip MIT.LICENSE \

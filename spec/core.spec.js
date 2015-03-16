@@ -1,4 +1,14 @@
+var Rpd = Rpd;
+
+if (typeof require !== 'undefined') {
+    Rpd = require('../src/rpd.js');
+}
+
 describe("model", function() {
+
+    it("could be started without a name", function() {
+        Rpd.Model.start();
+    });
 
   it("contains spec with an expectation", function() {
     expect(true).toBe(true);
@@ -8,7 +18,7 @@ describe("model", function() {
 
 describe("nodes", function() {
 
-  it("contains spec with an expectation", function() {
+  xit("contains spec with an expectation", function() {
     expect(true).toBe(false);
   });
 
@@ -16,7 +26,7 @@ describe("nodes", function() {
 
 describe("channels", function() {
 
-  it("contains spec with an expectation", function() {
+  xit("contains spec with an expectation", function() {
     expect(true).toBe(false);
   });
 
@@ -24,7 +34,7 @@ describe("channels", function() {
 
 describe("links", function() {
 
-  it("contains spec with an expectation", function() {
+  xit("contains spec with an expectation", function() {
     expect(true).toBe(false);
   });
 
@@ -32,7 +42,7 @@ describe("links", function() {
 
 describe("renderers", function() {
 
-  it("contains spec with an expectation", function() {
+  xit("contains spec with an expectation", function() {
     expect(true).toBe(false);
   });
 
