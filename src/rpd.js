@@ -1,3 +1,11 @@
+;(function(global) {
+  "use strict";
+
+var Kefir = global.Kefir;
+if ((typeof Kefir === 'undefined') &&
+    (typeof require !== 'undefined')) Kefir = require('../vendor/kefir.min.js');
+if (!Kefir) throw new Error('Kefir.js (https://github.com/pozadi/kefir) is required for Rpd to work');
+
 var Rpd = (function() {
 
 var nodetypes = {};
@@ -578,3 +586,15 @@ return {
 }
 
 })();
+
+if (typeof define === 'function' && define.amd) {
+    define([], function() { return Rpd; });
+    global.Rpd = Rpd;
+} else if (typeof module === "object" && typeof exports === "object") {
+    module.exports = Rpd;
+    Rpd.Rpd = Rpd;
+} else {
+    global.Rpd = Rpd;
+}
+
+}(this));
