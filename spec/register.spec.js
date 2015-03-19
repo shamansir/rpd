@@ -7,10 +7,15 @@ if ((typeof Rpd === 'undefined')
 
 describe('registering', function() {
 
+// =================== renderer ==================
+
+describe('renderer', function() {
+});
+
 // ==================== nodes ====================
 
 describe('node type', function() {
-    it('should be possible');
+
 });
 
 // =================== channels ==================
