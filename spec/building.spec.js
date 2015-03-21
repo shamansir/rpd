@@ -38,18 +38,67 @@ describe('model', function() {
 
     describe('renderers', function() {
 
-        xit('passes the events to all the registered renderers, with or without a target', function() {
+        it('does not pass the events to all the registered renderers, even if target is not specified', function() {
             var model = Rpd.Model.start();
+
             var fooUpdateSpy = jasmine.createSpy('foo');
             var fooRenderer = Rpd.renderer('foo', function(user_conf) {
                 return fooUpdateSpy;
             });
 
-            var named = Rpd.Model.start('foo').renderWith('foo');
-            expect(fooUpdateSpy).toHaveBeenCalledWith({ type: 'model/new' })
+            var barUpdateSpy = jasmine.createSpy('bar');
+            var barRenderer = Rpd.renderer('bar', function(user_conf) {
+                return barUpdateSpy;
+            });
+
+            Rpd.Model.start('foo')
+                     .renderWith('foo')
+                     .renderWith('bar');
+
+            expect(fooUpdateSpy).not.toHaveBeenCalled();
+            expect(barUpdateSpy).not.toHaveBeenCalled();
         });
 
-        it('passes configuration to renderer');
+        it('pass events to all the registered renderers, if at least one target was specified', function() {
+
+            var model = Rpd.Model.start();
+
+            var fooUpdateSpy = jasmine.createSpy('foo');
+            var fooRenderer = Rpd.renderer('foo', function(user_conf) {
+                return fooUpdateSpy;
+            });
+
+            var barUpdateSpy = jasmine.createSpy('bar');
+            var barRenderer = Rpd.renderer('bar', function(user_conf) {
+                return barUpdateSpy;
+            });
+
+            var targetOne = {}, targetTwo = {}, targetThree = {};
+
+            Rpd.Model.start('foo')
+                     .renderWith('foo')
+                     .attachTo(targetOne)
+                     .attachTo(targetTwo)
+                     .renderWith('bar')
+                     .attachTo(targetThree);
+
+            expect(fooUpdateSpy).toHaveBeenCalledWith(targetOne,
+                                 jasmine.objectContaining({ type: 'model/new' }));
+            expect(fooUpdateSpy).toHaveBeenCalledWith(targetTwo,
+                                 jasmine.objectContaining({ type: 'model/new' }));
+            expect(fooUpdateSpy).toHaveBeenCalledWith(targetThree,
+                                 jasmine.objectContaining({ type: 'model/new' }));
+
+            expect(barUpdateSpy).toHaveBeenCalledWith(targetOne,
+                                 jasmine.objectContaining({ type: 'model/new' }));
+            expect(barUpdateSpy).toHaveBeenCalledWith(targetTwo,
+                                 jasmine.objectContaining({ type: 'model/new' }));
+            expect(barUpdateSpy).toHaveBeenCalledWith(targetThree,
+                                 jasmine.objectContaining({ type: 'model/new' }));
+
+        });
+
+        it('passes user configuration to renderer');
 
         it('sends events only from a last model instance created');
 
