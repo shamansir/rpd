@@ -34,33 +34,44 @@ describe('model', function() {
         expect(node).toBeTruthy();
     });
 
-    it('passes all the events to all the registered renderers, with or without a target');
+    // ================== renderers ==================
 
-    it('sends events only to a last instance created');
+    describe('renderers', function() {
 
-});
+        xit('passes the events to all the registered renderers, with or without a target', function() {
+            var model = Rpd.Model.start();
+            var fooUpdateSpy = jasmine.createSpy('foo');
+            var fooRenderer = Rpd.renderer('foo', function(user_conf) {
+                return fooUpdateSpy;
+            });
 
-// ==================== nodes ====================
+            var named = Rpd.Model.start('foo').renderWith('foo');
+            expect(fooUpdateSpy).toHaveBeenCalledWith({ type: 'model/new' })
+        });
 
-describe('nodes', function() {
+        it('passes configuration to renderer');
 
-});
+        it('sends events only from a last model instance created');
 
-// =================== channels ==================
+    });
 
-describe('channels', function() {
+    // ==================== nodes ====================
 
-});
+    describe('nodes', function() {
 
-// ==================== links ====================
+    });
 
-describe('links', function() {
+    // =================== channels ==================
 
-});
+    describe('channels', function() {
 
-// ================== renderers ==================
+    });
 
-describe('renderers', function() {
+    // ==================== links ====================
+
+    describe('links', function() {
+
+    });
 
 });
 
