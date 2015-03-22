@@ -480,9 +480,7 @@ function events_stream(conf, event_map) {
 }
 
 function report_error(desc, err) {
-    var err = err || new Error(desc);
-    if (console) (console.error ? console.error(err) : console.log(err));
-    throw err;
+    throw err || new Error(desc);
 }
 
 function short_uid() {

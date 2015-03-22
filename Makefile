@@ -34,6 +34,7 @@ deps:
 	curl -sH 'Accept-encoding: gzip' --compressed $(ANM_PLAYER_URL) > ./$(VENDOR_DIR)/$(ANM_PLAYER_FILENAME)
 
 test-deps:
+	mkdir -p ./$(VENDOR_DIR)
 	curl -o ./$(VENDOR_DIR)/$(KEFIR_FILENAME) $(KEFIR_URL)
 	-rm -R ./spec/lib
 	mkdir ./spec/lib

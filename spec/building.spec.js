@@ -5,7 +5,8 @@ if ((typeof Rpd === 'undefined')
     Rpd = require('../src/rpd.js');
 }
 
-Rpd.nodetype('core/custom', { name: 'Custom' });
+Rpd.nodetype('spec/empty', { name: 'Mock' });
+Rpd.channeltype('spec/any', { });
 
 describe('building', function() {
 
@@ -16,7 +17,7 @@ describe('model', function() {
     it('disallows creating nodes without starting any instance of it', function() {
         expect(function() {
             // no model started at this point
-            var node = new Rpd.Node('core/custom', 'Test Node');
+            var node = new Rpd.Node('spec/empty', 'Test Node');
         }).toThrow();
     });
 
@@ -30,23 +31,23 @@ describe('model', function() {
 
     it('accepts modifications without any renderer or target', function() {
         var model = Rpd.Model.start();
-        var node = new Rpd.Node('core/custom', 'Test Node');
+        var node = new Rpd.Node('spec/empty', 'Test Node');
         expect(node).toBeTruthy();
     });
 
     // ================== renderers ==================
 
-    describe('renderers', function() {
+    describe('renderer', function() {
 
-        it('does not pass the events to all the registered renderers, even if target is not specified', function() {
+        it('receives no events if no target was specified', function() {
             var model = Rpd.Model.start();
 
-            var fooUpdateSpy = jasmine.createSpy('foo');
+            var fooUpdateSpy = jasmine.createSpy();
             var fooRenderer = Rpd.renderer('foo', function(user_conf) {
                 return fooUpdateSpy;
             });
 
-            var barUpdateSpy = jasmine.createSpy('bar');
+            var barUpdateSpy = jasmine.createSpy();
             var barRenderer = Rpd.renderer('bar', function(user_conf) {
                 return barUpdateSpy;
             });
@@ -59,23 +60,21 @@ describe('model', function() {
             expect(barUpdateSpy).not.toHaveBeenCalled();
         });
 
-        it('pass events to all the registered renderers, if at least one target was specified', function() {
+        it('receives all events, if at least one target was specified', function() {
 
-            var model = Rpd.Model.start();
-
-            var fooUpdateSpy = jasmine.createSpy('foo');
+            var fooUpdateSpy = jasmine.createSpy();
             var fooRenderer = Rpd.renderer('foo', function(user_conf) {
                 return fooUpdateSpy;
             });
 
-            var barUpdateSpy = jasmine.createSpy('bar');
+            var barUpdateSpy = jasmine.createSpy();
             var barRenderer = Rpd.renderer('bar', function(user_conf) {
                 return barUpdateSpy;
             });
 
             var targetOne = {}, targetTwo = {}, targetThree = {};
 
-            Rpd.Model.start('foo')
+            Rpd.Model.start()
                      .renderWith('foo')
                      .attachTo(targetOne)
                      .attachTo(targetTwo)
@@ -98,15 +97,83 @@ describe('model', function() {
 
         });
 
-        it('passes user configuration to renderer');
+        it('receives configuration passed from a user', function() {
+            var configurationSpy = jasmine.createSpy('conf');
+            var renderer = Rpd.renderer('foo', function(user_conf) {
+                configurationSpy(user_conf);
+                return function() {};
+            });
 
-        it('sends events only from a last model instance created');
+            var confMock = {};
+
+            Rpd.Model.start().renderWith('foo', confMock);
+
+            expect(configurationSpy).toHaveBeenCalledWith(confMock);
+        });
+
+        it('receives events from all started models');
 
     });
 
     // ==================== nodes ====================
 
-    describe('nodes', function() {
+    describe('node', function() {
+
+        it('informs it was added to a model with an event', function() {
+            var updateSpy = jasmine.createSpy();
+            var renderer = Rpd.renderer('foo', function(user_conf) {
+                return updateSpy;
+            });
+
+            Rpd.Model.start().renderWith('foo').attachTo({});
+
+            var node = new Rpd.Node('spec/empty');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({ type: 'node/add',
+                                           node: node })
+            );
+        });
+
+        it('informs it was removed from a model with an event', function() {
+            var updateSpy = jasmine.createSpy();
+            var renderer = Rpd.renderer('foo', function(user_conf) {
+                return updateSpy;
+            });
+
+            var model = Rpd.Model.start().renderWith('foo').attachTo({});
+
+            var node = new Rpd.Node('spec/empty');
+            model.removeNode(node);
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({ type: 'node/remove',
+                                           node: node })
+            );
+        });
+
+        it('fires no update events when it was removed from a model', function() {
+            var updateSpy = jasmine.createSpy();
+            var renderer = Rpd.renderer('foo', function(user_conf) {
+                return updateSpy;
+            });
+
+            var model = Rpd.Model.start().renderWith('foo').attachTo({});
+
+            var node = new Rpd.Node('spec/empty');
+            model.removeNode(node);
+
+            updateSpy.calls.reset();
+
+            node.addInlet('spec/any', 'foo');
+
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({ type: 'inlet/add' })
+            );
+        });
 
     });
 
