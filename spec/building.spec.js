@@ -39,8 +39,13 @@ describe('model', function() {
 
     describe('renderer', function() {
 
+        xit('should have an alias', function() {
+            expect(function() {
+                Rpd.renderer();
+            }).toThrow();
+        });
+
         it('receives no events if no target was specified', function() {
-            var model = Rpd.Model.start();
 
             var fooUpdateSpy = jasmine.createSpy();
             var fooRenderer = Rpd.renderer('foo', function(user_conf) {
@@ -58,6 +63,7 @@ describe('model', function() {
 
             expect(fooUpdateSpy).not.toHaveBeenCalled();
             expect(barUpdateSpy).not.toHaveBeenCalled();
+
         });
 
         it('receives all events, if at least one target was specified', function() {
@@ -119,6 +125,14 @@ describe('model', function() {
 
     describe('node', function() {
 
+        it('should be created with a registered type', function() {
+            var renderer = Rpd.renderer('foo', function() {});
+            Rpd.Model.start();
+            expect(function() {
+                new Rpd.Node('foo/bar');
+            }).toThrow();
+        });
+
         it('informs it was added to a model with an event', function() {
             var updateSpy = jasmine.createSpy();
             var renderer = Rpd.renderer('foo', function(user_conf) {
@@ -154,7 +168,7 @@ describe('model', function() {
             );
         });
 
-        it('fires no update events when it was removed from a model', function() {
+        it('fires no events after it was removed from a model', function() {
             var updateSpy = jasmine.createSpy();
             var renderer = Rpd.renderer('foo', function(user_conf) {
                 return updateSpy;
@@ -174,6 +188,8 @@ describe('model', function() {
                 jasmine.objectContaining({ type: 'inlet/add' })
             );
         });
+
+        it('could be turned on and off');
 
     });
 
