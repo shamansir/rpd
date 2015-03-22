@@ -21,10 +21,10 @@
         "kefir": "pozadi/kefir"
     },
     "devDependencies": {
-        "jasmine-node" : "latest"
+        "jasmine" : "latest"
     },
     "scripts" : {
-        "test" : "jasmine-node ./spec"
+        "test" : "jasmine"
     },
     "license": "MIT"
 }

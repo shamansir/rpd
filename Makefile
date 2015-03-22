@@ -51,7 +51,7 @@ test-deps:
 	rm ./spec/jasmine-standalone-$(JASMINE_VERSION).zip
 
 test:
-	jasmine-node ./spec
+	jasmine
 
 dist: dist-html
 
