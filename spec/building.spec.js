@@ -189,13 +189,77 @@ describe('model', function() {
             );
         });
 
+        it('informs it\'s ready when all channels were prepared');
+
+        it('calls processing function when some new value occured or channels were modified');
+
         it('could be turned on and off');
 
     });
 
     // =================== channels ==================
 
-    describe('channels', function() {
+    describe('channel', function() {
+
+        it('informs it has been added to a node', function() {
+            var updateSpy = jasmine.createSpy();
+            var renderer = Rpd.renderer('foo', function(user_conf) {
+                return updateSpy;
+            });
+
+            var model = Rpd.Model.start().renderWith('foo').attachTo({});
+
+            var node = new Rpd.Node('spec/empty');
+
+            var inlet = node.addInlet('spec/any', 'foo');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({ type: 'inlet/add',
+                                           inlet: inlet })
+            );
+
+            var outlet = node.addOutlet('spec/any', 'foo');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({ type: 'outlet/add',
+                                           outlet: outlet })
+            );
+        });
+
+        it('informs it has been removed from a node', function() {
+            var updateSpy = jasmine.createSpy();
+            var renderer = Rpd.renderer('foo', function(user_conf) {
+                return updateSpy;
+            });
+
+            var model = Rpd.Model.start().renderWith('foo').attachTo({});
+
+            var node = new Rpd.Node('spec/empty');
+
+            var inlet = node.addInlet('spec/any', 'foo');
+            node.removeInlet(inlet);
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({ type: 'inlet/remove',
+                                           inlet: inlet })
+            );
+
+            var outlet = node.addOutlet('spec/any', 'foo');
+            node.removeOutlet(outlet);
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({ type: 'outlet/remove',
+                                           outlet: outlet })
+            );
+        });
+
+        it('stops sending values when it was removed from a node');
+
+        it('sends default value on connection');
 
     });
 
