@@ -121,6 +121,17 @@ describe('model', function() {
 
     });
 
+    function withNewModel(fn) {
+        var updateSpy = jasmine.createSpy();
+        var renderer = Rpd.renderer('foo', function(user_conf) {
+            return updateSpy;
+        });
+
+        Rpd.Model.start().renderWith('foo').attachTo({});
+
+        fn(updateSpy);
+    }
+
     // ==================== nodes ====================
 
     describe('node', function() {
@@ -134,59 +145,44 @@ describe('model', function() {
         });
 
         it('informs it was added to a model with an event', function() {
-            var updateSpy = jasmine.createSpy();
-            var renderer = Rpd.renderer('foo', function(user_conf) {
-                return updateSpy;
+            withNewModel(function(updateSpy) {
+                var node = new Rpd.Node('spec/empty');
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({ type: 'node/add',
+                                               node: node })
+                );
             });
-
-            Rpd.Model.start().renderWith('foo').attachTo({});
-
-            var node = new Rpd.Node('spec/empty');
-
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({ type: 'node/add',
-                                           node: node })
-            );
         });
 
         it('informs it was removed from a model with an event', function() {
-            var updateSpy = jasmine.createSpy();
-            var renderer = Rpd.renderer('foo', function(user_conf) {
-                return updateSpy;
+            withNewModel(function(updateSpy) {
+                var node = new Rpd.Node('spec/empty');
+                model.removeNode(node);
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({ type: 'node/remove',
+                                               node: node })
+                );
             });
-
-            var model = Rpd.Model.start().renderWith('foo').attachTo({});
-
-            var node = new Rpd.Node('spec/empty');
-            model.removeNode(node);
-
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({ type: 'node/remove',
-                                           node: node })
-            );
         });
 
         it('fires no events after it was removed from a model', function() {
-            var updateSpy = jasmine.createSpy();
-            var renderer = Rpd.renderer('foo', function(user_conf) {
-                return updateSpy;
+            withNewModel(function(updateSpy) {
+                var node = new Rpd.Node('spec/empty');
+                model.removeNode(node);
+
+                updateSpy.calls.reset();
+
+                node.addInlet('spec/any', 'foo');
+
+                expect(updateSpy).not.toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({ type: 'inlet/add' })
+                );
             });
-
-            var model = Rpd.Model.start().renderWith('foo').attachTo({});
-
-            var node = new Rpd.Node('spec/empty');
-            model.removeNode(node);
-
-            updateSpy.calls.reset();
-
-            node.addInlet('spec/any', 'foo');
-
-            expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({ type: 'inlet/add' })
-            );
         });
 
         it('informs it\'s ready when all channels were prepared');
@@ -202,59 +198,53 @@ describe('model', function() {
     describe('channel', function() {
 
         it('informs it has been added to a node', function() {
-            var updateSpy = jasmine.createSpy();
-            var renderer = Rpd.renderer('foo', function(user_conf) {
-                return updateSpy;
-            });
+            withNewModel(function(updateSpy) {
 
-            var model = Rpd.Model.start().renderWith('foo').attachTo({});
+                var node = new Rpd.Node('spec/empty');
 
-            var node = new Rpd.Node('spec/empty');
+                var inlet = node.addInlet('spec/any', 'foo');
 
-            var inlet = node.addInlet('spec/any', 'foo');
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({ type: 'inlet/add',
+                                               inlet: inlet })
+                );
 
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({ type: 'inlet/add',
-                                           inlet: inlet })
-            );
+                var outlet = node.addOutlet('spec/any', 'foo');
 
-            var outlet = node.addOutlet('spec/any', 'foo');
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({ type: 'outlet/add',
+                                               outlet: outlet })
+                );
 
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({ type: 'outlet/add',
-                                           outlet: outlet })
             );
         });
 
         it('informs it has been removed from a node', function() {
-            var updateSpy = jasmine.createSpy();
-            var renderer = Rpd.renderer('foo', function(user_conf) {
-                return updateSpy;
+            withNewModel(function(updateSpy) {
+
+                var node = new Rpd.Node('spec/empty');
+
+                var inlet = node.addInlet('spec/any', 'foo');
+                node.removeInlet(inlet);
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({ type: 'inlet/remove',
+                                               inlet: inlet })
+                );
+
+                var outlet = node.addOutlet('spec/any', 'foo');
+                node.removeOutlet(outlet);
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({ type: 'outlet/remove',
+                                               outlet: outlet })
+                );
+
             });
-
-            var model = Rpd.Model.start().renderWith('foo').attachTo({});
-
-            var node = new Rpd.Node('spec/empty');
-
-            var inlet = node.addInlet('spec/any', 'foo');
-            node.removeInlet(inlet);
-
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({ type: 'inlet/remove',
-                                           inlet: inlet })
-            );
-
-            var outlet = node.addOutlet('spec/any', 'foo');
-            node.removeOutlet(outlet);
-
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({ type: 'outlet/remove',
-                                           outlet: outlet })
-            );
         });
 
         it('stops sending values when it was removed from a node');
