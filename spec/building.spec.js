@@ -127,9 +127,9 @@ describe('model', function() {
             return updateSpy;
         });
 
-        Rpd.Model.start().renderWith('foo').attachTo({});
+        var model = Rpd.Model.start().renderWith('foo').attachTo({});
 
-        fn(updateSpy);
+        fn(model, updateSpy);
     }
 
     // ==================== nodes ====================
@@ -145,7 +145,7 @@ describe('model', function() {
         });
 
         it('informs it was added to a model with an event', function() {
-            withNewModel(function(updateSpy) {
+            withNewModel(function(model, updateSpy) {
                 var node = new Rpd.Node('spec/empty');
 
                 expect(updateSpy).toHaveBeenCalledWith(
@@ -157,7 +157,7 @@ describe('model', function() {
         });
 
         it('informs it was removed from a model with an event', function() {
-            withNewModel(function(updateSpy) {
+            withNewModel(function(model, updateSpy) {
                 var node = new Rpd.Node('spec/empty');
                 model.removeNode(node);
 
@@ -170,7 +170,7 @@ describe('model', function() {
         });
 
         it('fires no events after it was removed from a model', function() {
-            withNewModel(function(updateSpy) {
+            withNewModel(function(model, updateSpy) {
                 var node = new Rpd.Node('spec/empty');
                 model.removeNode(node);
 
@@ -198,7 +198,7 @@ describe('model', function() {
     describe('channel', function() {
 
         it('informs it has been added to a node', function() {
-            withNewModel(function(updateSpy) {
+            withNewModel(function(model, updateSpy) {
 
                 var node = new Rpd.Node('spec/empty');
 
@@ -218,11 +218,11 @@ describe('model', function() {
                                                outlet: outlet })
                 );
 
-            );
+            });
         });
 
         it('informs it has been removed from a node', function() {
-            withNewModel(function(updateSpy) {
+            withNewModel(function(model, updateSpy) {
 
                 var node = new Rpd.Node('spec/empty');
 
