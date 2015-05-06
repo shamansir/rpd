@@ -1,3 +1,11 @@
+;(function(global) {
+  "use strict";
+
+var Kefir = global.Kefir;
+if ((typeof Kefir === 'undefined') &&
+    (typeof require !== 'undefined')) Kefir = require('../vendor/kefir.min.js');
+if (!Kefir) throw new Error('Kefir.js (https://github.com/pozadi/kefir) is required for Rpd to work');
+
 var Rpd = (function() {
 
 var nodetypes = {};
@@ -172,7 +180,11 @@ function Node(type, name) {
             // send the values provided from a `process` function to corresponding outlets
             for (var outlet_name in outlets_vals) {
                 if (outlets[outlet_name]) {
-                    outlets[outlet_name].send(outlets_vals[outlet_name]);
+                    if (outlets_vals[outlet_name] instanceof Kefir.Stream) {
+                        outlets[outlet_name].stream(outlets_vals[outlet_name]);
+                    } else {
+                        outlets[outlet_name].send(outlets_vals[outlet_name]);
+                    }
                 };
             }
         });
@@ -468,9 +480,7 @@ function events_stream(conf, event_map) {
 }
 
 function report_error(desc, err) {
-    var err = err || new Error(desc);
-    if (console) (console.error ? console.error(err) : console.log(err));
-    throw err;
+    throw err || new Error(desc);
 }
 
 function short_uid() {
@@ -574,3 +584,15 @@ return {
 }
 
 })();
+
+if (typeof define === 'function' && define.amd) {
+    define([], function() { return Rpd; });
+    global.Rpd = Rpd;
+} else if (typeof module === "object" && typeof exports === "object") {
+    module.exports = Rpd;
+    Rpd.Rpd = Rpd;
+} else {
+    global.Rpd = Rpd;
+}
+
+}(this));

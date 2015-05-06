@@ -1,4 +1,5 @@
-dist
-vendor
-gifs
+dist/
+vendor/
+gifs/
+spec/lib
 compiler.jar

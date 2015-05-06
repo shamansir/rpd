@@ -41,6 +41,19 @@ Rpd.nodetype('core/number', {
     }
 });
 
+Rpd.nodetype('core/random', {
+    name: 'Random',
+    inlets:  { 'min': { type: 'core/number', default: 0 },
+               'max': { type: 'core/number', default: 100 },
+               'period': { type: 'core/number', default: 10, hidden: true } },
+    outlets: { 'out':    { type: 'core/number' } },
+    process: function(inlets) {
+        //if (!inlets.hasOwnProperty('period')) return;
+        return { 'out': Kefir.interval(5000/*inlets.period*/, {})
+                             .map(function() { return Math.random() * inlets.max; }) };
+    }
+});
+
 Rpd.nodetype('core/sum-of-three', {
     name: 'Sum of Three',
     width: 1.8,
@@ -48,22 +61,6 @@ Rpd.nodetype('core/sum-of-three', {
         'a': { type: 'core/number', name: 'A' },
         'b': { type: 'core/number', name: 'B' },
         'c': { type: 'core/number', name: 'C' }
-    },
-    outlets: {
-        'sum': { type: 'core/number', name: '∑' }
-    },
-    process: function(inlets) {
-        return { 'sum': (inlets.a || 0) + (inlets.b || 0) + (inlets.c || 0) };
-    }
-});
-
-Rpd.nodetype('core/sum-of-three-with-body', {
-    name: 'Sum of Three w/Body',
-    width: 1.8,
-    inlets: {
-        'a': { type: 'core/number', name: 'A', default: 1 },
-        'b': { type: 'core/number', name: 'B' },
-        'c': { type: 'core/number', name: 'C', hidden: true }
     },
     outlets: {
         'sum': { type: 'core/number', name: '∑' }
