@@ -35,7 +35,7 @@ describe('model', function() {
         expect(node).toBeTruthy();
     });
 
-    // ================== renderers ==================
+    // ================== renderer ==================
 
     describe('renderer', function() {
 
@@ -132,6 +132,16 @@ describe('model', function() {
         fn(model, updateSpy);
     }
 
+    it('informs user that it was created', function() {
+        withNewModel(function(model, updateSpy) {
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({ type: 'model/new',
+                                           model: model })
+            );
+        });
+    });
+
     // ==================== nodes ====================
 
     describe('node', function() {
@@ -187,133 +197,138 @@ describe('model', function() {
             });
         });
 
-        it('informs it\'s ready when all default channels were prepared');
+        describe('inlet', function() {
 
-        describe('processing', function() {
+            it('informs it has been added to a node', function() {
+                withNewModel(function(model, updateSpy) {
 
-            it('properly informs, and calls processing function, if defined, when some new value occured or some channels was modified');
+                    var node = new Rpd.Node('spec/empty');
 
-            it('sums up all updates');
+                    var inlet = node.addInlet('spec/any', 'foo');
 
-            it('does not reacts if updated channel was cold, but keeps its value for next update');
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/add',
+                                                   inlet: inlet })
+                    );
 
-            it('passes single values to corresponding outlets');
-
-            it('passes streamed values to corresponding outlets');
-
-            //it('if no outlet was updated, does not calls the ')
-
-            it('still receives updates from hidden channels');
-
-            it('could be turned off');
-
-            it('receives values from distant nodes');
-
-            it('passes values to distant nodes');
-
-        });
-
-    });
-
-    // =================== channels ==================
-
-    describe('channel', function() {
-
-        it('informs it has been added to a node', function() {
-            withNewModel(function(model, updateSpy) {
-
-                var node = new Rpd.Node('spec/empty');
-
-                var inlet = node.addInlet('spec/any', 'foo');
-
-                expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
-                    jasmine.objectContaining({ type: 'inlet/add',
-                                               node: node,
-                                               inlet: inlet })
-                );
-
-                updateSpy.calls.reset();
-
-                var outlet = node.addOutlet('spec/any', 'foo');
-
-                expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
-                    jasmine.objectContaining({ type: 'outlet/add',
-                                               node: node,
-                                               outlet: outlet })
-                );
-
+                });
             });
-        });
 
-        it('informs it has been removed from a node', function() {
-            withNewModel(function(model, updateSpy) {
+            it('informs it has been removed from a node', function() {
+                withNewModel(function(model, updateSpy) {
 
-                var node = new Rpd.Node('spec/empty');
+                    var node = new Rpd.Node('spec/empty');
 
-                var inlet = node.addInlet('spec/any', 'foo');
-                node.removeInlet(inlet);
+                    var inlet = node.addInlet('spec/any', 'foo');
+                    node.removeInlet(inlet);
 
-                expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
-                    jasmine.objectContaining({ type: 'inlet/remove',
-                                               node: node,
-                                               inlet: inlet })
-                );
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/remove',
+                                                   inlet: inlet })
+                    );
 
-                updateSpy.calls.reset();
-
-                var outlet = node.addOutlet('spec/any', 'foo');
-                node.removeOutlet(outlet);
-
-                expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
-                    jasmine.objectContaining({ type: 'outlet/remove',
-                                               node: node,
-                                               outlet: outlet })
-                );
-
+                });
             });
+
+            it('receives default value when created');
+
+            it('updates a value when it was sent directly by user, even if it\'s hidden');
+
+            it('updates a value when follows a stream provided by user, even if it\'s hidden');
+
+            it('does not receive any values if it\'s readonly');
+
+            it('stops sending values when it was removed from a node');
+
+            it('sends default or last value on connection');
+
+            it('stops sending values on disconnection');
+
+            //it('sends default value on disconnection');
+
         });
 
-        it('receives default value when created');
+        describe('outlet', function() {
 
-        it('updates a value when it was sent directly by user, even if it\'s hidden');
+            it('informs it has been added to a node', function() {
+                withNewModel(function(model, updateSpy) {
 
-        it('updates a value when follows a stream provided by user, even if it\'s hidden');
+                    var node = new Rpd.Node('spec/empty');
 
-        it('does not receive any values if it\'s readonly');
+                    var outlet = node.addOutlet('spec/any', 'foo');
 
-        it('stops sending values when it was removed from a node');
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'outlet/add',
+                                                   outlet: outlet })
+                    );
 
-        it('sends default or last value on connection');
+                });
+            });
 
-        it('stops sending values on disconnection');
+            it('informs it has been removed from a node', function() {
+                withNewModel(function(model, updateSpy) {
 
-        //it('sends default value on disconnection');
+                    var node = new Rpd.Node('spec/empty');
+
+                    var outlet = node.addOutlet('spec/any', 'foo');
+                    node.removeOutlet(outlet);
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'outlet/remove',
+                                                   outlet: outlet })
+                    );
+
+                });
+            });
+
+            it('receives default value when created');
+
+            it('updates a value when it was sent directly by user, even if it\'s hidden');
+
+            it('updates a value when follows a stream provided by user, even if it\'s hidden');
+
+            it('does not receive any values if it\'s readonly');
+
+            it('stops sending values when it was removed from a node');
+
+            it('sends default or last value on connection');
+
+            it('stops sending values on disconnection');
+
+            //it('sends default value on disconnection');
+
+        });
+
+        describe('link', function() {
+
+            it('should be connected to both ends');
+
+            it('receives all the updates from connected outlet and passes them to connected inlet');
+
+            it('could be disabled');
+
+            it('receives last value again when it was enabled back');
+
+            it('uses the adapter function, if defined, and applies adapted value to a connected inlet');
+
+            it('stops sending values on disconnection');
+
+            xit('handles recursive connections');
+
+        });
+
+        it('could be turned off');
+
+        it('receives values from other nodes');
+
+        it('passes values to other nodes');
 
     });
 
-    // ==================== links ====================
-
-    describe('link', function() {
-
-        it('should be connected to both ends');
-
-        it('receives all the updates from connected outlet and passes them to connected inlet');
-
-        it('could be disabled');
-
-        it('receives last value again when it was enabled back');
-
-        it('uses the adapter function, if defined, and applies adapted value to a connected inlet');
-
-        it('stops sending values on disconnection');
-
-        xit('handles recursive connections');
-
-    });
 
 });
 
