@@ -144,6 +144,8 @@ describe('model', function() {
             }).toThrow();
         });
 
+        it('uses its type as a name if name wasn\'t specified on creation');
+
         it('informs it was added to a model with an event', function() {
             withNewModel(function(model, updateSpy) {
                 var node = new Rpd.Node('spec/empty');
@@ -185,11 +187,31 @@ describe('model', function() {
             });
         });
 
-        it('informs it\'s ready when all channels were prepared');
+        it('informs it\'s ready when all default channels were prepared');
 
-        it('calls processing function when some new value occured or channels were modified');
+        describe('processing', function() {
 
-        it('could be turned on and off');
+            it('properly informs, and calls processing function, if defined, when some new value occured or some channels was modified');
+
+            it('sums up all updates');
+
+            it('does not reacts if updated channel was cold, but keeps its value for next update');
+
+            it('passes single values to corresponding outlets');
+
+            it('passes streamed values to corresponding outlets');
+
+            //it('if no outlet was updated, does not calls the ')
+
+            it('still receives updates from hidden channels');
+
+            it('could be turned off');
+
+            it('receives values from distant nodes');
+
+            it('passes values to distant nodes');
+
+        });
 
     });
 
@@ -207,14 +229,18 @@ describe('model', function() {
                 expect(updateSpy).toHaveBeenCalledWith(
                     jasmine.anything(),
                     jasmine.objectContaining({ type: 'inlet/add',
+                                               node: node,
                                                inlet: inlet })
                 );
+
+                updateSpy.calls.reset();
 
                 var outlet = node.addOutlet('spec/any', 'foo');
 
                 expect(updateSpy).toHaveBeenCalledWith(
                     jasmine.anything(),
                     jasmine.objectContaining({ type: 'outlet/add',
+                                               node: node,
                                                outlet: outlet })
                 );
 
@@ -232,8 +258,11 @@ describe('model', function() {
                 expect(updateSpy).toHaveBeenCalledWith(
                     jasmine.anything(),
                     jasmine.objectContaining({ type: 'inlet/remove',
+                                               node: node,
                                                inlet: inlet })
                 );
+
+                updateSpy.calls.reset();
 
                 var outlet = node.addOutlet('spec/any', 'foo');
                 node.removeOutlet(outlet);
@@ -241,21 +270,48 @@ describe('model', function() {
                 expect(updateSpy).toHaveBeenCalledWith(
                     jasmine.anything(),
                     jasmine.objectContaining({ type: 'outlet/remove',
+                                               node: node,
                                                outlet: outlet })
                 );
 
             });
         });
 
+        it('receives default value when created');
+
+        it('updates a value when it was sent directly by user, even if it\'s hidden');
+
+        it('updates a value when follows a stream provided by user, even if it\'s hidden');
+
+        it('does not receive any values if it\'s readonly');
+
         it('stops sending values when it was removed from a node');
 
-        it('sends default value on connection');
+        it('sends default or last value on connection');
+
+        it('stops sending values on disconnection');
+
+        //it('sends default value on disconnection');
 
     });
 
     // ==================== links ====================
 
-    describe('links', function() {
+    describe('link', function() {
+
+        it('should be connected to both ends');
+
+        it('receives all the updates from connected outlet and passes them to connected inlet');
+
+        it('could be disabled');
+
+        it('receives last value again when it was enabled back');
+
+        it('uses the adapter function, if defined, and applies adapted value to a connected inlet');
+
+        it('stops sending values on disconnection');
+
+        xit('handles recursive connections');
 
     });
 
