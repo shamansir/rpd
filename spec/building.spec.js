@@ -137,8 +137,7 @@ describe('model', function() {
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
                 jasmine.objectContaining({ type: 'model/new',
-                                           model: model })
-            );
+                                           model: model }));
         });
     });
 
@@ -163,8 +162,7 @@ describe('model', function() {
                 expect(updateSpy).toHaveBeenCalledWith(
                     jasmine.anything(),
                     jasmine.objectContaining({ type: 'node/add',
-                                               node: node })
-                );
+                                               node: node }));
             });
         });
 
@@ -176,8 +174,7 @@ describe('model', function() {
                 expect(updateSpy).toHaveBeenCalledWith(
                     jasmine.anything(),
                     jasmine.objectContaining({ type: 'node/remove',
-                                               node: node })
-                );
+                                               node: node }));
             });
         });
 
@@ -192,8 +189,7 @@ describe('model', function() {
 
                 expect(updateSpy).not.toHaveBeenCalledWith(
                     jasmine.anything(),
-                    jasmine.objectContaining({ type: 'inlet/add' })
-                );
+                    jasmine.objectContaining({ type: 'inlet/add' }));
             });
         });
 
@@ -209,8 +205,7 @@ describe('model', function() {
                     expect(updateSpy).toHaveBeenCalledWith(
                         jasmine.anything(),
                         jasmine.objectContaining({ type: 'inlet/add',
-                                                   inlet: inlet })
-                    );
+                                                   inlet: inlet }));
 
                 });
             });
@@ -226,13 +221,42 @@ describe('model', function() {
                     expect(updateSpy).toHaveBeenCalledWith(
                         jasmine.anything(),
                         jasmine.objectContaining({ type: 'inlet/remove',
-                                                   inlet: inlet })
-                    );
+                                                   inlet: inlet }));
 
                 });
             });
 
-            it('receives default value when created');
+            it('receives no updates on creation', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var hasNoDefaultValue = node.addInlet('spec/any', 'foo');
+
+                    expect(updateSpy).not.toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: hasNoDefaultValue }));
+
+                });
+            });
+
+            it('receives default value on creation, if it was specified', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var defaultValue = { 'foo': 'bar' };
+                    var hasDefaultValue = node.addInlet('spec/any', 'foo', 'Foo', defaultValue);
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: hasDefaultValue,
+                                                   value: defaultValue }));
+
+                });
+            });
 
             it('updates a value when it was sent directly by user, even if it\'s hidden');
 

@@ -290,9 +290,11 @@ Inlet.prototype.stream = function(stream) {
     this.value.plug(stream);
 }
 Inlet.prototype.toDefault = function() {
-    if (is_defined(this.default) && (this.default instanceof Kefir.Stream)) {
-        this.stream(this.default);
-    } else this.receive(this.default);
+    if (is_defined(this.default)) {
+        if (this.default instanceof Kefir.Stream) {
+            this.stream(this.default);
+        } else this.receive(this.default);
+    }
 }
 
 // ================================= Outlet ====================================
