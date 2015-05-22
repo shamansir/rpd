@@ -1,7 +1,9 @@
-var Rpd = Rpd;
+var Rpd = Rpd, Kefir = Kefir;
 
 if ((typeof Rpd === 'undefined')
+ && (typeof Kefir === 'undefined')
  && (typeof require !== 'undefined')) {
+    Kefir = require('../vendor/kefir.min.js');
     Rpd = require('../src/rpd.js');
 }
 
