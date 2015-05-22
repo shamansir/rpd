@@ -231,12 +231,12 @@ describe('model', function() {
 
                     var node = new Rpd.Node('spec/empty');
 
-                    var hasNoDefaultValue = node.addInlet('spec/any', 'foo');
+                    var inlet = node.addInlet('spec/any', 'foo');
 
                     expect(updateSpy).not.toHaveBeenCalledWith(
                         jasmine.anything(),
                         jasmine.objectContaining({ type: 'inlet/update',
-                                                   inlet: hasNoDefaultValue }));
+                                                   inlet: inlet }));
 
                 });
             });
@@ -247,20 +247,79 @@ describe('model', function() {
                     var node = new Rpd.Node('spec/empty');
 
                     var defaultValue = { 'foo': 'bar' };
-                    var hasDefaultValue = node.addInlet('spec/any', 'foo', 'Foo', defaultValue);
+                    var inlet = node.addInlet('spec/any', 'foo', 'Foo', defaultValue);
 
                     expect(updateSpy).toHaveBeenCalledWith(
                         jasmine.anything(),
                         jasmine.objectContaining({ type: 'inlet/update',
-                                                   inlet: hasDefaultValue,
+                                                   inlet: inlet,
                                                    value: defaultValue }));
 
                 });
             });
 
-            it('updates a value when it was sent directly by user, even if it\'s hidden');
+            // TODO: hidden, readonly, cold
 
-            it('updates a value when follows a stream provided by user, even if it\'s hidden');
+            it('updates a value when it was sent directly by user', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var userValue = { 'foo': 'bar' };
+                    var inlet = node.addInlet('spec/any', 'foo');
+                    inlet.receive(userValue);
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet,
+                                                   value: userValue }));
+
+                });
+            });
+
+            it('updates a value when follows a stream provided by user', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var userValue = { 'foo': 'bar' };
+                    var inlet = node.addInlet('spec/any', 'foo');
+                    inlet.stream(Kefir.constant(userValue));
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet,
+                                                   value: userValue }));
+
+                });
+            });
+
+            it('may receive sequences of values from a stream', function(done) {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
+                    var period = 50;
+
+                    var inlet = node.addInlet('spec/any', 'foo');
+                    inlet.stream(Kefir.sequentially(period, userSequence));
+
+                    setTimeout(function() {
+                        for (var i = 0; i < userSequence.length; i++) {
+                            expect(updateSpy).toHaveBeenCalledWith(
+                                jasmine.anything(),
+                                jasmine.objectContaining({ type: 'inlet/update',
+                                                           inlet: inlet,
+                                                           value: userSequence[i] }));
+                        }
+                        done();
+                    }, period * (userSequence.length + 1));
+
+                });
+            });
 
             it('does not receive any values if it\'s readonly');
 
