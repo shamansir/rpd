@@ -305,8 +305,8 @@ See a Reference below for details in programming Tollkits and different other th
 [issues]: https://github.com/shamansir/rpd/issues
 [video]: http://vimeo.com/118197237
 [video-img]: http://shamansir.github.io/rpd/rpd-vimeo.png
-[kefir]: http://pozadi.github.io/kefir/
-[kefir-src]: http://pozadi.github.io/kefir/dist/kefir.min.js
+[kefir]: http://rpominov.github.io/kefir/
+[kefir-src]: http://rpominov.github.io/kefir/dist/kefir.min.js
 [timbre]: http://mohayonao.github.io/timbre.js/
 [timbre-src]: http://mohayonao.github.io/timbre.js/timbre.js
 [animatron]: http://animatron.com

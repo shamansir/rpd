@@ -4,7 +4,7 @@
 var Kefir = global.Kefir;
 if ((typeof Kefir === 'undefined') &&
     (typeof require !== 'undefined')) Kefir = require('../vendor/kefir.min.js');
-if (!Kefir) throw new Error('Kefir.js (https://github.com/pozadi/kefir) is required for Rpd to work');
+if (!Kefir) throw new Error('Kefir.js (https://github.com/rpominov/kefir) is required for Rpd to work');
 
 var Rpd = (function() {
 

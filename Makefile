@@ -14,9 +14,9 @@ KEFIR_FILENAME	  = kefir.min.js
 TIMBRE_FILENAME	 = timbre.min.js
 ANM_PLAYER_FILENAME = anm-player.min.js
 
-KEFIR_URL	  = http://pozadi.github.io/kefir/dist/kefir.min.js
+KEFIR_URL	  = http://rpominov.github.io/kefir/dist/kefir.min.js
 TIMBRE_URL	 = http://mohayonao.github.io/timbre.js/timbre.js
-ANM_PLAYER_URL = http://player.animatron.com/latest/bundle/animatron.min.js
+ANM_PLAYER_URL = http://player-dev.animatron.com/latest/bundle/animatron.min.js
 
 CLOSURE_COMPILER = ./compiler.jar
 
