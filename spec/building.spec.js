@@ -237,8 +237,7 @@ describe('model', function() {
 
                     expect(updateSpy).not.toHaveBeenCalledWith(
                         jasmine.anything(),
-                        jasmine.objectContaining({ type: 'inlet/update',
-                                                   inlet: inlet }));
+                        jasmine.objectContaining({ type: 'inlet/update' }));
 
                 });
             });
@@ -323,7 +322,9 @@ describe('model', function() {
 
             xit('does not receive any values if it\'s readonly');
 
-            // TODO: hidden, readonly, cold
+            xit('still sends values when it\'s hidden');
+
+            xit('does not send values, but saves them, when it\'s cold');
 
             it('stops receiving values when it was removed from a node', function() {
                 withNewModel(function(model, updateSpy) {
@@ -402,25 +403,104 @@ describe('model', function() {
                 });
             });
 
-            it('receives default value when created');
+            it('sends no updates on creation', function() {
+                withNewModel(function(model, updateSpy) {
 
-            it('updates a value when it was sent directly by user, even if it\'s hidden');
+                    var node = new Rpd.Node('spec/empty');
 
-            it('updates a value when follows a stream provided by user, even if it\'s hidden');
+                    var outlet = node.addOutlet('spec/any', 'foo');
 
-            it('does not receive any values if it\'s readonly');
+                    expect(updateSpy).not.toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'outlet/update' }));
 
-            it('stops sending values when it was removed from a node');
+                });
+            });
 
-            it('stops sending stream values when it was removed from a node');
+            it('sends default value on creation, if it was specified');
 
-            it('sends default or last value on connection');
+            it('sends single value given explicitly by user', function() {
+                withNewModel(function(model, updateSpy) {
 
-            it('re-sends last value when connected back');
+                    var node = new Rpd.Node('spec/empty');
 
-            it('stops sending values on disconnection');
+                    var userValue = { 'foo': 'bar' };
+                    var outlet = node.addOutlet('spec/any', 'foo');
+                    outlet.send(userValue);
 
-            //it('sends default value on disconnection');
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'outlet/update',
+                                                   outlet: outlet,
+                                                   value: userValue }));
+
+                });
+            });
+
+            it('may send sequences of values from a stream', function(done) {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
+                    var period = 50;
+
+                    var outlet = node.addOutlet('spec/any', 'foo');
+                    outlet.stream(Kefir.sequentially(period, userSequence));
+
+                    setTimeout(function() {
+                        for (var i = 0; i < userSequence.length; i++) {
+                            expect(updateSpy).toHaveBeenCalledWith(
+                                jasmine.anything(),
+                                jasmine.objectContaining({ type: 'outlet/update',
+                                                           outlet: outlet,
+                                                           value: userSequence[i] }));
+                        }
+                        done();
+                    }, period * (userSequence.length + 1));
+
+                });
+            });
+
+            it('stops receiving values when it was removed from a node', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var outlet = node.addOutlet('spec/any', 'foo');
+                    node.removeOutlet(outlet);
+
+                    outlet.send(10);
+
+                    expect(updateSpy).not.toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'outlet/update' }));
+
+                });
+            });
+
+            it('stops receiving streamed values when it was removed from a node', function(done) {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var sequence = [ 1, 2, 3 ];
+                    var period = 20;
+
+                    var outlet = node.addInlet('spec/any', 'foo');
+                    node.removeOutlet(outlet);
+
+                    outlet.stream(Kefir.sequentially(period, sequence));
+
+                    setTimeout(function() {
+                        expect(updateSpy).not.toHaveBeenCalledWith(
+                            jasmine.anything(),
+                            jasmine.objectContaining({ type: 'outlet/update' }));
+                        done();
+                    }, period * (sequence.length + 1));
+
+                });
+            });
 
         });
 
@@ -439,6 +519,14 @@ describe('model', function() {
             it('stops sending values on disconnection');
 
             xit('handles recursive connections');
+
+            xit('sends default or last value on connection');
+
+            xit('re-sends last value when connected back');
+
+            xit('stops sending values on disconnection');
+
+            //xit('sends default value on disconnection');
 
         });
 
