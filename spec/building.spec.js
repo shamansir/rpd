@@ -487,7 +487,7 @@ describe('model', function() {
                     var sequence = [ 1, 2, 3 ];
                     var period = 20;
 
-                    var outlet = node.addInlet('spec/any', 'foo');
+                    var outlet = node.addOutlet('spec/any', 'foo');
                     node.removeOutlet(outlet);
 
                     outlet.stream(Kefir.sequentially(period, sequence));
@@ -508,7 +508,26 @@ describe('model', function() {
 
             it('should be connected to both ends');
 
-            it('receives all the updates from connected outlet and passes them to connected inlet');
+            it('receives values from connected outlet and passes them to connected inlet', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
+
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
+
+                    var link = outlet.connect(inlet);
+
+                    outlet.send(5);
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet,
+                                                   value: 5 }));
+                });
+            });
 
             it('could be disabled');
 
