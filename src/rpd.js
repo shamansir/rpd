@@ -248,7 +248,7 @@ Node.prototype.removeOutlet = function(outlet) {
 // =============================================================================
 
 function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
-    this.type = type || 'core/number';
+    this.type = type || 'core/any';
     this.id = short_uid();
     var def = adapt_to_obj(channeltypes[this.type]);
     if (!def) report_error('Inlet type ' + this.type + ' is not registered!');
@@ -301,7 +301,7 @@ Inlet.prototype.toDefault = function() {
 // =============================================================================
 
 function Outlet(type, node, alias, name, _default) {
-    this.type = type || 'core/bool';
+    this.type = type || 'core/any';
     this.id = short_uid();
     var def = adapt_to_obj(channeltypes[this.type]);
     if (!def) report_error('Outlet type ' + this.type + ' is not registered!');
@@ -341,8 +341,8 @@ function Outlet(type, node, alias, name, _default) {
          });
 
 }
-Outlet.prototype.connect = function(inlet, adapter) {
-    var link = new Link(null, this, inlet, adapter);
+Outlet.prototype.connect = function(inlet, adapter, type) {
+    var link = new Link(type, this, inlet, adapter);
     this.events.plug(link.events);
     this.value.onValue(link.receiver);
     this.event['outlet/connect'].emit(link);

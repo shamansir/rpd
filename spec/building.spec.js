@@ -9,6 +9,7 @@ if ((typeof Rpd === 'undefined')
 
 Rpd.nodetype('spec/empty', { name: 'Mock' });
 Rpd.channeltype('spec/any', { });
+Rpd.linktype('spec/pass', {});
 
 describe('building', function() {
 
@@ -301,7 +302,7 @@ describe('model', function() {
                     var node = new Rpd.Node('spec/empty');
 
                     var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
-                    var period = 50;
+                    var period = 10;
 
                     var inlet = node.addInlet('spec/any', 'foo');
                     inlet.stream(Kefir.sequentially(period, userSequence));
@@ -349,7 +350,7 @@ describe('model', function() {
                     var node = new Rpd.Node('spec/empty');
 
                     var sequence = [ 1, 2, 3 ];
-                    var period = 20;
+                    var period = 10;
 
                     var inlet = node.addInlet('spec/any', 'foo');
                     node.removeInlet(inlet);
@@ -365,6 +366,10 @@ describe('model', function() {
 
                 });
             });
+
+            it('able to receive values in any moment');
+
+            it('disables previous stream of values when new stream was plugged in');
 
         });
 
@@ -443,7 +448,7 @@ describe('model', function() {
                     var node = new Rpd.Node('spec/empty');
 
                     var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
-                    var period = 50;
+                    var period = 10;
 
                     var outlet = node.addOutlet('spec/any', 'foo');
                     outlet.stream(Kefir.sequentially(period, userSequence));
@@ -485,7 +490,7 @@ describe('model', function() {
                     var node = new Rpd.Node('spec/empty');
 
                     var sequence = [ 1, 2, 3 ];
-                    var period = 20;
+                    var period = 10;
 
                     var outlet = node.addOutlet('spec/any', 'foo');
                     node.removeOutlet(outlet);
@@ -502,23 +507,75 @@ describe('model', function() {
                 });
             });
 
+            it('able to send values in any moment');
+
+            it('disables previous stream of values when new stream was plugged in');
+
         });
 
         describe('link', function() {
 
             it('should be connected to both ends');
 
-            it('receives values from connected outlet and passes them to connected inlet', function() {
+            it('knows all values going through', function() {
                 withNewModel(function(model, updateSpy) {
-
-                    var receiving = new Rpd.Node('spec/empty');
-                    var inlet = receiving.addInlet('spec/any', 'foo');
 
                     var sending = new Rpd.Node('spec/empty');
                     var outlet = sending.addOutlet('spec/any', 'bar');
 
-                    var link = outlet.connect(inlet);
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
 
+                    var link = outlet.connect(inlet, null, 'spec/pass');
+                    outlet.send(5);
+
+                   expect(updateSpy).toHaveBeenCalledWith(
+                       jasmine.anything(),
+                       jasmine.objectContaining({ type: 'link/pass',
+                                                  link: link,
+                                                  value: 5 }));
+                });
+            });
+
+            it('knows streams of values going through', function(done) {
+                withNewModel(function(model, updateSpy) {
+
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
+
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
+
+                    var link = outlet.connect(inlet, null, 'spec/pass');
+
+                    var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
+                    var period = 10;
+
+                    outlet.stream(Kefir.sequentially(period, userSequence));
+
+                    setTimeout(function() {
+                        for (var i = 0; i < userSequence.length; i++) {
+                            expect(updateSpy).toHaveBeenCalledWith(
+                                jasmine.anything(),
+                                jasmine.objectContaining({ type: 'link/pass',
+                                                           link: link,
+                                                           value: userSequence[i] }));
+                        }
+                        done();
+                    }, period * (userSequence.length + 1));
+                });
+            });
+
+            it('gets values from connected outlet and passes them to connected inlet', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
+
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
+
+                    var link = outlet.connect(inlet, null, 'spec/pass');
                     outlet.send(5);
 
                     expect(updateSpy).toHaveBeenCalledWith(
@@ -526,6 +583,37 @@ describe('model', function() {
                         jasmine.objectContaining({ type: 'inlet/update',
                                                    inlet: inlet,
                                                    value: 5 }));
+
+                });
+            });
+
+            it('gets streams of values from connected outlet and passes them to connected inlet', function(done) {
+                withNewModel(function(model, updateSpy) {
+
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
+
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
+
+                    var link = outlet.connect(inlet, null, 'spec/pass');
+
+                    var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
+                    var period = 10;
+
+                    outlet.stream(Kefir.sequentially(period, userSequence));
+
+                    setTimeout(function() {
+                        for (var i = 0; i < userSequence.length; i++) {
+                            expect(updateSpy).toHaveBeenCalledWith(
+                                jasmine.anything(),
+                                jasmine.objectContaining({ type: 'inlet/update',
+                                                           inlet: inlet,
+                                                           value: userSequence[i] }));
+
+                        }
+                        done();
+                    }, period * (userSequence.length + 1));
                 });
             });
 
