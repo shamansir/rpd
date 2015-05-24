@@ -768,7 +768,7 @@ function HtmlRenderer(user_config) {
                                     Kefir.fromEvent(root, 'click')
                                          .merge(disableEditor)
                                          .mapTo(false) ])
-                               .toProperty(false)
+                               .toProperty(function() { return false; })
                                .skipDuplicates() ])
              .map(function(val) { return { lastValue: val[0],
                                            startEditing: val[1],
@@ -829,7 +829,7 @@ function HtmlRenderer(user_config) {
                 startLink = Kefir.emitter(),
                 finishLink = Kefir.emitter(),
                 doingLink = Kefir.merge([ startLink.mapTo(true),
-                                          finishLink.mapTo(false) ]).toProperty(false);
+                                          finishLink.mapTo(false) ]).toProperty(function() { return false; });
 
             },
             subscribeOutlet: function(outlet, connector) {
