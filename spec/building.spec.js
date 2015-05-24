@@ -196,6 +196,8 @@ describe('model', function() {
             });
         });
 
+        it('may have any number of inlets and outlets');
+
         describe('inlet', function() {
 
             it('informs it has been added to a node', function() {
@@ -517,7 +519,7 @@ describe('model', function() {
 
             it('should be connected to both ends');
 
-            it('knows all values going through', function() {
+            it('knows all individual values going through', function() {
                 withNewModel(function(model, updateSpy) {
 
                     var sending = new Rpd.Node('spec/empty');
@@ -529,11 +531,11 @@ describe('model', function() {
                     var link = outlet.connect(inlet, null, 'spec/pass');
                     outlet.send(5);
 
-                   expect(updateSpy).toHaveBeenCalledWith(
-                       jasmine.anything(),
-                       jasmine.objectContaining({ type: 'link/pass',
-                                                  link: link,
-                                                  value: 5 }));
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'link/pass',
+                                                   link: link,
+                                                   value: 5 }));
                 });
             });
 
@@ -566,7 +568,7 @@ describe('model', function() {
                 });
             });
 
-            it('gets values from connected outlet and passes them to connected inlet', function() {
+            it('gets individual values from connected outlet and passes them to connected inlet', function() {
                 withNewModel(function(model, updateSpy) {
 
                     var sending = new Rpd.Node('spec/empty');
@@ -617,23 +619,114 @@ describe('model', function() {
                 });
             });
 
-            it('could be disabled');
+            it('could be disabled', function() {
+                withNewModel(function(model, updateSpy) {
 
-            it('receives last value again when it was enabled back');
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
 
-            it('uses the adapter function, if defined, and applies adapted value to a connected inlet');
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
 
-            it('stops sending values on disconnection');
+                    var link = outlet.connect(inlet, null, 'spec/pass');
+                    link.disable();
+                    outlet.send(5);
+
+                    expect(updateSpy).not.toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet }));
+                });
+            });
+
+            it('receives last value again when it was enabled back', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
+
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
+
+                    var link = outlet.connect(inlet, null, 'spec/pass');
+                    outlet.send(1);
+                    outlet.send(5);
+                    link.disable();
+
+                    updateSpy.calls.reset();
+                    link.enable();
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet,
+                                                   value: 5 }));
+                });
+            });
+
+            it('receives last value when it was enabled back, even when this value was sent while it was disabled', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
+
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
+
+                    var link = outlet.connect(inlet, null, 'spec/pass');
+                    outlet.send(1);
+                    link.disable();
+                    outlet.send(5);
+
+                    updateSpy.calls.reset();
+                    link.enable();
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet,
+                                                   value: 5 }));
+                });
+            });
+
+            it('uses the adapter function, if defined, and applies adapted value to a connected inlet', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
+
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
+
+                    var adapter = jasmine.createSpy('adapter',
+                            function(x) { return x * 7; })
+                            .and.callThrough();
+
+                    var link = outlet.connect(inlet, adapter, 'spec/pass');
+                    outlet.send(2);
+
+                    expect(adapter).toHaveBeenCalled();
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'link/pass',
+                                                   link: link,
+                                                   value: 2 }));
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'link/adapt',
+                                                   link: link,
+                                                   before: 2,
+                                                   after: 14 }));
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet,
+                                                   value: 14 }));
+
+                });
+            });
 
             xit('handles recursive connections');
-
-            xit('sends default or last value on connection');
-
-            xit('re-sends last value when connected back');
-
-            xit('stops sending values on disconnection');
-
-            //xit('sends default value on disconnection');
 
         });
 
