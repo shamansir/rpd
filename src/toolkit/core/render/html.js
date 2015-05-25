@@ -66,9 +66,7 @@ Rpd.channelrenderer('core/boolean', 'html', {
         return Kefir.fromEvent(valInput, 'change')
                     .map(function() {
                         return valInput.checked;
-                    }).toProperty(function() {
-                        return false;
-                    });
+                    }).toProperty(false);
     }
 });
 

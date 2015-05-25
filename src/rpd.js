@@ -402,9 +402,7 @@ function Link(type, outlet, inlet, adapter, name) {
     this.events = events_stream(event_conf, this.event);
 
     this.enabled = Kefir.merge([ this.event['link/disable'].mapTo(false),
-                                 this.event['link/enable'].mapTo(true) ]).toProperty(function() {
-                                     return true;
-                                 });
+                                 this.event['link/enable'].mapTo(true) ]).toProperty(true);
 
     this.event['link/pass'].filterBy(this.enabled).onValue(function(x) {
         inlet.receive(myself.adapt(x));
