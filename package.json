@@ -18,7 +18,7 @@
         "user-interface"
     ],
     "dependencies": {
-        "kefir": "pozadi/kefir"
+        "kefir": "rpominov/kefir"
     },
     "devDependencies": {
         "jasmine" : "latest"

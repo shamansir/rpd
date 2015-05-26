@@ -1,18 +1,23 @@
-var Rpd = Rpd;
+var Rpd = Rpd, Kefir = Kefir;
 
 if ((typeof Rpd === 'undefined')
+ && (typeof Kefir === 'undefined')
  && (typeof require !== 'undefined')) {
+    Kefir = require('../vendor/kefir.min.js');
     Rpd = require('../src/rpd.js');
 }
 
 Rpd.nodetype('spec/empty', { name: 'Mock' });
 Rpd.channeltype('spec/any', { });
+Rpd.linktype('spec/pass', {});
 
 describe('building', function() {
 
-// ==================== model ====================
-
 describe('model', function() {
+
+    // -------------------------------------------------------------------------
+    // ==============================- model -==================================
+    // -------------------------------------------------------------------------
 
     it('disallows creating nodes without starting any instance of it', function() {
         expect(function() {
@@ -35,7 +40,9 @@ describe('model', function() {
         expect(node).toBeTruthy();
     });
 
-    // ================== renderers ==================
+    // -------------------------------------------------------------------------
+    // =============================- renderer -================================
+    // -------------------------------------------------------------------------
 
     describe('renderer', function() {
 
@@ -121,6 +128,10 @@ describe('model', function() {
 
     });
 
+    // -------------------------------------------------------------------------
+    // =============================- model (cont.) -===========================
+    // -------------------------------------------------------------------------
+
     function withNewModel(fn) {
         var updateSpy = jasmine.createSpy();
         var renderer = Rpd.renderer('foo', function(user_conf) {
@@ -132,7 +143,18 @@ describe('model', function() {
         fn(model, updateSpy);
     }
 
-    // ==================== nodes ====================
+    it('informs user that it was created', function() {
+        withNewModel(function(model, updateSpy) {
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({ type: 'model/new',
+                                           model: model }));
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    // =============================- node -====================================
+    // -------------------------------------------------------------------------
 
     describe('node', function() {
 
@@ -144,6 +166,8 @@ describe('model', function() {
             }).toThrow();
         });
 
+        it('uses its type as a name if name wasn\'t specified on creation');
+
         it('informs it was added to a model with an event', function() {
             withNewModel(function(model, updateSpy) {
                 var node = new Rpd.Node('spec/empty');
@@ -151,8 +175,7 @@ describe('model', function() {
                 expect(updateSpy).toHaveBeenCalledWith(
                     jasmine.anything(),
                     jasmine.objectContaining({ type: 'node/add',
-                                               node: node })
-                );
+                                               node: node }));
             });
         });
 
@@ -164,8 +187,7 @@ describe('model', function() {
                 expect(updateSpy).toHaveBeenCalledWith(
                     jasmine.anything(),
                     jasmine.objectContaining({ type: 'node/remove',
-                                               node: node })
-                );
+                                               node: node }));
             });
         });
 
@@ -180,84 +202,570 @@ describe('model', function() {
 
                 expect(updateSpy).not.toHaveBeenCalledWith(
                     jasmine.anything(),
-                    jasmine.objectContaining({ type: 'inlet/add' })
-                );
+                    jasmine.objectContaining({ type: 'inlet/add' }));
             });
         });
 
-        it('informs it\'s ready when all channels were prepared');
+        it('may have any number of inlets and outlets');
 
-        it('calls processing function when some new value occured or channels were modified');
+        // ---------------------------------------------------------------------
+        // ===========================- inlet -=================================
+        // ---------------------------------------------------------------------
 
-        it('could be turned on and off');
+        describe('inlet', function() {
 
-    });
+            it('informs it has been added to a node', function() {
+                withNewModel(function(model, updateSpy) {
 
-    // =================== channels ==================
+                    var node = new Rpd.Node('spec/empty');
 
-    describe('channel', function() {
+                    var inlet = node.addInlet('spec/any', 'foo');
 
-        it('informs it has been added to a node', function() {
-            withNewModel(function(model, updateSpy) {
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/add',
+                                                   inlet: inlet }));
 
-                var node = new Rpd.Node('spec/empty');
-
-                var inlet = node.addInlet('spec/any', 'foo');
-
-                expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
-                    jasmine.objectContaining({ type: 'inlet/add',
-                                               inlet: inlet })
-                );
-
-                var outlet = node.addOutlet('spec/any', 'foo');
-
-                expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
-                    jasmine.objectContaining({ type: 'outlet/add',
-                                               outlet: outlet })
-                );
-
+                });
             });
+
+            it('informs it has been removed from a node', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var inlet = node.addInlet('spec/any', 'foo');
+                    node.removeInlet(inlet);
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/remove',
+                                                   inlet: inlet }));
+
+                });
+            });
+
+            it('receives no updates on creation', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var inlet = node.addInlet('spec/any', 'foo');
+
+                    expect(updateSpy).not.toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update' }));
+
+                });
+            });
+
+            it('receives default value on creation, if it was specified', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var defaultValue = { 'foo': 'bar' };
+                    var inlet = node.addInlet('spec/any', 'foo', 'Foo', defaultValue);
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet,
+                                                   value: defaultValue }));
+
+                });
+            });
+
+            it('receives single value given explicitly by user', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var userValue = { 'foo': 'bar' };
+                    var inlet = node.addInlet('spec/any', 'foo');
+                    inlet.receive(userValue);
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet,
+                                                   value: userValue }));
+
+                });
+            });
+
+            it('receives values when follows a stream provided by user', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var userValue = { 'foo': 'bar' };
+                    var inlet = node.addInlet('spec/any', 'foo');
+                    inlet.stream(Kefir.constant(userValue));
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet,
+                                                   value: userValue }));
+
+                });
+            });
+
+            it('may receive sequences of values from a stream', function(done) {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
+                    var period = 10;
+
+                    var inlet = node.addInlet('spec/any', 'foo');
+                    inlet.stream(Kefir.sequentially(period, userSequence));
+
+                    setTimeout(function() {
+                        for (var i = 0; i < userSequence.length; i++) {
+                            expect(updateSpy).toHaveBeenCalledWith(
+                                jasmine.anything(),
+                                jasmine.objectContaining({ type: 'inlet/update',
+                                                           inlet: inlet,
+                                                           value: userSequence[i] }));
+                        }
+                        done();
+                    }, period * (userSequence.length + 1));
+
+                });
+            });
+
+            xit('does not receive any values if it\'s readonly');
+
+            xit('still sends values when it\'s hidden');
+
+            xit('does not send values, but saves them, when it\'s cold');
+
+            it('stops receiving values when it was removed from a node', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var inlet = node.addInlet('spec/any', 'foo');
+                    node.removeInlet(inlet);
+
+                    inlet.receive(10);
+
+                    expect(updateSpy).not.toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update' }));
+
+                });
+            });
+
+            it('stops receiving streamed values when it was removed from a node', function(done) {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var sequence = [ 1, 2, 3 ];
+                    var period = 10;
+
+                    var inlet = node.addInlet('spec/any', 'foo');
+                    node.removeInlet(inlet);
+
+                    inlet.stream(Kefir.sequentially(period, sequence));
+
+                    setTimeout(function() {
+                        expect(updateSpy).not.toHaveBeenCalledWith(
+                            jasmine.anything(),
+                            jasmine.objectContaining({ type: 'inlet/update' }));
+                        done();
+                    }, period * (sequence.length + 1));
+
+                });
+            });
+
+            it('able to receive values in any moment');
+
+            it('disables previous stream of values when new stream was plugged in');
+
         });
 
-        it('informs it has been removed from a node', function() {
-            withNewModel(function(model, updateSpy) {
+        // ---------------------------------------------------------------------
+        // ===========================- outlet -================================
+        // ---------------------------------------------------------------------
 
-                var node = new Rpd.Node('spec/empty');
+        describe('outlet', function() {
 
-                var inlet = node.addInlet('spec/any', 'foo');
-                node.removeInlet(inlet);
+            it('informs it has been added to a node', function() {
+                withNewModel(function(model, updateSpy) {
 
-                expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
-                    jasmine.objectContaining({ type: 'inlet/remove',
-                                               inlet: inlet })
-                );
+                    var node = new Rpd.Node('spec/empty');
 
-                var outlet = node.addOutlet('spec/any', 'foo');
-                node.removeOutlet(outlet);
+                    var outlet = node.addOutlet('spec/any', 'foo');
 
-                expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
-                    jasmine.objectContaining({ type: 'outlet/remove',
-                                               outlet: outlet })
-                );
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'outlet/add',
+                                                   outlet: outlet })
+                    );
 
+                });
             });
+
+            it('informs it has been removed from a node', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var outlet = node.addOutlet('spec/any', 'foo');
+                    node.removeOutlet(outlet);
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'outlet/remove',
+                                                   outlet: outlet })
+                    );
+
+                });
+            });
+
+            it('sends no updates on creation', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var outlet = node.addOutlet('spec/any', 'foo');
+
+                    expect(updateSpy).not.toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'outlet/update' }));
+
+                });
+            });
+
+            it('sends default value on creation, if it was specified');
+
+            it('sends single value given explicitly by user', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var userValue = { 'foo': 'bar' };
+                    var outlet = node.addOutlet('spec/any', 'foo');
+                    outlet.send(userValue);
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'outlet/update',
+                                                   outlet: outlet,
+                                                   value: userValue }));
+
+                });
+            });
+
+            it('may send sequences of values from a stream', function(done) {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
+                    var period = 10;
+
+                    var outlet = node.addOutlet('spec/any', 'foo');
+                    outlet.stream(Kefir.sequentially(period, userSequence));
+
+                    setTimeout(function() {
+                        for (var i = 0; i < userSequence.length; i++) {
+                            expect(updateSpy).toHaveBeenCalledWith(
+                                jasmine.anything(),
+                                jasmine.objectContaining({ type: 'outlet/update',
+                                                           outlet: outlet,
+                                                           value: userSequence[i] }));
+                        }
+                        done();
+                    }, period * (userSequence.length + 1));
+
+                });
+            });
+
+            it('stops receiving values when it was removed from a node', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var outlet = node.addOutlet('spec/any', 'foo');
+                    node.removeOutlet(outlet);
+
+                    outlet.send(10);
+
+                    expect(updateSpy).not.toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'outlet/update' }));
+
+                });
+            });
+
+            it('stops receiving streamed values when it was removed from a node', function(done) {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var sequence = [ 1, 2, 3 ];
+                    var period = 10;
+
+                    var outlet = node.addOutlet('spec/any', 'foo');
+                    node.removeOutlet(outlet);
+
+                    outlet.stream(Kefir.sequentially(period, sequence));
+
+                    setTimeout(function() {
+                        expect(updateSpy).not.toHaveBeenCalledWith(
+                            jasmine.anything(),
+                            jasmine.objectContaining({ type: 'outlet/update' }));
+                        done();
+                    }, period * (sequence.length + 1));
+
+                });
+            });
+
+            it('able to send values in any moment');
+
+            it('disables previous stream of values when new stream was plugged in');
+
         });
 
-        it('stops sending values when it was removed from a node');
+        // ---------------------------------------------------------------------
+        // =============================- link -================================
+        // ---------------------------------------------------------------------
 
-        it('sends default value on connection');
+        describe('link', function() {
+
+            it('should be connected to both ends');
+
+            it('knows all individual values going through', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
+
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
+
+                    var link = outlet.connect(inlet, null, 'spec/pass');
+                    outlet.send(5);
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'link/pass',
+                                                   link: link,
+                                                   value: 5 }));
+                });
+            });
+
+            it('knows streams of values going through', function(done) {
+                withNewModel(function(model, updateSpy) {
+
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
+
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
+
+                    var link = outlet.connect(inlet, null, 'spec/pass');
+
+                    var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
+                    var period = 10;
+
+                    outlet.stream(Kefir.sequentially(period, userSequence));
+
+                    setTimeout(function() {
+                        for (var i = 0; i < userSequence.length; i++) {
+                            expect(updateSpy).toHaveBeenCalledWith(
+                                jasmine.anything(),
+                                jasmine.objectContaining({ type: 'link/pass',
+                                                           link: link,
+                                                           value: userSequence[i] }));
+                        }
+                        done();
+                    }, period * (userSequence.length + 1));
+                });
+            });
+
+            it('gets individual values from connected outlet and passes them to connected inlet', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
+
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
+
+                    var link = outlet.connect(inlet, null, 'spec/pass');
+                    outlet.send(5);
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet,
+                                                   value: 5 }));
+
+                });
+            });
+
+            it('gets streams of values from connected outlet and passes them to connected inlet', function(done) {
+                withNewModel(function(model, updateSpy) {
+
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
+
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
+
+                    var link = outlet.connect(inlet, null, 'spec/pass');
+
+                    var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
+                    var period = 10;
+
+                    outlet.stream(Kefir.sequentially(period, userSequence));
+
+                    setTimeout(function() {
+                        for (var i = 0; i < userSequence.length; i++) {
+                            expect(updateSpy).toHaveBeenCalledWith(
+                                jasmine.anything(),
+                                jasmine.objectContaining({ type: 'inlet/update',
+                                                           inlet: inlet,
+                                                           value: userSequence[i] }));
+
+                        }
+                        done();
+                    }, period * (userSequence.length + 1));
+                });
+            });
+
+            it('could be disabled', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
+
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
+
+                    var link = outlet.connect(inlet, null, 'spec/pass');
+                    link.disable();
+                    outlet.send(5);
+
+                    expect(updateSpy).not.toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet }));
+                });
+            });
+
+            it('receives last value again when it was enabled back', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
+
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
+
+                    var link = outlet.connect(inlet, null, 'spec/pass');
+                    outlet.send(1);
+                    outlet.send(5);
+                    link.disable();
+
+                    updateSpy.calls.reset();
+                    link.enable();
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet,
+                                                   value: 5 }));
+                });
+            });
+
+            it('receives last value when it was enabled back, even when this value was sent while it was disabled', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
+
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
+
+                    var link = outlet.connect(inlet, null, 'spec/pass');
+                    outlet.send(1);
+                    link.disable();
+                    outlet.send(5);
+
+                    updateSpy.calls.reset();
+                    link.enable();
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet,
+                                                   value: 5 }));
+                });
+            });
+
+            it('uses the adapter function, if defined, and applies adapted value to a connected inlet', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var sending = new Rpd.Node('spec/empty');
+                    var outlet = sending.addOutlet('spec/any', 'bar');
+
+                    var receiving = new Rpd.Node('spec/empty');
+                    var inlet = receiving.addInlet('spec/any', 'foo');
+
+                    var adapter = jasmine.createSpy('adapter',
+                            function(x) { return x * 7; })
+                            .and.callThrough();
+
+                    var link = outlet.connect(inlet, adapter, 'spec/pass');
+                    outlet.send(2);
+
+                    expect(adapter).toHaveBeenCalled();
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'link/pass',
+                                                   link: link,
+                                                   value: 2 }));
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'link/adapt',
+                                                   link: link,
+                                                   before: 2,
+                                                   after: 14 }));
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet,
+                                                   value: 14 }));
+
+                });
+            });
+
+            xit('handles recursive connections');
+
+        });
+
+        // ---------------------------------------------------------------------
+        // =============================- node (cont.) -========================
+        // ---------------------------------------------------------------------
+
+        it('could be turned off');
+
+        it('receives values from other nodes');
+
+        it('passes values to other nodes');
+
+        // TODO: process event
 
     });
 
-    // ==================== links ====================
-
-    describe('links', function() {
-
-    });
 
 });
 
