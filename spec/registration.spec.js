@@ -1,11 +1,15 @@
-var Rpd = Rpd;
+var Rpd = Rpd, Kefir = Kefir;
 
 if ((typeof Rpd === 'undefined')
+ && (typeof Kefir === 'undefined')
  && (typeof require !== 'undefined')) {
+    Kefir = require('../vendor/kefir.min.js');
     Rpd = require('../src/rpd.js');
 }
 
 describe('registering', function() {
+
+
 
 // -----------------------------------------------------------------------------
 // ===============================- renderer -==================================
@@ -18,7 +22,28 @@ describe('renderer', function() {
 // =================================- node -====================================
 // -----------------------------------------------------------------------------
 
+function withNewModel(fn) {
+    var updateSpy = jasmine.createSpy();
+    var renderer = Rpd.renderer('foo', function(user_conf) {
+        return updateSpy;
+    });
+
+    var model = Rpd.Model.start().renderWith('foo').attachTo({});
+
+    fn(model, updateSpy);
+}
+
 describe('node type', function() {
+
+    it('could be registered with empty object', function() {
+        expect(function() {
+            Rpd.nodetype('spec/foo', {});
+        }).not.toThrow();
+    });
+
+    it('redefining the type re-writes previous type');
+
+    it('passes the specified name to every created instance');
 
     /*
 
@@ -58,7 +83,7 @@ describe('channel type', function() {
 // =================================- link -====================================
 // -----------------------------------------------------------------------------
 
-describe('links type', function() {
+describe('link type', function() {
 
 });
 
