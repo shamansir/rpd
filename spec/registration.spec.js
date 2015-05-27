@@ -45,6 +45,41 @@ describe('node type', function() {
 
     it('passes the specified name to every created instance');
 
+    it('creates specified inlets for the node instance', function() {
+        Rpd.nodetype('spec/foo', {
+            inlets: {
+                'a': { type: 'spec/any' },
+                'b': { type: 'spec/any' }
+            }
+        });
+
+        withNewModel(function(model, updateSpy) {
+
+            var node = new Rpd.Node('spec/foo');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining(
+                    { type: 'inlet/add',
+                      inlet: jasmine.objectContaining({
+                          name: 'a',
+                          type: 'spec/any'
+                      }) })
+            );
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining(
+                    { type: 'inlet/add',
+                      inlet: jasmine.objectContaining({
+                          name: 'b',
+                          type: 'spec/any'
+                      }) })
+            );
+
+        });
+    });
+
     /*
 
     it('informs it\'s ready when all default channels were prepared');
