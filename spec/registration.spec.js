@@ -1,10 +1,14 @@
 var Rpd = Rpd, Kefir = Kefir;
 
+var RpdMatchers = RpdMatchers;
+
 if ((typeof Rpd === 'undefined')
  && (typeof Kefir === 'undefined')
+ && (typeof RpdMatchers === 'undefined')
  && (typeof require !== 'undefined')) {
     Kefir = require('../vendor/kefir.min.js');
     Rpd = require('../src/rpd.js');
+    RpdMatchers = require('./matchers.js');
 }
 
 Rpd.channeltype('spec/any', { });
@@ -37,33 +41,7 @@ describe('node type', function() {
 
     beforeEach(function() {
         jasmine.addMatchers({
-            toHaveBeenCalledInOrder: function(util, customEqualityTesters) {
-                return {
-                    compare: function(actual, expected) {
-                        var result = { pass: false };
-                        var actual_count = actual.calls.count();
-                        if (expected.length > actual_count) {
-                            result.message = 'Expected spy ' + actual.and.identity() +
-                              ' to have been called at least ' + expected.length + ' times,' +
-                              ' but it was called only ' + actual.calls.count() + ' times';
-                            return result;
-                        }
-                        var expected_clone = [].concat(expected);
-                        for (var i = 0, ei = 0; i < actual_count; i++) {
-                            if (util.equals(actual.calls.argsFor(i), expected[ei], customEqualityTesters)) {
-                                expected_clone.pop(); ei++;
-                            }
-                        }
-                        if (expected_clone.length > 0) {
-                            result.message = 'Expected spy ' + actual.and.identity() +
-                              ' to have been called with ' + expected_clone.pop() + ', but it was not.';
-                            return result;
-                        }
-                        result.pass = true;
-                        return result;
-                    }
-                }
-            }
+            toHaveBeenOrderlyCalledWith: RpdMatchers.toHaveBeenOrderlyCalledWith
         });
     });
 
@@ -159,7 +137,7 @@ describe('node type', function() {
 
             var node = new Rpd.Node('spec/foo');
 
-            expect(updateSpy).toHaveBeenCalledInOrder([
+            expect(updateSpy).toHaveBeenOrderlyCalledWith([
                 [ jasmine.anything(), jasmine.objectContaining({ type: 'inlet/add' }) ],
                 [ jasmine.anything(), jasmine.objectContaining({ type: 'outlet/add' }) ],
                 [ jasmine.anything(), jasmine.objectContaining({ type: 'node/ready' }) ]
