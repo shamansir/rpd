@@ -318,7 +318,7 @@ describe('model', function() {
                     var node = new Rpd.Node('spec/empty');
 
                     var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
-                    var period = 10;
+                    var period = 30;
 
                     var inlet = node.addInlet('spec/any', 'foo');
                     inlet.stream(Kefir.sequentially(period, userSequence));
@@ -366,7 +366,7 @@ describe('model', function() {
                     var node = new Rpd.Node('spec/empty');
 
                     var sequence = [ 1, 2, 3 ];
-                    var period = 10;
+                    var period = 30;
 
                     var inlet = node.addInlet('spec/any', 'foo');
                     node.removeInlet(inlet);
@@ -468,7 +468,7 @@ describe('model', function() {
                     var node = new Rpd.Node('spec/empty');
 
                     var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
-                    var period = 10;
+                    var period = 30;
 
                     var outlet = node.addOutlet('spec/any', 'foo');
                     outlet.stream(Kefir.sequentially(period, userSequence));
@@ -510,7 +510,7 @@ describe('model', function() {
                     var node = new Rpd.Node('spec/empty');
 
                     var sequence = [ 1, 2, 3 ];
-                    var period = 10;
+                    var period = 30;
 
                     var outlet = node.addOutlet('spec/any', 'foo');
                     node.removeOutlet(outlet);
@@ -573,7 +573,7 @@ describe('model', function() {
                     var link = outlet.connect(inlet, null, 'spec/pass');
 
                     var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
-                    var period = 10;
+                    var period = 30;
 
                     outlet.stream(Kefir.sequentially(period, userSequence));
 
@@ -623,7 +623,7 @@ describe('model', function() {
                     var link = outlet.connect(inlet, null, 'spec/pass');
 
                     var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
-                    var period = 10;
+                    var period = 30;
 
                     outlet.stream(Kefir.sequentially(period, userSequence));
 

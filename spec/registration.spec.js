@@ -7,9 +7,9 @@ if ((typeof Rpd === 'undefined')
     Rpd = require('../src/rpd.js');
 }
 
+Rpd.channeltype('spec/any', { });
+
 describe('registering', function() {
-
-
 
 // -----------------------------------------------------------------------------
 // ===============================- renderer -==================================
@@ -35,7 +35,39 @@ function withNewModel(fn) {
 
 describe('node type', function() {
 
-    it('could be registered with empty object', function() {
+    beforeEach(function() {
+        jasmine.addMatchers({
+            toHaveBeenCalledInOrder: function(util, customEqualityTesters) {
+                return {
+                    compare: function(actual, expected) {
+                        var result = { pass: false };
+                        var actual_count = actual.calls.count();
+                        if (expected.length > actual_count) {
+                            result.message = 'Expected spy ' + actual.and.identity() +
+                              ' to have been called at least ' + expected.length + ' times,' +
+                              ' but it was called only ' + actual.calls.count() + ' times';
+                            return result;
+                        }
+                        var expected_clone = [].concat(expected);
+                        for (var i = 0, ei = 0; i < actual_count; i++) {
+                            if (util.equals(actual.calls.argsFor(i), expected[ei], customEqualityTesters)) {
+                                expected_clone.pop(); ei++;
+                            }
+                        }
+                        if (expected_clone.length > 0) {
+                            result.message = 'Expected spy ' + actual.and.identity() +
+                              ' to have been called with ' + expected_clone.pop() + ', but it was not.';
+                            return result;
+                        }
+                        result.pass = true;
+                        return result;
+                    }
+                }
+            }
+        });
+    });
+
+    it('could be registered with an empty object', function() {
         expect(function() {
             Rpd.nodetype('spec/foo', {});
         }).not.toThrow();
@@ -76,6 +108,62 @@ describe('node type', function() {
                           type: 'spec/any'
                       }) })
             );
+
+        });
+    });
+
+    it('creates specified outlets for the node instance', function() {
+
+        Rpd.nodetype('spec/foo', {
+            outlets: {
+                'a': { type: 'spec/any' },
+                'b': { type: 'spec/any' }
+            }
+        });
+
+        withNewModel(function(model, updateSpy) {
+
+            var node = new Rpd.Node('spec/foo');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining(
+                    { type: 'outlet/add',
+                      outlet: jasmine.objectContaining({
+                          name: 'a',
+                          type: 'spec/any'
+                      }) })
+            );
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining(
+                    { type: 'outlet/add',
+                      outlet: jasmine.objectContaining({
+                          name: 'b',
+                          type: 'spec/any'
+                      }) })
+            );
+
+        });
+    });
+
+    it('informs it is ready when all inlets and outlets are ready', function() {
+
+        Rpd.nodetype('spec/foo', {
+            inlets: { 'a': { type: 'spec/any' } },
+            outlets: { 'b': { type: 'spec/any' } }
+        });
+
+        withNewModel(function(model, updateSpy) {
+
+            var node = new Rpd.Node('spec/foo');
+
+            expect(updateSpy).toHaveBeenCalledInOrder([
+                [ jasmine.anything(), jasmine.objectContaining({ type: 'inlet/add' }) ],
+                [ jasmine.anything(), jasmine.objectContaining({ type: 'outlet/add' }) ],
+                [ jasmine.anything(), jasmine.objectContaining({ type: 'node/ready' }) ]
+            ]);
 
         });
     });
