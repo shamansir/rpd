@@ -129,7 +129,7 @@ describe('node type', function() {
     it('informs it is ready when all inlets and outlets are ready', function() {
 
         Rpd.nodetype('spec/foo', {
-            inlets: { 'a': { type: 'spec/any' } },
+            inlets:  { 'a': { type: 'spec/any' } },
             outlets: { 'b': { type: 'spec/any' } }
         });
 
@@ -143,18 +143,64 @@ describe('node type', function() {
                 [ jasmine.anything(), jasmine.objectContaining({ type: 'node/ready' }) ]
             ]);
 
+            updateSpy.calls.reset();
+
+            node.addInlet('spec/any', 'foo');
+
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({ type: 'node/ready' }));
+
         });
     });
 
-    /*
+    describe('processing function', function() {
 
-    it('informs it\'s ready when all default channels were prepared');
+        it('is not called when inlets have no default values', function() {
+            var processSpy = jasmine.createSpy();
 
-    describe('processing', function() {
+            Rpd.nodetype('spec/foo', {
+                inlets:  { 'a': { type: 'spec/any' },
+                           'b': { type: 'spec/any' } },
+                process: processSpy
+            });
 
-        //it('properly informs, and calls processing function, if defined, when some new value occured or some channels was modified');
+            withNewModel(function(model, updateSpy) {
+                var node = new Rpd.Node('spec/foo');
+                expect(processSpy).not.toHaveBeenCalled();
+            });
+        });
 
-        it('sums up all updates');
+        it('is still not called when inlets have no default values and there is an outlet');
+
+        it('is called when at least one inlet has default value');
+
+        it('is called when at least one outlet has default value');
+
+        it('gets values from inlets', function() {
+
+            var processSpy = jasmine.createSpy();
+
+            Rpd.nodetype('spec/foo', {
+                inlets:  { 'a': { type: 'spec/any' },
+                           'b': { type: 'spec/any' } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+
+                var node = new Rpd.Node('spec/foo');
+
+                node.inlets['a'].receive(2);
+                node.inlets['b'].receive('abc');
+
+                expect(processSpy).toHaveBeenCalledWith({ a: 2, b: 'abc' }, jasmine.anything());
+
+            });
+
+        });
+
+        it('passes previous values with a call');
 
         it('does not reacts if updated channel was cold, but keeps its value for next update');
 
@@ -164,11 +210,9 @@ describe('node type', function() {
 
         //it('if no outlet was updated, does not calls the')
 
-        it('still receives updates from hidden channels');
+        // it('still receives updates from hidden channels');
 
     });
-
-    */
 
 });
 
