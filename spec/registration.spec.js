@@ -129,8 +129,10 @@ describe('node type', function() {
     it('informs it is ready when all inlets and outlets are ready', function() {
 
         Rpd.nodetype('spec/foo', {
-            inlets:  { 'a': { type: 'spec/any' } },
-            outlets: { 'b': { type: 'spec/any' } }
+            inlets:  { 'a': { type: 'spec/any' },
+                       'b': { type: 'spec/any' } },
+            outlets: { 'c': { type: 'spec/any' },
+                       'd': { type: 'spec/any' } }
         });
 
         withNewModel(function(model, updateSpy) {
@@ -142,6 +144,20 @@ describe('node type', function() {
                 [ jasmine.anything(), jasmine.objectContaining({ type: 'outlet/add' }) ],
                 [ jasmine.anything(), jasmine.objectContaining({ type: 'node/ready' }) ]
             ]);
+
+        });
+    });
+
+    it('informs it is ready only once', function() {
+
+        Rpd.nodetype('spec/foo', {
+            inlets:  { 'a': { type: 'spec/any' } },
+            outlets: { 'b': { type: 'spec/any' } }
+        });
+
+        withNewModel(function(model, updateSpy) {
+
+            var node = new Rpd.Node('spec/foo');
 
             updateSpy.calls.reset();
 
@@ -157,7 +173,7 @@ describe('node type', function() {
     describe('processing function', function() {
 
         it('is not called when inlets have no default values', function() {
-            var processSpy = jasmine.createSpy();
+            var processSpy = jasmine.createSpy('process');
 
             Rpd.nodetype('spec/foo', {
                 inlets:  { 'a': { type: 'spec/any' },

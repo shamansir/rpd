@@ -385,6 +385,12 @@ describe('model', function() {
 
             it('able to receive values in any moment');
 
+            it('disables default stream of values when new value was sent');
+
+            it('disables default stream of values when new stream was plugged in');
+
+            it('disables previous stream of values when separate value was sent');
+
             it('disables previous stream of values when new stream was plugged in');
 
         });
@@ -442,7 +448,19 @@ describe('model', function() {
                 });
             });
 
-            it('sends default value on creation, if it was specified');
+            it('sends default value on creation, if it was specified', function() {
+                withNewModel(function(model, updateSpy) {
+
+                    var node = new Rpd.Node('spec/empty');
+
+                    var outlet = node.addOutlet('spec/any', 'foo');
+
+                    expect(updateSpy).not.toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'outlet/update' }));
+
+                });
+            });
 
             it('sends single value given explicitly by user', function() {
                 withNewModel(function(model, updateSpy) {
@@ -528,6 +546,12 @@ describe('model', function() {
             });
 
             it('able to send values in any moment');
+
+            it('disables default stream of values when new value was sent');
+
+            it('disables default stream of values when new stream was plugged in');
+
+            it('disables previous stream of values when separate value was sent');
 
             it('disables previous stream of values when new stream was plugged in');
 

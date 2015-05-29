@@ -235,6 +235,7 @@ Node.prototype.addOutlet = function(type, alias, name, _default) {
     var outlet = new Outlet(type, this, alias, name, _default);
     this.events.plug(outlet.events);
     this.event['outlet/add'].emit(outlet);
+    outlet.toDefault();
     return outlet;
 }
 Node.prototype.removeInlet = function(inlet) {
@@ -360,6 +361,13 @@ Outlet.prototype.send = function(value) {
 }
 Outlet.prototype.stream = function(stream) {
     this.value.plug(this.adapt ? stream.map(this.adapt) : stream);
+}
+Outlet.prototype.toDefault = function() {
+    if (is_defined(this.default)) {
+        if (this.default instanceof Kefir.Stream) {
+            this.stream(this.default);
+        } else this.receive(this.default);
+    }
 }
 
 // ================================= Link ======================================
