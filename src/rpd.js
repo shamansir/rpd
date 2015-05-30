@@ -138,43 +138,47 @@ function Node(type, name) {
     if (this.def.process) {
         var process_f = this.def.process;
         var myself = this;
-        Kefir.combine([
-            // when new inlet was added, start monitoring its updates
+        // when new inlet was added, start monitoring its updates
+        var inlets_data =
             this.event['inlet/add'].flatMap(function(inlet) {
                 var updates = inlet.event['inlet/update'].map(function(value) {
                     return { inlet: inlet, alias: inlet.alias, value: value };
                 });
                 if (myself.def.tune) updates = myself.def.tune(updates);
                 return updates;
-            // join inlet updates in one inlet_alias=value hash, plus store
-            // previous values in a similar hash, add a source of update,
-            // and return all three
-            }).scan(function(values, update) {
-                var alias = update.alias,
-                    inlet = update.inlet;
-                var prev_values, cur_values;
-                if (!values) {
-                    prev_values = {}; cur_values = {};
-                    cur_values[alias] = update.value;
-                    return { prev: prev_values, cur: cur_values, source: inlet };
-                } else {
-                    prev_values = values.prev; cur_values  = values.cur;
-                    prev_values[alias] = cur_values[alias];
-                    cur_values[alias]  = update.value;
-                    values.source = inlet;
-                    return values;
-                }
-            }, null).filter(function(updates) {
-                return !(updates && updates.source.cold);
-            }),
-            // prepare an object with all new outlets names to know which
-            // outlets are ready to be monitored for new values
-            this.event['outlet/add'].scan(function(outlets, outlet) {
-                var outlets = outlets || {};
-                outlets[outlet.alias] = outlet;
-                return outlets;
-            }, null)
-        ]).onValue(function(value) {
+            });
+        // join inlet updates in one inlet_alias=value hash, plus store
+        // previous values in a similar hash, add a source of update,
+        // and return the collected data
+        inlets_data = inlets_data.scan(function(values, update) {
+            var alias = update.alias,
+                inlet = update.inlet;
+            var prev_values, cur_values;
+            if (!values) {
+                prev_values = {}; cur_values = {};
+                cur_values[alias] = update.value;
+                return { prev: prev_values, cur: cur_values, source: inlet };
+            } else {
+                prev_values = values.prev; cur_values  = values.cur;
+                prev_values[alias] = cur_values[alias];
+                cur_values[alias]  = update.value;
+                values.source = inlet;
+                return values;
+            }
+        }, null);
+        // filter the cases when there were no updates (it happens
+        // first time for previous `scan` to make storing values possible)
+        // or the source inlet was cold
+        inlets_data = inlets_data.filter(function(updates) {
+            return updates && !updates.source.cold;
+        });
+        // prepare an object with all new outlets names to know which
+        // outlets are ready to be monitored for new values
+        var outlets_data = this.event['outlet/add'].scan(function(outlets, outlet) {
+            outlets[outlet.alias] = outlet;
+            return outlets;
+        }, {});
+        Kefir.combine([ inlets_data, outlets_data ]).onValue(function(value) {
             // call a node/process event using collected inlet values
             var inlets_vals = value[0] || { prev: {}, cur: {} }; var outlets = value[1] || {};
             var outlets_vals = process_f(inlets_vals.cur, inlets_vals.prev);

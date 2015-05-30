@@ -193,9 +193,9 @@ describe('node type', function() {
 
         it('is called when at least one outlet has default value');
 
-        it('gets values from inlets', function() {
+        it('gets values from inlets even when there\'s no outlets', function() {
 
-            var processSpy = jasmine.createSpy();
+            var processSpy = jasmine.createSpy('process');
 
             Rpd.nodetype('spec/foo', {
                 inlets:  { 'a': { type: 'spec/any' },
