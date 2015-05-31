@@ -208,6 +208,7 @@ describe('node type', function() {
         });
 
         it('is called once when single inlet has some default value', function() {
+
             Rpd.nodetype('spec/foo', {
                 inlets:  { 'a': { type: 'spec/any', default: 10 },
                            'b': { type: 'spec/any' } },
@@ -223,6 +224,7 @@ describe('node type', function() {
         });
 
         it('is called for every inlet which has a default value', function() {
+
             Rpd.nodetype('spec/foo', {
                 inlets: { 'a': { type: 'spec/any', default: 10 },
                           'b': { type: 'spec/any', default: 5  } },
@@ -238,6 +240,7 @@ describe('node type', function() {
         });
 
         it('is not affected with number of outlets', function() {
+
             Rpd.nodetype('spec/foo', {
                 inlets: { 'a': { type: 'spec/any', default: 10 },
                           'b': { type: 'spec/any', default: 5  } },
@@ -251,8 +254,6 @@ describe('node type', function() {
             });
 
         });
-
-        it('is called once when at least one outlet has default value');
 
         it('gets values from inlets even when there\'s no outlets', function() {
 

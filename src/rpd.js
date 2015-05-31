@@ -183,7 +183,7 @@ function Node(type, name) {
             outlets[outlet.alias] = outlet;
             return outlets;
         }, {});
-        Kefir.combine([ inlets_data, outlets_data ]).onValue(function(value) {
+        Kefir.combine([ inlets_data ], [ outlets_data ]).onValue(function(value) {
             // call a node/process event using collected inlet values
             var inlets_vals = value[0] || { prev: {}, cur: {} }; var outlets = value[1] || {};
             var outlets_vals = process_f(inlets_vals.cur, inlets_vals.prev);
