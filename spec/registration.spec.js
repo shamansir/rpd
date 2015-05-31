@@ -172,8 +172,11 @@ describe('node type', function() {
 
     describe('processing function', function() {
 
+        var processSpy;
+
+        beforeEach(function() { processSpy = jasmine.createSpy('process'); });
+
         it('is not called when inlets have no default values', function() {
-            var processSpy = jasmine.createSpy('process');
 
             Rpd.nodetype('spec/foo', {
                 inlets:  { 'a': { type: 'spec/any' },
@@ -185,17 +188,73 @@ describe('node type', function() {
                 var node = new Rpd.Node('spec/foo');
                 expect(processSpy).not.toHaveBeenCalled();
             });
+
         });
 
-        it('is still not called when inlets have no default values and there is an outlet');
+        it('is still not called when inlets have no default values and there is an outlet', function() {
 
-        it('is called when at least one inlet has default value');
+            Rpd.nodetype('spec/foo', {
+                inlets:  { 'a': { type: 'spec/any' },
+                           'b': { type: 'spec/any' } },
+                outlets: { 'c': { type: 'spec/any' } },
+                process: processSpy
+            });
 
-        it('is called when at least one outlet has default value');
+            withNewModel(function(model, updateSpy) {
+                var node = new Rpd.Node('spec/foo');
+                expect(processSpy).not.toHaveBeenCalled();
+            });
+
+        });
+
+        it('is called once when single inlet has some default value', function() {
+            Rpd.nodetype('spec/foo', {
+                inlets:  { 'a': { type: 'spec/any', default: 10 },
+                           'b': { type: 'spec/any' } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+                var node = new Rpd.Node('spec/foo');
+                expect(processSpy).toHaveBeenCalledWith({ 'a': 10 }, jasmine.anything());
+                expect(processSpy.calls.count()).toBe(1);
+            });
+
+        });
+
+        it('is called for every inlet which has a default value', function() {
+            Rpd.nodetype('spec/foo', {
+                inlets: { 'a': { type: 'spec/any', default: 10 },
+                          'b': { type: 'spec/any', default: 5  } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+                var node = new Rpd.Node('spec/foo');
+                expect(processSpy).toHaveBeenCalledWith({ 'a': 10 }, jasmine.anything());
+                expect(processSpy).toHaveBeenCalledWith({ 'a': 10, 'b': 5 }, jasmine.anything());
+            });
+
+        });
+
+        it('is not affected with number of outlets', function() {
+            Rpd.nodetype('spec/foo', {
+                inlets: { 'a': { type: 'spec/any', default: 10 },
+                          'b': { type: 'spec/any', default: 5  } },
+                outlets: { 'c': { type: 'spec/any' } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+                var node = new Rpd.Node('spec/foo');
+                expect(processSpy.calls.count()).toBe(2);
+            });
+
+        });
+
+        it('is called once when at least one outlet has default value');
 
         it('gets values from inlets even when there\'s no outlets', function() {
-
-            var processSpy = jasmine.createSpy('process');
 
             Rpd.nodetype('spec/foo', {
                 inlets:  { 'a': { type: 'spec/any' },

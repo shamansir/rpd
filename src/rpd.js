@@ -141,7 +141,9 @@ function Node(type, name) {
         // when new inlet was added, start monitoring its updates
         var inlets_data =
             this.event['inlet/add'].flatMap(function(inlet) {
+                console.log('inlet/add', inlet);
                 var updates = inlet.event['inlet/update'].map(function(value) {
+                    console.log('inlet/update', value);
                     return { inlet: inlet, alias: inlet.alias, value: value };
                 });
                 if (myself.def.tune) updates = myself.def.tune(updates);
@@ -151,6 +153,7 @@ function Node(type, name) {
         // previous values in a similar hash, add a source of update,
         // and return the collected data
         inlets_data = inlets_data.scan(function(values, update) {
+            console.log('scan updates', values, update);
             var alias = update.alias,
                 inlet = update.inlet;
             var prev_values, cur_values;
@@ -170,11 +173,13 @@ function Node(type, name) {
         // first time for previous `scan` to make storing values possible)
         // or the source inlet was cold
         inlets_data = inlets_data.filter(function(updates) {
+            console.log('filter updates', updates);
             return updates && !updates.source.cold;
         });
         // prepare an object with all new outlets names to know which
         // outlets are ready to be monitored for new values
         var outlets_data = this.event['outlet/add'].scan(function(outlets, outlet) {
+            console.log('outlet/add', outlets, outlet);
             outlets[outlet.alias] = outlet;
             return outlets;
         }, {});
@@ -182,6 +187,9 @@ function Node(type, name) {
             // call a node/process event using collected inlet values
             var inlets_vals = value[0] || { prev: {}, cur: {} }; var outlets = value[1] || {};
             var outlets_vals = process_f(inlets_vals.cur, inlets_vals.prev);
+            console.log('onValue', 'current inlets', inlets_vals.cur,
+                                   'current outlets', outlets_vals,
+                                   'previous inlets', inlets_vals.prev);
             myself.event['node/process'].emit([inlets_vals.cur, outlets_vals, inlets_vals.prev]);
             // send the values provided from a `process` function to corresponding outlets
             for (var outlet_name in outlets_vals) {
