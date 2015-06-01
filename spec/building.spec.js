@@ -133,7 +133,7 @@ describe('model', function() {
     // -------------------------------------------------------------------------
 
     function withNewModel(fn) {
-        var updateSpy = jasmine.createSpy();
+        var updateSpy = jasmine.createSpy('update');
         var renderer = Rpd.renderer('foo', function(user_conf) {
             return updateSpy;
         });
@@ -779,6 +779,8 @@ describe('model', function() {
         // ---------------------------------------------------------------------
         // =============================- node (cont.) -========================
         // ---------------------------------------------------------------------
+
+        it('turned on at start');
 
         it('could be turned off');
 

@@ -368,7 +368,7 @@ Outlet.prototype.toDefault = function() {
     if (is_defined(this.default)) {
         if (this.default instanceof Kefir.Stream) {
             this.stream(this.default);
-        } else this.receive(this.default);
+        } else this.send(this.default);
     }
 }
 

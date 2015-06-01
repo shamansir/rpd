@@ -27,7 +27,7 @@ describe('renderer', function() {
 // -----------------------------------------------------------------------------
 
 function withNewModel(fn) {
-    var updateSpy = jasmine.createSpy();
+    var updateSpy = jasmine.createSpy('update');
     var renderer = Rpd.renderer('foo', function(user_conf) {
         return updateSpy;
     });
@@ -288,13 +288,129 @@ describe('node type', function() {
 
         });
 
+        it('sets outlets to their default values', function() {
+
+            Rpd.nodetype('spec/foo', {
+                inlets: { 'a': { type: 'spec/any' },
+                          'b': { type: 'spec/any' } },
+                outlets: { 'c': { type: 'spec/any', default: 17 } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+                var node = new Rpd.Node('spec/foo');
+                var outlet = node.outlets['c'];
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({
+                        type: 'outlet/update',
+                        outlet: outlet,
+                        value: 17
+                    })
+                );
+                expect(processSpy).not.toHaveBeenCalled();
+            });
+
+        });
+
         it('passes previous values with a call');
 
         it('does not reacts if updated channel was cold, but keeps its value for next update');
 
-        it('passes single values to corresponding outlets');
+        xit('passes values to corresponding outlets based on default inlets values', function() {
+
+            processSpy.and.callFake(function(inlets) {
+                return { 'c': (inlets.a || 0) * (inlets.b || 1) };
+            });
+
+            Rpd.nodetype('spec/foo', {
+                inlets:  { 'a': { type: 'spec/any', default: 7 },
+                           'b': { type: 'spec/any', default: 2 } },
+                outlets: { 'c': { type: 'spec/any' } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+
+                var node = new Rpd.Node('spec/foo');
+
+                var outlet = node.outlets['c'];
+
+                expect(processSpy).toHaveBeenCalled();
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({
+                        type: 'outlet/update',
+                        outlet: outlet,
+                        value: 7 // 7 * 1
+                    })
+                );
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({
+                        type: 'outlet/update',
+                        outlet: outlet,
+                        value: 14 // 2 * 7
+                    })
+                );
+
+                //console.log(updateSpy.calls.allArgs());
+
+            });
+
+        });
+
+        it('passes single values to corresponding outlets', function() {
+
+            processSpy.and.callFake(function(inlets) {
+                return { 'c': (inlets.a || 0) * (inlets.b || 1) };
+            });
+
+            Rpd.nodetype('spec/foo', {
+                inlets:  { 'a': { type: 'spec/any' },
+                           'b': { type: 'spec/any' } },
+                outlets: { 'c': { type: 'spec/any' } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+
+                var node = new Rpd.Node('spec/foo');
+
+                node.inlets['a'].receive(7);
+                node.inlets['b'].receive(2);
+
+                var outlet = node.outlets['c'];
+
+                expect(processSpy).toHaveBeenCalled();
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({
+                        type: 'outlet/update',
+                        outlet: outlet,
+                        value: 7 // 7 * 1
+                    })
+                );
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({
+                        type: 'outlet/update',
+                        outlet: outlet,
+                        value: 14 // 2 * 7
+                    })
+                );
+
+            });
+
+        });
 
         it('passes streamed values to corresponding outlets');
+
+        it('updates the outlet value even when processing function was executed before this outlet was created');
 
         it('switches off previous stream when new one was plugged to outlet');
 
