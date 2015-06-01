@@ -43,7 +43,8 @@ describe('node type', function() {
         jasmine.addMatchers({
             toHaveBeenOrderlyCalledWith: RpdMatchers.toHaveBeenOrderlyCalledWith,
             toHaveBeenCalledOnce: RpdMatchers.toHaveBeenCalledOnce,
-            toHaveBeenCalledTwice: RpdMatchers.toHaveBeenCalledTwice
+            toHaveBeenCalledTwice: RpdMatchers.toHaveBeenCalledTwice,
+            toHaveBeenCalledTimes: RpdMatchers.toHaveBeenCalledTimes
         });
     });
 
@@ -234,9 +235,18 @@ describe('node type', function() {
             });
 
             withNewModel(function(model, updateSpy) {
+
+                // this tests are required due to the fact processing function receives the same object
+                // modified through time, so if these checks are preformed after the calls, they do fail
+                // see: https://github.com/shamansir/rpd/issues/89
+                var ensureExecuted = handleNextCalls(processSpy, [
+                    function() { expect(processSpy).toHaveBeenCalledWith({ 'a': 10 }, jasmine.anything()); },
+                    function() { expect(processSpy).toHaveBeenCalledWith({ 'a': 10, 'b': 5 }, jasmine.anything()); }
+                ]);
+
                 var node = new Rpd.Node('spec/foo');
-                expect(processSpy).toHaveBeenCalledWith({ 'a': 10 }, jasmine.anything());
-                expect(processSpy).toHaveBeenCalledWith({ 'a': 10, 'b': 5 }, jasmine.anything());
+
+                ensureExecuted();
             });
 
         });
@@ -270,8 +280,8 @@ describe('node type', function() {
                 var node = new Rpd.Node('spec/foo');
 
                 node.inlets['a'].receive(2);
+                expect(processSpy).toHaveBeenCalledWith({ a: 2 }, jasmine.anything());
                 node.inlets['b'].receive('abc');
-
                 expect(processSpy).toHaveBeenCalledWith({ a: 2, b: 'abc' }, jasmine.anything());
 
             });
@@ -329,3 +339,13 @@ describe('channel renderer', function() {
 });
 
 });
+
+function handleNextCalls(spy, handlers) {
+    spy.and.callFake(function() {
+        handlers[spy.calls.count() - 1](spy);
+    });
+
+    return function() {
+        expect(spy).toHaveBeenCalledTimes(handlers.length);
+    }
+}
