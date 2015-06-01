@@ -156,16 +156,20 @@ function Node(type, name) {
             console.log('scan updates', values, update);
             var alias = update.alias,
                 inlet = update.inlet;
-            var prev_values, cur_values;
             if (!values) {
-                prev_values = {}; cur_values = {};
+                console.log('0', cur_values);
+                var cur_values = {};
+                console.log('1', cur_values, alias, update.value);
                 cur_values[alias] = update.value;
-                return { prev: prev_values, cur: cur_values, source: inlet };
+                console.log('2', cur_values);
+                console.log('scan: new values',
+                    { prev: {}, cur: cur_values, source: inlet });
+                return { prev: {}, cur: cur_values, source: inlet };
             } else {
-                prev_values = values.prev; cur_values  = values.cur;
-                prev_values[alias] = cur_values[alias];
-                cur_values[alias]  = update.value;
+                if (values.cur[alias]) values.prev[alias] = values.cur[alias];
+                values.cur[alias]  = update.value;
                 values.source = inlet;
+                console.log('scan: values', values);
                 return values;
             }
         }, null);

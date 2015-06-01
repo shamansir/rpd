@@ -41,7 +41,9 @@ describe('node type', function() {
 
     beforeEach(function() {
         jasmine.addMatchers({
-            toHaveBeenOrderlyCalledWith: RpdMatchers.toHaveBeenOrderlyCalledWith
+            toHaveBeenOrderlyCalledWith: RpdMatchers.toHaveBeenOrderlyCalledWith,
+            toHaveBeenCalledOnce: RpdMatchers.toHaveBeenCalledOnce,
+            toHaveBeenCalledTwice: RpdMatchers.toHaveBeenCalledTwice
         });
     });
 
@@ -218,7 +220,7 @@ describe('node type', function() {
             withNewModel(function(model, updateSpy) {
                 var node = new Rpd.Node('spec/foo');
                 expect(processSpy).toHaveBeenCalledWith({ 'a': 10 }, jasmine.anything());
-                expect(processSpy.calls.count()).toBe(1);
+                expect(processSpy).toHaveBeenCalledOnce();
             });
 
         });
@@ -250,7 +252,7 @@ describe('node type', function() {
 
             withNewModel(function(model, updateSpy) {
                 var node = new Rpd.Node('spec/foo');
-                expect(processSpy.calls.count()).toBe(2);
+                expect(processSpy).toHaveBeenCalledTwice();
             });
 
         });
@@ -283,6 +285,8 @@ describe('node type', function() {
         it('passes single values to corresponding outlets');
 
         it('passes streamed values to corresponding outlets');
+
+        it('switches off previous stream when new one was plugged to outlet');
 
         //it('if no outlet was updated, does not calls the')
 

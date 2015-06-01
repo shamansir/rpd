@@ -27,6 +27,57 @@
                     return result;
                 }
             }
+        },
+        toHaveBeenCalledOnce: function(util, customEqualityTesters) {
+            return {
+                compare: function(actual) {
+                    var result = { pass: false };
+                    var actual_count = actual.calls.count();
+                    if (1 !== actual_count) {
+                        result.message = 'Expected spy ' + actual.and.identity() +
+                          ' to have been called once,' +
+                          ((actual_count === 0) ? ' but it was never called'
+                                                : ' but it was called ' + actual.calls.count() + ' times');
+                        return result;
+                    }
+                    result.pass = true;
+                    return result;
+                }
+            }
+        },
+        toHaveBeenCalledTwice: function(util, customEqualityTesters) {
+            return {
+                compare: function(actual) {
+                    var result = { pass: false };
+                    var actual_count = actual.calls.count();
+                    if (2 !== actual_count) {
+                        result.message = 'Expected spy ' + actual.and.identity() +
+                          ' to have been called once,' +
+                          ((actual_count === 0) ? ' but it was never called'
+                                                : ' but it was called ' + actual.calls.count() + ' times');
+                        return result;
+                    }
+                    result.pass = true;
+                    return result;
+                }
+            }
+        },
+        toHaveBeenCalledTimes: function(util, customEqualityTesters) {
+            return {
+                compare: function(actual, expected) {
+                    var result = { pass: false };
+                    var actual_count = actual.calls.count();
+                    if (expected !== actual_count) {
+                        result.message = 'Expected spy ' + actual.and.identity() +
+                          ' to have been called ' + expected + ' times,' +
+                          ((actual_count === 0) ? ' but it was never called'
+                                                : ' but it was called ' + actual.calls.count() + ' times');
+                        return result;
+                    }
+                    result.pass = true;
+                    return result;
+                }
+            }
         }
     };
 
