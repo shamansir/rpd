@@ -317,7 +317,7 @@ describe('node type', function() {
 
         it('does not reacts if updated channel was cold, but keeps its value for next update');
 
-        xit('passes values to corresponding outlets based on default inlets values', function() {
+        it('passes values to corresponding outlets based on default inlets values', function() {
 
             processSpy.and.callFake(function(inlets) {
                 return { 'c': (inlets.a || 0) * (inlets.b || 1) };
@@ -356,7 +356,10 @@ describe('node type', function() {
                     })
                 );
 
-                //console.log(updateSpy.calls.allArgs());
+                //var args = updateSpy.calls.allArgs();
+                //for (var i = 0; i < args.length; i++) {
+                //    console.log(args[i][1].type, args[i][1]);
+                //}
 
             });
 
@@ -381,6 +384,7 @@ describe('node type', function() {
 
                 node.inlets['a'].receive(7);
                 node.inlets['b'].receive(2);
+                node.inlets['b'].receive(6);
 
                 var outlet = node.outlets['c'];
 
@@ -401,6 +405,15 @@ describe('node type', function() {
                         type: 'outlet/update',
                         outlet: outlet,
                         value: 14 // 2 * 7
+                    })
+                );
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({
+                        type: 'outlet/update',
+                        outlet: outlet,
+                        value: 12 // 2 * 6
                     })
                 );
 
