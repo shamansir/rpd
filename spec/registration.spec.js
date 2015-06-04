@@ -356,11 +356,6 @@ describe('node type', function() {
                     })
                 );
 
-                //var args = updateSpy.calls.allArgs();
-                //for (var i = 0; i < args.length; i++) {
-                //    console.log(args[i][1].type, args[i][1]);
-                //}
-
             });
 
         });

@@ -178,7 +178,7 @@ function Node(type, name) {
         }, {});
         var process = Kefir.combine([ inlets_data ], [ outlets_data ]);
         process.bufferBy(this.event['node/ready']).take(1).flatten()
-               .concat(process)
+               //.concat(process)
                .onValue(function(value) {
             // call a node/process event using collected inlet values
             var inlets_vals = value[0] || { prev: {}, cur: {} }; var outlets = value[1] || {};
