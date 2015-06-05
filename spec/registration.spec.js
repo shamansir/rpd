@@ -220,6 +220,7 @@ describe('node type', function() {
 
             withNewModel(function(model, updateSpy) {
                 var node = new Rpd.Node('spec/foo');
+                console.log(updateSpy.calls.allArgs());
                 expect(processSpy).toHaveBeenCalledWith({ 'a': 10 }, jasmine.anything());
                 expect(processSpy).toHaveBeenCalledOnce();
             });

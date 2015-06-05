@@ -163,7 +163,7 @@ function Node(type, name) {
                 values.source = inlet;
                 return values;
             }
-        }, null);
+        }, null).changes();
         // filter the cases when there were no updates (it happens
         // first time for previous `scan` to make storing values possible)
         // or the source inlet was cold
@@ -178,7 +178,7 @@ function Node(type, name) {
         }, {});
         var process = Kefir.combine([ inlets_data ], [ outlets_data ]);
         process.bufferBy(this.event['node/ready']).take(1).flatten()
-               //.concat(process)
+               .concat(process)
                .onValue(function(value) {
             // call a node/process event using collected inlet values
             var inlets_vals = value[0] || { prev: {}, cur: {} }; var outlets = value[1] || {};
