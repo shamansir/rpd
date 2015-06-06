@@ -788,6 +788,8 @@ describe('model', function() {
 
         it('passes values to other nodes');
 
+        it('fires no process events until the node is ready (default inlets/outlets are set up)');
+
         // TODO: process event
 
     });

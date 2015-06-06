@@ -220,14 +220,13 @@ describe('node type', function() {
 
             withNewModel(function(model, updateSpy) {
                 var node = new Rpd.Node('spec/foo');
-                console.log(updateSpy.calls.allArgs());
                 expect(processSpy).toHaveBeenCalledWith({ 'a': 10 }, jasmine.anything());
                 expect(processSpy).toHaveBeenCalledOnce();
             });
 
         });
 
-        it('is called for every inlet which has a default value', function() {
+        it('is called once when several inlets have default value (since node is ready)', function() {
 
             Rpd.nodetype('spec/foo', {
                 inlets: { 'a': { type: 'spec/any', default: 10 },
@@ -240,6 +239,7 @@ describe('node type', function() {
                 // this tests are required due to the fact processing function receives the same object
                 // modified through time, so if these checks are preformed after the calls, they do fail
                 // see: https://github.com/shamansir/rpd/issues/89
+                // and: https://github.com/jasmine/jasmine/issues/872
                 var ensureExecuted = handleNextCalls(processSpy, [
                     function() { expect(processSpy).toHaveBeenCalledWith({ 'a': 10 }, jasmine.anything()); },
                     function() { expect(processSpy).toHaveBeenCalledWith({ 'a': 10, 'b': 5 }, jasmine.anything()); }
@@ -248,6 +248,12 @@ describe('node type', function() {
                 var node = new Rpd.Node('spec/foo');
 
                 ensureExecuted();
+
+                //console.log(updateSpy.calls.allArgs());
+
+                //expect(processSpy).toHaveBeenCalledWith({ 'a': 10, 'b': 5 }, jasmine.anything());
+                //expect(processSpy).toHaveBeenCalledOnce();
+
             });
 
         });
@@ -466,8 +472,15 @@ describe('channel renderer', function() {
 });
 
 function handleNextCalls(spy, handlers) {
+    var timesCalled = 0;
+
     spy.and.callFake(function() {
-        handlers[spy.calls.count() - 1](spy);
+        //expect(spy.calls.count()).toBeGreaterThan(0);
+        //console.log(timesCalled);
+        //console.log(spy.calls.argsFor(timesCalled));
+        expect(handlers[timesCalled]).toBeTruthy('No handler for a call #' + timesCalled);
+        handlers[timesCalled](spy);
+        timesCalled++;
     });
 
     return function() {
