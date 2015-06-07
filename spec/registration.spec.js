@@ -475,9 +475,6 @@ function handleNextCalls(spy, handlers) {
     var timesCalled = 0;
 
     spy.and.callFake(function() {
-        //expect(spy.calls.count()).toBeGreaterThan(0);
-        //console.log(timesCalled);
-        //console.log(spy.calls.argsFor(timesCalled));
         expect(handlers[timesCalled]).toBeTruthy('No handler for a call #' + timesCalled);
         handlers[timesCalled](spy);
         timesCalled++;
