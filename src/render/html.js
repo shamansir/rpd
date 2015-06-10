@@ -1,5 +1,7 @@
 (function() {
 
+var I = Rpd.Identity;
+
     // inlets/outlets are at the left/right sides of a node body
 var QUARTZ_LAYOUT = 'quartz',
     // inlets/outlets are at the top/bottom sides of a node body
@@ -768,7 +770,7 @@ function HtmlRenderer(user_config) {
                                     Kefir.fromEvent(root, 'click')
                                          .merge(disableEditor)
                                          .mapTo(false) ])
-                               .toProperty(false)
+                               .toProperty(I(false))
                                .skipDuplicates() ])
              .map(function(val) { return { lastValue: val[0],
                                            startEditing: val[1],
@@ -829,7 +831,7 @@ function HtmlRenderer(user_config) {
                 startLink = Kefir.emitter(),
                 finishLink = Kefir.emitter(),
                 doingLink = Kefir.merge([ startLink.mapTo(true),
-                                          finishLink.mapTo(false) ]).toProperty(false);
+                                          finishLink.mapTo(false) ]).toProperty(I(false));
 
             },
             subscribeOutlet: function(outlet, connector) {

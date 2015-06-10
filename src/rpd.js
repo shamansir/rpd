@@ -23,6 +23,9 @@ var subrenderers = {};
 var cur_model = -1;
 var models = [];
 
+// Identity function
+function I(v) { return function() { return v; } }
+
 // ================================== Model ====================================
 // =============================================================================
 
@@ -417,7 +420,7 @@ function Link(type, outlet, inlet, adapter, name) {
     this.events = events_stream(event_conf, this.event);
 
     this.enabled = Kefir.merge([ this.event['link/disable'].mapTo(false),
-                                 this.event['link/enable'].mapTo(true) ]).toProperty(true);
+                                 this.event['link/enable'].mapTo(true) ]).toProperty(I(true));
 
     this.event['link/pass'].filterBy(this.enabled).onValue(function(x) {
         inlet.receive(myself.adapt(x));
@@ -577,6 +580,8 @@ function nodedescription(type, description) {
 // =============================================================================
 
 return {
+
+    'Identity': I,
 
     'Model': Model,
     'Node': Node,
