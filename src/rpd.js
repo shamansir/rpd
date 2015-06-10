@@ -136,55 +136,56 @@ function Node(type, name) {
     }
 
     if (this.def.process) {
+
         var process_f = this.def.process;
         var myself = this;
-        // when new inlet was added, start monitoring its updates
-        var inlets_data =
+
+        var process = Kefir.combine([
+
+            // when new inlet was added, start monitoring its updates
+            // as an active stream
             this.event['inlet/add'].flatMap(function(inlet) {
                 var updates = inlet.event['inlet/update'].map(function(value) {
-                    return { inlet: inlet, alias: inlet.alias, value: value };
+                    return { inlet: inlet, value: value };
                 });
                 if (myself.def.tune) updates = myself.def.tune(updates);
                 return updates;
-            });
-        // join inlet updates in one inlet_alias=value hash, plus store
-        // previous values in a similar hash, add a source of update,
-        // and return the collected data
-        inlets_data = inlets_data.scan(function(values, update) {
-            var alias = update.alias,
-                inlet = update.inlet;
-            if (!values) {
-                var cur_values = {};
-                cur_values[alias] = update.value;
-                return { prev: {}, cur: cur_values, source: inlet };
-            } else {
-                if (values.cur[alias]) values.prev[alias] = values.cur[alias];
-                values.cur[alias]  = update.value;
-                values.source = inlet;
-                return values;
-            }
-        }, null).changes();
-        // filter the cases when there were no updates (it happens
-        // first time for previous `scan` to make storing values possible)
-        // or the source inlet was cold
-        inlets_data = inlets_data.filter(function(updates) {
-            return updates && !updates.source.cold;
-        });
-        // prepare an object with all new outlets names to know which
-        // outlets are ready to be monitored for new values
-        var outlets_data = this.event['outlet/add'].scan(function(outlets, outlet) {
-            outlets[outlet.alias] = outlet;
-            return outlets;
-        }, {});
-        var process = Kefir.combine([ inlets_data ], [ outlets_data ]);
-        process.bufferBy(this.event['node/ready']).take(1).flatten()
-               .concat(process)
-               .onValue(function(value) {
+            })
+
+        ],
+        [
+            // collect all the existing outlets aliases as a passive stream
+            this.event['outlet/add'].scan(function(outlets, outlet) {
+                outlets[outlet.alias] = outlet;
+                return outlets;
+            }, {})
+
+        ])
+
+        // do not fire any event until node is ready, then immediately fire them one by one, if any occured
+        // later events are fired after node/ready corresponding to their time of firing, as usual
+        process = process.bufferBy(this.event['node/ready']).take(1).flatten().concat(process);
+
+        process = process.scan(function(data, update) {
+            // update[0] is inlet value update, update[1] is a list of outlets
+            var inlet = update[0].inlet;
+            var alias = inlet.alias;
+            data.inlets.prev[alias] = data.inlets.cur[alias];
+            data.inlets.cur[alias] = update[0].value;
+            data.outlets = update[1];
+            data.source = inlet;
+            return data;
+        }, { inlets: { prev: {}, cur: {} }, outlets: {} }).changes();
+
+        // filter cold inlets, so the update data will be stored, but process event won't fire
+        process = process.filter(function(data) { console.log(data, data.source); return !data.source.cold; });
+
+        process.onValue(function(data) {
             // call a node/process event using collected inlet values
-            var inlets_vals = value[0] || { prev: {}, cur: {} }; var outlets = value[1] || {};
-            var outlets_vals = process_f(inlets_vals.cur, inlets_vals.prev);
-            myself.event['node/process'].emit([inlets_vals.cur, outlets_vals, inlets_vals.prev]);
+            var outlets_vals = process_f(data.inlets.cur, data.inlets.prev);
+            myself.event['node/process'].emit([data.inlets.cur, data.outlets, data.inlets.prev]);
             // send the values provided from a `process` function to corresponding outlets
+            var outlets = data.outlets;
             for (var outlet_name in outlets_vals) {
                 if (outlets[outlet_name]) {
                     if (outlets_vals[outlet_name] instanceof Kefir.Stream) {
@@ -195,6 +196,7 @@ function Node(type, name) {
                 };
             }
         });
+
     }
 
     // only inlets / outlets described in type definition are stored inside
