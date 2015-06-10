@@ -412,7 +412,7 @@ describe('node type', function() {
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outlet,
-                        value: 14 // 2 * 7
+                        value: 14 // 7 * 2
                     })
                 );
 
@@ -421,7 +421,7 @@ describe('node type', function() {
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outlet,
-                        value: 12 // 2 * 6
+                        value: 42 // 7 * 6
                     })
                 );
 
