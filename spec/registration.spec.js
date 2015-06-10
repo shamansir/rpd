@@ -1,15 +1,21 @@
-var Rpd = Rpd, Kefir = Kefir;
+var Rpd = Rpd, Kefir = Kefir, prettify = prettify;
 
 var RpdMatchers = RpdMatchers;
 
 if ((typeof Rpd === 'undefined')
  && (typeof Kefir === 'undefined')
  && (typeof RpdMatchers === 'undefined')
+ && (typeof prettify === 'undefined')
  && (typeof require !== 'undefined')) {
     Kefir = require('../vendor/kefir.min.js');
     Rpd = require('../src/rpd.js');
     RpdMatchers = require('./matchers.js');
+    prettify = require('./prettify.js');
 }
+
+prettify(Rpd); // inject pretty-print for Jasmine
+
+// SPEC CODE
 
 Rpd.channeltype('spec/any', { });
 
