@@ -244,7 +244,7 @@ describe('node type', function() {
 
         });
 
-        it('is called once when several inlets have default value (since node is ready)', function() {
+        it('is called for every inlet which have a default value', function() {
 
             Rpd.nodetype('spec/foo', {
                 inlets: { 'a': { type: 'spec/any', default: 10 },
@@ -266,11 +266,6 @@ describe('node type', function() {
                 var node = new Rpd.Node('spec/foo');
 
                 ensureExecuted();
-
-                //console.log(updateSpy.calls.allArgs());
-
-                //expect(processSpy).toHaveBeenCalledWith({ 'a': 10, 'b': 5 }, jasmine.anything());
-                //expect(processSpy).toHaveBeenCalledOnce();
 
             });
 
@@ -338,7 +333,35 @@ describe('node type', function() {
 
         });
 
-        it('called only when node is ready');
+        it('called only when node is ready', function() {
+            var nodeReady = false;
+
+            Rpd.nodetype('spec/foo', {
+                inlets: { 'a': { type: 'spec/any', default: 5 },
+                          'b': { type: 'spec/any', default: [ 2, 1 ] },
+                          'c': { type: 'spec/any', default: {} },
+                          'd': { type: 'spec/any', default: '' } },
+                outlets: { 'e': { type: 'spec/any', default: 17 },
+                           'f': { type: 'spec/any', default: [] } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+                updateSpy.and.callFake(function(trg, update) {
+                    if (update.type === 'node/ready') {
+                        expect(processSpy).not.toHaveBeenCalled();
+                        nodeReady = true;
+                    } else if (!nodeReady) {
+                        expect(processSpy).not.toHaveBeenCalled();
+                    }
+                }.bind(this));
+
+                var node = new Rpd.Node('spec/foo');
+
+                expect(updateSpy).toHaveBeenCalled();
+                expect(processSpy).toHaveBeenCalled();
+            });
+        });
 
         it('when inlet is set to transfer some stream by default, gets values from this stream one by one');
 
@@ -396,13 +419,15 @@ describe('node type', function() {
         it('passes single values to corresponding outlets', function() {
 
             processSpy.and.callFake(function(inlets) {
-                return { 'c': (inlets.a || 0) * (inlets.b || 1) };
+                return { 'c': inlets.a * (inlets.b || 1),
+                         'd': (inlets.b || 0) * 3 };
             });
 
             Rpd.nodetype('spec/foo', {
                 inlets:  { 'a': { type: 'spec/any' },
                            'b': { type: 'spec/any' } },
-                outlets: { 'c': { type: 'spec/any' } },
+                outlets: { 'c': { type: 'spec/any' },
+                           'd': { type: 'spec/any' } },
                 process: processSpy
             });
 
@@ -414,7 +439,8 @@ describe('node type', function() {
                 node.inlets['b'].receive(2);
                 node.inlets['b'].receive(6);
 
-                var outlet = node.outlets['c'];
+                var outletC = node.outlets['c'];
+                var outletD = node.outlets['d'];
 
                 expect(processSpy).toHaveBeenCalled();
 
@@ -422,7 +448,7 @@ describe('node type', function() {
                     jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
-                        outlet: outlet,
+                        outlet: outletC,
                         value: 7 // 7 * 1
                     })
                 );
@@ -431,7 +457,7 @@ describe('node type', function() {
                     jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
-                        outlet: outlet,
+                        outlet: outletC,
                         value: 14 // 7 * 2
                     })
                 );
@@ -440,8 +466,35 @@ describe('node type', function() {
                     jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
-                        outlet: outlet,
+                        outlet: outletC,
                         value: 42 // 7 * 6
+                    })
+                );
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({
+                        type: 'outlet/update',
+                        outlet: outletD,
+                        value: 0 // 0 * 3
+                    })
+                );
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({
+                        type: 'outlet/update',
+                        outlet: outletD,
+                        value: 6 // 2 * 3
+                    })
+                );
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({
+                        type: 'outlet/update',
+                        outlet: outletD,
+                        value: 18 // 6 * 3
                     })
                 );
 
@@ -471,7 +524,7 @@ describe('node type', function() {
 
                 var node = new Rpd.Node('spec/foo');
 
-                node.inlets['in'].receive(7.2);
+                node.inlets['in'].receive(7);
 
                 var outlet = node.outlets['out'];
 
@@ -483,7 +536,7 @@ describe('node type', function() {
                             jasmine.anything(),
                             jasmine.objectContaining({ type: 'outlet/update',
                                                        outlet: outlet,
-                                                       value: values[i] * 7.2 }));
+                                                       value: values[i] * 7 }));
                     }
                     done();
                 }, period * (values.length + 1));
@@ -496,9 +549,71 @@ describe('node type', function() {
 
         it('switches off previous stream when new one was plugged to outlet');
 
-        //it('if no outlet was updated, does not calls the')
+        it('if no outlet was updated, does not fires the update for this outlet', function() {
 
-        // it('still receives updates from hidden channels');
+            processSpy.and.callFake(function(inlets) {
+                return {};
+            });
+
+            Rpd.nodetype('spec/foo', {
+                inlets:  { 'a': { type: 'spec/any', default: 4 },
+                           'b': { type: 'spec/any' } },
+                outlets: { 'c': { type: 'spec/any' },
+                           'd': { type: 'spec/any' } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+
+                var node = new Rpd.Node('spec/foo');
+
+                node.inlets['b'].receive(7);
+
+                expect(processSpy).not.toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({ type: 'outlet/update' })
+                );
+
+            });
+
+        });
+
+        it('treats no return value as no update to any outlet', function() {
+            processSpy.and.callFake(function(inlets) { });
+
+            Rpd.nodetype('spec/foo', {
+                inlets:  { 'a': { type: 'spec/any', default: 2 },
+                           'b': { type: 'spec/any' } },
+                outlets: { 'c': { type: 'spec/any' },
+                           'd': { type: 'spec/any' } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+
+                var node = new Rpd.Node('spec/foo');
+
+                node.inlets['b'].receive(12);
+
+                expect(processSpy).not.toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({ type: 'outlet/update' })
+                );
+
+                expect(processSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ a: 2 }),
+                    jasmine.anything()
+                );
+
+                expect(processSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ b: 12 }),
+                    jasmine.anything()
+                );
+
+            });
+        });
+
+        it('is not bound to the types of the values inlets or outlets receive');
 
         describe('tuning', function() {});
 
