@@ -179,6 +179,18 @@ describe('node type', function() {
         });
     });
 
+    it('informs inlet was updated when its default value was set');
+
+    it('informs outlet was updated when its default value was set');
+
+    it('accepts streams as default values for inlets');
+
+    it('accepts streams as default values for outlets');
+
+    it('still informs about update when inlet is hidden');
+
+    it('still informs about update when inlet is cold');
+
     describe('processing function', function() {
 
         var processSpy;
@@ -326,9 +338,17 @@ describe('node type', function() {
 
         });
 
+        it('called only when node is ready');
+
+        it('when inlet is set to transfer some stream by default, gets values from this stream one by one');
+
+        it('when stream was sent to the inlet, still gets values one by one');
+
         it('passes previous values with a call');
 
-        it('does not reacts if updated channel was cold, but keeps its value for next update');
+        it('gets values from hidden inlets');
+
+        it('does not reacts if updated inlet was cold, but keeps its value for next update');
 
         it('passes values to corresponding outlets based on default inlets values', function() {
 
@@ -429,7 +449,48 @@ describe('node type', function() {
 
         });
 
-        it('passes streamed values to corresponding outlets');
+        it('passes streamed values to corresponding outlets', function(done) {
+
+            var values = [ 2, 4, 5, 6 ];
+            var period = 30;
+
+            processSpy.and.callFake(function(inlets) {
+                return { 'out': Kefir.sequentially(period, values)
+                                     .map(function(value) {
+                                         return (inlets.in * value);
+                                     }) };
+            });
+
+            Rpd.nodetype('spec/foo', {
+                inlets:  { 'in': { type: 'spec/any' } },
+                outlets: { 'out': { type: 'spec/any' } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+
+                var node = new Rpd.Node('spec/foo');
+
+                node.inlets['in'].receive(7.2);
+
+                var outlet = node.outlets['out'];
+
+                expect(processSpy).toHaveBeenCalled();
+
+                setTimeout(function() {
+                    for (var i = 0; i < values.length; i++) {
+                        expect(updateSpy).toHaveBeenCalledWith(
+                            jasmine.anything(),
+                            jasmine.objectContaining({ type: 'outlet/update',
+                                                       outlet: outlet,
+                                                       value: values[i] * 7.2 }));
+                    }
+                    done();
+                }, period * (values.length + 1));
+
+            });
+
+        });
 
         it('updates the outlet value even when processing function was executed before this outlet was created');
 
@@ -438,6 +499,8 @@ describe('node type', function() {
         //it('if no outlet was updated, does not calls the')
 
         // it('still receives updates from hidden channels');
+
+        describe('tuning', function() {});
 
     });
 
