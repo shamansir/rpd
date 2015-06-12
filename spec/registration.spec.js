@@ -254,10 +254,6 @@ describe('node type', function() {
 
             withNewModel(function(model, updateSpy) {
 
-                // this tests are required due to the fact processing function receives the same object
-                // modified through time, so if these checks are preformed after the calls, they do fail
-                // see: https://github.com/shamansir/rpd/issues/89
-                // and: https://github.com/jasmine/jasmine/issues/872
                 var ensureExecuted = handleNextCalls(processSpy, [
                     function() { expect(processSpy).toHaveBeenCalledWith({ 'a': 10 }, jasmine.anything()); },
                     function() { expect(processSpy).toHaveBeenCalledWith({ 'a': 10, 'b': 5 }, jasmine.anything()); }
@@ -367,9 +363,48 @@ describe('node type', function() {
 
         it('when stream was sent to the inlet, still gets values one by one');
 
-        it('passes previous values with a call');
+        it('passes previous values with a call', function() {
+            Rpd.nodetype('spec/foo', {
+                inlets: { 'char': { type: 'spec/any', default: 'a' } },
+                process: processSpy
+            });
 
-        it('gets values from hidden inlets');
+            withNewModel(function(model, updateSpy) {
+                var node = new Rpd.Node('spec/foo');
+                node.inlets['char'].receive('b');
+                expect(processSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ char: 'b' }),
+                    jasmine.objectContaining({ char: 'a' })
+                );
+                node.inlets['char'].receive('c');
+                expect(processSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ char: 'c' }),
+                    jasmine.objectContaining({ char: 'b' })
+                );
+            });
+        });
+
+        it('still gets values from hidden inlets', function() {
+            Rpd.nodetype('spec/foo', {
+                inlets: { 'char': { type: 'spec/any',
+                                    hidden: true,
+                                    default: 'a' } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+                var node = new Rpd.Node('spec/foo');
+                expect(processSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ char: 'a' }),
+                    jasmine.anything()
+                );
+                node.inlets['char'].receive('b');
+                expect(processSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ char: 'b' }),
+                    jasmine.anything()
+                );
+            });
+        });
 
         it('does not reacts if updated inlet was cold, but keeps its value for next update');
 
@@ -655,6 +690,10 @@ describe('channel renderer', function() {
 
 });
 
+// this function is required due to the fact processing function receives the same object
+// modified through time, so if these checks are preformed after the calls, they do fail
+// see: https://github.com/shamansir/rpd/issues/89
+// and: https://github.com/jasmine/jasmine/issues/872
 function handleNextCalls(spy, handlers) {
     var timesCalled = 0;
 
