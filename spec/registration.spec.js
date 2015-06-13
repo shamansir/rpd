@@ -406,7 +406,41 @@ describe('node type', function() {
             });
         });
 
-        it('does not reacts if updated inlet was cold, but keeps its value for next update');
+        it('does not reacts if updated inlet was cold, but keeps its value for next update', function() {
+            Rpd.nodetype('spec/foo', {
+                inlets: { 'foo': { type: 'spec/any',
+                                   cold: true,
+                                   default: 'a' },
+                          'bar': { type: 'spec/any', cold: true },
+                          'buz': { type: 'spec/any' } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+                var node = new Rpd.Node('spec/foo');
+                expect(processSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({ foo: 'a' }),
+                    jasmine.anything()
+                );
+                node.inlets['foo'].receive('b');
+                expect(processSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({ foo: 'b' }),
+                    jasmine.anything()
+                );
+                node.inlets['bar'].receive(12);
+                expect(processSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({ bar: 12 }),
+                    jasmine.anything()
+                );
+                node.inlets['buz'].receive('jazz');
+                expect(processSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ bar: 12, foo: 'b', buz: 'jazz' }),
+                    jasmine.objectContaining({ foo: 'a' })
+                );
+            });
+        });
+
+        it('does not reacts if updated inlet was cold and contained a stream, but keeps its value for next update')
 
         it('passes values to corresponding outlets based on default inlets values', function() {
 
