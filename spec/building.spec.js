@@ -351,7 +351,8 @@ describe('model', function() {
 
             xit('still sends values when it\'s hidden');
 
-            xit('does not send values, but saves them, when it\'s cold');
+            // cold status only affects processing
+            xit('still sends values when it\'s cold');
 
             it('stops receiving values when it was removed from a node', function() {
                 withNewModel(function(model, updateSpy) {
@@ -554,8 +555,6 @@ describe('model', function() {
 
                 });
             });
-
-            it('able to send values in any moment');
 
             it('disables default stream of values when new value was sent');
 

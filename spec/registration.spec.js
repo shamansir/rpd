@@ -733,7 +733,57 @@ describe('node type', function() {
 
         it('is not bound to the types of the values inlets or outlets receive');
 
-        describe('tuning', function() {});
+        it('incoming values stream could be tuned', function() {
+
+            Rpd.nodetype('spec/foo', {
+                inlets:  { 'a': { type: 'spec/any', default: -1 } },
+                process: processSpy,
+                tune: function(in_) {
+                    return in_
+                        .filter(function(update) {
+                            return update.value !== 2;
+                        })
+                        .map(function(update) {
+                            return { inlet: update.inlet,
+                                     value: update.value * 10 };
+                        });
+                }
+            });
+
+
+            withNewModel(function(model, updateSpy) {
+
+                var node = new Rpd.Node('spec/foo');
+
+                node.inlets['a'].receive(0);
+                expect(processSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ a: 0 }),
+                    jasmine.anything()
+                );
+                node.inlets['a'].receive(1);
+                expect(processSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ a: 10 }),
+                    jasmine.anything()
+                );
+                node.inlets['a'].receive(2);
+                expect(processSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({ a: 2 }),
+                    jasmine.anything()
+                );
+                expect(processSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({ a: 20 }),
+                    jasmine.anything()
+                );
+                node.inlets['a'].receive(3);
+                expect(processSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ a: 30 }),
+                    jasmine.anything()
+                );
+            });
+
+        });
+
+        it('incoming values stream still could be tuned even when they\'re streamed');
 
     });
 
