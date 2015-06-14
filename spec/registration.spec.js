@@ -816,7 +816,7 @@ describe('node type', function() {
                                            inlet: toInlet,
                                            value: 12 }));
 
-            var link = fromOutlet.connect(toInlet);
+            var link = fromOutlet.connect(toInlet, null, 'spec/pass');
 
             expect(outletConnectSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'outlet/connect',
@@ -825,7 +825,40 @@ describe('node type', function() {
         });
     });
 
-    it('default inlets and outlets could be prepared with custom prepare function');
+    it('default inlets and outlets could be prepared with custom prepare function', function() {
+        var prepareSpy = jasmine.createSpy('prepare');
+
+        Rpd.nodetype('spec/foo', {
+            inlets:  { 'a': { type: 'spec/any' },
+                       'b': { type: 'spec/any' } },
+            outlets: { 'c': { type: 'spec/any' } },
+            prepare: prepareSpy
+        });
+
+        withNewModel(function(model, updateSpy) {
+
+            updateSpy.and.callFake(function(update) {
+                if (update.type === 'node/ready') {
+                    expect(prepareSpy).toHaveBeenCalled();
+                }
+            });
+
+            var node = new Rpd.Node('spec/foo');
+
+            expect(prepareSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    a: node.inlets['a'],
+                    b: node.inlets['b']
+                }),
+                jasmine.objectContaining({
+                    c: node.outlets['c']
+                })
+            );
+            expect(prepareSpy).toHaveBeenCalledOnce();
+
+        });
+
+    });
 
 });
 
