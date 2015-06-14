@@ -18,6 +18,7 @@ prettify(Rpd); // inject pretty-print for Jasmine
 // SPEC CODE
 
 Rpd.channeltype('spec/any', { });
+Rpd.linktype('spec/pass', {});
 
 describe('registering', function() {
 
@@ -786,6 +787,45 @@ describe('node type', function() {
         it('incoming values stream still could be tuned even when they\'re streamed');
 
     });
+
+    it('updates could be handled with custom handle function', function() {
+        var inletUpdateSpy = jasmine.createSpy('inlet-update');
+        var outletConnectSpy = jasmine.createSpy('outlet-connect');
+
+        Rpd.nodetype('spec/foo', {
+            inlets:  { 'in': { type: 'spec/any' } },
+            outlets: { 'out': { type: 'spec/any' } },
+            handle: {
+                'inlet/update': inletUpdateSpy,
+                'outlet/connect': outletConnectSpy
+            }
+        });
+
+        withNewModel(function(model, updateSpy) {
+
+            var firstNode = new Rpd.Node('spec/foo');
+            var secondNode = new Rpd.Node('spec/foo');
+
+            var fromOutlet = firstNode.outlets['out'];
+            var toInlet = secondNode.inlets['in'];
+
+            toInlet.receive(12);
+
+            expect(inletUpdateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'inlet/update',
+                                           inlet: toInlet,
+                                           value: 12 }));
+
+            var link = fromOutlet.connect(toInlet);
+
+            expect(outletConnectSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'outlet/connect',
+                                           link: link }));
+
+        });
+    });
+
+    it('default inlets and outlets could be prepared with custom prepare function');
 
 });
 
