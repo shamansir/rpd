@@ -359,9 +359,58 @@ describe('node type', function() {
             });
         });
 
-        it('when inlet is set to transfer some stream by default, gets values from this stream one by one');
+        it('when inlet is set to transfer some stream by default, gets values from this stream one by one', function(done) {
+            var values = [ 'a', 'b', 'c' ];
+            var period = 30;
 
-        it('when stream was sent to the inlet, still gets values one by one');
+            Rpd.nodetype('spec/foo', {
+                inlets: { 'char': { type: 'spec/any', default: Kefir.sequentially(period, values) } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+
+                var ensureExecuted = handleNextCalls(processSpy, [
+                    function() { expect(processSpy).toHaveBeenCalledWith({ char: values[0] }, jasmine.anything()); },
+                    function() { expect(processSpy).toHaveBeenCalledWith({ char: values[1] }, jasmine.anything()); },
+                    function() { expect(processSpy).toHaveBeenCalledWith({ char: values[2] }, jasmine.anything()); }
+                ]);
+
+                var node = new Rpd.Node('spec/foo');
+
+                setTimeout(function() {
+                    ensureExecuted();
+                    done();
+                }, period * (values.length + 1));
+            });
+        });
+
+        it('when stream was sent to the inlet, still gets values one by one', function(done) {
+            Rpd.nodetype('spec/foo', {
+                inlets: { 'char': { type: 'spec/any' } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+                var values = [ 'a', 'b', 'c' ];
+                var period = 30;
+
+                var node = new Rpd.Node('spec/foo');
+
+                var ensureExecuted = handleNextCalls(processSpy, [
+                    function() { expect(processSpy).toHaveBeenCalledWith({ char: values[0] }, jasmine.anything()); },
+                    function() { expect(processSpy).toHaveBeenCalledWith({ char: values[1] }, jasmine.anything()); },
+                    function() { expect(processSpy).toHaveBeenCalledWith({ char: values[2] }, jasmine.anything()); }
+                ]);
+
+                node.inlets['char'].stream(Kefir.sequentially(period, values));
+
+                setTimeout(function() {
+                    ensureExecuted();
+                    done();
+                }, period * (values.length + 1));
+            });
+        });
 
         it('passes previous values with a call', function() {
             Rpd.nodetype('spec/foo', {
