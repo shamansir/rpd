@@ -22,6 +22,15 @@ Rpd.linktype('spec/pass', {});
 
 describe('registering', function() {
 
+beforeEach(function() {
+    jasmine.addMatchers({
+        toHaveBeenOrderlyCalledWith: RpdMatchers.toHaveBeenOrderlyCalledWith,
+        toHaveBeenCalledOnce: RpdMatchers.toHaveBeenCalledOnce,
+        toHaveBeenCalledTwice: RpdMatchers.toHaveBeenCalledTwice,
+        toHaveBeenCalledTimes: RpdMatchers.toHaveBeenCalledTimes
+    });
+});
+
 // -----------------------------------------------------------------------------
 // ===============================- renderer -==================================
 // -----------------------------------------------------------------------------
@@ -45,15 +54,6 @@ function withNewModel(fn) {
 }
 
 describe('node type', function() {
-
-    beforeEach(function() {
-        jasmine.addMatchers({
-            toHaveBeenOrderlyCalledWith: RpdMatchers.toHaveBeenOrderlyCalledWith,
-            toHaveBeenCalledOnce: RpdMatchers.toHaveBeenCalledOnce,
-            toHaveBeenCalledTwice: RpdMatchers.toHaveBeenCalledTwice,
-            toHaveBeenCalledTimes: RpdMatchers.toHaveBeenCalledTimes
-        });
-    });
 
     it('could be registered with an empty object', function() {
         expect(function() {
@@ -867,6 +867,28 @@ describe('node type', function() {
 // -----------------------------------------------------------------------------
 
 describe('channel type', function() {
+
+    it('could be registered with an empty object', function() {
+        expect(function() {
+            Rpd.channeltype('core/foo', {});
+        }).not.toThrow();
+    });
+
+    it('could be referenced when creating an outlet or inlet');
+
+    it('could have default value which is used when channel of this type was created');
+
+    it('could have default value being a stream');
+
+    it('allows overriding its default value in a node type description');
+
+    it('could be read-only');
+
+    it('may specify adapting function which adapts all values going through');
+
+    it('may specify accepting function which declines specific values');
+
+    it('may specify tune function which configures value stream');
 
 });
 
