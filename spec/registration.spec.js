@@ -870,11 +870,29 @@ describe('channel type', function() {
 
     it('could be registered with an empty object', function() {
         expect(function() {
-            Rpd.channeltype('core/foo', {});
+            Rpd.channeltype('spec/foo', {});
         }).not.toThrow();
     });
 
-    it('could be referenced when creating an outlet or inlet');
+    it('could be used both for inlets and outlets', function() {
+        Rpd.channeltype('spec/foo', {});
+        Rpd.channeltype('spec/bar', {});
+
+        withNewModel(function(model, updateSpy) {
+            expect(function() {
+
+                Rpd.nodetype('spec/test', {
+                    inlets:  { 'in': { type: 'spec/foo' } },
+                    outlets: { 'out': { type: 'spec/foo' } }
+                });
+
+                var node = new Rpd.Node('spec/test');
+                node.addInlet('spec/bar', 'bar');
+                node.addOutlet('spec/bar', 'bar');
+
+            }).not.toThrow();
+        });
+    });
 
     it('could have default value which is used when channel of this type was created');
 
@@ -884,11 +902,15 @@ describe('channel type', function() {
 
     it('could be read-only');
 
+    it('allows overriding its read-only state in a node type description');
+
     it('may specify adapting function which adapts all values going through');
 
     it('may specify accepting function which declines specific values');
 
     it('may specify tune function which configures value stream');
+
+    it('may specify show function which returns string representation of a value');
 
 });
 
