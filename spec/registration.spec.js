@@ -522,7 +522,7 @@ describe('node type', function() {
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outlet,
-                        value: 7 // 7 * 1
+                        value: 7 * 1
                     })
                 );
 
@@ -531,7 +531,7 @@ describe('node type', function() {
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outlet,
-                        value: 14 // 2 * 7
+                        value: 2 * 7
                     })
                 );
 
@@ -572,7 +572,7 @@ describe('node type', function() {
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletC,
-                        value: 7 // 7 * 1
+                        value: 7 * 1
                     })
                 );
 
@@ -581,7 +581,7 @@ describe('node type', function() {
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletC,
-                        value: 14 // 7 * 2
+                        value: 7 * 2
                     })
                 );
 
@@ -590,7 +590,7 @@ describe('node type', function() {
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletC,
-                        value: 42 // 7 * 6
+                        value: 7 * 6
                     })
                 );
 
@@ -599,7 +599,7 @@ describe('node type', function() {
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletD,
-                        value: 0 // 0 * 3
+                        value: 0 * 3
                     })
                 );
 
@@ -608,7 +608,7 @@ describe('node type', function() {
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletD,
-                        value: 6 // 2 * 3
+                        value: 2 * 3
                     })
                 );
 
@@ -617,7 +617,7 @@ describe('node type', function() {
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletD,
-                        value: 18 // 6 * 3
+                        value: 6 * 3
                     })
                 );
 
@@ -627,7 +627,7 @@ describe('node type', function() {
 
         it('passes streamed values to corresponding outlets', function(done) {
 
-            var values = [ 2, 4, 5, 6 ];
+            var values = [ 3, 14, 15, 92 ];
             var period = 30;
 
             processSpy.and.callFake(function(inlets) {
@@ -944,13 +944,71 @@ describe('channel type', function() {
         });
     });
 
-    it('allows overriding its default value in a node type description');
+    it('allows overriding its default value in a node type description', function() {
+        Rpd.channeltype('spec/foo', { default: 5 });
 
-    it('could be read-only and declines all the values except the default one, if it is');
+        withNewModel(function(model, updateSpy) {
+            Rpd.nodetype('spec/test', {
+                inlets:  { 'in': { type: 'spec/foo', default: 17 } }
+            });
+
+            var node = new Rpd.Node('spec/test');
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/update', value: 5
+                })
+            );
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/update', value: 17
+                })
+            );
+        });
+    });
+
+    it('could be read-only and declines all the incoming values');
+
+    it('being a read-only and having the default value, allows it to pass');
 
     it('allows overriding its read-only state in a node type description');
 
-    it('may specify adapting function which adapts all values going through');
+    it('may specify adapting function which adapts all values going through', function(done) {
+        Rpd.channeltype('spec/foo', { default: 2,
+                                      adapt: function(val) { return val * 3 } });
+
+        var values = [ 3, 14, 15, 92 ];
+        var period = 30;
+
+        withNewModel(function(model, updateSpy) {
+            var node = new Rpd.Node('spec/test');
+            var inlet = node.addInlet('spec/foo', 'foo');
+            inlet.stream(Kefir.sequentially(period, values));
+            inlet.receive(21);
+
+            setTimeout(function() {
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({ type: 'inlet/update',
+                                               inlet: inlet,
+                                               value: 2 * 3 }));
+                for (var i = 0; i < values.length; i++) {
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet,
+                                                   value: values[i] * 3 }));
+                }
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({ type: 'inlet/update',
+                                               inlet: inlet,
+                                               value: 21 * 3 }));
+                done();
+            }, period * (values.length + 1));
+        });
+    });
 
     it('may specify accepting function which declines specific values');
 
