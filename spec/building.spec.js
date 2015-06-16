@@ -176,6 +176,8 @@ describe('model', function() {
             }).toThrow();
         });
 
+        it('may fall back to default type if no type was specified by user');
+
         it('uses its type as a name if name wasn\'t specified on creation');
 
         it('informs it was added to a model with an event', function() {
@@ -225,6 +227,8 @@ describe('model', function() {
         describe('inlet', function() {
 
             it('should have an alias or name');
+
+            it('may fall back to default type if no type was specified by user');
 
             it('informs it has been added to a node', function() {
                 withNewModel(function(model, updateSpy) {
@@ -416,6 +420,8 @@ describe('model', function() {
 
             it('should have an alias or name');
 
+            it('may fall back to default type if no type was specified by user');
+
             it('informs it has been added to a node', function() {
                 withNewModel(function(model, updateSpy) {
 
@@ -577,6 +583,8 @@ describe('model', function() {
         describe('link', function() {
 
             it('should be connected to both ends');
+
+            it('may fall back to default type if no type was specified by user');
 
             it('knows all individual values going through', function() {
                 withNewModel(function(model, updateSpy) {
@@ -785,7 +793,9 @@ describe('model', function() {
                 });
             });
 
-            xit('handles recursive connections');
+            it('also applies adapted values if they were sent as stream');
+
+            // xit('handles recursive connections');
 
         });
 
