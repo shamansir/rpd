@@ -224,6 +224,8 @@ describe('model', function() {
 
         describe('inlet', function() {
 
+            it('should have an alias or name');
+
             it('informs it has been added to a node', function() {
                 withNewModel(function(model, updateSpy) {
 
@@ -347,7 +349,7 @@ describe('model', function() {
                 });
             });
 
-            xit('does not receive any values if it\'s readonly');
+            xit('when it\'s read-only, does not receive any values and raises an error event if one sent');
 
             xit('still sends values when it\'s hidden');
 
@@ -411,6 +413,8 @@ describe('model', function() {
         // ---------------------------------------------------------------------
 
         describe('outlet', function() {
+
+            it('should have an alias or name');
 
             it('informs it has been added to a node', function() {
                 withNewModel(function(model, updateSpy) {

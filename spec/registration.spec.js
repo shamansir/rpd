@@ -17,7 +17,8 @@ prettify(Rpd); // inject pretty-print for Jasmine
 
 // SPEC CODE
 
-Rpd.channeltype('spec/any', { });
+Rpd.nodetype('spec/empty', {});
+Rpd.channeltype('spec/any', {});
 Rpd.linktype('spec/pass', {});
 
 describe('registering', function() {
@@ -383,18 +384,20 @@ describe('node type', function() {
                     ensureExecuted();
                     done();
                 }, period * (values.length + 1));
+
             });
         });
 
         it('when stream was sent to the inlet, still gets values one by one', function(done) {
+            var values = [ 'a', 'b', 'c' ];
+            var period = 30;
+
             Rpd.nodetype('spec/foo', {
                 inlets: { 'char': { type: 'spec/any' } },
                 process: processSpy
             });
 
             withNewModel(function(model, updateSpy) {
-                var values = [ 'a', 'b', 'c' ];
-                var period = 30;
 
                 var node = new Rpd.Node('spec/foo');
 
@@ -410,6 +413,7 @@ describe('node type', function() {
                     ensureExecuted();
                     done();
                 }, period * (values.length + 1));
+
             });
         });
 
@@ -688,7 +692,7 @@ describe('node type', function() {
 
                 node.inlets['b'].receive(7);
 
-                expect(processSpy).not.toHaveBeenCalledWith(
+                expect(updateSpy).not.toHaveBeenCalledWith(
                     jasmine.anything(),
                     jasmine.objectContaining({ type: 'outlet/update' })
                 );
@@ -714,7 +718,7 @@ describe('node type', function() {
 
                 node.inlets['b'].receive(12);
 
-                expect(processSpy).not.toHaveBeenCalledWith(
+                expect(updateSpy).not.toHaveBeenCalledWith(
                     jasmine.anything(),
                     jasmine.objectContaining({ type: 'outlet/update' })
                 );
@@ -874,6 +878,10 @@ describe('channel type', function() {
         }).not.toThrow();
     });
 
+    it('could define alias');
+
+    it('could define name');
+
     it('could be used both for inlets and outlets', function() {
         Rpd.channeltype('spec/foo', {});
         Rpd.channeltype('spec/bar', {});
@@ -894,13 +902,51 @@ describe('channel type', function() {
         });
     });
 
-    it('could have default value which is used when channel of this type was created');
+    it('could have default value which is used when channel of this type was created', function() {
+        Rpd.channeltype('spec/foo', { default: 5 });
 
-    it('could have default value being a stream');
+        withNewModel(function(model, updateSpy) {
+            var node = new Rpd.Node('spec/empty');
+            var inlet = node.addInlet('spec/foo', 'foo');
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/update',
+                    inlet: inlet,
+                    value: 5
+                })
+            );
+        });
+    });
+
+    it('could have default value being a stream', function(done) {
+        var values = [ 'a', 7, { 'foo': 'bar' } ];
+        var period = 30;
+
+        Rpd.channeltype('spec/foo', { default: Kefir.sequentially(period, values) });
+
+        withNewModel(function(model, updateSpy) {
+
+            var node = new Rpd.Node('spec/empty');
+            var inlet = node.addInlet('spec/foo', 'foo');
+
+            setTimeout(function() {
+                for (var i = 0; i < values.length; i++) {
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   inlet: inlet,
+                                                   value: values[i] }));
+                }
+                done();
+            }, period * (values.length + 1));
+
+        });
+    });
 
     it('allows overriding its default value in a node type description');
 
-    it('could be read-only');
+    it('could be read-only and declines all the values except the default one, if it is');
 
     it('allows overriding its read-only state in a node type description');
 
