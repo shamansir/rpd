@@ -743,8 +743,8 @@ describe('node type', function() {
             Rpd.nodetype('spec/foo', {
                 inlets:  { 'a': { type: 'spec/any', default: -1 } },
                 process: processSpy,
-                tune: function(in_) {
-                    return in_
+                tune: function(incoming) {
+                    return incoming
                         .filter(function(update) {
                             return update.value !== 2;
                         })
@@ -974,7 +974,7 @@ describe('channel type', function() {
 
     it('allows overriding its read-only state in a node type description');
 
-    it('may specify adapting function which adapts all values going through', function(done) {
+    it('may specify adapting function which adapts all values going through, streamed or not', function(done) {
         Rpd.channeltype('spec/foo', { default: 2,
                                       adapt: function(val) { return val * 3 } });
 
@@ -1007,7 +1007,7 @@ describe('channel type', function() {
         });
     });
 
-    it('may specify accepting function which declines specific values', function(done) {
+    it('may specify accepting function which declines specific values, streamed or not', function(done) {
         Rpd.channeltype('spec/foo', { default: 2,
                                       accept: function(val) { return (val % 2) == 0; } });
 
@@ -1062,7 +1062,45 @@ describe('channel type', function() {
         });
     });
 
-    it('may specify tune function which configures value stream');
+    it('may specify tune function which configures value stream', function() {
+        Rpd.channeltype('spec/foo', { default: 'foo',
+                                      tune: function(incoming) {
+                                                return incoming.filter(function(val) {
+                                                    return (val[0] === 'f');
+                                                }).scan(function(prev, current) {
+                                                    return prev + current;
+                                                });
+                                            }
+                                    });
+
+        withNewModel(function(model, updateSpy) {
+            var node = new Rpd.Node('spec/empty');
+            var inlet = node.addInlet('spec/foo', 'foo');
+            inlet.receive('flux');
+            inlet.receive('zoo');
+            inlet.receive('flow');
+            inlet.receive('fury');
+            inlet.receive('jazz');
+            inlet.receive('fever');
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({ type: 'inlet/update',
+                                            value: 'foofluxflow' }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({ type: 'inlet/update',
+                                            value: 'foofluxflowfuryfever' }));
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({ type: 'inlet/update',
+                                           value: 'zoo' }));
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({ type: 'inlet/update',
+                                           value: 'fury' }));
+        });
+
+    });
 
     it('may specify show function which returns string representation of a value');
 
