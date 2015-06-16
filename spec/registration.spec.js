@@ -982,7 +982,7 @@ describe('channel type', function() {
         var period = 30;
 
         withNewModel(function(model, updateSpy) {
-            var node = new Rpd.Node('spec/test');
+            var node = new Rpd.Node('spec/empty');
             var inlet = node.addInlet('spec/foo', 'foo');
             inlet.stream(Kefir.sequentially(period, values));
             inlet.receive(21);
@@ -991,26 +991,76 @@ describe('channel type', function() {
                 expect(updateSpy).toHaveBeenCalledWith(
                     jasmine.anything(),
                     jasmine.objectContaining({ type: 'inlet/update',
-                                               inlet: inlet,
                                                value: 2 * 3 }));
                 for (var i = 0; i < values.length; i++) {
                     expect(updateSpy).toHaveBeenCalledWith(
                         jasmine.anything(),
                         jasmine.objectContaining({ type: 'inlet/update',
-                                                   inlet: inlet,
                                                    value: values[i] * 3 }));
                 }
                 expect(updateSpy).toHaveBeenCalledWith(
                     jasmine.anything(),
                     jasmine.objectContaining({ type: 'inlet/update',
-                                               inlet: inlet,
                                                value: 21 * 3 }));
                 done();
             }, period * (values.length + 1));
         });
     });
 
-    it('may specify accepting function which declines specific values');
+    it('may specify accepting function which declines specific values', function(done) {
+        Rpd.channeltype('spec/foo', { default: 2,
+                                      accept: function(val) { return (val % 2) == 0; } });
+
+        var values = [ 3, 14, 15, 92 ];
+        var period = 30;
+
+        withNewModel(function(model, updateSpy) {
+            var node = new Rpd.Node('spec/empty');
+            var inlet = node.addInlet('spec/foo', 'foo');
+            inlet.stream(Kefir.sequentially(period, values));
+            inlet.receive(21);
+
+            setTimeout(function() {
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({ type: 'inlet/update',
+                                               value: 2 }));
+                for (var i = 0; i < values.length; i++) {
+                    var expectation = (values[i] % 2) == 0 ? expect(updateSpy)
+                                                           : expect(updateSpy).not;
+                    expectation.toHaveBeenCalledWith(
+                        jasmine.anything(),
+                        jasmine.objectContaining({ type: 'inlet/update',
+                                                   value: values[i] }));
+                }
+                expect(updateSpy).not.toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({ type: 'inlet/update',
+                                               value: 21 }));
+                done();
+            }, period * (values.length + 1));
+        });
+    });
+
+    it('uses accepting hanlder before the adapting one', function() {
+        var adaptSpy = jasmine.createSpy('adapt'),
+            acceptSpy = jasmine.createSpy('accept');
+
+        Rpd.channeltype('spec/foo', { accept: acceptSpy.and.callFake(function(val) { return (val % 2) !== 0; }),
+                                      adapt: adaptSpy.and.callFake(function(val) { return val * 2 }) });
+
+        withNewModel(function(model, updateSpy) {
+            var node = new Rpd.Node('spec/empty');
+            var inlet = node.addInlet('spec/foo', 'foo');
+            inlet.receive(21);
+            expect(acceptSpy).toHaveBeenCalledWith(21);
+            expect(adaptSpy).toHaveBeenCalledWith(21);
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({ type: 'inlet/update',
+                                           value: 42 }));
+        });
+    });
 
     it('may specify tune function which configures value stream');
 
