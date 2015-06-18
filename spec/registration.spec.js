@@ -62,7 +62,7 @@ describe('node type', function() {
         }).not.toThrow();
     });
 
-    it('could define name');
+    it('one could define name for it');
 
     it('redefining the type re-writes previous type');
 
@@ -880,9 +880,9 @@ describe('channel type', function() {
         }).not.toThrow();
     });
 
-    it('could define alias');
+    it('one could define alias for it');
 
-    it('could define name');
+    it('one could define name for it');
 
     it('could be used both for inlets and outlets', function() {
         Rpd.channeltype('spec/foo', {});
@@ -1120,7 +1120,7 @@ describe('link type', function() {
         }).not.toThrow();
     });
 
-    it('could define name');
+    it('one could define name for it');
 
     it('may specify adapting function, which adapts all values going through, streamed or not', function(done) {
         Rpd.linktype('spec/foo', { adapt: function(val) { return val * 3 } });
@@ -1179,7 +1179,7 @@ describe('node renderer', function() {
         var model;
 
         beforeEach(function() {
-            var updateSpy = jasmine.createSpy('update');
+            updateSpy = jasmine.createSpy('update');
 
             Rpd.renderer('spec', function() { return updateSpy; });
             Rpd.nodetype('spec/foo');
@@ -1193,7 +1193,7 @@ describe('node renderer', function() {
 
             Rpd.noderenderer('spec/foo', 'spec', renderer);
 
-            var node = new Rpd.node('spec/foo');
+            var node = new Rpd.Node('spec/foo');
             var inlet = node.addInlet('spec/any');
             inlet.receive('a');
 
@@ -1212,14 +1212,14 @@ describe('node renderer', function() {
 
         });
 
-        it('could define render-first function which is passed with node adding event', function() {
+        it('one could define render-first function which is passed with node adding event', function() {
 
             var renderFirst = function() {};
             var renderer = { first: renderFirst };
 
             Rpd.noderenderer('spec/foo', 'spec', renderer);
 
-            var node = new Rpd.node('spec/foo');
+            var node = new Rpd.Node('spec/foo');
             var inlet = node.addInlet('spec/any');
             inlet.receive('a');
 
@@ -1232,14 +1232,14 @@ describe('node renderer', function() {
 
         });
 
-        it('could define render-always function which is passed both with node adding event and node processing events', function() {
+        it('one could define render-always function which is passed both with node adding event and node processing events', function() {
 
             var renderAlways = function() {};
             var renderer = { always: renderAlways };
 
             Rpd.noderenderer('spec/foo', 'spec', renderer);
 
-            var node = new Rpd.node('spec/foo');
+            var node = new Rpd.Node('spec/foo');
             var inlet = node.addInlet('spec/any');
             inlet.receive('a');
 
@@ -1258,7 +1258,7 @@ describe('node renderer', function() {
 
         });
 
-        it('could define both render-first and render-always functions which are passed with node adding and node processing events', function() {
+        it('one could define both render-first and render-always functions which are passed with node adding and node processing events', function() {
 
             var renderFirst  = function() {},
                 renderAlways = function() {};
@@ -1267,7 +1267,7 @@ describe('node renderer', function() {
 
             Rpd.noderenderer('spec/foo', 'spec', renderer);
 
-            var node = new Rpd.node('spec/foo');
+            var node = new Rpd.Node('spec/foo');
             var inlet = node.addInlet('spec/any');
             inlet.receive('a');
 
@@ -1287,63 +1287,69 @@ describe('node renderer', function() {
 
         });
 
-        it('could be defined as a single function which is treated as render-always handler and so passed both with node adding event and node processing events', function() {
-            var renderAlways = function() {};
+        it('one could define a single function which is executed on every node creation and returns the renderer for that node', function() {
 
-            Rpd.noderenderer('spec/foo', 'spec', renderAlways);
+            var renderers = {};
+            var rendererGenSpy = jasmine.createSpy('renderer-generator')
+                                        .and.callFake(function(node) {
+                return (renderers[node.name] = {
+                    first: function() { },
+                    always: function() { },
+                });
+            });
 
-            var node = new Rpd.node('spec/foo');
-            var inlet = node.addInlet('spec/any');
-            inlet.receive('a');
+            Rpd.noderenderer('spec/foo', 'spec', rendererGenSpy);
+
+            var nodeOne = new Rpd.Node('spec/foo', 'node-1');
+            nodeOne.addInlet('spec/any').receive('a');
+
+            expect(rendererGenSpy).toHaveBeenCalledOnce();
+            expect(rendererGenSpy).toHaveBeenCalledWith(nodeOne);
 
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'node/add',
-                    render: { always: renderAlways }
+                    render: renderers['node-1']
                 }));
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'node/process',
-                    render: { always: renderAlways }
+                    render: renderers['node-1']
                 }));
-        });
 
-        it('does not pass this renderer if current renderer registered under another alias', function() {
-            var renderAlways = function() {};
+            var nodeTwo = new Rpd.Node('spec/foo', 'node-2');
+            nodeTwo.addInlet('spec/any').receive('b');
 
-            Rpd.noderenderer('spec/boo', 'sp_c', renderAlways);
+            expect(rendererGenSpy).toHaveBeenCalledTwice();
+            expect(rendererGenSpy).toHaveBeenCalledWith(nodeTwo);
 
-            var node = new Rpd.node('spec/foo');
-            var inlet = node.addInlet('spec/any');
-            inlet.receive('a');
-
-            expect(updateSpy).not.toHaveBeenCalledWith(
+            expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'node/add',
-                    render: { always: renderAlways }
+                    render: renderers['node-2']
                 }));
-            expect(updateSpy).not.toHaveBeenCalledWith(
+            expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'node/process',
-                    render: { always: renderAlways }
+                    render: renderers['node-2']
                 }));
 
         });
 
-        it('same way passes nothing even if renderer is an object, since current renderer is different', function() {
+        it('not passes this renderer if current renderer is different from the registered one', function() {
 
             var renderFirst  = function() {},
                 renderAlways = function() {};
             var renderer = { first:  renderFirst,
                              always: renderAlways };
 
-            Rpd.noderenderer('spec/boo', 'sp_c', renderer);
+            Rpd.noderenderer('spec/foo', 'sp_c', renderer);
 
-            var node = new Rpd.node('spec/foo');
+            var node = new Rpd.Node('spec/foo');
             var inlet = node.addInlet('spec/any');
             inlet.receive('a');
 
@@ -1378,11 +1384,324 @@ describe('node renderer', function() {
 
 describe('channel renderer', function() {
 
-    it('could be defined as an empty object');
+    it('could be defined as an empty object', function() {
+        expect(function() {
+            Rpd.channelrenderer('spec/foo', 'spec', {});
+        }).not.toThrow();
+    });
 
-    it('could define render-show function which is passed with with channel adding event and channel update event');
+    describe('transferring with the events', function() {
 
-    it('could define render-edit function which is passed both with channel adding event and channel update event');
+        var updateSpy;
+        var model;
+        var node;
+
+        beforeEach(function() {
+            updateSpy = jasmine.createSpy('update');
+
+            Rpd.renderer('spec', function() { return updateSpy; });
+            Rpd.channeltype('spec/foo');
+
+            model = Rpd.Model.start().renderWith('spec').attachTo({});
+
+            node = new Rpd.Node('spec/empty');
+        });
+
+        it('even if it\'s an empty object, passed with channel adding and updating event', function() {
+
+            var renderer = {};
+
+            Rpd.channelrenderer('spec/foo', 'spec', renderer);
+
+            var inlet = node.addInlet('spec/foo');
+            inlet.receive('a');
+            var outlet = node.addOutlet('spec/foo');
+            outlet.send('b');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/add',
+                    render: renderer
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/update',
+                    render: renderer
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'outlet/add',
+                    render: renderer
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'outlet/update',
+                    render: renderer
+                }));
+
+        });
+
+        it('one could define render-show function which is passed both with channel adding and updating event', function() {
+
+            var renderShow = function() {};
+            var renderer = { show: renderShow };
+
+            Rpd.channelrenderer('spec/foo', 'spec', renderer);
+
+            var inlet = node.addInlet('spec/foo');
+            inlet.receive('a');
+            var outlet = node.addOutlet('spec/foo');
+            outlet.send('b');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/add',
+                    render: { show: renderShow }
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/update',
+                    render: { show: renderShow }
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'outlet/add',
+                    render: { show: renderShow }
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'outlet/update',
+                    render: { show: renderShow }
+                }));
+
+        });
+
+        it('one could define render-edit function which is passed both with node adding event and node processing events', function() {
+
+            var renderEdit = function() {};
+            var renderer = { edit: renderEdit };
+
+            Rpd.channelrenderer('spec/foo', 'spec', renderer);
+
+            var inlet = node.addInlet('spec/foo');
+            inlet.receive('a');
+            var outlet = node.addOutlet('spec/foo');
+            outlet.send('b');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/add',
+                    render: { edit: renderEdit }
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/update',
+                    render: { edit: renderEdit }
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'outlet/add',
+                    render: { edit: renderEdit }
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'outlet/update',
+                    render: { edit: renderEdit }
+                }));
+
+        });
+
+        it('one could define both render-show and render-edit functions which are passed with channel adding and updating events', function() {
+
+            var renderShow = function() {},
+                renderEdit = function() {};
+            var renderer = { show: renderShow,
+                             edit: renderEdit };
+
+            Rpd.channelrenderer('spec/foo', 'spec', renderer);
+
+            var inlet = node.addInlet('spec/foo');
+            inlet.receive('a');
+            var outlet = node.addOutlet('spec/foo');
+            outlet.send('b');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/add',
+                    render: { show: renderShow,
+                              edit: renderEdit }
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/update',
+                    render: { show: renderShow,
+                              edit: renderEdit }
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'outlet/add',
+                    render: { show: renderShow,
+                              edit: renderEdit }
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'outlet/update',
+                    render: { show: renderShow,
+                              edit: renderEdit }
+                }));
+
+        });
+
+        it('one could define a single function which is executed on every node creation and returns the renderer for that node', function() {
+
+            var renderers = {};
+            var rendererGenSpy = jasmine.createSpy('renderer-generator')
+                                        .and.callFake(function(channel) {
+                return (renderers[channel.name] = {
+                    show: function() { },
+                    edit: function() { },
+                });
+            });
+
+            Rpd.channelrenderer('spec/foo', 'spec', rendererGenSpy);
+
+            var inletA = node.addInlet('spec/foo', 'inlet-a').receive('a');
+
+            expect(rendererGenSpy).toHaveBeenCalledOnce();
+            expect(rendererGenSpy).toHaveBeenCalledWith(inletA);
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/add',
+                    render: renderers['inlet-a']
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/update',
+                    render: renderers['inlet-a']
+                }));
+
+            var inletB = node.addInlet('spec/foo', 'inlet-b').receive('b');
+
+            expect(rendererGenSpy).toHaveBeenCalledTwice();
+            expect(rendererGenSpy).toHaveBeenCalledWith(inletB);
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/add',
+                    render: renderers['inlet-b']
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/update',
+                    render: renderers['inlet-b']
+                }));
+
+            var outletA = node.addOutlet('spec/foo', 'outlet-a').send('a');
+
+            expect(rendererGenSpy).toHaveBeenCalledTwice();
+            expect(rendererGenSpy).toHaveBeenCalledWith(outletA);
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'outlet/add',
+                    render: renderers['outlet-a']
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'outlet/update',
+                    render: renderers['outlet-a']
+                }));
+
+        });
+
+        it('not passes this renderer if current renderer is different from the registered one', function() {
+
+            var renderShow = function() {},
+                renderEdit = function() {};
+            var renderer = { show: renderShow,
+                             edit: renderEdit };
+
+            Rpd.channelrenderer('spec/foo', 'sp_c', renderer);
+
+            node.addInlet('spec/foo').receive('a');
+            node.addInlet('spec/foo').receive('b');
+            node.addOutlet('spec/foo').send('c');
+
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/add',
+                    render: jasmine.objectContaining({ show: renderShow })
+                }));
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/add',
+                    render: jasmine.objectContaining({ edit: renderEdit })
+                }));
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/update',
+                    render: jasmine.objectContaining({ show: renderShow })
+                }));
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/update',
+                    render: jasmine.objectContaining({ edit: renderEdit })
+                }));
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'outlet/add',
+                    render: jasmine.objectContaining({ show: renderShow })
+                }));
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'outlet/add',
+                    render: jasmine.objectContaining({ edit: renderEdit })
+                }));
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'outlet/update',
+                    render: jasmine.objectContaining({ show: renderShow })
+                }));
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'outlet/update',
+                    render: jasmine.objectContaining({ edit: renderEdit })
+                }));
+
+        });
+
+    });
 
 });
 
