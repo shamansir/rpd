@@ -51,7 +51,8 @@ function Model(name) {
                                  renderers = value[2];
             walk_cons(targets, function(target) {
                 walk_cons(renderers, function(renderer) {
-                    renderer(target, update);
+                    update = inject_render(update, renderer.alias);
+                    renderer.fn(target, update);
                 });
             });
         }
@@ -79,10 +80,11 @@ Model.prototype.renderWith = function(alias, conf) {
     if (!renderer_registry[alias]) throw new Error('Renderer ' + alias + ' is not registered');
     var main_renderer = renderer_registry[alias](conf);
     if (!subrenderers[alias] || !subrenderers[alias].length) {
-        this.renderers.emit(main_renderer);
+        this.renderers.emit({ alias: alias, fn: main_renderer });
     } else {
-        this.renderers.emit(join_subrenderers(main_renderer,
-                                              subrenderers[alias]), conf);
+        this.renderers.emit({ alias: alias,
+                              fn: join_subrenderers(main_renderer,
+                                                    subrenderers[alias], conf) });
     }
     return this;
 }
@@ -106,7 +108,7 @@ function Node(type, name) {
     this.name = name || def.name || type;
     this.def = def;
 
-    this.render = prepare_render_obj(noderenderers[this.type]);
+    this.render = prepare_render_obj(noderenderers[this.type], this);
 
     var myself = this;
     var event_conf = {
@@ -278,7 +280,7 @@ function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
     this.default = is_defined(_default) ? _default : def.default;
     this.value = Kefir.bus();
 
-    this.render = prepare_render_obj(channelrenderers[this.type]);
+    this.render = prepare_render_obj(channelrenderers[this.type], this);
 
     var myself = this;
     var event_conf = {
@@ -328,7 +330,7 @@ function Outlet(type, node, alias, name, _default) {
     this.default = is_defined(_default) ? _default : def.default;
     this.value = Kefir.bus();
 
-    this.render = prepare_render_obj(channelrenderers[this.type]);
+    this.render = prepare_render_obj(channelrenderers[this.type], this);
 
     // outlets values are not editable
 
@@ -463,17 +465,17 @@ function is_defined(val) {
     return (typeof val !== 'undefined');
 }
 
-function adapt_to_obj(val) {
+function adapt_to_obj(val, subj) {
     if (!val) return null;
-    if (typeof val === 'function') return val();
+    if (typeof val === 'function') return val(subj);
     return val;
 }
 
-function prepare_render_obj(template) {
+function prepare_render_obj(template, subj) {
     if (!template) return {};
     var render_obj = {};
     for (var render_type in template) {
-        render_obj[render_type] = adapt_to_obj(template[render_type]);
+        render_obj[render_type] = adapt_to_obj(template[render_type], subj);
     }
     return render_obj;
 }
@@ -534,6 +536,18 @@ function join_subrenderers(main_renderer, subrenderers, conf) {
             renderers[i](target, update);
         }
     };
+}
+
+function inject_render(update, alias) {
+    var type = update.type;
+    if ((type === 'node/add') || (type === 'node/process')) {
+        update.render = update.node.render[alias];
+    } else if ((type === 'inlet/add')  || (type === 'inlet/update')) {
+        update.render = update.inlet.render[alias];
+    } else if ((type === 'outlet/add')  || (type === 'outlet/update')) {
+        update.render = update.outlet.render[alias];
+    }
+    return update;
 }
 
 // =========================== registration ====================================

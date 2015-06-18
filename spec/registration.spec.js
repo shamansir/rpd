@@ -39,6 +39,9 @@ beforeEach(function() {
 describe('renderer', function() {
 });
 
+describe('subrenderer', function() {
+});
+
 // -----------------------------------------------------------------------------
 // =================================- node -====================================
 // -----------------------------------------------------------------------------
@@ -1173,7 +1176,7 @@ describe('node renderer', function() {
         }).not.toThrow();
     });
 
-    xdescribe('transferring with the events', function() {
+    describe('transferring with the events', function() {
 
         var updateSpy;
         var model;
@@ -1182,7 +1185,9 @@ describe('node renderer', function() {
             updateSpy = jasmine.createSpy('update');
 
             Rpd.renderer('spec', function() { return updateSpy; });
-            Rpd.nodetype('spec/foo');
+            Rpd.nodetype('spec/foo', {
+                process: function() {}
+            });
 
             model = Rpd.Model.start().renderWith('spec').attachTo({});
         });
@@ -1212,6 +1217,32 @@ describe('node renderer', function() {
 
         });
 
+        xit('the normal update stream should not set this field to an update event', function() {
+
+            var modelEventsSpy = jasmine.createSpy('model-events');
+            model.events.onValue(modelEventsSpy);
+
+            var node = new Rpd.Node('spec/foo');
+            var nodeEventsSpy = jasmine.createSpy('node-events');
+            node.events.onValue(nodeEventsSpy);
+
+            var renderer = {};
+
+            Rpd.noderenderer('spec/foo', 'spec', renderer);
+
+            var inlet = node.addInlet('spec/any', 'a');
+            inlet.receive('a');
+
+            expect(modelEventsSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add', render: renderer }));
+            expect(modelEventsSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/process', render: renderer }));
+
+            expect(nodeEventsSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/process', render: renderer }));
+
+        });
+
         it('one could define render-first function which is passed with node adding event', function() {
 
             var renderFirst = function() {};
@@ -1220,7 +1251,7 @@ describe('node renderer', function() {
             Rpd.noderenderer('spec/foo', 'spec', renderer);
 
             var node = new Rpd.Node('spec/foo');
-            var inlet = node.addInlet('spec/any');
+            var inlet = node.addInlet('spec/any', 'a');
             inlet.receive('a');
 
             expect(updateSpy).toHaveBeenCalledWith(
@@ -1240,7 +1271,7 @@ describe('node renderer', function() {
             Rpd.noderenderer('spec/foo', 'spec', renderer);
 
             var node = new Rpd.Node('spec/foo');
-            var inlet = node.addInlet('spec/any');
+            var inlet = node.addInlet('spec/any', 'a');
             inlet.receive('a');
 
             expect(updateSpy).toHaveBeenCalledWith(
@@ -1268,7 +1299,7 @@ describe('node renderer', function() {
             Rpd.noderenderer('spec/foo', 'spec', renderer);
 
             var node = new Rpd.Node('spec/foo');
-            var inlet = node.addInlet('spec/any');
+            var inlet = node.addInlet('spec/any', 'a');
             inlet.receive('a');
 
             expect(updateSpy).toHaveBeenCalledWith(
@@ -1301,7 +1332,7 @@ describe('node renderer', function() {
             Rpd.noderenderer('spec/foo', 'spec', rendererGenSpy);
 
             var nodeOne = new Rpd.Node('spec/foo', 'node-1');
-            nodeOne.addInlet('spec/any').receive('a');
+            nodeOne.addInlet('spec/any', 'a').receive('a');
 
             expect(rendererGenSpy).toHaveBeenCalledOnce();
             expect(rendererGenSpy).toHaveBeenCalledWith(nodeOne);
@@ -1320,7 +1351,7 @@ describe('node renderer', function() {
                 }));
 
             var nodeTwo = new Rpd.Node('spec/foo', 'node-2');
-            nodeTwo.addInlet('spec/any').receive('b');
+            nodeTwo.addInlet('spec/any', 'a').receive('b');
 
             expect(rendererGenSpy).toHaveBeenCalledTwice();
             expect(rendererGenSpy).toHaveBeenCalledWith(nodeTwo);
@@ -1350,7 +1381,7 @@ describe('node renderer', function() {
             Rpd.noderenderer('spec/foo', 'sp_c', renderer);
 
             var node = new Rpd.Node('spec/foo');
-            var inlet = node.addInlet('spec/any');
+            var inlet = node.addInlet('spec/any', 'a');
             inlet.receive('a');
 
             expect(updateSpy).not.toHaveBeenCalledWith(
@@ -1390,7 +1421,7 @@ describe('channel renderer', function() {
         }).not.toThrow();
     });
 
-    xdescribe('transferring with the events', function() {
+    describe('transferring with the events', function() {
 
         var updateSpy;
         var model;
@@ -1445,6 +1476,41 @@ describe('channel renderer', function() {
 
         });
 
+        xit('the normal update stream should not set this field to an update event', function() {
+            var modelEventsSpy = jasmine.createSpy('model-events');
+            model.events.onValue(modelEventsSpy);
+            var nodeEventsSpy = jasmine.createSpy('node-events');
+            node.events.onValue(nodeEventsSpy);
+
+            var renderer = {};
+
+            Rpd.channelrenderer('spec/foo', 'spec', renderer);
+
+            var inlet = node.addInlet('spec/foo', 'a');
+            inlet.receive('a');
+            var outlet = node.addOutlet('spec/foo', 'b');
+            outlet.send('b');
+
+            expect(modelEventsSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'inlet/add', render: renderer }));
+            expect(modelEventsSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'inlet/update', render: renderer }));
+            expect(modelEventsSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'outlet/add', render: renderer }));
+            expect(modelEventsSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'outlet/update', render: renderer }));
+
+            expect(nodeEventsSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'inlet/add', render: renderer }));
+            expect(nodeEventsSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'inlet/update', render: renderer }));
+            expect(nodeEventsSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'outlet/add', render: renderer }));
+            expect(nodeEventsSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'outlet/update', render: renderer }));
+
+        });
+
         it('one could define render-show function which is passed both with channel adding and updating event', function() {
 
             var renderShow = function() {};
@@ -1452,9 +1518,9 @@ describe('channel renderer', function() {
 
             Rpd.channelrenderer('spec/foo', 'spec', renderer);
 
-            var inlet = node.addInlet('spec/foo');
+            var inlet = node.addInlet('spec/foo', 'a');
             inlet.receive('a');
-            var outlet = node.addOutlet('spec/foo');
+            var outlet = node.addOutlet('spec/foo', 'b');
             outlet.send('b');
 
             expect(updateSpy).toHaveBeenCalledWith(
@@ -1491,9 +1557,9 @@ describe('channel renderer', function() {
 
             Rpd.channelrenderer('spec/foo', 'spec', renderer);
 
-            var inlet = node.addInlet('spec/foo');
+            var inlet = node.addInlet('spec/foo', 'a');
             inlet.receive('a');
-            var outlet = node.addOutlet('spec/foo');
+            var outlet = node.addOutlet('spec/foo', 'b');
             outlet.send('b');
 
             expect(updateSpy).toHaveBeenCalledWith(
@@ -1532,9 +1598,9 @@ describe('channel renderer', function() {
 
             Rpd.channelrenderer('spec/foo', 'spec', renderer);
 
-            var inlet = node.addInlet('spec/foo');
+            var inlet = node.addInlet('spec/foo', 'a');
             inlet.receive('a');
-            var outlet = node.addOutlet('spec/foo');
+            var outlet = node.addOutlet('spec/foo', 'b');
             outlet.send('b');
 
             expect(updateSpy).toHaveBeenCalledWith(
@@ -1581,7 +1647,8 @@ describe('channel renderer', function() {
 
             Rpd.channelrenderer('spec/foo', 'spec', rendererGenSpy);
 
-            var inletA = node.addInlet('spec/foo', 'inlet-a').receive('a');
+            var inletA = node.addInlet('spec/foo', 'inlet-a');
+            inletA.receive('a');
 
             expect(rendererGenSpy).toHaveBeenCalledOnce();
             expect(rendererGenSpy).toHaveBeenCalledWith(inletA);
@@ -1599,7 +1666,8 @@ describe('channel renderer', function() {
                     render: renderers['inlet-a']
                 }));
 
-            var inletB = node.addInlet('spec/foo', 'inlet-b').receive('b');
+            var inletB = node.addInlet('spec/foo', 'inlet-b');
+            inletB.receive('b');
 
             expect(rendererGenSpy).toHaveBeenCalledTwice();
             expect(rendererGenSpy).toHaveBeenCalledWith(inletB);
@@ -1617,9 +1685,10 @@ describe('channel renderer', function() {
                     render: renderers['inlet-b']
                 }));
 
-            var outletA = node.addOutlet('spec/foo', 'outlet-a').send('a');
+            var outletA = node.addOutlet('spec/foo', 'outlet-a');
+            outletA.send('a');
 
-            expect(rendererGenSpy).toHaveBeenCalledTwice();
+            expect(rendererGenSpy).toHaveBeenCalledTimes(3);
             expect(rendererGenSpy).toHaveBeenCalledWith(outletA);
 
             expect(updateSpy).toHaveBeenCalledWith(
@@ -1646,9 +1715,9 @@ describe('channel renderer', function() {
 
             Rpd.channelrenderer('spec/foo', 'sp_c', renderer);
 
-            node.addInlet('spec/foo').receive('a');
-            node.addInlet('spec/foo').receive('b');
-            node.addOutlet('spec/foo').send('c');
+            node.addInlet('spec/foo','a').receive('a');
+            node.addInlet('spec/foo','b').receive('b');
+            node.addOutlet('spec/foo','c').send('c');
 
             expect(updateSpy).not.toHaveBeenCalledWith(
                 jasmine.anything(),
