@@ -1023,8 +1023,9 @@ function HtmlRenderer(user_config) {
 
     function updateLinksOnChange(node, nodeBody) {
         // this code used getBoundingClientRect to determine if node body width/height
-        // values were changed and update links only when they did, but it appeared to be
-        // quite to check especially height value, since browsers keep it equal to 0
+        // values were changed and updates links positions only when they really did,
+        // but it appeared to be quite hard to check, i.e. height value, since browsers
+        // keep it equal to 0
         var nodeLinks = nodes[node.id].links;
         node.event['node/process'].throttle(500).onValue(function() {
             updateLinks(node, nodeLinks);

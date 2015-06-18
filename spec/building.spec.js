@@ -50,6 +50,8 @@ describe('model', function() {
         expect(node).toBeTruthy();
     });
 
+    it('is accessible from Rpd core while being current one'); /* Rpd.getCurrentModel() */
+
     // -------------------------------------------------------------------------
     // =============================- renderer -================================
     // -------------------------------------------------------------------------
@@ -803,7 +805,7 @@ describe('model', function() {
         // =============================- node (cont.) -========================
         // ---------------------------------------------------------------------
 
-        it('turned on at start');
+        it('is turned on at start');
 
         it('could be turned off');
 
@@ -816,7 +818,6 @@ describe('model', function() {
         // TODO: process event
 
     });
-
 
 });
 
