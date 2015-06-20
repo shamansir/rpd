@@ -17,10 +17,32 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       './vendor/kefir.min.js',
+
       './src/rpd.js',
+
       './spec/matchers.js',
       './spec/prettify.js',
-      './spec/**/*.spec.js'
+      './spec/prepare.js',
+
+      './spec/building/model.spec.js',
+      './spec/building/node.spec.js',
+      './spec/building/inlet.spec.js',
+      './spec/building/outlet.spec.js',
+      './spec/building/link.spec.js',
+
+      './spec/building/renderer.spec.js',
+
+      './spec/registration/general.spec.js',
+
+      './spec/registration/nodetype.spec.js',
+      './spec/registration/channeltype.spec.js',
+      './spec/registration/linktype.spec.js',
+
+      './spec/registration/noderenderer.spec.js',
+      './spec/registration/channelrenderer.spec.js',
+
+      './spec/registration/renderer.spec.js',
+      './spec/registration/subrenderer.spec.js'
     ],
 
 
