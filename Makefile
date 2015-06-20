@@ -36,8 +36,7 @@ deps:
 test-deps:
 	mkdir -p ./$(VENDOR_DIR)
 	curl -o ./$(VENDOR_DIR)/$(KEFIR_FILENAME) $(KEFIR_URL)
-	rm -R ./$(VENDOR_DIR)/jasmine-$(JASMINE_VERSION)
-	#mkdir ./$(VENDOR_DIR)/jasmine-$(JASMINE_VERSION)
+	rm -Rf ./$(VENDOR_DIR)/jasmine-$(JASMINE_VERSION)
 	curl -o ./$(VENDOR_DIR)/jasmine-standalone-$(JASMINE_VERSION).zip -LoK https://github.com/jasmine/jasmine/releases/download/v$(JASMINE_VERSION)/jasmine-standalone-$(JASMINE_VERSION).zip
 	unzip ./$(VENDOR_DIR)/jasmine-standalone-$(JASMINE_VERSION).zip MIT.LICENSE \
 														lib/jasmine-$(JASMINE_VERSION)/jasmine.js \
