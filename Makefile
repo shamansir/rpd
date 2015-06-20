@@ -36,19 +36,21 @@ deps:
 test-deps:
 	mkdir -p ./$(VENDOR_DIR)
 	curl -o ./$(VENDOR_DIR)/$(KEFIR_FILENAME) $(KEFIR_URL)
-	-rm -R ./spec/lib
-	mkdir ./spec/lib
-	curl -o ./spec/jasmine-standalone-$(JASMINE_VERSION).zip -LoK https://github.com/jasmine/jasmine/releases/download/v$(JASMINE_VERSION)/jasmine-standalone-$(JASMINE_VERSION).zip
-	unzip ./spec/jasmine-standalone-$(JASMINE_VERSION).zip MIT.LICENSE \
+	rm -R ./$(VENDOR_DIR)/jasmine-$(JASMINE_VERSION)
+	#mkdir ./$(VENDOR_DIR)/jasmine-$(JASMINE_VERSION)
+	curl -o ./$(VENDOR_DIR)/jasmine-standalone-$(JASMINE_VERSION).zip -LoK https://github.com/jasmine/jasmine/releases/download/v$(JASMINE_VERSION)/jasmine-standalone-$(JASMINE_VERSION).zip
+	unzip ./$(VENDOR_DIR)/jasmine-standalone-$(JASMINE_VERSION).zip MIT.LICENSE \
 														lib/jasmine-$(JASMINE_VERSION)/jasmine.js \
 														lib/jasmine-$(JASMINE_VERSION)/boot.js \
 														lib/jasmine-$(JASMINE_VERSION)/console.js \
 														lib/jasmine-$(JASMINE_VERSION)/jasmine-html.js \
 														lib/jasmine-$(JASMINE_VERSION)/jasmine.css \
 														lib/jasmine-$(JASMINE_VERSION)/jasmine_favicon.png \
-														-d ./spec
-	mv ./spec/MIT.LICENSE ./spec/lib/jasmine-$(JASMINE_VERSION)
-	rm ./spec/jasmine-standalone-$(JASMINE_VERSION).zip
+														-d ./$(VENDOR_DIR)
+	mv ./$(VENDOR_DIR)/lib/jasmine-$(JASMINE_VERSION) ./$(VENDOR_DIR)/jasmine-$(JASMINE_VERSION)
+	mv ./$(VENDOR_DIR)/MIT.LICENSE ./$(VENDOR_DIR)/jasmine-$(JASMINE_VERSION)
+	rm -R ./$(VENDOR_DIR)/lib
+	rm ./$(VENDOR_DIR)/jasmine-standalone-$(JASMINE_VERSION).zip
 
 test:
 	./node_modules/.bin/karma start ./spec/karma.conf.js --single-run
