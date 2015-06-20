@@ -1,8 +1,0 @@
-{
-  "spec_dir": "spec",
-  "spec_files": [
-    "building.spec.js",
-    "events.spec.js",
-    "registration.spec.js"
-  ]
-}

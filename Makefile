@@ -51,7 +51,7 @@ test-deps:
 	rm ./spec/jasmine-standalone-$(JASMINE_VERSION).zip
 
 test:
-	jasmine
+	./node_modules/.bin/karma start ./spec/karma.conf.js --single-run
 
 dist: dist-html
 

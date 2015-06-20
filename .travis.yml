@@ -4,5 +4,3 @@ node_js:
     - "0.10"
     - "iojs"
     - "iojs-v1.0.4"
-before_script:
-    - "make test-deps"
