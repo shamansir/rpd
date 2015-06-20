@@ -77,11 +77,7 @@ module.exports = function(config) {
 
   if (process.env.TRAVIS) {
     options.browsers = ['Chrome_travis_ci'];
-    // configuration.reporters = configuration.reporters.concat(['coverage', 'coveralls']);
-    // configuration.coverageReporter = {
-    //   type : 'lcovonly',
-    //   dir : 'coverage/'
-    // };
+    options.reporters = ['mocha'];
   }
 
   config.set(options);
