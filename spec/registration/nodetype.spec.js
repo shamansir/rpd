@@ -485,7 +485,7 @@ describe('registration: node type', function() {
 
         });
 
-        it('passes single values to corresponding outlets', function() {
+        it('passes single values to corresponding outlets, even in sequences', function() {
 
             processSpy.and.callFake(function(inlets) {
                 return { 'c': inlets.a * (inlets.b || 1),
@@ -612,6 +612,44 @@ describe('registration: node type', function() {
 
             });
 
+        });
+
+        it('passes outlet values to process event', function() {
+            processSpy.and.callFake(function(inlets) {
+                return { 'c': inlets.a * inlets.b,
+                         'd': inlets.b - inlets.a };
+            });
+
+            Rpd.nodetype('spec/foo', {
+                inlets:  { 'a': { type: 'spec/any' },
+                           'b': { type: 'spec/any' } },
+                outlets: { 'c': { type: 'spec/any' },
+                           'd': { type: 'spec/any' } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+
+                var node = new Rpd.Node('spec/foo');
+
+                node.inlets['a'].receive(7);
+                node.inlets['b'].receive(2);
+
+                var outletC = node.outlets['c'];
+                var outletD = node.outlets['d'];
+
+                expect(processSpy).toHaveBeenCalled();
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({
+                        type: 'node/process',
+                        inlets: { a: 7, b : 2 },
+                        outlets: { c: 7 * 2, d: 2 - 7 }
+                    })
+                );
+
+            });
         });
 
         it('updates the outlet value even when processing function was executed before this outlet was created');
