@@ -2,6 +2,7 @@
 // Generated on Sat Jun 20 2015 01:21:00 GMT+0200 (CEST)
 
 module.exports = function(config) {
+
   var options = {
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -71,7 +72,8 @@ module.exports = function(config) {
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: false
-  });
+
+  };
 
   if (process.env.TRAVIS) {
     options.browsers = ['Chrome_travis_ci'];
