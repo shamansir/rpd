@@ -91,7 +91,7 @@ function HtmlRenderer(user_config) {
             root.style.height = document.documentElement.clientHeight + 'px';
             // window.innerHeight + 'px';
 
-            Kefir.fromEvent(root, 'resize').onValue(function() {
+            Kefir.fromEvents(root, 'resize').onValue(function() {
                 root.style.height = document.documentElement.clientHeight + 'px';
             });
 
@@ -102,7 +102,7 @@ function HtmlRenderer(user_config) {
 
             if (config.renderNodeList) addNodeList(root, Rpd.allNodeTypes, descriptions);
 
-            Kefir.fromEvent(root, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
+            Kefir.fromEvents(root, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
 
         },
 
@@ -342,7 +342,7 @@ function HtmlRenderer(user_config) {
                 addDragNDrop(node, root, dragTrg, nodeBox);
             }
 
-            Kefir.fromEvent(removeButton, 'click')
+            Kefir.fromEvents(removeButton, 'click')
                  .tap(stopPropagation)
                  .onValue(function() {
                      Rpd.currentModel().removeNode(node);
@@ -742,7 +742,7 @@ function HtmlRenderer(user_config) {
     };
     function invertValue(prev) { return !prev; };
     function addClickSwitch(elm, on_true, on_false, initial) {
-        Kefir.fromEvent(elm, 'click')
+        Kefir.fromEvents(elm, 'click')
              .tap(stopPropagation)
              .mapTo(initial || false)
              .scan(invertValue)  // will toggle between `true` and `false`
@@ -764,10 +764,10 @@ function HtmlRenderer(user_config) {
         valueOut.onValue(function(value) { inlet.receive(value); });
         Kefir.sampledBy([ inlet.event['inlet/update'] ],
                         [ Kefir.merge([
-                                    Kefir.fromEvent(valueHolder, 'click')
+                                    Kefir.fromEvents(valueHolder, 'click')
                                          .tap(stopPropagation)
                                          .mapTo(true),
-                                    Kefir.fromEvent(root, 'click')
+                                    Kefir.fromEvents(root, 'click')
                                          .merge(disableEditor)
                                          .mapTo(false) ])
                                .toProperty(I(false))
@@ -824,7 +824,7 @@ function HtmlRenderer(user_config) {
 
                 root = rootElm;
 
-                rootClicks = Kefir.fromEvent(rootElm, 'click');
+                rootClicks = Kefir.fromEvents(rootElm, 'click');
                 inletClicks = Kefir.pool(),
                 outletClicks = Kefir.pool();
 
@@ -842,11 +842,11 @@ function HtmlRenderer(user_config) {
                 // - If user clicks an inlet, linking process is considered successful and finished, but also...
                 // - If this inlet had a link there connected, this previous link is removed and disconnected;
 
-                outletClicks.plug(Kefir.fromEvent(connector, 'click')
+                outletClicks.plug(Kefir.fromEvents(connector, 'click')
                                        .map(extractPos)
                                        .map(addTarget(outlet)));
 
-                Kefir.fromEvent(connector, 'click').tap(stopPropagation)
+                Kefir.fromEvents(connector, 'click').tap(stopPropagation)
                                                    .filterBy(outletClicks.awaiting(doingLink))
                                                    .map(extractPos)
                                                    .onValue(function(pos) {
@@ -855,7 +855,7 @@ function HtmlRenderer(user_config) {
                     var ghost = constructLink(pivot.x, pivot.y, pos.x, pos.y,
                                               config.linkWidth);
                     root.appendChild(ghost);
-                    return Kefir.fromEvent(root, 'mousemove')
+                    return Kefir.fromEvents(root, 'mousemove')
                                 .takeUntilBy(Kefir.merge([ inletClicks,
                                                            outletClicks.mapTo(false),
                                                            rootClicks.mapTo(false) ])
@@ -890,11 +890,11 @@ function HtmlRenderer(user_config) {
                 // - If user clicks other inlet, the link user drags/edits now is moved to be connected
                 //   to this other inlet, instead of first-clicked one;
 
-                inletClicks.plug(Kefir.fromEvent(connector, 'click')
+                inletClicks.plug(Kefir.fromEvents(connector, 'click')
                                       .map(extractPos)
                                       .map(addTarget(inlet)));
 
-                Kefir.fromEvent(connector, 'click').tap(stopPropagation)
+                Kefir.fromEvents(connector, 'click').tap(stopPropagation)
                                                    .filterBy(inletClicks.awaiting(doingLink))
                                                    .filter(hasLink(inlet))
                                                    .onValue(function(pos) {
@@ -906,7 +906,7 @@ function HtmlRenderer(user_config) {
                     var ghost = constructLink(pivot.x, pivot.y, pos.x, pos.y,
                                               config.linkWidth);
                     root.appendChild(ghost);
-                    return Kefir.fromEvent(root, 'mousemove')
+                    return Kefir.fromEvents(root, 'mousemove')
                                 .takeUntilBy(Kefir.merge([ inletClicks,
                                                            outletClicks.mapTo(false),
                                                            rootClicks.mapTo(false) ])
@@ -986,7 +986,7 @@ function HtmlRenderer(user_config) {
         var nodeData = nodes[node.id];
         handle.classList.add('rpd-drag-handle');
         var nodeLinks;
-        Kefir.fromEvent(handle, 'mousedown').map(extractPos)
+        Kefir.fromEvents(handle, 'mousedown').map(extractPos)
                                             .flatMap(function(pos) {
             box.classList.add('rpd-dragging');
             var initPos = getPos(box),
@@ -994,9 +994,9 @@ function HtmlRenderer(user_config) {
                             y: pos.y - initPos.y };
             nodeLinks = null;
             box.style.zIndex = NODEDRAG_LAYER;
-            return Kefir.fromEvent(root, 'mousemove')
+            return Kefir.fromEvents(root, 'mousemove')
                         .tap(stopPropagation)
-                        .takeUntilBy(Kefir.fromEvent(root, 'mouseup'))
+                        .takeUntilBy(Kefir.fromEvents(root, 'mouseup'))
                         .map(extractPos)
                         .map(function(absPos) {
                             return { x: absPos.x - diffPos.x,
@@ -1081,7 +1081,7 @@ function HtmlRenderer(user_config) {
                 })(nodeDescElm);
 
                 (function(nodeType) {
-                    Kefir.fromEvent(addButton, 'click')
+                    Kefir.fromEvents(addButton, 'click')
                          .tap(stopPropagation)
                          .onValue(function() {
                              (new Rpd.Node(nodeType));
