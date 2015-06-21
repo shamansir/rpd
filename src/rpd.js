@@ -23,6 +23,9 @@ var subrenderers = {};
 var cur_model = -1;
 var models = [];
 
+// Identity function
+function I(v) { return function() { return v; } }
+
 // ================================== Model ====================================
 // =============================================================================
 
@@ -48,7 +51,8 @@ function Model(name) {
                                  renderers = value[2];
             walk_cons(targets, function(target) {
                 walk_cons(renderers, function(renderer) {
-                    renderer(target, update);
+                    update = inject_render(update, renderer.alias);
+                    renderer.fn(target, update);
                 });
             });
         }
@@ -76,10 +80,11 @@ Model.prototype.renderWith = function(alias, conf) {
     if (!renderer_registry[alias]) throw new Error('Renderer ' + alias + ' is not registered');
     var main_renderer = renderer_registry[alias](conf);
     if (!subrenderers[alias] || !subrenderers[alias].length) {
-        this.renderers.emit(main_renderer);
+        this.renderers.emit({ alias: alias, fn: main_renderer });
     } else {
-        this.renderers.emit(join_subrenderers(main_renderer,
-                                              subrenderers[alias]), conf);
+        this.renderers.emit({ alias: alias,
+                              fn: join_subrenderers(main_renderer,
+                                                    subrenderers[alias], conf) });
     }
     return this;
 }
@@ -103,7 +108,7 @@ function Node(type, name) {
     this.name = name || def.name || type;
     this.def = def;
 
-    this.render = prepare_render_obj(noderenderers[this.type]);
+    this.render = prepare_render_obj(noderenderers[this.type], this);
 
     var myself = this;
     var event_conf = {
@@ -136,50 +141,56 @@ function Node(type, name) {
     }
 
     if (this.def.process) {
+
         var process_f = this.def.process;
         var myself = this;
-        Kefir.combine([
+
+        var process = Kefir.combine([
+
             // when new inlet was added, start monitoring its updates
+            // as an active stream
             this.event['inlet/add'].flatMap(function(inlet) {
                 var updates = inlet.event['inlet/update'].map(function(value) {
-                    return { inlet: inlet, alias: inlet.alias, value: value };
+                    return { inlet: inlet, value: value };
                 });
                 if (myself.def.tune) updates = myself.def.tune(updates);
                 return updates;
-            // join inlet updates in one inlet_alias=value hash, plus store
-            // previous values in a similar hash, add a source of update,
-            // and return all three
-            }).scan(function(values, update) {
-                var alias = update.alias,
-                    inlet = update.inlet;
-                var prev_values, cur_values;
-                if (!values) {
-                    prev_values = {}; cur_values = {};
-                    cur_values[alias] = update.value;
-                    return { prev: prev_values, cur: cur_values, source: inlet };
-                } else {
-                    prev_values = values.prev; cur_values  = values.cur;
-                    prev_values[alias] = cur_values[alias];
-                    cur_values[alias]  = update.value;
-                    values.source = inlet;
-                    return values;
-                }
-            }, null).filter(function(updates) {
-                return !(updates && updates.source.cold);
-            }),
-            // prepare an object with all new outlets names to know which
-            // outlets are ready to be monitored for new values
+            })
+
+        ],
+        [
+            // collect all the existing outlets aliases as a passive stream
             this.event['outlet/add'].scan(function(outlets, outlet) {
-                var outlets = outlets || {};
                 outlets[outlet.alias] = outlet;
                 return outlets;
-            }, null)
-        ]).onValue(function(value) {
+            }, {})
+
+        ])
+
+        // do not fire any event until node is ready, then immediately fire them one by one, if any occured
+        // later events are fired after node/ready corresponding to their time of firing, as usual
+        process = process.bufferBy(this.event['node/ready']).take(1).flatten().concat(process);
+
+        process = process.scan(function(data, update) {
+            // update[0] is inlet value update, update[1] is a list of outlets
+            var inlet = update[0].inlet;
+            var alias = inlet.alias;
+            data.inlets.prev[alias] = data.inlets.cur[alias];
+            data.inlets.cur[alias] = update[0].value;
+            data.outlets = update[1];
+            data.source = inlet;
+            return data;
+        }, { inlets: { prev: {}, cur: {} }, outlets: {} }).changes();
+
+        // filter cold inlets, so the update data will be stored, but process event won't fire
+        process = process.filter(function(data) { return !data.source.cold; });
+
+        process.onValue(function(data) {
             // call a node/process event using collected inlet values
-            var inlets_vals = value[0] || { prev: {}, cur: {} }; var outlets = value[1] || {};
-            var outlets_vals = process_f(inlets_vals.cur, inlets_vals.prev);
-            myself.event['node/process'].emit([inlets_vals.cur, outlets_vals, inlets_vals.prev]);
+            var outlets_vals = process_f(data.inlets.cur, data.inlets.prev);
+            myself.event['node/process'].emit([data.inlets.cur, outlets_vals, data.inlets.prev]);
             // send the values provided from a `process` function to corresponding outlets
+            var outlets = data.outlets;
             for (var outlet_name in outlets_vals) {
                 if (outlets[outlet_name]) {
                     if (outlets_vals[outlet_name] instanceof Kefir.Stream) {
@@ -190,6 +201,7 @@ function Node(type, name) {
                 };
             }
         });
+
     }
 
     // only inlets / outlets described in type definition are stored inside
@@ -235,6 +247,7 @@ Node.prototype.addOutlet = function(type, alias, name, _default) {
     var outlet = new Outlet(type, this, alias, name, _default);
     this.events.plug(outlet.events);
     this.event['outlet/add'].emit(outlet);
+    outlet.toDefault();
     return outlet;
 }
 Node.prototype.removeInlet = function(inlet) {
@@ -267,7 +280,7 @@ function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
     this.default = is_defined(_default) ? _default : def.default;
     this.value = Kefir.bus();
 
-    this.render = prepare_render_obj(channelrenderers[this.type]);
+    this.render = prepare_render_obj(channelrenderers[this.type], this);
 
     var myself = this;
     var event_conf = {
@@ -317,7 +330,7 @@ function Outlet(type, node, alias, name, _default) {
     this.default = is_defined(_default) ? _default : def.default;
     this.value = Kefir.bus();
 
-    this.render = prepare_render_obj(channelrenderers[this.type]);
+    this.render = prepare_render_obj(channelrenderers[this.type], this);
 
     // outlets values are not editable
 
@@ -361,6 +374,13 @@ Outlet.prototype.send = function(value) {
 Outlet.prototype.stream = function(stream) {
     this.value.plug(this.adapt ? stream.map(this.adapt) : stream);
 }
+Outlet.prototype.toDefault = function() {
+    if (is_defined(this.default)) {
+        if (this.default instanceof Kefir.Stream) {
+            this.stream(this.default);
+        } else this.send(this.default);
+    }
+}
 
 // ================================= Link ======================================
 // =============================================================================
@@ -402,7 +422,7 @@ function Link(type, outlet, inlet, adapter, name) {
     this.events = events_stream(event_conf, this.event);
 
     this.enabled = Kefir.merge([ this.event['link/disable'].mapTo(false),
-                                 this.event['link/enable'].mapTo(true) ]).toProperty(true);
+                                 this.event['link/enable'].mapTo(true) ]).toProperty(I(true));
 
     this.event['link/pass'].filterBy(this.enabled).onValue(function(x) {
         inlet.receive(myself.adapt(x));
@@ -445,17 +465,17 @@ function is_defined(val) {
     return (typeof val !== 'undefined');
 }
 
-function adapt_to_obj(val) {
+function adapt_to_obj(val, subj) {
     if (!val) return null;
-    if (typeof val === 'function') return val();
+    if (typeof val === 'function') return val(subj);
     return val;
 }
 
-function prepare_render_obj(template) {
+function prepare_render_obj(template, subj) {
     if (!template) return {};
     var render_obj = {};
     for (var render_type in template) {
-        render_obj[render_type] = adapt_to_obj(template[render_type]);
+        render_obj[render_type] = adapt_to_obj(template[render_type], subj);
     }
     return render_obj;
 }
@@ -518,6 +538,18 @@ function join_subrenderers(main_renderer, subrenderers, conf) {
     };
 }
 
+function inject_render(update, alias) {
+    var type = update.type;
+    if ((type === 'node/add') || (type === 'node/process')) {
+        update.render = update.node.render[alias];
+    } else if ((type === 'inlet/add')  || (type === 'inlet/update')) {
+        update.render = update.inlet.render[alias];
+    } else if ((type === 'outlet/add')  || (type === 'outlet/update')) {
+        update.render = update.outlet.render[alias];
+    }
+    return update;
+}
+
 // =========================== registration ====================================
 // =============================================================================
 
@@ -562,6 +594,8 @@ function nodedescription(type, description) {
 // =============================================================================
 
 return {
+
+    'Identity': I,
 
     'Model': Model,
     'Node': Node,

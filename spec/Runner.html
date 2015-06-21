@@ -2,23 +2,49 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Jasmine Spec Runner v2.2.0</title>
+  <title>Jasmine Spec Runner v2.3.4</title>
 
-  <link rel="shortcut icon" type="image/png" href="lib/jasmine-2.2.0/jasmine_favicon.png">
-  <link rel="stylesheet" href="lib/jasmine-2.2.0/jasmine.css">
+  <link rel="shortcut icon" type="image/png" href="lib/jasmine-2.3.4/jasmine_favicon.png">
+  <link rel="stylesheet" href="../vendor/jasmine-2.3.4/jasmine.css">
 
-  <script src="lib/jasmine-2.2.0/jasmine.js"></script>
-  <script src="lib/jasmine-2.2.0/jasmine-html.js"></script>
-  <script src="lib/jasmine-2.2.0/boot.js"></script>
+  <style>
+    .jasmine_html-reporter .result-message {
+        white-space: pre-wrap;
+    }
+  </style>
+
+  <script src="../vendor/jasmine-2.3.4/jasmine.js"></script>
+  <script src="../vendor/jasmine-2.3.4/jasmine-html.js"></script>
+  <script src="../vendor/jasmine-2.3.4/boot.js"></script>
 
   <!-- include source files here... -->
   <script src="../vendor/kefir.min.js"></script>
   <script src="../src/rpd.js"></script>
 
   <!-- include spec files here... -->
-  <script src="./building.spec.js"></script>
-  <script src="./events.spec.js"></script>
-  <script src="./registration.spec.js"></script>
+  <script src="./matchers.js"></script>
+  <script src="./prettify.js"></script>
+  <script src="./prepare.js"></script>
+
+  <script src="./building/model.spec.js"></script>
+  <script src="./building/node.spec.js"></script>
+  <script src="./building/inlet.spec.js"></script>
+  <script src="./building/outlet.spec.js"></script>
+  <script src="./building/link.spec.js"></script>
+
+  <script src="./building/renderer.spec.js"></script>
+
+  <script src="./registration/general.spec.js"></script>
+
+  <script src="./registration/nodetype.spec.js"></script>
+  <script src="./registration/channeltype.spec.js"></script>
+  <script src="./registration/linktype.spec.js"></script>
+
+  <script src="./registration/noderenderer.spec.js"></script>
+  <script src="./registration/channelrenderer.spec.js"></script>
+
+  <script src="./registration/renderer.spec.js"></script>
+  <script src="./registration/subrenderer.spec.js"></script>
 
 </head>
 

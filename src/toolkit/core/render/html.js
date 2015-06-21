@@ -40,7 +40,7 @@ Rpd.noderenderer('core/sum-of-three', 'html', {
             bodyElm.appendChild(sumContent);
             return { c:
                         { default: function() { cValInput.value = 0; return 0; },
-                          valueOut: Kefir.fromEvent(cValInput, 'change')
+                          valueOut: Kefir.fromEvents(cValInput, 'change')
                                          .map(function() { return cValInput.value; })
                         }
                    };
@@ -63,10 +63,10 @@ Rpd.channelrenderer('core/boolean', 'html', {
             valInput.checked = val ? true : false;
         });
         target.appendChild(valInput);
-        return Kefir.fromEvent(valInput, 'change')
+        return Kefir.fromEvents(valInput, 'change')
                     .map(function() {
                         return valInput.checked;
-                    }).toProperty(false);
+                    }).toProperty(function() { return false; });
     }
 });
 
@@ -79,7 +79,7 @@ Rpd.channelrenderer('core/number', 'html', {
             valInput.value = val;
         });
         target.appendChild(valInput);
-        return Kefir.fromEvent(valInput, 'change')
+        return Kefir.fromEvents(valInput, 'change')
                     .map(function() { return valInput.value; });
     }
 });
@@ -96,13 +96,13 @@ function attachSpinner(target, initial, config) {
         target.innerText = target.textContent = val;
     });
     change.emit(initial);
-    Kefir.fromEvent(target, 'mousedown')
+    Kefir.fromEvents(target, 'mousedown')
          .map(extractPos)
          .flatMap(function(startPos) {
              var start = state.value;
-             return Kefir.fromEvent(document.body, 'mousemove')
+             return Kefir.fromEvents(document.body, 'mousemove')
                          .map(extractPos)
-                         .takeUntilBy(Kefir.fromEvent(document.body, 'mouseup'))
+                         .takeUntilBy(Kefir.fromEvents(document.body, 'mouseup'))
                          .map(function(newPos) { return start + (newPos.x - startPos.x); })
                          .map(function(num) {
                              if (num >= config.max) return config.max;

@@ -14,13 +14,13 @@ KEFIR_FILENAME	  = kefir.min.js
 TIMBRE_FILENAME	 = timbre.min.js
 ANM_PLAYER_FILENAME = anm-player.min.js
 
-KEFIR_URL	   = https://raw.githubusercontent.com/rpominov/kefir/1.3.2/dist/kefir.min.js
+KEFIR_URL	   = http://rpominov.github.io/kefir/dist/kefir.min.js
 TIMBRE_URL	   = http://mohayonao.github.io/timbre.js/timbre.js
 ANM_PLAYER_URL = http://player-dev.animatron.com/latest/bundle/animatron.min.js
 
 CLOSURE_COMPILER = ./compiler.jar
 
-JASMINE_VERSION = 2.2.0
+JASMINE_VERSION = 2.3.4
 
 JS_VERSION = ECMASCRIPT5
 
@@ -36,22 +36,23 @@ deps:
 test-deps:
 	mkdir -p ./$(VENDOR_DIR)
 	curl -o ./$(VENDOR_DIR)/$(KEFIR_FILENAME) $(KEFIR_URL)
-	-rm -R ./spec/lib
-	mkdir ./spec/lib
-	curl -o ./spec/jasmine-standalone-$(JASMINE_VERSION).zip -LoK https://github.com/jasmine/jasmine/releases/download/v$(JASMINE_VERSION)/jasmine-standalone-$(JASMINE_VERSION).zip
-	unzip ./spec/jasmine-standalone-$(JASMINE_VERSION).zip MIT.LICENSE \
+	rm -Rf ./$(VENDOR_DIR)/jasmine-$(JASMINE_VERSION)
+	curl -o ./$(VENDOR_DIR)/jasmine-standalone-$(JASMINE_VERSION).zip -LoK https://github.com/jasmine/jasmine/releases/download/v$(JASMINE_VERSION)/jasmine-standalone-$(JASMINE_VERSION).zip
+	unzip ./$(VENDOR_DIR)/jasmine-standalone-$(JASMINE_VERSION).zip MIT.LICENSE \
 														lib/jasmine-$(JASMINE_VERSION)/jasmine.js \
 														lib/jasmine-$(JASMINE_VERSION)/boot.js \
 														lib/jasmine-$(JASMINE_VERSION)/console.js \
 														lib/jasmine-$(JASMINE_VERSION)/jasmine-html.js \
 														lib/jasmine-$(JASMINE_VERSION)/jasmine.css \
 														lib/jasmine-$(JASMINE_VERSION)/jasmine_favicon.png \
-														-d ./spec
-	mv ./spec/MIT.LICENSE ./spec/lib/jasmine-$(JASMINE_VERSION)
-	rm ./spec/jasmine-standalone-$(JASMINE_VERSION).zip
+														-d ./$(VENDOR_DIR)
+	mv ./$(VENDOR_DIR)/lib/jasmine-$(JASMINE_VERSION) ./$(VENDOR_DIR)/jasmine-$(JASMINE_VERSION)
+	mv ./$(VENDOR_DIR)/MIT.LICENSE ./$(VENDOR_DIR)/jasmine-$(JASMINE_VERSION)
+	rm -R ./$(VENDOR_DIR)/lib
+	rm ./$(VENDOR_DIR)/jasmine-standalone-$(JASMINE_VERSION).zip
 
 test:
-	jasmine
+	./node_modules/.bin/karma start ./spec/karma.conf.js --single-run
 
 dist: dist-html
 
