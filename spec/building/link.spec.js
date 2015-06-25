@@ -215,4 +215,6 @@ describe('building: link', function() {
 
     // xit('handles recursive connections');
 
+    it('provides access to inner events');
+
 });

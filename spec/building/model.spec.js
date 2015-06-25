@@ -1,5 +1,7 @@
 describe('building: model', function() {
 
+    //beforeEach(function() { Rpd.network.clear(); });
+
     it('disallows creating nodes without starting any instance of it', function() {
         expect(function() {
             // no model started at this point
@@ -9,27 +11,45 @@ describe('building: model', function() {
 
     it('could be started both with or without a name', function() {
         var unnamed = Rpd.Model.start();
-        expect(unnamed).toBeTruthy();
+        expect(unnamed).toBeDefined();
 
         var named = Rpd.Model.start('some-name');
-        expect(named).toBeTruthy();
+        expect(named).toBeDefined();
     });
 
     it('accepts modifications without any renderer or target', function() {
         var model = Rpd.Model.start();
         var node = new Rpd.Node('spec/empty', 'Test Node');
-        expect(node).toBeTruthy();
+        expect(node).toBeDefined();
     });
 
     it('is accessible from Rpd core while being current one'); /* Rpd.getCurrentModel() */
 
-    it('informs user that it was created', function() {
-        withNewModel(function(model, updateSpy) {
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({ type: 'model/new',
-                                           model: model }));
-        });
+    xit('is not allowed to start from constructor', function() {
+        expect(function() {
+            new Rpd.Model();
+        }).toThrow();
+
+        expect(function() {
+            new Rpd.Model('foo');
+        }).toThrow();
+    });
+
+    it('could be started in several instances', function() {
+        expect(function() {
+            Rpd.Model.start();
+            Rpd.Model.start();
+        }).not.toThrow();
+    });
+
+    it('provides access to inner events', function() {
+        var addNodeSpy = jasmine.createSpy('add-node');
+
+        var model = Rpd.Model.start();
+        model.event['node/add'].onValue(addNodeSpy);
+
+        var node = new Rpd.Node('spec/empty');
+        expect(addNodeSpy).toHaveBeenCalled();
     });
 
 });

@@ -156,4 +156,6 @@ describe('building: outlet', function() {
 
     it('disables previous stream of values when new stream was plugged in');
 
+    it('provides access to inner events');
+
 });

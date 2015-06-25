@@ -8,12 +8,12 @@ describe('building: renderer', function() {
 
     it('receives no events if no target was specified', function() {
 
-        var fooUpdateSpy = jasmine.createSpy();
+        var fooUpdateSpy = jasmine.createSpy('foo-update');
         var fooRenderer = Rpd.renderer('foo', function(user_conf) {
             return fooUpdateSpy;
         });
 
-        var barUpdateSpy = jasmine.createSpy();
+        var barUpdateSpy = jasmine.createSpy('bar-update');
         var barRenderer = Rpd.renderer('bar', function(user_conf) {
             return barUpdateSpy;
         });
@@ -29,12 +29,12 @@ describe('building: renderer', function() {
 
     it('receives all events, if at least one target was specified', function() {
 
-        var fooUpdateSpy = jasmine.createSpy();
+        var fooUpdateSpy = jasmine.createSpy('foo-update');
         var fooRenderer = Rpd.renderer('foo', function(user_conf) {
             return fooUpdateSpy;
         });
 
-        var barUpdateSpy = jasmine.createSpy();
+        var barUpdateSpy = jasmine.createSpy('bar-update');
         var barRenderer = Rpd.renderer('bar', function(user_conf) {
             return barUpdateSpy;
         });
@@ -64,8 +64,21 @@ describe('building: renderer', function() {
 
     });
 
+    it('is called once for every new model', function() {
+        var updateSpy = jasmine.createSpy('update');
+        var rendererSpy = jasmine.createSpy('renderer').and.returnValue(function() {});
+
+        Rpd.renderer('foo', rendererSpy);
+
+        Rpd.Model.start().renderWith('foo');
+        expect(rendererSpy).toHaveBeenCalledOnce();
+        Rpd.Model.start().renderWith('foo');
+        expect(rendererSpy).toHaveBeenCalledTwice();
+
+    });
+
     it('receives configuration passed from a user', function() {
-        var configurationSpy = jasmine.createSpy('conf');
+        var configurationSpy = jasmine.createSpy('configuration');
         var renderer = Rpd.renderer('foo', function(user_conf) {
             configurationSpy(user_conf);
             return function() {};
@@ -78,6 +91,50 @@ describe('building: renderer', function() {
         expect(configurationSpy).toHaveBeenCalledWith(confMock);
     });
 
-    it('receives events from all started models');
+    it('could handle specific events', function() {
+        var newModelSpy = jasmine.createSpy('new-node');
+        var renderer = Rpd.renderer('foo', function() {
+            return function(root, update) {
+                if (update.type === 'model/new') newModelSpy();
+            };
+        });
+
+        Rpd.Model.start().renderWith('foo').attachTo({});
+
+        new Rpd.Node('spec/empty');
+
+        expect(newModelSpy).toHaveBeenCalled();
+    });
+
+    xdescribe('postponing updates', function() {
+
+        it('gets construction events happened before, if it was assigned after the fact these modifications were performed', function() {
+            var updateSpy = jasmine.createSpy('update');
+
+            var renderer = Rpd.renderer('foo', function() { return updateSpy; });
+
+            var model = Rpd.Model.start();
+            var node = new Rpd.Node('spec/empty');
+            var inlet = node.addInlet('spec/pass', 'foo');
+
+            model.renderWith('foo');
+            expect(updateSpy).not.toHaveBeenCalled();
+            model.attachTo({});
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'node/add',
+                    node: node
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/add',
+                    inlet: inlet
+                }));
+        });
+
+    });
 
 });

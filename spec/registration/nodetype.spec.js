@@ -406,7 +406,7 @@ describe('registration: node type', function() {
             });
         });
 
-        it('does not reacts if updated inlet was cold, but keeps its value for next update', function() {
+        it('does not react if updated inlet was cold, but keeps its value for next update', function() {
             Rpd.nodetype('spec/foo', {
                 inlets: { 'foo': { type: 'spec/any',
                                    cold: true,
@@ -440,7 +440,7 @@ describe('registration: node type', function() {
             });
         });
 
-        it('does not reacts if updated inlet was cold and contained a stream, but keeps its value for next update')
+        it('does not react if updated inlet was cold and contained a stream, but keeps its value for next update')
 
         it('passes values to corresponding outlets based on default inlets values', function() {
 
@@ -656,7 +656,7 @@ describe('registration: node type', function() {
 
         it('switches off previous stream when new one was plugged to outlet');
 
-        it('if no outlet was updated, does not fires the update for this outlet', function() {
+        it('if no outlet was updated, does not fire the update for this outlet', function() {
 
             processSpy.and.callFake(function(inlets) {
                 return {};

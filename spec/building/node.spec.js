@@ -60,4 +60,6 @@ describe('building: node', function() {
 
     it('fires no process events until the node is ready (default inlets/outlets are set up)');
 
+    it('provides access to inner events');
+
 });
