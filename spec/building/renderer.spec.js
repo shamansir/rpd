@@ -106,7 +106,7 @@ describe('building: renderer', function() {
         expect(newModelSpy).toHaveBeenCalled();
     });
 
-    xdescribe('pausing', function() {
+    xdescribe('with entering and exiting models', function() {
 
         it('gets construction events happened before renderer was set', function() {
             var updateSpy = jasmine.createSpy('update');
@@ -137,7 +137,11 @@ describe('building: renderer', function() {
 
         it('still gets these updates if there were several renderers set');
 
-        it('also buffers construction events when rendering was paused for the model', function() {
+        it('entering model from the start is equivalent to just starting it', function() {
+
+        });
+
+        it('also buffers construction events while user exits from the model', function() {
             var updateSpy = jasmine.createSpy('update');
             var renderer = Rpd.renderer('foo', function() { return updateSpy; });
 
@@ -152,12 +156,12 @@ describe('building: renderer', function() {
                 }));
             updateSpy.calls.reset();
 
-            model.pauseRendering();
+            model.exit();
 
             var inlet = node.addInlet('spec/pass', 'foo');
             expect(updateSpy).not.toHaveBeenCalled();
 
-            model.resumeRendering();
+            model.enter();
 
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
@@ -167,7 +171,7 @@ describe('building: renderer', function() {
                 }));
         });
 
-        it('only fires the update with the last value of the inlet when rendering was switched back', function() {
+        it('only fires the update with the last value of the inlet when model was entered back', function() {
             var updateSpy = jasmine.createSpy('update');
             var renderer = Rpd.renderer('foo', function() { return updateSpy; });
 
@@ -183,13 +187,13 @@ describe('building: renderer', function() {
                     value: 5
                 }));
 
-            model.pauseRendering();
+            model.exit();
 
             inlet.receive(3);
             inlet.receive(17);
             inlet.receive(10);
 
-            model.resumeRendering();
+            model.enter();
 
             expect(updateSpy).not.toHaveBeenCalledWith(
                 jasmine.anything(),
@@ -205,6 +209,54 @@ describe('building: renderer', function() {
                 }));
 
         });
+
+        it('passes rendering to other models user made active', function() {
+            var updateSpy = jasmine.createSpy('update');
+            var renderer = Rpd.renderer('foo', function() { return updateSpy; });
+
+            var model1 = Rpd.Model.start().renderWith('foo').attachTo({});
+            var model2 = Rpd.Model.start().exit().renderWith('foo').attachTo({});
+
+            var node1 = model1.addNode('spec/empty');
+            var node2 = model2.addNode('spec/empty');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'node/add',
+                    node: node1
+                }));
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'node/add',
+                    value: node2
+                }));
+
+            updateSpy.calls.reset();
+
+            model1.exit();
+            model2.enter();
+
+            node1 = model1.addNode('spec/empty');
+            node2 = model2.addNode('spec/empty');
+
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'node/add',
+                    node: node1
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'node/add',
+                    value: node2
+                }));
+
+        });
+
+        it('passes rendering to several renderers if they were assigned to same active model');
 
     });
 
