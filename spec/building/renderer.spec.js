@@ -106,9 +106,9 @@ describe('building: renderer', function() {
         expect(newModelSpy).toHaveBeenCalled();
     });
 
-    xdescribe('postponing updates', function() {
+    xdescribe('pausing', function() {
 
-        it('gets construction events happened before, if it was assigned after the fact these modifications were performed', function() {
+        it('gets construction events happened before renderer was set', function() {
             var updateSpy = jasmine.createSpy('update');
 
             var renderer = Rpd.renderer('foo', function() { return updateSpy; });
@@ -133,6 +133,77 @@ describe('building: renderer', function() {
                     type: 'inlet/add',
                     inlet: inlet
                 }));
+        });
+
+        it('still gets these updates if there were several renderers set');
+
+        it('also buffers construction events when rendering was paused for the model', function() {
+            var updateSpy = jasmine.createSpy('update');
+            var renderer = Rpd.renderer('foo', function() { return updateSpy; });
+
+            var model = Rpd.Model.start().renderWith('foo').attachTo({});
+            var node = new Rpd.Node('spec/empty');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'node/add',
+                    node: node
+                }));
+            updateSpy.calls.reset();
+
+            model.pauseRendering();
+
+            var inlet = node.addInlet('spec/pass', 'foo');
+            expect(updateSpy).not.toHaveBeenCalled();
+
+            model.resumeRendering();
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/add',
+                    inlet: inlet
+                }));
+        });
+
+        it('only fires the update with the last value of the inlet when rendering was switched back', function() {
+            var updateSpy = jasmine.createSpy('update');
+            var renderer = Rpd.renderer('foo', function() { return updateSpy; });
+
+            var model = Rpd.Model.start().renderWith('foo').attachTo({});
+            var node = new Rpd.Node('spec/empty');
+            var inlet = node.addInlet('spec/pass', 'foo');
+            inlet.receive(5);
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/update',
+                    value: 5
+                }));
+
+            model.pauseRendering();
+
+            inlet.receive(3);
+            inlet.receive(17);
+            inlet.receive(10);
+
+            model.resumeRendering();
+
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/update',
+                    value: 17
+                }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({
+                    type: 'inlet/update',
+                    value: 10
+                }));
+
         });
 
     });

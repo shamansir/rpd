@@ -24,7 +24,6 @@ module.exports = function(config) {
       './spec/prettify.js',
       './spec/prepare.js',
 
-      './spec/building/network.spec.js',
       './spec/building/model.spec.js',
       './spec/building/node.spec.js',
       './spec/building/inlet.spec.js',
@@ -43,9 +42,9 @@ module.exports = function(config) {
       './spec/registration/channelrenderer.spec.js',
 
       './spec/registration/renderer.spec.js',
-      './spec/registration/subrenderer.spec.js',
+      './spec/registration/subrenderer.spec.js'
 
-      './spec/history/history.spec.js'
+      // './spec/history/history.spec.js'
     ],
 
 
