@@ -6,7 +6,11 @@
 
 [![logo][]](http://shamansir.github.io/rpd)
 
-**Version 0.1.5**
+**Latest Stable Version: [v0.1.0](https://github.com/shamansir/rpd/releases/tag/v0.1.0)**
+
+_Version in Development: [v0.1.5](https://github.com/shamansir/rpd/milestones)_
+
+_Examples below are for the Latest Stable Version_
 
 A video of the engine in action, demonstrates most of its features: [ [Watch][video] ].
 
