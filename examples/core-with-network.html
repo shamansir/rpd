@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <script src="../vendor/kefir.min.js"></script>
+
+        <script src="../src/rpd.js"></script>
+
+        <script src="../src/render/html.js"></script>
+        <link rel="stylesheet" href="../src/render/html.css"></style>
+
+        <script src="../src/toolkit/core/toolkit.js"></script>
+        <script src="../src/toolkit/core/render/html.js"></script>
+        <link rel="stylesheet" href="../src/toolkit/core/render/html.css"></link>
+    </head>
+
+    <body>
+        <script>
+            var root = Rpd.Model.start('root').attachTo(document.body)
+                                              .renderWith('html', { /* layout: 'pd' */ })
+                                              .enter();
+
+            var genA = root.addNode('core/custom', 'Generate A');
+            var outA = genA.addOutlet('core/number', 'A');
+
+            var genA = root.addNode('core/custom', 'Generate B');
+            var outB = genA.addOutlet('core/number', 'B', '', 1);
+
+            var sum = Rpd.Model.start('sum').attachTo(document.body)
+                                            .renderWith('html', { /* layout: 'pd' */ });
+
+            var sumOfThree1 = sum.addNode('core/sum-of-three', 'Sum1');
+            var in1A = sumOfThree1.inlets['a'];
+            var in1B = sumOfThree1.inlets['b'];
+            var sum1 = sumOfThree1.outlets['sum'];
+
+            var sumOfThree2 = sum.addNode('core/sum-of-three', 'Sum2');
+            var in2A = sumOfThree2.inlets['a'];
+            var sum2 = sumOfThree2.outlets['sum'];
+
+            sum1.connect(in2A);
+
+            sum.inputs([ in1A, in1B ]);
+            sum.outputs([ sum2 ]);
+
+            //root.connect(sum);
+
+            var p = root.addNode('core/mlink', 'SumPatch');
+            p.inlets['model'].receive(sum);
+
+            //outA.stream(Kefir.repeatedly(10, [1, 2, 3]));
+            //outB.stream(Kefir.repeatedly(20, [4, 5, 6]));
+
+        </script>
+    </body>
+</html>
