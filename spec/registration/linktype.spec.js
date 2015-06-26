@@ -6,7 +6,9 @@ describe('registration: link type', function() {
         }).not.toThrow();
     });
 
-    it('one could define name for it');
+    it('one could define a name for it');
+
+    it('could be a function which is called for every new link and returns type description');
 
     it('may specify adapting function, which adapts all values going through, streamed or not', function(done) {
         Rpd.linktype('spec/foo', { adapt: function(val) { return val * 3 } });

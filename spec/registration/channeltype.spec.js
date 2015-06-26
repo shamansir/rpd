@@ -6,9 +6,9 @@ describe('registration: channel type', function() {
         }).not.toThrow();
     });
 
-    it('one could define alias for it');
+    it('one could define an alias for it');
 
-    it('one could define name for it');
+    it('one could define a name for it');
 
     it('could be used both for inlets and outlets', function() {
         Rpd.channeltype('spec/foo', {});
@@ -29,6 +29,8 @@ describe('registration: channel type', function() {
             }).not.toThrow();
         });
     });
+
+    it('could be a function which is called for every new channel and returns type description');
 
     it('could have default value which is used when channel of this type was created', function() {
         Rpd.channeltype('spec/foo', { default: 5 });

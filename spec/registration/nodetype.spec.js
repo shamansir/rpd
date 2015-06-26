@@ -127,6 +127,8 @@ describe('registration: node type', function() {
         });
     });
 
+    it('could be a function which is called for every new node and returns type description');
+
     it('informs inlet was updated when its default value was set');
 
     it('informs outlet was updated when its default value was set');
