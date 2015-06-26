@@ -24,9 +24,10 @@
                     in: { type: 'core/any', hidden: true }
                 },
                 process: function(inlets) {
-                    console.log('once');
-                    var inlet = this.addInlet('core/any', 'bar');
-                    //inlet.receive(2);
+                    if (!inlets.bar) {
+                        console.log('once');
+                        this.addInlet('core/any', 'bar').receive(2);
+                    }
                 }
             });
 
