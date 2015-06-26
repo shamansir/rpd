@@ -187,7 +187,7 @@ function Node(type, name) {
 
         process.onValue(function(data) {
             // call a node/process event using collected inlet values
-            var outlets_vals = process_f(data.inlets.cur, data.inlets.prev);
+            var outlets_vals = process_f.bind(myself)(data.inlets.cur, data.inlets.prev);
             myself.event['node/process'].emit([data.inlets.cur, outlets_vals, data.inlets.prev]);
             // send the values provided from a `process` function to corresponding outlets
             var outlets = data.outlets;

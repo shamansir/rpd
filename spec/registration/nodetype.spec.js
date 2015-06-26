@@ -145,6 +145,24 @@ describe('registration: node type', function() {
 
         beforeEach(function() { processSpy = jasmine.createSpy('process'); });
 
+        it('gets node instance as context of a call', function() {
+
+            Rpd.nodetype('spec/foo', {
+                inlets:  { 'a': { type: 'spec/any' } },
+                process: processSpy
+            });
+
+            withNewModel(function(model, updateSpy) {
+                var node = new Rpd.Node('spec/foo');
+                processSpy.and.callFake(function() {
+                    expect(this).toBe(node);
+                });
+                node.inlets['a'].receive(2);
+                expect(processSpy).toHaveBeenCalled();
+            });
+
+        })
+
         it('is not called when inlets have no default values', function() {
 
             Rpd.nodetype('spec/foo', {
