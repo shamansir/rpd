@@ -17,6 +17,26 @@
 
     <body>
         <script>
+            Rpd.channeltype('core/any');
+
+            Rpd.nodetype('foo/test', {
+                inlets: {
+                    in: { type: 'core/any', hidden: true }
+                },
+                process: function(inlets) {
+                    console.log('once');
+                    var inlet = this.addInlet('core/any', 'bar');
+                    //inlet.receive(2);
+                }
+            });
+
+            var root = Rpd.Model.start('root').attachTo(document.body).renderWith('html');
+
+            var fooNode = new Rpd.Node('foo/test', 'Foo');
+            fooNode.inlets['in'].receive({});
+
+        </script>
+        <!-- <script>
             var root = Rpd.Model.start('root').attachTo(document.body)
                                               .renderWith('html', { /* layout: 'pd' */ })
                                               .enter();
@@ -47,11 +67,11 @@
             //root.connect(sum);
 
             var p = root.addNode('core/mlink', 'SumPatch');
-            p.inlets['model'].receive(sum);
+            p.inlets['model'].receive(sum); */
 
             //outA.stream(Kefir.repeatedly(10, [1, 2, 3]));
             //outB.stream(Kefir.repeatedly(20, [4, 5, 6]));
 
-        </script>
+        </script> -->
     </body>
 </html>
