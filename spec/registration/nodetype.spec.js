@@ -460,7 +460,7 @@ describe('registration: node type', function() {
             });
         });
 
-        it('does not react if updated inlet was cold and contained a stream, but keeps its value for next update')
+        it('does not react if updated inlet was cold and contained a stream, but keeps its value for next update');
 
         it('passes values to corresponding outlets based on default inlets values', function() {
 
@@ -741,6 +741,32 @@ describe('registration: node type', function() {
         });
 
         it('is not bound to the types of the values inlets or outlets receive');
+
+        it('one could add inlets or outlets from the inside', function() {
+            Rpd.nodetype('spec/foo', {
+                inlets: { 'a': { type: 'spec/any', hidden: true } }, // force call to process function
+                process: processSpy.and.callFake(function(inlets) {
+                            if (!inlets.bar) this.addInlet('spec/any', 'bar');
+                        })
+            });
+
+            withNewModel(function(model, updateSpy) {
+
+                var node = new Rpd.Node('spec/foo');
+                node.inlets['a'].receive(2); // force call to process function
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.anything(),
+                    jasmine.objectContaining({
+                        type: 'inlet/add',
+                        inlet: jasmine.objectContaining({ 'name': 'bar' })
+                    })
+                );
+
+                expect(processSpy).toHaveBeenCalledOnce();
+
+            });
+        });
 
         it('incoming values stream could be tuned', function() {
 

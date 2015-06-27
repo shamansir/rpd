@@ -10,6 +10,8 @@ Kefir.DEPRECATION_WARNINGS = false;
 
 var Rpd = (function() {
 
+// Rpd.NOTHING, Rpd.ID_LENGTH, ...
+
 var nodetypes = {};
 var linktypes = {};
 var channeltypes = {};

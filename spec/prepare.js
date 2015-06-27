@@ -15,17 +15,6 @@ function withNewModel(fn) {
     fn(model, updateSpy);
 }
 
-function withPreparedModel(fn) {
-    var updateSpy = jasmine.createSpy('update');
-    var renderer = Rpd.renderer('foo', function(user_conf) {
-        return updateSpy;
-    });
-
-    var model = Rpd.Model.prepare().renderWith('foo').attachTo({});
-
-    fn(model, updateSpy);
-}
-
 // this function is required due to the fact processing function receives the same object
 // modified through time, so if these checks are preformed after the calls, they do fail
 // see: https://github.com/shamansir/rpd/issues/89

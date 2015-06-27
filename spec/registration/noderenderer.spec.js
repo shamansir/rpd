@@ -2,7 +2,7 @@ describe('registration: node renderer', function() {
 
     it('could be defined as an empty object', function() {
         expect(function() {
-            Rpd.noderenderer('spec/foo', 'spec', {});
+            Rpd.noderenderer('spec/empty', 'spec', {});
         }).not.toThrow();
     });
 
