@@ -4,7 +4,7 @@ describe('building: node', function() {
         var renderer = Rpd.renderer('foo', function() {});
         Rpd.Model.start();
         expect(function() {
-            new Rpd.Node('foo/bar');
+            model.addNode('foo/bar');
         }).toThrow();
     });
 
@@ -14,7 +14,7 @@ describe('building: node', function() {
 
     it('informs it was added to a model with an event', function() {
         withNewModel(function(model, updateSpy) {
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
 
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
@@ -25,7 +25,7 @@ describe('building: node', function() {
 
     it('informs it was removed from a model with an event', function() {
         withNewModel(function(model, updateSpy) {
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
             model.removeNode(node);
 
             expect(updateSpy).toHaveBeenCalledWith(
@@ -37,7 +37,7 @@ describe('building: node', function() {
 
     it('fires no events after it was removed from a model', function() {
         withNewModel(function(model, updateSpy) {
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
             model.removeNode(node);
 
             updateSpy.calls.reset();

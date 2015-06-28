@@ -22,7 +22,7 @@ describe('registration: node type', function() {
 
         withNewModel(function(model, updateSpy) {
 
-            var node = new Rpd.Node('spec/foo');
+            var node = model.addNode('spec/foo');
 
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
@@ -58,7 +58,7 @@ describe('registration: node type', function() {
 
         withNewModel(function(model, updateSpy) {
 
-            var node = new Rpd.Node('spec/foo');
+            var node = model.addNode('spec/foo');
 
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
@@ -94,7 +94,7 @@ describe('registration: node type', function() {
 
         withNewModel(function(model, updateSpy) {
 
-            var node = new Rpd.Node('spec/foo');
+            var node = model.addNode('spec/foo');
 
             expect(updateSpy).toHaveBeenOrderlyCalledWith([
                 [ jasmine.anything(), jasmine.objectContaining({ type: 'inlet/add' }) ],
@@ -114,7 +114,7 @@ describe('registration: node type', function() {
 
         withNewModel(function(model, updateSpy) {
 
-            var node = new Rpd.Node('spec/foo');
+            var node = model.addNode('spec/foo');
 
             updateSpy.calls.reset();
 
@@ -155,7 +155,7 @@ describe('registration: node type', function() {
             });
 
             withNewModel(function(model, updateSpy) {
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
                 processSpy.and.callFake(function() {
                     expect(this).toBe(node);
                 });
@@ -174,7 +174,7 @@ describe('registration: node type', function() {
             });
 
             withNewModel(function(model, updateSpy) {
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
                 expect(processSpy).not.toHaveBeenCalled();
             });
 
@@ -190,7 +190,7 @@ describe('registration: node type', function() {
             });
 
             withNewModel(function(model, updateSpy) {
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
                 expect(processSpy).not.toHaveBeenCalled();
             });
 
@@ -205,7 +205,7 @@ describe('registration: node type', function() {
             });
 
             withNewModel(function(model, updateSpy) {
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
                 expect(processSpy).toHaveBeenCalledWith({ 'a': 10 }, jasmine.anything());
                 expect(processSpy).toHaveBeenCalledOnce();
             });
@@ -227,7 +227,7 @@ describe('registration: node type', function() {
                     function() { expect(processSpy).toHaveBeenCalledWith({ 'a': 10, 'b': 5 }, jasmine.anything()); }
                 ]);
 
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
 
                 ensureExecuted();
 
@@ -245,7 +245,7 @@ describe('registration: node type', function() {
             });
 
             withNewModel(function(model, updateSpy) {
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
                 expect(processSpy).toHaveBeenCalledTwice();
             });
 
@@ -261,7 +261,7 @@ describe('registration: node type', function() {
 
             withNewModel(function(model, updateSpy) {
 
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
 
                 node.inlets['a'].receive(2);
                 expect(processSpy).toHaveBeenCalledWith({ a: 2 }, jasmine.anything());
@@ -282,7 +282,7 @@ describe('registration: node type', function() {
             });
 
             withNewModel(function(model, updateSpy) {
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
                 var outlet = node.outlets['c'];
                 expect(updateSpy).toHaveBeenCalledWith(
                     jasmine.anything(),
@@ -320,7 +320,7 @@ describe('registration: node type', function() {
                     }
                 }.bind(this));
 
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
 
                 expect(updateSpy).toHaveBeenCalled();
                 expect(processSpy).toHaveBeenCalled();
@@ -344,7 +344,7 @@ describe('registration: node type', function() {
                     function() { expect(processSpy).toHaveBeenCalledWith({ char: values[2] }, jasmine.anything()); }
                 ]);
 
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
 
                 setTimeout(function() {
                     ensureExecuted();
@@ -365,7 +365,7 @@ describe('registration: node type', function() {
 
             withNewModel(function(model, updateSpy) {
 
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
 
                 var ensureExecuted = handleNextCalls(processSpy, [
                     function() { expect(processSpy).toHaveBeenCalledWith({ char: values[0] }, jasmine.anything()); },
@@ -390,7 +390,7 @@ describe('registration: node type', function() {
             });
 
             withNewModel(function(model, updateSpy) {
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
                 node.inlets['char'].receive('b');
                 expect(processSpy).toHaveBeenCalledWith(
                     jasmine.objectContaining({ char: 'b' }),
@@ -413,7 +413,7 @@ describe('registration: node type', function() {
             });
 
             withNewModel(function(model, updateSpy) {
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
                 expect(processSpy).toHaveBeenCalledWith(
                     jasmine.objectContaining({ char: 'a' }),
                     jasmine.anything()
@@ -437,7 +437,7 @@ describe('registration: node type', function() {
             });
 
             withNewModel(function(model, updateSpy) {
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
                 expect(processSpy).not.toHaveBeenCalledWith(
                     jasmine.objectContaining({ foo: 'a' }),
                     jasmine.anything()
@@ -477,7 +477,7 @@ describe('registration: node type', function() {
 
             withNewModel(function(model, updateSpy) {
 
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
 
                 var outlet = node.outlets['c'];
 
@@ -522,7 +522,7 @@ describe('registration: node type', function() {
 
             withNewModel(function(model, updateSpy) {
 
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
 
                 node.inlets['a'].receive(7);
                 node.inlets['b'].receive(2);
@@ -611,7 +611,7 @@ describe('registration: node type', function() {
 
             withNewModel(function(model, updateSpy) {
 
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
 
                 node.inlets['in'].receive(7);
 
@@ -650,7 +650,7 @@ describe('registration: node type', function() {
 
             withNewModel(function(model, updateSpy) {
 
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
 
                 node.inlets['a'].receive(7);
                 node.inlets['b'].receive(2);
@@ -692,7 +692,7 @@ describe('registration: node type', function() {
 
             withNewModel(function(model, updateSpy) {
 
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
 
                 node.inlets['b'].receive(7);
 
@@ -718,7 +718,7 @@ describe('registration: node type', function() {
 
             withNewModel(function(model, updateSpy) {
 
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
 
                 node.inlets['b'].receive(12);
 
@@ -752,7 +752,7 @@ describe('registration: node type', function() {
 
             withNewModel(function(model, updateSpy) {
 
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
                 node.inlets['a'].receive(2); // force call to process function
 
                 expect(updateSpy).toHaveBeenCalledWith(
@@ -788,7 +788,7 @@ describe('registration: node type', function() {
 
             withNewModel(function(model, updateSpy) {
 
-                var node = new Rpd.Node('spec/foo');
+                var node = model.addNode('spec/foo');
 
                 node.inlets['a'].receive(0);
                 expect(processSpy).toHaveBeenCalledWith(
@@ -837,8 +837,8 @@ describe('registration: node type', function() {
 
         withNewModel(function(model, updateSpy) {
 
-            var firstNode = new Rpd.Node('spec/foo');
-            var secondNode = new Rpd.Node('spec/foo');
+            var firstNode = model.addNode('spec/foo');
+            var secondNode = model.addNode('spec/foo');
 
             var fromOutlet = firstNode.outlets['out'];
             var toInlet = secondNode.inlets['in'];
@@ -877,7 +877,7 @@ describe('registration: node type', function() {
                 }
             });
 
-            var node = new Rpd.Node('spec/foo');
+            var node = model.addNode('spec/foo');
 
             expect(prepareSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({

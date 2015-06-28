@@ -28,7 +28,7 @@ describe('registration: node renderer', function() {
 
             Rpd.noderenderer('spec/foo', 'spec', renderer);
 
-            var node = new Rpd.Node('spec/foo');
+            var node = model.addNode('spec/foo');
             var inlet = node.addInlet('spec/any', 'a');
             inlet.receive('a');
 
@@ -52,7 +52,7 @@ describe('registration: node renderer', function() {
             var modelEventsSpy = jasmine.createSpy('model-events');
             model.events.onValue(modelEventsSpy);
 
-            var node = new Rpd.Node('spec/foo');
+            var node = model.addNode('spec/foo');
             var nodeEventsSpy = jasmine.createSpy('node-events');
             node.events.onValue(nodeEventsSpy);
 
@@ -80,7 +80,7 @@ describe('registration: node renderer', function() {
 
             Rpd.noderenderer('spec/foo', 'spec', renderer);
 
-            var node = new Rpd.Node('spec/foo');
+            var node = model.addNode('spec/foo');
             var inlet = node.addInlet('spec/any', 'a');
             inlet.receive('a');
 
@@ -100,7 +100,7 @@ describe('registration: node renderer', function() {
 
             Rpd.noderenderer('spec/foo', 'spec', renderer);
 
-            var node = new Rpd.Node('spec/foo');
+            var node = model.addNode('spec/foo');
             var inlet = node.addInlet('spec/any', 'a');
             inlet.receive('a');
 
@@ -128,7 +128,7 @@ describe('registration: node renderer', function() {
 
             Rpd.noderenderer('spec/foo', 'spec', renderer);
 
-            var node = new Rpd.Node('spec/foo');
+            var node = model.addNode('spec/foo');
             var inlet = node.addInlet('spec/any', 'a');
             inlet.receive('a');
 
@@ -161,7 +161,7 @@ describe('registration: node renderer', function() {
 
             Rpd.noderenderer('spec/foo', 'spec', rendererGenSpy);
 
-            var nodeOne = new Rpd.Node('spec/foo', 'node-1');
+            var nodeOne = model.addNode('spec/foo', 'node-1');
             nodeOne.addInlet('spec/any', 'a').receive('a');
 
             expect(rendererGenSpy).toHaveBeenCalledOnce();
@@ -180,7 +180,7 @@ describe('registration: node renderer', function() {
                     render: renderers['node-1']
                 }));
 
-            var nodeTwo = new Rpd.Node('spec/foo', 'node-2');
+            var nodeTwo = model.addNode('spec/foo', 'node-2');
             nodeTwo.addInlet('spec/any', 'a').receive('b');
 
             expect(rendererGenSpy).toHaveBeenCalledTwice();
@@ -210,7 +210,7 @@ describe('registration: node renderer', function() {
 
             Rpd.noderenderer('spec/foo', 'sp_c', renderer);
 
-            var node = new Rpd.Node('spec/foo');
+            var node = model.addNode('spec/foo');
             var inlet = node.addInlet('spec/any', 'a');
             inlet.receive('a');
 

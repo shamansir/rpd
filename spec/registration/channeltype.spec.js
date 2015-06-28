@@ -22,7 +22,7 @@ describe('registration: channel type', function() {
                     outlets: { 'out': { type: 'spec/foo' } }
                 });
 
-                var node = new Rpd.Node('spec/test');
+                var node = model.addNode('spec/test');
                 node.addInlet('spec/bar', 'bar');
                 node.addOutlet('spec/bar', 'bar');
 
@@ -36,7 +36,7 @@ describe('registration: channel type', function() {
         Rpd.channeltype('spec/foo', { default: 5 });
 
         withNewModel(function(model, updateSpy) {
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
             var inlet = node.addInlet('spec/foo', 'foo');
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
@@ -57,7 +57,7 @@ describe('registration: channel type', function() {
 
         withNewModel(function(model, updateSpy) {
 
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
             var inlet = node.addInlet('spec/foo', 'foo');
 
             setTimeout(function() {
@@ -82,7 +82,7 @@ describe('registration: channel type', function() {
                 inlets:  { 'in': { type: 'spec/foo', default: 17 } }
             });
 
-            var node = new Rpd.Node('spec/test');
+            var node = model.addNode('spec/test');
             expect(updateSpy).not.toHaveBeenCalledWith(
                 jasmine.anything(),
                 jasmine.objectContaining({
@@ -112,7 +112,7 @@ describe('registration: channel type', function() {
         var period = 30;
 
         withNewModel(function(model, updateSpy) {
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
             var inlet = node.addInlet('spec/foo', 'foo');
             inlet.stream(Kefir.sequentially(period, values));
             inlet.receive(21);
@@ -145,7 +145,7 @@ describe('registration: channel type', function() {
         var period = 30;
 
         withNewModel(function(model, updateSpy) {
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
             var inlet = node.addInlet('spec/foo', 'foo');
             inlet.stream(Kefir.sequentially(period, values));
             inlet.receive(21);
@@ -180,7 +180,7 @@ describe('registration: channel type', function() {
                                       adapt: adaptSpy.and.callFake(function(val) { return val * 2 }) });
 
         withNewModel(function(model, updateSpy) {
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
             var inlet = node.addInlet('spec/foo', 'foo');
             inlet.receive(21);
             expect(acceptSpy).toHaveBeenCalledWith(21);
@@ -204,7 +204,7 @@ describe('registration: channel type', function() {
                                     });
 
         withNewModel(function(model, updateSpy) {
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
             var inlet = node.addInlet('spec/foo', 'foo');
             inlet.receive('flux');
             inlet.receive('zoo');

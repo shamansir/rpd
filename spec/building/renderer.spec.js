@@ -99,9 +99,9 @@ describe('building: renderer', function() {
             };
         });
 
-        Rpd.Model.start().renderWith('foo').attachTo({});
+        var model = Rpd.Model.start().renderWith('foo').attachTo({});
 
-        new Rpd.Node('spec/empty');
+        model.addNode('spec/empty');
 
         expect(newModelSpy).toHaveBeenCalled();
     });
@@ -114,7 +114,7 @@ describe('building: renderer', function() {
             var renderer = Rpd.renderer('foo', function() { return updateSpy; });
 
             var model = Rpd.Model.start();
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
             var inlet = node.addInlet('spec/pass', 'foo');
 
             model.renderWith('foo');
@@ -146,7 +146,7 @@ describe('building: renderer', function() {
             var renderer = Rpd.renderer('foo', function() { return updateSpy; });
 
             var model = Rpd.Model.start().renderWith('foo').attachTo({});
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
 
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
@@ -176,7 +176,7 @@ describe('building: renderer', function() {
             var renderer = Rpd.renderer('foo', function() { return updateSpy; });
 
             var model = Rpd.Model.start().renderWith('foo').attachTo({});
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
             var inlet = node.addInlet('spec/pass', 'foo');
             inlet.receive(5);
 

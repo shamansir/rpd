@@ -5,7 +5,7 @@ describe('building: model', function() {
     it('disallows creating nodes without starting any instance of it', function() {
         expect(function() {
             // no model started at this point
-            var node = new Rpd.Node('spec/empty', 'Test Node');
+            var node = model.addNode('spec/empty', 'Test Node');
         }).toThrow();
     });
 
@@ -19,7 +19,7 @@ describe('building: model', function() {
 
     it('accepts modifications without any renderer or target', function() {
         var model = Rpd.Model.start();
-        var node = new Rpd.Node('spec/empty', 'Test Node');
+        var node = model.addNode('spec/empty', 'Test Node');
         expect(node).toBeDefined();
     });
 
@@ -48,7 +48,7 @@ describe('building: model', function() {
         var model = Rpd.Model.start();
         model.event['node/add'].onValue(addNodeSpy);
 
-        var node = new Rpd.Node('spec/empty');
+        var node = model.addNode('spec/empty');
         expect(addNodeSpy).toHaveBeenCalled();
     });
 

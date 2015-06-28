@@ -17,8 +17,8 @@ describe('registration: link type', function() {
         var period = 30;
 
         withNewModel(function(model, updateSpy) {
-            var firstNode = new Rpd.Node('spec/empty'),
-                secondNode = new Rpd.Node('spec/empty');
+            var firstNode = model.addNode('spec/empty'),
+                secondNode = model.addNode('spec/empty');
             var inlet = secondNode.addInlet('spec/any', 'foo'),
                 outlet = firstNode.addOutlet('spec/any', 'foo');
             var link = outlet.connect(inlet, null, 'spec/foo');

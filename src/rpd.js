@@ -66,17 +66,17 @@ Model.prototype.attachTo = function(elm) {
     this.targets.emit(elm);
     return this;
 }
-Model.prototype.addNode = function(node) {
+Model.prototype.addNode = function(type, name) {
+    var node = new Node(type, name);
     this.events.plug(node.events);
     this.event['node/add'].emit(node);
     node.turnOn();
-    return this;
+    return node;
 }
 Model.prototype.removeNode = function(node) {
     node.turnOff();
     this.event['node/remove'].emit(node);
     this.events.unplug(node.events);
-    return this;
 }
 Model.prototype.renderWith = function(alias, conf) {
     if (!renderer_registry[alias]) throw new Error('Renderer ' + alias + ' is not registered');
@@ -125,14 +125,6 @@ function Node(type, name) {
     };
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
-
-    // add node to the model so it will be able to receive events produced with methods below
-
-    if (models[cur_model]) {
-        models[cur_model].addNode(this);
-    } else {
-        report_error('No model started!');
-    }
 
     if (this.def.handle) {
         this.events.onValue(function(update) {

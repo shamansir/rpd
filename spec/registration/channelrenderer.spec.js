@@ -20,7 +20,7 @@ describe('registration: channel renderer', function() {
 
             model = Rpd.Model.start().renderWith('spec').attachTo({});
 
-            node = new Rpd.Node('spec/empty');
+            node = model.addNode('spec/empty');
         });
 
         it('even if it\'s an empty object, passed with channel adding and updating event', function() {

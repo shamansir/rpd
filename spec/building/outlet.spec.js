@@ -7,7 +7,7 @@ describe('building: outlet', function() {
     it('informs it has been added to a node', function() {
         withNewModel(function(model, updateSpy) {
 
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
 
             var outlet = node.addOutlet('spec/any', 'foo');
 
@@ -23,7 +23,7 @@ describe('building: outlet', function() {
     it('informs it has been removed from a node', function() {
         withNewModel(function(model, updateSpy) {
 
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
 
             var outlet = node.addOutlet('spec/any', 'foo');
             node.removeOutlet(outlet);
@@ -40,7 +40,7 @@ describe('building: outlet', function() {
     it('sends no updates on creation', function() {
         withNewModel(function(model, updateSpy) {
 
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
 
             var outlet = node.addOutlet('spec/any', 'foo');
 
@@ -54,7 +54,7 @@ describe('building: outlet', function() {
     it('sends default value on creation, if it was specified', function() {
         withNewModel(function(model, updateSpy) {
 
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
 
             var outlet = node.addOutlet('spec/any', 'foo');
 
@@ -68,7 +68,7 @@ describe('building: outlet', function() {
     it('sends single value given explicitly by user', function() {
         withNewModel(function(model, updateSpy) {
 
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
 
             var userValue = { 'foo': 'bar' };
             var outlet = node.addOutlet('spec/any', 'foo');
@@ -86,7 +86,7 @@ describe('building: outlet', function() {
     it('may send sequences of values from a stream', function(done) {
         withNewModel(function(model, updateSpy) {
 
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
 
             var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
             var period = 30;
@@ -111,7 +111,7 @@ describe('building: outlet', function() {
     it('stops receiving values when it was removed from a node', function() {
         withNewModel(function(model, updateSpy) {
 
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
 
             var outlet = node.addOutlet('spec/any', 'foo');
             node.removeOutlet(outlet);
@@ -128,7 +128,7 @@ describe('building: outlet', function() {
     it('stops receiving streamed values when it was removed from a node', function(done) {
         withNewModel(function(model, updateSpy) {
 
-            var node = new Rpd.Node('spec/empty');
+            var node = model.addNode('spec/empty');
 
             var sequence = [ 1, 2, 3 ];
             var period = 30;
