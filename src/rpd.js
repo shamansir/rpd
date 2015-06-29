@@ -67,10 +67,12 @@ Model.prototype.attachTo = function(elm) {
     return this;
 }
 Model.prototype.addNode = function(type, name) {
-    var node = new Node(type, name);
-    this.events.plug(node.events);
-    this.event['node/add'].emit(node);
-    node.turnOn();
+    var model = this;
+    var node = new Node(type, name, function(node) {
+        model.events.plug(node.events);
+        model.event['node/add'].emit(node);
+        node.turnOn();
+    });
     return node;
 }
 Model.prototype.removeNode = function(node) {
@@ -100,7 +102,7 @@ Model.start = function(name) {
 // ================================= Node ======================================
 // =============================================================================
 
-function Node(type, name) {
+function Node(type, name, callback) {
     this.type = type || 'core/empty';
     this.id = short_uid();
     var def = adapt_to_obj(nodetypes[this.type]);
@@ -125,6 +127,8 @@ function Node(type, name) {
     };
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
+
+    callback(this);
 
     if (this.def.handle) {
         this.events.onValue(function(update) {
