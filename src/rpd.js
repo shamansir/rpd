@@ -37,10 +37,15 @@ function Model(name) {
     this.targets = Kefir.emitter();
     this.renderers = Kefir.emitter();
 
+    var myself = this;
+
     var event_conf = {
-        'model/new':   function(model) { return { model: model }; },
-        'node/add':    function(node) { return { node: node }; },
-        'node/remove': function(node) { return { node: node }; }
+        'model/new':     function(model)   { return { model: model }; },
+        'model/active':  function(value)   { return { model: myself, active: value }; },
+        'model/inputs':  function(inputs)  { return { model: myself, inputs: inputs }; },
+        'model/outputs': function(outputs) { return { model: myself, outputs: outputs }; },
+        'node/add':      function(node)    { return { node: node }; },
+        'node/remove':   function(node)    { return { node: node }; }
     };
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
@@ -97,6 +102,12 @@ Model.start = function(name) {
     models.push(instance);
     cur_model++;
     return instance;
+}
+Model.enter = function() {
+
+}
+Model.exit = function() {
+
 }
 
 // ================================= Node ======================================
