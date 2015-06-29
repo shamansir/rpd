@@ -127,6 +127,22 @@ describe('registration: node type', function() {
         });
     });
 
+    it('provides access to inlets or outlets defined in type', function() {
+        Rpd.nodetype('spec/foo', {
+            inlets:  { 'a': { type: 'spec/any' },
+                       'b': { type: 'spec/any' } },
+            outlets: { 'c': { type: 'spec/any' } }
+        });
+
+        withNewModel(function(model, updateSpy) {
+            var node = model.addNode('spec/foo');
+            expect(node.inlets['a']).toBeDefined();
+            expect(node.inlets['b']).toBeDefined();
+            expect(node.inlets['c']).not.toBeDefined();
+            expect(node.outlets['c']).toBeDefined();
+        });
+    });
+
     it('could be a function which is called for every new node and returns type description');
 
     it('informs inlet was updated when its default value was set');
@@ -163,7 +179,7 @@ describe('registration: node type', function() {
                 expect(processSpy).toHaveBeenCalled();
             });
 
-        })
+        });
 
         it('is not called when inlets have no default values', function() {
 
