@@ -20,13 +20,13 @@
             var model = Rpd.Model.start().attachTo(document.body)
                                          .renderWith('html', { /* layout: 'pd' */ });
 
-            var genA = new Rpd.Node('core/custom', 'Generate A');
+            var genA = model.addNode('core/custom', 'Generate A');
             var outA = genA.addOutlet('core/number', 'A');
 
-            var genA = new Rpd.Node('core/custom', 'Generate B');
+            var genA = model.addNode('core/custom', 'Generate B');
             var outB = genA.addOutlet('core/number', 'B', '', 1);
 
-            var sumOfThree = new Rpd.Node('core/sum-of-three', 'Sum1');
+            var sumOfThree = model.addNode('core/sum-of-three', 'Sum1');
             var inA = sumOfThree.inlets['a'];
             var inB = sumOfThree.inlets['b'];
 
