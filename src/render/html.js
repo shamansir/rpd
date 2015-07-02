@@ -41,6 +41,8 @@ var NODE_LAYER = 0,
 
 function HtmlRenderer(user_config) {
 
+    var model;
+
     // these objects store elements and data corresponding to given nodes,
     // inlets, outlets, links as hashes, by their ID;
     // it's not pure functional way, especially in comparison to RPD engine code,
@@ -74,6 +76,8 @@ function HtmlRenderer(user_config) {
         // =====================================================================
 
         'model/new': function(root, update) {
+
+            model = update.model;
 
             nodes = {}; outlets = {}; inlets = {}, links = {};
 
@@ -1084,7 +1088,7 @@ function HtmlRenderer(user_config) {
                     Kefir.fromEvents(addButton, 'click')
                          .tap(stopPropagation)
                          .onValue(function() {
-                             (new Rpd.Node(nodeType));
+                             model.addNode(nodeType);
                          });
                 })(nodeType);
 

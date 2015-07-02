@@ -16,7 +16,7 @@
     </head>
 
     <body>
-        <script>
+        <!-- <script>
             Rpd.channeltype('core/any');
 
             Rpd.nodetype('foo/test', {
@@ -36,8 +36,8 @@
             var fooNode = new Rpd.Node('foo/test', 'Foo');
             fooNode.inlets['in'].receive({});
 
-        </script>
-        <!-- <script>
+        </script> -->
+        <script>
             var root = Rpd.Model.start('root').attachTo(document.body)
                                               .renderWith('html', { /* layout: 'pd' */ })
                                               .enter();
@@ -67,11 +67,26 @@
 
             //root.connect(sum);
 
-            var p = root.addNode('core/model-ref', 'SumPatch');
-            p.inlets['model'].receive(sum); */
+            // var p = root.addNode('core/model-ref', 'SumPatch');
+            // p.inlets['model'].receive(sum);
+
+            var p = root.addNode('core/empty');
+            sum.project(p);
 
             //outA.stream(Kefir.repeatedly(10, [1, 2, 3]));
             //outB.stream(Kefir.repeatedly(20, [4, 5, 6]));
+
+        </script>
+        <!-- <script>
+
+            let stream1 = $('button')[0]
+            let clicks1 = Kefir.fromEvent(stream1, 'click')
+            clicks1 = clicks1.toProperty(0).scan((prev, next) => prev+1)
+            clicks1.log('stream1')
+            let stream2 = $('button')[1]
+            let clicks2 = Kefir.fromEvent(stream2, 'click')
+            clicks2 = Kefir.combine([ clicks2 ], [ clicks1 ])
+            clicks2.log('stream2')
 
         </script> -->
     </body>

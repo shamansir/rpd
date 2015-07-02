@@ -44,6 +44,7 @@ function Model(name) {
         'model/active':  function(value)   { return { model: myself, active: value }; },
         'model/inputs':  function(inputs)  { return { model: myself, inputs: inputs }; },
         'model/outputs': function(outputs) { return { model: myself, outputs: outputs }; },
+        'model/project': function(node)    { return { model: myself, node: node }; },
         'node/add':      function(node)    { return { node: node }; },
         'node/remove':   function(node)    { return { node: node }; }
     };
@@ -97,17 +98,31 @@ Model.prototype.renderWith = function(alias, conf) {
     }
     return this;
 }
+Model.prototype.enter = function() {
+    this.event['model/active'].emit(true);
+    return this;
+}
+Model.prototype.exit = function() {
+    this.event['model/active'].emit(false);
+    return this;
+}
+Model.prototype.inputs = function(list) {
+    this.event['model/inputs'].emit(list);
+    return this;
+}
+Model.prototype.outputs = function(list) {
+    this.event['model/outputs'].emit(list);
+    return this;
+}
+Model.prototype.project = function(node) {
+    this.event['model/project'].emit(node);
+    return this;
+}
 Model.start = function(name) {
     var instance = new Model(name);
     models.push(instance);
     cur_model++;
     return instance;
-}
-Model.enter = function() {
-
-}
-Model.exit = function() {
-
 }
 
 // ================================= Node ======================================
@@ -139,7 +154,7 @@ function Node(type, name, callback) {
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
 
-    callback(this);
+    if (callback) callback(this);
 
     if (this.def.handle) {
         this.events.onValue(function(update) {
