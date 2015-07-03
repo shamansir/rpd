@@ -44,14 +44,16 @@ function Model(name) {
         'model/active':  function(value)   { return { model: myself, active: value }; },
         'model/inputs':  function(inputs)  { return { model: myself, inputs: inputs }; },
         'model/outputs': function(outputs) { return { model: myself, outputs: outputs }; },
-        'model/project': function(node)    { return { model: myself, node: node }; },
+        'model/project': function(data)    { return { model: myself, node: data[0], inputs: data[1], outputs: data[2] }; },
         'node/add':      function(node)    { return { node: node }; },
         'node/remove':   function(node)    { return { node: node }; }
     };
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
 
-    Kefir.combine([ this.events,
+    Kefir.combine([ this.events.bufferWhileBy(
+                        this.event['model/active'].map(function(value) { return !value; })
+                    ).flatten(),
                     this.targets.scan(cons),
                     this.renderers.scan(cons) ]).onValue(
         function(value) {
@@ -65,6 +67,16 @@ function Model(name) {
             });
         }
     );
+
+    this.projections = Kefir.emitter();
+    Kefir.combine(
+        [ this.projections ],
+        [ this.event['model/inputs'],
+          this.event['model/outputs'] ]
+    ).onValue(function(value) {
+        var node = value[0], inputs = value[1], outputs = value[2];
+        myself.event['model/project'].emit([ node, inputs, outputs ]);
+    });
 
     this.event['model/new'].emit(this);
 }
@@ -115,7 +127,7 @@ Model.prototype.outputs = function(list) {
     return this;
 }
 Model.prototype.project = function(node) {
-    this.event['model/project'].emit(node);
+    this.projections.emit(node);
     return this;
 }
 Model.start = function(name) {
