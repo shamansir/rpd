@@ -75,6 +75,15 @@ function Model(name) {
           this.event['model/outputs'] ]
     ).onValue(function(value) {
         var node = value[0], inputs = value[1], outputs = value[2];
+        var inlet, outlet;
+        for (var i = 0; i < inputs.length; i++) {
+            inlet = node.addInlet(inputs[i].type, inputs[i].name);
+            inlet.event['inlet/update'].onValue(function(val) { inputs[i].receive(val); });
+        } // use inlet.onUpdate?
+        for (i = 0; i < outputs.length; i++) {
+            outlet = node.addOutlet(outputs[i].type, inputs[i].name);
+            outlet.event['outlet/update'].onValue(function(val) { outputs[i].send(val); });
+        } // use outlet.onUpdate?
         myself.event['model/project'].emit([ node, inputs, outputs ]);
     });
 
