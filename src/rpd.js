@@ -22,7 +22,6 @@ var nodedescriptions = {};
 var renderer_registry = {};
 var subrenderers = {};
 
-var cur_model = -1;
 var models = [];
 
 // Identity function
@@ -51,11 +50,12 @@ function Model(name) {
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
 
-    Kefir.combine([ this.events.bufferWhileBy(
-                        this.event['model/active'].map(function(value) { return !value; })
-                    ).flatten(),
+    Kefir.combine([ this.events,
                     this.targets.scan(cons),
-                    this.renderers.scan(cons) ]).onValue(
+                    this.renderers.scan(cons) ]).bufferWhileBy(
+                                        this.event['model/active'].toProperty(function() { return false; })
+                                                                  .map(function(value) { return !value; })
+                                    , { flushOnChange: true }).flatten().onValue(
         function(value) {
             var update = value[0], targets = value[1],
                                  renderers = value[2];
@@ -142,7 +142,6 @@ Model.prototype.project = function(node) {
 Model.start = function(name) {
     var instance = new Model(name);
     models.push(instance);
-    cur_model++;
     return instance;
 }
 
@@ -661,9 +660,7 @@ return {
     'allNodeTypes': nodetypes,
     'allDescriptions': nodedescriptions,
 
-    'short_uid': short_uid,
-
-    'currentModel': function() { return models[cur_model]; }
+    'short_uid': short_uid
 }
 
 })();

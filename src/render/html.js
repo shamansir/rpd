@@ -349,7 +349,7 @@ function HtmlRenderer(user_config) {
             Kefir.fromEvents(removeButton, 'click')
                  .tap(stopPropagation)
                  .onValue(function() {
-                     Rpd.currentModel().removeNode(node);
+                     model.removeNode(node);
                  });
 
         },
