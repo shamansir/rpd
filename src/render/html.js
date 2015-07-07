@@ -47,7 +47,7 @@ function HtmlRenderer(user_config) {
     // inlets, outlets, links as hashes, by their ID;
     // it's not pure functional way, especially in comparison to RPD engine code,
     // but in this case semi-imperative way appeared to be easier and faster;
-    // nodes:   { id: { elm, body, inletsTrg, outletsTrg, links }, ... }
+    // nodes:   { id: { elm, body, bodyTrg, inletsTrg, outletsTrg, links }, ... }
     // outlets: { id: { elm, valueElm, connectorElm, links }, ... }
     // inlets:  { id: { elm, valueElm, connectorElm, link  }, ... }
     // links:   { id: { elm, link  }, ... }
@@ -111,6 +111,30 @@ function HtmlRenderer(user_config) {
         },
 
         // =====================================================================
+        // ============================ model/active ===========================
+        // =====================================================================
+
+        // 'model/active': function(root, update) { },
+
+        // =====================================================================
+        // =========================== model/project ===========================
+        // =====================================================================
+
+        // 'model/project': function(root, update) { },
+
+        // =====================================================================
+        // ============================= model/refer ===========================
+        // =====================================================================
+
+        'model/refer': function(root, update) {
+            var node = update.node;
+
+            nodes[node.id].bodyTrg.addEventListener('click', function() {
+                alert('click');
+            });
+        },
+
+        // =====================================================================
         // ============================ node/add ===============================
         // =====================================================================
 
@@ -129,7 +153,7 @@ function HtmlRenderer(user_config) {
 
             var dragTrg;
 
-            var inletsTrg, outletsTrg, bodyElm, removeButton;
+            var bodyTrg, inletsTrg, outletsTrg, bodyElm, removeButton;
 
             if (config.layout == QUARTZ_LAYOUT) {
 
@@ -199,6 +223,8 @@ function HtmlRenderer(user_config) {
                 innerBodyBody.appendChild(innerBodyRow);
                 innerBodyTable.appendChild(innerBodyBody);
                 bodyCell.appendChild(innerBodyTable);
+
+                bodyTrg = bodyCell;
 
                 var outletsCell = quickElm('td', 'rpd-outlets');
                 var outletsTable = quickElm('table');
@@ -291,6 +317,8 @@ function HtmlRenderer(user_config) {
                 contentRow.appendChild(bodyCell);
                 nodeElm.appendChild(contentRow);
 
+                bodyTrg = bodyCell;
+
                 var outletsRow = quickElm('tr', 'rpd-outlets');
 
                 var outletsCell = quickElm('td');
@@ -329,7 +357,7 @@ function HtmlRenderer(user_config) {
             // save node data
             nodes[node.id] = {
                 box: nodeBox, elm: nodeElm, body: bodyElm,
-                inletsTrg: inletsTrg, outletsTrg: outletsTrg,
+                bodyTrg: bodyTrg, inletsTrg: inletsTrg, outletsTrg: outletsTrg,
                 links: {} };
 
             if (node.render.html && node.render.html.always) {
