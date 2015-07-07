@@ -43,6 +43,7 @@ function Model(name) {
         'model/active':  function(value)   { return { model: myself, active: value }; },
         'model/inputs':  function(inputs)  { return { model: myself, inputs: inputs }; },
         'model/outputs': function(outputs) { return { model: myself, outputs: outputs }; },
+        'model/refer':   function(data)    { return { model: myself, node: data[0], other: data[1] }; },
         'model/project': function(data)    { return { model: myself, node: data[0], inputs: data[1], outputs: data[2] }; },
         'node/add':      function(node)    { return { node: node }; },
         'node/remove':   function(node)    { return { node: node }; }
@@ -85,6 +86,7 @@ function Model(name) {
             outlet.event['outlet/update'].onValue(function(val) { outputs[i].send(val); });
         } // use outlet.onUpdate?
         myself.event['model/project'].emit([ node, inputs, outputs ]);
+        node.model.event['model/refer'].emit([ node, this ]);
     });
 
     this.event['model/new'].emit(this);
@@ -95,7 +97,7 @@ Model.prototype.attachTo = function(elm) {
 }
 Model.prototype.addNode = function(type, name) {
     var model = this;
-    var node = new Node(type, name, function(node) {
+    var node = new Node(type, this, name, function(node) {
         model.events.plug(node.events);
         model.event['node/add'].emit(node);
         node.turnOn();
@@ -148,7 +150,7 @@ Model.start = function(name) {
 // ================================= Node ======================================
 // =============================================================================
 
-function Node(type, name, callback) {
+function Node(type, model, name, callback) {
     this.type = type || 'core/empty';
     this.id = short_uid();
     var def = adapt_to_obj(nodetypes[this.type]);
@@ -157,6 +159,8 @@ function Node(type, name, callback) {
 
     this.name = name || def.name || type;
     this.def = def;
+
+    this.model = model;
 
     this.render = prepare_render_obj(noderenderers[this.type], this);
 
