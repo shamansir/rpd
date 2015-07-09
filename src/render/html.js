@@ -41,7 +41,18 @@ var NODE_LAYER = 0,
 
 function HtmlRenderer(user_config) {
 
+    console.log('call');
+
+    // Model.render('html', document.body);
+    // ->> renderer(model, config)(root)
+    // Model.render('html', [ document.body, div#foo ]);
+    // ->> renderer(model, config)(root);
+    // Model.enter()
+    // ->> renderer(...)(root)
+
     var model;
+
+    var model_to_root = {};
 
     // these objects store elements and data corresponding to given nodes,
     // inlets, outlets, links as hashes, by their ID;
@@ -51,7 +62,7 @@ function HtmlRenderer(user_config) {
     // outlets: { id: { elm, valueElm, connectorElm, links }, ... }
     // inlets:  { id: { elm, valueElm, connectorElm, link  }, ... }
     // links:   { id: { elm, link  }, ... }
-    var nodes, outlets, inlets, links;
+    var nodes = {}, outlets = {}, inlets = {}, links = {};
 
     var config = mergeConfig(user_config, default_config);
 
@@ -79,35 +90,40 @@ function HtmlRenderer(user_config) {
 
             model = update.model;
 
-            nodes = {}; outlets = {}; inlets = {}, links = {};
+            if (model_to_root[model.id]) throw new Error('HTML is already build for model ' + model.id);
+
+            var modelRoot = document.createElement('div');
+
+            model_to_root[model.id] = modelRoot;
 
             /* <build HTML> */
 
-            root.classList.add('rpd-model');
-            if (config.layout) root.classList.add('rpd-layout-' + config.layout);
+            modelRoot.classList.add('rpd-model');
+            if (config.layout) modelRoot.classList.add('rpd-layout-' + config.layout);
             if (config.valuesOnHover) {
-                root.classList.add('rpd-values-on-hover');
+                modelRoot.classList.add('rpd-values-on-hover');
             } else {
-                root.classList.add('rpd-values-always-shown');
+                modelRoot.classList.add('rpd-values-always-shown');
             }
-            if (config.showBoxes) root.classList.add('rpd-show-boxes');
+            if (config.showBoxes) modelRoot.classList.add('rpd-show-boxes');
 
-            root.style.height = document.documentElement.clientHeight + 'px';
+            modelRoot.style.height = document.documentElement.clientHeight + 'px';
             // window.innerHeight + 'px';
 
-            Kefir.fromEvents(root, 'resize').onValue(function() {
-                root.style.height = document.documentElement.clientHeight + 'px';
+            Kefir.fromEvents(modelRoot, 'resize').onValue(function() {
+                modelRoot.style.height = document.documentElement.clientHeight + 'px';
             });
 
             /* </build HTML> */
 
             // initialize connection editor
-            connections.init(root);
+            connections.init(modelRoot);
 
-            if (config.renderNodeList) addNodeList(root, Rpd.allNodeTypes, descriptions);
+            if (config.renderNodeList) addNodeList(modelRoot, Rpd.allNodeTypes, descriptions);
 
-            Kefir.fromEvents(root, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
+            Kefir.fromEvents(modelRoot, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
 
+            root.appendChild(modelRoot);
         },
 
         // =====================================================================
@@ -129,9 +145,22 @@ function HtmlRenderer(user_config) {
         'model/refer': function(root, update) {
             var node = update.node;
 
-            nodes[node.id].bodyTrg.addEventListener('click', function() {
-                alert('click');
-            });
+            var nodeElm = nodes[node.id].elm;
+            var bodyTrg = nodes[node.id].bodyTrg;
+
+            nodeElm.classList.add('rpd-model-reference');
+
+            bodyTrg.addEventListener('click',
+                (function(root, current, target) {
+                    return function() {
+                        current.exit();
+                        var currentRoot = model_to_root[current.id];
+                        var targetRoot = model_to_root[target.id]
+                        if (currentRoot) root.removeChild(currentRoot);
+                        if (targetRoot) root.appendChild(targetRoot);
+                        target.enter();
+                    }
+                })(root, model, update.target));
         },
 
         // =====================================================================

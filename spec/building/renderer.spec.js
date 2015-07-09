@@ -258,6 +258,8 @@ describe('building: renderer', function() {
 
         it('passes rendering to several renderers if they were assigned to same active model');
 
+        it('receives \'new model\' event at least once');
+
     });
 
 });

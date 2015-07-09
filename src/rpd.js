@@ -22,7 +22,11 @@ var nodedescriptions = {};
 var renderer_registry = {};
 var subrenderers = {};
 
-var models = [];
+var event_conf = { 'model/new': function(model) { return { model: model }; } };
+var event = event_map(event_conf);
+var events = events_stream(event_conf, event);
+
+event['model/new'].onValue(function(model) { events.plug(model.events); });
 
 // Identity function
 function I(v) { return function() { return v; } }
@@ -31,19 +35,17 @@ function I(v) { return function() { return v; } }
 // =============================================================================
 
 function Model(name) {
+    this.id = short_uid();
     this.name = name;
-
-    this.targets = Kefir.emitter();
-    this.renderers = Kefir.emitter();
 
     var myself = this;
 
     var event_conf = {
-        'model/new':     function(model)   { return { model: model }; },
+        'model/render':  function(data)    { return { model: myself, renderer: data[0], target: data[1] } },
         'model/active':  function(value)   { return { model: myself, active: value }; },
         'model/inputs':  function(inputs)  { return { model: myself, inputs: inputs }; },
         'model/outputs': function(outputs) { return { model: myself, outputs: outputs }; },
-        'model/refer':   function(data)    { return { model: myself, node: data[0], other: data[1] }; },
+        'model/refer':   function(data)    { return { model: myself, node: data[0], target: data[1] }; },
         'model/project': function(data)    { return { model: myself, node: data[0], inputs: data[1], outputs: data[2] }; },
         'node/add':      function(node)    { return { node: node }; },
         'node/remove':   function(node)    { return { node: node }; }
@@ -52,20 +54,20 @@ function Model(name) {
     this.events = events_stream(event_conf, this.event);
 
     Kefir.combine([ this.events,
-                    this.targets.scan(cons),
-                    this.renderers.scan(cons) ]).bufferWhileBy(
+                    this.event['model/render'] ]).bufferWhileBy(
                                         this.event['model/active'].toProperty(function() { return false; })
                                                                   .map(function(value) { return !value; })
                                     , { flushOnChange: true }).flatten().onValue(
         function(value) {
-            var update = value[0], targets = value[1],
+            console.log(value[0], value[0].type, value[1]);
+            /*var update = value[0], targets = value[1],
                                  renderers = value[2];
             walk_cons(targets, function(target) {
                 walk_cons(renderers, function(renderer) {
                     update = inject_render(update, renderer.alias);
                     renderer.fn(target, update);
                 });
-            });
+            });*/
         }
     );
 
@@ -89,10 +91,28 @@ function Model(name) {
         node.model.event['model/refer'].emit([ node, this ]);
     });
 
-    this.event['model/new'].emit(this);
+    event['model/new'].emit(this);
 }
-Model.prototype.attachTo = function(elm) {
-    this.targets.emit(elm);
+Model.prototype.render = function(aliases, targets, conf) {
+    aliases = Array.isArray(aliases) ? aliases : [ aliases ];
+    targets = Array.isArray(targets) ? targets : [ targets ];
+    for (var i = 0, il = aliases.length, alias; i < il; i++) {
+        for (var j = 0, jl = targets.length, target; j < jl; j++) {
+            alias = aliases[i]; target = targets[j];
+            if (!renderer_registry[alias]) throw new Error('Renderer ' + alias + ' is not registered');
+            //main_renderer = renderer_registry[alias](this);
+            this.event['model/render'].emit([ alias, target, conf ]);
+        }
+    }
+    /*var main_renderer = renderer_registry[alias](this);
+
+    if (!subrenderers[alias] || !subrenderers[alias].length) {
+        this.renderers.emit({ alias: alias, fn: main_renderer });
+    } else {
+        this.renderers.emit({ alias: alias,
+                              fn: join_subrenderers(main_renderer,
+                                                    subrenderers[alias], conf) });
+    }*/
     return this;
 }
 Model.prototype.addNode = function(type, name) {
@@ -108,18 +128,6 @@ Model.prototype.removeNode = function(node) {
     node.turnOff();
     this.event['node/remove'].emit(node);
     this.events.unplug(node.events);
-}
-Model.prototype.renderWith = function(alias, conf) {
-    if (!renderer_registry[alias]) throw new Error('Renderer ' + alias + ' is not registered');
-    var main_renderer = renderer_registry[alias](conf);
-    if (!subrenderers[alias] || !subrenderers[alias].length) {
-        this.renderers.emit({ alias: alias, fn: main_renderer });
-    } else {
-        this.renderers.emit({ alias: alias,
-                              fn: join_subrenderers(main_renderer,
-                                                    subrenderers[alias], conf) });
-    }
-    return this;
 }
 Model.prototype.enter = function() {
     this.event['model/active'].emit(true);
@@ -143,7 +151,6 @@ Model.prototype.project = function(node) {
 }
 Model.start = function(name) {
     var instance = new Model(name);
-    models.push(instance);
     return instance;
 }
 
@@ -559,18 +566,6 @@ function short_uid() {
     return ("0000" + (Math.random() * Math.pow(36,4) << 0).toString(36)).slice(-4);
 }
 
-function cons(prev, cur) {
-    return [ cur, Array.isArray(prev) ? prev : [ prev, null ] ];
-};
-
-function walk_cons(cell, f) {
-    if (!cell) return;
-    // seed for .scan is not set in our case, so first item it is called
-    // with first cell
-    if (!Array.isArray(cell)) { f(cell); return; }
-    f(cell[0]); walk_cons(cell[1], f);
-}
-
 function join_subrenderers(main_renderer, subrenderers, conf) {
     var src = subrenderers;
     var trg = [];
@@ -644,6 +639,9 @@ function nodedescription(type, description) {
 return {
 
     'Identity': I,
+
+    'event': event,
+    'events': events,
 
     'Model': Model,
     'Node': Node,

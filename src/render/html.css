@@ -190,6 +190,15 @@
     display: block;
 }
 
+.rpd-node.rpd-model-reference .rpd-body {
+    cursor: pointer;
+}
+
+.rpd-node.rpd-model-reference .rpd-body:hover {
+    background-color: #333;
+    opacity: 0.2;
+}
+
 /* QUARTZ COMPOSER LAYOUT STYLE */
 
 .rpd-layout-quartz .rpd-node {
