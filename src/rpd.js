@@ -56,10 +56,12 @@ function Model(name) {
                         var alias = event[0], target = event[1], configuration = event[2];
                         var renderer = renderers[alias];
                         if (!renderer) {
-                            renderer = renderer_registry[alias](myself);
+                            renderer = {};
+                            renderer.produce = renderer_registry[alias](myself);
+                            renderer.handlers = [];
                             renderers[alias] = renderer;
                         }
-                        renderer(target, configuration);
+                        renderer.handlers.push(renderer.produce(target, configuration));
                         return renderers;
                     }, { }) ])
          .bufferWhileBy(this.event['model/active'].toProperty(ƒ(false))
@@ -68,8 +70,12 @@ function Model(name) {
             console.log(value[0], value[0].type, value[1]);
             var event = value[0], renderers = value[1];
             var aliases = Object.keys(renderers);
+            var renderer, handlers;
             for (var i = 0, il = aliases.length; i < il; i++) {
-                renderers[aliases[i]][event.type](event);
+                renderer = renderers[aliases[i]]; handlers = renderer.handlers;
+                for (var j = 0, jl = handlers.length; j < jl; j++) {
+                    if (handlers[j][event.type]) handlers[j][event.type](inject_render(event, aliases[i]));
+                }
             }
         }
     );
