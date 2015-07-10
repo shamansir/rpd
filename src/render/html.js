@@ -39,22 +39,11 @@ var NODE_LAYER = 0,
 // ============================= HtmlRenderer ==================================
 // =============================================================================
 
-function HtmlRenderer(model/*user_config*/) {
+function HtmlRenderer(model) {
 
-    console.log('call', model.name);
+console.log('call', model.name);
 
-    // Model.render('html', document.body);
-    // ->> renderer(model, config)(root)
-    // Model.render('html', [ document.body, div#foo ]);
-    // ->> renderer(model, config)(root);
-    // Model.enter()
-    // ->> renderer(...)(root)
-
-    var model;
-
-    var user_config = {};
-
-    var model_to_root = {};
+return function(root, user_config) {
 
     // these objects store elements and data corresponding to given nodes,
     // inlets, outlets, links as hashes, by their ID;
@@ -1180,7 +1169,9 @@ function HtmlRenderer(model/*user_config*/) {
         root.appendChild(collapseButton);
     }
 
-} // function
+} // function(target, config)
+
+} // function(model)
 
 
 // ================================ utils ======================================
@@ -1292,18 +1283,6 @@ function applyNextNodeRect(node, nodeBox, nodeElm, boxSize, limits) {
 
 Rpd.HtmlRenderer = HtmlRenderer;
 
-Rpd.renderer('html', function(user_conf) {
-
-    var instance = HtmlRenderer(user_conf);
-
-    return function(root, update) {
-
-        if (instance[update.type]) {
-            instance[update.type](root, update);
-        }
-
-    }
-
-});
+Rpd.renderer('html', HtmlRenderer);
 
 })();

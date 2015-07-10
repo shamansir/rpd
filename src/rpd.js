@@ -20,7 +20,6 @@ var channelrenderers = {};
 var nodedescriptions = {};
 
 var renderer_registry = {};
-var subrenderers = {};
 
 var event_conf = { 'model/new': function(model) { return { model: model }; } };
 var event = event_map(event_conf);
@@ -58,28 +57,20 @@ function Model(name) {
                         var renderer = renderers[alias];
                         if (!renderer) {
                             renderer = renderer_registry[alias](myself);
-                            if (subrenderers[alias] && subrenderers[alias].length) {
-                                renderer = join_subrenderers(main_renderer,
-                                                             subrenderers[alias], conf);
-                            }
                             renderers[alias] = renderer;
                         }
                         renderer(target, configuration);
                         return renderers;
-                    }, {}) ])
+                    }, { }) ])
          .bufferWhileBy(this.event['model/active'].toProperty(ƒ(false))
                                                   .map(function(value) { return !value; }),
-                        { flushOnChange: true }).flatten().onValue(
-        function(value) {
+                        { flushOnChange: true }).flatten().onValue(function(value) {
             console.log(value[0], value[0].type, value[1]);
-            /*var update = value[0], targets = value[1],
-                                 renderers = value[2];
-            walk_cons(targets, function(target) {
-                walk_cons(renderers, function(renderer) {
-                    update = inject_render(update, renderer.alias);
-                    renderer.fn(target, update);
-                });
-            });*/
+            var event = value[0], renderers = value[1];
+            var aliases = Object.keys(renderers);
+            for (var i = 0, il = aliases.length; i < il; i++) {
+                renderers[aliases[i]][event.type](event);
+            }
         }
     );
 
@@ -112,19 +103,9 @@ Model.prototype.render = function(aliases, targets, conf) {
         for (var j = 0, jl = targets.length, target; j < jl; j++) {
             alias = aliases[i]; target = targets[j];
             if (!renderer_registry[alias]) throw new Error('Renderer ' + alias + ' is not registered');
-            //main_renderer = renderer_registry[alias](this);
             this.event['model/render'].emit([ alias, target, conf ]);
         }
     }
-    /*var main_renderer = renderer_registry[alias](this);
-
-    if (!subrenderers[alias] || !subrenderers[alias].length) {
-        this.renderers.emit({ alias: alias, fn: main_renderer });
-    } else {
-        this.renderers.emit({ alias: alias,
-                              fn: join_subrenderers(main_renderer,
-                                                    subrenderers[alias], conf) });
-    }*/
     return this;
 }
 Model.prototype.addNode = function(type, name) {
@@ -578,21 +559,6 @@ function short_uid() {
     return ("0000" + (Math.random() * Math.pow(36,4) << 0).toString(36)).slice(-4);
 }
 
-function join_subrenderers(main_renderer, subrenderers, conf) {
-    var src = subrenderers;
-    var trg = [];
-    for (var i = 0, il = src.length; i < il; i++) {
-        trg.push(src[i](conf));
-    }
-    return function(target, update) {
-        main_renderer(target, update);
-        var renderers = trg;
-        for (var i = 0, il = renderers.length; i < il; i++) {
-            renderers[i](target, update);
-        }
-    };
-}
-
 function inject_render(update, alias) {
     var type = update.type;
     if ((type === 'node/add') || (type === 'node/process')) {
@@ -622,11 +588,6 @@ function channeltype(type, def) {
 
 function renderer(alias, f) {
     renderer_registry[alias] = f;
-}
-
-function subrenderer(alias, f) {
-    if (!subrenderers[alias]) subrenderers[alias] = [];
-    subrenderers[alias].push(f);
 }
 
 function noderenderer(type, alias, data) {
@@ -667,7 +628,6 @@ return {
     'nodedescription': nodedescription,
 
     'renderer': renderer,
-    'subrenderer': subrenderer,
     'noderenderer': noderenderer,
     'channelrenderer': channelrenderer,
 
