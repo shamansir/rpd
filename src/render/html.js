@@ -63,6 +63,38 @@ return function(root, user_config) {
 
     var descriptions = Rpd.allDescriptions;
 
+    // =====================================================================
+    // ============================ model/new ==============================
+    // =====================================================================
+
+    /* <build HTML> */
+
+    root.classList.add('rpd-model');
+    if (config.layout) root.classList.add('rpd-layout-' + config.layout);
+    if (config.valuesOnHover) {
+        root.classList.add('rpd-values-on-hover');
+    } else {
+        root.classList.add('rpd-values-always-shown');
+    }
+    if (config.showBoxes) root.classList.add('rpd-show-boxes');
+
+    root.style.height = document.documentElement.clientHeight + 'px';
+    // window.innerHeight + 'px';
+
+    Kefir.fromEvents(root, 'resize').onValue(function() {
+        root.style.height = document.documentElement.clientHeight + 'px';
+    });
+
+    /* </build HTML> */
+
+    // initialize connection editor
+    connections.init(root);
+
+    if (config.renderNodeList) addNodeList(root, Rpd.allNodeTypes, descriptions);
+
+    Kefir.fromEvents(root, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
+
+
     return {
 
         // the object below reacts on every Model event and constructs corresponding
@@ -74,66 +106,22 @@ return function(root, user_config) {
         // looks massive;
 
         // =====================================================================
-        // ============================ model/new ==============================
-        // =====================================================================
-
-        'model/new': function(root, update) {
-
-            model = update.model;
-
-            if (model_to_root[model.id]) throw new Error('HTML is already build for model ' + model.id);
-
-            var modelRoot = document.createElement('div');
-
-            model_to_root[model.id] = modelRoot;
-
-            /* <build HTML> */
-
-            modelRoot.classList.add('rpd-model');
-            if (config.layout) modelRoot.classList.add('rpd-layout-' + config.layout);
-            if (config.valuesOnHover) {
-                modelRoot.classList.add('rpd-values-on-hover');
-            } else {
-                modelRoot.classList.add('rpd-values-always-shown');
-            }
-            if (config.showBoxes) modelRoot.classList.add('rpd-show-boxes');
-
-            modelRoot.style.height = document.documentElement.clientHeight + 'px';
-            // window.innerHeight + 'px';
-
-            Kefir.fromEvents(modelRoot, 'resize').onValue(function() {
-                modelRoot.style.height = document.documentElement.clientHeight + 'px';
-            });
-
-            /* </build HTML> */
-
-            // initialize connection editor
-            connections.init(modelRoot);
-
-            if (config.renderNodeList) addNodeList(modelRoot, Rpd.allNodeTypes, descriptions);
-
-            Kefir.fromEvents(modelRoot, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
-
-            root.appendChild(modelRoot);
-        },
-
-        // =====================================================================
         // ============================ model/active ===========================
         // =====================================================================
 
-        // 'model/active': function(root, update) { },
+        // 'model/active': function(update) { },
 
         // =====================================================================
         // =========================== model/project ===========================
         // =====================================================================
 
-        // 'model/project': function(root, update) { },
+        // 'model/project': function(update) { },
 
         // =====================================================================
         // ============================= model/refer ===========================
         // =====================================================================
 
-        'model/refer': function(root, update) {
+        'model/refer': function(update) {
             var node = update.node;
 
             var nodeElm = nodes[node.id].elm;
@@ -142,7 +130,7 @@ return function(root, user_config) {
             nodeElm.classList.add('rpd-model-reference');
 
             bodyTrg.addEventListener('click',
-                (function(root, current, target) {
+                (function(current, target) {
                     return function() {
                         current.exit();
                         var currentRoot = model_to_root[current.id];
@@ -151,14 +139,14 @@ return function(root, user_config) {
                         if (targetRoot) root.appendChild(targetRoot);
                         target.enter();
                     }
-                })(root, model, update.target));
+                })(model, update.target));
         },
 
         // =====================================================================
         // ============================ node/add ===============================
         // =====================================================================
 
-        'node/add': function(root, update) {
+        'node/add': function(update) {
 
             var node = update.node;
 
@@ -406,13 +394,13 @@ return function(root, user_config) {
         // ============================ node/ready =============================
         // =====================================================================
 
-        // 'node/ready': function(root, update) { },
+        // 'node/ready': function(update) { },
 
         // =====================================================================
         // ============================ node/process ===========================
         // =====================================================================
 
-        'node/process': function(root, update) {
+        'node/process': function(update) {
 
             var node = update.node;
 
@@ -428,7 +416,7 @@ return function(root, user_config) {
         // ============================ node/remove ============================
         // =====================================================================
 
-        'node/remove': function(root, update) {
+        'node/remove': function(update) {
 
             var node = update.node;
 
@@ -450,7 +438,7 @@ return function(root, user_config) {
         // ============================ inlet/add ==============================
         // =====================================================================
 
-        'inlet/add': function(root, update) {
+        'inlet/add': function(update) {
 
             var inlet = update.inlet;
 
@@ -542,13 +530,13 @@ return function(root, user_config) {
         // ============================ inlet/remove ===========================
         // =====================================================================
 
-        // 'inlet/remove': function(root, update) {},
+        // 'inlet/remove': function(update) {},
 
         // =====================================================================
         // ============================ inlet/update ===========================
         // =====================================================================
 
-        'inlet/update': function(root, update) {
+        'inlet/update': function(update) {
 
             var inlet = update.inlet;
 
@@ -575,7 +563,7 @@ return function(root, user_config) {
         // ============================ outlet/add =============================
         // =====================================================================
 
-        'outlet/add': function(root, update) {
+        'outlet/add': function(update) {
 
             var outlet = update.outlet;
 
@@ -642,13 +630,13 @@ return function(root, user_config) {
         // ============================ outlet/remove ==========================
         // =====================================================================
 
-        // 'outlet/remove': function(root, update) {},
+        // 'outlet/remove': function(update) {},
 
         // =====================================================================
         // ============================ outlet/update ==========================
         // =====================================================================
 
-        'outlet/update': function(root, update) {
+        'outlet/update': function(update) {
 
             var outlet = update.outlet;
 
@@ -674,7 +662,7 @@ return function(root, user_config) {
         // ============================ outlet/connect =========================
         // =====================================================================
 
-        'outlet/connect': function(root, update) {
+        'outlet/connect': function(update) {
 
             var link = update.link;
             var outlet = link.outlet;
@@ -720,7 +708,7 @@ return function(root, user_config) {
         // ============================ outlet/disconnect ======================
         // =====================================================================
 
-        'outlet/disconnect': function(root, update) {
+        'outlet/disconnect': function(update) {
 
             var link = update.link;
             var linkElm = links[link.id].elm;
@@ -750,7 +738,7 @@ return function(root, user_config) {
         // ============================ link/enable ============================
         // =====================================================================
 
-        'link/enable': function(root, update) {
+        'link/enable': function(update) {
             var link = update.link;
             var linkElm = links[link.id].elm;
             linkElm.classList.remove('rpd-disabled');
@@ -760,7 +748,7 @@ return function(root, user_config) {
         // ============================ link/disable ===========================
         // =====================================================================
 
-        'link/disable': function(root, update) {
+        'link/disable': function(update) {
             var link = update.link;
             var linkElm = links[link.id].elm;
             linkElm.classList.add('rpd-disabled');
@@ -770,13 +758,13 @@ return function(root, user_config) {
         // ============================ link/adapt =============================
         // =====================================================================
 
-        // 'link/adapt': function(root, update) {},
+        // 'link/adapt': function(update) {},
 
         // =====================================================================
         // ============================ link/error =============================
         // =====================================================================
 
-        // 'link/error': function(root, update) {}
+        // 'link/error': function(update) {}
 
     }; // return
 
