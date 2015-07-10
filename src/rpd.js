@@ -28,8 +28,7 @@ var events = events_stream(event_conf, event);
 
 event['model/new'].onValue(function(model) { events.plug(model.events); });
 
-// Identity function
-function I(v) { return function() { return v; } }
+function ƒ(v) { return function() { return v; } }
 
 // ================================== Model ====================================
 // =============================================================================
@@ -41,7 +40,7 @@ function Model(name) {
     var myself = this;
 
     var event_conf = {
-        'model/render':  function(data)    { return { model: myself, renderer: data[0], target: data[1] } },
+        'model/render':  function(data)    { return { model: myself, renderer: data[0], target: data[1], configuration: data[2] } },
         'model/active':  function(value)   { return { model: myself, active: value }; },
         'model/inputs':  function(inputs)  { return { model: myself, inputs: inputs }; },
         'model/outputs': function(outputs) { return { model: myself, outputs: outputs }; },
@@ -53,11 +52,24 @@ function Model(name) {
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
 
-    Kefir.combine([ this.events,
-                    this.event['model/render'] ]).bufferWhileBy(
-                                        this.event['model/active'].toProperty(function() { return false; })
-                                                                  .map(function(value) { return !value; })
-                                    , { flushOnChange: true }).flatten().onValue(
+    Kefir.combine([ this.events.filter(function(event) { return event.type !== 'model/render'; }),
+                    this.event['model/render'].scan(function(renderers, event) {
+                        var alias = event[0], target = event[1], configuration = event[2];
+                        var renderer = renderers[alias];
+                        if (!renderer) {
+                            renderer = renderer_registry[alias](myself);
+                            if (subrenderers[alias] && subrenderers[alias].length) {
+                                renderer = join_subrenderers(main_renderer,
+                                                             subrenderers[alias], conf);
+                            }
+                            renderers[alias] = renderer;
+                        }
+                        renderer(target, configuration);
+                        return renderers;
+                    }, {}) ])
+         .bufferWhileBy(this.event['model/active'].toProperty(ƒ(false))
+                                                  .map(function(value) { return !value; }),
+                        { flushOnChange: true }).flatten().onValue(
         function(value) {
             console.log(value[0], value[0].type, value[1]);
             /*var update = value[0], targets = value[1],
@@ -88,7 +100,7 @@ function Model(name) {
             outlet.event['outlet/update'].onValue(function(val) { outputs[i].send(val); });
         } // use outlet.onUpdate?
         myself.event['model/project'].emit([ node, inputs, outputs ]);
-        node.model.event['model/refer'].emit([ node, this ]);
+        node.model.event['model/refer'].emit([ node, myself ]);
     });
 
     event['model/new'].emit(this);
@@ -477,7 +489,7 @@ function Link(type, outlet, inlet, adapter, name) {
     this.events = events_stream(event_conf, this.event);
 
     this.enabled = Kefir.merge([ this.event['link/disable'].mapTo(false),
-                                 this.event['link/enable'].mapTo(true) ]).toProperty(I(true));
+                                 this.event['link/enable'].mapTo(true) ]).toProperty(ƒ(true));
 
     this.event['link/pass'].filterBy(this.enabled).onValue(function(x) {
         inlet.receive(myself.adapt(x));
@@ -638,7 +650,7 @@ function nodedescription(type, description) {
 
 return {
 
-    'Identity': I,
+    'LazyId': ƒ,
 
     'event': event,
     'events': events,

@@ -1,6 +1,6 @@
 (function() {
 
-var I = Rpd.Identity;
+var ƒ = Rpd.LazyId;
 
     // inlets/outlets are at the left/right sides of a node body
 var QUARTZ_LAYOUT = 'quartz',
@@ -39,9 +39,9 @@ var NODE_LAYER = 0,
 // ============================= HtmlRenderer ==================================
 // =============================================================================
 
-function HtmlRenderer(user_config) {
+function HtmlRenderer(model/*user_config*/) {
 
-    console.log('call');
+    console.log('call', model.name);
 
     // Model.render('html', document.body);
     // ->> renderer(model, config)(root)
@@ -51,6 +51,8 @@ function HtmlRenderer(user_config) {
     // ->> renderer(...)(root)
 
     var model;
+
+    var user_config = {};
 
     var model_to_root = {};
 
@@ -831,7 +833,7 @@ function HtmlRenderer(user_config) {
                                     Kefir.fromEvents(root, 'click')
                                          .merge(disableEditor)
                                          .mapTo(false) ])
-                               .toProperty(I(false))
+                               .toProperty(ƒ(false))
                                .skipDuplicates() ])
              .map(function(val) { return { lastValue: val[0],
                                            startEditing: val[1],
@@ -892,7 +894,7 @@ function HtmlRenderer(user_config) {
                 startLink = Kefir.emitter(),
                 finishLink = Kefir.emitter(),
                 doingLink = Kefir.merge([ startLink.mapTo(true),
-                                          finishLink.mapTo(false) ]).toProperty(I(false));
+                                          finishLink.mapTo(false) ]).toProperty(ƒ(false));
 
             },
             subscribeOutlet: function(outlet, connector) {

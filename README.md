@@ -4,6 +4,8 @@
 
 [![Build Status](https://travis-ci.org/shamansir/rpd.svg)](https://travis-ci.org/shamansir/rpd)
 
+<!-- [![Code Climate](https://codeclimate.com/github/shamansir/rpd.png)](https://codeclimate.com/github/shamansir/rpd) -->
+
 [![logo][]](http://shamansir.github.io/rpd)
 
 **Version 0.1.5**
