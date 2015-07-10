@@ -10,7 +10,7 @@
 
 _Version in Development: [v0.1.5](https://github.com/shamansir/rpd/milestones)_
 
-_Examples below are for the Latest Stable Version_
+_Examples below are only compatible with the Latest Stable Version_
 
 A video of the engine in action, demonstrates most of its features: [ [Watch][video] ].
 
