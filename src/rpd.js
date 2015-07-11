@@ -52,8 +52,8 @@ function Model(name) {
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
 
-    Kefir.combine([ this.events.filter(function(event) { return event.type !== 'model/render'; }),
-                    this.event['model/render'].scan(function(renderers, event) {
+    Kefir.combine([ this.events.filter(function(event) { return event.type !== 'model/render'; }) ],
+                  [ this.event['model/render'].scan(function(renderers, event) {
                         var alias = event[0], target = event[1], configuration = event[2];
                         var renderer = renderers[alias];
                         if (!renderer) {
@@ -67,7 +67,7 @@ function Model(name) {
                     }, { }) ])
          .bufferWhileBy(this.event['model/active'].toProperty(ƒ(false))
                                                   .map(function(value) { return !value; }),
-                        { flushOnChange: true }).flatten().skip(1).onValue(function(value) { // NB: skip(1) is to skip model/ready fired twice
+                        { flushOnChange: true }).flatten().onValue(function(value) { // NB: skip(1) is to skip model/ready fired twice
             console.log(value[0], value[0].type, value[1]);
             var event = value[0], renderers = value[1];
             var aliases = Object.keys(renderers);
