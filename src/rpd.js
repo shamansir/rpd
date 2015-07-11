@@ -39,6 +39,7 @@ function Model(name) {
     var myself = this;
 
     var event_conf = {
+        'model/ready':   function(model)   { return { model: model } },
         'model/render':  function(data)    { return { model: myself, renderer: data[0], target: data[1], configuration: data[2] } },
         'model/active':  function(value)   { return { model: myself, active: value }; },
         'model/inputs':  function(inputs)  { return { model: myself, inputs: inputs }; },
@@ -66,7 +67,7 @@ function Model(name) {
                     }, { }) ])
          .bufferWhileBy(this.event['model/active'].toProperty(ƒ(false))
                                                   .map(function(value) { return !value; }),
-                        { flushOnChange: true }).flatten().onValue(function(value) {
+                        { flushOnChange: true }).flatten().skip(1).onValue(function(value) { // NB: skip(1) is to skip model/ready fired twice
             console.log(value[0], value[0].type, value[1]);
             var event = value[0], renderers = value[1];
             var aliases = Object.keys(renderers);
@@ -101,6 +102,7 @@ function Model(name) {
     });
 
     event['model/new'].emit(this);
+    this.event['model/ready'].emit(this);
 }
 Model.prototype.render = function(aliases, targets, conf) {
     aliases = Array.isArray(aliases) ? aliases : [ aliases ];

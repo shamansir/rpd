@@ -63,38 +63,6 @@ return function(root, user_config) {
 
     var descriptions = Rpd.allDescriptions;
 
-    // =====================================================================
-    // ============================ model/new ==============================
-    // =====================================================================
-
-    /* <build HTML> */
-
-    root.classList.add('rpd-model');
-    if (config.layout) root.classList.add('rpd-layout-' + config.layout);
-    if (config.valuesOnHover) {
-        root.classList.add('rpd-values-on-hover');
-    } else {
-        root.classList.add('rpd-values-always-shown');
-    }
-    if (config.showBoxes) root.classList.add('rpd-show-boxes');
-
-    root.style.height = document.documentElement.clientHeight + 'px';
-    // window.innerHeight + 'px';
-
-    Kefir.fromEvents(root, 'resize').onValue(function() {
-        root.style.height = document.documentElement.clientHeight + 'px';
-    });
-
-    /* </build HTML> */
-
-    // initialize connection editor
-    connections.init(root);
-
-    if (config.renderNodeList) addNodeList(root, Rpd.allNodeTypes, descriptions);
-
-    Kefir.fromEvents(root, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
-
-
     return {
 
         // the object below reacts on every Model event and constructs corresponding
@@ -104,6 +72,41 @@ return function(root, user_config) {
         // to build required DOM; may be later I'll decide to use `shaven` templates
         // or something similar, but actually it's not a lot to build here, it just
         // looks massive;
+
+        // =====================================================================
+        // ========================== model/ready ==============================
+        // =====================================================================
+
+        'model/ready': function(update) {
+
+            /* <build HTML> */
+
+            root.classList.add('rpd-model');
+            if (config.layout) root.classList.add('rpd-layout-' + config.layout);
+            if (config.valuesOnHover) {
+                root.classList.add('rpd-values-on-hover');
+            } else {
+                root.classList.add('rpd-values-always-shown');
+            }
+            if (config.showBoxes) root.classList.add('rpd-show-boxes');
+
+            root.style.height = document.documentElement.clientHeight + 'px';
+            // window.innerHeight + 'px';
+
+            Kefir.fromEvents(root, 'resize').onValue(function() {
+                root.style.height = document.documentElement.clientHeight + 'px';
+            });
+
+            /* </build HTML> */
+
+            // initialize connection editor
+            connections.init(root);
+
+            if (config.renderNodeList) addNodeList(root, Rpd.allNodeTypes, descriptions);
+
+            Kefir.fromEvents(root, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
+
+        },
 
         // =====================================================================
         // ============================ model/active ===========================
