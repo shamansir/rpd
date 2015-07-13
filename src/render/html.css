@@ -1,3 +1,7 @@
+.rpd-network {
+    margin: 0;
+}
+
 .rpd-model {
     font-family: 'PT Mono', 'Andale Mono', 'Fira mono', 'Menlo', sans-serif;
     font-size: 0.7em;

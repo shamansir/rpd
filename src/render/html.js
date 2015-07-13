@@ -39,11 +39,13 @@ var NODE_LAYER = 0,
 // ============================= HtmlRenderer ==================================
 // =============================================================================
 
+var modelToRoot = {};
+
 function HtmlRenderer(model) {
 
 console.log('call', model.name);
 
-return function(root, user_config) {
+return function(networkRoot, user_config) {
 
     // these objects store elements and data corresponding to given nodes,
     // inlets, outlets, links as hashes, by their ID;
@@ -63,6 +65,10 @@ return function(root, user_config) {
 
     var descriptions = Rpd.allDescriptions;
 
+    var root;
+
+    networkRoot.classList.add('rpd-network');
+
     return {
 
         // the object below reacts on every Model event and constructs corresponding
@@ -80,6 +86,9 @@ return function(root, user_config) {
         'model/ready': function(update) {
 
             /* <build HTML> */
+
+            root = document.createElement('div');
+            modelToRoot[model.id] = root;
 
             root.classList.add('rpd-model');
             if (config.layout) root.classList.add('rpd-layout-' + config.layout);
@@ -105,6 +114,8 @@ return function(root, user_config) {
             if (config.renderNodeList) addNodeList(root, Rpd.allNodeTypes, descriptions);
 
             Kefir.fromEvents(root, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
+
+            networkRoot.appendChild(root);
 
         },
 
@@ -136,10 +147,10 @@ return function(root, user_config) {
                 (function(current, target) {
                     return function() {
                         current.exit();
-                        var currentRoot = model_to_root[current.id];
-                        var targetRoot = model_to_root[target.id]
-                        if (currentRoot) root.removeChild(currentRoot);
-                        if (targetRoot) root.appendChild(targetRoot);
+                        var currentRoot = modelToRoot[current.id];
+                        //var targetRoot = modelToRoot[target.id]
+                        if (currentRoot) networkRoot.removeChild(currentRoot);
+                        //if (targetRoot) networkRoot.appendChild(targetRoot);
                         target.enter();
                     }
                 })(model, update.target));
