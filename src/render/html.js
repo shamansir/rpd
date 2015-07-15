@@ -40,10 +40,13 @@ var NODE_LAYER = 0,
 // =============================================================================
 
 var modelToRoot = {};
+var models = {};
+
+var navigation = Navigation();
 
 function HtmlRenderer(model) {
 
-console.log('call', model.name);
+models[model.id] = model;
 
 return function(networkRoot, user_config) {
 
@@ -123,7 +126,14 @@ return function(networkRoot, user_config) {
         // ============================ model/active ===========================
         // =====================================================================
 
-        // 'model/active': function(update) { },
+        'model/active': function(update) {
+            if (update.active) {
+                navigation.switch(update.model);
+                networkRoot.appendChild(root);
+            } else {
+                networkRoot.removeChild(root);
+            }
+        },
 
         // =====================================================================
         // =========================== model/project ===========================
@@ -147,10 +157,6 @@ return function(networkRoot, user_config) {
                 (function(current, target) {
                     return function() {
                         current.exit();
-                        var currentRoot = modelToRoot[current.id];
-                        //var targetRoot = modelToRoot[target.id]
-                        if (currentRoot) networkRoot.removeChild(currentRoot);
-                        //if (targetRoot) networkRoot.appendChild(targetRoot);
                         target.enter();
                     }
                 })(model, update.target));
@@ -1175,6 +1181,27 @@ return function(networkRoot, user_config) {
 
 } // function(model)
 
+
+// ============================== Navigation ===============================
+// =========================================================================
+
+function Navigation() {
+
+    var instance = {
+        'switch': function(target) {
+            if (!target) return;
+            window.location.hash = target.id;
+        }
+    };
+
+    Kefir.fromEvents(window, 'hashchange')
+         .map(function() { return (window.location.hash ? window.location.hash.slice(1) : null); })
+         .onValue(function(new_hash) {
+             instance.switch(models[new_hash]);
+         });
+
+    return instance;
+}
 
 // ================================ utils ======================================
 // =============================================================================

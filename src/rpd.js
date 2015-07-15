@@ -67,7 +67,7 @@ function Model(name) {
                     }, { }) ])
          .bufferWhileBy(this.event['model/active'].toProperty(ƒ(false))
                                                   .map(function(value) { return !value; }),
-                        { flushOnChange: true }).flatten().onValue(function(value) { // NB: skip(1) is to skip model/ready fired twice
+                        { flushOnChange: true }).flatten().onValue(function(value) {
             console.log(value[0], value[0].type, value[1]);
             var event = value[0], renderers = value[1];
             var aliases = Object.keys(renderers);
