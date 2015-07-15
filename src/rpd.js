@@ -41,7 +41,8 @@ function Model(name) {
     var event_conf = {
         'model/ready':   function(model)   { return { model: model } },
         'model/render':  function(data)    { return { model: myself, renderer: data[0], target: data[1], configuration: data[2] } },
-        'model/active':  function(value)   { return { model: myself, active: value }; },
+        'model/enter':   function(model)   { return { model: model }; },
+        'model/exit':    function(model)   { return { model: model }; },
         'model/inputs':  function(inputs)  { return { model: myself, inputs: inputs }; },
         'model/outputs': function(outputs) { return { model: myself, outputs: outputs }; },
         'model/refer':   function(data)    { return { model: myself, node: data[0], target: data[1] }; },
@@ -65,8 +66,10 @@ function Model(name) {
                         renderer.handlers.push(renderer.produce(target, configuration));
                         return renderers;
                     }, { }) ])
-         .bufferWhileBy(this.event['model/active'].toProperty(ƒ(false))
-                                                  .map(function(value) { return !value; }),
+         .bufferWhileBy(Kefir.merge([
+                            this.event['model/enter'].map(ƒ(false)),
+                            this.event['model/exit'].map(ƒ(true))
+                        ]),
                         { flushOnChange: true }).flatten().onValue(function(value) {
             console.log(value[0], value[0].type, value[1]);
             var event = value[0], renderers = value[1];
@@ -131,11 +134,11 @@ Model.prototype.removeNode = function(node) {
     this.events.unplug(node.events);
 }
 Model.prototype.enter = function() {
-    this.event['model/active'].emit(true);
+    this.event['model/enter'].emit(this);
     return this;
 }
 Model.prototype.exit = function() {
-    this.event['model/active'].emit(false);
+    this.event['model/exit'].emit(this);
     return this;
 }
 Model.prototype.inputs = function(list) {

@@ -123,16 +123,20 @@ return function(networkRoot, user_config) {
         },
 
         // =====================================================================
-        // ============================ model/active ===========================
+        // ============================ model/enter ============================
         // =====================================================================
 
-        'model/active': function(update) {
-            if (update.active) {
-                navigation.switch(update.model);
-                networkRoot.appendChild(root);
-            } else {
-                networkRoot.removeChild(root);
-            }
+        'model/enter': function(update) {
+            navigation.switch(update.model);
+            networkRoot.appendChild(root);
+        },
+
+        // =====================================================================
+        // ============================ model/exit =============================
+        // =====================================================================
+
+        'model/exit': function(update) {
+            networkRoot.removeChild(root);
         },
 
         // =====================================================================
@@ -142,7 +146,7 @@ return function(networkRoot, user_config) {
         // 'model/project': function(update) { },
 
         // =====================================================================
-        // ============================= model/refer ===========================
+        // ============================ model/refer ============================
         // =====================================================================
 
         'model/refer': function(update) {
