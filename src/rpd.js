@@ -68,7 +68,9 @@ function Model(name) {
                     }, { }) ])
          .bufferWhileBy(Kefir.merge([
                             this.event['model/enter'].map(ƒ(false)),
-                            this.event['model/exit'].map(ƒ(true))
+                            this.event['model/exit'].map(ƒ(true)).flatMap(function(x) {
+                                return Kefir.later(1, x) // let exit event get into combined stream
+                            })
                         ]),
                         { flushOnChange: true }).flatten().onValue(function(value) {
             console.log(value[0], value[0].type, value[1]);

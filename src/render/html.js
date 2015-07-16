@@ -7,7 +7,7 @@ var QUARTZ_LAYOUT = 'quartz',
     // inlets/outlets are at the top/bottom sides of a node body
     PD_LAYOUT = 'pd';
 
-var default_config = {
+var defaultConfig = {
     layout: QUARTZ_LAYOUT,
     // show inlet/outlet value only when user hovers over its connector
     // (always showing, by default)
@@ -46,9 +46,13 @@ var navigation = Navigation();
 
 function HtmlRenderer(model) {
 
+console.log('created for ', model.name);
+
 models[model.id] = model;
 
-return function(networkRoot, user_config) {
+return function(networkRoot, userConfig) {
+
+    console.log('and initialized with ', networkRoot, userConfig);
 
     // these objects store elements and data corresponding to given nodes,
     // inlets, outlets, links as hashes, by their ID;
@@ -60,7 +64,7 @@ return function(networkRoot, user_config) {
     // links:   { id: { elm, link  }, ... }
     var nodes = {}, outlets = {}, inlets = {}, links = {};
 
-    var config = mergeConfig(user_config, default_config);
+    var config = mergeConfig(userConfig, defaultConfig);
 
     // Connections object manages only the run-time editing of the links,
     // it's completely written in FRP style;
@@ -87,6 +91,8 @@ return function(networkRoot, user_config) {
         // =====================================================================
 
         'model/ready': function(update) {
+
+            console.log('build HTML for ', model.name);
 
             /* <build HTML> */
 
