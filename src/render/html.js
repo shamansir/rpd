@@ -1197,9 +1197,12 @@ return function(networkRoot, userConfig) {
 
 function Navigation() {
 
+    var current;
+
     var instance = {
         'switch': function(target) {
             if (!target) return;
+            current = target;
             window.location.hash = target.id;
         }
     };
@@ -1207,7 +1210,12 @@ function Navigation() {
     Kefir.fromEvents(window, 'hashchange')
          .map(function() { return (window.location.hash ? window.location.hash.slice(1) : null); })
          .onValue(function(new_hash) {
-             instance.switch(models[new_hash]);
+             if (current && (new_hash === current.id)) return;
+             var target = models[new_hash];
+             if (target) {
+                 if (current) current.exit();
+                 target.enter();
+             }
          });
 
     return instance;
