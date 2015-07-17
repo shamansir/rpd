@@ -199,8 +199,7 @@
 }
 
 .rpd-node.rpd-model-reference .rpd-body:hover {
-    background-color: #333;
-    opacity: 0.2;
+    color: #ccc;
 }
 
 /* QUARTZ COMPOSER LAYOUT STYLE */

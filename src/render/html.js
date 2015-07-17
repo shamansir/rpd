@@ -163,6 +163,8 @@ return function(networkRoot, userConfig) {
 
             nodeElm.classList.add('rpd-model-reference');
 
+            nodes[node.id].body.innerText = '[' + (update.target.name || update.target.id) + ']';
+
             bodyTrg.addEventListener('click',
                 (function(current, target) {
                     return function() {
