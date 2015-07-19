@@ -2,7 +2,7 @@
     margin: 0;
 }
 
-.rpd-model {
+.rpd-patch {
     font-family: 'PT Mono', 'Andale Mono', 'Fira mono', 'Menlo', sans-serif;
     font-size: 0.7em;
     color: #111;
@@ -194,11 +194,11 @@
     display: block;
 }
 
-.rpd-node.rpd-model-reference .rpd-body {
+.rpd-node.rpd-patch-reference .rpd-body {
     cursor: pointer;
 }
 
-.rpd-node.rpd-model-reference .rpd-body:hover {
+.rpd-node.rpd-patch-reference .rpd-body:hover {
     color: #ccc;
 }
 

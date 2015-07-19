@@ -39,20 +39,16 @@ var NODE_LAYER = 0,
 // ============================= HtmlRenderer ==================================
 // =============================================================================
 
-var modelToRoot = {};
-var models = {};
+var patchToRoot = {};
+var patches = {};
 
 var navigation = Navigation();
 
-function HtmlRenderer(model) {
+function HtmlRenderer(patch) {
 
-console.log('created for ', model.name);
-
-models[model.id] = model;
+patches[patch.id] = patch;
 
 return function(networkRoot, userConfig) {
-
-    console.log('and initialized with ', networkRoot, userConfig);
 
     // these objects store elements and data corresponding to given nodes,
     // inlets, outlets, links as hashes, by their ID;
@@ -78,7 +74,7 @@ return function(networkRoot, userConfig) {
 
     return {
 
-        // the object below reacts on every Model event and constructs corresponding
+        // the object below reacts on every Patch event and constructs corresponding
         // HTML structures in response, or modifies them; some blocks of code
         // are really huge because of massive createElement, appendChild and stuff,
         // but I decided that it is the only way which needs no external library
@@ -87,19 +83,17 @@ return function(networkRoot, userConfig) {
         // looks massive;
 
         // =====================================================================
-        // ========================== model/ready ==============================
+        // ========================== patch/ready ==============================
         // =====================================================================
 
-        'model/ready': function(update) {
-
-            console.log('build HTML for ', model.name);
+        'patch/ready': function(update) {
 
             /* <build HTML> */
 
             root = document.createElement('div');
-            modelToRoot[model.id] = root;
+            patchToRoot[patch.id] = root;
 
-            root.classList.add('rpd-model');
+            root.classList.add('rpd-patch');
             if (config.layout) root.classList.add('rpd-layout-' + config.layout);
             if (config.valuesOnHover) {
                 root.classList.add('rpd-values-on-hover');
@@ -129,39 +123,39 @@ return function(networkRoot, userConfig) {
         },
 
         // =====================================================================
-        // ============================ model/enter ============================
+        // ============================ patch/enter ============================
         // =====================================================================
 
-        'model/enter': function(update) {
-            navigation.switch(update.model);
+        'patch/enter': function(update) {
+            navigation.switch(update.patch);
             networkRoot.appendChild(root);
         },
 
         // =====================================================================
-        // ============================ model/exit =============================
+        // ============================ patch/exit =============================
         // =====================================================================
 
-        'model/exit': function(update) {
+        'patch/exit': function(update) {
             networkRoot.removeChild(root);
         },
 
         // =====================================================================
-        // =========================== model/project ===========================
+        // =========================== patch/project ===========================
         // =====================================================================
 
-        // 'model/project': function(update) { },
+        // 'patch/project': function(update) { },
 
         // =====================================================================
-        // ============================ model/refer ============================
+        // ============================ patch/refer ============================
         // =====================================================================
 
-        'model/refer': function(update) {
+        'patch/refer': function(update) {
             var node = update.node;
 
             var nodeElm = nodes[node.id].elm;
             var bodyTrg = nodes[node.id].bodyTrg;
 
-            nodeElm.classList.add('rpd-model-reference');
+            nodeElm.classList.add('rpd-patch-reference');
 
             nodes[node.id].body.innerText = '[' + (update.target.name || update.target.id) + ']';
 
@@ -171,7 +165,7 @@ return function(networkRoot, userConfig) {
                         current.exit();
                         target.enter();
                     }
-                })(model, update.target));
+                })(patch, update.target));
         },
 
         // =====================================================================
@@ -417,7 +411,7 @@ return function(networkRoot, userConfig) {
             Kefir.fromEvents(removeButton, 'click')
                  .tap(stopPropagation)
                  .onValue(function() {
-                     model.removeNode(node);
+                     patch.removeNode(node);
                  });
 
         },
@@ -1156,7 +1150,7 @@ return function(networkRoot, userConfig) {
                     Kefir.fromEvents(addButton, 'click')
                          .tap(stopPropagation)
                          .onValue(function() {
-                             model.addNode(nodeType);
+                             patch.addNode(nodeType);
                          });
                 })(nodeType);
 
@@ -1191,7 +1185,7 @@ return function(networkRoot, userConfig) {
 
 } // function(target, config)
 
-} // function(model)
+} // function(patch)
 
 
 // ============================== Navigation ===============================
@@ -1213,7 +1207,7 @@ function Navigation() {
          .map(function() { return (window.location.hash ? window.location.hash.slice(1) : null); })
          .onValue(function(new_hash) {
              if (current && (new_hash === current.id)) return;
-             var target = models[new_hash];
+             var target = patches[new_hash];
              if (target) {
                  if (current) current.exit();
                  target.enter();

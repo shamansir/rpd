@@ -21,40 +21,40 @@ var nodedescriptions = {};
 
 var renderer_registry = {};
 
-var event_conf = { 'model/new': function(model) { return { model: model }; } };
+var event_conf = { 'patch/new': function(patch) { return { patch: patch }; } };
 var event = event_map(event_conf);
 var events = events_stream(event_conf, event);
 
-event['model/new'].onValue(function(model) { events.plug(model.events); });
+event['patch/new'].onValue(function(patch) { events.plug(patch.events); });
 
 function ƒ(v) { return function() { return v; } }
 
-// ================================== Model ====================================
+// ================================== Patch ====================================
 // =============================================================================
 
-function Model(name) {
+function Patch(name) {
     this.id = short_uid();
     this.name = name;
 
     var myself = this;
 
     var event_conf = {
-        'model/ready':   function(model)   { return { model: model } },
-        'model/render':  function(data)    { return { model: myself, renderer: data[0], target: data[1], configuration: data[2] } },
-        'model/enter':   function(model)   { return { model: model }; },
-        'model/exit':    function(model)   { return { model: model }; },
-        'model/inputs':  function(inputs)  { return { model: myself, inputs: inputs }; },
-        'model/outputs': function(outputs) { return { model: myself, outputs: outputs }; },
-        'model/refer':   function(data)    { return { model: myself, node: data[0], target: data[1] }; },
-        'model/project': function(data)    { return { model: myself, node: data[0], inputs: data[1], outputs: data[2] }; },
+        'patch/ready':   function(patch)   { return { patch: patch } },
+        'patch/render':  function(data)    { return { patch: myself, renderer: data[0], target: data[1], configuration: data[2] } },
+        'patch/enter':   function(patch)   { return { patch: patch }; },
+        'patch/exit':    function(patch)   { return { patch: patch }; },
+        'patch/inputs':  function(inputs)  { return { patch: myself, inputs: inputs }; },
+        'patch/outputs': function(outputs) { return { patch: myself, outputs: outputs }; },
+        'patch/refer':   function(data)    { return { patch: myself, node: data[0], target: data[1] }; },
+        'patch/project': function(data)    { return { patch: myself, node: data[0], inputs: data[1], outputs: data[2] }; },
         'node/add':      function(node)    { return { node: node }; },
         'node/remove':   function(node)    { return { node: node }; }
     };
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
 
-    Kefir.combine([ this.events.filter(function(event) { return event.type !== 'model/render'; }) ],
-                  [ this.event['model/render'].scan(function(renderers, event) {
+    Kefir.combine([ this.events.filter(function(event) { return event.type !== 'patch/render'; }) ],
+                  [ this.event['patch/render'].scan(function(renderers, event) {
                         var alias = event[0], target = event[1], configuration = event[2];
                         var renderer = renderers[alias];
                         if (!renderer) {
@@ -67,11 +67,10 @@ function Model(name) {
                         return renderers;
                     }, { }) ])
          .bufferWhileBy(Kefir.merge([
-                            this.event['model/enter'].map(ƒ(false)),
-                            this.event['model/exit'].map(ƒ(true)).delay(0) // let exit event get into combined stream
+                            this.event['patch/enter'].map(ƒ(false)),
+                            this.event['patch/exit'].map(ƒ(true)).delay(0) // let exit event get into combined stream
                         ]),
                         { flushOnChange: true }).flatten().onValue(function(value) {
-            console.log(value[0], value[0].type, value[1]);
             var event = value[0], renderers = value[1];
             var aliases = Object.keys(renderers);
             var renderer, handlers;
@@ -87,8 +86,8 @@ function Model(name) {
     this.projections = Kefir.emitter();
     Kefir.combine(
         [ this.projections ],
-        [ this.event['model/inputs'],
-          this.event['model/outputs'] ]
+        [ this.event['patch/inputs'],
+          this.event['patch/outputs'] ]
     ).onValue(function(value) {
         var node = value[0], inputs = value[1], outputs = value[2];
         var inlet, outlet;
@@ -100,68 +99,68 @@ function Model(name) {
             outlet = node.addOutlet(outputs[i].type, inputs[i].name);
             outlet.event['outlet/update'].onValue(function(val) { outputs[i].send(val); });
         } // use outlet.onUpdate?
-        myself.event['model/project'].emit([ node, inputs, outputs ]);
-        node.model.event['model/refer'].emit([ node, myself ]);
+        myself.event['patch/project'].emit([ node, inputs, outputs ]);
+        node.patch.event['patch/refer'].emit([ node, myself ]);
     });
 
-    event['model/new'].emit(this);
-    this.event['model/ready'].emit(this);
+    event['patch/new'].emit(this);
+    this.event['patch/ready'].emit(this);
 }
-Model.prototype.render = function(aliases, targets, conf) {
+Patch.prototype.render = function(aliases, targets, conf) {
     aliases = Array.isArray(aliases) ? aliases : [ aliases ];
     targets = Array.isArray(targets) ? targets : [ targets ];
     for (var i = 0, il = aliases.length, alias; i < il; i++) {
         for (var j = 0, jl = targets.length, target; j < jl; j++) {
             alias = aliases[i]; target = targets[j];
             if (!renderer_registry[alias]) throw new Error('Renderer ' + alias + ' is not registered');
-            this.event['model/render'].emit([ alias, target, conf ]);
+            this.event['patch/render'].emit([ alias, target, conf ]);
         }
     }
     return this;
 }
-Model.prototype.addNode = function(type, name) {
-    var model = this;
+Patch.prototype.addNode = function(type, name) {
+    var patch = this;
     var node = new Node(type, this, name, function(node) {
-        model.events.plug(node.events);
-        model.event['node/add'].emit(node);
+        patch.events.plug(node.events);
+        patch.event['node/add'].emit(node);
         node.turnOn();
     });
     return node;
 }
-Model.prototype.removeNode = function(node) {
+Patch.prototype.removeNode = function(node) {
     node.turnOff();
     this.event['node/remove'].emit(node);
     this.events.unplug(node.events);
 }
-Model.prototype.enter = function() {
-    this.event['model/enter'].emit(this);
+Patch.prototype.enter = function() {
+    this.event['patch/enter'].emit(this);
     return this;
 }
-Model.prototype.exit = function() {
-    this.event['model/exit'].emit(this);
+Patch.prototype.exit = function() {
+    this.event['patch/exit'].emit(this);
     return this;
 }
-Model.prototype.inputs = function(list) {
-    this.event['model/inputs'].emit(list);
+Patch.prototype.inputs = function(list) {
+    this.event['patch/inputs'].emit(list);
     return this;
 }
-Model.prototype.outputs = function(list) {
-    this.event['model/outputs'].emit(list);
+Patch.prototype.outputs = function(list) {
+    this.event['patch/outputs'].emit(list);
     return this;
 }
-Model.prototype.project = function(node) {
+Patch.prototype.project = function(node) {
     this.projections.emit(node);
     return this;
 }
-Model.start = function(name) {
-    var instance = new Model(name);
+Patch.start = function(name) {
+    var instance = new Patch(name);
     return instance;
 }
 
 // ================================= Node ======================================
 // =============================================================================
 
-function Node(type, model, name, callback) {
+function Node(type, patch, name, callback) {
     this.type = type || 'core/empty';
     this.id = short_uid();
     var def = adapt_to_obj(nodetypes[this.type]);
@@ -171,7 +170,7 @@ function Node(type, model, name, callback) {
     this.name = name || def.name || type;
     this.def = def;
 
-    this.model = model;
+    this.patch = patch;
 
     this.render = prepare_render_obj(noderenderers[this.type], this);
 
@@ -627,7 +626,7 @@ return {
     'event': event,
     'events': events,
 
-    'Model': Model,
+    'Patch': Patch,
     'Node': Node,
     'Inlet': Inlet,
     'Outlet': Outlet,
