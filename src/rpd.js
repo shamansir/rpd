@@ -21,11 +21,11 @@ var nodedescriptions = {};
 
 var renderer_registry = {};
 
-var event_conf = { 'patch/new': function(patch) { return { patch: patch }; } };
+var event_conf = { 'network/add-patch': function(patch) { return { patch: patch }; } };
 var event = event_map(event_conf);
 var events = events_stream(event_conf, event);
 
-event['patch/new'].onValue(function(patch) { events.plug(patch.events); });
+event['network/add-patch'].onValue(function(patch) { events.plug(patch.events); });
 
 function ƒ(v) { return function() { return v; } }
 
