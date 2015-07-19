@@ -39,12 +39,12 @@ function Patch(name) {
     var myself = this;
 
     var event_conf = {
-        'patch/ready':       function(patch)   { return { patch: patch } },
+        'patch/set-ready':   function(patch)   { return { patch: patch } },
         'patch/render':      function(data)    { return { patch: myself, renderer: data[0], target: data[1], configuration: data[2] } },
         'patch/enter':       function(patch)   { return { patch: patch }; },
         'patch/exit':        function(patch)   { return { patch: patch }; },
-        'patch/inputs':      function(inputs)  { return { patch: myself, inputs: inputs }; },
-        'patch/outputs':     function(outputs) { return { patch: myself, outputs: outputs }; },
+        'patch/set-inputs':  function(inputs)  { return { patch: myself, inputs: inputs }; },
+        'patch/set-outputs': function(outputs) { return { patch: myself, outputs: outputs }; },
         'patch/refer':       function(data)    { return { patch: myself, node: data[0], target: data[1] }; },
         'patch/project':     function(data)    { return { patch: myself, node: data[0], inputs: data[1], outputs: data[2] }; },
         'patch/add-node':    function(node)    { return { node: node }; },
@@ -86,8 +86,8 @@ function Patch(name) {
     this.projections = Kefir.emitter();
     Kefir.combine(
         [ this.projections ],
-        [ this.event['patch/inputs'],
-          this.event['patch/outputs'] ]
+        [ this.event['patch/set-inputs'],
+          this.event['patch/set-outputs'] ]
     ).onValue(function(value) {
         var node = value[0], inputs = value[1], outputs = value[2];
         var inlet, outlet;
@@ -103,8 +103,8 @@ function Patch(name) {
         node.patch.event['patch/refer'].emit([ node, myself ]);
     });
 
-    event['patch/new'].emit(this);
-    this.event['patch/ready'].emit(this);
+    event['network/add-patch'].emit(this);
+    this.event['patch/set-ready'].emit(this);
 }
 Patch.prototype.render = function(aliases, targets, conf) {
     aliases = Array.isArray(aliases) ? aliases : [ aliases ];
@@ -141,11 +141,11 @@ Patch.prototype.exit = function() {
     return this;
 }
 Patch.prototype.inputs = function(list) {
-    this.event['patch/inputs'].emit(list);
+    this.event['patch/set-inputs'].emit(list);
     return this;
 }
 Patch.prototype.outputs = function(list) {
-    this.event['patch/outputs'].emit(list);
+    this.event['patch/set-outputs'].emit(list);
     return this;
 }
 Patch.prototype.project = function(node) {
@@ -177,7 +177,7 @@ function Node(type, patch, name, callback) {
     var myself = this;
     var event_conf = {
         'node/turn-on':       function(node) { return { node: myself } },
-        'node/ready':         function(node) { return { node: myself } },
+        'node/set-ready':     function(node) { return { node: myself } },
         'node/process':       function(channels) { return { inlets: channels[0], outlets: channels[1], node: myself } },
         'node/turn-off':      function(node) { return { node: myself } },
         'node/add-inlet':     function(inlet) { return { inlet: inlet } },
@@ -226,8 +226,8 @@ function Node(type, patch, name, callback) {
         ])
 
         // do not fire any event until node is ready, then immediately fire them one by one, if any occured
-        // later events are fired after node/ready corresponding to their time of firing, as usual
-        process = process.bufferBy(this.event['node/ready']).take(1).flatten().concat(process);
+        // later events are fired after node/set-ready corresponding to their time of firing, as usual
+        process = process.bufferBy(this.event['node/set-ready']).take(1).flatten().concat(process);
 
         process = process.scan(function(data, update) {
             // update[0] is inlet value update, update[1] is a list of outlets
@@ -285,7 +285,7 @@ function Node(type, patch, name, callback) {
 
     if (this.def.prepare) this.def.prepare(this.inlets, this.outlets);
 
-    this.event['node/ready'].emit(this);
+    this.event['node/set-ready'].emit(this);
 
 }
 Node.prototype.turnOn = function() {
@@ -471,10 +471,10 @@ function Link(type, outlet, inlet, adapter, name) {
         };
 
     var event_conf = {
-        'link/enable': function() { return { link: myself } },
+        'link/enable':  function() { return { link: myself } },
         'link/disable': function() { return { link: myself } },
-        'link/pass': function(value) { return { link: myself, value: value } },
-        'link/adapt': function(values) { return { link: myself, before: values[0], after: values[1] } }
+        'link/pass':    function(value) { return { link: myself, value: value } },
+        'link/adapt':   function(values) { return { link: myself, before: values[0], after: values[1] } }
     };
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);

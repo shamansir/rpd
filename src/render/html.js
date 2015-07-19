@@ -83,10 +83,10 @@ return function(networkRoot, userConfig) {
         // looks massive;
 
         // =====================================================================
-        // ========================== patch/ready ==============================
+        // ======================== patch/set-ready ============================
         // =====================================================================
 
-        'patch/ready': function(update) {
+        'patch/set-ready': function(update) {
 
             /* <build HTML> */
 
@@ -169,7 +169,7 @@ return function(networkRoot, userConfig) {
         },
 
         // =====================================================================
-        // ============================ patch/add-node ===============================
+        // ========================= patch/add-node ============================
         // =====================================================================
 
         'patch/add-node': function(update) {
@@ -417,29 +417,7 @@ return function(networkRoot, userConfig) {
         },
 
         // =====================================================================
-        // ============================ node/ready =============================
-        // =====================================================================
-
-        // 'node/ready': function(update) { },
-
-        // =====================================================================
-        // ============================ node/process ===========================
-        // =====================================================================
-
-        'node/process': function(update) {
-
-            var node = update.node;
-
-            // update node body with custom renderer, if defined
-            if (node.render.html && node.render.html.always) {
-                var bodyElm = nodes[node.id].body;
-                node.render.html.always(bodyElm, update.inlets, update.outlets);
-            }
-
-        },
-
-        // =====================================================================
-        // ============================ patch/remove-node ============================
+        // ========================= patch/remove-node =========================
         // =====================================================================
 
         'patch/remove-node': function(update) {
@@ -461,7 +439,29 @@ return function(networkRoot, userConfig) {
         },
 
         // =====================================================================
-        // ============================ node/add-inlet ==============================
+        // ========================== node/set-ready ===========================
+        // =====================================================================
+
+        // 'node/set-ready': function(update) { },
+
+        // =====================================================================
+        // =========================== node/process ============================
+        // =====================================================================
+
+        'node/process': function(update) {
+
+            var node = update.node;
+
+            // update node body with custom renderer, if defined
+            if (node.render.html && node.render.html.always) {
+                var bodyElm = nodes[node.id].body;
+                node.render.html.always(bodyElm, update.inlets, update.outlets);
+            }
+
+        },
+
+        // =====================================================================
+        // ========================= node/add-inlet ============================
         // =====================================================================
 
         'node/add-inlet': function(update) {
@@ -553,40 +553,13 @@ return function(networkRoot, userConfig) {
         },
 
         // =====================================================================
-        // ============================ node/remove-inlet ===========================
+        // ========================= node/remove-inlet =========================
         // =====================================================================
 
         // 'node/remove-inlet': function(update) {},
 
         // =====================================================================
-        // ============================ inlet/update ===========================
-        // =====================================================================
-
-        'inlet/update': function(update) {
-
-            var inlet = update.inlet;
-
-            if (inlet.hidden) return;
-
-            var inletData = inlets[inlet.id];
-            var inletElm = inletData.elm;
-
-            var valueElm = inletData.valueElm;
-
-            var valueRepr = inlet.def.show ? inlet.def.show(update.value) : update.value;
-            if (inlet.render.html && inlet.render.html.show) {
-                inlet.render.html.show(valueElm, update.value, valueRepr);
-            } else {
-                valueElm.innerText = valueElm.textContent = valueRepr;
-            }
-
-            // adds `rpd-fresh` CSS class and removes it by timeout
-            valueUpdateEffect(inletData, inletElm, config.effectTime);
-
-        },
-
-        // =====================================================================
-        // ============================ node/add-outlet =============================
+        // ========================= node/add-outlet ===========================
         // =====================================================================
 
         'node/add-outlet': function(update) {
@@ -653,13 +626,40 @@ return function(networkRoot, userConfig) {
         },
 
         // =====================================================================
-        // ============================ node/remove-outlet ==========================
+        // ========================= node/remove-outlet ========================
         // =====================================================================
 
         // 'node/remove-outlet': function(update) {},
 
         // =====================================================================
-        // ============================ outlet/update ==========================
+        // =========================== inlet/update ============================
+        // =====================================================================
+
+        'inlet/update': function(update) {
+
+            var inlet = update.inlet;
+
+            if (inlet.hidden) return;
+
+            var inletData = inlets[inlet.id];
+            var inletElm = inletData.elm;
+
+            var valueElm = inletData.valueElm;
+
+            var valueRepr = inlet.def.show ? inlet.def.show(update.value) : update.value;
+            if (inlet.render.html && inlet.render.html.show) {
+                inlet.render.html.show(valueElm, update.value, valueRepr);
+            } else {
+                valueElm.innerText = valueElm.textContent = valueRepr;
+            }
+
+            // adds `rpd-fresh` CSS class and removes it by timeout
+            valueUpdateEffect(inletData, inletElm, config.effectTime);
+
+        },
+
+        // =====================================================================
+        // =========================== outlet/update ===========================
         // =====================================================================
 
         'outlet/update': function(update) {
@@ -685,7 +685,7 @@ return function(networkRoot, userConfig) {
         },
 
         // =====================================================================
-        // ============================ outlet/connect =========================
+        // =========================== outlet/connect ==========================
         // =====================================================================
 
         'outlet/connect': function(update) {
@@ -731,7 +731,7 @@ return function(networkRoot, userConfig) {
         },
 
         // =====================================================================
-        // ============================ outlet/disconnect ======================
+        // ========================== outlet/disconnect ========================
         // =====================================================================
 
         'outlet/disconnect': function(update) {
