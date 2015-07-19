@@ -40,7 +40,6 @@ function Patch(name) {
 
     var event_conf = {
         'patch/set-ready':   function(patch)   { return { patch: patch } },
-        'patch/render':      function(data)    { return { patch: myself, renderer: data[0], target: data[1], configuration: data[2] } },
         'patch/enter':       function(patch)   { return { patch: patch }; },
         'patch/exit':        function(patch)   { return { patch: patch }; },
         'patch/set-inputs':  function(inputs)  { return { patch: myself, inputs: inputs }; },
@@ -53,8 +52,9 @@ function Patch(name) {
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
 
-    Kefir.combine([ this.events.filter(function(event) { return event.type !== 'patch/render'; }) ],
-                  [ this.event['patch/render'].scan(function(renderers, event) {
+    this.renderQueue = Kefir.emitter();
+    Kefir.combine([ this.events ],
+                  [ this.renderQueue.scan(function(renderers, event) {
                         var alias = event[0], target = event[1], configuration = event[2];
                         var renderer = renderers[alias];
                         if (!renderer) {
@@ -113,7 +113,7 @@ Patch.prototype.render = function(aliases, targets, conf) {
         for (var j = 0, jl = targets.length, target; j < jl; j++) {
             alias = aliases[i]; target = targets[j];
             if (!renderer_registry[alias]) throw new Error('Renderer ' + alias + ' is not registered');
-            this.event['patch/render'].emit([ alias, target, conf ]);
+            this.renderQueue.emit([ alias, target, conf ]);
         }
     }
     return this;
