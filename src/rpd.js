@@ -39,16 +39,16 @@ function Patch(name) {
     var myself = this;
 
     var event_conf = {
-        'patch/ready':   function(patch)   { return { patch: patch } },
-        'patch/render':  function(data)    { return { patch: myself, renderer: data[0], target: data[1], configuration: data[2] } },
-        'patch/enter':   function(patch)   { return { patch: patch }; },
-        'patch/exit':    function(patch)   { return { patch: patch }; },
-        'patch/inputs':  function(inputs)  { return { patch: myself, inputs: inputs }; },
-        'patch/outputs': function(outputs) { return { patch: myself, outputs: outputs }; },
-        'patch/refer':   function(data)    { return { patch: myself, node: data[0], target: data[1] }; },
-        'patch/project': function(data)    { return { patch: myself, node: data[0], inputs: data[1], outputs: data[2] }; },
-        'node/add':      function(node)    { return { node: node }; },
-        'node/remove':   function(node)    { return { node: node }; }
+        'patch/ready':       function(patch)   { return { patch: patch } },
+        'patch/render':      function(data)    { return { patch: myself, renderer: data[0], target: data[1], configuration: data[2] } },
+        'patch/enter':       function(patch)   { return { patch: patch }; },
+        'patch/exit':        function(patch)   { return { patch: patch }; },
+        'patch/inputs':      function(inputs)  { return { patch: myself, inputs: inputs }; },
+        'patch/outputs':     function(outputs) { return { patch: myself, outputs: outputs }; },
+        'patch/refer':       function(data)    { return { patch: myself, node: data[0], target: data[1] }; },
+        'patch/project':     function(data)    { return { patch: myself, node: data[0], inputs: data[1], outputs: data[2] }; },
+        'patch/add-node':    function(node)    { return { node: node }; },
+        'patch/remove-node': function(node)    { return { node: node }; }
     };
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
@@ -122,14 +122,14 @@ Patch.prototype.addNode = function(type, name) {
     var patch = this;
     var node = new Node(type, this, name, function(node) {
         patch.events.plug(node.events);
-        patch.event['node/add'].emit(node);
+        patch.event['patch/add-node'].emit(node);
         node.turnOn();
     });
     return node;
 }
 Patch.prototype.removeNode = function(node) {
     node.turnOff();
-    this.event['node/remove'].emit(node);
+    this.event['patch/remove-node'].emit(node);
     this.events.unplug(node.events);
 }
 Patch.prototype.enter = function() {
@@ -176,14 +176,14 @@ function Node(type, patch, name, callback) {
 
     var myself = this;
     var event_conf = {
-        'node/turn-on':  function(node) { return { node: myself } },
-        'node/ready':    function(node) { return { node: myself } },
-        'node/process':  function(channels) { return { inlets: channels[0], outlets: channels[1], node: myself } },
-        'node/turn-off': function(node) { return { node: myself } },
-        'inlet/add':     function(inlet) { return { inlet: inlet } },
-        'inlet/remove':  function(inlet) { return { inlet: inlet } },
-        'outlet/add':    function(outlet) { return { outlet: outlet } },
-        'outlet/remove': function(outlet) { return { outlet: outlet } }
+        'node/turn-on':       function(node) { return { node: myself } },
+        'node/ready':         function(node) { return { node: myself } },
+        'node/process':       function(channels) { return { inlets: channels[0], outlets: channels[1], node: myself } },
+        'node/turn-off':      function(node) { return { node: myself } },
+        'node/add-inlet':     function(inlet) { return { inlet: inlet } },
+        'node/remove-inlet':  function(inlet) { return { inlet: inlet } },
+        'node/add-outlet':    function(outlet) { return { outlet: outlet } },
+        'node/remove-outlet': function(outlet) { return { outlet: outlet } }
     };
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
@@ -207,7 +207,7 @@ function Node(type, patch, name, callback) {
 
             // when new inlet was added, start monitoring its updates
             // as an active stream
-            this.event['inlet/add'].flatMap(function(inlet) {
+            this.event['node/add-inlet'].flatMap(function(inlet) {
                 var updates = inlet.event['inlet/update'].map(function(value) {
                     return { inlet: inlet, value: value };
                 });
@@ -218,7 +218,7 @@ function Node(type, patch, name, callback) {
         ],
         [
             // collect all the existing outlets aliases as a passive stream
-            this.event['outlet/add'].scan(function(outlets, outlet) {
+            this.event['node/add-outlet'].scan(function(outlets, outlet) {
                 outlets[outlet.alias] = outlet;
                 return outlets;
             }, {})
@@ -297,23 +297,23 @@ Node.prototype.turnOff = function() {
 Node.prototype.addInlet = function(type, alias, name, _default, hidden, readonly, cold) {
     var inlet = new Inlet(type, this, alias, name, _default, hidden, readonly, cold);
     this.events.plug(inlet.events);
-    this.event['inlet/add'].emit(inlet);
+    this.event['node/add-inlet'].emit(inlet);
     inlet.toDefault();
     return inlet;
 }
 Node.prototype.addOutlet = function(type, alias, name, _default) {
     var outlet = new Outlet(type, this, alias, name, _default);
     this.events.plug(outlet.events);
-    this.event['outlet/add'].emit(outlet);
+    this.event['node/add-outlet'].emit(outlet);
     outlet.toDefault();
     return outlet;
 }
 Node.prototype.removeInlet = function(inlet) {
-    this.event['inlet/remove'].emit(inlet);
+    this.event['node/remove-inlet'].emit(inlet);
     this.events.unplug(inlet.events);
 }
 Node.prototype.removeOutlet = function(outlet) {
-    this.event['outlet/remove'].emit(outlet);
+    this.event['node/remove-outlet'].emit(outlet);
     this.events.unplug(outlet.events);
 }
 
@@ -571,11 +571,11 @@ function short_uid() {
 
 function inject_render(update, alias) {
     var type = update.type;
-    if ((type === 'node/add') || (type === 'node/process')) {
+    if ((type === 'patch/add-node') || (type === 'node/process')) {
         update.render = update.node.render[alias];
-    } else if ((type === 'inlet/add')  || (type === 'inlet/update')) {
+    } else if ((type === 'node/add-inlet')  || (type === 'inlet/update')) {
         update.render = update.inlet.render[alias];
-    } else if ((type === 'outlet/add')  || (type === 'outlet/update')) {
+    } else if ((type === 'node/add-outlet')  || (type === 'outlet/update')) {
         update.render = update.outlet.render[alias];
     }
     return update;

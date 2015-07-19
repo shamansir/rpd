@@ -169,10 +169,10 @@ return function(networkRoot, userConfig) {
         },
 
         // =====================================================================
-        // ============================ node/add ===============================
+        // ============================ patch/add-node ===============================
         // =====================================================================
 
-        'node/add': function(update) {
+        'patch/add-node': function(update) {
 
             var node = update.node;
 
@@ -221,7 +221,7 @@ return function(networkRoot, userConfig) {
                 //     td.rpd-inlets
                 //       table
                 //         tbody
-                //           ... (see inlet/add)
+                //           ... (see node/add-inlet)
                 //     td.rpd-body
                 //       table
                 //         tbody
@@ -231,7 +231,7 @@ return function(networkRoot, userConfig) {
                 //     td.rpd-outlets
                 //       table
                 //         tbody
-                //           ... (see outlet/add)
+                //           ... (see node/add-outlet)
 
                 var contentElm = quickElm('tbody', 'rpd-content');
                 var contentRow = quickElm('tr');
@@ -286,7 +286,7 @@ return function(networkRoot, userConfig) {
                 //     table
                 //       tbody
                 //         tr
-                //           ... (see inlet/add)
+                //           ... (see node/add-inlet)
                 // tr.rpd-remove-button
                 //   td
                 // tr.rpd-content
@@ -305,7 +305,7 @@ return function(networkRoot, userConfig) {
                 //     table
                 //       tbody
                 //         tr
-                //           ... (see outlet/add)
+                //           ... (see node/add-outlet)
 
                 var inletsRow = quickElm('tr', 'rpd-inlets');
 
@@ -439,10 +439,10 @@ return function(networkRoot, userConfig) {
         },
 
         // =====================================================================
-        // ============================ node/remove ============================
+        // ============================ patch/remove-node ============================
         // =====================================================================
 
-        'node/remove': function(update) {
+        'patch/remove-node': function(update) {
 
             var node = update.node;
 
@@ -461,10 +461,10 @@ return function(networkRoot, userConfig) {
         },
 
         // =====================================================================
-        // ============================ inlet/add ==============================
+        // ============================ node/add-inlet ==============================
         // =====================================================================
 
-        'inlet/add': function(update) {
+        'node/add-inlet': function(update) {
 
             var inlet = update.inlet;
 
@@ -553,10 +553,10 @@ return function(networkRoot, userConfig) {
         },
 
         // =====================================================================
-        // ============================ inlet/remove ===========================
+        // ============================ node/remove-inlet ===========================
         // =====================================================================
 
-        // 'inlet/remove': function(update) {},
+        // 'node/remove-inlet': function(update) {},
 
         // =====================================================================
         // ============================ inlet/update ===========================
@@ -586,10 +586,10 @@ return function(networkRoot, userConfig) {
         },
 
         // =====================================================================
-        // ============================ outlet/add =============================
+        // ============================ node/add-outlet =============================
         // =====================================================================
 
-        'outlet/add': function(update) {
+        'node/add-outlet': function(update) {
 
             var outlet = update.outlet;
 
@@ -653,10 +653,10 @@ return function(networkRoot, userConfig) {
         },
 
         // =====================================================================
-        // ============================ outlet/remove ==========================
+        // ============================ node/remove-outlet ==========================
         // =====================================================================
 
-        // 'outlet/remove': function(update) {},
+        // 'node/remove-outlet': function(update) {},
 
         // =====================================================================
         // ============================ outlet/update ==========================
@@ -1009,7 +1009,7 @@ return function(networkRoot, userConfig) {
         if (!subscriptions) return;
         for (var alias in subscriptions) {
             (function(subscription, alias) {
-                node.event['inlet/add']
+                node.event['node/add-inlet']
                     .filter(function(inlet) { return inlet.alias === alias; })
                     .onValue(function(inlet) {
                         if (subscription.default) inlet.receive(subscription.default());
