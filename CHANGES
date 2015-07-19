@@ -1,0 +1,10 @@
+v1.5
+
+*  Added tests, running with Jasmine and Karma
+*  Updated to Kefir 2.6
+*  Moved example toolkits to separate repositories
+*  Fixed non-compliant structures in HTML Renderer
+*  Improved `node/process` event
+*  Added `render` objects to corresponding events so they use them instead of
+   asking node/channel instances for this object
+*  Node updates are fired only after `node/ready` event
