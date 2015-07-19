@@ -29,6 +29,12 @@ event['network/add-patch'].onValue(function(patch) { events.plug(patch.events); 
 
 function ƒ(v) { return function() { return v; } }
 
+function addPatch(name) {
+    var instance = new Patch(name);
+    event['network/add-patch'].emit(instance);
+    return instance;
+}
+
 // ================================== Patch ====================================
 // =============================================================================
 
@@ -103,7 +109,6 @@ function Patch(name) {
         node.patch.event['patch/refer'].emit([ node, myself ]);
     });
 
-    event['network/add-patch'].emit(this);
     this.event['patch/set-ready'].emit(this);
 }
 Patch.prototype.render = function(aliases, targets, conf) {
@@ -151,10 +156,6 @@ Patch.prototype.outputs = function(list) {
 Patch.prototype.project = function(node) {
     this.projections.emit(node);
     return this;
-}
-Patch.start = function(name) {
-    var instance = new Patch(name);
-    return instance;
 }
 
 // ================================= Node ======================================
@@ -626,11 +627,7 @@ return {
     'event': event,
     'events': events,
 
-    'Patch': Patch,
-    'Node': Node,
-    'Inlet': Inlet,
-    'Outlet': Outlet,
-    'Link': Link,
+    'addPatch': addPatch,
 
     'nodetype': nodetype,
     'linktype': linktype,

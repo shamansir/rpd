@@ -38,8 +38,8 @@
 
         </script> -->
         <script>
-            var root = Rpd.Patch.start('root').render('html', document.body, { /* layout: 'pd' */ })
-                                              .enter();
+            var root = Rpd.addPatch('root').render('html', document.body, { /* layout: 'pd' */ })
+                                           .enter();
 
             var genA = root.addNode('core/custom', 'Generate A');
             var outA = genA.addOutlet('core/number', 'A');
@@ -47,7 +47,7 @@
             var genA = root.addNode('core/custom', 'Generate B');
             var outB = genA.addOutlet('core/number', 'B', '', 1);
 
-            var sum = Rpd.Patch.start('sum').render('html', document.body, { /* layout: 'pd' */ });
+            var sum = Rpd.addPatch('sum').render('html', document.body, { /* layout: 'pd' */ });
 
             var sumOfThree1 = sum.addNode('core/sum-of-three', 'Sum1');
             var in1A = sumOfThree1.inlets['a'];
