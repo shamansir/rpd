@@ -27,12 +27,19 @@ var events = events_stream(event_conf, event);
 
 event['network/add-patch'].onValue(function(patch) { events.plug(patch.events); });
 
+var rendering = Kefir.emitter();
+
 function ƒ(v) { return function() { return v; } }
 
 function addPatch(name) {
     var instance = new Patch(name);
     event['network/add-patch'].emit(instance);
     return instance;
+}
+
+function render(aliases, targets, conf) {
+    rendering.emit([ aliases, targets, conf ]);
+    event['network/add-patch'].onValue(function(patch) { patch.render(aliases, targets, conf); });
 }
 
 // ================================== Patch ====================================
@@ -628,6 +635,7 @@ return {
     'events': events,
 
     'addPatch': addPatch,
+    'render': render,
 
     'nodetype': nodetype,
     'linktype': linktype,
