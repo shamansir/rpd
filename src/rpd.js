@@ -52,7 +52,7 @@ function Patch(name) {
     var myself = this;
 
     var event_conf = {
-        'patch/set-ready':   function(patch)   { return { patch: patch } },
+        'patch/is-ready':   function(patch)   { return { patch: patch } },
         'patch/enter':       function(patch)   { return { patch: patch }; },
         'patch/exit':        function(patch)   { return { patch: patch }; },
         'patch/set-inputs':  function(inputs)  { return { patch: myself, inputs: inputs }; },
@@ -116,7 +116,7 @@ function Patch(name) {
         node.patch.event['patch/refer'].emit([ node, myself ]);
     });
 
-    this.event['patch/set-ready'].emit(this);
+    this.event['patch/is-ready'].emit(this);
 }
 Patch.prototype.render = function(aliases, targets, conf) {
     aliases = Array.isArray(aliases) ? aliases : [ aliases ];
@@ -185,7 +185,7 @@ function Node(type, patch, name, callback) {
     var myself = this;
     var event_conf = {
         'node/turn-on':       function(node) { return { node: myself } },
-        'node/set-ready':     function(node) { return { node: myself } },
+        'node/is-ready':     function(node) { return { node: myself } },
         'node/process':       function(channels) { return { inlets: channels[0], outlets: channels[1], node: myself } },
         'node/turn-off':      function(node) { return { node: myself } },
         'node/add-inlet':     function(inlet) { return { inlet: inlet } },
@@ -234,8 +234,8 @@ function Node(type, patch, name, callback) {
         ])
 
         // do not fire any event until node is ready, then immediately fire them one by one, if any occured
-        // later events are fired after node/set-ready corresponding to their time of firing, as usual
-        process = process.bufferBy(this.event['node/set-ready']).take(1).flatten().concat(process);
+        // later events are fired after node/is-ready corresponding to their time of firing, as usual
+        process = process.bufferBy(this.event['node/is-ready']).take(1).flatten().concat(process);
 
         process = process.scan(function(data, update) {
             // update[0] is inlet value update, update[1] is a list of outlets
@@ -293,7 +293,7 @@ function Node(type, patch, name, callback) {
 
     if (this.def.prepare) this.def.prepare(this.inlets, this.outlets);
 
-    this.event['node/set-ready'].emit(this);
+    this.event['node/is-ready'].emit(this);
 
 }
 Node.prototype.turnOn = function() {
