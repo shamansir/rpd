@@ -14,7 +14,7 @@ describe('registration: channel type', function() {
         Rpd.channeltype('spec/foo', {});
         Rpd.channeltype('spec/bar', {});
 
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
             expect(function() {
 
                 Rpd.nodetype('spec/test', {
@@ -22,7 +22,7 @@ describe('registration: channel type', function() {
                     outlets: { 'out': { type: 'spec/foo' } }
                 });
 
-                var node = model.addNode('spec/test');
+                var node = patch.addNode('spec/test');
                 node.addInlet('spec/bar', 'bar');
                 node.addOutlet('spec/bar', 'bar');
 
@@ -35,8 +35,8 @@ describe('registration: channel type', function() {
     it('could have default value which is used when channel of this type was created', function() {
         Rpd.channeltype('spec/foo', { default: 5 });
 
-        withNewModel(function(model, updateSpy) {
-            var node = model.addNode('spec/empty');
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty');
             var inlet = node.addInlet('spec/foo', 'foo');
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
@@ -55,9 +55,9 @@ describe('registration: channel type', function() {
 
         Rpd.channeltype('spec/foo', { default: Kefir.sequentially(period, values) });
 
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
 
-            var node = model.addNode('spec/empty');
+            var node = patch.addNode('spec/empty');
             var inlet = node.addInlet('spec/foo', 'foo');
 
             setTimeout(function() {
@@ -77,12 +77,12 @@ describe('registration: channel type', function() {
     it('allows overriding its default value in a node type description', function() {
         Rpd.channeltype('spec/foo', { default: 5 });
 
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
             Rpd.nodetype('spec/test', {
                 inlets:  { 'in': { type: 'spec/foo', default: 17 } }
             });
 
-            var node = model.addNode('spec/test');
+            var node = patch.addNode('spec/test');
             expect(updateSpy).not.toHaveBeenCalledWith(
                 jasmine.anything(),
                 jasmine.objectContaining({
@@ -111,8 +111,8 @@ describe('registration: channel type', function() {
         var values = [ 3, 14, 15, 92 ];
         var period = 30;
 
-        withNewModel(function(model, updateSpy) {
-            var node = model.addNode('spec/empty');
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty');
             var inlet = node.addInlet('spec/foo', 'foo');
             inlet.stream(Kefir.sequentially(period, values));
             inlet.receive(21);
@@ -144,8 +144,8 @@ describe('registration: channel type', function() {
         var values = [ 3, 14, 15, 92 ];
         var period = 30;
 
-        withNewModel(function(model, updateSpy) {
-            var node = model.addNode('spec/empty');
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty');
             var inlet = node.addInlet('spec/foo', 'foo');
             inlet.stream(Kefir.sequentially(period, values));
             inlet.receive(21);
@@ -179,8 +179,8 @@ describe('registration: channel type', function() {
         Rpd.channeltype('spec/foo', { accept: acceptSpy.and.callFake(function(val) { return (val % 2) !== 0; }),
                                       adapt: adaptSpy.and.callFake(function(val) { return val * 2 }) });
 
-        withNewModel(function(model, updateSpy) {
-            var node = model.addNode('spec/empty');
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty');
             var inlet = node.addInlet('spec/foo', 'foo');
             inlet.receive(21);
             expect(acceptSpy).toHaveBeenCalledWith(21);
@@ -203,8 +203,8 @@ describe('registration: channel type', function() {
                                             }
                                     });
 
-        withNewModel(function(model, updateSpy) {
-            var node = model.addNode('spec/empty');
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty');
             var inlet = node.addInlet('spec/foo', 'foo');
             inlet.receive('flux');
             inlet.receive('zoo');

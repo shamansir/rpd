@@ -5,12 +5,12 @@ describe('building: link', function() {
     it('may fall back to default type if no type was specified by user');
 
     it('knows all individual values going through', function() {
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
 
-            var sending = model.addNode('spec/empty');
+            var sending = patch.addNode('spec/empty');
             var outlet = sending.addOutlet('spec/any', 'bar');
 
-            var receiving = model.addNode('spec/empty');
+            var receiving = patch.addNode('spec/empty');
             var inlet = receiving.addInlet('spec/any', 'foo');
 
             var link = outlet.connect(inlet, null, 'spec/pass');
@@ -25,12 +25,12 @@ describe('building: link', function() {
     });
 
     it('knows streams of values going through', function(done) {
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
 
-            var sending = model.addNode('spec/empty');
+            var sending = patch.addNode('spec/empty');
             var outlet = sending.addOutlet('spec/any', 'bar');
 
-            var receiving = model.addNode('spec/empty');
+            var receiving = patch.addNode('spec/empty');
             var inlet = receiving.addInlet('spec/any', 'foo');
 
             var link = outlet.connect(inlet, null, 'spec/pass');
@@ -54,12 +54,12 @@ describe('building: link', function() {
     });
 
     it('gets individual values from connected outlet and passes them to connected inlet', function() {
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
 
-            var sending = model.addNode('spec/empty');
+            var sending = patch.addNode('spec/empty');
             var outlet = sending.addOutlet('spec/any', 'bar');
 
-            var receiving = model.addNode('spec/empty');
+            var receiving = patch.addNode('spec/empty');
             var inlet = receiving.addInlet('spec/any', 'foo');
 
             var link = outlet.connect(inlet, null, 'spec/pass');
@@ -75,12 +75,12 @@ describe('building: link', function() {
     });
 
     it('gets streams of values from connected outlet and passes them to connected inlet', function(done) {
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
 
-            var sending = model.addNode('spec/empty');
+            var sending = patch.addNode('spec/empty');
             var outlet = sending.addOutlet('spec/any', 'bar');
 
-            var receiving = model.addNode('spec/empty');
+            var receiving = patch.addNode('spec/empty');
             var inlet = receiving.addInlet('spec/any', 'foo');
 
             var link = outlet.connect(inlet, null, 'spec/pass');
@@ -105,12 +105,12 @@ describe('building: link', function() {
     });
 
     it('could be disabled', function() {
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
 
-            var sending = model.addNode('spec/empty');
+            var sending = patch.addNode('spec/empty');
             var outlet = sending.addOutlet('spec/any', 'bar');
 
-            var receiving = model.addNode('spec/empty');
+            var receiving = patch.addNode('spec/empty');
             var inlet = receiving.addInlet('spec/any', 'foo');
 
             var link = outlet.connect(inlet, null, 'spec/pass');
@@ -125,12 +125,12 @@ describe('building: link', function() {
     });
 
     it('receives last value again when it was enabled back', function() {
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
 
-            var sending = model.addNode('spec/empty');
+            var sending = patch.addNode('spec/empty');
             var outlet = sending.addOutlet('spec/any', 'bar');
 
-            var receiving = model.addNode('spec/empty');
+            var receiving = patch.addNode('spec/empty');
             var inlet = receiving.addInlet('spec/any', 'foo');
 
             var link = outlet.connect(inlet, null, 'spec/pass');
@@ -150,12 +150,12 @@ describe('building: link', function() {
     });
 
     it('receives last value when it was enabled back, even when this value was sent while it was disabled', function() {
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
 
-            var sending = model.addNode('spec/empty');
+            var sending = patch.addNode('spec/empty');
             var outlet = sending.addOutlet('spec/any', 'bar');
 
-            var receiving = model.addNode('spec/empty');
+            var receiving = patch.addNode('spec/empty');
             var inlet = receiving.addInlet('spec/any', 'foo');
 
             var link = outlet.connect(inlet, null, 'spec/pass');
@@ -175,12 +175,12 @@ describe('building: link', function() {
     });
 
     it('uses the adapter function, if defined, and applies adapted value to a connected inlet', function() {
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
 
-            var sending = model.addNode('spec/empty');
+            var sending = patch.addNode('spec/empty');
             var outlet = sending.addOutlet('spec/any', 'bar');
 
-            var receiving = model.addNode('spec/empty');
+            var receiving = patch.addNode('spec/empty');
             var inlet = receiving.addInlet('spec/any', 'foo');
 
             var adapter = jasmine.createSpy('adapter',

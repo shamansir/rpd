@@ -4,6 +4,6 @@ describe('registration: renderer', function() {
 
     it('could be registered as a function which returns the object to react on events');
 
-    // function(model) { function(target, config) { return {} } }
+    // function(patch) { function(target, config) { return {} } }
 
 });

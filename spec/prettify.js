@@ -3,8 +3,8 @@
     function prettify(Rpd) {
         if (Rpd.PRETTIFIED) return;
 
-        Rpd.Model.prototype.jasmineToString = function() {
-            return '[ Model' + (this.name ? ' ' + this.name : '') + ' ]';
+        Rpd.Patch.prototype.jasmineToString = function() {
+            return '[ Patch' + (this.name ? ' ' + this.name : '') + ' ]';
         }
 
         Rpd.Node.prototype.jasmineToString = function() {

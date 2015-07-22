@@ -24,7 +24,7 @@ module.exports = function(config) {
       './spec/prettify.js',
       './spec/prepare.js',
 
-      './spec/building/model.spec.js',
+      './spec/building/patch.spec.js',
       './spec/building/node.spec.js',
       './spec/building/inlet.spec.js',
       './spec/building/outlet.spec.js',

@@ -9,7 +9,7 @@ describe('registration: channel renderer', function() {
     describe('transferring with the events', function() {
 
         var updateSpy;
-        var model;
+        var patch;
         var node;
 
         beforeEach(function() {
@@ -18,9 +18,9 @@ describe('registration: channel renderer', function() {
             Rpd.renderer('spec', function() { return updateSpy; });
             Rpd.channeltype('spec/foo');
 
-            model = Rpd.Model.start().renderWith('spec').attachTo({});
+            patch = Rpd.Patch.start().renderWith('spec').attachTo({});
 
-            node = model.addNode('spec/empty');
+            node = patch.addNode('spec/empty');
         });
 
         it('even if it\'s an empty object, passed with channel adding and updating event', function() {
@@ -62,8 +62,8 @@ describe('registration: channel renderer', function() {
         });
 
         xit('the normal update stream should not set this field to an update event', function() {
-            var modelEventsSpy = jasmine.createSpy('model-events');
-            model.events.onValue(modelEventsSpy);
+            var patchEventsSpy = jasmine.createSpy('patch-events');
+            patch.events.onValue(patchEventsSpy);
             var nodeEventsSpy = jasmine.createSpy('node-events');
             node.events.onValue(nodeEventsSpy);
 
@@ -76,13 +76,13 @@ describe('registration: channel renderer', function() {
             var outlet = node.addOutlet('spec/foo', 'b');
             outlet.send('b');
 
-            expect(modelEventsSpy).not.toHaveBeenCalledWith(
+            expect(patchEventsSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'inlet/add', render: renderer }));
-            expect(modelEventsSpy).not.toHaveBeenCalledWith(
+            expect(patchEventsSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'inlet/update', render: renderer }));
-            expect(modelEventsSpy).not.toHaveBeenCalledWith(
+            expect(patchEventsSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'outlet/add', render: renderer }));
-            expect(modelEventsSpy).not.toHaveBeenCalledWith(
+            expect(patchEventsSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'outlet/update', render: renderer }));
 
             expect(nodeEventsSpy).not.toHaveBeenCalledWith(

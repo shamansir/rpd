@@ -16,9 +16,9 @@ describe('registration: link type', function() {
         var values = [ 3, 14, 15, 92 ];
         var period = 30;
 
-        withNewModel(function(model, updateSpy) {
-            var firstNode = model.addNode('spec/empty'),
-                secondNode = model.addNode('spec/empty');
+        withNewPatch(function(patch, updateSpy) {
+            var firstNode = patch.addNode('spec/empty'),
+                secondNode = patch.addNode('spec/empty');
             var inlet = secondNode.addInlet('spec/any', 'foo'),
                 outlet = firstNode.addOutlet('spec/any', 'foo');
             var link = outlet.connect(inlet, null, 'spec/foo');

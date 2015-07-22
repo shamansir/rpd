@@ -2,9 +2,9 @@ describe('building: node', function() {
 
     it('should be created with a registered type', function() {
         var renderer = Rpd.renderer('foo', function() {});
-        Rpd.Model.start();
+        Rpd.Patch.start();
         expect(function() {
-            model.addNode('foo/bar');
+            patch.addNode('foo/bar');
         }).toThrow();
     });
 
@@ -12,9 +12,9 @@ describe('building: node', function() {
 
     it('uses its type as a name if name wasn\'t specified on creation');
 
-    it('informs it was added to a model with an event', function() {
-        withNewModel(function(model, updateSpy) {
-            var node = model.addNode('spec/empty');
+    it('informs it was added to a patch with an event', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty');
 
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
@@ -23,10 +23,10 @@ describe('building: node', function() {
         });
     });
 
-    it('informs it was removed from a model with an event', function() {
-        withNewModel(function(model, updateSpy) {
-            var node = model.addNode('spec/empty');
-            model.removeNode(node);
+    it('informs it was removed from a patch with an event', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty');
+            patch.removeNode(node);
 
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
@@ -35,10 +35,10 @@ describe('building: node', function() {
         });
     });
 
-    it('fires no events after it was removed from a model', function() {
-        withNewModel(function(model, updateSpy) {
-            var node = model.addNode('spec/empty');
-            model.removeNode(node);
+    it('fires no events after it was removed from a patch', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty');
+            patch.removeNode(node);
 
             updateSpy.calls.reset();
 
