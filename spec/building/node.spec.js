@@ -18,7 +18,7 @@ describe('building: node', function() {
 
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
-                jasmine.objectContaining({ type: 'node/add',
+                jasmine.objectContaining({ type: 'patch/add-node',
                                            node: node }));
         });
     });
@@ -30,7 +30,7 @@ describe('building: node', function() {
 
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
-                jasmine.objectContaining({ type: 'node/remove',
+                jasmine.objectContaining({ type: 'patch/remove-node',
                                            node: node }));
         });
     });
@@ -46,7 +46,7 @@ describe('building: node', function() {
 
             expect(updateSpy).not.toHaveBeenCalledWith(
                 jasmine.anything(),
-                jasmine.objectContaining({ type: 'inlet/add' }));
+                jasmine.objectContaining({ type: 'node/add-inlet' }));
         });
     });
 

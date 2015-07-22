@@ -17,7 +17,6 @@ describe('building: link', function() {
             outlet.send(5);
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'link/pass',
                                            link: link,
                                            value: 5 }));
@@ -43,7 +42,6 @@ describe('building: link', function() {
             setTimeout(function() {
                 for (var i = 0; i < userSequence.length; i++) {
                     expect(updateSpy).toHaveBeenCalledWith(
-                        jasmine.anything(),
                         jasmine.objectContaining({ type: 'link/pass',
                                                    link: link,
                                                    value: userSequence[i] }));
@@ -66,7 +64,6 @@ describe('building: link', function() {
             outlet.send(5);
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'inlet/update',
                                            inlet: inlet,
                                            value: 5 }));
@@ -93,7 +90,6 @@ describe('building: link', function() {
             setTimeout(function() {
                 for (var i = 0; i < userSequence.length; i++) {
                     expect(updateSpy).toHaveBeenCalledWith(
-                        jasmine.anything(),
                         jasmine.objectContaining({ type: 'inlet/update',
                                                    inlet: inlet,
                                                    value: userSequence[i] }));
@@ -118,7 +114,6 @@ describe('building: link', function() {
             outlet.send(5);
 
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'inlet/update',
                                            inlet: inlet }));
         });
@@ -142,7 +137,6 @@ describe('building: link', function() {
             link.enable();
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'inlet/update',
                                            inlet: inlet,
                                            value: 5 }));
@@ -167,7 +161,6 @@ describe('building: link', function() {
             link.enable();
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'inlet/update',
                                            inlet: inlet,
                                            value: 5 }));
@@ -192,18 +185,15 @@ describe('building: link', function() {
 
             expect(adapter).toHaveBeenCalled();
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'link/pass',
                                            link: link,
                                            value: 2 }));
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'link/adapt',
                                            link: link,
                                            before: 2,
                                            after: 14 }));
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'inlet/update',
                                            inlet: inlet,
                                            value: 14 }));

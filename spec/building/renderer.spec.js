@@ -149,7 +149,6 @@ describe('building: renderer', function() {
             var node = patch.addNode('spec/empty');
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'node/add',
                     node: node
@@ -164,9 +163,8 @@ describe('building: renderer', function() {
             patch.enter();
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
-                    type: 'inlet/add',
+                    type: 'node/add-inlet',
                     inlet: inlet
                 }));
         });
@@ -181,7 +179,6 @@ describe('building: renderer', function() {
             inlet.receive(5);
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'inlet/update',
                     value: 5
@@ -196,13 +193,11 @@ describe('building: renderer', function() {
             patch.enter();
 
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'inlet/update',
                     value: 17
                 }));
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'inlet/update',
                     value: 10
@@ -221,13 +216,11 @@ describe('building: renderer', function() {
             var node2 = patch2.addNode('spec/empty');
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'node/add',
                     node: node1
                 }));
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'node/add',
                     value: node2
@@ -242,13 +235,11 @@ describe('building: renderer', function() {
             node2 = patch2.addNode('spec/empty');
 
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'node/add',
                     node: node1
                 }));
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'node/add',
                     value: node2

@@ -12,8 +12,7 @@ describe('building: inlet', function() {
             var inlet = node.addInlet('spec/any', 'foo');
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({ type: 'inlet/add',
+                jasmine.objectContaining({ type: 'node/add-inlet',
                                            inlet: inlet }));
 
         });
@@ -28,8 +27,7 @@ describe('building: inlet', function() {
             node.removeInlet(inlet);
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({ type: 'inlet/remove',
+                jasmine.objectContaining({ type: 'node/remove-inlet',
                                            inlet: inlet }));
 
         });
@@ -43,7 +41,6 @@ describe('building: inlet', function() {
             var inlet = node.addInlet('spec/any', 'foo');
 
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'inlet/update' }));
 
         });
@@ -58,7 +55,6 @@ describe('building: inlet', function() {
             var inlet = node.addInlet('spec/any', 'foo', 'Foo', defaultValue);
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'inlet/update',
                                            inlet: inlet,
                                            value: defaultValue }));
@@ -76,7 +72,6 @@ describe('building: inlet', function() {
             inlet.receive(userValue);
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'inlet/update',
                                            inlet: inlet,
                                            value: userValue }));
@@ -94,7 +89,6 @@ describe('building: inlet', function() {
             inlet.stream(Kefir.constant(userValue));
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'inlet/update',
                                            inlet: inlet,
                                            value: userValue }));
@@ -116,7 +110,6 @@ describe('building: inlet', function() {
             setTimeout(function() {
                 for (var i = 0; i < userSequence.length; i++) {
                     expect(updateSpy).toHaveBeenCalledWith(
-                        jasmine.anything(),
                         jasmine.objectContaining({ type: 'inlet/update',
                                                    inlet: inlet,
                                                    value: userSequence[i] }));
@@ -145,7 +138,6 @@ describe('building: inlet', function() {
             inlet.receive(10);
 
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'inlet/update' }));
 
         });
@@ -166,7 +158,6 @@ describe('building: inlet', function() {
 
             setTimeout(function() {
                 expect(updateSpy).not.toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({ type: 'inlet/update' }));
                 done();
             }, period * (sequence.length + 1));

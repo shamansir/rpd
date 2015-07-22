@@ -13,7 +13,7 @@ describe('building: outlet', function() {
 
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
-                jasmine.objectContaining({ type: 'outlet/add',
+                jasmine.objectContaining({ type: 'node/add-outlet',
                                            outlet: outlet })
             );
 
@@ -30,7 +30,7 @@ describe('building: outlet', function() {
 
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.anything(),
-                jasmine.objectContaining({ type: 'outlet/remove',
+                jasmine.objectContaining({ type: 'node/remove-outlet',
                                            outlet: outlet })
             );
 
