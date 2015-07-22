@@ -52,7 +52,7 @@ function Patch(name) {
     var myself = this;
 
     var event_conf = {
-        'patch/is-ready':   function(patch)   { return { patch: patch } },
+        'patch/is-ready':    function(patch)   { return { patch: patch } },
         'patch/enter':       function(patch)   { return { patch: patch }; },
         'patch/exit':        function(patch)   { return { patch: patch }; },
         'patch/set-inputs':  function(inputs)  { return { patch: myself, inputs: inputs }; },
@@ -185,7 +185,7 @@ function Node(type, patch, name, callback) {
     var myself = this;
     var event_conf = {
         'node/turn-on':       function(node) { return { node: myself } },
-        'node/is-ready':     function(node) { return { node: myself } },
+        'node/is-ready':      function(node) { return { node: myself } },
         'node/process':       function(channels) { return { inlets: channels[0], outlets: channels[1], node: myself } },
         'node/turn-off':      function(node) { return { node: myself } },
         'node/add-inlet':     function(inlet) { return { inlet: inlet } },
@@ -216,9 +216,7 @@ function Node(type, patch, name, callback) {
             // when new inlet was added, start monitoring its updates
             // as an active stream
             this.event['node/add-inlet'].flatMap(function(inlet) {
-                var updates = inlet.event['inlet/update'].map(function(value) {
-                    return { inlet: inlet, value: value };
-                });
+                var updates = inlet.event['inlet/update'];
                 if (myself.def.tune) updates = myself.def.tune(updates);
                 return updates;
             })
@@ -254,7 +252,7 @@ function Node(type, patch, name, callback) {
         process.onValue(function(data) {
             // call a node/process event using collected inlet values
             var outlets_vals = process_f.bind(myself)(data.inlets.cur, data.inlets.prev);
-            myself.event['node/process'].emit([data.inlets.cur, outlets_vals, data.inlets.prev]);
+            myself.event['node/process'].emit({ current: data.inlets.cur, outlets: outlets_vals, prev_inlets: data.inlets.prev });
             // send the values provided from a `process` function to corresponding outlets
             var outlets = data.outlets;
             for (var outlet_name in outlets_vals) {
@@ -354,7 +352,7 @@ function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
     };
     this.event = event_map(event_conf);
     var orig_updates = this.event['inlet/update'];
-    var updates = orig_updates.merge(this.value);
+    var updates = orig_updates.merge(this.value.map(function(value) { return { inlet: myself, value: value }; }));
     if (def.tune) updates = def.tune(updates);
     if (def.accept) updates = updates.flatten(function(v) {
         if (def.accept(v)) { return [v]; } else { orig_updates.error(); return []; }
@@ -408,7 +406,7 @@ function Outlet(type, node, alias, name, _default) {
     };
     this.event = event_map(event_conf);
     var orig_updates = this.event['outlet/update'];
-    var updates = orig_updates.merge(this.value);
+    var updates = orig_updates.merge(this.value.map(function(value) { return { inlet: myself, value: value }; }));
     if (def.adapt) updates = updates.map(def.adapt);
     // rewrite with the modified stream
     this.event['outlet/update'] = updates.onValue(function(){});
@@ -418,7 +416,7 @@ function Outlet(type, node, alias, name, _default) {
     Kefir.sampledBy([ this.event['outlet/update'] ],
                     [ this.event['outlet/connect'] ])
          .onValue(function(update) {
-             myself.value.emit(update[0]);
+             myself.value.emit(update.value);
          });
 
 }
@@ -547,24 +545,22 @@ function prepare_render_obj(template, subj) {
 }
 
 function event_map(conf) {
-    var map = {};
-    for (var event_name in conf) {
-        map[event_name] = Kefir.emitter();
+    var map = {}; var types = Object.keys(conf);
+    for (var i = 0, type; i < types.length; i++) {
+        type = types[i];
+        map[event_type] = Kefir.emitter()
+                               .map(conf[type])
+                               .map((function(type) {
+                                   return function(evt) { evt.type = type; }
+                               })(type));
     }
     return map;
 }
 
 function events_stream(conf, event_map) {
-    var stream = Kefir.pool();
-    for (var event_name in conf) {
-        var handler = conf[event_name];
-        (function(event_name, handler) {
-            stream.plug(event_map[event_name].map(function(value) {
-                var result = handler(value);
-                result.type = event_name;
-                return result;
-            }));
-        })(event_name, handler);
+    var stream = Kefir.pool(); var types = Object.keys(conf);
+    for (var i = 0; i < types.length; i++) {
+        stream.plug(event_map[types[i]]);
     }
     return stream;
 }
