@@ -10,15 +10,15 @@ describe('building: patch', function() {
     });
 
     it('could be started both with or without a name', function() {
-        var unnamed = Rpd.Patch.start();
+        var unnamed = Rpd.addPatch();
         expect(unnamed).toBeDefined();
 
-        var named = Rpd.Patch.start('some-name');
+        var named = Rpd.addPatch('some-name');
         expect(named).toBeDefined();
     });
 
     it('accepts modifications without any renderer or target', function() {
-        var patch = Rpd.Patch.start();
+        var patch = Rpd.addPatch();
         var node = patch.addNode('spec/empty', 'Test Node');
         expect(node).toBeDefined();
     });
@@ -37,16 +37,16 @@ describe('building: patch', function() {
 
     it('could be started in several instances', function() {
         expect(function() {
-            Rpd.Patch.start();
-            Rpd.Patch.start();
+            Rpd.addPatch();
+            Rpd.addPatch();
         }).not.toThrow();
     });
 
     it('provides access to inner events', function() {
         var addNodeSpy = jasmine.createSpy('add-node');
 
-        var patch = Rpd.Patch.start();
-        patch.event['node/add'].onValue(addNodeSpy);
+        var patch = Rpd.addPatch();
+        patch.event['patch/add-node'].onValue(addNodeSpy);
 
         var node = patch.addNode('spec/empty');
         expect(addNodeSpy).toHaveBeenCalled();

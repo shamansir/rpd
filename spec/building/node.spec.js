@@ -2,7 +2,7 @@ describe('building: node', function() {
 
     it('should be created with a registered type', function() {
         var renderer = Rpd.renderer('foo', function() {});
-        Rpd.Patch.start();
+        var patch = Rpd.addPatch();
         expect(function() {
             patch.addNode('foo/bar');
         }).toThrow();

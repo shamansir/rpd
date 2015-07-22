@@ -3,18 +3,18 @@
     function prettify(Rpd) {
         if (Rpd.PRETTIFIED) return;
 
-        Rpd.Patch.prototype.jasmineToString = function() {
+        Rpd._.Patch.prototype.jasmineToString = function() {
             return '[ Patch' + (this.name ? ' ' + this.name : '') + ' ]';
         }
 
-        Rpd.Node.prototype.jasmineToString = function() {
+        Rpd._.Node.prototype.jasmineToString = function() {
             return '[ Node (' + this.type + ')' +
                       ' \'' + this.name + '\'' +
                       ' #' + this.id +
                       ' ]';
         }
 
-        Rpd.Inlet.prototype.jasmineToString = function() {
+        Rpd._.Inlet.prototype.jasmineToString = function() {
             return '[ Inlet (' + this.type + ')' +
                       ' \'' + (this.alias || this.name) + '\'' +
                       ' #' + this.id +
@@ -23,14 +23,14 @@
                       ' ]';
         }
 
-        Rpd.Outlet.prototype.jasmineToString = function() {
+        Rpd._.Outlet.prototype.jasmineToString = function() {
             return '[ Outlet (' + this.type + ')' +
                       ' \'' + (this.alias || this.name) + '\'' +
                       ' #' + this.id +
                       ' ]';
         }
 
-        Rpd.Link.prototype.jasmineToString = function() {
+        Rpd._.Link.prototype.jasmineToString = function() {
             return '[ Link (' + this.type + ')' +
                       ' \'' + this.name + '\'' +
                       ' #' + this.id +

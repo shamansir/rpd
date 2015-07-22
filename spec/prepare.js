@@ -10,7 +10,7 @@ function withNewPatch(fn) {
         return updateSpy;
     });
 
-    var patch = Rpd.Patch.start().renderWith('foo').attachTo({});
+    var patch = Rpd.addPatch().render('foo', {});
 
     fn(patch, updateSpy);
 }

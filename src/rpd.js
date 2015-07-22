@@ -629,6 +629,8 @@ function nodedescription(type, description) {
 
 return {
 
+    '_': { 'Patch': Patch, 'Node': Node, 'Inlet': Inlet, 'Outlet': Outlet, 'Link': Link },
+
     'LazyId': ƒ,
 
     'event': event,
