@@ -1,12 +1,212 @@
 describe('building: renderer', function() {
 
-    xit('should have an alias', function() {
+    xit('should be registered before usage, network case', function() {
         expect(function() {
-            Rpd.renderer();
+            Rpd.render('foo', {});
+
+            Rpd.addPatch();
         }).toThrow();
     });
 
-    it('receives no events if no target was specified', function() {
+    xit('should be registered before usage, patch case', function() {
+        expect(function() {
+            Rpd.addPatch().render('foo', {});
+        }).toThrow();
+    });
+
+    it('called once for every patch', function() {
+        var fooRendererSpy = jasmine.createSpy('foo-renderer');
+
+        Rpd.renderer('foo', fooRendererSpy);
+
+        Rpd.render('foo', {});
+
+        var firstPatch = Rpd.addPatch();
+        var secondPatch = Rpd.addPatch();
+
+        expect(fooRendererSpy).toHaveBeenCalledTwice();
+        expect(fooRendererSpy).toHaveBeenCalledWith(firstPatch);
+        expect(fooRendererSpy).toHaveBeenCalledWith(secondPatch);
+    });
+
+    it('the inner function is called with target element, network case', function() {
+        var fooTargetsSpy = jasmine.createSpy('foo-target');
+
+        Rpd.renderer('foo', function(patch) {
+            return fooTargetsSpy;
+        });
+
+        var target = { };
+        Rpd.render('foo', target);
+
+        Rpd.addPatch();
+
+        expect(fooTargetsSpy).toHaveBeenCalledWith(target, undefined);
+    });
+
+    it('the inner function is called with target element, patch case', function() {
+        var fooTargetsSpy = jasmine.createSpy('foo-target');
+
+        Rpd.renderer('foo', function(patch) {
+            return fooTargetsSpy;
+        });
+
+        var target = { };
+        Rpd.addPatch().render('foo', target);
+
+        expect(fooTargetsSpy).toHaveBeenCalledWith(target, undefined);
+    });
+
+    it('the inner function is called for every target element and passes configuration there, network case', function() {
+        var fooTargetsSpy = jasmine.createSpy('foo-target');
+
+        Rpd.renderer('foo', function(patch) {
+            return fooTargetsSpy;
+        });
+
+        var targetOne = { };
+        var targetTwo = { };
+        var conf = { };
+        Rpd.render('foo', [ targetOne, targetTwo ], conf);
+
+        Rpd.addPatch();
+
+        expect(fooTargetsSpy).toHaveBeenCalledWith(targetOne, conf);
+        expect(fooTargetsSpy).toHaveBeenCalledWith(targetTwo, conf);
+    });
+
+    it('the inner function is called for every target element and passes configuration there, patch case', function() {
+        var fooTargetsSpy = jasmine.createSpy('foo-target');
+
+        Rpd.renderer('foo', function(patch) {
+            return fooTargetsSpy;
+        });
+
+        var targetOne = { };
+        var targetTwo = { };
+        var conf = { };
+        Rpd.addPatch().render('foo', [ targetOne, targetTwo ], conf);
+
+        expect(fooTargetsSpy).toHaveBeenCalledWith(targetOne, conf);
+        expect(fooTargetsSpy).toHaveBeenCalledWith(targetTwo, conf);
+    });
+
+    it('the inner function is called for every renderer and target, network case', function() {
+        var fooTargetsSpy = jasmine.createSpy('foo-target');
+        var barTargetsSpy = jasmine.createSpy('bar-target');
+
+        Rpd.renderer('foo', function(patch) { return fooTargetsSpy; });
+        Rpd.renderer('bar', function(patch) { return barTargetsSpy; });
+
+        var targetOne = { };
+        var targetTwo = { };
+        var conf = {};
+        Rpd.render([ 'foo', 'bar' ], [ targetOne, targetTwo ], conf);
+
+        Rpd.addPatch();
+
+        expect(fooTargetsSpy).toHaveBeenCalled();
+        expect(barTargetsSpy).toHaveBeenCalledWith(targetOne, conf);
+        expect(barTargetsSpy).toHaveBeenCalledWith(targetTwo, conf);
+    });
+
+    it('the inner function is called for every renderer and target, patch case', function() {
+        var fooTargetsSpy = jasmine.createSpy('foo-target');
+        var barTargetsSpy = jasmine.createSpy('bar-target');
+
+        Rpd.renderer('foo', function(patch) { return fooTargetsSpy; });
+        Rpd.renderer('bar', function(patch) { return barTargetsSpy; });
+
+        var targetOne = { };
+        var targetTwo = { };
+        var conf = {};
+        Rpd.render([ 'foo', 'bar' ], [ targetOne, targetTwo ], conf);
+
+        Rpd.addPatch();
+
+        expect(fooTargetsSpy).toHaveBeenCalled();
+        expect(barTargetsSpy).toHaveBeenCalledWith(targetOne, conf);
+        expect(barTargetsSpy).toHaveBeenCalledWith(targetTwo, conf);
+    });
+
+    it('passes the events to the handler object, network case', function() {
+        var addNodeSpy = jasmine.createSpy('add-node');
+        var addInletSpy = jasmine.createSpy('add-inlet');
+
+        Rpd.renderer('foo', function(patch) {
+            return function(target, conf) {
+                return { 'patch/add-node': addNodeSpy,
+                         'node/add-inlet': addInletSpy }
+            };
+        });
+
+        Rpd.render('foo', {});
+
+        var patch = Rpd.addPatch();
+        var node = patch.addNode('spec/empty');
+        var inlet = node.addInlet('spec/any', 'foo');
+        patch.enter();
+
+        expect(addNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: node }));
+        expect(addInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inlet }));
+    });
+
+    it('passes the events to the handler object, patch case', function() {
+        var addNodeSpy = jasmine.createSpy('add-node');
+        var addInletSpy = jasmine.createSpy('add-inlet');
+
+        Rpd.renderer('foo', function(patch) {
+            return function(target, conf) {
+                return { 'patch/add-node': addNodeSpy,
+                         'node/add-inlet': addInletSpy }
+            };
+        });
+
+        var patch = Rpd.addPatch().render('foo', {});
+        var node = patch.addNode('spec/empty');
+        var inlet = node.addInlet('spec/any', 'foo');
+        patch.enter();
+
+        expect(addNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: node }));
+        expect(addInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inlet }));
+    });
+
+    it('provides events for all subscribed patches', function() {
+        var addNodeSpy = jasmine.createSpy('add-node');
+        var addInletSpy = jasmine.createSpy('add-inlet');
+
+        Rpd.renderer('foo', function(patch) {
+            return function(target, conf) {
+                return { 'patch/add-node': addNodeSpy }
+            };
+        });
+        Rpd.renderer('bar', function(patch) {
+            return function(target, conf) {
+                return { 'node/add-inlet': addInletSpy }
+            };
+        });
+
+        var patchOne = Rpd.addPatch().render(['foo', 'bar'], {});
+        var nodeOne = patchOne.addNode('spec/empty');
+        var inletOne = nodeOne.addInlet('spec/any', 'foo');
+        patchOne.enter();
+        var patchTwo = Rpd.addPatch().render('bar', {});
+        var nodeTwo = patchTwo.addNode('spec/empty');
+        var inletTwo = nodeTwo.addInlet('spec/any', 'foo');
+        patchTwo.enter();
+
+        expect(addNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: nodeOne }));
+        expect(addInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inletOne }));
+        expect(addInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inletTwo }));
+    });
+
+    xit('same cases for several patches');
+
+    xit('buffering while entering and exiting');
+
+    // ============================================================
+
+    xit('receives no events if no target was specified', function() {
 
         var fooUpdateSpy = jasmine.createSpy('foo-update');
         var fooRenderer = Rpd.renderer('foo', function(user_conf) {
@@ -27,7 +227,7 @@ describe('building: renderer', function() {
 
     });
 
-    it('receives all events, if at least one target was specified', function() {
+    xit('receives all events, if at least one target was specified', function() {
 
         var fooUpdateSpy = jasmine.createSpy('foo-update');
         var fooRenderer = Rpd.renderer('foo', function(user_conf) {
@@ -64,7 +264,7 @@ describe('building: renderer', function() {
 
     });
 
-    it('is called once for every new patch', function() {
+    xit('is called once for every new patch', function() {
         var updateSpy = jasmine.createSpy('update');
         var rendererSpy = jasmine.createSpy('renderer').and.returnValue(function() {});
 
@@ -77,7 +277,7 @@ describe('building: renderer', function() {
 
     });
 
-    it('receives configuration passed from a user', function() {
+    xit('receives configuration passed from a user', function() {
         var configurationSpy = jasmine.createSpy('configuration');
         var renderer = Rpd.renderer('foo', function(user_conf) {
             configurationSpy(user_conf);
@@ -91,7 +291,7 @@ describe('building: renderer', function() {
         expect(configurationSpy).toHaveBeenCalledWith(confMock);
     });
 
-    it('could handle specific events', function() {
+    xit('could handle specific events', function() {
         var newPatchSpy = jasmine.createSpy('new-node');
         var renderer = Rpd.renderer('foo', function() {
             return function(root, update) {
@@ -108,7 +308,7 @@ describe('building: renderer', function() {
 
     xdescribe('with entering and exiting patches', function() {
 
-        it('gets construction events happened before renderer was set', function() {
+        xit('gets construction events happened before renderer was set', function() {
             var updateSpy = jasmine.createSpy('update');
 
             var renderer = Rpd.renderer('foo', function() { return updateSpy; });
@@ -135,13 +335,13 @@ describe('building: renderer', function() {
                 }));
         });
 
-        it('still gets these updates if there were several renderers set');
+        xit('still gets these updates if there were several renderers set');
 
-        it('entering patch from the start is equivalent to just starting it', function() {
+        xit('entering patch from the start is equivalent to just starting it', function() {
 
         });
 
-        it('also buffers construction events while user exits from the patch', function() {
+        xit('also buffers construction events while user exits from the patch', function() {
             var updateSpy = jasmine.createSpy('update');
             var renderer = Rpd.renderer('foo', function() { return updateSpy; });
 
@@ -169,7 +369,7 @@ describe('building: renderer', function() {
                 }));
         });
 
-        it('only fires the update with the last value of the inlet when patch was entered back', function() {
+        xit('only fires the update with the last value of the inlet when patch was entered back', function() {
             var updateSpy = jasmine.createSpy('update');
             var renderer = Rpd.renderer('foo', function() { return updateSpy; });
 
@@ -205,7 +405,7 @@ describe('building: renderer', function() {
 
         });
 
-        it('passes rendering to other patches user made active', function() {
+        xit('passes rendering to other patches user made active', function() {
             var updateSpy = jasmine.createSpy('update');
             var renderer = Rpd.renderer('foo', function() { return updateSpy; });
 
@@ -247,9 +447,9 @@ describe('building: renderer', function() {
 
         });
 
-        it('passes rendering to several renderers if they were assigned to same active patch');
+        xit('passes rendering to several renderers if they were assigned to same active patch');
 
-        it('receives \'new patch\' event at least once');
+        xit('receives \'new patch\' event at least once');
 
     });
 

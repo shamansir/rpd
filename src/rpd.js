@@ -76,7 +76,7 @@ function Patch(name) {
                             renderer.handlers = [];
                             renderers[alias] = renderer;
                         }
-                        renderer.handlers.push(renderer.produce(target, configuration));
+                        if (renderer.produce) renderer.handlers.push(renderer.produce(target, configuration));
                         return renderers;
                     }, { }) ])
          .bufferWhileBy(Kefir.merge([
