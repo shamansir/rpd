@@ -95,7 +95,7 @@ describe('registration: node type', function() {
             expect(updateSpy).toHaveBeenOrderlyCalledWith([
                 [ jasmine.objectContaining({ type: 'node/add-inlet' }) ],
                 [ jasmine.objectContaining({ type: 'node/add-outlet' }) ],
-                [ jasmine.objectContaining({ type: 'node/ready' }) ]
+                [ jasmine.objectContaining({ type: 'node/is-ready' }) ]
             ]);
 
         });
@@ -117,7 +117,7 @@ describe('registration: node type', function() {
             node.addInlet('spec/any', 'foo');
 
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'node/ready' }));
+                jasmine.objectContaining({ type: 'node/is-ready' }));
 
         });
     });
@@ -322,7 +322,7 @@ describe('registration: node type', function() {
 
             withNewPatch(function(patch, updateSpy) {
                 updateSpy.and.callFake(function(update) {
-                    if (update.type === 'node/ready') {
+                    if (update.type === 'node/is-ready') {
                         expect(processSpy).not.toHaveBeenCalled();
                         nodeReady = true;
                     } else if (!nodeReady) {
@@ -867,7 +867,7 @@ describe('registration: node type', function() {
         withNewPatch(function(patch, updateSpy) {
 
             updateSpy.and.callFake(function(update) {
-                if (update.type === 'node/ready') {
+                if (update.type === 'node/is-ready') {
                     expect(prepareSpy).toHaveBeenCalled();
                 }
             });
