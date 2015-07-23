@@ -28,12 +28,10 @@ describe('registration: link type', function() {
             setTimeout(function() {
                 for (var i = 0; i < values.length; i++) {
                     expect(updateSpy).toHaveBeenCalledWith(
-                        jasmine.anything(),
                         jasmine.objectContaining({ type: 'inlet/update',
                                                    value: values[i] * 3 }));
                 }
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({ type: 'inlet/update',
                                                value: 21 * 3 }));
                 done();

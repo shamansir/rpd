@@ -25,9 +25,8 @@ describe('registration: node type', function() {
             var node = patch.addNode('spec/foo');
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining(
-                    { type: 'inlet/add',
+                    { type: 'node/add-inlet',
                       inlet: jasmine.objectContaining({
                           name: 'a',
                           type: 'spec/any'
@@ -35,9 +34,8 @@ describe('registration: node type', function() {
             );
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining(
-                    { type: 'inlet/add',
+                    { type: 'node/add-inlet',
                       inlet: jasmine.objectContaining({
                           name: 'b',
                           type: 'spec/any'
@@ -61,9 +59,8 @@ describe('registration: node type', function() {
             var node = patch.addNode('spec/foo');
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining(
-                    { type: 'outlet/add',
+                    { type: 'node/add-outlet',
                       outlet: jasmine.objectContaining({
                           name: 'a',
                           type: 'spec/any'
@@ -71,9 +68,8 @@ describe('registration: node type', function() {
             );
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining(
-                    { type: 'outlet/add',
+                    { type: 'node/add-outlet',
                       outlet: jasmine.objectContaining({
                           name: 'b',
                           type: 'spec/any'
@@ -97,9 +93,9 @@ describe('registration: node type', function() {
             var node = patch.addNode('spec/foo');
 
             expect(updateSpy).toHaveBeenOrderlyCalledWith([
-                [ jasmine.anything(), jasmine.objectContaining({ type: 'inlet/add' }) ],
-                [ jasmine.anything(), jasmine.objectContaining({ type: 'outlet/add' }) ],
-                [ jasmine.anything(), jasmine.objectContaining({ type: 'node/ready' }) ]
+                [ jasmine.objectContaining({ type: 'node/add-inlet' }) ],
+                [ jasmine.objectContaining({ type: 'node/add-outlet' }) ],
+                [ jasmine.objectContaining({ type: 'node/ready' }) ]
             ]);
 
         });
@@ -121,7 +117,6 @@ describe('registration: node type', function() {
             node.addInlet('spec/any', 'foo');
 
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'node/ready' }));
 
         });
@@ -301,7 +296,6 @@ describe('registration: node type', function() {
                 var node = patch.addNode('spec/foo');
                 var outlet = node.outlets['c'];
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outlet,
@@ -327,7 +321,7 @@ describe('registration: node type', function() {
             });
 
             withNewPatch(function(patch, updateSpy) {
-                updateSpy.and.callFake(function(trg, update) {
+                updateSpy.and.callFake(function(update) {
                     if (update.type === 'node/ready') {
                         expect(processSpy).not.toHaveBeenCalled();
                         nodeReady = true;
@@ -455,18 +449,15 @@ describe('registration: node type', function() {
             withNewPatch(function(patch, updateSpy) {
                 var node = patch.addNode('spec/foo');
                 expect(processSpy).not.toHaveBeenCalledWith(
-                    jasmine.objectContaining({ foo: 'a' }),
-                    jasmine.anything()
+                    jasmine.objectContaining({ foo: 'a' })
                 );
                 node.inlets['foo'].receive('b');
                 expect(processSpy).not.toHaveBeenCalledWith(
-                    jasmine.objectContaining({ foo: 'b' }),
-                    jasmine.anything()
+                    jasmine.objectContaining({ foo: 'b' })
                 );
                 node.inlets['bar'].receive(12);
                 expect(processSpy).not.toHaveBeenCalledWith(
-                    jasmine.objectContaining({ bar: 12 }),
-                    jasmine.anything()
+                    jasmine.objectContaining({ bar: 12 })
                 );
                 node.inlets['buz'].receive('jazz');
                 expect(processSpy).toHaveBeenCalledWith(
@@ -500,7 +491,6 @@ describe('registration: node type', function() {
                 expect(processSpy).toHaveBeenCalled();
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outlet,
@@ -509,7 +499,6 @@ describe('registration: node type', function() {
                 );
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outlet,
@@ -550,7 +539,6 @@ describe('registration: node type', function() {
                 expect(processSpy).toHaveBeenCalled();
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletC,
@@ -559,7 +547,6 @@ describe('registration: node type', function() {
                 );
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletC,
@@ -568,7 +555,6 @@ describe('registration: node type', function() {
                 );
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletC,
@@ -577,7 +563,6 @@ describe('registration: node type', function() {
                 );
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletD,
@@ -586,7 +571,6 @@ describe('registration: node type', function() {
                 );
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletD,
@@ -595,7 +579,6 @@ describe('registration: node type', function() {
                 );
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletD,
@@ -638,7 +621,6 @@ describe('registration: node type', function() {
                 setTimeout(function() {
                     for (var i = 0; i < values.length; i++) {
                         expect(updateSpy).toHaveBeenCalledWith(
-                            jasmine.anything(),
                             jasmine.objectContaining({ type: 'outlet/update',
                                                        outlet: outlet,
                                                        value: values[i] * 7 }));
@@ -677,7 +659,6 @@ describe('registration: node type', function() {
                 expect(processSpy).toHaveBeenCalled();
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'node/process',
                         inlets: { a: 7, b : 2 },
@@ -739,7 +720,6 @@ describe('registration: node type', function() {
                 node.inlets['b'].receive(12);
 
                 expect(updateSpy).not.toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({ type: 'outlet/update' })
                 );
 
@@ -772,9 +752,8 @@ describe('registration: node type', function() {
                 node.inlets['a'].receive(2); // force call to process function
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
-                        type: 'inlet/add',
+                        type: 'node/add-inlet',
                         inlet: jasmine.objectContaining({ 'name': 'bar' })
                     })
                 );

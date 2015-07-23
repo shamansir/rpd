@@ -33,13 +33,11 @@ describe('registration: node renderer', function() {
             inlet.receive('a');
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
-                    type: 'node/add',
+                    type: 'patch/add-node',
                     render: renderer
                 }));
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'node/process',
                     render: renderer
@@ -64,7 +62,7 @@ describe('registration: node renderer', function() {
             inlet.receive('a');
 
             expect(patchEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'node/add', render: renderer }));
+                jasmine.objectContaining({ type: 'patch/add-node', render: renderer }));
             expect(patchEventsSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/process', render: renderer }));
 
@@ -85,9 +83,8 @@ describe('registration: node renderer', function() {
             inlet.receive('a');
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
-                    type: 'node/add',
+                    type: 'patch/add-node',
                     render: { first: renderFirst }
                 }));
 
@@ -105,13 +102,11 @@ describe('registration: node renderer', function() {
             inlet.receive('a');
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
-                    type: 'node/add',
+                    type: 'patch/add-node',
                     render: { always: renderAlways }
                 }));
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'node/process',
                     render: { always: renderAlways }
@@ -133,14 +128,12 @@ describe('registration: node renderer', function() {
             inlet.receive('a');
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
-                    type: 'node/add',
+                    type: 'patch/add-node',
                     render: { first: renderFirst,
                               always: renderAlways }
                 }));
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'node/process',
                     render: jasmine.objectContaining({ always: renderAlways })
@@ -168,13 +161,11 @@ describe('registration: node renderer', function() {
             expect(rendererGenSpy).toHaveBeenCalledWith(nodeOne);
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
-                    type: 'node/add',
+                    type: 'patch/add-node',
                     render: renderers['node-1']
                 }));
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'node/process',
                     render: renderers['node-1']
@@ -187,13 +178,11 @@ describe('registration: node renderer', function() {
             expect(rendererGenSpy).toHaveBeenCalledWith(nodeTwo);
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
-                    type: 'node/add',
+                    type: 'patch/add-node',
                     render: renderers['node-2']
                 }));
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'node/process',
                     render: renderers['node-2']
@@ -215,19 +204,16 @@ describe('registration: node renderer', function() {
             inlet.receive('a');
 
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
-                    type: 'node/add',
+                    type: 'patch/add-node',
                     render: jasmine.objectContaining({ first: renderFirst })
                 }));
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
-                    type: 'node/add',
+                    type: 'patch/add-node',
                     render: jasmine.objectContaining({ always: renderAlways })
                 }));
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'node/process',
                     render: jasmine.objectContaining({ always: renderAlways })

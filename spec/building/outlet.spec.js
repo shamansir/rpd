@@ -12,7 +12,6 @@ describe('building: outlet', function() {
             var outlet = node.addOutlet('spec/any', 'foo');
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'node/add-outlet',
                                            outlet: outlet })
             );
@@ -29,7 +28,6 @@ describe('building: outlet', function() {
             node.removeOutlet(outlet);
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'node/remove-outlet',
                                            outlet: outlet })
             );
@@ -45,7 +43,6 @@ describe('building: outlet', function() {
             var outlet = node.addOutlet('spec/any', 'foo');
 
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'outlet/update' }));
 
         });
@@ -59,7 +56,6 @@ describe('building: outlet', function() {
             var outlet = node.addOutlet('spec/any', 'foo');
 
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'outlet/update' }));
 
         });
@@ -75,7 +71,6 @@ describe('building: outlet', function() {
             outlet.send(userValue);
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'outlet/update',
                                            outlet: outlet,
                                            value: userValue }));
@@ -97,7 +92,6 @@ describe('building: outlet', function() {
             setTimeout(function() {
                 for (var i = 0; i < userSequence.length; i++) {
                     expect(updateSpy).toHaveBeenCalledWith(
-                        jasmine.anything(),
                         jasmine.objectContaining({ type: 'outlet/update',
                                                    outlet: outlet,
                                                    value: userSequence[i] }));
@@ -119,7 +113,6 @@ describe('building: outlet', function() {
             outlet.send(10);
 
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'outlet/update' }));
 
         });
@@ -140,7 +133,6 @@ describe('building: outlet', function() {
 
             setTimeout(function() {
                 expect(updateSpy).not.toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({ type: 'outlet/update' }));
                 done();
             }, period * (sequence.length + 1));

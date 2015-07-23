@@ -39,7 +39,6 @@ describe('registration: channel type', function() {
             var node = patch.addNode('spec/empty');
             var inlet = node.addInlet('spec/foo', 'foo');
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'inlet/update',
                     inlet: inlet,
@@ -63,7 +62,6 @@ describe('registration: channel type', function() {
             setTimeout(function() {
                 for (var i = 0; i < values.length; i++) {
                     expect(updateSpy).toHaveBeenCalledWith(
-                        jasmine.anything(),
                         jasmine.objectContaining({ type: 'inlet/update',
                                                    inlet: inlet,
                                                    value: values[i] }));
@@ -84,13 +82,11 @@ describe('registration: channel type', function() {
 
             var node = patch.addNode('spec/test');
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'inlet/update', value: 5
                 })
             );
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({
                     type: 'inlet/update', value: 17
                 })
@@ -119,17 +115,14 @@ describe('registration: channel type', function() {
 
             setTimeout(function() {
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({ type: 'inlet/update',
                                                value: 2 * 3 }));
                 for (var i = 0; i < values.length; i++) {
                     expect(updateSpy).toHaveBeenCalledWith(
-                        jasmine.anything(),
                         jasmine.objectContaining({ type: 'inlet/update',
                                                    value: values[i] * 3 }));
                 }
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({ type: 'inlet/update',
                                                value: 21 * 3 }));
                 done();
@@ -152,19 +145,16 @@ describe('registration: channel type', function() {
 
             setTimeout(function() {
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({ type: 'inlet/update',
                                                value: 2 }));
                 for (var i = 0; i < values.length; i++) {
                     var expectation = (values[i] % 2) == 0 ? expect(updateSpy)
                                                            : expect(updateSpy).not;
                     expectation.toHaveBeenCalledWith(
-                        jasmine.anything(),
                         jasmine.objectContaining({ type: 'inlet/update',
                                                    value: values[i] }));
                 }
                 expect(updateSpy).not.toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({ type: 'inlet/update',
                                                value: 21 }));
                 done();
@@ -186,7 +176,6 @@ describe('registration: channel type', function() {
             expect(acceptSpy).toHaveBeenCalledWith(21);
             expect(adaptSpy).toHaveBeenCalledWith(21);
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'inlet/update',
                                            value: 42 }));
         });
@@ -213,19 +202,15 @@ describe('registration: channel type', function() {
             inlet.receive('jazz');
             inlet.receive('fever');
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'inlet/update',
-                                            value: 'foofluxflow' }));
+                                           value: 'foofluxflow' }));
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'inlet/update',
-                                            value: 'foofluxflowfuryfever' }));
+                                           value: 'foofluxflowfuryfever' }));
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'inlet/update',
                                            value: 'zoo' }));
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining({ type: 'inlet/update',
                                            value: 'fury' }));
         });
