@@ -14,6 +14,8 @@ describe('building: renderer', function() {
         }).toThrow();
     });
 
+    xit('target could be empty');
+
     it('called once for every patch', function() {
         var fooRendererSpy = jasmine.createSpy('foo-renderer');
 
