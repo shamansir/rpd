@@ -6,11 +6,9 @@ Rpd.linktype('spec/pass', {});
 
 function withNewPatch(fn) {
     var updateSpy = jasmine.createSpy('update');
-    var renderer = Rpd.renderer('foo', function(user_conf) {
-        return updateSpy;
-    });
+    var patch = Rpd.addPatch();
 
-    var patch = Rpd.addPatch().render('foo', {});
+    patch.events.onValue(updateSpy)
 
     fn(patch, updateSpy);
 }

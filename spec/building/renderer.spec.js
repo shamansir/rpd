@@ -106,7 +106,7 @@ describe('building: renderer', function() {
         expect(newPatchSpy).toHaveBeenCalled();
     });
 
-    xdescribe('with entering and exiting patchs', function() {
+    xdescribe('with entering and exiting patches', function() {
 
         it('gets construction events happened before renderer was set', function() {
             var updateSpy = jasmine.createSpy('update');
@@ -205,7 +205,7 @@ describe('building: renderer', function() {
 
         });
 
-        it('passes rendering to other patchs user made active', function() {
+        it('passes rendering to other patches user made active', function() {
             var updateSpy = jasmine.createSpy('update');
             var renderer = Rpd.renderer('foo', function() { return updateSpy; });
 
