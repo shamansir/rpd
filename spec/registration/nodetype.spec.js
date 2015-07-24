@@ -6,12 +6,6 @@ describe('registration: node type', function() {
         }).not.toThrow();
     });
 
-    it('one could define name for it');
-
-    it('redefining the type re-writes previous type');
-
-    it('passes the specified name to every created instance');
-
     it('creates specified inlets for the node instance', function() {
         Rpd.nodetype('spec/foo', {
             inlets: {
@@ -137,20 +131,6 @@ describe('registration: node type', function() {
             expect(node.outlets['c']).toBeDefined();
         });
     });
-
-    it('could be a function which is called for every new node and returns type description');
-
-    it('informs inlet was updated when its default value was set');
-
-    it('informs outlet was updated when its default value was set');
-
-    it('accepts streams as default values for inlets');
-
-    it('accepts streams as default values for outlets');
-
-    it('still informs about update when inlet is hidden');
-
-    it('still informs about update when inlet is cold');
 
     describe('processing function', function() {
 
@@ -467,8 +447,6 @@ describe('registration: node type', function() {
             });
         });
 
-        it('does not react if updated inlet was cold and contained a stream, but keeps its value for next update');
-
         it('passes values to corresponding outlets based on default inlets values', function() {
 
             processSpy.and.callFake(function(inlets) {
@@ -669,10 +647,6 @@ describe('registration: node type', function() {
             });
         });
 
-        it('updates the outlet value even when processing function was executed before this outlet was created');
-
-        it('switches off previous stream when new one was plugged to outlet');
-
         it('if no outlet was updated, does not fire the update for this outlet', function() {
 
             processSpy.and.callFake(function(inlets) {
@@ -735,8 +709,6 @@ describe('registration: node type', function() {
 
             });
         });
-
-        it('is not bound to the types of the values inlets or outlets receive');
 
         it('one could add inlets or outlets from the inside', function() {
             Rpd.nodetype('spec/foo', {
@@ -812,8 +784,6 @@ describe('registration: node type', function() {
             });
 
         });
-
-        it('incoming values stream still could be tuned even when they\'re streamed');
 
     });
 

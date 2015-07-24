@@ -8,10 +8,6 @@ describe('building: node', function() {
         }).toThrow();
     });
 
-    it('may fall back to default type if no type was specified by user');
-
-    it('uses its type as a name if name wasn\'t specified on creation');
-
     it('informs it was added to a patch with an event', function() {
         withNewPatch(function(patch, updateSpy) {
             var node = patch.addNode('spec/empty');
@@ -46,17 +42,5 @@ describe('building: node', function() {
                 jasmine.objectContaining({ type: 'node/add-inlet' }));
         });
     });
-
-    it('may have any number of inlets and outlets');
-
-    it('could be turned off');
-
-    it('receives values from other nodes');
-
-    it('passes values to other nodes');
-
-    it('fires no process events until the node is ready (default inlets/outlets are set up)');
-
-    it('provides access to inner events');
 
 });

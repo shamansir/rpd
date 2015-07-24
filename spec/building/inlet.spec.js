@@ -1,9 +1,5 @@
 describe('building: inlet', function() {
 
-    it('should have an alias or name');
-
-    it('may fall back to default type if no type was specified by user');
-
     it('informs it has been added to a node', function() {
         withNewPatch(function(patch, updateSpy) {
 
@@ -120,13 +116,6 @@ describe('building: inlet', function() {
         });
     });
 
-    xit('when it\'s read-only, does not receive any values and raises an error event if one sent');
-
-    xit('still sends values when it\'s hidden');
-
-    // cold status only affects processing
-    xit('still sends values when it\'s cold');
-
     it('stops receiving values when it was removed from a node', function() {
         withNewPatch(function(patch, updateSpy) {
 
@@ -164,17 +153,5 @@ describe('building: inlet', function() {
 
         });
     });
-
-    it('able to receive values in any moment');
-
-    it('disables default stream of values when new value was sent');
-
-    it('disables default stream of values when new stream was plugged in');
-
-    it('disables previous stream of values when separate value was sent');
-
-    it('disables previous stream of values when new stream was plugged in');
-
-    it('provides access to inner events');
 
 });

@@ -1,9 +1,5 @@
 describe('building: outlet', function() {
 
-    it('should have an alias or name');
-
-    it('may fall back to default type if no type was specified by user');
-
     it('informs it has been added to a node', function() {
         withNewPatch(function(patch, updateSpy) {
 
@@ -139,15 +135,5 @@ describe('building: outlet', function() {
 
         });
     });
-
-    it('disables default stream of values when new value was sent');
-
-    it('disables default stream of values when new stream was plugged in');
-
-    it('disables previous stream of values when separate value was sent');
-
-    it('disables previous stream of values when new stream was plugged in');
-
-    it('provides access to inner events');
 
 });

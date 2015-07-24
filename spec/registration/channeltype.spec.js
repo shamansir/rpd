@@ -6,10 +6,6 @@ describe('registration: channel type', function() {
         }).not.toThrow();
     });
 
-    it('one could define an alias for it');
-
-    it('one could define a name for it');
-
     it('could be used both for inlets and outlets', function() {
         Rpd.channeltype('spec/foo', {});
         Rpd.channeltype('spec/bar', {});
@@ -29,8 +25,6 @@ describe('registration: channel type', function() {
             }).not.toThrow();
         });
     });
-
-    it('could be a function which is called for every new channel and returns type description');
 
     it('could have default value which is used when channel of this type was created', function() {
         Rpd.channeltype('spec/foo', { default: 5 });
@@ -93,12 +87,6 @@ describe('registration: channel type', function() {
             );
         });
     });
-
-    it('could be read-only and declines all the incoming values');
-
-    it('being a read-only and having the default value, allows the latter to pass');
-
-    it('allows overriding its read-only state in a node type description');
 
     it('may specify adapting function, which adapts all values going through, streamed or not', function(done) {
         Rpd.channeltype('spec/foo', { default: 2,
@@ -216,7 +204,5 @@ describe('registration: channel type', function() {
         });
 
     });
-
-    it('may specify show function which returns string representation of a value');
 
 });

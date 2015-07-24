@@ -68,41 +68,6 @@ describe('registration: channel renderer', function() {
 
         });
 
-        xit('the normal update stream should not set this field to an update event', function() {
-            var patchEventsSpy = jasmine.createSpy('patch-events');
-            patch.events.onValue(patchEventsSpy);
-            var nodeEventsSpy = jasmine.createSpy('node-events');
-            node.events.onValue(nodeEventsSpy);
-
-            var renderer = {};
-
-            Rpd.channelrenderer('spec/foo', 'spec', renderer);
-
-            var inlet = node.addInlet('spec/foo', 'a');
-            inlet.receive('a');
-            var outlet = node.addOutlet('spec/foo', 'b');
-            outlet.send('b');
-
-            expect(patchEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'inlet/add', render: renderer }));
-            expect(patchEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'inlet/update', render: renderer }));
-            expect(patchEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'outlet/add', render: renderer }));
-            expect(patchEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'outlet/update', render: renderer }));
-
-            expect(nodeEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'inlet/add', render: renderer }));
-            expect(nodeEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'inlet/update', render: renderer }));
-            expect(nodeEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'outlet/add', render: renderer }));
-            expect(nodeEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'outlet/update', render: renderer }));
-
-        });
-
         it('one could define render-show function which is passed both with channel adding and updating event', function() {
 
             var renderShow = function() {};

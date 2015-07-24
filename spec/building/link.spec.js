@@ -1,9 +1,5 @@
 describe('building: link', function() {
 
-    it('should be connected to both ends');
-
-    it('may fall back to default type if no type was specified by user');
-
     it('knows all individual values going through', function() {
         withNewPatch(function(patch, updateSpy) {
 
@@ -200,11 +196,5 @@ describe('building: link', function() {
 
         });
     });
-
-    it('also applies adapted values if they were sent as stream');
-
-    // xit('handles recursive connections');
-
-    it('provides access to inner events');
 
 });

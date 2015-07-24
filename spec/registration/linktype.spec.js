@@ -6,10 +6,6 @@ describe('registration: link type', function() {
         }).not.toThrow();
     });
 
-    it('one could define a name for it');
-
-    it('could be a function which is called for every new link and returns type description');
-
     it('may specify adapting function, which adapts all values going through, streamed or not', function(done) {
         Rpd.linktype('spec/foo', { adapt: function(val) { return val * 3 } });
 
@@ -38,9 +34,5 @@ describe('registration: link type', function() {
             }, period * (values.length + 1));
         });
     });
-
-    it('adapter specified at connection time overrides the adapter specified in type desctiption');
-
-    it('both channel and link could have adapting function');
 
 });
