@@ -234,6 +234,35 @@ describe('building: renderer', function() {
 
     xit('buffering while entering and exiting');
 
+    it('renderer could also return a function handling any event', function() {
+        var fooEventSpy = jasmine.createSpy('foo-events');
+        var barEventSpy = jasmine.createSpy('bar-events');
+
+        Rpd.renderer('foo', function(patch) {
+            return function(target, conf) {
+                return fooEventSpy;
+            };
+        });
+        Rpd.renderer('bar', function(patch) {
+            return function(target, conf) {
+                return barEventSpy;
+            };
+        });
+
+        var patchOne = Rpd.addPatch().render(['foo', 'bar'], {});
+        var nodeOne = patchOne.addNode('spec/empty');
+        patchOne.enter();
+        var patchTwo = Rpd.addPatch().render('bar', {});
+        var nodeTwo = patchTwo.addNode('spec/empty');
+        var inletTwo = nodeTwo.addInlet('spec/any', 'foo');
+        patchTwo.enter();
+
+        expect(fooEventSpy).toHaveBeenCalledWith(jasmine.objectContaining({ type: 'patch/add-node', node: nodeOne }));
+        expect(barEventSpy).toHaveBeenCalledWith(jasmine.objectContaining({ type: 'patch/add-node', node: nodeTwo }));
+        expect(barEventSpy).toHaveBeenCalledWith(jasmine.objectContaining({ type: 'node/add-inlet', inlet: inletTwo }));
+        expect(fooEventSpy).not.toHaveBeenCalledWith(jasmine.objectContaining({ type: 'patch/add-inlet', inlet: inletTwo }));
+    });
+
     // ============================================================
 
     xit('receives no events if no target was specified', function() {

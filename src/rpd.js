@@ -78,7 +78,13 @@ function Patch(name) {
                             renderer.handlers = [];
                             renderers[alias] = renderer;
                         }
-                        if (renderer.produce) renderer.handlers.push(renderer.produce(target, configuration));
+                        if (renderer.produce) {
+                            var handler = renderer.produce(target, configuration);
+                            renderer.handlers.push(
+                                (typeof handler === 'function') ? handler
+                                                                : function(event) { if (handler[event.type]) handler[event.type](event); }
+                            );
+                        }
                         return renderers;
                     }, { }) ])
          .bufferWhileBy(Kefir.merge([
@@ -92,7 +98,7 @@ function Patch(name) {
             for (var i = 0, il = aliases.length; i < il; i++) {
                 renderer = renderers[aliases[i]]; handlers = renderer.handlers;
                 for (var j = 0, jl = handlers.length; j < jl; j++) {
-                    if (handlers[j] && handlers[j][event.type]) handlers[j][event.type](inject_render(event, aliases[i]));
+                    handlers[j](inject_render(event, aliases[i]));
                 }
             }
         }
