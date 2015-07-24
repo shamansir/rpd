@@ -39,7 +39,9 @@ function addPatch(name) {
 
 function render(aliases, targets, conf) {
     rendering.emit([ aliases, targets, conf ]);
-    event['network/add-patch'].onValue(function(patch) { patch.render(aliases, targets, conf); });
+    var handler = function(patch) { patch.render(aliases, targets, conf); };
+    event['network/add-patch'].onValue(handler);
+    return function() { event['network/add-patch'].offValue(handler); };
 }
 
 // ================================== Patch ====================================
@@ -52,7 +54,7 @@ function Patch(name) {
     var myself = this;
 
     var event_conf = {
-        'patch/is-ready':   function(patch)   { return { patch: patch } },
+        'patch/is-ready':    function(patch)   { return { patch: patch } },
         'patch/enter':       function(patch)   { return { patch: patch }; },
         'patch/exit':        function(patch)   { return { patch: patch }; },
         'patch/set-inputs':  function(inputs)  { return { patch: myself, inputs: inputs }; },
@@ -185,7 +187,7 @@ function Node(type, patch, name, callback) {
     var myself = this;
     var event_conf = {
         'node/turn-on':       function(node) { return { node: myself } },
-        'node/is-ready':     function(node) { return { node: myself } },
+        'node/is-ready':      function(node) { return { node: myself } },
         'node/process':       function(channels) { return { inlets: channels[0], outlets: channels[1], node: myself } },
         'node/turn-off':      function(node) { return { node: myself } },
         'node/add-inlet':     function(inlet) { return { inlet: inlet } },

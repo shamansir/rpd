@@ -21,7 +21,7 @@ describe('building: renderer', function() {
 
         Rpd.renderer('foo', fooRendererSpy);
 
-        Rpd.render('foo', {});
+        var turnOff = Rpd.render('foo', {});
 
         var firstPatch = Rpd.addPatch();
         var secondPatch = Rpd.addPatch();
@@ -29,6 +29,8 @@ describe('building: renderer', function() {
         expect(fooRendererSpy).toHaveBeenCalledTwice();
         expect(fooRendererSpy).toHaveBeenCalledWith(firstPatch);
         expect(fooRendererSpy).toHaveBeenCalledWith(secondPatch);
+
+        turnOff();
     });
 
     it('the inner function is called with target element, network case', function() {
@@ -39,11 +41,13 @@ describe('building: renderer', function() {
         });
 
         var target = { };
-        Rpd.render('foo', target);
+        var turnOff = Rpd.render('foo', target);
 
         Rpd.addPatch();
 
         expect(fooTargetsSpy).toHaveBeenCalledWith(target, undefined);
+
+        turnOff();
     });
 
     it('the inner function is called with target element, patch case', function() {
@@ -69,12 +73,14 @@ describe('building: renderer', function() {
         var targetOne = { };
         var targetTwo = { };
         var conf = { };
-        Rpd.render('foo', [ targetOne, targetTwo ], conf);
+        var turnOff = Rpd.render('foo', [ targetOne, targetTwo ], conf);
 
         Rpd.addPatch();
 
         expect(fooTargetsSpy).toHaveBeenCalledWith(targetOne, conf);
         expect(fooTargetsSpy).toHaveBeenCalledWith(targetTwo, conf);
+
+        turnOff();
     });
 
     it('the inner function is called for every target element and passes configuration there, patch case', function() {
@@ -103,13 +109,15 @@ describe('building: renderer', function() {
         var targetOne = { };
         var targetTwo = { };
         var conf = {};
-        Rpd.render([ 'foo', 'bar' ], [ targetOne, targetTwo ], conf);
+        var turnOff = Rpd.render([ 'foo', 'bar' ], [ targetOne, targetTwo ], conf);
 
         Rpd.addPatch();
 
         expect(fooTargetsSpy).toHaveBeenCalled();
         expect(barTargetsSpy).toHaveBeenCalledWith(targetOne, conf);
         expect(barTargetsSpy).toHaveBeenCalledWith(targetTwo, conf);
+
+        turnOff();
     });
 
     it('the inner function is called for every renderer and target, patch case', function() {
@@ -122,9 +130,8 @@ describe('building: renderer', function() {
         var targetOne = { };
         var targetTwo = { };
         var conf = {};
-        Rpd.render([ 'foo', 'bar' ], [ targetOne, targetTwo ], conf);
 
-        Rpd.addPatch();
+        Rpd.addPatch().render([ 'foo', 'bar' ], [ targetOne, targetTwo ], conf);
 
         expect(fooTargetsSpy).toHaveBeenCalled();
         expect(barTargetsSpy).toHaveBeenCalledWith(targetOne, conf);
@@ -142,7 +149,7 @@ describe('building: renderer', function() {
             };
         });
 
-        Rpd.render('foo', {});
+        var turnOff = Rpd.render('foo', {});
 
         var patch = Rpd.addPatch();
         var node = patch.addNode('spec/empty');
@@ -151,6 +158,8 @@ describe('building: renderer', function() {
 
         expect(addNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: node }));
         expect(addInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inlet }));
+
+        turnOff();
     });
 
     it('passes the events to the handler object, patch case', function() {
