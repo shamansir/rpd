@@ -1,11 +1,15 @@
 describe('building: renderer', function() {
 
-    xit('should be registered before usage, network case', function() {
-        expect(function() {
-            Rpd.render('foo', {});
+    xit('global rendering could be turned off');
 
+    xit('should be registered before usage, network case', function() {
+        var turnOff = Rpd.render('foo', {});
+
+        expect(function() {
             Rpd.addPatch();
         }).toThrow();
+
+        turnOff();
     });
 
     xit('should be registered before usage, patch case', function() {
@@ -13,8 +17,6 @@ describe('building: renderer', function() {
             Rpd.addPatch().render('foo', {});
         }).toThrow();
     });
-
-    xit('target could be empty');
 
     it('called once for every patch', function() {
         var fooRendererSpy = jasmine.createSpy('foo-renderer');
@@ -31,6 +33,23 @@ describe('building: renderer', function() {
         expect(fooRendererSpy).toHaveBeenCalledWith(secondPatch);
 
         turnOff();
+    });
+
+    it('target could be empty, network case', function() {
+        var turnOff;
+
+        expect(function() {
+            turnOff = Rpd.render('foo');
+            Rpd.addPatch();
+        }).not.toThrow();
+
+        if (turnOff) turnOff();
+    });
+
+    it('target could be empty, patch case', function() {
+        expect(function() {
+            Rpd.addPatch().render('foo');
+        }).not.toThrow();
     });
 
     it('the inner function is called with target element, network case', function() {
