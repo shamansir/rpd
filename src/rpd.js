@@ -90,7 +90,7 @@ function Patch(name) {
             for (var i = 0, il = aliases.length; i < il; i++) {
                 renderer = renderers[aliases[i]]; handlers = renderer.handlers;
                 for (var j = 0, jl = handlers.length; j < jl; j++) {
-                    if (handlers[j][event.type]) handlers[j][event.type](inject_render(event, aliases[i]));
+                    if (handlers[j] && handlers[j][event.type]) handlers[j][event.type](inject_render(event, aliases[i]));
                 }
             }
         }
