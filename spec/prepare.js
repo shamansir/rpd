@@ -4,15 +4,13 @@ Rpd.nodetype('spec/empty', {});
 Rpd.channeltype('spec/any', {});
 Rpd.linktype('spec/pass', {});
 
-function withNewModel(fn) {
+function withNewPatch(fn) {
     var updateSpy = jasmine.createSpy('update');
-    var renderer = Rpd.renderer('foo', function(user_conf) {
-        return updateSpy;
-    });
+    var patch = Rpd.addPatch();
 
-    var model = Rpd.Model.start().renderWith('foo').attachTo({});
+    patch.events.onValue(updateSpy)
 
-    fn(model, updateSpy);
+    fn(patch, updateSpy);
 }
 
 // this function is required due to the fact processing function receives the same object

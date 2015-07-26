@@ -8,19 +8,34 @@ describe('registration: channel renderer', function() {
 
     describe('transferring with the events', function() {
 
-        var updateSpy;
-        var model;
+        var addInletSpy, addOutletSpy;
+        var inletUpdateSpy, outletUpdateSpy;
+
+        var patch;
         var node;
 
         beforeEach(function() {
-            updateSpy = jasmine.createSpy('update');
+            addInletSpy = jasmine.createSpy('add-inlet');
+            addOutletSpy = jasmine.createSpy('add-outlet');
+            inletUpdateSpy = jasmine.createSpy('inlet-update');
+            outletUpdateSpy = jasmine.createSpy('outlet-update');
 
-            Rpd.renderer('spec', function() { return updateSpy; });
             Rpd.channeltype('spec/foo');
 
-            model = Rpd.Model.start().renderWith('spec').attachTo({});
+            Rpd.renderer('spec', function(patch) {
+                return function(target, conf) {
+                    return {
+                        'node/add-inlet': addInletSpy,
+                        'node/add-outlet': addOutletSpy,
+                        'inlet/update': inletUpdateSpy,
+                        'outlet/update': outletUpdateSpy
+                    }
+                }
+            });
 
-            node = new Rpd.Node('spec/empty');
+            patch = Rpd.addPatch().render('spec', {}).enter();
+
+            node = patch.addNode('spec/empty');
         });
 
         it('even if it\'s an empty object, passed with channel adding and updating event', function() {
@@ -34,65 +49,22 @@ describe('registration: channel renderer', function() {
             var outlet = node.addOutlet('spec/foo', 'b');
             outlet.send('b');
 
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(addInletSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/add',
                     render: renderer
                 }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(addOutletSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/update',
                     render: renderer
                 }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(inletUpdateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'outlet/add',
                     render: renderer
                 }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(outletUpdateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'outlet/update',
                     render: renderer
                 }));
-
-        });
-
-        xit('the normal update stream should not set this field to an update event', function() {
-            var modelEventsSpy = jasmine.createSpy('model-events');
-            model.events.onValue(modelEventsSpy);
-            var nodeEventsSpy = jasmine.createSpy('node-events');
-            node.events.onValue(nodeEventsSpy);
-
-            var renderer = {};
-
-            Rpd.channelrenderer('spec/foo', 'spec', renderer);
-
-            var inlet = node.addInlet('spec/foo', 'a');
-            inlet.receive('a');
-            var outlet = node.addOutlet('spec/foo', 'b');
-            outlet.send('b');
-
-            expect(modelEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'inlet/add', render: renderer }));
-            expect(modelEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'inlet/update', render: renderer }));
-            expect(modelEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'outlet/add', render: renderer }));
-            expect(modelEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'outlet/update', render: renderer }));
-
-            expect(nodeEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'inlet/add', render: renderer }));
-            expect(nodeEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'inlet/update', render: renderer }));
-            expect(nodeEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'outlet/add', render: renderer }));
-            expect(nodeEventsSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'outlet/update', render: renderer }));
 
         });
 
@@ -108,28 +80,21 @@ describe('registration: channel renderer', function() {
             var outlet = node.addOutlet('spec/foo', 'b');
             outlet.send('b');
 
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(addInletSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/add',
                     render: { show: renderShow }
                 }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+
+            expect(addOutletSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/update',
                     render: { show: renderShow }
                 }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(inletUpdateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'outlet/add',
                     render: { show: renderShow }
                 }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(outletUpdateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'outlet/update',
                     render: { show: renderShow }
                 }));
 
@@ -147,28 +112,20 @@ describe('registration: channel renderer', function() {
             var outlet = node.addOutlet('spec/foo', 'b');
             outlet.send('b');
 
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(addInletSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/add',
                     render: { edit: renderEdit }
                 }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(addOutletSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/update',
                     render: { edit: renderEdit }
                 }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(inletUpdateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'outlet/add',
                     render: { edit: renderEdit }
                 }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(outletUpdateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'outlet/update',
                     render: { edit: renderEdit }
                 }));
 
@@ -188,31 +145,23 @@ describe('registration: channel renderer', function() {
             var outlet = node.addOutlet('spec/foo', 'b');
             outlet.send('b');
 
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(addInletSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/add',
                     render: { show: renderShow,
                               edit: renderEdit }
                 }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(addOutletSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/update',
                     render: { show: renderShow,
                               edit: renderEdit }
                 }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(inletUpdateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'outlet/add',
                     render: { show: renderShow,
                               edit: renderEdit }
                 }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(outletUpdateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'outlet/update',
                     render: { show: renderShow,
                               edit: renderEdit }
                 }));
@@ -238,16 +187,12 @@ describe('registration: channel renderer', function() {
             expect(rendererGenSpy).toHaveBeenCalledOnce();
             expect(rendererGenSpy).toHaveBeenCalledWith(inletA);
 
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(addInletSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/add',
                     render: renderers['inlet-a']
                 }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(inletUpdateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/update',
                     render: renderers['inlet-a']
                 }));
 
@@ -257,16 +202,12 @@ describe('registration: channel renderer', function() {
             expect(rendererGenSpy).toHaveBeenCalledTwice();
             expect(rendererGenSpy).toHaveBeenCalledWith(inletB);
 
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(addInletSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/add',
                     render: renderers['inlet-b']
                 }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(inletUpdateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/update',
                     render: renderers['inlet-b']
                 }));
 
@@ -276,14 +217,11 @@ describe('registration: channel renderer', function() {
             expect(rendererGenSpy).toHaveBeenCalledTimes(3);
             expect(rendererGenSpy).toHaveBeenCalledWith(outletA);
 
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(addOutletSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'outlet/add',
                     render: renderers['outlet-a']
                 }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(outletUpdateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
                     type: 'outlet/update',
                     render: renderers['outlet-a']
@@ -304,52 +242,36 @@ describe('registration: channel renderer', function() {
             node.addInlet('spec/foo','b').receive('b');
             node.addOutlet('spec/foo','c').send('c');
 
-            expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(addInletSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/add',
                     render: jasmine.objectContaining({ show: renderShow })
                 }));
-            expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(addInletSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/add',
                     render: jasmine.objectContaining({ edit: renderEdit })
                 }));
-            expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(inletUpdateSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/update',
                     render: jasmine.objectContaining({ show: renderShow })
                 }));
-            expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(inletUpdateSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'inlet/update',
                     render: jasmine.objectContaining({ edit: renderEdit })
                 }));
-            expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(addOutletSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'outlet/add',
                     render: jasmine.objectContaining({ show: renderShow })
                 }));
-            expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(addOutletSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'outlet/add',
                     render: jasmine.objectContaining({ edit: renderEdit })
                 }));
-            expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(outletUpdateSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'outlet/update',
                     render: jasmine.objectContaining({ show: renderShow })
                 }));
-            expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
+            expect(outletUpdateSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'outlet/update',
                     render: jasmine.objectContaining({ edit: renderEdit })
                 }));
 

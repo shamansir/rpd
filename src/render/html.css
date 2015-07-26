@@ -1,4 +1,8 @@
-.rpd-model {
+.rpd-network {
+    margin: 0;
+}
+
+.rpd-patch {
     font-family: 'PT Mono', 'Andale Mono', 'Fira mono', 'Menlo', sans-serif;
     font-size: 0.7em;
     color: #111;
@@ -188,6 +192,14 @@
 
 .rpd-node:hover .rpd-remove-button {
     display: block;
+}
+
+.rpd-node.rpd-patch-reference .rpd-body {
+    cursor: pointer;
+}
+
+.rpd-node.rpd-patch-reference .rpd-body:hover {
+    color: #ccc;
 }
 
 /* QUARTZ COMPOSER LAYOUT STYLE */

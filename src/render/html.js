@@ -1,14 +1,14 @@
 (function() {
 
-var I = Rpd.Identity;
+var ƒ = Rpd.LazyId;
 
     // inlets/outlets are at the left/right sides of a node body
-var QUARTZ_LAYOUT = 'quartz',
+var QUARTZ_MODE = 'quartz',
     // inlets/outlets are at the top/bottom sides of a node body
-    PD_LAYOUT = 'pd';
+    PD_MODE = 'pd';
 
-var default_config = {
-    layout: QUARTZ_LAYOUT,
+var defaultConfig = {
+    mode: QUARTZ_MODE,
     // show inlet/outlet value only when user hovers over its connector
     // (always showing, by default)
     valuesOnHover: false,
@@ -39,29 +39,45 @@ var NODE_LAYER = 0,
 // ============================= HtmlRenderer ==================================
 // =============================================================================
 
-function HtmlRenderer(user_config) {
+var patchToRoot = {};
+var patches = {};
+
+var navigation = Navigation();
+
+function HtmlRenderer(patch) {
+
+patches[patch.id] = patch;
+
+return function(networkRoot, userConfig) {
 
     // these objects store elements and data corresponding to given nodes,
     // inlets, outlets, links as hashes, by their ID;
     // it's not pure functional way, especially in comparison to RPD engine code,
     // but in this case semi-imperative way appeared to be easier and faster;
-    // nodes:   { id: { elm, body, inletsTrg, outletsTrg, links }, ... }
+    // nodes:   { id: { elm, body, bodyTrg, inletsTrg, outletsTrg, links }, ... }
     // outlets: { id: { elm, valueElm, connectorElm, links }, ... }
     // inlets:  { id: { elm, valueElm, connectorElm, link  }, ... }
     // links:   { id: { elm, link  }, ... }
-    var nodes, outlets, inlets, links;
+    var nodes = {}, outlets = {}, inlets = {}, links = {};
 
-    var config = mergeConfig(user_config, default_config);
+    var config = mergeConfig(userConfig, defaultConfig);
 
     // Connections object manages only the run-time editing of the links,
     // it's completely written in FRP style;
     var connections = Connections();
 
+    // Layout determines where new node boxes will appear.
+    var layout = BoxLayout();
+
     var descriptions = Rpd.allDescriptions;
+
+    var root;
+
+    networkRoot.classList.add('rpd-network');
 
     return {
 
-        // the object below reacts on every Model event and constructs corresponding
+        // the object below reacts on every Patch event and constructs corresponding
         // HTML structures in response, or modifies them; some blocks of code
         // are really huge because of massive createElement, appendChild and stuff,
         // but I decided that it is the only way which needs no external library
@@ -70,17 +86,18 @@ function HtmlRenderer(user_config) {
         // looks massive;
 
         // =====================================================================
-        // ============================ model/new ==============================
+        // ======================== patch/is-ready =============================
         // =====================================================================
 
-        'model/new': function(root, update) {
-
-            nodes = {}; outlets = {}; inlets = {}, links = {};
+        'patch/is-ready': function(update) {
 
             /* <build HTML> */
 
-            root.classList.add('rpd-model');
-            if (config.layout) root.classList.add('rpd-layout-' + config.layout);
+            root = document.createElement('div');
+            patchToRoot[patch.id] = root;
+
+            root.classList.add('rpd-patch');
+            if (config.mode) root.classList.add('rpd-layout-' + config.mode);
             if (config.valuesOnHover) {
                 root.classList.add('rpd-values-on-hover');
             } else {
@@ -107,10 +124,57 @@ function HtmlRenderer(user_config) {
         },
 
         // =====================================================================
-        // ============================ node/add ===============================
+        // ============================ patch/enter ============================
         // =====================================================================
 
-        'node/add': function(root, update) {
+        'patch/enter': function(update) {
+            navigation.switch(update.patch);
+            networkRoot.appendChild(root);
+            updateAllLinks(nodes);
+        },
+
+        // =====================================================================
+        // ============================ patch/exit =============================
+        // =====================================================================
+
+        'patch/exit': function(update) {
+            networkRoot.removeChild(root);
+        },
+
+        // =====================================================================
+        // =========================== patch/project ===========================
+        // =====================================================================
+
+        // 'patch/project': function(update) { },
+
+        // =====================================================================
+        // ============================ patch/refer ============================
+        // =====================================================================
+
+        'patch/refer': function(update) {
+            var node = update.node;
+
+            var nodeElm = nodes[node.id].elm;
+            var bodyTrg = nodes[node.id].bodyTrg;
+
+            nodeElm.classList.add('rpd-patch-reference');
+
+            nodes[node.id].body.innerText = '[' + (update.target.name || update.target.id) + ']';
+
+            bodyTrg.addEventListener('click',
+                (function(current, target) {
+                    return function() {
+                        current.exit();
+                        target.enter();
+                    }
+                })(patch, update.target));
+        },
+
+        // =====================================================================
+        // ========================= patch/add-node ============================
+        // =====================================================================
+
+        'patch/add-node': function(update) {
 
             var node = update.node;
 
@@ -125,9 +189,9 @@ function HtmlRenderer(user_config) {
 
             var dragTrg;
 
-            var inletsTrg, outletsTrg, bodyElm, removeButton;
+            var bodyTrg, inletsTrg, outletsTrg, bodyElm, removeButton;
 
-            if (config.layout == QUARTZ_LAYOUT) {
+            if (config.mode == QUARTZ_MODE) {
 
                 // thead.rpd-title
                 //   tr.rpd-remove-button
@@ -159,7 +223,7 @@ function HtmlRenderer(user_config) {
                 //     td.rpd-inlets
                 //       table
                 //         tbody
-                //           ... (see inlet/add)
+                //           ... (see node/add-inlet)
                 //     td.rpd-body
                 //       table
                 //         tbody
@@ -169,7 +233,7 @@ function HtmlRenderer(user_config) {
                 //     td.rpd-outlets
                 //       table
                 //         tbody
-                //           ... (see outlet/add)
+                //           ... (see node/add-outlet)
 
                 var contentElm = quickElm('tbody', 'rpd-content');
                 var contentRow = quickElm('tr');
@@ -196,6 +260,8 @@ function HtmlRenderer(user_config) {
                 innerBodyTable.appendChild(innerBodyBody);
                 bodyCell.appendChild(innerBodyTable);
 
+                bodyTrg = bodyCell;
+
                 var outletsCell = quickElm('td', 'rpd-outlets');
                 var outletsTable = quickElm('table');
                 var outletsBody = quickElm('tbody');
@@ -215,14 +281,14 @@ function HtmlRenderer(user_config) {
 
                 dragTrg = headElm;
 
-            } else if (config.layout == PD_LAYOUT) {
+            } else if (config.mode == PD_MODE) {
 
                 // tr.rpd-inlets
                 //   td
                 //     table
                 //       tbody
                 //         tr
-                //           ... (see inlet/add)
+                //           ... (see node/add-inlet)
                 // tr.rpd-remove-button
                 //   td
                 // tr.rpd-content
@@ -241,7 +307,7 @@ function HtmlRenderer(user_config) {
                 //     table
                 //       tbody
                 //         tr
-                //           ... (see outlet/add)
+                //           ... (see node/add-outlet)
 
                 var inletsRow = quickElm('tr', 'rpd-inlets');
 
@@ -287,6 +353,8 @@ function HtmlRenderer(user_config) {
                 contentRow.appendChild(bodyCell);
                 nodeElm.appendChild(contentRow);
 
+                bodyTrg = bodyCell;
+
                 var outletsRow = quickElm('tr', 'rpd-outlets');
 
                 var outletsCell = quickElm('td');
@@ -315,8 +383,8 @@ function HtmlRenderer(user_config) {
             if (descriptions[node.type]) headCell.title = descriptions[node.type];
 
             // place node box wrapper in a suitable empty space in layout
-            applyNextNodeRect(node, nodeBox, nodeElm, config.boxSize,
-                              [ root.offsetWidth, root.offsetHeight ]);
+            layout.nextBox(node, nodeBox, nodeElm, config.boxSize,
+                           [ root.offsetWidth, root.offsetHeight ]);
 
             nodeBox.appendChild(nodeElm);
 
@@ -325,7 +393,7 @@ function HtmlRenderer(user_config) {
             // save node data
             nodes[node.id] = {
                 box: nodeBox, elm: nodeElm, body: bodyElm,
-                inletsTrg: inletsTrg, outletsTrg: outletsTrg,
+                bodyTrg: bodyTrg, inletsTrg: inletsTrg, outletsTrg: outletsTrg,
                 links: {} };
 
             if (node.render.html && node.render.html.always) {
@@ -345,38 +413,16 @@ function HtmlRenderer(user_config) {
             Kefir.fromEvents(removeButton, 'click')
                  .tap(stopPropagation)
                  .onValue(function() {
-                     Rpd.currentModel().removeNode(node);
+                     patch.removeNode(node);
                  });
 
         },
 
         // =====================================================================
-        // ============================ node/ready =============================
+        // ========================= patch/remove-node =========================
         // =====================================================================
 
-        // 'node/ready': function(root, update) { },
-
-        // =====================================================================
-        // ============================ node/process ===========================
-        // =====================================================================
-
-        'node/process': function(root, update) {
-
-            var node = update.node;
-
-            // update node body with custom renderer, if defined
-            if (node.render.html && node.render.html.always) {
-                var bodyElm = nodes[node.id].body;
-                node.render.html.always(bodyElm, update.inlets, update.outlets);
-            }
-
-        },
-
-        // =====================================================================
-        // ============================ node/remove ============================
-        // =====================================================================
-
-        'node/remove': function(root, update) {
+        'patch/remove-node': function(update) {
 
             var node = update.node;
 
@@ -395,10 +441,32 @@ function HtmlRenderer(user_config) {
         },
 
         // =====================================================================
-        // ============================ inlet/add ==============================
+        // ========================== node/is-ready ============================
         // =====================================================================
 
-        'inlet/add': function(root, update) {
+        // 'node/is-ready': function(update) { },
+
+        // =====================================================================
+        // =========================== node/process ============================
+        // =====================================================================
+
+        'node/process': function(update) {
+
+            var node = update.node;
+
+            // update node body with custom renderer, if defined
+            if (node.render.html && node.render.html.always) {
+                var bodyElm = nodes[node.id].body;
+                node.render.html.always(bodyElm, update.inlets, update.outlets);
+            }
+
+        },
+
+        // =====================================================================
+        // ========================= node/add-inlet ============================
+        // =====================================================================
+
+        'node/add-inlet': function(update) {
 
             var inlet = update.inlet;
 
@@ -412,7 +480,7 @@ function HtmlRenderer(user_config) {
 
             var inletElm, valueElm, connectorElm;
 
-            if (config.layout == QUARTZ_LAYOUT) {
+            if (config.mode == QUARTZ_MODE) {
 
                 // tr.rpd-inlet.rpd-stale
                 //   td.rpd-connector
@@ -432,7 +500,7 @@ function HtmlRenderer(user_config) {
                 inletElm.appendChild(quickElmVal('td', 'rpd-name', inlet.name));
                 if (config.showTypes) inletElm.appendChild(quickElmVal('td', 'rpd-type', inlet.type));
 
-            } else if (config.layout == PD_LAYOUT) {
+            } else if (config.mode == PD_MODE) {
 
                 // td.rpd-inlet.rpd-stale
                 //   span.rpd-connector
@@ -487,43 +555,16 @@ function HtmlRenderer(user_config) {
         },
 
         // =====================================================================
-        // ============================ inlet/remove ===========================
+        // ========================= node/remove-inlet =========================
         // =====================================================================
 
-        // 'inlet/remove': function(root, update) {},
+        // 'node/remove-inlet': function(update) {},
 
         // =====================================================================
-        // ============================ inlet/update ===========================
+        // ========================= node/add-outlet ===========================
         // =====================================================================
 
-        'inlet/update': function(root, update) {
-
-            var inlet = update.inlet;
-
-            if (inlet.hidden) return;
-
-            var inletData = inlets[inlet.id];
-            var inletElm = inletData.elm;
-
-            var valueElm = inletData.valueElm;
-
-            var valueRepr = inlet.def.show ? inlet.def.show(update.value) : update.value;
-            if (inlet.render.html && inlet.render.html.show) {
-                inlet.render.html.show(valueElm, update.value, valueRepr);
-            } else {
-                valueElm.innerText = valueElm.textContent = valueRepr;
-            }
-
-            // adds `rpd-fresh` CSS class and removes it by timeout
-            valueUpdateEffect(inletData, inletElm, config.effectTime);
-
-        },
-
-        // =====================================================================
-        // ============================ outlet/add =============================
-        // =====================================================================
-
-        'outlet/add': function(root, update) {
+        'node/add-outlet': function(update) {
 
             var outlet = update.outlet;
 
@@ -534,7 +575,7 @@ function HtmlRenderer(user_config) {
 
             var outletElm, valueElm, connectorElm;
 
-            if (config.layout == QUARTZ_LAYOUT) {
+            if (config.mode == QUARTZ_MODE) {
 
                 // tr.rpd-outlet.rpd-stale
                 //   td.rpd-connector
@@ -551,7 +592,7 @@ function HtmlRenderer(user_config) {
                 outletElm.appendChild(valueElm);
                 outletElm.appendChild(connectorElm);
 
-            } else if (config.layout == PD_LAYOUT) {
+            } else if (config.mode == PD_MODE) {
 
                 // td.rpd-outlet.rpd-stale
                 //   span.rpd-connector
@@ -587,16 +628,43 @@ function HtmlRenderer(user_config) {
         },
 
         // =====================================================================
-        // ============================ outlet/remove ==========================
+        // ========================= node/remove-outlet ========================
         // =====================================================================
 
-        // 'outlet/remove': function(root, update) {},
+        // 'node/remove-outlet': function(update) {},
 
         // =====================================================================
-        // ============================ outlet/update ==========================
+        // =========================== inlet/update ============================
         // =====================================================================
 
-        'outlet/update': function(root, update) {
+        'inlet/update': function(update) {
+
+            var inlet = update.inlet;
+
+            if (inlet.hidden) return;
+
+            var inletData = inlets[inlet.id];
+            var inletElm = inletData.elm;
+
+            var valueElm = inletData.valueElm;
+
+            var valueRepr = inlet.def.show ? inlet.def.show(update.value) : update.value;
+            if (inlet.render.html && inlet.render.html.show) {
+                inlet.render.html.show(valueElm, update.value, valueRepr);
+            } else {
+                valueElm.innerText = valueElm.textContent = valueRepr;
+            }
+
+            // adds `rpd-fresh` CSS class and removes it by timeout
+            valueUpdateEffect(inletData, inletElm, config.effectTime);
+
+        },
+
+        // =====================================================================
+        // =========================== outlet/update ===========================
+        // =====================================================================
+
+        'outlet/update': function(update) {
 
             var outlet = update.outlet;
 
@@ -619,10 +687,10 @@ function HtmlRenderer(user_config) {
         },
 
         // =====================================================================
-        // ============================ outlet/connect =========================
+        // =========================== outlet/connect ==========================
         // =====================================================================
 
-        'outlet/connect': function(root, update) {
+        'outlet/connect': function(update) {
 
             var link = update.link;
             var outlet = link.outlet;
@@ -665,10 +733,10 @@ function HtmlRenderer(user_config) {
         },
 
         // =====================================================================
-        // ============================ outlet/disconnect ======================
+        // ========================== outlet/disconnect ========================
         // =====================================================================
 
-        'outlet/disconnect': function(root, update) {
+        'outlet/disconnect': function(update) {
 
             var link = update.link;
             var linkElm = links[link.id].elm;
@@ -698,7 +766,7 @@ function HtmlRenderer(user_config) {
         // ============================ link/enable ============================
         // =====================================================================
 
-        'link/enable': function(root, update) {
+        'link/enable': function(update) {
             var link = update.link;
             var linkElm = links[link.id].elm;
             linkElm.classList.remove('rpd-disabled');
@@ -708,7 +776,7 @@ function HtmlRenderer(user_config) {
         // ============================ link/disable ===========================
         // =====================================================================
 
-        'link/disable': function(root, update) {
+        'link/disable': function(update) {
             var link = update.link;
             var linkElm = links[link.id].elm;
             linkElm.classList.add('rpd-disabled');
@@ -718,13 +786,13 @@ function HtmlRenderer(user_config) {
         // ============================ link/adapt =============================
         // =====================================================================
 
-        // 'link/adapt': function(root, update) {},
+        // 'link/adapt': function(update) {},
 
         // =====================================================================
         // ============================ link/error =============================
         // =====================================================================
 
-        // 'link/error': function(root, update) {}
+        // 'link/error': function(update) {}
 
     }; // return
 
@@ -770,7 +838,7 @@ function HtmlRenderer(user_config) {
                                     Kefir.fromEvents(root, 'click')
                                          .merge(disableEditor)
                                          .mapTo(false) ])
-                               .toProperty(I(false))
+                               .toProperty(ƒ(false))
                                .skipDuplicates() ])
              .map(function(val) { return { lastValue: val[0],
                                            startEditing: val[1],
@@ -831,7 +899,7 @@ function HtmlRenderer(user_config) {
                 startLink = Kefir.emitter(),
                 finishLink = Kefir.emitter(),
                 doingLink = Kefir.merge([ startLink.mapTo(true),
-                                          finishLink.mapTo(false) ]).toProperty(I(false));
+                                          finishLink.mapTo(false) ]).toProperty(ƒ(false));
 
             },
             subscribeOutlet: function(outlet, connector) {
@@ -943,7 +1011,7 @@ function HtmlRenderer(user_config) {
         if (!subscriptions) return;
         for (var alias in subscriptions) {
             (function(subscription, alias) {
-                node.event['inlet/add']
+                node.event['node/add-inlet']
                     .filter(function(inlet) { return inlet.alias === alias; })
                     .onValue(function(inlet) {
                         if (subscription.default) inlet.receive(subscription.default());
@@ -980,6 +1048,14 @@ function HtmlRenderer(user_config) {
             outletPos = getPos(outletConnector);
             rotateLink(linkElm, outletPos.x, outletPos.y, inletPos.x, inletPos.y);
         });
+    }
+
+    function updateAllLinks(nodes) {
+        var nodeLinks;
+        for (var id in nodes) {
+            nodeLinks = nodes[id].links;
+            updateLinks(nodes[id], nodeLinks);
+        }
     }
 
     function addDragNDrop(node, root, handle, box) {
@@ -1084,7 +1160,7 @@ function HtmlRenderer(user_config) {
                     Kefir.fromEvents(addButton, 'click')
                          .tap(stopPropagation)
                          .onValue(function() {
-                             (new Rpd.Node(nodeType));
+                             patch.addNode(nodeType);
                          });
                 })(nodeType);
 
@@ -1117,8 +1193,39 @@ function HtmlRenderer(user_config) {
         root.appendChild(collapseButton);
     }
 
-} // function
+} // function(target, config)
 
+} // function(patch)
+
+
+// ============================== Navigation ===============================
+// =========================================================================
+
+function Navigation() {
+
+    var current;
+
+    var instance = {
+        'switch': function(target) {
+            if (!target) return;
+            current = target;
+            window.location.hash = target.id;
+        }
+    };
+
+    Kefir.fromEvents(window, 'hashchange')
+         .map(function() { return (window.location.hash ? window.location.hash.slice(1) : null); })
+         .onValue(function(new_hash) {
+             if (current && (new_hash === current.id)) return;
+             var target = patches[new_hash];
+             if (target) {
+                 if (current) current.exit();
+                 target.enter();
+             }
+         });
+
+    return instance;
+}
 
 // ================================ utils ======================================
 // =============================================================================
@@ -1201,46 +1308,41 @@ var default_width = 1, // in boxes
     default_y_margin = 1, // in boxes
     default_limits = [ 1000, 1000 ]; // in pixels
 
-var node_rects = [];
+function BoxLayout() {
 
-function applyNextNodeRect(node, nodeBox, nodeElm, boxSize, limits) {
-    var width =  (node.def.width  || default_width)  * boxSize[0],
-        height = (node.def.height || default_height) * boxSize[1];
-    var last_rect = (node_rects.length ? node_rects[node_rects.length-1] : null);
-    var new_rect = [ /* x */ last_rect ? last_rect[0] : 0,
-                     /* y */ last_rect ? (last_rect[1] + last_rect[3] + (default_y_margin * boxSize[1])) : 0,
-                     width,
-                     height ];
-    if ((new_rect[1] + boxSize[1]) > limits[1]) {
-        new_rect[0] = new_rect[0] + width + (default_x_margin * boxSize[0]);
-        new_rect[1] = 0;
+    var node_rects = [];
+
+    return {
+        nextBox: function(node, nodeBox, nodeElm, boxSize, limits) {
+            var width =  (node.def.width  || default_width)  * boxSize[0],
+                height = (node.def.height || default_height) * boxSize[1];
+            var last_rect = (node_rects.length ? node_rects[node_rects.length-1] : null);
+            var new_rect = [ /* x */ last_rect ? last_rect[0] : 0,
+                             /* y */ last_rect ? (last_rect[1] + last_rect[3] + (default_y_margin * boxSize[1])) : 0,
+                             width,
+                             height ];
+            if ((new_rect[1] + boxSize[1]) > limits[1]) {
+                new_rect[0] = new_rect[0] + width + (default_x_margin * boxSize[0]);
+                new_rect[1] = 0;
+            }
+            node_rects.push(new_rect);
+            // relative positioning
+            nodeBox.style.left = Math.floor(new_rect[0]) + 'px';
+            nodeBox.style.top  = Math.floor(new_rect[1]) + 'px';
+            nodeElm.style.minWidth  = Math.floor(new_rect[2]) + 'px';
+            nodeElm.style.minHeight = Math.floor(new_rect[3]) + 'px';
+            node_rects.push(new_rect);
+        }
     }
-    node_rects.push(new_rect);
-    // relative positioning
-    nodeBox.style.left = Math.floor(new_rect[0]) + 'px';
-    nodeBox.style.top  = Math.floor(new_rect[1]) + 'px';
-    nodeElm.style.minWidth  = Math.floor(new_rect[2]) + 'px';
-    nodeElm.style.minHeight = Math.floor(new_rect[3]) + 'px';
-    node_rects.push(new_rect);
-}
+
+};
+
 
 // =========================== registration ====================================
 // =============================================================================
 
 Rpd.HtmlRenderer = HtmlRenderer;
 
-Rpd.renderer('html', function(user_conf) {
-
-    var instance = HtmlRenderer(user_conf);
-
-    return function(root, update) {
-
-        if (instance[update.type]) {
-            instance[update.type](root, update);
-        }
-
-    }
-
-});
+Rpd.renderer('html', HtmlRenderer);
 
 })();
