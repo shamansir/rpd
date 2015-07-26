@@ -130,6 +130,7 @@ return function(networkRoot, userConfig) {
         'patch/enter': function(update) {
             navigation.switch(update.patch);
             networkRoot.appendChild(root);
+            updateAllLinks(nodes);
         },
 
         // =====================================================================
@@ -1047,6 +1048,14 @@ return function(networkRoot, userConfig) {
             outletPos = getPos(outletConnector);
             rotateLink(linkElm, outletPos.x, outletPos.y, inletPos.x, inletPos.y);
         });
+    }
+
+    function updateAllLinks(nodes) {
+        var nodeLinks;
+        for (var id in nodes) {
+            nodeLinks = nodes[id].links;
+            updateLinks(nodes[id], nodeLinks);
+        }
     }
 
     function addDragNDrop(node, root, handle, box) {
