@@ -118,8 +118,6 @@ return function(networkRoot, userConfig) {
 
             Kefir.fromEvents(root, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
 
-            networkRoot.appendChild(root);
-
         },
 
         // =====================================================================

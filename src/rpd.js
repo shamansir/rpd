@@ -68,7 +68,7 @@ function Patch(name) {
     this.events = events_stream(event_conf, this.event);
 
     this.renderQueue = Kefir.emitter();
-    Kefir.combine([ this.events ],
+    var renderStream = Kefir.combine([ this.events ],
                   [ this.renderQueue.scan(function(renderers, event) {
                         var alias = event[0], target = event[1], configuration = event[2];
                         var renderer = renderers[alias];
@@ -86,24 +86,19 @@ function Patch(name) {
                             );
                         }
                         return renderers;
-                    }, { }) ])
-         .bufferWhileBy(Kefir.merge([
-                            this.event['patch/enter'].map(ƒ(false)),
-                            this.event['patch/exit'].map(ƒ(true)).delay(0) // let exit event get into combined stream
-                        ]),
-                        { flushOnChange: true }).flatten()
-         .onValue(function(value) {
-            var event = value[0], renderers = value[1];
-            var aliases = Object.keys(renderers);
-            var renderer, handlers;
-            for (var i = 0, il = aliases.length; i < il; i++) {
-                renderer = renderers[aliases[i]]; handlers = renderer.handlers;
-                for (var j = 0, jl = handlers.length; j < jl; j++) {
-                    handlers[j](inject_render(event, aliases[i]));
-                }
-            }
-        }
-    );
+                    }, { }) ]);
+    renderStream = renderStream.bufferBy(this.renderQueue).take(1).flatten().concat(renderStream);
+    renderStream.onValue(function(value) {
+                    var event = value[0], renderers = value[1];
+                    var aliases = Object.keys(renderers);
+                    var renderer, handlers;
+                    for (var i = 0, il = aliases.length; i < il; i++) {
+                        renderer = renderers[aliases[i]]; handlers = renderer.handlers;
+                        for (var j = 0, jl = handlers.length; j < jl; j++) {
+                            handlers[j](inject_render(event, aliases[i]));
+                        }
+                    }
+                });
 
     this.projections = Kefir.emitter();
     Kefir.combine(
