@@ -111,14 +111,18 @@ function Patch(name) {
           this.event['patch/set-outputs'] ]
     ).onValue(function(value) {
         var node = value[0], inputs = value[1], outputs = value[2];
-        var inlet, outlet;
+        var inlet, outlet, input, output;
         for (var i = 0; i < inputs.length; i++) {
             inlet = node.addInlet(inputs[i].type, inputs[i].name);
-            inlet.event['inlet/update'].onValue(function(val) { inputs[i].receive(val); });
+            inlet.event['inlet/update'].onValue((function(input) {
+                return function(val) { input.receive(val); };
+            })(inputs[i]));
         } // use inlet.onUpdate?
         for (i = 0; i < outputs.length; i++) {
-            outlet = node.addOutlet(outputs[i].type, inputs[i].name);
-            outlet.event['outlet/update'].onValue(function(val) { outputs[i].send(val); });
+            outlet = node.addOutlet(outputs[i].type, outputs[i].name);
+            outlet.event['outlet/update'].onValue((function(output) {
+                return function(val) { output.send(val); };
+            })(outputs[i]));
         } // use outlet.onUpdate?
         myself.event['patch/project'].emit([ node, inputs, outputs ]);
         node.patch.event['patch/refer'].emit([ node, myself ]);
