@@ -67,6 +67,7 @@ function Patch(name) {
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
 
+    // this stream controls the way patch events reach the assigned renderer
     this.renderQueue = Kefir.emitter();
     var renderStream = Kefir.combine([ this.events ],
                   [ this.renderQueue.scan(function(renderers, event) {
@@ -87,6 +88,7 @@ function Patch(name) {
                         }
                         return renderers;
                     }, { }) ]);
+    // we need to wait for first renderer and then push buffered events to it
     renderStream = renderStream.bufferBy(this.renderQueue).take(1).flatten().concat(renderStream);
     renderStream.onValue(function(value) {
                     var event = value[0], renderers = value[1];
@@ -100,6 +102,9 @@ function Patch(name) {
                     }
                 });
 
+    // projections are connections between different patches; patch inlets looking in the outer
+    // world are called "inputs" here, and outlets looking in the outer world are, correspondingly,
+    // called "outlets"
     this.projections = Kefir.emitter();
     Kefir.combine(
         [ this.projections ],
