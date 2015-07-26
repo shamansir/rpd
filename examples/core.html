@@ -17,9 +17,8 @@
 
     <body>
         <script>
-            var model = Rpd.Model.start().attachTo(document.body)
-                                         .renderWith('html', { /* layout: 'pd' */ })
-                                         .enter();
+            var model = Rpd.addPatch().render('html', document.body,  { /* mode: 'pd' */ })
+                                      .enter();
 
             var genA = model.addNode('core/custom', 'Generate A');
             var outA = genA.addOutlet('core/number', 'A');

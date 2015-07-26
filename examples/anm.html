@@ -24,10 +24,7 @@
 
     <body>
         <script>
-            var model = Rpd.Model.start().attachTo(document.body)
-                                         .renderWith('html', { layout: 'pd' } );
-
-
+            Rpd.addPatch().render('html', document.body, { mode: 'pd' });
         </script>
     </body>
 </html>
