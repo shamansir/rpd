@@ -91,7 +91,8 @@ function Patch(name) {
                             this.event['patch/enter'].map(ƒ(false)),
                             this.event['patch/exit'].map(ƒ(true)).delay(0) // let exit event get into combined stream
                         ]),
-                        { flushOnChange: true }).flatten().onValue(function(value) {
+                        { flushOnChange: true }).flatten()
+         .onValue(function(value) {
             var event = value[0], renderers = value[1];
             var aliases = Object.keys(renderers);
             var renderer, handlers;
