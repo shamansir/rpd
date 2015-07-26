@@ -115,15 +115,19 @@ function Patch(name) {
         for (var i = 0; i < inputs.length; i++) {
             inlet = node.addInlet(inputs[i].type, inputs[i].name);
             inlet.event['inlet/update'].onValue((function(input) {
-                return function(val) { input.receive(val); };
+                return function(val) {
+                    input.receive(val);
+                };
             })(inputs[i]));
         } // use inlet.onUpdate?
         for (i = 0; i < outputs.length; i++) {
             outlet = node.addOutlet(outputs[i].type, outputs[i].name);
-            outlet.event['outlet/update'].onValue((function(output) {
-                return function(val) { output.send(val); };
-            })(outputs[i]));
-        } // use outlet.onUpdate?
+            outputs[i].event['outlet/update'].onValue((function(outlet) {
+                return function(val) {
+                    outlet.send(val);
+                };
+            })(outlet));
+        } // use output.onUpdate?
         myself.event['patch/project'].emit([ node, inputs, outputs ]);
         node.patch.event['patch/refer'].emit([ node, myself ]);
     });
