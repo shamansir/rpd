@@ -81,10 +81,14 @@ function Patch(name) {
                         }
                         if (renderer.produce) {
                             var handler = renderer.produce(target, configuration);
-                            renderer.handlers.push(
-                                (typeof handler === 'function') ? handler
-                                                                : function(event) { if (handler[event.type]) handler[event.type](event); }
-                            );
+                            //if (handler) {
+                                renderer.handlers.push(
+                                    (typeof handler === 'function') ? handler
+                                                                    : function(event) {
+                                                                        if (handler[event.type]) handler[event.type](event);
+                                                                      }
+                                );
+                            //}
                         }
                         return renderers;
                     }, { }) ]);
