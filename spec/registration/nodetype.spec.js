@@ -6,12 +6,6 @@ describe('registration: node type', function() {
         }).not.toThrow();
     });
 
-    it('one could define name for it');
-
-    it('redefining the type re-writes previous type');
-
-    it('passes the specified name to every created instance');
-
     it('creates specified inlets for the node instance', function() {
         Rpd.nodetype('spec/foo', {
             inlets: {
@@ -20,14 +14,13 @@ describe('registration: node type', function() {
             }
         });
 
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
 
-            var node = model.addNode('spec/foo');
+            var node = patch.addNode('spec/foo');
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining(
-                    { type: 'inlet/add',
+                    { type: 'node/add-inlet',
                       inlet: jasmine.objectContaining({
                           name: 'a',
                           type: 'spec/any'
@@ -35,9 +28,8 @@ describe('registration: node type', function() {
             );
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining(
-                    { type: 'inlet/add',
+                    { type: 'node/add-inlet',
                       inlet: jasmine.objectContaining({
                           name: 'b',
                           type: 'spec/any'
@@ -56,14 +48,13 @@ describe('registration: node type', function() {
             }
         });
 
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
 
-            var node = model.addNode('spec/foo');
+            var node = patch.addNode('spec/foo');
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining(
-                    { type: 'outlet/add',
+                    { type: 'node/add-outlet',
                       outlet: jasmine.objectContaining({
                           name: 'a',
                           type: 'spec/any'
@@ -71,9 +62,8 @@ describe('registration: node type', function() {
             );
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
                 jasmine.objectContaining(
-                    { type: 'outlet/add',
+                    { type: 'node/add-outlet',
                       outlet: jasmine.objectContaining({
                           name: 'b',
                           type: 'spec/any'
@@ -92,14 +82,14 @@ describe('registration: node type', function() {
                        'd': { type: 'spec/any' } }
         });
 
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
 
-            var node = model.addNode('spec/foo');
+            var node = patch.addNode('spec/foo');
 
             expect(updateSpy).toHaveBeenOrderlyCalledWith([
-                [ jasmine.anything(), jasmine.objectContaining({ type: 'inlet/add' }) ],
-                [ jasmine.anything(), jasmine.objectContaining({ type: 'outlet/add' }) ],
-                [ jasmine.anything(), jasmine.objectContaining({ type: 'node/ready' }) ]
+                [ jasmine.objectContaining({ type: 'node/add-inlet' }) ],
+                [ jasmine.objectContaining({ type: 'node/add-outlet' }) ],
+                [ jasmine.objectContaining({ type: 'node/is-ready' }) ]
             ]);
 
         });
@@ -112,17 +102,16 @@ describe('registration: node type', function() {
             outlets: { 'b': { type: 'spec/any' } }
         });
 
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
 
-            var node = model.addNode('spec/foo');
+            var node = patch.addNode('spec/foo');
 
             updateSpy.calls.reset();
 
             node.addInlet('spec/any', 'foo');
 
             expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({ type: 'node/ready' }));
+                jasmine.objectContaining({ type: 'node/is-ready' }));
 
         });
     });
@@ -134,28 +123,14 @@ describe('registration: node type', function() {
             outlets: { 'c': { type: 'spec/any' } }
         });
 
-        withNewModel(function(model, updateSpy) {
-            var node = model.addNode('spec/foo');
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/foo');
             expect(node.inlets['a']).toBeDefined();
             expect(node.inlets['b']).toBeDefined();
             expect(node.inlets['c']).not.toBeDefined();
             expect(node.outlets['c']).toBeDefined();
         });
     });
-
-    it('could be a function which is called for every new node and returns type description');
-
-    it('informs inlet was updated when its default value was set');
-
-    it('informs outlet was updated when its default value was set');
-
-    it('accepts streams as default values for inlets');
-
-    it('accepts streams as default values for outlets');
-
-    it('still informs about update when inlet is hidden');
-
-    it('still informs about update when inlet is cold');
 
     describe('processing function', function() {
 
@@ -170,8 +145,8 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
-                var node = model.addNode('spec/foo');
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/foo');
                 processSpy.and.callFake(function() {
                     expect(this).toBe(node);
                 });
@@ -189,8 +164,8 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
-                var node = model.addNode('spec/foo');
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/foo');
                 expect(processSpy).not.toHaveBeenCalled();
             });
 
@@ -205,8 +180,8 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
-                var node = model.addNode('spec/foo');
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/foo');
                 expect(processSpy).not.toHaveBeenCalled();
             });
 
@@ -220,8 +195,8 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
-                var node = model.addNode('spec/foo');
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/foo');
                 expect(processSpy).toHaveBeenCalledWith({ 'a': 10 }, jasmine.anything());
                 expect(processSpy).toHaveBeenCalledOnce();
             });
@@ -236,14 +211,14 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
+            withNewPatch(function(patch, updateSpy) {
 
                 var ensureExecuted = handleNextCalls(processSpy, [
                     function() { expect(processSpy).toHaveBeenCalledWith({ 'a': 10 }, jasmine.anything()); },
                     function() { expect(processSpy).toHaveBeenCalledWith({ 'a': 10, 'b': 5 }, jasmine.anything()); }
                 ]);
 
-                var node = model.addNode('spec/foo');
+                var node = patch.addNode('spec/foo');
 
                 ensureExecuted();
 
@@ -260,8 +235,8 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
-                var node = model.addNode('spec/foo');
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/foo');
                 expect(processSpy).toHaveBeenCalledTwice();
             });
 
@@ -275,9 +250,9 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
+            withNewPatch(function(patch, updateSpy) {
 
-                var node = model.addNode('spec/foo');
+                var node = patch.addNode('spec/foo');
 
                 node.inlets['a'].receive(2);
                 expect(processSpy).toHaveBeenCalledWith({ a: 2 }, jasmine.anything());
@@ -297,11 +272,10 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
-                var node = model.addNode('spec/foo');
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/foo');
                 var outlet = node.outlets['c'];
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outlet,
@@ -326,9 +300,9 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
-                updateSpy.and.callFake(function(trg, update) {
-                    if (update.type === 'node/ready') {
+            withNewPatch(function(patch, updateSpy) {
+                updateSpy.and.callFake(function(update) {
+                    if (update.type === 'node/is-ready') {
                         expect(processSpy).not.toHaveBeenCalled();
                         nodeReady = true;
                     } else if (!nodeReady) {
@@ -336,7 +310,7 @@ describe('registration: node type', function() {
                     }
                 }.bind(this));
 
-                var node = model.addNode('spec/foo');
+                var node = patch.addNode('spec/foo');
 
                 expect(updateSpy).toHaveBeenCalled();
                 expect(processSpy).toHaveBeenCalled();
@@ -352,7 +326,7 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
+            withNewPatch(function(patch, updateSpy) {
 
                 var ensureExecuted = handleNextCalls(processSpy, [
                     function() { expect(processSpy).toHaveBeenCalledWith({ char: values[0] }, jasmine.anything()); },
@@ -360,7 +334,7 @@ describe('registration: node type', function() {
                     function() { expect(processSpy).toHaveBeenCalledWith({ char: values[2] }, jasmine.anything()); }
                 ]);
 
-                var node = model.addNode('spec/foo');
+                var node = patch.addNode('spec/foo');
 
                 setTimeout(function() {
                     ensureExecuted();
@@ -379,9 +353,9 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
+            withNewPatch(function(patch, updateSpy) {
 
-                var node = model.addNode('spec/foo');
+                var node = patch.addNode('spec/foo');
 
                 var ensureExecuted = handleNextCalls(processSpy, [
                     function() { expect(processSpy).toHaveBeenCalledWith({ char: values[0] }, jasmine.anything()); },
@@ -405,8 +379,8 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
-                var node = model.addNode('spec/foo');
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/foo');
                 node.inlets['char'].receive('b');
                 expect(processSpy).toHaveBeenCalledWith(
                     jasmine.objectContaining({ char: 'b' }),
@@ -428,8 +402,8 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
-                var node = model.addNode('spec/foo');
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/foo');
                 expect(processSpy).toHaveBeenCalledWith(
                     jasmine.objectContaining({ char: 'a' }),
                     jasmine.anything()
@@ -452,21 +426,18 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
-                var node = model.addNode('spec/foo');
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/foo');
                 expect(processSpy).not.toHaveBeenCalledWith(
-                    jasmine.objectContaining({ foo: 'a' }),
-                    jasmine.anything()
+                    jasmine.objectContaining({ foo: 'a' })
                 );
                 node.inlets['foo'].receive('b');
                 expect(processSpy).not.toHaveBeenCalledWith(
-                    jasmine.objectContaining({ foo: 'b' }),
-                    jasmine.anything()
+                    jasmine.objectContaining({ foo: 'b' })
                 );
                 node.inlets['bar'].receive(12);
                 expect(processSpy).not.toHaveBeenCalledWith(
-                    jasmine.objectContaining({ bar: 12 }),
-                    jasmine.anything()
+                    jasmine.objectContaining({ bar: 12 })
                 );
                 node.inlets['buz'].receive('jazz');
                 expect(processSpy).toHaveBeenCalledWith(
@@ -475,8 +446,6 @@ describe('registration: node type', function() {
                 );
             });
         });
-
-        it('does not react if updated inlet was cold and contained a stream, but keeps its value for next update');
 
         it('passes values to corresponding outlets based on default inlets values', function() {
 
@@ -491,16 +460,15 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
+            withNewPatch(function(patch, updateSpy) {
 
-                var node = model.addNode('spec/foo');
+                var node = patch.addNode('spec/foo');
 
                 var outlet = node.outlets['c'];
 
                 expect(processSpy).toHaveBeenCalled();
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outlet,
@@ -509,7 +477,6 @@ describe('registration: node type', function() {
                 );
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outlet,
@@ -536,9 +503,9 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
+            withNewPatch(function(patch, updateSpy) {
 
-                var node = model.addNode('spec/foo');
+                var node = patch.addNode('spec/foo');
 
                 node.inlets['a'].receive(7);
                 node.inlets['b'].receive(2);
@@ -550,7 +517,6 @@ describe('registration: node type', function() {
                 expect(processSpy).toHaveBeenCalled();
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletC,
@@ -559,7 +525,6 @@ describe('registration: node type', function() {
                 );
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletC,
@@ -568,7 +533,6 @@ describe('registration: node type', function() {
                 );
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletC,
@@ -577,7 +541,6 @@ describe('registration: node type', function() {
                 );
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletD,
@@ -586,7 +549,6 @@ describe('registration: node type', function() {
                 );
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletD,
@@ -595,7 +557,6 @@ describe('registration: node type', function() {
                 );
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outletD,
@@ -625,9 +586,9 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
+            withNewPatch(function(patch, updateSpy) {
 
-                var node = model.addNode('spec/foo');
+                var node = patch.addNode('spec/foo');
 
                 node.inlets['in'].receive(7);
 
@@ -638,7 +599,6 @@ describe('registration: node type', function() {
                 setTimeout(function() {
                     for (var i = 0; i < values.length; i++) {
                         expect(updateSpy).toHaveBeenCalledWith(
-                            jasmine.anything(),
                             jasmine.objectContaining({ type: 'outlet/update',
                                                        outlet: outlet,
                                                        value: values[i] * 7 }));
@@ -664,9 +624,9 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
+            withNewPatch(function(patch, updateSpy) {
 
-                var node = model.addNode('spec/foo');
+                var node = patch.addNode('spec/foo');
 
                 node.inlets['a'].receive(7);
                 node.inlets['b'].receive(2);
@@ -677,7 +637,6 @@ describe('registration: node type', function() {
                 expect(processSpy).toHaveBeenCalled();
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
                         type: 'node/process',
                         inlets: { a: 7, b : 2 },
@@ -687,10 +646,6 @@ describe('registration: node type', function() {
 
             });
         });
-
-        it('updates the outlet value even when processing function was executed before this outlet was created');
-
-        it('switches off previous stream when new one was plugged to outlet');
 
         it('if no outlet was updated, does not fire the update for this outlet', function() {
 
@@ -706,9 +661,9 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
+            withNewPatch(function(patch, updateSpy) {
 
-                var node = model.addNode('spec/foo');
+                var node = patch.addNode('spec/foo');
 
                 node.inlets['b'].receive(7);
 
@@ -732,14 +687,13 @@ describe('registration: node type', function() {
                 process: processSpy
             });
 
-            withNewModel(function(model, updateSpy) {
+            withNewPatch(function(patch, updateSpy) {
 
-                var node = model.addNode('spec/foo');
+                var node = patch.addNode('spec/foo');
 
                 node.inlets['b'].receive(12);
 
                 expect(updateSpy).not.toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({ type: 'outlet/update' })
                 );
 
@@ -756,8 +710,6 @@ describe('registration: node type', function() {
             });
         });
 
-        it('is not bound to the types of the values inlets or outlets receive');
-
         it('one could add inlets or outlets from the inside', function() {
             Rpd.nodetype('spec/foo', {
                 inlets: { 'a': { type: 'spec/any', hidden: true } }, // force call to process function
@@ -766,15 +718,14 @@ describe('registration: node type', function() {
                         })
             });
 
-            withNewModel(function(model, updateSpy) {
+            withNewPatch(function(patch, updateSpy) {
 
-                var node = model.addNode('spec/foo');
+                var node = patch.addNode('spec/foo');
                 node.inlets['a'].receive(2); // force call to process function
 
                 expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.anything(),
                     jasmine.objectContaining({
-                        type: 'inlet/add',
+                        type: 'node/add-inlet',
                         inlet: jasmine.objectContaining({ 'name': 'bar' })
                     })
                 );
@@ -802,9 +753,9 @@ describe('registration: node type', function() {
             });
 
 
-            withNewModel(function(model, updateSpy) {
+            withNewPatch(function(patch, updateSpy) {
 
-                var node = model.addNode('spec/foo');
+                var node = patch.addNode('spec/foo');
 
                 node.inlets['a'].receive(0);
                 expect(processSpy).toHaveBeenCalledWith(
@@ -834,8 +785,6 @@ describe('registration: node type', function() {
 
         });
 
-        it('incoming values stream still could be tuned even when they\'re streamed');
-
     });
 
     it('updates could be handled with custom handle function', function() {
@@ -851,10 +800,10 @@ describe('registration: node type', function() {
             }
         });
 
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
 
-            var firstNode = model.addNode('spec/foo');
-            var secondNode = model.addNode('spec/foo');
+            var firstNode = patch.addNode('spec/foo');
+            var secondNode = patch.addNode('spec/foo');
 
             var fromOutlet = firstNode.outlets['out'];
             var toInlet = secondNode.inlets['in'];
@@ -885,15 +834,15 @@ describe('registration: node type', function() {
             prepare: prepareSpy
         });
 
-        withNewModel(function(model, updateSpy) {
+        withNewPatch(function(patch, updateSpy) {
 
             updateSpy.and.callFake(function(update) {
-                if (update.type === 'node/ready') {
+                if (update.type === 'node/is-ready') {
                     expect(prepareSpy).toHaveBeenCalled();
                 }
             });
 
-            var node = model.addNode('spec/foo');
+            var node = patch.addNode('spec/foo');
 
             expect(prepareSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({

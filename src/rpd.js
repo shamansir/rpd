@@ -39,7 +39,9 @@ function addPatch(name) {
 
 function render(aliases, targets, conf) {
     rendering.emit([ aliases, targets, conf ]);
-    event['network/add-patch'].onValue(function(patch) { patch.render(aliases, targets, conf); });
+    var handler = function(patch) { patch.render(aliases, targets, conf); };
+    event['network/add-patch'].onValue(handler);
+    return function() { event['network/add-patch'].offValue(handler); };
 }
 
 // ================================== Patch ====================================
@@ -65,8 +67,9 @@ function Patch(name) {
     this.event = event_map(event_conf);
     this.events = events_stream(event_conf, this.event);
 
+    // this stream controls the way patch events reach the assigned renderer
     this.renderQueue = Kefir.emitter();
-    Kefir.combine([ this.events ],
+    var renderStream = Kefir.combine([ this.events ],
                   [ this.renderQueue.scan(function(renderers, event) {
                         var alias = event[0], target = event[1], configuration = event[2];
                         var renderer = renderers[alias];
@@ -76,26 +79,36 @@ function Patch(name) {
                             renderer.handlers = [];
                             renderers[alias] = renderer;
                         }
-                        renderer.handlers.push(renderer.produce(target, configuration));
+                        if (renderer.produce) {
+                            var handler = renderer.produce(target, configuration);
+                            if (handler) {
+                                renderer.handlers.push(
+                                    (typeof handler === 'function') ? handler
+                                                                    : function(event) {
+                                                                        if (handler[event.type]) handler[event.type](event);
+                                                                      }
+                                );
+                            }
+                        }
                         return renderers;
-                    }, { }) ])
-         .bufferWhileBy(Kefir.merge([
-                            this.event['patch/enter'].map(ƒ(false)),
-                            this.event['patch/exit'].map(ƒ(true)).delay(0) // let exit event get into combined stream
-                        ]),
-                        { flushOnChange: true }).flatten().onValue(function(value) {
-            var event = value[0], renderers = value[1];
-            var aliases = Object.keys(renderers);
-            var renderer, handlers;
-            for (var i = 0, il = aliases.length; i < il; i++) {
-                renderer = renderers[aliases[i]]; handlers = renderer.handlers;
-                for (var j = 0, jl = handlers.length; j < jl; j++) {
-                    if (handlers[j][event.type]) handlers[j][event.type](inject_render(event, aliases[i]));
-                }
-            }
-        }
-    );
+                    }, { }) ]);
+    // we need to wait for first renderer and then push buffered events to it
+    renderStream = renderStream.bufferBy(this.renderQueue).take(1).flatten().concat(renderStream);
+    renderStream.onValue(function(value) {
+                    var event = value[0], renderers = value[1];
+                    var aliases = Object.keys(renderers);
+                    var renderer, handlers;
+                    for (var i = 0, il = aliases.length; i < il; i++) {
+                        renderer = renderers[aliases[i]]; handlers = renderer.handlers;
+                        for (var j = 0, jl = handlers.length; j < jl; j++) {
+                            handlers[j](inject_render(event, aliases[i]));
+                        }
+                    }
+                });
 
+    // projections are connections between different patches; patch inlets looking in the outer
+    // world are called "inputs" here, and outlets looking in the outer world are, correspondingly,
+    // called "outlets"
     this.projections = Kefir.emitter();
     Kefir.combine(
         [ this.projections ],
@@ -103,15 +116,23 @@ function Patch(name) {
           this.event['patch/set-outputs'] ]
     ).onValue(function(value) {
         var node = value[0], inputs = value[1], outputs = value[2];
-        var inlet, outlet;
+        var inlet, outlet, input, output;
         for (var i = 0; i < inputs.length; i++) {
             inlet = node.addInlet(inputs[i].type, inputs[i].name);
-            inlet.event['inlet/update'].onValue(function(val) { inputs[i].receive(val); });
+            inlet.event['inlet/update'].onValue((function(input) {
+                return function(val) {
+                    input.receive(val);
+                };
+            })(inputs[i]));
         } // use inlet.onUpdate?
         for (i = 0; i < outputs.length; i++) {
-            outlet = node.addOutlet(outputs[i].type, inputs[i].name);
-            outlet.event['outlet/update'].onValue(function(val) { outputs[i].send(val); });
-        } // use outlet.onUpdate?
+            outlet = node.addOutlet(outputs[i].type, outputs[i].name);
+            outputs[i].event['outlet/update'].onValue((function(outlet) {
+                return function(val) {
+                    outlet.send(val);
+                };
+            })(outlet));
+        } // use output.onUpdate?
         myself.event['patch/project'].emit([ node, inputs, outputs ]);
         node.patch.event['patch/refer'].emit([ node, myself ]);
     });
@@ -624,6 +645,8 @@ function nodedescription(type, description) {
 // =============================================================================
 
 return {
+
+    '_': { 'Patch': Patch, 'Node': Node, 'Inlet': Inlet, 'Outlet': Outlet, 'Link': Link },
 
     'LazyId': ƒ,
 

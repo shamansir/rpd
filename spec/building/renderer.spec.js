@@ -1,265 +1,244 @@
 describe('building: renderer', function() {
 
-    xit('should have an alias', function() {
+    it('called once for every patch', function() {
+        var fooRendererSpy = jasmine.createSpy('foo-renderer');
+
+        Rpd.renderer('foo', fooRendererSpy);
+
+        var turnOff = Rpd.render('foo', {});
+
+        var firstPatch = Rpd.addPatch();
+        var secondPatch = Rpd.addPatch();
+
+        expect(fooRendererSpy).toHaveBeenCalledTwice();
+        expect(fooRendererSpy).toHaveBeenCalledWith(firstPatch);
+        expect(fooRendererSpy).toHaveBeenCalledWith(secondPatch);
+
+        turnOff();
+    });
+
+    it('target could be empty, network case', function() {
+        var turnOff;
+
         expect(function() {
-            Rpd.renderer();
-        }).toThrow();
+            turnOff = Rpd.render('foo');
+            Rpd.addPatch();
+        }).not.toThrow();
+
+        if (turnOff) turnOff();
     });
 
-    it('receives no events if no target was specified', function() {
-
-        var fooUpdateSpy = jasmine.createSpy('foo-update');
-        var fooRenderer = Rpd.renderer('foo', function(user_conf) {
-            return fooUpdateSpy;
-        });
-
-        var barUpdateSpy = jasmine.createSpy('bar-update');
-        var barRenderer = Rpd.renderer('bar', function(user_conf) {
-            return barUpdateSpy;
-        });
-
-        Rpd.Model.start('foo')
-                 .renderWith('foo')
-                 .renderWith('bar');
-
-        expect(fooUpdateSpy).not.toHaveBeenCalled();
-        expect(barUpdateSpy).not.toHaveBeenCalled();
-
+    it('target could be empty, patch case', function() {
+        expect(function() {
+            Rpd.addPatch().render('foo');
+        }).not.toThrow();
     });
 
-    it('receives all events, if at least one target was specified', function() {
+    it('the inner function is called with target element, network case', function() {
+        var fooTargetsSpy = jasmine.createSpy('foo-target');
 
-        var fooUpdateSpy = jasmine.createSpy('foo-update');
-        var fooRenderer = Rpd.renderer('foo', function(user_conf) {
-            return fooUpdateSpy;
+        Rpd.renderer('foo', function(patch) {
+            return fooTargetsSpy;
         });
 
-        var barUpdateSpy = jasmine.createSpy('bar-update');
-        var barRenderer = Rpd.renderer('bar', function(user_conf) {
-            return barUpdateSpy;
+        var target = { };
+        var turnOff = Rpd.render('foo', target);
+
+        Rpd.addPatch();
+
+        expect(fooTargetsSpy).toHaveBeenCalledWith(target, undefined);
+
+        turnOff();
+    });
+
+    it('the inner function is called with target element, patch case', function() {
+        var fooTargetsSpy = jasmine.createSpy('foo-target');
+
+        Rpd.renderer('foo', function(patch) {
+            return fooTargetsSpy;
         });
 
-        var targetOne = {}, targetTwo = {}, targetThree = {};
+        var target = { };
+        Rpd.addPatch().render('foo', target);
 
-        Rpd.Model.start()
-                 .renderWith('foo')
-                 .attachTo(targetOne)
-                 .attachTo(targetTwo)
-                 .renderWith('bar')
-                 .attachTo(targetThree);
-
-        expect(fooUpdateSpy).toHaveBeenCalledWith(targetOne,
-                             jasmine.objectContaining({ type: 'model/new' }));
-        expect(fooUpdateSpy).toHaveBeenCalledWith(targetTwo,
-                             jasmine.objectContaining({ type: 'model/new' }));
-        expect(fooUpdateSpy).toHaveBeenCalledWith(targetThree,
-                             jasmine.objectContaining({ type: 'model/new' }));
-
-        expect(barUpdateSpy).toHaveBeenCalledWith(targetOne,
-                             jasmine.objectContaining({ type: 'model/new' }));
-        expect(barUpdateSpy).toHaveBeenCalledWith(targetTwo,
-                             jasmine.objectContaining({ type: 'model/new' }));
-        expect(barUpdateSpy).toHaveBeenCalledWith(targetThree,
-                             jasmine.objectContaining({ type: 'model/new' }));
-
+        expect(fooTargetsSpy).toHaveBeenCalledWith(target, undefined);
     });
 
-    it('is called once for every new model', function() {
-        var updateSpy = jasmine.createSpy('update');
-        var rendererSpy = jasmine.createSpy('renderer').and.returnValue(function() {});
+    it('the inner function is called for every target element and passes configuration there, network case', function() {
+        var fooTargetsSpy = jasmine.createSpy('foo-target');
 
-        Rpd.renderer('foo', rendererSpy);
-
-        Rpd.Model.start().renderWith('foo');
-        expect(rendererSpy).toHaveBeenCalledOnce();
-        Rpd.Model.start().renderWith('foo');
-        expect(rendererSpy).toHaveBeenCalledTwice();
-
-    });
-
-    it('receives configuration passed from a user', function() {
-        var configurationSpy = jasmine.createSpy('configuration');
-        var renderer = Rpd.renderer('foo', function(user_conf) {
-            configurationSpy(user_conf);
-            return function() {};
+        Rpd.renderer('foo', function(patch) {
+            return fooTargetsSpy;
         });
 
-        var confMock = {};
+        var targetOne = { };
+        var targetTwo = { };
+        var conf = { };
+        var turnOff = Rpd.render('foo', [ targetOne, targetTwo ], conf);
 
-        Rpd.Model.start().renderWith('foo', confMock);
+        Rpd.addPatch();
 
-        expect(configurationSpy).toHaveBeenCalledWith(confMock);
+        expect(fooTargetsSpy).toHaveBeenCalledWith(targetOne, conf);
+        expect(fooTargetsSpy).toHaveBeenCalledWith(targetTwo, conf);
+
+        turnOff();
     });
 
-    it('could handle specific events', function() {
-        var newModelSpy = jasmine.createSpy('new-node');
-        var renderer = Rpd.renderer('foo', function() {
-            return function(root, update) {
-                if (update.type === 'model/new') newModelSpy();
+    it('the inner function is called for every target element and passes configuration there, patch case', function() {
+        var fooTargetsSpy = jasmine.createSpy('foo-target');
+
+        Rpd.renderer('foo', function(patch) {
+            return fooTargetsSpy;
+        });
+
+        var targetOne = { };
+        var targetTwo = { };
+        var conf = { };
+        Rpd.addPatch().render('foo', [ targetOne, targetTwo ], conf);
+
+        expect(fooTargetsSpy).toHaveBeenCalledWith(targetOne, conf);
+        expect(fooTargetsSpy).toHaveBeenCalledWith(targetTwo, conf);
+    });
+
+    it('the inner function is called for every renderer and target, network case', function() {
+        var fooTargetsSpy = jasmine.createSpy('foo-target');
+        var barTargetsSpy = jasmine.createSpy('bar-target');
+
+        Rpd.renderer('foo', function(patch) { return fooTargetsSpy; });
+        Rpd.renderer('bar', function(patch) { return barTargetsSpy; });
+
+        var targetOne = { };
+        var targetTwo = { };
+        var conf = {};
+        var turnOff = Rpd.render([ 'foo', 'bar' ], [ targetOne, targetTwo ], conf);
+
+        Rpd.addPatch();
+
+        expect(fooTargetsSpy).toHaveBeenCalled();
+        expect(barTargetsSpy).toHaveBeenCalledWith(targetOne, conf);
+        expect(barTargetsSpy).toHaveBeenCalledWith(targetTwo, conf);
+
+        turnOff();
+    });
+
+    it('the inner function is called for every renderer and target, patch case', function() {
+        var fooTargetsSpy = jasmine.createSpy('foo-target');
+        var barTargetsSpy = jasmine.createSpy('bar-target');
+
+        Rpd.renderer('foo', function(patch) { return fooTargetsSpy; });
+        Rpd.renderer('bar', function(patch) { return barTargetsSpy; });
+
+        var targetOne = { };
+        var targetTwo = { };
+        var conf = {};
+
+        Rpd.addPatch().render([ 'foo', 'bar' ], [ targetOne, targetTwo ], conf);
+
+        expect(fooTargetsSpy).toHaveBeenCalled();
+        expect(barTargetsSpy).toHaveBeenCalledWith(targetOne, conf);
+        expect(barTargetsSpy).toHaveBeenCalledWith(targetTwo, conf);
+    });
+
+    it('passes the events to the handler object, network case', function() {
+        var addNodeSpy = jasmine.createSpy('add-node');
+        var addInletSpy = jasmine.createSpy('add-inlet');
+
+        Rpd.renderer('foo', function(patch) {
+            return function(target, conf) {
+                return { 'patch/add-node': addNodeSpy,
+                         'node/add-inlet': addInletSpy }
             };
         });
 
-        var model = Rpd.Model.start().renderWith('foo').attachTo({});
+        var turnOff = Rpd.render('foo', {});
 
-        model.addNode('spec/empty');
+        var patch = Rpd.addPatch();
+        var node = patch.addNode('spec/empty');
+        var inlet = node.addInlet('spec/any', 'foo');
+        patch.enter();
 
-        expect(newModelSpy).toHaveBeenCalled();
+        expect(addNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: node }));
+        expect(addInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inlet }));
+
+        turnOff();
     });
 
-    xdescribe('with entering and exiting models', function() {
+    it('passes the events to the handler object, patch case', function() {
+        var addNodeSpy = jasmine.createSpy('add-node');
+        var addInletSpy = jasmine.createSpy('add-inlet');
 
-        it('gets construction events happened before renderer was set', function() {
-            var updateSpy = jasmine.createSpy('update');
-
-            var renderer = Rpd.renderer('foo', function() { return updateSpy; });
-
-            var model = Rpd.Model.start();
-            var node = model.addNode('spec/empty');
-            var inlet = node.addInlet('spec/pass', 'foo');
-
-            model.renderWith('foo');
-            expect(updateSpy).not.toHaveBeenCalled();
-            model.attachTo({});
-
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({
-                    type: 'node/add',
-                    node: node
-                }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({
-                    type: 'inlet/add',
-                    inlet: inlet
-                }));
+        Rpd.renderer('foo', function(patch) {
+            return function(target, conf) {
+                return { 'patch/add-node': addNodeSpy,
+                         'node/add-inlet': addInletSpy }
+            };
         });
 
-        it('still gets these updates if there were several renderers set');
+        var patch = Rpd.addPatch().render('foo', {});
+        var node = patch.addNode('spec/empty');
+        var inlet = node.addInlet('spec/any', 'foo');
+        patch.enter();
 
-        it('entering model from the start is equivalent to just starting it', function() {
+        expect(addNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: node }));
+        expect(addInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inlet }));
+    });
 
+    it('provides events for all subscribed patches', function() {
+        var addNodeSpy = jasmine.createSpy('add-node');
+        var addInletSpy = jasmine.createSpy('add-inlet');
+
+        Rpd.renderer('foo', function(patch) {
+            return function(target, conf) {
+                return { 'patch/add-node': addNodeSpy }
+            };
+        });
+        Rpd.renderer('bar', function(patch) {
+            return function(target, conf) {
+                return { 'node/add-inlet': addInletSpy }
+            };
         });
 
-        it('also buffers construction events while user exits from the model', function() {
-            var updateSpy = jasmine.createSpy('update');
-            var renderer = Rpd.renderer('foo', function() { return updateSpy; });
+        var patchOne = Rpd.addPatch().render(['foo', 'bar'], {});
+        var nodeOne = patchOne.addNode('spec/empty');
+        var inletOne = nodeOne.addInlet('spec/any', 'foo');
+        patchOne.enter();
+        var patchTwo = Rpd.addPatch().render('bar', {});
+        var nodeTwo = patchTwo.addNode('spec/empty');
+        var inletTwo = nodeTwo.addInlet('spec/any', 'foo');
+        patchTwo.enter();
 
-            var model = Rpd.Model.start().renderWith('foo').attachTo({});
-            var node = model.addNode('spec/empty');
+        expect(addNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: nodeOne }));
+        expect(addInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inletOne }));
+        expect(addInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inletTwo }));
+    });
 
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({
-                    type: 'node/add',
-                    node: node
-                }));
-            updateSpy.calls.reset();
+    it('renderer could also return a function handling any event', function() {
+        var fooEventSpy = jasmine.createSpy('foo-events');
+        var barEventSpy = jasmine.createSpy('bar-events');
 
-            model.exit();
-
-            var inlet = node.addInlet('spec/pass', 'foo');
-            expect(updateSpy).not.toHaveBeenCalled();
-
-            model.enter();
-
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({
-                    type: 'inlet/add',
-                    inlet: inlet
-                }));
+        Rpd.renderer('foo', function(patch) {
+            return function(target, conf) {
+                return fooEventSpy;
+            };
+        });
+        Rpd.renderer('bar', function(patch) {
+            return function(target, conf) {
+                return barEventSpy;
+            };
         });
 
-        it('only fires the update with the last value of the inlet when model was entered back', function() {
-            var updateSpy = jasmine.createSpy('update');
-            var renderer = Rpd.renderer('foo', function() { return updateSpy; });
+        var patchOne = Rpd.addPatch().render(['foo', 'bar'], {});
+        var nodeOne = patchOne.addNode('spec/empty');
+        patchOne.enter();
+        var patchTwo = Rpd.addPatch().render('bar', {});
+        var nodeTwo = patchTwo.addNode('spec/empty');
+        var inletTwo = nodeTwo.addInlet('spec/any', 'foo');
+        patchTwo.enter();
 
-            var model = Rpd.Model.start().renderWith('foo').attachTo({});
-            var node = model.addNode('spec/empty');
-            var inlet = node.addInlet('spec/pass', 'foo');
-            inlet.receive(5);
-
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({
-                    type: 'inlet/update',
-                    value: 5
-                }));
-
-            model.exit();
-
-            inlet.receive(3);
-            inlet.receive(17);
-            inlet.receive(10);
-
-            model.enter();
-
-            expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({
-                    type: 'inlet/update',
-                    value: 17
-                }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({
-                    type: 'inlet/update',
-                    value: 10
-                }));
-
-        });
-
-        it('passes rendering to other models user made active', function() {
-            var updateSpy = jasmine.createSpy('update');
-            var renderer = Rpd.renderer('foo', function() { return updateSpy; });
-
-            var model1 = Rpd.Model.start().renderWith('foo').attachTo({});
-            var model2 = Rpd.Model.start().exit().renderWith('foo').attachTo({});
-
-            var node1 = model1.addNode('spec/empty');
-            var node2 = model2.addNode('spec/empty');
-
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({
-                    type: 'node/add',
-                    node: node1
-                }));
-            expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({
-                    type: 'node/add',
-                    value: node2
-                }));
-
-            updateSpy.calls.reset();
-
-            model1.exit();
-            model2.enter();
-
-            node1 = model1.addNode('spec/empty');
-            node2 = model2.addNode('spec/empty');
-
-            expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({
-                    type: 'node/add',
-                    node: node1
-                }));
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.anything(),
-                jasmine.objectContaining({
-                    type: 'node/add',
-                    value: node2
-                }));
-
-        });
-
-        it('passes rendering to several renderers if they were assigned to same active model');
-
-        it('receives \'new model\' event at least once');
-
+        expect(fooEventSpy).toHaveBeenCalledWith(jasmine.objectContaining({ type: 'patch/add-node', node: nodeOne }));
+        expect(barEventSpy).toHaveBeenCalledWith(jasmine.objectContaining({ type: 'patch/add-node', node: nodeTwo }));
+        expect(barEventSpy).toHaveBeenCalledWith(jasmine.objectContaining({ type: 'node/add-inlet', inlet: inletTwo }));
+        expect(fooEventSpy).not.toHaveBeenCalledWith(jasmine.objectContaining({ type: 'patch/add-inlet', inlet: inletTwo }));
     });
 
 });

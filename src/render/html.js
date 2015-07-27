@@ -3,12 +3,12 @@
 var ƒ = Rpd.LazyId;
 
     // inlets/outlets are at the left/right sides of a node body
-var QUARTZ_LAYOUT = 'quartz',
+var QUARTZ_MODE = 'quartz',
     // inlets/outlets are at the top/bottom sides of a node body
-    PD_LAYOUT = 'pd';
+    PD_MODE = 'pd';
 
 var defaultConfig = {
-    layout: QUARTZ_LAYOUT,
+    mode: QUARTZ_MODE,
     // show inlet/outlet value only when user hovers over its connector
     // (always showing, by default)
     valuesOnHover: false,
@@ -66,6 +66,9 @@ return function(networkRoot, userConfig) {
     // it's completely written in FRP style;
     var connections = Connections();
 
+    // Layout determines where new node boxes will appear.
+    var layout = BoxLayout();
+
     var descriptions = Rpd.allDescriptions;
 
     var root;
@@ -94,7 +97,7 @@ return function(networkRoot, userConfig) {
             patchToRoot[patch.id] = root;
 
             root.classList.add('rpd-patch');
-            if (config.layout) root.classList.add('rpd-layout-' + config.layout);
+            if (config.mode) root.classList.add('rpd-layout-' + config.mode);
             if (config.valuesOnHover) {
                 root.classList.add('rpd-values-on-hover');
             } else {
@@ -118,8 +121,6 @@ return function(networkRoot, userConfig) {
 
             Kefir.fromEvents(root, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
 
-            networkRoot.appendChild(root);
-
         },
 
         // =====================================================================
@@ -129,6 +130,7 @@ return function(networkRoot, userConfig) {
         'patch/enter': function(update) {
             navigation.switch(update.patch);
             networkRoot.appendChild(root);
+            updateAllLinks(nodes);
         },
 
         // =====================================================================
@@ -189,7 +191,7 @@ return function(networkRoot, userConfig) {
 
             var bodyTrg, inletsTrg, outletsTrg, bodyElm, removeButton;
 
-            if (config.layout == QUARTZ_LAYOUT) {
+            if (config.mode == QUARTZ_MODE) {
 
                 // thead.rpd-title
                 //   tr.rpd-remove-button
@@ -279,7 +281,7 @@ return function(networkRoot, userConfig) {
 
                 dragTrg = headElm;
 
-            } else if (config.layout == PD_LAYOUT) {
+            } else if (config.mode == PD_MODE) {
 
                 // tr.rpd-inlets
                 //   td
@@ -381,8 +383,8 @@ return function(networkRoot, userConfig) {
             if (descriptions[node.type]) headCell.title = descriptions[node.type];
 
             // place node box wrapper in a suitable empty space in layout
-            applyNextNodeRect(node, nodeBox, nodeElm, config.boxSize,
-                              [ root.offsetWidth, root.offsetHeight ]);
+            layout.nextBox(node, nodeBox, nodeElm, config.boxSize,
+                           [ root.offsetWidth, root.offsetHeight ]);
 
             nodeBox.appendChild(nodeElm);
 
@@ -478,7 +480,7 @@ return function(networkRoot, userConfig) {
 
             var inletElm, valueElm, connectorElm;
 
-            if (config.layout == QUARTZ_LAYOUT) {
+            if (config.mode == QUARTZ_MODE) {
 
                 // tr.rpd-inlet.rpd-stale
                 //   td.rpd-connector
@@ -498,7 +500,7 @@ return function(networkRoot, userConfig) {
                 inletElm.appendChild(quickElmVal('td', 'rpd-name', inlet.name));
                 if (config.showTypes) inletElm.appendChild(quickElmVal('td', 'rpd-type', inlet.type));
 
-            } else if (config.layout == PD_LAYOUT) {
+            } else if (config.mode == PD_MODE) {
 
                 // td.rpd-inlet.rpd-stale
                 //   span.rpd-connector
@@ -573,7 +575,7 @@ return function(networkRoot, userConfig) {
 
             var outletElm, valueElm, connectorElm;
 
-            if (config.layout == QUARTZ_LAYOUT) {
+            if (config.mode == QUARTZ_MODE) {
 
                 // tr.rpd-outlet.rpd-stale
                 //   td.rpd-connector
@@ -590,7 +592,7 @@ return function(networkRoot, userConfig) {
                 outletElm.appendChild(valueElm);
                 outletElm.appendChild(connectorElm);
 
-            } else if (config.layout == PD_LAYOUT) {
+            } else if (config.mode == PD_MODE) {
 
                 // td.rpd-outlet.rpd-stale
                 //   span.rpd-connector
@@ -1048,6 +1050,14 @@ return function(networkRoot, userConfig) {
         });
     }
 
+    function updateAllLinks(nodes) {
+        var nodeLinks;
+        for (var id in nodes) {
+            nodeLinks = nodes[id].links;
+            updateLinks(nodes[id], nodeLinks);
+        }
+    }
+
     function addDragNDrop(node, root, handle, box) {
         var nodeData = nodes[node.id];
         handle.classList.add('rpd-drag-handle');
@@ -1298,28 +1308,35 @@ var default_width = 1, // in boxes
     default_y_margin = 1, // in boxes
     default_limits = [ 1000, 1000 ]; // in pixels
 
-var node_rects = [];
+function BoxLayout() {
 
-function applyNextNodeRect(node, nodeBox, nodeElm, boxSize, limits) {
-    var width =  (node.def.width  || default_width)  * boxSize[0],
-        height = (node.def.height || default_height) * boxSize[1];
-    var last_rect = (node_rects.length ? node_rects[node_rects.length-1] : null);
-    var new_rect = [ /* x */ last_rect ? last_rect[0] : 0,
-                     /* y */ last_rect ? (last_rect[1] + last_rect[3] + (default_y_margin * boxSize[1])) : 0,
-                     width,
-                     height ];
-    if ((new_rect[1] + boxSize[1]) > limits[1]) {
-        new_rect[0] = new_rect[0] + width + (default_x_margin * boxSize[0]);
-        new_rect[1] = 0;
+    var node_rects = [];
+
+    return {
+        nextBox: function(node, nodeBox, nodeElm, boxSize, limits) {
+            var width =  (node.def.width  || default_width)  * boxSize[0],
+                height = (node.def.height || default_height) * boxSize[1];
+            var last_rect = (node_rects.length ? node_rects[node_rects.length-1] : null);
+            var new_rect = [ /* x */ last_rect ? last_rect[0] : 0,
+                             /* y */ last_rect ? (last_rect[1] + last_rect[3] + (default_y_margin * boxSize[1])) : 0,
+                             width,
+                             height ];
+            if ((new_rect[1] + boxSize[1]) > limits[1]) {
+                new_rect[0] = new_rect[0] + width + (default_x_margin * boxSize[0]);
+                new_rect[1] = 0;
+            }
+            node_rects.push(new_rect);
+            // relative positioning
+            nodeBox.style.left = Math.floor(new_rect[0]) + 'px';
+            nodeBox.style.top  = Math.floor(new_rect[1]) + 'px';
+            nodeElm.style.minWidth  = Math.floor(new_rect[2]) + 'px';
+            nodeElm.style.minHeight = Math.floor(new_rect[3]) + 'px';
+            node_rects.push(new_rect);
+        }
     }
-    node_rects.push(new_rect);
-    // relative positioning
-    nodeBox.style.left = Math.floor(new_rect[0]) + 'px';
-    nodeBox.style.top  = Math.floor(new_rect[1]) + 'px';
-    nodeElm.style.minWidth  = Math.floor(new_rect[2]) + 'px';
-    nodeElm.style.minHeight = Math.floor(new_rect[3]) + 'px';
-    node_rects.push(new_rect);
-}
+
+};
+
 
 // =========================== registration ====================================
 // =============================================================================
