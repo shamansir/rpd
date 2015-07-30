@@ -21,9 +21,9 @@ var nodedescriptions = {};
 
 var renderer_registry = {};
 
-var event_conf = { 'network/add-patch': function(patch) { return { patch: patch }; } };
-var event = event_map(event_conf);
-var events = events_stream(event_conf, event);
+var event_types = { 'network/add-patch': [ 'patch' ] };
+var event = event_map(event_types);
+var events = events_stream(event_types, event, 'network', Rpd);
 
 event['network/add-patch'].onValue(function(patch) { events.plug(patch.events); });
 
@@ -53,25 +53,25 @@ function Patch(name) {
 
     var myself = this;
 
-    var event_conf = {
-        'patch/is-ready':    function(patch)   { return { patch: patch } },
-        'patch/enter':       function(patch)   { return { patch: patch }; },
-        'patch/exit':        function(patch)   { return { patch: patch }; },
-        'patch/set-inputs':  function(inputs)  { return { patch: myself, inputs: inputs }; },
-        'patch/set-outputs': function(outputs) { return { patch: myself, outputs: outputs }; },
-        'patch/refer':       function(data)    { return { patch: myself, node: data[0], target: data[1] }; },
-        'patch/project':     function(data)    { return { patch: myself, node: data[0], inputs: data[1], outputs: data[2] }; },
-        'patch/add-node':    function(node)    { return { node: node }; },
-        'patch/remove-node': function(node)    { return { node: node }; }
+    var event_types = {
+        'patch/is-ready':    [ ],
+        'patch/enter':       [ ],
+        'patch/exit':        [ ],
+        'patch/set-inputs':  [ 'inputs' ],
+        'patch/set-outputs': [ 'outputs' ],
+        'patch/refer':       [ 'node', 'target' ],
+        'patch/project':     [ 'inputs', 'outputs' ],
+        'patch/add-node':    [ 'node' ],
+        'patch/remove-node': [ 'node' ]
     };
-    this.event = event_map(event_conf);
-    this.events = events_stream(event_conf, this.event);
+    this.event = event_map(event_types);
+    this.events = events_stream(event_types, this.event, 'patch', this);
 
     // this stream controls the way patch events reach the assigned renderer
     this.renderQueue = Kefir.emitter();
     var renderStream = Kefir.combine([ this.events ],
                   [ this.renderQueue.scan(function(renderers, event) {
-                        var alias = event[0], target = event[1], configuration = event[2];
+                        var alias = event.alias, target = event.target, configuration = event.config;
                         var renderer = renderers[alias];
                         if (!renderer) {
                             renderer = {};
@@ -120,33 +120,29 @@ function Patch(name) {
         for (var i = 0; i < inputs.length; i++) {
             inlet = node.addInlet(inputs[i].type, inputs[i].name);
             inlet.event['inlet/update'].onValue((function(input) {
-                return function(val) {
-                    input.receive(val);
-                };
+                return function(value) { input.receive(value); };
             })(inputs[i]));
         } // use inlet.onUpdate?
         for (i = 0; i < outputs.length; i++) {
             outlet = node.addOutlet(outputs[i].type, outputs[i].name);
             outputs[i].event['outlet/update'].onValue((function(outlet) {
-                return function(val) {
-                    outlet.send(val);
-                };
+                return function(value) { outlet.send(value); };
             })(outlet));
         } // use output.onUpdate?
-        myself.event['patch/project'].emit([ node, inputs, outputs ]);
-        node.patch.event['patch/refer'].emit([ node, myself ]);
+        myself.event['patch/project'].emit({ inputs: inputs, outputs: outputs });
+        node.patch.event['patch/refer'].emit({ node: node, target: myself });
     });
 
-    this.event['patch/is-ready'].emit(this);
+    this.event['patch/is-ready'].emit();
 }
-Patch.prototype.render = function(aliases, targets, conf) {
+Patch.prototype.render = function(aliases, targets, config) {
     aliases = Array.isArray(aliases) ? aliases : [ aliases ];
     targets = Array.isArray(targets) ? targets : [ targets ];
     for (var i = 0, il = aliases.length, alias; i < il; i++) {
         for (var j = 0, jl = targets.length, target; j < jl; j++) {
             alias = aliases[i]; target = targets[j];
             if (!renderer_registry[alias]) throw new Error('Renderer ' + alias + ' is not registered');
-            this.renderQueue.emit([ alias, target, conf ]);
+            this.renderQueue.emit({ alias: alias, target: target, config: config });
         }
     }
     return this;
@@ -166,11 +162,11 @@ Patch.prototype.removeNode = function(node) {
     this.events.unplug(node.events);
 }
 Patch.prototype.enter = function() {
-    this.event['patch/enter'].emit(this);
+    this.event['patch/enter'].emit();
     return this;
 }
 Patch.prototype.exit = function() {
-    this.event['patch/exit'].emit(this);
+    this.event['patch/exit'].emit();
     return this;
 }
 Patch.prototype.inputs = function(list) {
@@ -203,26 +199,27 @@ function Node(type, patch, name, callback) {
 
     this.render = prepare_render_obj(noderenderers[this.type], this);
 
-    var myself = this;
-    var event_conf = {
-        'node/turn-on':       function(node) { return { node: myself } },
-        'node/is-ready':      function(node) { return { node: myself } },
-        'node/process':       function(channels) { return { inlets: channels[0], outlets: channels[1], node: myself } },
-        'node/turn-off':      function(node) { return { node: myself } },
-        'node/add-inlet':     function(inlet) { return { inlet: inlet } },
-        'node/remove-inlet':  function(inlet) { return { inlet: inlet } },
-        'node/add-outlet':    function(outlet) { return { outlet: outlet } },
-        'node/remove-outlet': function(outlet) { return { outlet: outlet } }
+    var event_types = {
+        'node/turn-on':       [ ],
+        'node/is-ready':      [ ],
+        'node/process':       [ 'inlets', 'outlets' ],
+        'node/turn-off':      [ ],
+        'node/add-inlet':     [ 'inlet' ],
+        'node/remove-inlet':  [ 'inlet' ],
+        'node/add-outlet':    [ 'outlet' ],
+        'node/remove-outlet': [ 'outlet' ]
     };
-    this.event = event_map(event_conf);
-    this.events = events_stream(event_conf, this.event);
+    this.event = event_map(event_types);
+    this.events = events_stream(event_types, this.event, 'node', this);
 
     if (callback) callback(this);
 
+    var myself = this;
+
     if (this.def.handle) {
-        this.events.onValue(function(update) {
-            if (myself.def.handle[update.type]) {
-                myself.def.handle[update.type](update);
+        this.events.onValue(function(event) {
+            if (myself.def.handle[event.type]) {
+                myself.def.handle[event.type](event);
             };
         });
     }
@@ -239,7 +236,7 @@ function Node(type, patch, name, callback) {
             this.event['node/add-inlet'].flatMap(function(inlet) {
                 var updates = inlet.event['inlet/update'].map(function(value) {
                     return { inlet: inlet, value: value };
-                });
+                });;
                 if (myself.def.tune) updates = myself.def.tune(updates);
                 return updates;
             })
@@ -275,7 +272,7 @@ function Node(type, patch, name, callback) {
         process.onValue(function(data) {
             // call a node/process event using collected inlet values
             var outlets_vals = process_f.bind(myself)(data.inlets.cur, data.inlets.prev);
-            myself.event['node/process'].emit([data.inlets.cur, outlets_vals, data.inlets.prev]);
+            myself.event['node/process'].emit({ inlets: data.inlets.cur, outlets: outlets_vals });
             // send the values provided from a `process` function to corresponding outlets
             var outlets = data.outlets;
             for (var outlet_name in outlets_vals) {
@@ -314,14 +311,14 @@ function Node(type, patch, name, callback) {
 
     if (this.def.prepare) this.def.prepare(this.inlets, this.outlets);
 
-    this.event['node/is-ready'].emit(this);
+    this.event['node/is-ready'].emit();
 
 }
 Node.prototype.turnOn = function() {
-    this.event['node/turn-on'].emit(this);
+    this.event['node/turn-on'].emit();
 }
 Node.prototype.turnOff = function() {
-    this.event['node/turn-off'].emit(this);
+    this.event['node/turn-off'].emit();
 }
 Node.prototype.addInlet = function(type, alias, name, _default, hidden, readonly, cold) {
     var inlet = new Inlet(type, this, alias, name, _default, hidden, readonly, cold);
@@ -370,20 +367,20 @@ function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
     this.render = prepare_render_obj(channelrenderers[this.type], this);
 
     var myself = this;
-    var event_conf = {
-        'inlet/update': function(value) { return { inlet: myself, value: value } }
+    var event_types = {
+        'inlet/update': [ 'value' ]
     };
-    this.event = event_map(event_conf);
+    this.event = event_map(event_types);
     var orig_updates = this.event['inlet/update'];
     var updates = orig_updates.merge(this.value);
-    if (def.tune) updates = def.tune(updates);
+    if (def.tune) updates = def.tune(updates)
     if (def.accept) updates = updates.flatten(function(v) {
         if (def.accept(v)) { return [v]; } else { orig_updates.error(); return []; }
     });
     if (def.adapt) updates = updates.map(def.adapt);
     // rewrite with the modified stream
     this.event['inlet/update'] = updates.onValue(function(){});
-    this.events = events_stream(event_conf, this.event);
+    this.events = events_stream(event_types, this.event, 'inlet', this);
 }
 Inlet.prototype.receive = function(value) {
     this.value.emit(value);
@@ -422,18 +419,18 @@ function Outlet(type, node, alias, name, _default) {
     // outlets values are not editable
 
     var myself = this;
-    var event_conf = {
-        'outlet/update':     function(value) { return { outlet: myself, value: value } },
-        'outlet/connect':    function(link)  { return { outlet: myself, link: link } },
-        'outlet/disconnect': function(link) { return { outlet: myself, link: link } }
+    var event_types = {
+        'outlet/update':     [ 'value' ],
+        'outlet/connect':    [ 'link' ],
+        'outlet/disconnect': [ 'link' ]
     };
-    this.event = event_map(event_conf);
+    this.event = event_map(event_types);
     var orig_updates = this.event['outlet/update'];
     var updates = orig_updates.merge(this.value);
     if (def.adapt) updates = updates.map(def.adapt);
     // rewrite with the modified stream
-    this.event['outlet/update'] = updates.onValue(function(){});
-    this.events = events_stream(event_conf, this.event);
+    this.event['outlet/update'] = updates.onValue(function(v){});
+    this.events = events_stream(event_types, this.event, 'outlet', this);
 
     // re-send last value on connection
     Kefir.sampledBy([ this.event['outlet/update'] ],
@@ -499,27 +496,27 @@ function Link(type, outlet, inlet, adapter, name) {
             setTimeout(function() { myself.pass(x); }, 0);
         };
 
-    var event_conf = {
-        'link/enable':  function() { return { link: myself } },
-        'link/disable': function() { return { link: myself } },
-        'link/pass':    function(value) { return { link: myself, value: value } },
-        'link/adapt':   function(values) { return { link: myself, before: values[0], after: values[1] } }
+    var event_types = {
+        'link/enable':  [ ],
+        'link/disable': [ ],
+        'link/pass':    [ 'value' ],
+        'link/adapt':   [ 'before', 'after' ]
     };
-    this.event = event_map(event_conf);
-    this.events = events_stream(event_conf, this.event);
+    this.event = event_map(event_types);
+    this.events = events_stream(event_types, this.event, 'link', this);
 
-    this.enabled = Kefir.merge([ this.event['link/disable'].mapTo(false),
-                                 this.event['link/enable'].mapTo(true) ]).toProperty(ƒ(true));
+    this.enabled = Kefir.merge([ this.event['link/disable'].map(ƒ(false)),
+                                 this.event['link/enable'].map(ƒ(true)) ]).toProperty(ƒ(true));
 
-    this.event['link/pass'].filterBy(this.enabled).onValue(function(x) {
-        inlet.receive(myself.adapt(x));
+    this.event['link/pass'].filterBy(this.enabled).onValue(function(value) {
+        inlet.receive(myself.adapt(value));
     });
 
     // re-send last value on enable
     Kefir.sampledBy([ this.event['link/pass'] ],
                     [ this.event['link/enable'] ])
-         .onValue(function(update) {
-              myself.pass(update[0]);
+         .onValue(function(event) {
+              myself.pass(event[0]);
           });
 }
 Link.prototype.pass = function(value) {
@@ -528,10 +525,10 @@ Link.prototype.pass = function(value) {
 Link.prototype.adapt = function(before) {
     if (this.adapter) {
         var after = this.adapter(before);
-        this.event['link/adapt'].emit([before, after]);
+        this.event['link/adapt'].emit({ before: before, after: after });
         return after;
     } else {
-        this.event['link/adapt'].emit([before, before]);
+        this.event['link/adapt'].emit({ before: before, after: before });
         return before;
     }
 }
@@ -568,24 +565,28 @@ function prepare_render_obj(template, subj) {
 }
 
 function event_map(conf) {
-    var map = {};
-    for (var event_name in conf) {
-        map[event_name] = Kefir.emitter();
+    var map = {}; var types = Object.keys(conf);
+    for (var i = 0, type; i < types.length; i++) {
+        type = types[i];
+        map[type] = Kefir.emitter();
     }
     return map;
 }
 
-function events_stream(conf, event_map) {
-    var stream = Kefir.pool();
-    for (var event_name in conf) {
-        var handler = conf[event_name];
-        (function(event_name, handler) {
-            stream.plug(event_map[event_name].map(function(value) {
-                var result = handler(value);
-                result.type = event_name;
-                return result;
-            }));
-        })(event_name, handler);
+function map_events(type, spec) {
+    if (spec.length === 0) return function() { return { type: type } };
+    if (spec.length === 1) return function(value) { var evt = {}; evt.type = type; evt[spec[0]] = value; return evt; };
+    if (spec.length > 1)   return function(value) { value.type = type; return value; };
+}
+function events_stream(conf, event_map, subj_as, subj) {
+    var stream = Kefir.pool(); var types = Object.keys(conf);
+    for (var i = 0; i < types.length; i++) {
+        stream.plug(event_map[types[i]]
+                         .map(map_events(types[i], conf[types[i]]))
+                         .map(function(evt) {
+                             evt[subj_as] = subj;
+                             return evt;
+                         }));
     }
     return stream;
 }
