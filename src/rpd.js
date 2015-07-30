@@ -609,11 +609,11 @@ function short_uid() {
 function inject_render(update, alias) {
     var type = update.type;
     if ((type === 'patch/add-node') || (type === 'node/process')) {
-        update.render = update.node.render[alias];
+        update.render = update.node.render[alias] || {};
     } else if ((type === 'node/add-inlet')  || (type === 'inlet/update')) {
-        update.render = update.inlet.render[alias];
+        update.render = update.inlet.render[alias] || {};
     } else if ((type === 'node/add-outlet')  || (type === 'outlet/update')) {
-        update.render = update.outlet.render[alias];
+        update.render = update.outlet.render[alias] || {};
     }
     return update;
 }
