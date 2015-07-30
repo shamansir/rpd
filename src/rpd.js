@@ -453,10 +453,10 @@ Outlet.prototype.disconnect = function(link) {
     this.events.unplug(link.events);
 }
 Outlet.prototype.send = function(value) {
-    this.value.emit(this.adapt ? this.adapt(value) : value);
+    this.value.emit(value);
 }
 Outlet.prototype.stream = function(stream) {
-    this.value.plug(this.adapt ? stream.map(this.adapt) : stream);
+    this.value.plug(stream);
 }
 Outlet.prototype.toDefault = function() {
     if (is_defined(this.default)) {
@@ -469,7 +469,7 @@ Outlet.prototype.toDefault = function() {
 // ================================= Link ======================================
 // =============================================================================
 
-function Link(type, outlet, inlet, adapter, name) {
+function Link(type, outlet, inlet, adapt, name) {
     this.type = type || 'core/pass';
     this.id = short_uid();
     var def = adapt_to_obj(linktypes[this.type]);
@@ -481,7 +481,9 @@ function Link(type, outlet, inlet, adapter, name) {
     this.outlet = outlet;
     this.inlet = inlet;
 
-    this.adapter = adapter || def.adapt || undefined;
+    var adapt = adapt || def.adapt || undefined;
+
+    this.value = Kefir.emitter();
 
     var myself = this;
 
@@ -499,17 +501,22 @@ function Link(type, outlet, inlet, adapter, name) {
     var event_types = {
         'link/enable':  [ ],
         'link/disable': [ ],
-        'link/pass':    [ 'value' ],
-        'link/adapt':   [ 'before', 'after' ]
+        'link/pass':    [ 'value' ]
     };
+
     this.event = event_map(event_types);
+    var orig_updates = this.event['link/pass'];
+    var updates = orig_updates.merge(this.value);
+    if (adapt) updates = updates.map(adapt);
+    // rewrite with the modified stream
+    this.event['link/pass'] = updates.onValue(function(v){});
     this.events = events_stream(event_types, this.event, 'link', this);
 
     this.enabled = Kefir.merge([ this.event['link/disable'].map(ƒ(false)),
                                  this.event['link/enable'].map(ƒ(true)) ]).toProperty(ƒ(true));
 
     this.event['link/pass'].filterBy(this.enabled).onValue(function(value) {
-        inlet.receive(myself.adapt(value));
+        inlet.receive(value);
     });
 
     // re-send last value on enable
@@ -520,17 +527,7 @@ function Link(type, outlet, inlet, adapter, name) {
           });
 }
 Link.prototype.pass = function(value) {
-    this.event['link/pass'].emit(value);
-}
-Link.prototype.adapt = function(before) {
-    if (this.adapter) {
-        var after = this.adapter(before);
-        this.event['link/adapt'].emit({ before: before, after: after });
-        return after;
-    } else {
-        this.event['link/adapt'].emit({ before: before, after: before });
-        return before;
-    }
+    this.value.emit(value);
 }
 Link.prototype.enable = function() {
     this.event['link/enable'].emit();

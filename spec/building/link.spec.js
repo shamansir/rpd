@@ -181,14 +181,13 @@ describe('building: link', function() {
 
             expect(adapter).toHaveBeenCalled();
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'link/pass',
-                                           link: link,
+                jasmine.objectContaining({ type: 'outlet/update',
+                                           outlet: outlet,
                                            value: 2 }));
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'link/adapt',
+                jasmine.objectContaining({ type: 'link/pass',
                                            link: link,
-                                           before: 2,
-                                           after: 14 }));
+                                           value: 14 }));
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'inlet/update',
                                            inlet: inlet,
