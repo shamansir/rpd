@@ -184,6 +184,8 @@ return function(networkRoot, userConfig) {
             //   table.rpd-node
             //     ...
 
+            var render = update.render;
+
             var nodeBox = quickElm('div', 'rpd-node-box');
             var nodeElm = quickElm('table', 'rpd-node');
 
@@ -396,14 +398,14 @@ return function(networkRoot, userConfig) {
                 bodyTrg: bodyTrg, inletsTrg: inletsTrg, outletsTrg: outletsTrg,
                 links: {} };
 
-            if (node.render.html && node.render.html.always) {
+            if (render.always) {
                 // if node body should be re-rendered,
                 updateLinksOnChange(node, bodyElm);
             }
 
             // use custom node body renderer, if defined
-            if (node.render.html && node.render.html.first) {
-                subscribeUpdates(node, node.render.html.first(bodyElm));
+            if (render.first) {
+                subscribeUpdates(node, render.first(bodyElm));
             }
 
             if (config.nodesMovingAllowed) {
@@ -453,11 +455,12 @@ return function(networkRoot, userConfig) {
         'node/process': function(update) {
 
             var node = update.node;
+            var render = update.render;
 
             // update node body with custom renderer, if defined
-            if (node.render.html && node.render.html.always) {
+            if (render.always) {
                 var bodyElm = nodes[node.id].body;
-                node.render.html.always(bodyElm, update.inlets, update.outlets);
+                render.always(bodyElm, update.inlets, update.outlets);
             }
 
         },
@@ -475,6 +478,8 @@ return function(networkRoot, userConfig) {
             var nodeData = nodes[inlet.node.id];
 
             /* <build HTML> */
+
+            var render = update.render;
 
             var inletsTrg = nodeData.inletsTrg;
 
@@ -540,8 +545,8 @@ return function(networkRoot, userConfig) {
             if (inlet.readonly) inletElm.classList.add('rpd-readonly');
             if (inlet.cold) inletElm.classList.add('rpd-cold');
 
-            if (!inlet.readonly && inlet.render.html && inlet.render.html.edit) {
-                addValueEditor(inlet, inletData, root, valueHolder, valueElm);
+            if (!inlet.readonly && render.edit) {
+                addValueEditor(inlet, inletData, render, root, valueHolder, valueElm);
             }
 
             // adds `rpd-error` CSS class and removes it by timeout
@@ -643,14 +648,16 @@ return function(networkRoot, userConfig) {
 
             if (inlet.hidden) return;
 
+            var render = update.render;
+
             var inletData = inlets[inlet.id];
             var inletElm = inletData.elm;
 
             var valueElm = inletData.valueElm;
 
             var valueRepr = inlet.def.show ? inlet.def.show(update.value) : update.value;
-            if (inlet.render.html && inlet.render.html.show) {
-                inlet.render.html.show(valueElm, update.value, valueRepr);
+            if (render.show) {
+                render.show(valueElm, update.value, valueRepr);
             } else {
                 valueElm.innerText = valueElm.textContent = valueRepr;
             }
@@ -667,14 +674,15 @@ return function(networkRoot, userConfig) {
         'outlet/update': function(update) {
 
             var outlet = update.outlet;
+            var render = update.render;
 
             var outletData = outlets[outlet.id];
             var outletElm = outletData.elm;
 
             var valueElm = outletData.valueElm;
 
-            if (outlet.render.html && outlet.render.html.show) {
-                outlet.render.html.show(valueElm, update.value);
+            if (render.show) {
+                render.show(valueElm, update.value);
             } else {
                 valueElm.innerText = valueElm.textContent =
                     outlet.def.show ? outlet.def.show(update.value)
@@ -823,12 +831,12 @@ return function(networkRoot, userConfig) {
     // ============================== ValueEdit ================================
     // =========================================================================
 
-    function addValueEditor(inlet, inletData, root, valueHolder, valueElm) {
+    function addValueEditor(inlet, inletData, render, root, valueHolder, valueElm) {
         var editor = quickElm('div', 'rpd-value-editor');
         var valueIn = Kefir.emitter(),
             disableEditor = Kefir.emitter();
         inletData.disableEditor = disableEditor;
-        var valueOut = inlet.render.html.edit(editor, inlet, valueIn);
+        var valueOut = render.edit(editor, inlet, valueIn);
         valueOut.onValue(function(value) { inlet.receive(value); });
         Kefir.sampledBy([ inlet.event['inlet/update'] ],
                         [ Kefir.merge([

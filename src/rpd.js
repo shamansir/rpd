@@ -101,7 +101,7 @@ function Patch(name) {
                     for (var i = 0, il = aliases.length; i < il; i++) {
                         renderer = renderers[aliases[i]]; handlers = renderer.handlers;
                         for (var j = 0, jl = handlers.length; j < jl; j++) {
-                            handlers[j](inject_render(event, aliases[i]));
+                            handlers[j](inject_render(clone_obj(event), aliases[i]));
                         }
                     }
                 });
@@ -545,6 +545,13 @@ Link.prototype.disconnect = function() {
 // ================================== utils ====================================
 // =============================================================================
 
+function clone_obj(src) {
+    // this way is not a deep-copy and actually not cloning at all, but that's ok,
+    // since we use it few times for events, which are simple objects and the objects they
+    // pass, should be the same objects they got; just events by themselves should be different.
+    return Object.create(src);
+}
+
 function is_defined(val) {
     return (typeof val !== 'undefined');
 }
@@ -576,7 +583,7 @@ function event_map(conf) {
 function map_events(type, spec) {
     if (spec.length === 0) return function() { return { type: type } };
     if (spec.length === 1) return function(value) { var evt = {}; evt.type = type; evt[spec[0]] = value; return evt; };
-    if (spec.length > 1)   return function(value) { value.type = type; return value; };
+    if (spec.length > 1)   return function(event) { event = clone_obj(event); event.type = type; return event; };
 }
 function events_stream(conf, event_map, subj_as, subj) {
     var stream = Kefir.pool(); var types = Object.keys(conf);
@@ -602,11 +609,11 @@ function short_uid() {
 function inject_render(update, alias) {
     var type = update.type;
     if ((type === 'patch/add-node') || (type === 'node/process')) {
-        update.render = update.node.render[alias];
+        update.render = update.node.render[alias] || {};
     } else if ((type === 'node/add-inlet')  || (type === 'inlet/update')) {
-        update.render = update.inlet.render[alias];
+        update.render = update.inlet.render[alias] || {};
     } else if ((type === 'node/add-outlet')  || (type === 'outlet/update')) {
-        update.render = update.outlet.render[alias];
+        update.render = update.outlet.render[alias] || {};
     }
     return update;
 }

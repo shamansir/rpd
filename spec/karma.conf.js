@@ -42,7 +42,7 @@ module.exports = function(config) {
       './spec/registration/channelrenderer.spec.js',
 
       './spec/registration/renderer.spec.js',
-      './spec/registration/subrenderer.spec.js'
+      //'./spec/registration/subrenderer.spec.js'
 
       // './spec/history/history.spec.js'
     ],

@@ -52,6 +52,32 @@ describe('registration: node renderer', function() {
 
         });
 
+        it('the normal update stream should not set this field to an update event', function() {
+
+             var patchEventsSpy = jasmine.createSpy('patch-events');
+             patch.events.onValue(patchEventsSpy);
+
+             var node = patch.addNode('spec/foo');
+             var nodeEventsSpy = jasmine.createSpy('node-events');
+             node.events.onValue(nodeEventsSpy);
+
+             var renderer = {};
+
+             Rpd.noderenderer('spec/foo', 'spec', renderer);
+
+             var inlet = node.addInlet('spec/any', 'a');
+             inlet.receive('a');
+
+             expect(patchEventsSpy).not.toHaveBeenCalledWith(
+                 jasmine.objectContaining({ type: 'patch/add-node', render: renderer }));
+             expect(patchEventsSpy).not.toHaveBeenCalledWith(
+                 jasmine.objectContaining({ type: 'node/process', render: renderer }));
+
+             expect(nodeEventsSpy).not.toHaveBeenCalledWith(
+                 jasmine.objectContaining({ type: 'node/process', render: renderer }));
+
+         });
+
         it('one could define render-first function which is passed with node adding event', function() {
 
             var renderFirst = function() {};
