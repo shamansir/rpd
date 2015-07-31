@@ -1,6 +1,6 @@
 (function() {
 
-var ƒ = Rpd.LazyId;
+var ƒ = Rpd.unit;
 
     // inlets/outlets are at the left/right sides of a node body
 var QUARTZ_MODE = 'quartz',

@@ -657,7 +657,7 @@ return {
 
     '_': { 'Patch': Patch, 'Node': Node, 'Inlet': Inlet, 'Outlet': Outlet, 'Link': Link },
 
-    'LazyId': ƒ,
+    'unit': ƒ,
 
     'event': event,
     'events': events,
@@ -673,6 +673,8 @@ return {
     'renderer': renderer,
     'noderenderer': noderenderer,
     'channelrenderer': channelrenderer,
+
+    'import': {}, 'export': {},
 
     'allNodeTypes': nodetypes,
     'allDescriptions': nodedescriptions,
