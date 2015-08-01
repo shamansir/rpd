@@ -8,6 +8,8 @@ if (!Kefir) throw new Error('Kefir.js (https://github.com/rpominov/kefir) is req
 
 Kefir.DEPRECATION_WARNINGS = false;
 
+var VERSION = 'v2.0';
+
 var Rpd = (function() {
 
 // Rpd.NOTHING, Rpd.ID_LENGTH, ...
@@ -59,8 +61,8 @@ function Patch(name) {
         'patch/exit':        [ ],
         'patch/set-inputs':  [ 'inputs' ],
         'patch/set-outputs': [ 'outputs' ],
+        'patch/project':     [ 'target' ],
         'patch/refer':       [ 'node', 'target' ],
-        'patch/project':     [ 'inputs', 'outputs' ],
         'patch/add-node':    [ 'node' ],
         'patch/remove-node': [ 'node' ]
     };
@@ -129,7 +131,7 @@ function Patch(name) {
                 return function(value) { outlet.send(value); };
             })(outlet));
         } // use output.onUpdate?
-        myself.event['patch/project'].emit({ inputs: inputs, outputs: outputs });
+        myself.event['patch/project'].emit({ target: node.patch });
         node.patch.event['patch/refer'].emit({ node: node, target: myself });
     });
 
@@ -654,6 +656,8 @@ function nodedescription(type, description) {
 // =============================================================================
 
 return {
+
+    'VERSION': VERSION,
 
     '_': { 'Patch': Patch, 'Node': Node, 'Inlet': Inlet, 'Outlet': Outlet, 'Link': Link },
 

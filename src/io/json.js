@@ -11,7 +11,7 @@ Rpd.export.json = function(name) {
     var commands = [];
     var json = { name: name || 'Untitled',
                  kind: 'RPD Network',
-                 version: 'v2.0',
+                 version: Rpd.VERSION,
                  commands: commands };
 
     Rpd.events.filter(function(update) { return spec[update.type]; })
@@ -35,14 +35,21 @@ var exportSpec = {
     },
     'patch/set-inputs': function(update) {
         var patch = update.patch;
-        return { command: 'patch/set-inputs', patchId: update.patch.id, inputs: {} /* TODO */ };
+        var srcInputs = update.inputs,
+            inputs = [];
+        for (var i = 0; i < srcInputs.length; i++) { inputs.push(srcInputs[i].id); }
+        return { command: 'patch/set-inputs', patchId: update.patch.id, inputs: inputs };
     },
     'patch/set-outputs': function(update) {
         var patch = update.patch;
-        return { command: 'patch/set-outputs', patchId: update.patch.id, inputs: {} /* TODO */ };
+        var srcOutputs = update.outputs,
+            outputs = [];
+        for (var i = 0; i < srcOutputs.length; i++) { outputs.push(srcOutputs[i].id); }
+        return { command: 'patch/set-outputs', patchId: update.patch.id, outputs: outputs };
     },
-    'patch/refer': function() { /* TODO */ },
-    'patch/project': function() { /* TODO */ },
+    'patch/refer': function(update) {
+        return { command: 'patch/refer', patchId: update.patch.id, targetPatchId: update.target.id, nodeId: update.node.id };
+    },
     'patch/add-node': function(update) {
         var node = update.node;
         return { command: 'patch/add-node', nodeType: node.type, nodeName: node.name, nodeId: node.id };
