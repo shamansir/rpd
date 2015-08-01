@@ -116,7 +116,30 @@ function makeImportSpec() {
         links = {};
 
     return {
-
+        'network/add-patch': function(command) {
+            patches[command.patchId] = Rpd.addPatch(command.patchName);
+        },
+        'patch/enter': function(command) {
+            patches[command.patchId].enter();
+        },
+        'patch/exit': function(command) {
+            patches[command.patchId].exit();
+        },
+        'patch/set-inputs': function(command) {},
+        'patch/set-outputs': function(command) {},
+        'patch/refer': function(command) {},
+        'patch/add-node': function(command) {},
+        'patch/remove-node': function(command) {},
+        'node/turn-on': function(command) {},
+        'node/turn-off': function(command) {},
+        'node/add-inlet': function(command) {},
+        'node/remove-inlet': function(command) {},
+        'node/add-outlet': function(command) {},
+        'node/remove-outlet': function(command) {},
+        'outlet/connect': function(command) {},
+        'outlet/disconnect': function(command) {},
+        'link/enable': function(command) {},
+        'link/disable': function(command) {}
     }
 }
 
