@@ -3,8 +3,8 @@ Rpd.import.json = function() {
 }
 
 Rpd.export.json = function() {
-    var json = {
-        nodes: {}
+    /* var json = {
+        patches: {}
     };
 
     var spec = {
@@ -19,7 +19,18 @@ Rpd.export.json = function() {
 
     Rpd.events.onValue(function(update) {
         if (spec[update.type]) spec[update.type](update);
-    });
+    });  */
+
+    var json = { commands: {} };
+    var commands = json.commands;
+
+    Rpd.events.filter(function(update) {
+                   return update.type === 'inlet/update' ||
+                          update.type === 'outlet/update';
+               })
+              .onValue(function(update) {
+                  if (spec[update.type]) commands.push(spec[update.type](update));
+              });
 
     return json;
 }
