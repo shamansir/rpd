@@ -1,7 +1,20 @@
 ;(function(global) {
   "use strict";
 
-Rpd.import.json = function() {
+Rpd.import.json = function(json) {
+
+    var spec = makeImportSpec();
+
+    if ((json.version !== Rpd.VERSION) && console && console.warn) {
+        console.warn('JSON version', json.version, 'and RPD Version',
+                                     Rpd.VERSION, 'are not equal to each other');
+    }
+
+    var commands = json.commands;
+
+    for (var i = 0; i < commands.length; i++) {
+        if (spec[commands[i].command]) spec[commands[i].command](commands[i]);
+    }
 
 }
 
@@ -94,5 +107,17 @@ var exportSpec = {
         return { command: 'link/disable', linkId: update.link.id };
     }
 };
+
+function makeImportSpec() {
+    var patches = {},
+        nodes = {},
+        inlets = {},
+        outlets = {},
+        links = {};
+
+    return {
+
+    }
+}
 
 }(this));
