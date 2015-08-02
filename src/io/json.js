@@ -92,6 +92,9 @@ var exportSpec = {
     'node/remove-outlet': function(update) {
         return { command: 'node/remove-inlet', nodeId: update.node.id, outletId: update.outlet.id };
     },
+    'node/move': function(update) {
+        return { command: 'node/move', nodeId: update.node.id, position: update.position };
+    },
     'outlet/connect': function(update) {
         var link = update.link;
         return { command: 'outlet/connect', outletId: update.outlet.id, inletId: link.inlet.id,
@@ -169,6 +172,9 @@ function makeImportSpec() {
         },
         'node/remove-outlet': function(command) {
             nodes[command.nodeId].removeOutlet(nodes[command.outletId]);
+        },
+        'node/move': function(command) {
+            nodes[command.nodeId].move(command.position);
         },
         'outlet/connect': function(command) {
             links[command.linkId] = outlets[command.outletId].connect(inlets[command.inletId], null, command.linkType);
