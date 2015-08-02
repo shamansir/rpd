@@ -60,8 +60,8 @@ var exportSpec = {
         for (var i = 0; i < srcOutputs.length; i++) { outputs.push(srcOutputs[i].id); }
         return { command: 'patch/set-outputs', patchId: update.patch.id, outputs: outputs };
     },
-    'patch/refer': function(update) {
-        return { command: 'patch/refer', patchId: update.patch.id, targetPatchId: update.target.id, nodeId: update.node.id };
+    'patch/project': function(update) {
+        return { command: 'patch/project', patchId: update.patch.id, targetPatchId: update.target.id, nodeId: update.node.id };
     },
     'patch/add-node': function(update) {
         var node = update.node;
@@ -143,7 +143,9 @@ function makeImportSpec() {
             }
             patches[command.patchId].outputs(outputsTrg);
         },
-        'patch/refer': function(command) {},
+        'patch/project': function(command) {
+            patches[command.patchId].project(nodes[command.nodeId]);
+        },
         'patch/add-node': function(command) {
             nodes[command.nodeId] = patches[command.patchId].addNode(command.nodeType, command.nodeName);
         },

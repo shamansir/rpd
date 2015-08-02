@@ -61,7 +61,7 @@ function Patch(name) {
         'patch/exit':        [ ],
         'patch/set-inputs':  [ 'inputs' ],
         'patch/set-outputs': [ 'outputs' ],
-        'patch/project':     [ 'target' ],
+        'patch/project':     [ 'node', 'target' ],
         'patch/refer':       [ 'node', 'target' ],
         'patch/add-node':    [ 'node' ],
         'patch/remove-node': [ 'node' ]
@@ -131,7 +131,7 @@ function Patch(name) {
                 return function(value) { outlet.send(value); };
             })(outlet));
         } // use output.onUpdate?
-        myself.event['patch/project'].emit({ target: node.patch });
+        myself.event['patch/project'].emit({ node: node, target: node.patch });
         node.patch.event['patch/refer'].emit({ node: node, target: myself });
     });
 
