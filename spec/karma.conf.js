@@ -19,6 +19,7 @@ module.exports = function(config) {
       './vendor/kefir.min.js',
 
       './src/rpd.js',
+      './src/io/json.js',
 
       './spec/matchers.js',
       './spec/prettify.js',
@@ -42,9 +43,11 @@ module.exports = function(config) {
       './spec/registration/channelrenderer.spec.js',
 
       './spec/registration/renderer.spec.js',
-      //'./spec/registration/subrenderer.spec.js'
+      //'./spec/registration/subrenderer.spec.js',
 
-      // './spec/history/history.spec.js'
+      // './spec/history/history.spec.js',
+      './spec/io.spec.js'
+
     ],
 
 

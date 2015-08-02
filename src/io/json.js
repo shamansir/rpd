@@ -10,12 +10,18 @@ Rpd.export.json = function(name) {
                  version: Rpd.VERSION,
                  commands: commands };
 
-    Rpd.events.filter(function(update) { return spec[update.type]; })
-              .onValue(function(update) {
-                  commands.push(spec[update.type](update));
-              });
+    var knownEvents = Rpd.events.filter(function(update) { return spec[update.type]; });
 
-    return json;
+    var pushCommand = function(update) {
+        commands.push(spec[update.type](update));
+    };
+
+    knownEvents.onValue(pushCommand);
+
+    return function() {
+        knownEvents.offValue(pushCommand);
+        return json;
+    };
 }
 
 Rpd.import.json = function(json) {
@@ -24,6 +30,7 @@ Rpd.import.json = function(json) {
     if ((json.version !== Rpd.VERSION) && console && console.warn) {
         console.warn('JSON version', json.version, 'and RPD Version',
                                      Rpd.VERSION, 'are not equal to each other');
+        return;
     }
 
     var commands = json.commands;
