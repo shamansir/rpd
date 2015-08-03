@@ -3,21 +3,27 @@
     <head>
         <meta charset="utf-8">
 
+        <link rel="stylesheet" href="../src/toolkit/core/render/html.css"></link>
+        <link rel="stylesheet" href="../src/render/html.css"></style>
+
         <script src="../vendor/kefir.min.js"></script>
 
         <script src="../src/rpd.js"></script>
 
+        <script src="../src/io/json.js"></script>
+
         <script src="../src/render/html.js"></script>
-        <link rel="stylesheet" href="../src/render/html.css"></style>
 
         <script src="../src/toolkit/core/toolkit.js"></script>
         <script src="../src/toolkit/core/render/html.js"></script>
-        <link rel="stylesheet" href="../src/toolkit/core/render/html.css"></link>
+
     </head>
 
     <body>
 
         <script>
+            var json = Rpd.export.json('Core with Network');
+
             Rpd.render('html', document.body, { /* mode: 'pd' */ });
 
             var root = Rpd.addPatch('root').enter();
@@ -54,6 +60,8 @@
 
             //outA.stream(Kefir.repeatedly(10, [1, 2, 3]));
             //outB.stream(Kefir.repeatedly(20, [4, 5, 6]));
+
+            console.log(json);
 
         </script>
     </body>

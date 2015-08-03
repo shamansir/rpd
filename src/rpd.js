@@ -8,6 +8,8 @@ if (!Kefir) throw new Error('Kefir.js (https://github.com/rpominov/kefir) is req
 
 Kefir.DEPRECATION_WARNINGS = false;
 
+var VERSION = 'v2.0';
+
 var Rpd = (function() {
 
 // Rpd.NOTHING, Rpd.ID_LENGTH, ...
@@ -44,6 +46,7 @@ function render(aliases, targets, conf) {
     return function() { event['network/add-patch'].offValue(handler); };
 }
 
+// =============================================================================
 // ================================== Patch ====================================
 // =============================================================================
 
@@ -59,8 +62,8 @@ function Patch(name) {
         'patch/exit':        [ ],
         'patch/set-inputs':  [ 'inputs' ],
         'patch/set-outputs': [ 'outputs' ],
+        'patch/project':     [ 'node', 'target' ],
         'patch/refer':       [ 'node', 'target' ],
-        'patch/project':     [ 'inputs', 'outputs' ],
         'patch/add-node':    [ 'node' ],
         'patch/remove-node': [ 'node' ]
     };
@@ -129,7 +132,7 @@ function Patch(name) {
                 return function(value) { outlet.send(value); };
             })(outlet));
         } // use output.onUpdate?
-        myself.event['patch/project'].emit({ inputs: inputs, outputs: outputs });
+        myself.event['patch/project'].emit({ node: node, target: node.patch });
         node.patch.event['patch/refer'].emit({ node: node, target: myself });
     });
 
@@ -182,6 +185,7 @@ Patch.prototype.project = function(node) {
     return this;
 }
 
+// =============================================================================
 // ================================= Node ======================================
 // =============================================================================
 
@@ -207,7 +211,8 @@ function Node(type, patch, name, callback) {
         'node/add-inlet':     [ 'inlet' ],
         'node/remove-inlet':  [ 'inlet' ],
         'node/add-outlet':    [ 'outlet' ],
-        'node/remove-outlet': [ 'outlet' ]
+        'node/remove-outlet': [ 'outlet' ],
+        'node/move':          [ 'position' ]
     };
     this.event = event_map(event_types);
     this.events = events_stream(event_types, this.event, 'node', this);
@@ -342,7 +347,11 @@ Node.prototype.removeOutlet = function(outlet) {
     this.event['node/remove-outlet'].emit(outlet);
     this.events.unplug(outlet.events);
 }
+Node.prototype.move = function(x, y) {
+    this.event['node/move'].emit([ x, y ]);
+}
 
+// =============================================================================
 // ================================== Inlet ====================================
 // =============================================================================
 
@@ -396,6 +405,7 @@ Inlet.prototype.toDefault = function() {
     }
 }
 
+// =============================================================================
 // ================================= Outlet ====================================
 // =============================================================================
 
@@ -466,6 +476,7 @@ Outlet.prototype.toDefault = function() {
     }
 }
 
+// =============================================================================
 // ================================= Link ======================================
 // =============================================================================
 
@@ -539,6 +550,7 @@ Link.prototype.disconnect = function() {
     this.outlet.disconnect(this);
 }
 
+// =============================================================================
 // ================================== utils ====================================
 // =============================================================================
 
@@ -615,6 +627,7 @@ function inject_render(update, alias) {
     return update;
 }
 
+// =============================================================================
 // =========================== registration ====================================
 // =============================================================================
 
@@ -650,14 +663,17 @@ function nodedescription(type, description) {
     nodedescriptions[type] = description;
 }
 
+// =============================================================================
 // =============================== export ======================================
 // =============================================================================
 
 return {
 
+    'VERSION': VERSION,
+
     '_': { 'Patch': Patch, 'Node': Node, 'Inlet': Inlet, 'Outlet': Outlet, 'Link': Link },
 
-    'LazyId': ƒ,
+    'unit': ƒ,
 
     'event': event,
     'events': events,
@@ -673,6 +689,8 @@ return {
     'renderer': renderer,
     'noderenderer': noderenderer,
     'channelrenderer': channelrenderer,
+
+    'import': {}, 'export': {},
 
     'allNodeTypes': nodetypes,
     'allDescriptions': nodedescriptions,

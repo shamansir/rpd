@@ -1,6 +1,6 @@
 (function() {
 
-var ƒ = Rpd.LazyId;
+var ƒ = Rpd.unit;
 
     // inlets/outlets are at the left/right sides of a node body
 var QUARTZ_MODE = 'quartz',
@@ -639,6 +639,12 @@ return function(networkRoot, userConfig) {
         // 'node/remove-outlet': function(update) {},
 
         // =====================================================================
+        // ============================= node/move =============================
+        // =====================================================================
+
+        // 'node/move': function(update) {},
+
+        // =====================================================================
         // =========================== inlet/update ============================
         // =====================================================================
 
@@ -1071,27 +1077,30 @@ return function(networkRoot, userConfig) {
         handle.classList.add('rpd-drag-handle');
         var nodeLinks;
         Kefir.fromEvents(handle, 'mousedown').map(extractPos)
-                                            .flatMap(function(pos) {
+                                             .flatMap(function(pos) {
             box.classList.add('rpd-dragging');
             var initPos = getPos(box),
                 diffPos = { x: pos.x - initPos.x,
                             y: pos.y - initPos.y };
             nodeLinks = null;
             box.style.zIndex = NODEDRAG_LAYER;
-            return Kefir.fromEvents(root, 'mousemove')
-                        .tap(stopPropagation)
-                        .takeUntilBy(Kefir.fromEvents(root, 'mouseup'))
-                        .map(extractPos)
-                        .map(function(absPos) {
-                            return { x: absPos.x - diffPos.x,
-                                     y: absPos.y - diffPos.y };
-                        }).onEnd(function() {
-                            box.classList.remove('rpd-dragging');
-                            box.style.zIndex = NODE_LAYER;
-                            eachLink(nodeLinks, function(linkData) {
-                                linkData.elm.style.zIndex = LINK_LAYER;
-                            });
-                        });
+            var moveStream = Kefir.fromEvents(root, 'mousemove')
+                                  .tap(stopPropagation)
+                                  .takeUntilBy(Kefir.fromEvents(root, 'mouseup'))
+                                  .map(extractPos)
+                                  .map(function(absPos) {
+                                      return { x: absPos.x - diffPos.x,
+                                               y: absPos.y - diffPos.y };
+                                  })
+                                  .onEnd(function() {
+                                      box.classList.remove('rpd-dragging');
+                                      box.style.zIndex = NODE_LAYER;
+                                      eachLink(nodeLinks, function(linkData) {
+                                          linkData.elm.style.zIndex = LINK_LAYER;
+                                      });
+                                  });
+            moveStream.last().onValue(function(pos) { node.move(pos.x, pos.y); });
+            return moveStream;
         }).onValue(function(pos) {
             box.style.left = pos.x + 'px';
             box.style.top  = pos.y + 'px';
@@ -1340,6 +1349,7 @@ function BoxLayout() {
             nodeElm.style.minWidth  = Math.floor(new_rect[2]) + 'px';
             nodeElm.style.minHeight = Math.floor(new_rect[3]) + 'px';
             node_rects.push(new_rect);
+            node.move(new_rect[0], new_rect[1]);
         }
     }
 
