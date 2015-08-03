@@ -85,7 +85,7 @@ var exportSpec = {
     },
     'node/add-inlet': function(update) {
         var inlet = update.inlet;
-        return { command: 'node/add-inlet', nodeId: update.node.id,
+        return { command: 'node/add-inlet', nodeId: update.node.id, inletId: inlet.id,
                  inletType: inlet.type, inletAlias: inlet.alias, inletName: inlet.name };
     },
     'node/remove-inlet': function(update) {
@@ -93,11 +93,11 @@ var exportSpec = {
     },
     'node/add-outlet': function(update) {
         var outlet = update.outlet;
-        return { command: 'node/add-inlet', nodeId: update.node.id,
+        return { command: 'node/add-outlet', nodeId: update.node.id, outletId: outlet.id,
                  outletType: outlet.type, outletAlias: outlet.alias, outletName: outlet.name };
     },
     'node/remove-outlet': function(update) {
-        return { command: 'node/remove-inlet', nodeId: update.node.id, outletId: update.outlet.id };
+        return { command: 'node/remove-outlet', nodeId: update.node.id, outletId: update.outlet.id };
     },
     'node/move': function(update) {
         return { command: 'node/move', nodeId: update.node.id, position: update.position };
@@ -149,7 +149,7 @@ function makeImportSpec() {
             var outputs = command.outputs,
                 outputsTrg = [];
             for (var i = 0; i < outputs.length; i++) {
-                outputsTrg.push(inlets[outputs[i]]);
+                outputsTrg.push(outlets[outputs[i]]);
             }
             patches[command.patchId].outputs(outputsTrg);
         },
@@ -169,19 +169,20 @@ function makeImportSpec() {
             nodes[command.nodeId].turnOff();
         },
         'node/add-inlet': function(command) {
-            inlets[command.Id] = nodes[command.nodeId].addInlet(command.inletType, command.inletName, command.inletAlias);
+            inlets[command.inletId] = nodes[command.nodeId].addInlet(command.inletType, command.inletName, command.inletAlias);
         },
         'node/remove-inlet': function(command) {
-            nodes[command.nodeId].removeInlet(nodes[command.inletId]);
+            nodes[command.nodeId].removeInlet(inlets[command.inletId]);
         },
         'node/add-outlet': function(command) {
-            outlets[command.Id] = nodes[command.nodeId].addOutlet(command.outletType, command.outletName, command.outletAlias);
+            outlets[command.outletId] = nodes[command.nodeId].addOutlet(command.outletType, command.outletName, command.outletAlias);
         },
         'node/remove-outlet': function(command) {
-            nodes[command.nodeId].removeOutlet(nodes[command.outletId]);
+            nodes[command.nodeId].removeOutlet(outlets[command.outletId]);
         },
         'node/move': function(command) {
-            nodes[command.nodeId].move(command.position);
+            var position = command.position;
+            nodes[command.nodeId].move(position[0], position[1]);
         },
         'outlet/connect': function(command) {
             links[command.linkId] = outlets[command.outletId].connect(inlets[command.inletId], null, command.linkType);
