@@ -185,7 +185,7 @@ function makeImportSpec() {
             nodes[command.nodeId].move(position[0], position[1]);
         },
         'outlet/connect': function(command) {
-            links[command.linkId] = outlets[command.outletId].connect(inlets[command.inletId], null, command.linkType);
+            links[command.linkId] = outlets[command.outletId].connect(inlets[command.inletId], command.linkType);
         },
         'outlet/disconnect': function(command) {
             outlets[command.outletId].disconnect(links[command.linkId]);

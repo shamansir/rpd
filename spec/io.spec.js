@@ -239,7 +239,7 @@ describe('import and export', function() {
                         var outlet = firstNode.addOutlet('spec/any', 'Outlet');
                         var secondNode = patch.addNode('spec/empty', 'ConnectTwo');
                         var inlet = secondNode.addInlet('spec/any', 'Inlet');
-                        outlet.connect(inlet, null, 'spec/pass');
+                        outlet.connect(inlet, 'spec/pass');
                     },
                     [ jasmine.objectContaining({
                           type: 'outlet/connect',
@@ -258,7 +258,7 @@ describe('import and export', function() {
                         var outlet = firstNode.addOutlet('spec/any', 'Outlet');
                         var secondNode = patch.addNode('spec/empty', 'ConnectTwo');
                         var inlet = secondNode.addInlet('spec/any', 'Inlet');
-                        var link = outlet.connect(inlet, null, 'spec/pass');
+                        var link = outlet.connect(inlet, 'spec/pass');
                         outlet.disconnect(link);
                     },
                     [ jasmine.objectContaining({
@@ -278,7 +278,7 @@ describe('import and export', function() {
                         var outlet = firstNode.addOutlet('spec/any', 'Outlet');
                         var secondNode = patch.addNode('spec/empty', 'ConnectTwo');
                         var inlet = secondNode.addInlet('spec/any', 'Inlet');
-                        outlet.connect(inlet, null, 'spec/pass').enable();
+                        outlet.connect(inlet, 'spec/pass').enable();
                     },
                     [ jasmine.objectContaining({
                           type: 'link/enable',
@@ -299,7 +299,7 @@ describe('import and export', function() {
                         var outlet = firstNode.addOutlet('spec/any', 'Outlet');
                         var secondNode = patch.addNode('spec/empty', 'ConnectTwo');
                         var inlet = secondNode.addInlet('spec/any', 'Inlet');
-                        var link = outlet.connect(inlet, null, 'spec/pass');
+                        var link = outlet.connect(inlet, 'spec/pass');
                         link.enable();
                         link.disable();
                     },

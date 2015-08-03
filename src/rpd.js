@@ -450,8 +450,8 @@ function Outlet(type, node, alias, name, _default) {
          });
 
 }
-Outlet.prototype.connect = function(inlet, adapter, type) {
-    var link = new Link(type, this, inlet, adapter);
+Outlet.prototype.connect = function(inlet, type) {
+    var link = new Link(type, this, inlet);
     this.events.plug(link.events);
     this.value.onValue(link.receiver);
     this.event['outlet/connect'].emit(link);

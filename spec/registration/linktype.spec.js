@@ -17,7 +17,7 @@ describe('registration: link type', function() {
                 secondNode = patch.addNode('spec/empty');
             var inlet = secondNode.addInlet('spec/any', 'foo'),
                 outlet = firstNode.addOutlet('spec/any', 'foo');
-            var link = outlet.connect(inlet, null, 'spec/foo');
+            var link = outlet.connect(inlet, 'spec/foo');
             outlet.stream(Kefir.sequentially(period, values));
             outlet.send(21);
 
