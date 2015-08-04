@@ -431,7 +431,7 @@ function Outlet(type, node, alias, name, _default) {
     var myself = this;
     var event_types = {
         'outlet/update':     [ 'value' ],
-        'outlet/connect':    [ 'link' ],
+        'outlet/connect':    [ 'link', 'inlet' ],
         'outlet/disconnect': [ 'link' ]
     };
     this.event = event_map(event_types);
@@ -454,7 +454,7 @@ Outlet.prototype.connect = function(inlet, type) {
     var link = new Link(type, this, inlet);
     this.events.plug(link.events);
     this.value.onValue(link.receiver);
-    this.event['outlet/connect'].emit(link);
+    this.event['outlet/connect'].emit({ link: link, inlet: inlet });
     return link;
 }
 Outlet.prototype.disconnect = function(link) {
@@ -480,7 +480,7 @@ Outlet.prototype.toDefault = function() {
 // ================================= Link ======================================
 // =============================================================================
 
-function Link(type, outlet, inlet, adapt, name) {
+function Link(type, outlet, inlet, name) {
     this.type = type || 'core/pass';
     this.id = short_uid();
     var def = adapt_to_obj(linktypes[this.type]);
@@ -491,8 +491,6 @@ function Link(type, outlet, inlet, adapt, name) {
 
     this.outlet = outlet;
     this.inlet = inlet;
-
-    var adapt = adapt || def.adapt || undefined;
 
     this.value = Kefir.emitter();
 
@@ -518,7 +516,7 @@ function Link(type, outlet, inlet, adapt, name) {
     this.event = event_map(event_types);
     var orig_updates = this.event['link/pass'];
     var updates = orig_updates.merge(this.value);
-    if (adapt) updates = updates.map(adapt);
+    if (def.adapt) updates = updates.map(def.adapt);
     // rewrite with the modified stream
     this.event['link/pass'] = updates.onValue(function(v){});
     this.events = events_stream(event_types, this.event, 'link', this);

@@ -243,9 +243,9 @@ describe('import and export', function() {
                     },
                     [ jasmine.objectContaining({
                           type: 'outlet/connect',
-                          //inlet: jasmine.objectContaining({ name: 'Inlet' }),
-                          //outlet: jasmine.objectContaining({ name: 'Outlet' }),
-                          link: jasmine.anything()
+                          inlet: jasmine.objectContaining({ name: 'Inlet' }),
+                          outlet: jasmine.objectContaining({ name: 'Outlet' }),
+                          link: jasmine.objectContaining({ type: 'spec/pass' })
                       }) ]
                 );
             });
@@ -263,9 +263,11 @@ describe('import and export', function() {
                     },
                     [ jasmine.objectContaining({
                           type: 'outlet/disconnect',
-                          //inlet: jasmine.objectContaining({ name: 'Inlet' }),
-                          //outlet: jasmine.objectContaining({ name: 'Outlet' }),
-                          link: jasmine.objectContaining({ type: 'spec/pass' })
+                          link: jasmine.objectContaining({
+                              type: 'spec/pass',
+                              inlet: jasmine.objectContaining({ name: 'Inlet' }),
+                              outlet: jasmine.objectContaining({ name: 'Outlet' })
+                          })
                       }) ]
                 );
             });

@@ -104,8 +104,8 @@ var exportSpec = {
     },
     'outlet/connect': function(update) {
         var link = update.link;
-        return { command: 'outlet/connect', outletId: update.outlet.id, inletId: link.inlet.id,
-                 linkType: link.type, linkId: link.id }; /* TODO: adapter? */
+        return { command: 'outlet/connect', outletId: update.outlet.id, inletId: update.inlet.id,
+                 linkType: link.type, linkId: link.id };
     },
     'outlet/disconnect': function(update) {
         return { command: 'outlet/disconnect', outletId: update.outlet.id, linkId: update.link.id };
