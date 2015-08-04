@@ -93,23 +93,24 @@ return function(networkRoot, userConfig) {
 
             /* <build HTML> */
 
-            root = document.createElement('div');
+            var docElm = document.documentElement;
+
+            root = shaven([ 'div',
+                { class: [ 'rpd-patch',
+                           'rpd-layout-' + config.mode,
+                           'rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown')
+                         ].join(' '),
+                  style: {
+                      height: docElm.clientHeight + 'px'
+                  } }
+            ])[0];
+
             patchToRoot[patch.id] = root;
 
-            root.classList.add('rpd-patch');
-            if (config.mode) root.classList.add('rpd-layout-' + config.mode);
-            if (config.valuesOnHover) {
-                root.classList.add('rpd-values-on-hover');
-            } else {
-                root.classList.add('rpd-values-always-shown');
-            }
             if (config.showBoxes) root.classList.add('rpd-show-boxes');
 
-            root.style.height = document.documentElement.clientHeight + 'px';
-            // window.innerHeight + 'px';
-
-            Kefir.fromEvents(root, 'resize').onValue(function() {
-                root.style.height = document.documentElement.clientHeight + 'px';
+            Kefir.fromEvents(docElm, 'resize').onValue(function() {
+                root.style.height = docElm.clientHeight + 'px';
             });
 
             /* </build HTML> */
