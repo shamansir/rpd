@@ -52,6 +52,8 @@ patches[patch.id] = patch;
 
 return function(networkRoot, userConfig) {
 
+    networkRoot = d3.select(networkRoot);
+
     // these objects store elements and data corresponding to given nodes,
     // inlets, outlets, links as hashes, by their ID;
     // it's not pure functional way, especially in comparison to RPD engine code,
@@ -75,7 +77,7 @@ return function(networkRoot, userConfig) {
 
     var root;
 
-    networkRoot.classList.add('rpd-network');
+    networkRoot.classed('rpd-network', true);
 
     return {
 
@@ -120,7 +122,7 @@ return function(networkRoot, userConfig) {
 
             if (config.renderNodeList) addNodeList(root, Rpd.allNodeTypes, descriptions);
 
-            Kefir.fromEvents(root, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
+            Kefir.fromEvents(root.node(), 'selectstart').onValue(function(evt) { evt.preventDefault(); });
 
         },
 
@@ -130,7 +132,7 @@ return function(networkRoot, userConfig) {
 
         'patch/enter': function(update) {
             navigation.switch(update.patch);
-            networkRoot.appendChild(root);
+            networkRoot.append(root);
             updateAllLinks(nodes);
         },
 
@@ -139,7 +141,7 @@ return function(networkRoot, userConfig) {
         // =====================================================================
 
         'patch/exit': function(update) {
-            networkRoot.removeChild(root);
+            root.remove();
         },
 
         // =====================================================================
@@ -155,20 +157,22 @@ return function(networkRoot, userConfig) {
         'patch/refer': function(update) {
             var node = update.node;
 
-            var nodeElm = nodes[node.id].elm;
-            var bodyTrg = nodes[node.id].bodyTrg;
+            var nodeData = nodes[node.id];
 
-            nodeElm.classList.add('rpd-patch-reference');
+            var nodeElm = nodeData.elm;
+            var bodyTrg = nodeData.bodyTrg;
 
-            nodes[node.id].body.innerText = '[' + (update.target.name || update.target.id) + ']';
+            nodeElm.classed('rpd-patch-reference', true);
 
-            bodyTrg.addEventListener('click',
-                (function(current, target) {
+            nodeData.body.text('[' + (update.target.name || update.target.id) + ']');
+
+            Kefir.fromEvents(bodyTrg.node(), 'click')
+                 .onValue((function(current, target) {
                     return function() {
                         current.exit();
                         target.enter();
                     }
-                })(patch, update.target));
+                 })(patch, update.target));
         },
 
         // =====================================================================
@@ -1255,19 +1259,6 @@ function mergeConfig(user_conf, defaults) {
         for (var prop in user_conf) { merged[prop] = user_conf[prop]; }
         return merged;
     } else return defaults;
-}
-
-function quickElm(type, cls) {
-    var elm = document.createElement(type);
-    if (cls) elm.className = cls;
-    return elm;
-}
-
-function quickElmVal(type, cls, value) {
-    var elm = document.createElement(type);
-    if (cls) elm.className = cls;
-    elm.innerText = elm.textContent = value;
-    return elm;
 }
 
 function valueErrorEffect(storage, elmHolder, duration) {
