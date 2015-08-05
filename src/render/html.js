@@ -72,8 +72,12 @@ return function(networkRoot, userConfig) {
 
             tree.patches[patch.id] = root;
 
-            Kefir.fromEvents(docElm.node(), 'resize').onValue(function() {
-                root.style('height', docElm.property('clientHeight') + 'px');
+            Kefir.fromEvents(window, 'resize')
+                 .map(function() { return window.innerHeight ||
+                                          document.documentElement.clientHeight ||
+                                          document.body.clientHeight; })
+                 .onValue(function(value) {
+                root.style('height', value + 'px');
             });
 
         },
