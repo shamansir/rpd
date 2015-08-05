@@ -1,6 +1,6 @@
 // source: https://gist.github.com/shamansir/a4459a588a12d4178197
 
-var _ = (function() {
+var d3_stub = (function() {
 
 function modify(s, v, each) {
   var f = (typeof v === 'function') ? v : function() { return v; };
@@ -22,9 +22,12 @@ function Selection(v, root, all) {
   this.selection = selection;
 };
 
-Selection.prototype.attr = function(prop, val) {
-  return modify(this, val, function(subj, s_val) { subj[prop] = s_val; });
+Selection.prototype.attr = function(attr, val) {
+  if (!val && (this.selection.length === 1)) return this.selection[0][attr];
+  return modify(this, val, function(subj, s_val) { subj[attr] = s_val; });
 };
+
+Selection.prototype.property = Selection.prototype.attr;
 
 Selection.prototype.style = function(prop, val) {
   return modify(this, val, function(subj, style) { subj.style[prop] = style; });

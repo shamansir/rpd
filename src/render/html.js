@@ -44,6 +44,8 @@ var patches = {};
 
 var navigation = Navigation();
 
+var d3 = d3_stub || d3;
+
 function HtmlRenderer(patch) {
 
 patches[patch.id] = patch;
@@ -93,24 +95,22 @@ return function(networkRoot, userConfig) {
 
             /* <build HTML> */
 
-            var docElm = document.documentElement;
+            var docElm = d3.select(document.documentElement);
 
-            root = shaven([ 'div',
-                { class: [ 'rpd-patch',
-                           'rpd-layout-' + config.mode,
-                           'rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown')
-                         ].join(' '),
-                  style: {
-                      height: docElm.clientHeight + 'px'
-                  } }
-            ])[0];
+            root = d3.select(document.createElement('div'))
+                     .attr('class', function() {
+                         var classes = [ 'rpd-patch' ];
+                         classes.push('rpd-layout-' + config.mode);
+                         classes.push('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'));
+                         if (config.showBoxes) classes.push('rpd-show-boxes');
+                         return classes.join(' ');
+                     })
+                     .style('height', docElm.property('clientHeight') + 'px');
 
-            patchToRoot[patch.id] = root;
+            patchToRoot[patch.id] = root.node();
 
-            if (config.showBoxes) root.classList.add('rpd-show-boxes');
-
-            Kefir.fromEvents(docElm, 'resize').onValue(function() {
-                root.style.height = docElm.clientHeight + 'px';
+            Kefir.fromEvents(docElm.node(), 'resize').onValue(function() {
+                root.style('height', docElm.property('clientHeight') + 'px');
             });
 
             /* </build HTML> */
