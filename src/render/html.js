@@ -47,6 +47,9 @@ return function(networkRoot, userConfig) {
 
     var config = mergeConfig(userConfig, defaultConfig);
 
+    networkRoot = d3.select(networkRoot)
+                    .classed('rpd-network', true);
+
     return {
 
         // the object below reacts on every Patch event and constructs corresponding
@@ -56,16 +59,16 @@ return function(networkRoot, userConfig) {
 
             var docElm = d3.select(document.documentElement);
 
-            root = d3.select(document.createElement('div'))
-                     .attr('class', function() {
-                         var classes = [ 'rpd-patch' ];
-                         classes.push('rpd-layout-' + config.mode);
-                         classes.push('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'));
-                         if (config.showBoxes) classes.push('rpd-show-boxes');
-                         return classes.join(' ');
-                     })
-                     .style('height', docElm.property('clientHeight') + 'px')
-                     .data(update.patch);
+            var root = d3.select(document.createElement('div'))
+                         .property('className', function() {
+                             var classes = [ 'rpd-patch' ];
+                             classes.push('rpd-layout-' + config.mode);
+                             classes.push('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'));
+                             if (config.showBoxes) classes.push('rpd-show-boxes');
+                             return classes.join(' ');
+                         })
+                         .style('height', docElm.property('clientHeight') + 'px')
+                         .data(update.patch);
 
             tree.patches[patch.id] = root;
 
@@ -73,6 +76,10 @@ return function(networkRoot, userConfig) {
                 root.style('height', docElm.property('clientHeight') + 'px');
             });
 
+        },
+
+        'patch/enter': function(update) {
+            networkRoot.append(tree.patches[update.patch.id].node());
         }
 
     }
