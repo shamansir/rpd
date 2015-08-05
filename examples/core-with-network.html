@@ -7,12 +7,13 @@
         <link rel="stylesheet" href="../src/render/html.css"></style>
 
         <script src="../vendor/kefir.min.js"></script>
-        <script src="../vendor/shaven.min.js"></script>
 
         <script src="../src/rpd.js"></script>
 
         <script src="../src/io/json.js"></script>
 
+        <script src="../src/render/utils.js"></script>
+        <script src="../src/render/d3_tiny.js"></script>
         <script src="../src/render/html.js"></script>
 
         <script src="../src/toolkit/core/toolkit.js"></script>
@@ -23,7 +24,7 @@
     <body>
 
         <script>
-            var json = Rpd.export.json('Core with Network');
+            var finalize = Rpd.export.json('Core with Network');
 
             Rpd.render('html', document.body, { /* mode: 'pd' */ });
 
@@ -62,7 +63,7 @@
             //outA.stream(Kefir.repeatedly(10, [1, 2, 3]));
             //outB.stream(Kefir.repeatedly(20, [4, 5, 6]));
 
-            console.log(json);
+            console.log(finalize());
 
         </script>
     </body>

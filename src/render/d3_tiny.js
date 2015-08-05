@@ -1,6 +1,6 @@
 // source: https://gist.github.com/shamansir/a4459a588a12d4178197
 
-var d3_stub = (function() {
+var d3_tiny = (function() {
 
 function modify(s, v, each) {
   var f = (typeof v === 'function') ? v : function() { return v; };
@@ -71,6 +71,11 @@ Selection.prototype.on = function(event, handler) {
   return modify(this, function() { return handler; },
                 function(subj, handler) { subj.addEventListener(event, handler) });
 };
+
+Selection.prototype.data = function(val) {
+    if (!val) return this.node().__data__;
+    return modify(this, val, function(subj, data) { subj.__data__ = data; });
+}
 
 return { 'select': function(v, root) { return new Selection(v, root); },
          'selectAll': function(v, root) { return new Selection(v, root, true); } };
