@@ -84,6 +84,18 @@ return function(networkRoot, userConfig) {
 
         'patch/enter': function(update) {
             networkRoot.append(tree.patches[update.patch.id].node());
+        },
+
+        'patch/add-node': function(update) {
+            var node = update.node;
+
+            var render = update.render;
+
+            var nodeBox = d3.select('div')
+                            .classed('rpd-node-box', true);
+
+            var nodeElm = d3.select('table')
+                            .classed('rpd-node', true);
         }
 
     }
