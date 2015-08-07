@@ -91,11 +91,41 @@ return function(networkRoot, userConfig) {
 
             var render = update.render;
 
-            var nodeBox = d3.select('div')
-                            .classed('rpd-node-box', true);
+            var nodeBox = root.append('div').attr('className', 'rpd-node-box');
+            var table = nodeBox.append('table').attr('className', 'rpd-node');
 
-            var nodeElm = d3.select('table')
-                            .classed('rpd-node', true);
+            if (config.mode === QUARTZ_MODE) {
+
+                var thead = table.append('thead').attr('className', 'rpd-title');
+
+                thead.append('tr').attr('className', 'rpd-remove-button')
+                     .append('th')/*.attr('colspan', '3')*/.text('x');
+
+                thead.append('tr')
+                     .append('th').attr('className', 'rpd-info').attr('colspan', 3)
+                     .append('span').attr('className', 'rpd.name').text(node.name);
+
+                if (config.showTypes) {
+                    thead.select('th.rpd-info')
+                         .append('span').attr('className', 'rpd-type').text(node.type);
+                }
+
+                var contentRow = table.append('tbody').attr('className', 'rpd-content')
+                                      .append('tr');
+
+                contentRow.append('td').attr('className', 'rpd-inlets')
+                          .append('table')
+                          .append('tbody');
+
+                contentRow.append('td').attr('className', 'rpd-body')
+                          .append('table')
+                          .append('tbody').append('tr').append('td');
+
+                contentRow.append('td').attr('className', 'rpd-outlets')
+                          .append('table')
+                          .append('tbody');
+
+            }
         }
 
     }
