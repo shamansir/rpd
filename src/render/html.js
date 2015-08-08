@@ -92,9 +92,18 @@ return function(networkRoot, userConfig) {
             var render = update.render;
 
             var nodeBox = root.append('div').attr('className', 'rpd-node-box');
-            var table = nodeBox.append('table').attr('className', 'rpd-node');
+            var nodeElm = nodeBox.append('table').attr('className', 'rpd-node');
+
+            function create(type) { return d3.select(document.createElement(type)); }
 
             if (config.mode === QUARTZ_MODE) {
+
+                nodeElm.append('thead').attr('className', 'rpd-title')
+                       .append(create('th').append('tr').attr('className', 'rpd-remove-button')
+                                           .append('th')/*.attr('colspan', '3')*/.text('x'))
+                       .append(create('tr').append('tr')
+                                           .append('th').attr('className', 'rpd-info').attr('colspan', 3)
+                                           .append('span').attr('className', 'rpd.name').text(node.name));
 
                 var thead = table.append('thead').attr('className', 'rpd-title');
 
