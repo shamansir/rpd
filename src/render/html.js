@@ -94,16 +94,25 @@ return function(networkRoot, userConfig) {
             var nodeBox = root.append('div').attr('className', 'rpd-node-box');
             var nodeElm = nodeBox.append('table').attr('className', 'rpd-node');
 
-            function create(type) { return d3.select(document.createElement(type)); }
-
             if (config.mode === QUARTZ_MODE) {
 
                 nodeElm.append('thead').attr('className', 'rpd-title')
-                       .append(create('th').append('tr').attr('className', 'rpd-remove-button')
-                                           .append('th')/*.attr('colspan', '3')*/.text('x'))
-                       .append(create('tr').append('tr')
-                                           .append('th').attr('className', 'rpd-info').attr('colspan', 3)
-                                           .append('span').attr('className', 'rpd.name').text(node.name));
+                       // add remove button
+                       .call(function(thead) {
+                           thead.append('tr').attr('className', 'rpd-remove-button');
+                           thead.append('th')/*.attr('colspan', '3')*/.text('x');
+                       })
+                       // add node title
+                       .call(function(thead) {
+                            thead.append('tr');
+                            thead.append('th').attr('className', 'rpd-info').attr('colspan', 3)
+                                 .call(function(th) {
+                                     if (config.showTypes) th.append('span').attr('className', 'rpd-type').text(node.type);
+                                 });
+                            thead.append('span').attr('className', 'rpd.name').text(node.name);
+                       })
+                       // ...
+
 
                 var thead = table.append('thead').attr('className', 'rpd-title');
 
