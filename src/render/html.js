@@ -97,12 +97,12 @@ return function(networkRoot, userConfig) {
             if (config.mode === QUARTZ_MODE) {
 
                 nodeElm.append('thead').attr('className', 'rpd-title')
-                       // add remove button
+                       // remove button
                        .call(function(thead) {
                            thead.append('tr').attr('className', 'rpd-remove-button');
                            thead.append('th')/*.attr('colspan', '3')*/.text('x');
                        })
-                       // add node title
+                       // node name, and type, if requested
                        .call(function(thead) {
                             thead.append('tr');
                             thead.append('th').attr('className', 'rpd-info').attr('colspan', 3)
@@ -110,40 +110,58 @@ return function(networkRoot, userConfig) {
                                      if (config.showTypes) th.append('span').attr('className', 'rpd-type').text(node.type);
                                  });
                             thead.append('span').attr('className', 'rpd.name').text(node.name);
-                       })
-                       // ...
+                       });
 
+                nodeElm.append('tbody').attr('className', 'rpd-content')
+                       .call(function(tbody) {
+                           tbody.append('tr')
+                                // inlets placeholder
+                                .call(function(tr) {
+                                    tr.append('td').attr('className', 'rpd-inlets')
+                                      .append('table')
+                                      .append('tbody'); // -> node/add-inlet
+                                })
+                                // node body
+                                .call(function(tr) {
+                                    tr.append('td').attr('className', 'rpd-body')
+                                      .append('table')
+                                      .append('tbody').append('tr').append('td'); // -> node/process
+                                })
+                                // outlets placeholder
+                                .call(function(tr) {
+                                    tr.append('td').attr('className', 'rpd-outlets')
+                                      .append('table')
+                                      .append('tbody'); // -> node/add-outlet
+                                })
+                       });
 
-                var thead = table.append('thead').attr('className', 'rpd-title');
+            } else if (config.mode === PD_MODE) {
 
-                thead.append('tr').attr('className', 'rpd-remove-button')
-                     .append('th')/*.attr('colspan', '3')*/.text('x');
+                nodeElm.append('tr').attr('className', 'rpd-inlets')
+                       .append('td')
+                       .append('table').append('tbody').append('tr'); // -> node/add-inlet
 
-                thead.append('tr')
-                     .append('th').attr('className', 'rpd-info').attr('colspan', 3)
-                     .append('span').attr('className', 'rpd.name').text(node.name);
+                nodeElm.append('tr').attr('className', 'rpd-remove-button')
+                       .append('td').text('x');
 
-                if (config.showTypes) {
-                    thead.select('th.rpd-info')
-                         .append('span').attr('className', 'rpd-type').text(node.type);
-                }
+                nodeElm.append('tr').attr('className', 'rpd-content')
+                        .call(function(tr) {
+                            tr.append('td').attr('className', 'rpd-title')
+                              .call(function(td) {
+                                  td.append('span').attr('className', 'rpd-name').text(node.name);
+                                  td.append('span').attr('className', 'rpd-type').text(node.type);
+                              });
+                            tr.append('td').attr('className', 'rpd-body')
+                              .append('div')
+                              .append('table').append('tbody').append('tr').append('td'); // -> node/process
+                        })
 
-                var contentRow = table.append('tbody').attr('className', 'rpd-content')
-                                      .append('tr');
-
-                contentRow.append('td').attr('className', 'rpd-inlets')
-                          .append('table')
-                          .append('tbody');
-
-                contentRow.append('td').attr('className', 'rpd-body')
-                          .append('table')
-                          .append('tbody').append('tr').append('td');
-
-                contentRow.append('td').attr('className', 'rpd-outlets')
-                          .append('table')
-                          .append('tbody');
+                nodeElm.append('tr').attr('className', 'rpd-outlets')
+                       .append('td')
+                       .append('table').append('tbody').append('tr'); // -> node/add-outlet
 
             }
+
         }
 
     }

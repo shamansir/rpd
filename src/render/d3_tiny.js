@@ -77,6 +77,10 @@ Selection.prototype.data = function(val) {
     return modify(this, val, function(subj, data) { subj.__data__ = data; });
 }
 
+Selection.prototype.call = function(fn) {
+    fn(this); return this;
+}
+
 return { 'select': function(v, root) { return new Selection(v, root); },
          'selectAll': function(v, root) { return new Selection(v, root, true); } };
 
