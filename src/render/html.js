@@ -30,6 +30,12 @@ var defaultConfig = {
     effectTime: 1000
 };
 
+// z-indexes
+var NODE_LAYER = 0,
+    NODEDRAG_LAYER = 1,
+    LINK_LAYER = 2,
+    LINKDRAG_LAYER = 3;
+
 // either use the full d3.js library or the super-tiny version provided with RPD
 var d3 = d3_tiny || d3;
 
@@ -50,6 +56,8 @@ return function(networkRoot, userConfig) {
     networkRoot = d3.select(networkRoot)
                     .classed('rpd-network', true);
 
+    var root;
+
     return {
 
         // the object below reacts on every Patch event and constructs corresponding
@@ -59,16 +67,16 @@ return function(networkRoot, userConfig) {
 
             var docElm = d3.select(document.documentElement);
 
-            var root = d3.select(document.createElement('div'))
-                         .property('className', function() {
-                             var classes = [ 'rpd-patch' ];
-                             classes.push('rpd-layout-' + config.mode);
-                             classes.push('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'));
-                             if (config.showBoxes) classes.push('rpd-show-boxes');
-                             return classes.join(' ');
-                         })
-                         .style('height', docElm.property('clientHeight') + 'px')
-                         .data(update.patch);
+            root = d3.select(document.createElement('div'))
+                     .property('className', function() {
+                         var classes = [ 'rpd-patch' ];
+                         classes.push('rpd-layout-' + config.mode);
+                         classes.push('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'));
+                         if (config.showBoxes) classes.push('rpd-show-boxes');
+                         return classes.join(' ');
+                     })
+                     .style('height', docElm.property('clientHeight') + 'px')
+                     .data(update.patch);
 
             tree.patches[patch.id] = root;
 
@@ -77,8 +85,8 @@ return function(networkRoot, userConfig) {
                                           document.documentElement.clientHeight ||
                                           document.body.clientHeight; })
                  .onValue(function(value) {
-                root.style('height', value + 'px');
-            });
+                     root.style('height', value + 'px');
+                 });
 
         },
 
@@ -99,17 +107,17 @@ return function(networkRoot, userConfig) {
                 nodeElm.append('thead').attr('className', 'rpd-title')
                        // remove button
                        .call(function(thead) {
-                           thead.append('tr').attr('className', 'rpd-remove-button');
-                           thead.append('th')/*.attr('colspan', '3')*/.text('x');
+                           thead.append('tr').attr('className', 'rpd-remove-button')
+                                .append('th')/*.attr('colspan', '3')*/.text('x');
                        })
                        // node name, and type, if requested
                        .call(function(thead) {
-                            thead.append('tr');
-                            thead.append('th').attr('className', 'rpd-info').attr('colspan', 3)
+                            thead.append('tr')
+                                 .append('th').attr('className', 'rpd-info').attr('colspan', 3)
                                  .call(function(th) {
                                      if (config.showTypes) th.append('span').attr('className', 'rpd-type').text(node.type);
+                                     th.append('span').attr('className', 'rpd.name').text(node.name);
                                  });
-                            thead.append('span').attr('className', 'rpd.name').text(node.name);
                        });
 
                 nodeElm.append('tbody').attr('className', 'rpd-content')
