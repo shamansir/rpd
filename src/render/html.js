@@ -162,6 +162,11 @@ return function(networkRoot, userConfig) {
 
             }
 
+            nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-tk-node', true)
+                   .classed('rpd-'+node.type.replace('/','-'), true);
+
+            nodeBox.style('z-index', NODE_LAYER);
+
         }
 
     }
