@@ -278,6 +278,47 @@ return function(networkRoot, userConfig) {
             });
 
             inletsTarget.append(inletElm.node());
+        },
+
+        'node/add-outlet': function(update) {
+
+            var outlet = update.outlet;
+
+            var outletsTarget = tree.nodes[update.node.id].data().outletsTarget;
+            var render = update.render;
+
+            var outletElm;
+
+            if (config.mode == QUARTZ_MODE) {
+
+                outletElm = d3.select(document.createElement('tr')).attr('className', 'rpd-outlet')
+                              .call(function(tr) {
+                                  tr.append('td').attr('className', 'rpd-connector');
+                                  tr.append('td').attr('className', 'rpd-value');
+                                  if (config.showTypes) tr.append('td').attr('className', 'rpd-type').text(outlet.type);
+                                  tr.append('td').attr('className', 'rpd-name').text(outlet.name);
+                              });
+
+            } else if (config.mode == PD_MODE) {
+
+                outletElm = d3.select(document.createElement('td')).attr('className', 'rpd-outlet')
+                              .call(function(td) {
+                                  td.append('span').attr('className', 'rpd-connector');
+                                  td.append('span').attr('className', 'rpd-name').text(outlet.name);
+                                  td.append('span').attr('className', 'rpd-value');
+                                  if (config.showTypes) td.append('span').attr('className', 'rpd-type').text(outlet.type);
+                              });
+
+            }
+
+            outletElm.classed('rpd-'+outlet.type.replace('/','-'), true);
+            outletElm.classed('rpd-stale', true);
+
+            tree.outlets[outlet.id] = outletElm.data({
+                links: null // links associated with this outlet
+            });
+
+            outletsTarget.append(outletElm.node());
         }
 
     }
