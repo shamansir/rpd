@@ -691,7 +691,7 @@ return {
     'import': {}, 'export': {},
 
     'allNodeTypes': nodetypes,
-    'allDescriptions': nodedescriptions,
+    'allNodeDescriptions': nodedescriptions,
 
     'short_uid': short_uid
 }

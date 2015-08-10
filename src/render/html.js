@@ -50,6 +50,11 @@ var tree = {
     nodeToLinks: {}
 };
 
+var navigation = new Navigation();
+
+var nodeTypes = Rpd.allNodeTypes,
+    nodeDescriptions = Rpd.allNodeDescriptions;
+
 function HtmlRenderer(patch) {
 
 return function(networkRoot, userConfig) {
@@ -60,6 +65,7 @@ return function(networkRoot, userConfig) {
                     .classed('rpd-network', true);
 
     var root;
+    var connections;
 
     return {
 
@@ -84,8 +90,14 @@ return function(networkRoot, userConfig) {
 
             tree.patches[patch.id] = root;
 
-            // initialize the node layout (helps to determine the position where new node should be placed)
+            // initialize the node layout (helps in determining the position where new node should be placed)
             tree.patchToLayout[patch.id] = new GridLayout();
+
+            // initialize connections module, it listens for clicks on outlets and inlets and builds or remove
+            // links if they were clicked in the appropriate order
+            connections = new Connections(root.node());
+
+            if (config.renderNodeList) (new NodeList(root.node(), nodeTypes, nodeDescriptions));
 
             // resize root element on window resize
             Kefir.fromEvents(window, 'resize')
@@ -96,10 +108,17 @@ return function(networkRoot, userConfig) {
                      root.style('height', value + 'px');
                  });
 
+            Kefir.fromEvents(root.node(), 'selectstart').onValue(function(evt) { evt.preventDefault(); });
+
         },
 
         'patch/enter': function(update) {
+            navigation.switch(update.patch);
             networkRoot.append(tree.patches[update.patch.id].node());
+        },
+
+        'patch/exit': function(update) {
+            root.remove();
         },
 
         'patch/add-node': function(update) {
@@ -328,11 +347,36 @@ return function(networkRoot, userConfig) {
 } // function(patch)
 
 // =============================================================================
+// ============================ Navigation =====================================
+// =============================================================================
+
+function Navigation() {
+    this.current = null;
+
+    var me = this;
+
+    Kefir.fromEvents(window, 'hashchange')
+         .map(function() { return (window.location.hash ? window.location.hash.slice(1) : null); })
+         .filter(function(newHash) { return !(me.currentPatch && (newHash === me.currentPatch.id)); })
+         .map(function(newHash) { return tree.patches[newHash]; })
+         .filter(function(targetPatch) { return targetPatch != null; })
+         .onValue(function(targetPatch) {
+             if (me.currentPatch) me.currentPatch.exit(); // FIXME: pass this value through a stream
+             targetPatch.enter();
+         });
+}
+Navigation.prototype.switch = function(targetPatch) {
+    if (!targetPatch) return;
+    this.currentPatch = targetPatch;
+    window.location.hash = targetPatch.id;
+}
+
+// =============================================================================
 // ============================== Layout =======================================
 // =============================================================================
 
 function GridLayout() {
-    this.node_rects = [];
+    this.nodeRects = [];
 }
 GridLayout.DEFAULT_WIDTH = 1, // in boxes
 GridLayout.DEFAULT_HEIGHT = 1, // in boxes
@@ -341,27 +385,166 @@ GridLayout.DEFAULT_Y_MARGIN = 1, // in boxes
 GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
 GridLayout.prototype.nextRect = function(node, boxSize, limits) {
     limits = limits || GridLayout.DEFAULT_LIMITS;
-    var node_rects = this.node_rects;
+    var nodeRects = this.nodeRects;
     var width =  (node.def.width  || GridLayout.DEFAULT_WIDTH)  * boxSize.width,
         height = (node.def.height || GridLayout.DEFAULT_HEIGHT) * boxSize.height;
-    var last_rect = (node_rects.length ? node_rects[node_rects.length-1] : null);
-    var new_rect = { x: last_rect ? last_rect.x : 0,
-                     y: last_rect ? (last_rect.y + last_rect.height +
-                                    (GridLayout.DEFAULT_Y_MARGIN * boxSize.height)) : 0,
-                     width: width,
-                     height: height };
-    if ((new_rect.y + boxSize.height) > limits.height) {
-        new_rect.x = new_rect.x + width + (GridLayout.DEFAULT_X_MARGIN * boxSize.width);
-        new_rect.y = 0;
+    var lastRect = (nodeRects.length ? nodeRects[nodeRects.length-1] : null);
+    var newRect = { x: lastRect ? lastRect.x : 0,
+                    y: lastRect ? (lastRect.y + lastRect.height +
+                                  (GridLayout.DEFAULT_Y_MARGIN * boxSize.height)) : 0,
+                    width: width,
+                    height: height };
+    if ((newRect.y + boxSize.height) > limits.height) {
+        newRect.x = newRect.x + width + (GridLayout.DEFAULT_X_MARGIN * boxSize.width);
+        newRect.y = 0;
     }
-    node_rects.push(new_rect);
-    return new_rect;
+    nodeRects.push(newRect);
+    return newRect;
 }
 
 // =============================================================================
-// =============================== Links =======================================
+// ================================ Links ======================================
 // =============================================================================
 
+// =============================================================================
+// ============================== Connections ==================================
+// =============================================================================
+
+// FRP-based connection (links b/w outlets and inlets) editor logic
+
+var Connections = (function() {
+
+    function getLink(inlet) {
+        return tree.inlets[inlet.id].data().link;
+    }
+    function hasLink(inlet) {
+        return function() {
+            return getLink(inlet);
+        };
+    };
+    function getConnector(outlet) {
+        return tree.outlets[outlet.id].data().connector;
+    }
+
+    function Connections(rootElm) {
+        this.root = rootElm;
+
+        this.rootClicks = Kefir.fromEvents(rootElm, 'click');
+        this.inletClicks = Kefir.pool(),
+        this.outletClicks = Kefir.pool();
+
+        this.startLink = Kefir.emitter(),
+        this.finishLink = Kefir.emitter(),
+        this.doingLink = Kefir.merge([ this.startLink.map(ƒ(true)),
+                                       this.finishLink.map(ƒ(false)) ]).toProperty(ƒ(false));
+    }
+    Connections.prototype.subscribeOutlet = function(outlet, connector) {
+
+        var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
+        var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
+
+        // - Every time user clicks an outlet, a new link is created which user can drag, then:
+        // - If user clicks other outlet after that, linking process is cancelled;
+        // - If user clicks root element (like document.body), linking process is cancelled;
+        // - If user clicks an inlet, linking process is considered successful and finished, but also...
+        // - If this inlet had a link there connected, this previous link is removed and disconnected;
+
+        outletClicks.plug(Kefir.fromEvents(connector, 'click')
+                               .map(extractPos)
+                               .map(addTarget(outlet)));
+
+        Kefir.fromEvents(connector, 'click').tap(stopPropagation)
+                                           .filterBy(outletClicks.awaiting(doingLink))
+                                           .map(extractPos)
+                                           .onValue(function(pos) {
+            startLink.emit();
+            var pivot = getPos(connector);
+            var ghost = constructLink(pivot.x, pivot.y, pos.x, pos.y,
+                                      config.linkWidth);
+            root.appendChild(ghost);
+            return Kefir.fromEvents(root, 'mousemove')
+                        .takeUntilBy(Kefir.merge([ inletClicks,
+                                                   outletClicks.mapTo(false),
+                                                   rootClicks.mapTo(false) ])
+                                          .take(1)
+                                          .onValue(function(success) {
+                                              if (!success) return;
+                                              var inlet = success.target,
+                                                  prevLink = getLink(inlet);
+                                              if (prevLink) {
+                                                  var otherOutlet = prevLink.outlet;
+                                                  otherOutlet.disconnect(prevLink);
+                                              }
+                                              outlet.connect(inlet);
+                                          }))
+                        .map(extractPos)
+                        .onValue(function(pos) {
+                            rotateLink(ghost, pivot.x, pivot.y, pos.x, pos.y);
+                        }).onEnd(function() {
+                            root.removeChild(ghost);
+                            finishLink.emit();
+                        });
+        });
+
+    };
+    Connections.prototype.subscribeInlet = function(inlet, connector) {
+
+        var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
+        var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
+
+        // - Every time user clicks an inlet which has a link there connected:
+        // - This link becomes editable and so can be dragged by user,
+        // - If user clicks outlet after that, linking process is cancelled and this link is removed;
+        // - If user clicks root element (like document.body) after that, linking process is cancelled,
+        //   and this link is removed;
+        // - If user clicks other inlet, the link user drags/edits now is moved to be connected
+        //   to this other inlet, instead of first-clicked one;
+
+        inletClicks.plug(Kefir.fromEvents(connector, 'click')
+                              .map(extractPos)
+                              .map(addTarget(inlet)));
+
+        Kefir.fromEvents(connector, 'click').tap(stopPropagation)
+                                           .filterBy(inletClicks.awaiting(doingLink))
+                                           .filter(hasLink(inlet))
+                                           .onValue(function(pos) {
+            var prevLink = getLink(inlet);
+            var outlet = prevLink.outlet;
+            outlet.disconnect(prevLink);
+            startLink.emit();
+            var pivot = getPos(getConnector(outlet));
+            var ghost = constructLink(pivot.x, pivot.y, pos.x, pos.y,
+                                      config.linkWidth);
+            root.appendChild(ghost);
+            return Kefir.fromEvents(root, 'mousemove')
+                        .takeUntilBy(Kefir.merge([ inletClicks,
+                                                   outletClicks.mapTo(false),
+                                                   rootClicks.mapTo(false) ])
+                                          .take(1)
+                                          .onValue(function(success) {
+                                              if (!success) return;
+                                              var otherInlet = success.target,
+                                                  prevLink = getLink(otherInlet);
+                                              if (prevLink) {
+                                                  var otherOutlet = prevLink.outlet;
+                                                  otherOutlet.disconnect(prevLink);
+                                              }
+                                              outlet.connect(otherInlet);
+                                          }))
+                        .map(extractPos)
+                        .onValue(function(pos) {
+                            rotateLink(ghost, pivot.x, pivot.y, pos.x, pos.y);
+                        }).onEnd(function() {
+                            root.removeChild(ghost);
+                            finishLink.emit();
+                        });
+        });
+
+    };
+
+    return Connections;
+
+})();
 
 // =============================================================================
 // ============================== NodeMenu =====================================
@@ -372,11 +555,127 @@ GridLayout.prototype.nextRect = function(node, boxSize, limits) {
 // ============================== NodeList =====================================
 // =============================================================================
 
+function NodeList(root, nodeTypes, nodeDescriptions) {
+
+    var toolkits = {},
+        typesList = [];
+
+    var toolkitElements = {},
+        nodeTitleElements = {},
+        nodeDescriptionElements = {};
+
+    for (var nodeType in nodeTypes) {
+        var typeId = nodeType.split('/');
+        var toolkit = typeId[0]; var typeName = typeId[1];
+        typesList.push([ typeId, toolkit, typeName ]);
+        if (!toolkits[toolkit]) toolkits[toolkit] = {};
+        toolkits[toolkit][typeName] = nodeTypes[nodeType];
+    }
+
+    var listRoot = d3.select(document.createElement('dl')).attr('className', 'rpd-nodelist');
+
+    var toolkitNodeTypes, typeDef;
+    for (toolkit in toolkits) {
+
+        var titleElm = listRoot.append('dd').attr('className', 'rpd-toolkit-name').text(toolkit);
+
+        listRoot.append('dt')
+                .append('dl').attr('className', 'rpd-toolkit').data({ titleElm: titleElm,
+                                                                      nodeTypes: toolkits[toolkit],
+                                                                      toolkit: toolkit })
+                .call(function(toolkitList) {
+                    var titleElm = toolkitList.data().titleElm;
+                    addClickSwitch(titleElm.node(),
+                                   function() { toolkitList.classed('rpd-collapsed', true) },
+                                   function() { toolkitList.classed('rpd-collapsed', false); },
+                                   true);
+                })
+                .call(function(dl) {
+                    var toolkit = dl.data().toolkit,
+                        toolkitNodeTypes = dl.data().nodeTypes;
+                    for (var typeName in toolkitNodeTypes) {
+                        var nodeType = toolkit + '/' + typeName;
+
+                        var titleElm = dl.append('dd').attr('className', 'rpd-node-title').text(typeName);
+
+                        titleElm.append('span').attr('className', 'rpd-add-node').text('+ Add')
+                                .call(function(addButton) {
+                                    Kefir.fromEvents(addButton, 'click')
+                                         .tap(stopPropagation)
+                                         .onValue(function() {
+                                             patch.addNode(nodeType);
+                                         });
+                                });
+
+                        dl.append('dd').attr('className', 'rpd-node-description').data(titleElm)
+                                       .text(nodeDescriptions[nodeType] || '[No Description]')
+                                       .classed('rpd-collapsed', true)
+                                       .call(function(descElm) {
+                                           addClickSwitch(descElm.data().node(),
+                                               function() { descElm.classed('rpd-collapsed', true) },
+                                               function() { descElm.classed('rpd-collapsed', false); });
+                                       });
+                    }
+                });
+
+    }
+
+    root.appendChild(listRoot);
+
+    var collapseButton = quickElm('span', 'rpd-collapse-nodelist');
+    collapseButton.innerText = collapseButton.textContent = '>>';
+    addClickSwitch(collapseButton,
+                   function() { collapseButton.classList.add('rpd-collapsed');
+                                collapseButton.innerText = collapseButton.textContent = '<<';
+                                listRoot.classList.add('rpd-collapsed'); },
+                   function() { collapseButton.classList.remove('rpd-collapsed');
+                                collapseButton.innerText = collapseButton.textContent = '>>';
+                                listRoot.classList.remove('rpd-collapsed'); },
+                   true);
+
+    root.appendChild(collapseButton);
+}
 
 // =============================================================================
-// ============================= ValueEdit =====================================
+// ============================== ValueEdit ====================================
 // =============================================================================
 
+
+// =============================================================================
+// =============================== Updates =====================================
+// =============================================================================
+
+
+// =============================================================================
+// ============================== DragNDrop ====================================
+// =============================================================================
+
+
+// =============================================================================
+// =============================== helpers =====================================
+// =============================================================================
+
+function stopPropagation(evt) { evt.stopPropagation(); };
+function extractPos(evt) { return { x: evt.clientX,
+                                    y: evt.clientY }; };
+function getPos(elm) { var bounds = elm.getBoundingClientRect();
+                       return { x: bounds.left, y: bounds.top } };
+function addTarget(target) {
+    return function(pos) {
+        return { pos: pos, target: target };
+    }
+};
+function invertValue(prev) { return !prev; };
+function addClickSwitch(elm, on_true, on_false, initial) {
+    Kefir.fromEvents(elm, 'click')
+         .tap(stopPropagation)
+         .map(ƒ(initial || false))
+         .scan(invertValue)  // will toggle between `true` and `false`
+         .onValue(function(val) {
+             if (val) { on_true(); }
+             else { on_false(); }
+         })
+}
 
 // =============================================================================
 // ============================ registration ===================================
