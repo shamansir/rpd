@@ -228,6 +228,56 @@ return function(networkRoot, userConfig) {
                 var bodyElm = tree.nodes[node.id].data().processTarget.node();
                 render.always(bodyElm, update.inlets, update.outlets);
             }
+        },
+
+        'node/add-inlet': function(update) {
+
+            var inlet = update.inlet;
+            if (inlet.hidden) return;
+
+            var inletsTarget = tree.nodes[update.node.id].data().inletsTarget;
+            var render = update.render;
+
+            var inletElm;
+
+            if (config.mode == QUARTZ_MODE) {
+
+                inletElm = d3.select(document.createElement('tr')).attr('className', 'rpd-inlet')
+                             .call(function(tr) {
+                                 tr.append('td').attr('className', 'rpd-connector');
+                                 tr.append('td').attr('className', 'rpd-value-holder')
+                                                .append('span').attr('className', 'rpd-value');
+                                 tr.append('td').attr('className', 'rpd-name').text(inlet.name);
+                                 if (config.showTypes) tr.append('td').attr('className', 'rpd-type').text(inlet.type);
+                             });
+
+            } else if (config.mode == PD_MODE) {
+
+                inletElm = d3.select(document.createElement('td')).attr('className', 'rpd-inlet')
+                             .call(function(td) {
+                                 td.append('span').attr('className', 'rpd-connector');
+                                 td.append('span').attr('className', 'rpd-name').text(inlet.name);
+                                 td.append('span').attr('className', 'rpd-value-holder')
+                                                  .append('span').attr('className', 'rpd-value');
+                                 if (config.showTypes) td.append('span').attr('className', 'rpd-type').text(inlet.type);
+                             });
+
+            }
+
+            inletElm.classed('rpd-'+inlet.type.replace('/','-'), true);
+            inletElm.classed({ 'rpd-stale': true,
+                               'rpd-readonly': inlet.readonly,
+                               'rpd-cold': inlet.cold
+                             });
+
+            tree.inlets[inlet.id] = inletElm.data({
+                disableEditor: null, // if inlet has a value editor, this way
+                                     // we may disable it when new link
+                                     // is connected to this inlet
+                link: null // a link associated with this inlet
+            });
+
+            inletsTarget.append(inletElm.node());
         }
 
     }
@@ -268,13 +318,27 @@ GridLayout.prototype.nextRect = function(node, boxSize, limits) {
 }
 
 // =============================================================================
+// =============================== Links =======================================
+// =============================================================================
+
+
+// =============================================================================
+// ============================== NodeMenu =====================================
+// =============================================================================
+
+
+// =============================================================================
 // ============================== NodeList =====================================
 // =============================================================================
 
 
+// =============================================================================
+// ============================= ValueEdit =====================================
+// =============================================================================
+
 
 // =============================================================================
-// =========================== registration ====================================
+// ============================ registration ===================================
 // =============================================================================
 
 Rpd.HtmlRenderer = HtmlRenderer;
