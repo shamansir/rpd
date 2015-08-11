@@ -52,6 +52,8 @@ var tree = {
 
 var navigation = new Navigation();
 
+var currentPatch;
+
 var nodeTypes = Rpd.allNodeTypes,
     nodeDescriptions = Rpd.allNodeDescriptions;
 
@@ -95,9 +97,9 @@ return function(networkRoot, userConfig) {
 
             // initialize connections module, it listens for clicks on outlets and inlets and builds or remove
             // links if they were clicked in the appropriate order
-            connections = new Connections(root.node());
+            connections = new Connections(root);
 
-            if (config.renderNodeList) (new NodeList(root.node(), nodeTypes, nodeDescriptions));
+            if (config.renderNodeList) buildNodeList(root, nodeTypes, nodeDescriptions);
 
             // resize root element on window resize
             Kefir.fromEvents(window, 'resize')
@@ -108,11 +110,12 @@ return function(networkRoot, userConfig) {
                      root.style('height', value + 'px');
                  });
 
-            Kefir.fromEvents(root.node(), 'selectstart').onValue(function(evt) { evt.preventDefault(); });
+            Kefir.fromEvents(root.node(), 'selectstart').onValue(preventDefault);
 
         },
 
         'patch/enter': function(update) {
+            currentPatch = update.patch;
             navigation.switch(update.patch);
             networkRoot.append(tree.patches[update.patch.id].node());
         },
@@ -361,7 +364,7 @@ function Navigation() {
          .map(function(newHash) { return tree.patches[newHash]; })
          .filter(function(targetPatch) { return targetPatch != null; })
          .onValue(function(targetPatch) {
-             if (me.currentPatch) me.currentPatch.exit(); // FIXME: pass this value through a stream
+             if (me.currentPatch) me.currentPatch.exit(); // TODO: pass this value through a stream
              targetPatch.enter();
          });
 }
@@ -426,10 +429,10 @@ var Connections = (function() {
         return tree.outlets[outlet.id].data().connector;
     }
 
-    function Connections(rootElm) {
-        this.root = rootElm;
+    function Connections(root) {
+        this.root = root.node();
 
-        this.rootClicks = Kefir.fromEvents(rootElm, 'click');
+        this.rootClicks = Kefir.fromEvents(this.root, 'click');
         this.inletClicks = Kefir.pool(),
         this.outletClicks = Kefir.pool();
 
@@ -555,10 +558,9 @@ var Connections = (function() {
 // ============================== NodeList =====================================
 // =============================================================================
 
-function NodeList(root, nodeTypes, nodeDescriptions) {
+function buildNodeList(root, nodeTypes, nodeDescriptions) {
 
-    var toolkits = {},
-        typesList = [];
+    var toolkits = {};
 
     var toolkitElements = {},
         nodeTitleElements = {},
@@ -567,7 +569,6 @@ function NodeList(root, nodeTypes, nodeDescriptions) {
     for (var nodeType in nodeTypes) {
         var typeId = nodeType.split('/');
         var toolkit = typeId[0]; var typeName = typeId[1];
-        typesList.push([ typeId, toolkit, typeName ]);
         if (!toolkits[toolkit]) toolkits[toolkit] = {};
         toolkits[toolkit][typeName] = nodeTypes[nodeType];
     }
@@ -575,7 +576,7 @@ function NodeList(root, nodeTypes, nodeDescriptions) {
     var listRoot = d3.select(document.createElement('dl')).attr('className', 'rpd-nodelist');
 
     var toolkitNodeTypes, typeDef;
-    for (toolkit in toolkits) {
+    for (var toolkit in toolkits) { // TODO: use d3.enter() here
 
         var titleElm = listRoot.append('dd').attr('className', 'rpd-toolkit-name').text(toolkit);
 
@@ -584,6 +585,7 @@ function NodeList(root, nodeTypes, nodeDescriptions) {
                                                                       nodeTypes: toolkits[toolkit],
                                                                       toolkit: toolkit })
                 .call(function(toolkitList) {
+                    // toolkit title element, could expand or collapse the types in this toolkit
                     var titleElm = toolkitList.data().titleElm;
                     addClickSwitch(titleElm.node(),
                                    function() { toolkitList.classed('rpd-collapsed', true) },
@@ -593,25 +595,28 @@ function NodeList(root, nodeTypes, nodeDescriptions) {
                 .call(function(dl) {
                     var toolkit = dl.data().toolkit,
                         toolkitNodeTypes = dl.data().nodeTypes;
-                    for (var typeName in toolkitNodeTypes) {
+                    for (var typeName in toolkitNodeTypes) { // TODO: use d3.enter() here
                         var nodeType = toolkit + '/' + typeName;
 
+                        // node type title
                         var titleElm = dl.append('dd').attr('className', 'rpd-node-title').text(typeName);
 
-                        titleElm.append('span').attr('className', 'rpd-add-node').text('+ Add')
+                        // add node button
+                        titleElm.append('span').attr('className', 'rpd-add-node').text('+ Add').data(nodeType)
                                 .call(function(addButton) {
-                                    Kefir.fromEvents(addButton, 'click')
+                                    Kefir.fromEvents(addButton.node(), 'click')
                                          .tap(stopPropagation)
                                          .onValue(function() {
-                                             patch.addNode(nodeType);
+                                             currentPatch.addNode(addButton.data());
                                          });
                                 });
 
-                        dl.append('dd').attr('className', 'rpd-node-description').data(titleElm)
+                        // node type description, could be expanded or collapsed by clicking on node type title
+                        dl.append('dd').attr('className', 'rpd-node-description').data({ titleElm: titleElm })
                                        .text(nodeDescriptions[nodeType] || '[No Description]')
                                        .classed('rpd-collapsed', true)
                                        .call(function(descElm) {
-                                           addClickSwitch(descElm.data().node(),
+                                           addClickSwitch(descElm.data().titleElm.node(),
                                                function() { descElm.classed('rpd-collapsed', true) },
                                                function() { descElm.classed('rpd-collapsed', false); });
                                        });
@@ -620,20 +625,21 @@ function NodeList(root, nodeTypes, nodeDescriptions) {
 
     }
 
-    root.appendChild(listRoot);
+    root.append(listRoot.node());
 
-    var collapseButton = quickElm('span', 'rpd-collapse-nodelist');
-    collapseButton.innerText = collapseButton.textContent = '>>';
-    addClickSwitch(collapseButton,
-                   function() { collapseButton.classList.add('rpd-collapsed');
-                                collapseButton.innerText = collapseButton.textContent = '<<';
-                                listRoot.classList.add('rpd-collapsed'); },
-                   function() { collapseButton.classList.remove('rpd-collapsed');
-                                collapseButton.innerText = collapseButton.textContent = '>>';
-                                listRoot.classList.remove('rpd-collapsed'); },
-                   true);
+    // the button to collapse this node list
+    root.append(d3.select(document.createElement('span'))
+                  .attr('className', 'rpd-collapse-nodelist')
+                  .text('>>')
+                  .call(function(collapseButton) {
+                      addClickSwitch(collapseButton.node(),
+                                     function() { collapseButton.classed('rpd-collapsed', true).text('<<');
+                                                  listRoot.classed('rpd-collapsed', true); },
+                                     function() { collapseButton.classed('rpd-collapsed', false).text('>>');
+                                                  listRoot.classed('rpd-collapsed', false); },
+                                     true);
+                  }).node());
 
-    root.appendChild(collapseButton);
 }
 
 // =============================================================================
@@ -655,6 +661,7 @@ function NodeList(root, nodeTypes, nodeDescriptions) {
 // =============================== helpers =====================================
 // =============================================================================
 
+function preventDefault(evt) { evt.preventDefault(); };
 function stopPropagation(evt) { evt.stopPropagation(); };
 function extractPos(evt) { return { x: evt.clientX,
                                     y: evt.clientY }; };
