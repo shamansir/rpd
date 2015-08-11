@@ -17,7 +17,7 @@ var defaultConfig = {
     // show node containers for debugging purposes
     showBoxes: false,
     // are nodes allowed to be dragged
-    nodesMovingAllowed: true,
+    nodeMovingAllowed: true,
     // show the list of nodes
     renderNodeList: true,
     // is node list collapsed by default, if shown
@@ -67,7 +67,8 @@ return function(networkRoot, userConfig) {
                     .classed('rpd-network', true);
 
     var root;
-    var connectivity, links;
+
+    var connectivity, links, updates;
 
     return {
 
@@ -95,6 +96,8 @@ return function(networkRoot, userConfig) {
             // initialize the node layout (helps in determining the position where new node should be placed)
             tree.patchToLayout[patch.id] = new GridLayout();
 
+            // initialize updates module, it manages listening for a value updates b/w inlets and outlets
+            updates = new Updates();
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or remove
             // links if they were clicked in the appropriate order
             connectivity = new Connectivity(root);
@@ -135,6 +138,7 @@ return function(networkRoot, userConfig) {
             nodeElm.select('.rpd-node').classed('rpd-patch-reference', true);
             nodeElm.data().processTarget.text('[' + (update.target.name || update.target.id) + ']');
 
+            // add the ability to enter the patch by clicking node body (TODO: move to special node type)
             Kefir.fromEvents(nodeElm.data().processTarget.node(), 'click')
                  .onValue((function(current, target) {
                     return function() {
@@ -165,7 +169,9 @@ return function(networkRoot, userConfig) {
                        // node name, and type, if requested
                        .call(function(thead) {
                             thead.append('tr')
-                                 .append('th').attr('className', 'rpd-info').attr('colspan', 3)
+                                 .append('th').attr('className', 'rpd-header').attr('colspan', 3)
+                                               // add description to be shown on hover
+                                              .attr('title', nodeDescriptions[node.type] + ' (' + node.type + ')')
                                  .call(function(th) {
                                      if (config.showTypes) th.append('span').attr('className', 'rpd-type').text(node.type);
                                      th.append('span').attr('className', 'rpd.name').text(node.name);
@@ -214,11 +220,13 @@ return function(networkRoot, userConfig) {
                 // node content
                 nodeElm.append('tr').attr('className', 'rpd-content')
                         .call(function(tr) {
-                            tr.append('td').attr('className', 'rpd-title')
+                            tr.append('td').attr('className', 'rpd-title').classed('rpd-header', true)
                               .call(function(td) {
                                   td.append('span').attr('className', 'rpd-name').text(node.name);
                                   td.append('span').attr('className', 'rpd-type').text(node.type);
-                              });
+                              })
+                              // add description to be shown on hover
+                              .attr('title', nodeDescriptions[node.type] + ' (' + node.type + ')');
                             tr.append('td').attr('className', 'rpd-body')
                               .append('div')
                               .append('table').append('tbody').append('tr').append('td')
@@ -238,12 +246,10 @@ return function(networkRoot, userConfig) {
 
             nodeBox.style('z-index', NODE_LAYER);
 
-            // find a rectange to place the new node, and place it there
-
+            // find a rectange to place the new node, and actually place it there
             var layout = tree.patchToLayout[update.patch.id],
                 nextRect = layout.nextRect(node, config.boxSize, { width: root.node().offsetWidth,
                                                                    height: root.node().offsetHeight });
-
             nodeBox.style('left', Math.floor(nextRect.x) + 'px');
             nodeBox.style('top',  Math.floor(nextRect.y) + 'px');
             nodeBox.style('min-width',  Math.floor(nextRect.width) + 'px');
@@ -256,8 +262,43 @@ return function(networkRoot, userConfig) {
                                                  outletsTarget: nodeElm.select('.rpd-outlets-target'),
                                                  processTarget: nodeElm.select('.rpd-process-target') });
 
+            // add possiblity to drag nodes
+            if (config.nodeMovingAllowed) addDragNDrop(node, root, nodeElm.select('.rpd-header'), nodeBox);
+
+            // use custom node body renderer, if defined
+            if (render.first) updates.subscribe(node, render.first(nodeElm.select('.rpd-process-target').node()));
+
+            // if node body should be re-rendered, update links (since body element bounds could change)
+            if (render.always) links.updateOnChange(node, nodeElm.select('.rpd-process-target'));
+
+            // remove node when remove button was clicked
+            Kefir.fromEvents(nodeElm.select('.rpd-remove-button').node(), 'click')
+                 .tap(stopPropagation)
+                 .onValue(function() {
+                     currentPatch.removeNode(node);
+                 });
+
             // append to the the patch root node
             root.append(nodeBox.node());
+
+        },
+
+        'patch/remove-node': function(update) {
+            var node = update.node;
+
+            var nodeBox = tree.nodes[node.id],
+                nodeData = nodeBox.data();
+
+            var nodeLinks = nodeData.links;
+
+            /*eachLink(nodeLinks, function(linkData) {
+                linkData.link.outlet.disconnect(linkData.link); // FIXME: do it in RPD itself?
+            });*/
+
+            nodeBox.remove();
+
+            tree.nodes[node.id] = null; // no updates will fire from this node,
+                                        // so it's just to avoid holding memory for it
 
         },
 
@@ -433,6 +474,9 @@ function Links() {
 
 }
 Links.prototype.updateAll = function() {
+
+}
+Links.prototype.updateOnChange = function() {
 
 }
 
@@ -678,11 +722,73 @@ function buildNodeList(root, nodeTypes, nodeDescriptions) {
 // =============================== Updates =====================================
 // =============================================================================
 
+function Updates() {
+
+}
+Updates.prototype.subscribe = function(node, subscriptions) {
+    if (!subscriptions) return;
+    for (var alias in subscriptions) {
+        (function(subscription, alias) {
+            node.event['node/add-inlet']
+                .filter(function(inlet) { return inlet.alias === alias; })
+                .onValue(function(inlet) {
+                    if (subscription.default) inlet.receive(subscription.default());
+                    if (subscription.valueOut) {
+                        subscription.valueOut.onValue(function(value) {
+                            inlet.receive(value);
+                        });
+                    }
+            });
+        })(subscriptions[alias], alias);
+    }
+}
+
 
 // =============================================================================
 // ============================== DragNDrop ====================================
 // =============================================================================
 
+function addDragNDrop(node, root, handle, box) {
+    var nodeData = tree.nodes[node.id];
+    handle.classed('rpd-drag-handle', true);
+    var nodeLinks;
+    Kefir.fromEvents(handle.node(), 'mousedown').map(extractPos)
+                                                .flatMap(function(pos) {
+        box.classed('rpd-dragging', true);
+        var initPos = getPos(box),
+            diffPos = { x: pos.x - initPos.x,
+                        y: pos.y - initPos.y };
+        nodeLinks = null;
+        box.style('z-index', NODEDRAG_LAYER);
+        var moveStream = Kefir.fromEvents(root.node(), 'mousemove')
+                              .tap(stopPropagation)
+                              .takeUntilBy(Kefir.fromEvents(root.node(), 'mouseup'))
+                              .map(extractPos)
+                              .map(function(absPos) {
+                                  return { x: absPos.x - diffPos.x,
+                                           y: absPos.y - diffPos.y };
+                              })
+                              .onEnd(function() {
+                                  box.classed('rpd-dragging', false);
+                                  box.style('z-index', NODE_LAYER);
+                                  eachLink(nodeLinks, function(linkData) {
+                                      linkData.elm.style('z-index', LINK_LAYER);
+                                  });
+                              });
+        moveStream.last().onValue(function(pos) { node.move(pos.x, pos.y); });
+        return moveStream;
+    }).onValue(function(pos) {
+        box.style('left', pos.x + 'px');
+        box.style('top',  pos.y + 'px');
+        if (!nodeLinks) {
+            nodeLinks = nodeData.links;
+            eachLink(nodeLinks, function(linkData) {
+                linkData.elm.style.zIndex = LINKDRAG_LAYER;
+            });
+        }
+        updateLinks(node, nodeLinks);
+    });
+}
 
 // =============================================================================
 // =============================== helpers =====================================
