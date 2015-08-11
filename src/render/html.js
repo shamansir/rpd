@@ -67,7 +67,7 @@ return function(networkRoot, userConfig) {
                     .classed('rpd-network', true);
 
     var root;
-    var connections;
+    var connectivity, links;
 
     return {
 
@@ -95,9 +95,11 @@ return function(networkRoot, userConfig) {
             // initialize the node layout (helps in determining the position where new node should be placed)
             tree.patchToLayout[patch.id] = new GridLayout();
 
-            // initialize connections module, it listens for clicks on outlets and inlets and builds or remove
+            // initialize connectivity module, it listens for clicks on outlets and inlets and builds or remove
             // links if they were clicked in the appropriate order
-            connections = new Connections(root);
+            connectivity = new Connectivity(root);
+            // initialize links module, it controls the links (connections) appearance
+            links = new Links();
 
             if (config.renderNodeList) buildNodeList(root, nodeTypes, nodeDescriptions);
 
@@ -118,10 +120,28 @@ return function(networkRoot, userConfig) {
             currentPatch = update.patch;
             navigation.switch(update.patch);
             networkRoot.append(tree.patches[update.patch.id].node());
+            links.updateAll();
         },
 
         'patch/exit': function(update) {
             root.remove();
+        },
+
+        'patch/refer': function(update) {
+            var node = update.node;
+
+            var nodeElm = tree.nodes[node.id];
+
+            nodeElm.select('.rpd-node').classed('rpd-patch-reference', true);
+            nodeElm.data().processTarget.text('[' + (update.target.name || update.target.id) + ']');
+
+            Kefir.fromEvents(nodeElm.data().processTarget.node(), 'click')
+                 .onValue((function(current, target) {
+                    return function() {
+                        current.exit();
+                        target.enter();
+                    }
+                 })(patch, update.target));
         },
 
         'patch/add-node': function(update) {
@@ -361,7 +381,7 @@ function Navigation() {
     Kefir.fromEvents(window, 'hashchange')
          .map(function() { return (window.location.hash ? window.location.hash.slice(1) : null); })
          .filter(function(newHash) { return !(me.currentPatch && (newHash === me.currentPatch.id)); })
-         .map(function(newHash) { return tree.patches[newHash]; })
+         .map(function(newHash) { return tree.patches[newHash].data(); })
          .filter(function(targetPatch) { return targetPatch != null; })
          .onValue(function(targetPatch) {
              if (me.currentPatch) me.currentPatch.exit(); // TODO: pass this value through a stream
@@ -409,13 +429,20 @@ GridLayout.prototype.nextRect = function(node, boxSize, limits) {
 // ================================ Links ======================================
 // =============================================================================
 
+function Links() {
+
+}
+Links.prototype.updateAll = function() {
+
+}
+
 // =============================================================================
-// ============================== Connections ==================================
+// ============================= Connectivity ==================================
 // =============================================================================
 
 // FRP-based connection (links b/w outlets and inlets) editor logic
 
-var Connections = (function() {
+var Connectivity = (function() {
 
     function getLink(inlet) {
         return tree.inlets[inlet.id].data().link;
@@ -429,7 +456,7 @@ var Connections = (function() {
         return tree.outlets[outlet.id].data().connector;
     }
 
-    function Connections(root) {
+    function Connectivity(root) {
         this.root = root.node();
 
         this.rootClicks = Kefir.fromEvents(this.root, 'click');
@@ -441,7 +468,7 @@ var Connections = (function() {
         this.doingLink = Kefir.merge([ this.startLink.map(ƒ(true)),
                                        this.finishLink.map(ƒ(false)) ]).toProperty(ƒ(false));
     }
-    Connections.prototype.subscribeOutlet = function(outlet, connector) {
+    Connectivity.prototype.subscribeOutlet = function(outlet, connector) {
 
         var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
         var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
@@ -490,7 +517,7 @@ var Connections = (function() {
         });
 
     };
-    Connections.prototype.subscribeInlet = function(inlet, connector) {
+    Connectivity.prototype.subscribeInlet = function(inlet, connector) {
 
         var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
         var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
@@ -545,7 +572,7 @@ var Connections = (function() {
 
     };
 
-    return Connections;
+    return Connectivity;
 
 })();
 
