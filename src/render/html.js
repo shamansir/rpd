@@ -24,8 +24,6 @@ var defaultConfig = {
     nodeListCollapsed: true,
     // dimensions of the box used to measure everything
     boxSize: { width: 100, height: 40 },
-    // width of a link, sometimes it's hard to catch so could be increased
-    linkWidth: null, // null means use the value from CSS
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
 };
@@ -47,6 +45,7 @@ var tree = {
     links: {},
 
     patchToLayout: {},
+    patchToLinks: {},
     nodeToLinks: {}
 };
 
@@ -68,7 +67,7 @@ return function(networkRoot, userConfig) {
 
     var root;
 
-    var connectivity, links, updates;
+    var connectivity;
 
     return {
 
@@ -95,14 +94,11 @@ return function(networkRoot, userConfig) {
 
             // initialize the node layout (helps in determining the position where new node should be placed)
             tree.patchToLayout[patch.id] = new GridLayout();
+            tree.patchToLinks[patch.id] = new VLinks();
 
-            // initialize updates module, it manages listening for a value updates b/w inlets and outlets
-            updates = new Updates();
-            // initialize connectivity module, it listens for clicks on outlets and inlets and builds or remove
+            // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
             // links if they were clicked in the appropriate order
             connectivity = new Connectivity(root);
-            // initialize links module, it controls the links (connectivity) appearance
-            links = new Links();
 
             if (config.renderNodeList) buildNodeList(root, nodeTypes, nodeDescriptions);
 
@@ -123,7 +119,7 @@ return function(networkRoot, userConfig) {
             currentPatch = update.patch;
             navigation.switch(update.patch);
             networkRoot.append(tree.patches[update.patch.id].node());
-            links.updateAll();
+            tree.patchToLinks[update.patch.id].updateAll();
         },
 
         'patch/exit': function(update) {
@@ -168,8 +164,8 @@ return function(networkRoot, userConfig) {
                        })
                        // node name, and type, if requested
                        .call(function(thead) {
-                            thead.append('tr')
-                                 .append('th').attr('className', 'rpd-header').attr('colspan', 3)
+                            thead.append('tr').attr('className', 'rpd-header')
+                                 .append('th').attr('colspan', 3)
                                                // add description to be shown on hover
                                               .attr('title', nodeDescriptions[node.type] + ' (' + node.type + ')')
                                  .call(function(th) {
@@ -266,10 +262,21 @@ return function(networkRoot, userConfig) {
             if (config.nodeMovingAllowed) addDragNDrop(node, root, nodeElm.select('.rpd-header'), nodeBox);
 
             // use custom node body renderer, if defined
-            if (render.first) updates.subscribe(node, render.first(nodeElm.select('.rpd-process-target').node()));
+            if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process-target').node()));
+
+            var nodeLinks = new VLinks();
+            tree.nodeToLinks[node.id] = nodeLinks;
 
             // if node body should be re-rendered, update links (since body element bounds could change)
-            if (render.always) links.updateOnChange(node, nodeElm.select('.rpd-process-target'));
+            if (render.always) {
+                // this code used getBoundingClientRect to determine if node body width/height
+                // values were changed and updates links positions only when they really did,
+                // but it appeared to be quite hard to check, i.e. height value, since browsers
+                // keep it equal to 0
+                node.event['node/process'].throttle(500).onValue(function() {
+                    nodeLinks.updateAll();
+                });
+            }
 
             // remove node when remove button was clicked
             Kefir.fromEvents(nodeElm.select('.rpd-remove-button').node(), 'click')
@@ -286,10 +293,10 @@ return function(networkRoot, userConfig) {
         'patch/remove-node': function(update) {
             var node = update.node;
 
-            var nodeBox = tree.nodes[node.id],
-                nodeData = nodeBox.data();
+            var nodeBox = tree.nodes[node.id]/*,
+                nodeData = nodeBox.data()*/;
 
-            var nodeLinks = nodeData.links;
+            //var nodeLinks = nodeData.vlinks;
 
             /*eachLink(nodeLinks, function(linkData) {
                 linkData.link.outlet.disconnect(linkData.link); // FIXME: do it in RPD itself?
@@ -299,6 +306,7 @@ return function(networkRoot, userConfig) {
 
             tree.nodes[node.id] = null; // no updates will fire from this node,
                                         // so it's just to avoid holding memory for it
+            tree.nodeToLinks[node.id] = null;
 
         },
 
@@ -361,7 +369,8 @@ return function(networkRoot, userConfig) {
             }
 
             tree.inlets[inlet.id] = inletElm.data({
-                link: null, // a link associated with this inlet,
+                connector: inletElm.select('.rpd-connector'),
+                link: null, // a link associated with this inlet
                 editor: editor
             });
 
@@ -411,8 +420,12 @@ return function(networkRoot, userConfig) {
             outletElm.classed('rpd-stale', true);
 
             tree.outlets[outlet.id] = outletElm.data({
-                links: null // links associated with this outlet
+                connector: outletElm.select('.rpd-connector'),
+                links: new VLinks() // links associated with this outlet
             });
+
+            // listen for clicks in connector and allow to edit links this way
+            connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
 
             outletsTarget.append(outletElm.node());
         }
@@ -483,15 +496,82 @@ GridLayout.prototype.nextRect = function(node, boxSize, limits) {
 // ================================ Links ======================================
 // =============================================================================
 
-function Links() {
-
+function VLink(link) { // visual representation of the link
+    this.link = link; // may be null, if it's a ghost
+    this.elm = null;
 }
-Links.prototype.updateAll = function() {
+VLink.prototype.construct = function(x0, y0, x1, y1) {
+    var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
+                             ((y0 - y1) * (y0 - y1)));
+    var angle = Math.atan2(y1 - y0, x1 - x0);
 
+    var linkElm = d3.select(document.createElement('span'))
+                    .attr('className', 'rpd-link')
+                    .style('position', 'absolute')
+                    .style('z-index', LINK_LAYER)
+                    .style('width', Math.floor(distance) + 'px')
+                    .style('left', x0 + 'px')
+                    .style('top', y0 + 'px')
+                    .style('transform-origin', 'left top')
+                    // .style('-webkit-transform-origin', 'left top')
+                    .style('transform', 'rotateZ(' + angle + 'rad)');
+                // .style('-webkit-transform': 'rotateZ(' + angle + 'rad)');
+    this.elm = linkElm;
+    return this;
 }
-Links.prototype.updateOnChange = function() {
+VLink.prototype.rotate = function(x0, y0, x1, y1) {
+    var linkElm = this.elm;
+    var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
+                             ((y0 - y1) * (y0 - y1)));
+    var angle = Math.atan2(y1 - y0, x1 - x0);
+    linkElm.style('left', x0 + 'px')
+           .style('top', y0 + 'px')
+           .style('width', Math.floor(distance) + 'px')
+           .style('transform', 'rotateZ(' + angle + 'rad)');
+           //.style('-webkit-transform', 'rotateZ(' + angle + 'rad)')
+    return this;
+}
+VLink.prototype.update = function() {
+    if (!this.link) return;
+    var inletConnector = tree.inlets[link.inlet.id].connector,
+        outletConnector = tree.outlets[link.outlet.id].connector;
+    var inletPos = getPos(inletConnector.node()),
+        outletPos = getPos(outletConnector.node());
+    this.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
+    return this;
+}
+VLink.prototype.appendTo = function(target) {
+    target.append(this.elm.node());
+    return this;
+}
+VLink.prototype.removeFrom = function(target) {
+    this.elm.remove();
+    return this;
+}
 
+function VLinks() {
+    this.vlinks = {}; // VLink instances
 }
+VLinks.prototype.clear = function() { this.vlinks = {}; }
+VLinks.prototype.add = function(vlink) { this.vlinks[link.id] = vlink; }
+VLinks.prototype.remove = function(vlink) {
+    this.vlinks[vlink.link.id] = null;
+}
+VLinks.prototype.each = function(f) {
+    var vlinks = this.vlinks;
+    for (var id in vlinks) {
+        if (vlinks[id]) f(vlinks[id]);
+    }
+}
+VLinks.prototype.updateAll = function() {
+    this.each(function(vlink) { vlink.update(); });
+}
+/* VLinks.prototype.updateOnChange = function() {
+    var nodeLinks = nodes[node.id].links;
+    node.event['node/process'].throttle(500).onValue(function() {
+        updateLinks(node, nodeLinks);
+    });
+}*/
 
 // =============================================================================
 // ============================= Connectivity ==================================
@@ -502,7 +582,8 @@ Links.prototype.updateOnChange = function() {
 var Connectivity = (function() {
 
     function getLink(inlet) {
-        return tree.inlets[inlet.id].data().link;
+        var inletData = tree.inlets[inlet.id].data();
+        return inletData.vlink ? inletData.vlink.link : null;
     }
     function hasLink(inlet) {
         return function() {
@@ -514,9 +595,9 @@ var Connectivity = (function() {
     }
 
     function Connectivity(root) {
-        this.root = root.node();
+        this.root = root;
 
-        this.rootClicks = Kefir.fromEvents(this.root, 'click');
+        this.rootClicks = Kefir.fromEvents(this.root.node(), 'click');
         this.inletClicks = Kefir.pool(),
         this.outletClicks = Kefir.pool();
 
@@ -527,6 +608,7 @@ var Connectivity = (function() {
     }
     Connectivity.prototype.subscribeOutlet = function(outlet, connector) {
 
+        var root = this.root;
         var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
         var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
 
@@ -536,46 +618,47 @@ var Connectivity = (function() {
         // - If user clicks an inlet, linking process is considered successful and finished, but also...
         // - If this inlet had a link there connected, this previous link is removed and disconnected;
 
-        outletClicks.plug(Kefir.fromEvents(connector, 'click')
+        outletClicks.plug(Kefir.fromEvents(connector.node(), 'click')
                                .map(extractPos)
                                .map(addTarget(outlet)));
 
-        Kefir.fromEvents(connector, 'click').tap(stopPropagation)
-                                           .filterBy(outletClicks.awaiting(doingLink))
-                                           .map(extractPos)
-                                           .onValue(function(pos) {
-            startLink.emit();
-            var pivot = getPos(connector);
-            var ghost = constructLink(pivot.x, pivot.y, pos.x, pos.y,
-                                      config.linkWidth);
-            root.appendChild(ghost);
-            return Kefir.fromEvents(root, 'mousemove')
-                        .takeUntilBy(Kefir.merge([ inletClicks,
-                                                   outletClicks.mapTo(false),
-                                                   rootClicks.mapTo(false) ])
-                                          .take(1)
-                                          .onValue(function(success) {
-                                              if (!success) return;
-                                              var inlet = success.target,
-                                                  prevLink = getLink(inlet);
-                                              if (prevLink) {
-                                                  var otherOutlet = prevLink.outlet;
-                                                  otherOutlet.disconnect(prevLink);
-                                              }
-                                              outlet.connect(inlet);
-                                          }))
-                        .map(extractPos)
-                        .onValue(function(pos) {
-                            rotateLink(ghost, pivot.x, pivot.y, pos.x, pos.y);
-                        }).onEnd(function() {
-                            root.removeChild(ghost);
-                            finishLink.emit();
-                        });
-        });
+        Kefir.fromEvents(connector.node(), 'click')
+             .tap(stopPropagation)
+             .filterBy(outletClicks.awaiting(doingLink))
+             .map(extractPos)
+             .onValue(function(pos) {
+                 startLink.emit();
+                 var pivot = getPos(connector.node());
+                 var ghost = new VLink().construct(pivot.x, pivot.y, pos.x, pos.y)
+                                        .appendTo(root);
+                 return Kefir.fromEvents(root.node(), 'mousemove')
+                             .takeUntilBy(Kefir.merge([ inletClicks,
+                                                        outletClicks.mapTo(false),
+                                                        rootClicks.mapTo(false) ])
+                                               .take(1)
+                                               .onValue(function(success) {
+                                                   if (!success) return;
+                                                   var inlet = success.target,
+                                                       prevLink = getLink(inlet);
+                                                   if (prevLink) {
+                                                       var otherOutlet = prevLink.outlet;
+                                                       otherOutlet.disconnect(prevLink);
+                                                   }
+                                                   outlet.connect(inlet);
+                                               }))
+                             .map(extractPos)
+                             .onValue(function(pos) {
+                                 ghost.rotate(pivot.x, pivot.y, pos.x, pos.y);
+                             }).onEnd(function() {
+                                 ghost.removeFrom(root);
+                                 finishLink.emit();
+                             });
+             });
 
     };
     Connectivity.prototype.subscribeInlet = function(inlet, connector) {
 
+        var root = this.root;
         var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
         var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
 
@@ -587,45 +670,45 @@ var Connectivity = (function() {
         // - If user clicks other inlet, the link user drags/edits now is moved to be connected
         //   to this other inlet, instead of first-clicked one;
 
-        inletClicks.plug(Kefir.fromEvents(connector, 'click')
+        inletClicks.plug(Kefir.fromEvents(connector.node(), 'click')
                               .map(extractPos)
                               .map(addTarget(inlet)));
 
-        Kefir.fromEvents(connector, 'click').tap(stopPropagation)
-                                           .filterBy(inletClicks.awaiting(doingLink))
-                                           .filter(hasLink(inlet))
-                                           .onValue(function(pos) {
-            var prevLink = getLink(inlet);
-            var outlet = prevLink.outlet;
-            outlet.disconnect(prevLink);
-            startLink.emit();
-            var pivot = getPos(getConnector(outlet));
-            var ghost = constructLink(pivot.x, pivot.y, pos.x, pos.y,
-                                      config.linkWidth);
-            root.appendChild(ghost);
-            return Kefir.fromEvents(root, 'mousemove')
-                        .takeUntilBy(Kefir.merge([ inletClicks,
-                                                   outletClicks.mapTo(false),
-                                                   rootClicks.mapTo(false) ])
-                                          .take(1)
-                                          .onValue(function(success) {
-                                              if (!success) return;
-                                              var otherInlet = success.target,
-                                                  prevLink = getLink(otherInlet);
-                                              if (prevLink) {
-                                                  var otherOutlet = prevLink.outlet;
-                                                  otherOutlet.disconnect(prevLink);
-                                              }
-                                              outlet.connect(otherInlet);
-                                          }))
-                        .map(extractPos)
-                        .onValue(function(pos) {
-                            rotateLink(ghost, pivot.x, pivot.y, pos.x, pos.y);
-                        }).onEnd(function() {
-                            root.removeChild(ghost);
-                            finishLink.emit();
-                        });
-        });
+        Kefir.fromEvents(connector.node(), 'click')
+             .tap(stopPropagation)
+             .filterBy(inletClicks.awaiting(doingLink))
+             .filter(hasLink(inlet))
+             .onValue(function(pos) {
+                 var prevLink = getLink(inlet);
+                 var outlet = prevLink.outlet;
+                 outlet.disconnect(prevLink);
+                 startLink.emit();
+                 var pivot = getPos(getConnector(outlet).node());
+                 var ghost = new VLink().construct(pivot.x, pivot.y, pos.x, pos.y)
+                                        .appendTo(root);
+                 return Kefir.fromEvents(root.node(), 'mousemove')
+                             .takeUntilBy(Kefir.merge([ inletClicks,
+                                                        outletClicks.mapTo(false),
+                                                        rootClicks.mapTo(false) ])
+                                               .take(1)
+                                               .onValue(function(success) {
+                                                   if (!success) return;
+                                                   var otherInlet = success.target,
+                                                       prevLink = getLink(otherInlet);
+                                                   if (prevLink) {
+                                                       var otherOutlet = prevLink.outlet;
+                                                       otherOutlet.disconnect(prevLink);
+                                                   }
+                                                   outlet.connect(otherInlet);
+                                               }))
+                             .map(extractPos)
+                             .onValue(function(pos) {
+                                 ghost.rotate(pivot.x, pivot.y, pos.x, pos.y);
+                             }).onEnd(function() {
+                                 ghost.removeFrom(root);
+                                 finishLink.emit();
+                             });
+             });
 
     };
 
@@ -794,10 +877,7 @@ function addValueUpdateEffect(key, target, duration) {
 // =============================== Updates =====================================
 // =============================================================================
 
-function Updates() {
-
-}
-Updates.prototype.subscribe = function(node, subscriptions) {
+function subscribeUpdates(node, subscriptions) {
     if (!subscriptions) return;
     for (var alias in subscriptions) {
         (function(subscription, alias) {
@@ -821,13 +901,17 @@ Updates.prototype.subscribe = function(node, subscriptions) {
 // =============================================================================
 
 function addDragNDrop(node, root, handle, box) {
+    function eachLink(node, f) {
+        tree.nodeToLinks[node.id].each(f);
+    }
+
     var nodeData = tree.nodes[node.id];
     handle.classed('rpd-drag-handle', true);
     var nodeLinks;
     Kefir.fromEvents(handle.node(), 'mousedown').map(extractPos)
                                                 .flatMap(function(pos) {
         box.classed('rpd-dragging', true);
-        var initPos = getPos(box),
+        var initPos = getPos(box.node()),
             diffPos = { x: pos.x - initPos.x,
                         y: pos.y - initPos.y };
         nodeLinks = null;
@@ -843,8 +927,8 @@ function addDragNDrop(node, root, handle, box) {
                               .onEnd(function() {
                                   box.classed('rpd-dragging', false);
                                   box.style('z-index', NODE_LAYER);
-                                  eachLink(nodeLinks, function(linkData) {
-                                      linkData.elm.style('z-index', LINK_LAYER);
+                                  eachLink(node, function(vlink) {
+                                      vlink.elm.style('z-index', LINK_LAYER);
                                   });
                               });
         moveStream.last().onValue(function(pos) { node.move(pos.x, pos.y); });
@@ -852,13 +936,10 @@ function addDragNDrop(node, root, handle, box) {
     }).onValue(function(pos) {
         box.style('left', pos.x + 'px');
         box.style('top',  pos.y + 'px');
-        if (!nodeLinks) {
-            nodeLinks = nodeData.links;
-            eachLink(nodeLinks, function(linkData) {
-                linkData.elm.style.zIndex = LINKDRAG_LAYER;
-            });
-        }
-        updateLinks(node, nodeLinks);
+        eachLink(node, function(vlink) {
+            vlink.elm.style('z-index', LINKDRAG_LAYER);
+            vlink.update();
+        });
     });
 }
 
