@@ -101,7 +101,7 @@ return function(networkRoot, userConfig) {
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or remove
             // links if they were clicked in the appropriate order
             connectivity = new Connectivity(root);
-            // initialize links module, it controls the links (connections) appearance
+            // initialize links module, it controls the links (connectivity) appearance
             links = new Links();
 
             if (config.renderNodeList) buildNodeList(root, nodeTypes, nodeDescriptions);
@@ -133,13 +133,13 @@ return function(networkRoot, userConfig) {
         'patch/refer': function(update) {
             var node = update.node;
 
-            var nodeElm = tree.nodes[node.id];
+            var nodeBox = tree.nodes[node.id];
 
-            nodeElm.select('.rpd-node').classed('rpd-patch-reference', true);
-            nodeElm.data().processTarget.text('[' + (update.target.name || update.target.id) + ']');
+            nodeBox.select('.rpd-node').classed('rpd-patch-reference', true);
+            nodeBox.data().processTarget.text('[' + (update.target.name || update.target.id) + ']');
 
             // add the ability to enter the patch by clicking node body (TODO: move to special node type)
-            Kefir.fromEvents(nodeElm.data().processTarget.node(), 'click')
+            Kefir.fromEvents(nodeBox.data().processTarget.node(), 'click')
                  .onValue((function(current, target) {
                     return function() {
                         current.exit();
@@ -353,12 +353,25 @@ return function(networkRoot, userConfig) {
                                'rpd-cold': inlet.cold
                              });
 
+            var editor = null;
+            if (!inlet.readonly && render.edit) {
+                editor = new ValueEditor(inlet, render, root,
+                                         inletElm.select('.rpd-value-holder'),
+                                         inletElm.select('.rpd-value'));
+            }
+
             tree.inlets[inlet.id] = inletElm.data({
-                disableEditor: null, // if inlet has a value editor, this way
-                                     // we may disable it when new link
-                                     // is connected to this inlet
-                link: null // a link associated with this inlet
+                link: null, // a link associated with this inlet,
+                editor: editor
             });
+
+            // adds `rpd-error` CSS class and removes it by timeout
+            inlet.event['inlet/update'].onError(function() {
+                addValueErrorEffect(inlet.id, inletElm, config.effectTime);
+            });
+
+            // listen for clicks in connector and allow to edit links this way
+            connectivity.subscribeInlet(inlet, inletElm.select('.rpd-connector'));
 
             inletsTarget.append(inletElm.node());
         },
@@ -647,6 +660,7 @@ function buildNodeList(root, nodeTypes, nodeDescriptions) {
     var listRoot = d3.select(document.createElement('dl')).attr('className', 'rpd-nodelist');
 
     var toolkitNodeTypes, typeDef;
+
     for (var toolkit in toolkits) { // TODO: use d3.enter() here
 
         var titleElm = listRoot.append('dd').attr('className', 'rpd-toolkit-name').text(toolkit);
@@ -714,9 +728,67 @@ function buildNodeList(root, nodeTypes, nodeDescriptions) {
 }
 
 // =============================================================================
-// ============================== ValueEdit ====================================
+// =============================== Values ======================================
 // =============================================================================
 
+function ValueEditor(inlet, render, root, valueHolder, valueElm) {
+    var editor = d3.select(document.createElement('div')).attr('className', 'rpd-value-editor');
+    var valueIn = Kefir.emitter(),
+        disableEditor = Kefir.emitter();
+    this.disableEditor = disableEditor;
+    var valueOut = render.edit(editor.node(), inlet, valueIn);
+    valueOut.onValue(function(value) { inlet.receive(value); });
+    Kefir.sampledBy([ inlet.event['inlet/update'] ],
+                    [ Kefir.merge([
+                                Kefir.fromEvents(valueHolder.node(), 'click')
+                                     .tap(stopPropagation)
+                                     .map(ƒ(true)),
+                                Kefir.fromEvents(root.node(), 'click')
+                                     .merge(disableEditor)
+                                     .map(ƒ(false)) ])
+                           .toProperty(ƒ(false))
+                           .skipDuplicates() ])
+         .map(function(val) { return { lastValue: val[0],
+                                       startEditing: val[1],
+                                       cancelEditing: !val[1] }; })
+         .onValue(function(conf) {
+            if (conf.startEditing) {
+                var inletData = tree.inlets[inlet.id].data();
+                if (inletData.link) inletData.link.disable();
+                valueIn.emit(conf.lastValue);
+                valueHolder.classed('rpd-editor-enabled', true);
+            } else if (conf.cancelEditing) {
+                valueHolder.classed('rpd-editor-enabled', false);
+            }
+         });
+    valueHolder.classed('rpd-editor-disabled', true);
+    valueHolder.append(editor.node());
+}
+ValueEditor.prototype.disable = function() {
+    this.disableEditor.emit();
+}
+
+var errorEffects = {};
+function addValueErrorEffect(key, target, duration) {
+    target.classed('rpd-error', true);
+    if (errorEffects[key]) clearTimeout(errorEffects[key]);
+    errorEffects[key] = setTimeout(function() {
+        target.classed('rpd-error', false);
+        errorEffects[key] = null;
+    }, duration || 1);
+}
+
+var updateEffects = {};
+function addValueUpdateEffect(key, target, duration) {
+    target.classed('rpd-stale', false);
+    target.classed('rpd-fresh', true);
+    if (updateEffects[key]) clearTimeout(updateEffects[key]);
+    updateEffects[key] = setTimeout(function() {
+        target.classed('rpd-fresh', false);
+        target.classed('rpd-stale', true);
+        updateEffects[key] = null;
+    }, duration || 1);
+}
 
 // =============================================================================
 // =============================== Updates =====================================
