@@ -197,7 +197,6 @@ function Node(type, patch, name, callback) {
     this.def = def;
 
     this.name = name || def.name || type;
-    this.def = def;
 
     this.patch = patch;
 

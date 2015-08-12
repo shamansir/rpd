@@ -370,6 +370,7 @@ return function(networkRoot, userConfig) {
 
             tree.inlets[inlet.id] = inletElm.data({
                 connector: inletElm.select('.rpd-connector'),
+                value: inletElm.select('.rpd-value'),
                 link: null, // a link associated with this inlet
                 editor: editor
             });
@@ -421,6 +422,7 @@ return function(networkRoot, userConfig) {
 
             tree.outlets[outlet.id] = outletElm.data({
                 connector: outletElm.select('.rpd-connector'),
+                value: outletElm.select('.rpd-value'),
                 links: new VLinks() // links associated with this outlet
             });
 
@@ -428,6 +430,45 @@ return function(networkRoot, userConfig) {
             connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
 
             outletsTarget.append(outletElm.node());
+        },
+
+        'inlet/update': function(update) {
+            var inlet = update.inlet;
+
+            if (inlet.hidden) return;
+
+            var render = update.render;
+
+            var inletElm = tree.inlets[inlet.id];
+            var valueElm = inletElm.data().value;
+
+            var valueRepr = inlet.def.show ? inlet.def.show(update.value) : update.value;
+            if (render.show) {
+                render.show(valueElm.node(), update.value, valueRepr);
+            } else {
+                valueElm.text(valueRepr);
+            }
+
+            // adds `rpd-fresh` CSS class and removes it by timeout
+            addValueUpdateEffect(inlet.id, inletElm, config.effectTime);
+        },
+
+        'outlet/update': function(update) {
+            var outlet = update.outlet;
+            var render = update.render;
+
+            var outletElm = tree.outlets[outlet.id];
+            var valueElm = outletElm.data().value;
+
+            var valueRepr = outlet.def.show ? outlet.def.show(update.value) : update.value;
+            if (render.show) {
+                render.show(valueElm.node(), update.value, valueRepr);
+            } else {
+                valueElm.text(valueRepr);
+            }
+
+            // adds `rpd-fresh` CSS class and removes it by timeout
+            addValueUpdateEffect(outlet.id, outletElm, config.effectTime);
         }
 
     }
@@ -566,12 +607,6 @@ VLinks.prototype.each = function(f) {
 VLinks.prototype.updateAll = function() {
     this.each(function(vlink) { vlink.update(); });
 }
-/* VLinks.prototype.updateOnChange = function() {
-    var nodeLinks = nodes[node.id].links;
-    node.event['node/process'].throttle(500).onValue(function() {
-        updateLinks(node, nodeLinks);
-    });
-}*/
 
 // =============================================================================
 // ============================= Connectivity ==================================
