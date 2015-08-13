@@ -263,7 +263,7 @@ return function(networkRoot, userConfig) {
                                                  processTarget: nodeElm.select('.rpd-process-target') });
 
             // add possiblity to drag nodes
-            if (config.nodeMovingAllowed) addDragNDrop(node, root, nodeElm.select('.rpd-header'), nodeBox);
+            if (config.nodeMovingAllowed) addDragNDrop(node, root, nodeElm.select('.rpd-title'), nodeBox);
 
             // use custom node body renderer, if defined
             if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process-target').node()));

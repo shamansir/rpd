@@ -190,6 +190,10 @@
     cursor: pointer;
 }
 
+.rpd-node .rpd-remove-button:hover {
+    color: #ff6666;
+}
+
 .rpd-node:hover .rpd-remove-button {
     display: block;
 }
