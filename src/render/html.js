@@ -245,8 +245,11 @@ return function(networkRoot, userConfig) {
 
             // find a rectange to place the new node, and actually place it there
             var layout = tree.patchToLayout[update.patch.id],
-                nextRect = layout.nextRect(node, config.boxSize, { width: root.node().offsetWidth,
-                                                                   height: root.node().offsetHeight });
+                // current patch root should be used as a limit source, even if we add to another patch
+                // or else other root may have no dimensions yet
+                limitSrc = tree.patches[currentPatch.id],
+                nextRect = layout.nextRect(node, config.boxSize, { width: limitSrc.node().offsetWidth,
+                                                                   height: limitSrc.node().offsetHeight });
             nodeBox.style('left', Math.floor(nextRect.x) + 'px');
             nodeBox.style('top',  Math.floor(nextRect.y) + 'px');
             nodeBox.style('min-width',  Math.floor(nextRect.width) + 'px');
