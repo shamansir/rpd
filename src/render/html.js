@@ -1064,6 +1064,15 @@ function addDragNDrop(node, root, handle, box) {
 // =============================== helpers =====================================
 // =============================================================================
 
+function mergeConfig(user_conf, defaults) {
+    if (user_conf) {
+        var merged = {};
+        for (var prop in defaults)  { merged[prop] = defaults[prop]; }
+        for (var prop in user_conf) { merged[prop] = user_conf[prop]; }
+        return merged;
+    } else return defaults;
+}
+
 function preventDefault(evt) { evt.preventDefault(); };
 function stopPropagation(evt) { evt.stopPropagation(); };
 function extractPos(evt) { return { x: evt.clientX,
