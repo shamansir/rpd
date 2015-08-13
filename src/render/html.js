@@ -283,7 +283,7 @@ return function(networkRoot, userConfig) {
             Kefir.fromEvents(nodeElm.select('.rpd-remove-button').node(), 'click')
                  .tap(stopPropagation)
                  .onValue(function() {
-                     currentPatch.removeNode(node);
+                     patch.removeNode(node);
                  });
 
             // append to the the patch root node
@@ -511,7 +511,7 @@ return function(networkRoot, userConfig) {
 
             tree.nodeToLinks[outlet.node.id].add(vlink);
             tree.nodeToLinks[inlet.node.id].add(vlink);
-            tree.patchToLinks[currentPatch.id].add(vlink);
+            tree.patchToLinks[patch.id].add(vlink);
 
             vlink.listenForClicks();
 
@@ -519,7 +519,7 @@ return function(networkRoot, userConfig) {
 
         },
 
-        'outlet/disconnect': function() {
+        'outlet/disconnect': function(update) {
 
             var link = update.link;
             var vlink = tree.links[link.id];
@@ -537,7 +537,7 @@ return function(networkRoot, userConfig) {
 
             tree.nodeToLinks[outlet.node.id].remove(vlink);
             tree.nodeToLinks[inlet.node.id].remove(vlink);
-            tree.patchToLinks[currentPatch.id].remove(vlink);
+            tree.patchToLinks[patch.id].remove(vlink);
 
             // remove link element
             vlink.removeFrom(root);
