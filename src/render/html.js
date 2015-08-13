@@ -123,6 +123,7 @@ return function(networkRoot, userConfig) {
         },
 
         'patch/exit': function(update) {
+            currentPatch = null;
             root.remove();
         },
 
@@ -371,7 +372,7 @@ return function(networkRoot, userConfig) {
             tree.inlets[inlet.id] = inletElm.data({
                 connector: inletElm.select('.rpd-connector'),
                 value: inletElm.select('.rpd-value'),
-                link: null, // a link associated with this inlet
+                vlink: null, // a link associated with this inlet
                 editor: editor
             });
 
@@ -423,7 +424,7 @@ return function(networkRoot, userConfig) {
             tree.outlets[outlet.id] = outletElm.data({
                 connector: outletElm.select('.rpd-connector'),
                 value: outletElm.select('.rpd-value'),
-                links: new VLinks() // links associated with this outlet
+                vlinks: new VLinks() // links associated with this outlet
             });
 
             // listen for clicks in connector and allow to edit links this way
@@ -433,6 +434,7 @@ return function(networkRoot, userConfig) {
         },
 
         'inlet/update': function(update) {
+
             var inlet = update.inlet;
 
             if (inlet.hidden) return;
@@ -451,9 +453,11 @@ return function(networkRoot, userConfig) {
 
             // adds `rpd-fresh` CSS class and removes it by timeout
             addValueUpdateEffect(inlet.id, inletElm, config.effectTime);
+
         },
 
         'outlet/update': function(update) {
+
             var outlet = update.outlet;
             var render = update.render;
 
@@ -469,6 +473,75 @@ return function(networkRoot, userConfig) {
 
             // adds `rpd-fresh` CSS class and removes it by timeout
             addValueUpdateEffect(outlet.id, outletElm, config.effectTime);
+
+        },
+
+        'outlet/connect': function(update) {
+
+            var link   = update.link;
+            var outlet = link.outlet;
+            var inlet  = link.inlet;
+
+            var outletElm = tree.outlets[outlet.id];
+            var inletElm  = tree.inlets[inlet.id];
+
+            var outletData = outletElm.data();
+            var inletData  = inletElm.data();
+
+            if (inletData.vlink) throw new Error('Inlet is already connected to a link');
+
+            if (inletData.editor) inletData.editor.disable();
+
+            var outletConnector = outletData.connector;
+            var inletConnector  = inletData.connector;
+
+            // disable value editor when connecting to inlet
+            if (inletData.disableEditor) inletData.disableEditor.emit();
+
+            var vlink = new VLink(link);
+
+            // visually link is just a CSS-rotated div with 1px border
+            var p0 = getPos(outletConnector.node()),
+                p1 = getPos(inletConnector.node());
+            vlink.construct(p0.x, p0.y, p1.x, p1.y, config.linkWidth);
+
+            tree.links[link.id] = vlink;
+            outletData.vlinks.add(vlink);
+            inletData.vlink = vlink;
+
+            tree.nodeToLinks[outlet.node.id].add(vlink);
+            tree.nodeToLinks[inlet.node.id].add(vlink);
+            tree.patchToLinks[currentPatch.id].add(vlink);
+
+            vlink.listenForClicks();
+
+            vlink.appendTo(root);
+
+        },
+
+        'outlet/disconnect': function() {
+
+            var link = update.link;
+            var vlink = tree.links[link.id];
+
+            var outlet = link.outlet;
+            var inlet  = link.inlet;
+
+            var outletData = tree.outlets[outlet.id].data();
+            var inletData  = tree.inlets[inlet.id].data();
+
+            // forget all references
+            tree.links[link.id] = null;
+            outletData.vlinks.remove(vlink);
+            inletData.vlink = null;
+
+            tree.nodeToLinks[outlet.node.id].remove(vlink);
+            tree.nodeToLinks[inlet.node.id].remove(vlink);
+            tree.patchToLinks[currentPatch.id].remove(vlink);
+
+            // remove link element
+            vlink.removeFrom(root);
+
         }
 
     }
@@ -542,6 +615,7 @@ function VLink(link) { // visual representation of the link
     this.elm = null;
 }
 VLink.prototype.construct = function(x0, y0, x1, y1) {
+    if (this.elm) throw new Error('VLink is already constructed');
     var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
                              ((y0 - y1) * (y0 - y1)));
     var angle = Math.atan2(y1 - y0, x1 - x0);
@@ -554,9 +628,9 @@ VLink.prototype.construct = function(x0, y0, x1, y1) {
                     .style('left', x0 + 'px')
                     .style('top', y0 + 'px')
                     .style('transform-origin', 'left top')
-                    // .style('-webkit-transform-origin', 'left top')
-                    .style('transform', 'rotateZ(' + angle + 'rad)');
-                // .style('-webkit-transform': 'rotateZ(' + angle + 'rad)');
+                    .style('-webkit-transform-origin', 'left top')
+                    .style('transform', 'rotateZ(' + angle + 'rad)')
+                    .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
     this.elm = linkElm;
     return this;
 }
@@ -568,14 +642,15 @@ VLink.prototype.rotate = function(x0, y0, x1, y1) {
     linkElm.style('left', x0 + 'px')
            .style('top', y0 + 'px')
            .style('width', Math.floor(distance) + 'px')
-           .style('transform', 'rotateZ(' + angle + 'rad)');
-           //.style('-webkit-transform', 'rotateZ(' + angle + 'rad)')
+           .style('transform', 'rotateZ(' + angle + 'rad)')
+           .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
     return this;
 }
 VLink.prototype.update = function() {
     if (!this.link) return;
-    var inletConnector = tree.inlets[link.inlet.id].connector,
-        outletConnector = tree.outlets[link.outlet.id].connector;
+    var link = this.link;
+    var inletConnector = tree.inlets[link.inlet.id].data().connector,
+        outletConnector = tree.outlets[link.outlet.id].data().connector;
     var inletPos = getPos(inletConnector.node()),
         outletPos = getPos(outletConnector.node());
     this.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
@@ -589,12 +664,19 @@ VLink.prototype.removeFrom = function(target) {
     this.elm.remove();
     return this;
 }
+VLink.prototype.listenForClicks = function() {
+    var link = this.link; var elm = this.elm;
+    addClickSwitch(this.elm.node(),
+                   function() { link.enable(); elm.classed('rpd-disabled', false); },
+                   function() { link.disable(); elm.classed('rpd-disabled', true); });
+    return this;
+}
 
 function VLinks() {
     this.vlinks = {}; // VLink instances
 }
 VLinks.prototype.clear = function() { this.vlinks = {}; }
-VLinks.prototype.add = function(vlink) { this.vlinks[link.id] = vlink; }
+VLinks.prototype.add = function(vlink) { this.vlinks[vlink.link.id] = vlink; }
 VLinks.prototype.remove = function(vlink) {
     this.vlinks[vlink.link.id] = null;
 }

@@ -30,7 +30,8 @@ Selection.prototype.attr = function(attr, val) {
 Selection.prototype.property = Selection.prototype.attr;
 
 Selection.prototype.style = function(prop, val) {
-    prop = prop.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
+    if (prop[0] === '-') prop = prop.slice(1);
+    prop = prop.replace(/-([a-z])/g, function(g) { return g[1].toUpperCase(); });
     return modify(this, val, function(subj, style) { subj.style[prop] = style; });
 };
 
