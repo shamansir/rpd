@@ -155,6 +155,14 @@ Patch.prototype.addNode = function(type, name) {
     var node = new Node(type, this, name, function(node) {
         patch.events.plug(node.events);
         patch.event['patch/add-node'].emit(node);
+
+        node.events.filter(function(update) { return update.type === 'outlet/connect'; })
+                   .bufferWhileBy(this.event['patch/remove-node']
+                                      .filter(function(rnode) { return (rnode === node); }).map(ƒ(false)))
+                   .take(1).flatten().onValue(function(update) {
+                       update.outlet.disconnect(update.link);
+                   });
+
         node.turnOn();
     });
     return node;
