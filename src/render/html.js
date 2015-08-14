@@ -220,7 +220,7 @@ return function(networkRoot, userConfig) {
                             tr.append('td').attr('className', 'rpd-title').classed('rpd-header', true)
                               .call(function(td) {
                                   td.append('span').attr('className', 'rpd-name').text(node.name);
-                                  td.append('span').attr('className', 'rpd-type').text(node.type);
+                                  if (config.showTypes) td.append('span').attr('className', 'rpd-type').text(node.type);
                               })
                               // add description to be shown on hover
                               .attr('title', nodeDescriptions[node.type] + ' (' + node.type + ')');
@@ -297,14 +297,7 @@ return function(networkRoot, userConfig) {
         'patch/remove-node': function(update) {
             var node = update.node;
 
-            var nodeBox = tree.nodes[node.id]/*,
-                nodeData = nodeBox.data()*/;
-
-            //var nodeLinks = nodeData.vlinks;
-
-            /*eachLink(nodeLinks, function(linkData) {
-                linkData.link.outlet.disconnect(linkData.link); // FIXME: do it in RPD itself?
-            });*/
+            var nodeBox = tree.nodes[node.id];
 
             nodeBox.remove();
 
@@ -499,7 +492,7 @@ return function(networkRoot, userConfig) {
             var inletConnector  = inletData.connector;
 
             // disable value editor when connecting to inlet
-            if (inletData.disableEditor) inletData.disableEditor.emit();
+            if (inletData.editor) inletData.editor.disable();
 
             var vlink = new VLink(link);
 
@@ -545,6 +538,18 @@ return function(networkRoot, userConfig) {
             // remove link element
             vlink.removeFrom(root);
 
+        },
+
+        'link/enable': function(update) {
+            var inlet = update.link.inlet;
+            var inletData  = tree.inlets[inlet.id].data();
+            if (inletData.editor) inletData.editor.disable();
+
+            tree.links[update.link.id].enable();
+        },
+
+        'link/disable': function(update) {
+            tree.links[update.link.id].disable();
         }
 
     }
@@ -670,10 +675,12 @@ VLink.prototype.removeFrom = function(target) {
 VLink.prototype.listenForClicks = function() {
     var link = this.link; var elm = this.elm;
     addClickSwitch(this.elm.node(),
-                   function() { link.enable(); elm.classed('rpd-disabled', false); },
-                   function() { link.disable(); elm.classed('rpd-disabled', true); });
+                   function() { link.enable(); },
+                   function() { link.disable(); });
     return this;
 }
+VLink.prototype.enable = function() { this.elm.classed('rpd-disabled', false); }
+VLink.prototype.disable = function() { this.elm.classed('rpd-disabled', true); }
 
 function VLinks() {
     this.vlinks = {}; // VLink instances
@@ -939,6 +946,7 @@ function ValueEditor(inlet, render, root, valueHolder, valueElm) {
     var valueIn = Kefir.emitter(),
         disableEditor = Kefir.emitter();
     this.disableEditor = disableEditor;
+    this.valueElm = valueElm;
     var valueOut = render.edit(editor.node(), inlet, valueIn);
     valueOut.onValue(function(value) { inlet.receive(value); });
     Kefir.sampledBy([ inlet.event['inlet/update'] ],
@@ -961,6 +969,7 @@ function ValueEditor(inlet, render, root, valueHolder, valueElm) {
                 valueIn.emit(conf.lastValue);
                 valueHolder.classed('rpd-editor-enabled', true);
             } else if (conf.cancelEditing) {
+                valueElm.classed('rpd-edited', true);
                 valueHolder.classed('rpd-editor-enabled', false);
             }
          });
@@ -968,6 +977,7 @@ function ValueEditor(inlet, render, root, valueHolder, valueElm) {
     valueHolder.append(editor.node());
 }
 ValueEditor.prototype.disable = function() {
+    this.valueElm.classed('rpd-edited', false);
     this.disableEditor.emit();
 }
 
