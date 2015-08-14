@@ -30,8 +30,8 @@ describe('building: node', function() {
     });
 
     it('disconnects all the links attached to the node after it was removed from a patch', function() {
-
         withNewPatch(function(patch, updateSpy) {
+
             var nodeOne = patch.addNode('spec/empty');
             var nodeTwo = patch.addNode('spec/empty');
             var nodeThree = patch.addNode('spec/empty');
@@ -53,8 +53,32 @@ describe('building: node', function() {
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'outlet/disconnect',
                                            outlet: outletTwo }));
-        });
 
+        });
+    });
+
+    it('fires disconnect events before the remove event', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var nodeOne = patch.addNode('spec/empty');
+            var nodeTwo = patch.addNode('spec/empty');
+
+            var outlet = nodeOne.addOutlet('spec/any', 'one');
+            var inlet = nodeTwo.addInlet('spec/any', 'one');
+
+            outlet.connect(inlet, 'spec/pass');
+
+            updateSpy.and.callFake(function(update) {
+                if (update.type === 'patch/remove-node') {
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'outlet/disconnect' }));
+                }
+            });
+
+            patch.removeNode(nodeOne);
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'patch/remove-node' }));
+        });
     });
 
     it('fires no events after it was removed from a patch', function() {

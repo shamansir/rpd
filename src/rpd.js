@@ -136,6 +136,8 @@ function Patch(name) {
         node.patch.event['patch/refer'].emit({ node: node, target: myself });
     });
 
+    this.nodesToRemove = Kefir.emitter();
+
     this.event['patch/is-ready'].emit();
 }
 Patch.prototype.render = function(aliases, targets, config) {
@@ -154,13 +156,19 @@ Patch.prototype.addNode = function(type, name) {
     var patch = this;
 
     var node = new Node(type, this, name, function(node) {
+        // disconnect everything before removing the node itself
         patch.events.filter(function(update) { return (update.type === 'outlet/connect'); })
                     .filter(function(update) { return (update.outlet.node === node) || (update.inlet.node === node); })
-                    .bufferWhileBy(patch.event['patch/remove-node']
+                    .bufferWhileBy(patch.nodesToRemove
                                         .filter(function(rnode) { return (rnode.id === node.id); })
-                                        .map(ƒ(false)).toProperty(ƒ(true)), { flushOnChange: true })
+                                        .map(ƒ(false)).toProperty(ƒ(true)),
+                                        { flushOnChange: true })
                     .take(1).flatten().onValue(function(update) {
                         update.outlet.disconnect(update.link);
+                    })
+                    .onEnd(function() {
+                        node.turnOff();
+                        patch.event['patch/remove-node'].emit(node);
                     });
 
         patch.events.plug(node.events);
@@ -172,8 +180,7 @@ Patch.prototype.addNode = function(type, name) {
     return node;
 }
 Patch.prototype.removeNode = function(node) {
-    node.turnOff();
-    this.event['patch/remove-node'].emit(node);
+    this.nodesToRemove.emit(node); // see addNode for a handling code
     this.events.unplug(node.events);
 }
 Patch.prototype.enter = function() {
