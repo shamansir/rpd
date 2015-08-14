@@ -87,20 +87,36 @@
     transition: border-color .3s;
 }
 
+.rpd-fresh .rpd-connector:hover {
+    border-color: #c66;
+}
+
 .rpd-stale .rpd-connector {
     border-color: #000;
     background-color: #fff;
     transition: border-color .3s;
 }
 
+.rpd-stale .rpd-connector:hover {
+    border-color: #666;
+}
+
 .rpd-cold .rpd-connector {
     border-color: #009;
+}
+
+.rpd-cold .rpd-connector:hover {
+    border-color: #669;
 }
 
 .rpd-error .rpd-connector {
     border-color: #cc0;
     background-color: #f00;
     transition: border-color .3s;
+}
+
+.rpd-error .rpd-connector:hover {
+    border-color: #cc6;
 }
 
 .rpd-inlet .rpd-value,
