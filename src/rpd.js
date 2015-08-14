@@ -152,19 +152,23 @@ Patch.prototype.render = function(aliases, targets, config) {
 }
 Patch.prototype.addNode = function(type, name) {
     var patch = this;
+
     var node = new Node(type, this, name, function(node) {
+        patch.events.filter(function(update) { return (update.type === 'outlet/connect'); })
+                    .filter(function(update) { return (update.outlet.node === node) || (update.inlet.node === node); })
+                    .bufferWhileBy(patch.event['patch/remove-node']
+                                        .filter(function(rnode) { return (rnode.id === node.id); })
+                                        .map(ƒ(false)).toProperty(ƒ(true)), { flushOnChange: true })
+                    .take(1).flatten().onValue(function(update) {
+                        update.outlet.disconnect(update.link);
+                    });
+
         patch.events.plug(node.events);
         patch.event['patch/add-node'].emit(node);
 
-        node.events.filter(function(update) { return update.type === 'outlet/connect'; })
-                   .bufferWhileBy(this.event['patch/remove-node']
-                                      .filter(function(rnode) { return (rnode === node); }).map(ƒ(false)))
-                   .take(1).flatten().onValue(function(update) {
-                       update.outlet.disconnect(update.link);
-                   });
-
         node.turnOn();
     });
+
     return node;
 }
 Patch.prototype.removeNode = function(node) {
@@ -563,7 +567,11 @@ function clone_obj(src) {
     // this way is not a deep-copy and actually not cloning at all, but that's ok,
     // since we use it few times for events, which are simple objects and the objects they
     // pass, should be the same objects they got; just events by themselves should be different.
-    return Object.create(src);
+    var res = {}; var keys = Object.keys(src);
+    for (var i = 0, il = keys.length; i < il; i++) {
+        res[keys[i]] = src[keys[i]];
+    }
+    return res;
 }
 
 function is_defined(val) {
