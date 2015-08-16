@@ -87,7 +87,8 @@ return function(networkRoot, userConfig) {
                          if (config.showBoxes) classes.push('rpd-show-boxes');
                          return classes.join(' ');
                      })
-                     .style('height', docElm.property('clientHeight') + 'px')
+                     .attr('width', 500)
+                     .attr('height', docElm.property('clientHeight'))
                      .data(update.patch);
 
             tree.patches[patch.id] = root;
@@ -108,7 +109,7 @@ return function(networkRoot, userConfig) {
                                           document.documentElement.clientHeight ||
                                           document.body.clientHeight; })
                  .onValue(function(value) {
-                     root.style('height', value + 'px');
+                     root.attr('height', value);
                  });
 
             Kefir.fromEvents(root.node(), 'selectstart').onValue(preventDefault);
@@ -151,8 +152,12 @@ return function(networkRoot, userConfig) {
 
             var render = update.render;
 
-            var nodeBox = d3.select(document.createElement('div')).attr('className', 'rpd-node-box');
-            var nodeElm = nodeBox.append('table').attr('className', 'rpd-node');
+            var nodeBox = d3.select(document.createElement('g')).attr('className', 'rpd-node-box');
+            var nodeElm = nodeBox.append('rect').attr('className', 'rpd-node')
+                                                .attr('width', 100)
+                                                .attr('height', 100)
+                                                .attr('rx', 5, 'ry', 5)
+                                                .attr('fill', 'green');
 
             if (config.mode === QUARTZ_MODE) {
 
