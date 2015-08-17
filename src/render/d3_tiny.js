@@ -24,10 +24,13 @@ function Selection(v, root, all) {
 
 Selection.prototype.attr = function(attr, val) {
     if (!val && (this.selection.length === 1)) return this.selection[0][attr];
-    return modify(this, val, function(subj, s_val) { subj[attr] = s_val; });
+    return modify(this, val, function(subj, s_val) { subj.setAttribute(attr, s_val); });
 };
 
-Selection.prototype.property = Selection.prototype.attr;
+Selection.prototype.property = function(prop, val) {
+    if (!val && (this.selection.length === 1)) return this.selection[0][prop];
+    return modify(this, val, function(subj, s_val) { subj[prop] = s_val; });
+};
 
 Selection.prototype.style = function(prop, val) {
     if (prop[0] === '-') prop = prop.slice(1);
