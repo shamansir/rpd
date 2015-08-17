@@ -171,7 +171,7 @@ return function(networkRoot, userConfig) {
                                               .attr('title', nodeDescriptions[node.type] + ' (' + node.type + ')')
                                  .call(function(th) {
                                      if (config.showTypes) th.append('span').attr('class', 'rpd-type').text(node.type);
-                                     th.append('span').attr('class', 'rpd.name').text(node.name);
+                                     th.append('span').attr('class', 'rpd-name').text(node.name);
                                  });
                        });
 
@@ -305,6 +305,10 @@ return function(networkRoot, userConfig) {
                                         // so it's just to avoid holding memory for it
             tree.nodeToLinks[node.id] = null;
 
+        },
+
+        'node/move': function(update) {
+            // TODO
         },
 
         'node/process': function(update) {

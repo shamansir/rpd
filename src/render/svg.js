@@ -153,94 +153,20 @@ return function(networkRoot, userConfig) {
             var render = update.render;
 
             var nodeBox = d3.select(document.createElement('g')).attr('class', 'rpd-node-box');
-            var nodeElm = nodeBox.append('rect').attr('class', 'rpd-node')
-                                                .attr('width', 100)
-                                                .attr('height', 100)
-                                                .attr('rx', 5)
-                                                .attr('ry', 5)
-                                                .attr('fill', 'green');
+            var nodeElm = nodeBox.append('rect').attr('class', 'rpd-node');
+
+            nodeElm.append('rect').attr('class', 'rpd-remove-button')
+                   .append('text').text('x');
+            nodeElm.append('text').attr('class', 'rpd-name').text(node.name);
+            if (config.showType) nodeElm.append('text').attr('class', 'rpd-type').text('node-type');
+
+            nodeElm.append('g').attr('class', 'rpd-inlets');
+            nodeElm.append('g').attr('class', 'rpd-process');
+            nodeElm.append('g').attr('class', 'rpd-outlets');
 
             if (config.mode === QUARTZ_MODE) {
 
-                // node header: node title and remove button
-                nodeElm.append('thead').attr('class', 'rpd-title')
-                       // remove button
-                       .call(function(thead) {
-                           thead.append('tr').attr('class', 'rpd-remove-button')
-                                .append('th')/*.attr('colspan', '3')*/.text('x');
-                       })
-                       // node name, and type, if requested
-                       .call(function(thead) {
-                            thead.append('tr').attr('class', 'rpd-header')
-                                 .append('th').attr('colspan', 3)
-                                               // add description to be shown on hover
-                                              .attr('title', nodeDescriptions[node.type] + ' (' + node.type + ')')
-                                 .call(function(th) {
-                                     if (config.showTypes) th.append('span').attr('class', 'rpd-type').text(node.type);
-                                     th.append('span').attr('class', 'rpd.name').text(node.name);
-                                 });
-                       });
-
-                // node content
-                nodeElm.append('tbody').attr('class', 'rpd-content')
-                       .call(function(tbody) {
-                           tbody.append('tr')
-                                // inlets placeholder
-                                .call(function(tr) {
-                                    tr.append('td').attr('class', 'rpd-inlets')
-                                      .append('table')
-                                      .append('tbody')
-                                      .append('div').attr('class', 'rpd-inlets-target'); // -> node/add-inlet
-                                })
-                                // node body
-                                .call(function(tr) {
-                                    tr.append('td').attr('class', 'rpd-body')
-                                      .append('table')
-                                      .append('tbody').append('tr').append('td')
-                                      .append('div').attr('class', 'rpd-process-target'); // -> node/process
-                                })
-                                // outlets placeholder
-                                .call(function(tr) {
-                                    tr.append('td').attr('class', 'rpd-outlets')
-                                      .append('table')
-                                      .append('tbody')
-                                      .append('div').attr('class', 'rpd-outlets-target'); // -> node/add-outlet
-                                })
-                       });
-
             } else if (config.mode === PD_MODE) {
-
-                // inlets placehoder
-                nodeElm.append('tr').attr('class', 'rpd-inlets')
-                       .append('td')
-                       .append('table').append('tbody').append('tr')
-                       .append('div').attr('class', 'rpd-inlets-target'); // -> node/add-inlet
-
-                // remove button
-                nodeElm.append('tr').attr('class', 'rpd-remove-button')
-                       .append('td').text('x');
-
-                // node content
-                nodeElm.append('tr').attr('class', 'rpd-content')
-                        .call(function(tr) {
-                            tr.append('td').attr('class', 'rpd-title').classed('rpd-header', true)
-                              .call(function(td) {
-                                  td.append('span').attr('class', 'rpd-name').text(node.name);
-                                  if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(node.type);
-                              })
-                              // add description to be shown on hover
-                              .attr('title', nodeDescriptions[node.type] + ' (' + node.type + ')');
-                            tr.append('td').attr('class', 'rpd-body')
-                              .append('div')
-                              .append('table').append('tbody').append('tr').append('td')
-                              .append('div').attr('class', 'rpd-process-target'); // -> node/process
-                        })
-
-                // outlets placeholder
-                nodeElm.append('tr').attr('class', 'rpd-outlets')
-                       .append('td')
-                       .append('table').append('tbody').append('tr')
-                       .append('div').attr('class', 'rpd-outlets-target'); // -> node/add-outlet
 
             }
 
@@ -256,17 +182,16 @@ return function(networkRoot, userConfig) {
                 limitSrc = tree.patches[currentPatch.id],
                 nextRect = layout.nextRect(node, config.boxSize, { width: limitSrc.node().offsetWidth,
                                                                    height: limitSrc.node().offsetHeight });
-            nodeBox.style('left', Math.floor(nextRect.x) + 'px');
-            nodeBox.style('top',  Math.floor(nextRect.y) + 'px');
+            nodeBox.attr('transform', 'translate(' + Math.floor(nextRect.x) + ',' Math.floor(nextRect.y) + ')');
             nodeBox.style('min-width',  Math.floor(nextRect.width) + 'px');
             nodeBox.style('min-height',  Math.floor(nextRect.height) + 'px');
 
             node.move(nextRect.x, nextRect.y);
 
             // store targets information and node root element itself
-            tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets-target'),
-                                                 outletsTarget: nodeElm.select('.rpd-outlets-target'),
-                                                 processTarget: nodeElm.select('.rpd-process-target') });
+            tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets'),
+                                                 outletsTarget: nodeElm.select('.rpd-outlets'),
+                                                 processTarget: nodeElm.select('.rpd-process') });
 
             // add possiblity to drag nodes
             if (config.nodeMovingAllowed) addDragNDrop(node, root, nodeElm.select('.rpd-title'), nodeBox);
