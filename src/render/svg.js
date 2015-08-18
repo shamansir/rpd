@@ -267,27 +267,18 @@ return function(networkRoot, userConfig) {
 
             var inletElm;
 
+            inletElm = d3.select(document.createElement('g')).attr('class', 'rpd-inlet')
+                         .call(function(inlet) {
+                             inlet.append('circle').attr('class', 'rpd-connector');
+                             inlet.append('g').attr('class', 'rpd-value-holder')
+                                  .append('text').attr('class', 'rpd-value');
+                             inlet.append('text').attr('class', 'rpd-name').text(inlet.name);
+                             if (config.showTypes) inlet.append('text').attr('class', 'rpd-type').text(inlet.type);
+                         });
+
             if (config.mode == QUARTZ_MODE) {
 
-                inletElm = d3.select(document.createElement('tr')).attr('class', 'rpd-inlet')
-                             .call(function(tr) {
-                                 tr.append('td').attr('class', 'rpd-connector');
-                                 tr.append('td').attr('class', 'rpd-value-holder')
-                                                .append('span').attr('class', 'rpd-value');
-                                 tr.append('td').attr('class', 'rpd-name').text(inlet.name);
-                                 if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(inlet.type);
-                             });
-
             } else if (config.mode == PD_MODE) {
-
-                inletElm = d3.select(document.createElement('td')).attr('class', 'rpd-inlet')
-                             .call(function(td) {
-                                 td.append('span').attr('class', 'rpd-connector');
-                                 td.append('span').attr('class', 'rpd-name').text(inlet.name);
-                                 td.append('span').attr('class', 'rpd-value-holder')
-                                                  .append('span').attr('class', 'rpd-value');
-                                 if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(inlet.type);
-                             });
 
             }
 
@@ -331,25 +322,18 @@ return function(networkRoot, userConfig) {
 
             var outletElm;
 
+            outletElm = d3.select(document.createElement('g')).attr('class', 'rpd-outlet')
+                          .call(function(inlet) {
+                              inlet.append('circle').attr('class', 'rpd-connector');
+                              inlet.append('g').attr('class', 'rpd-value-holder')
+                                   .append('text').attr('class', 'rpd-value');
+                              inlet.append('text').attr('class', 'rpd-name').text(inlet.name);
+                              if (config.showTypes) inlet.append('text').attr('class', 'rpd-type').text(inlet.type);
+                          });
+
             if (config.mode == QUARTZ_MODE) {
 
-                outletElm = d3.select(document.createElement('tr')).attr('class', 'rpd-outlet')
-                              .call(function(tr) {
-                                  tr.append('td').attr('class', 'rpd-connector');
-                                  tr.append('td').attr('class', 'rpd-value');
-                                  if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(outlet.type);
-                                  tr.append('td').attr('class', 'rpd-name').text(outlet.name);
-                              });
-
             } else if (config.mode == PD_MODE) {
-
-                outletElm = d3.select(document.createElement('td')).attr('class', 'rpd-outlet')
-                              .call(function(td) {
-                                  td.append('span').attr('class', 'rpd-connector');
-                                  td.append('span').attr('class', 'rpd-name').text(outlet.name);
-                                  td.append('span').attr('class', 'rpd-value');
-                                  if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(outlet.type);
-                              });
 
             }
 
