@@ -157,8 +157,11 @@ return function(networkRoot, userConfig) {
 
             nodeElm.append('rect').attr('class', 'rpd-remove-button')
                    .append('text').text('x');
-            nodeElm.append('text').attr('class', 'rpd-name').text(node.name);
-            if (config.showType) nodeElm.append('text').attr('class', 'rpd-type').text('node-type');
+            nodeElm.append('g').attr('class', 'rpd-title')
+                   .call(function(title) {
+                       title.append('text').attr('class', 'rpd-name').text(node.name);
+                       if (config.showType) title.append('text').attr('class', 'rpd-type').text('node-type');
+                   });
 
             nodeElm.append('g').attr('class', 'rpd-inlets');
             nodeElm.append('g').attr('class', 'rpd-process');
@@ -175,19 +178,6 @@ return function(networkRoot, userConfig) {
 
             nodeBox.style('z-index', NODE_LAYER);
 
-            // find a rectange to place the new node, and actually place it there
-            var layout = tree.patchToLayout[update.patch.id],
-                // current patch root should be used as a limit source, even if we add to another patch
-                // or else other root may have no dimensions yet
-                limitSrc = tree.patches[currentPatch.id],
-                nextRect = layout.nextRect(node, config.boxSize, { width: limitSrc.node().offsetWidth,
-                                                                   height: limitSrc.node().offsetHeight });
-            nodeBox.attr('transform', 'translate(' + Math.floor(nextRect.x) + ',' Math.floor(nextRect.y) + ')');
-            nodeBox.style('min-width',  Math.floor(nextRect.width) + 'px');
-            nodeBox.style('min-height',  Math.floor(nextRect.height) + 'px');
-
-            node.move(nextRect.x, nextRect.y);
-
             // store targets information and node root element itself
             tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets'),
                                                  outletsTarget: nodeElm.select('.rpd-outlets'),
@@ -197,7 +187,7 @@ return function(networkRoot, userConfig) {
             if (config.nodeMovingAllowed) addDragNDrop(node, root, nodeElm.select('.rpd-title'), nodeBox);
 
             // use custom node body renderer, if defined
-            if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process-target').node()));
+            if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process').node()));
 
             var nodeLinks = new VLinks();
             tree.nodeToLinks[node.id] = nodeLinks;
@@ -212,6 +202,18 @@ return function(networkRoot, userConfig) {
                     nodeLinks.updateAll();
                 });
             }
+
+            // find a rectange to place the new node, and actually place it there
+            var layout = tree.patchToLayout[update.patch.id],
+                // current patch root should be used as a limit source, even if we add to another patch
+                // or else other root may have no dimensions yet
+                limitSrc = tree.patches[currentPatch.id],
+                nextRect = layout.nextRect(node, config.boxSize, { width: limitSrc.node().offsetWidth,
+                                                                   height: limitSrc.node().offsetHeight });
+            nodeBox.style('min-width',  Math.floor(nextRect.width) + 'px');
+            nodeBox.style('min-height',  Math.floor(nextRect.height) + 'px');
+
+            node.move(nextRect.x, nextRect.y);
 
             // remove node when remove button was clicked
             Kefir.fromEvents(nodeElm.select('.rpd-remove-button').node(), 'click')
@@ -236,6 +238,12 @@ return function(networkRoot, userConfig) {
                                         // so it's just to avoid holding memory for it
             tree.nodeToLinks[node.id] = null;
 
+        },
+
+        'node/move': function(update) {
+            var nodeBox = tree.nodes[update.node.id];
+            var position = update.position;
+            nodeBox.attr('transform', 'translate(' + Math.floor(position[0]) + ',' + Math.floor(position[1]) + ')');
         },
 
         'node/process': function(update) {
