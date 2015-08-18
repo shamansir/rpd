@@ -243,20 +243,6 @@ return function(networkRoot, userConfig) {
 
             nodeBox.style('z-index', NODE_LAYER);
 
-            // find a rectange to place the new node, and actually place it there
-            var layout = tree.patchToLayout[update.patch.id],
-                // current patch root should be used as a limit source, even if we add to another patch
-                // or else other root may have no dimensions yet
-                limitSrc = tree.patches[currentPatch.id],
-                nextRect = layout.nextRect(node, config.boxSize, { width: limitSrc.node().offsetWidth,
-                                                                   height: limitSrc.node().offsetHeight });
-            nodeBox.style('left', Math.floor(nextRect.x) + 'px');
-            nodeBox.style('top',  Math.floor(nextRect.y) + 'px');
-            nodeBox.style('min-width',  Math.floor(nextRect.width) + 'px');
-            nodeBox.style('min-height',  Math.floor(nextRect.height) + 'px');
-
-            node.move(nextRect.x, nextRect.y);
-
             // store targets information and node root element itself
             tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets-target'),
                                                  outletsTarget: nodeElm.select('.rpd-outlets-target'),
@@ -281,6 +267,18 @@ return function(networkRoot, userConfig) {
                     nodeLinks.updateAll();
                 });
             }
+
+            // find a rectange to place the new node, and actually place it there
+            var layout = tree.patchToLayout[update.patch.id],
+                // current patch root should be used as a limit source, even if we add to another patch
+                // or else other root may have no dimensions yet
+                limitSrc = tree.patches[currentPatch.id],
+                nextRect = layout.nextRect(node, config.boxSize, { width: limitSrc.node().offsetWidth,
+                                                                   height: limitSrc.node().offsetHeight });
+            nodeBox.style('min-width',  Math.floor(nextRect.width) + 'px');
+            nodeBox.style('min-height',  Math.floor(nextRect.height) + 'px');
+
+            node.move(nextRect.x, nextRect.y); // x and y positions will be set in node/move event handler
 
             // remove node when remove button was clicked
             Kefir.fromEvents(nodeElm.select('.rpd-remove-button').node(), 'click')
@@ -308,7 +306,10 @@ return function(networkRoot, userConfig) {
         },
 
         'node/move': function(update) {
-            // TODO
+            var nodeBox = tree.nodes[update.node.id];
+            var position = update.position;
+            nodeBox.style('left', Math.floor(position[0]) + 'px');
+            nodeBox.style('top',  Math.floor(position[1]) + 'px');
         },
 
         'node/process': function(update) {
