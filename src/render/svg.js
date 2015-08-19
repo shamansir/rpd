@@ -101,7 +101,7 @@ return function(networkRoot, userConfig) {
             // links if they were clicked in the appropriate order
             connectivity = new Connectivity(root);
 
-            if (config.renderNodeList) buildNodeList(root, nodeTypes, nodeDescriptions);
+            //if (config.renderNodeList) buildNodeList(root, nodeTypes, nodeDescriptions);
 
             // resize root element on window resize
             Kefir.fromEvents(window, 'resize')
@@ -268,12 +268,12 @@ return function(networkRoot, userConfig) {
             var inletElm;
 
             inletElm = d3.select(document.createElement('g')).attr('class', 'rpd-inlet')
-                         .call(function(inlet) {
-                             inlet.append('circle').attr('class', 'rpd-connector');
-                             inlet.append('g').attr('class', 'rpd-value-holder')
+                         .call(function(group) {
+                             group.append('circle').attr('class', 'rpd-connector');
+                             group.append('g').attr('class', 'rpd-value-holder')
                                   .append('text').attr('class', 'rpd-value');
-                             inlet.append('text').attr('class', 'rpd-name').text(inlet.name);
-                             if (config.showTypes) inlet.append('text').attr('class', 'rpd-type').text(inlet.type);
+                             group.append('text').attr('class', 'rpd-name').text(inlet.name);
+                             if (config.showTypes) group.append('text').attr('class', 'rpd-type').text(inlet.type);
                          });
 
             if (config.mode == QUARTZ_MODE) {
@@ -323,12 +323,12 @@ return function(networkRoot, userConfig) {
             var outletElm;
 
             outletElm = d3.select(document.createElement('g')).attr('class', 'rpd-outlet')
-                          .call(function(inlet) {
-                              inlet.append('circle').attr('class', 'rpd-connector');
-                              inlet.append('g').attr('class', 'rpd-value-holder')
+                          .call(function(group) {
+                              group.append('circle').attr('class', 'rpd-connector');
+                              group.append('g').attr('class', 'rpd-value-holder')
                                    .append('text').attr('class', 'rpd-value');
-                              inlet.append('text').attr('class', 'rpd-name').text(inlet.name);
-                              if (config.showTypes) inlet.append('text').attr('class', 'rpd-type').text(inlet.type);
+                              group.append('text').attr('class', 'rpd-name').text(outlet.name);
+                              if (config.showTypes) group.append('text').attr('class', 'rpd-type').text(outlet.type);
                           });
 
             if (config.mode == QUARTZ_MODE) {
@@ -547,34 +547,17 @@ function VLink(link) { // visual representation of the link
 }
 VLink.prototype.construct = function(x0, y0, x1, y1) {
     if (this.elm) throw new Error('VLink is already constructed');
-    var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
-                             ((y0 - y1) * (y0 - y1)));
-    var angle = Math.atan2(y1 - y0, x1 - x0);
-
-    var linkElm = d3.select(document.createElement('span'))
+    var linkElm = d3.select(document.createElement('line'))
                     .attr('class', 'rpd-link')
-                    .style('position', 'absolute')
-                    .style('z-index', LINK_LAYER)
-                    .style('width', Math.floor(distance) + 'px')
-                    .style('left', x0 + 'px')
-                    .style('top', y0 + 'px')
-                    .style('transform-origin', 'left top')
-                    .style('-webkit-transform-origin', 'left top')
-                    .style('transform', 'rotateZ(' + angle + 'rad)')
-                    .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
+                    .attr('x1', x0).attr('y1', y0)
+                    .attr('x2', x1).attr('y2', y1)
+                    .style('z-index', LINK_LAYER);
     this.elm = linkElm;
     return this;
 }
 VLink.prototype.rotate = function(x0, y0, x1, y1) {
-    var linkElm = this.elm;
-    var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
-                             ((y0 - y1) * (y0 - y1)));
-    var angle = Math.atan2(y1 - y0, x1 - x0);
-    linkElm.style('left', x0 + 'px')
-           .style('top', y0 + 'px')
-           .style('width', Math.floor(distance) + 'px')
-           .style('transform', 'rotateZ(' + angle + 'rad)')
-           .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
+    this.elm.attr('x1', x0).attr('y1', y0)
+            .attr('x2', x1).attr('y2', y1);
     return this;
 }
 VLink.prototype.update = function() {

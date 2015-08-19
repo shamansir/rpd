@@ -23,12 +23,12 @@ function Selection(v, root, all) {
 };
 
 Selection.prototype.attr = function(attr, val) {
-    if (!val && (this.selection.length === 1)) return this.selection[0][attr];
+    if ((typeof val === 'undefined') && (this.selection.length === 1)) return this.selection[0].getAttribute(attr);
     return modify(this, val, function(subj, s_val) { subj.setAttribute(attr, s_val); });
 };
 
 Selection.prototype.property = function(prop, val) {
-    if (!val && (this.selection.length === 1)) return this.selection[0][prop];
+    if ((typeof val === 'undefined') && (this.selection.length === 1)) return this.selection[0][prop];
     return modify(this, val, function(subj, s_val) { subj[prop] = s_val; });
 };
 
