@@ -62,10 +62,9 @@ return function(networkRoot, userConfig) {
 
     var config = mergeConfig(userConfig, defaultConfig);
 
-    networkRoot = d3.select(networkRoot)
-                    .classed('rpd-network', true);
+    networkRoot = d3.select(networkRoot);
 
-    var root;
+    var svg;
 
     var connectivity;
 
@@ -79,19 +78,19 @@ return function(networkRoot, userConfig) {
             var docElm = d3.select(document.documentElement);
 
             // build root element as a target for all further patch modifications
-            root = d3.select(document.createElement('svg'))
-                     .attr('class', function() {
-                         var classes = [ 'rpd-patch' ];
-                         classes.push('rpd-layout-' + config.mode);
-                         classes.push('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'));
-                         if (config.showBoxes) classes.push('rpd-show-boxes');
-                         return classes.join(' ');
-                     })
-                     .attr('width', 500)
-                     .attr('height', docElm.property('clientHeight'))
-                     .data(update.patch);
+            svg = d3.select(document.createElement('svg'))
+                    .attr('width', 500)
+                    .attr('height', docElm.property('clientHeight'));
 
-            tree.patches[patch.id] = root;
+            var patchRoot = svg.append('g').attr('class', function() {
+                var classes = [ 'rpd-patch' ];
+                classes.push('rpd-layout-' + config.mode);
+                classes.push('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'));
+                if (config.showBoxes) classes.push('rpd-show-boxes');
+                return classes.join(' ');
+            }).data(update.patch);
+
+            tree.patches[patch.id] = svg.data(patchRoot);
 
             // initialize the node layout (helps in determining the position where new node should be placed)
             tree.patchToLayout[patch.id] = new GridLayout();
@@ -99,7 +98,7 @@ return function(networkRoot, userConfig) {
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
             // links if they were clicked in the appropriate order
-            connectivity = new Connectivity(root);
+            connectivity = new Connectivity(patchRoot);
 
             //if (config.renderNodeList) buildNodeList(root, nodeTypes, nodeDescriptions);
 
@@ -109,10 +108,8 @@ return function(networkRoot, userConfig) {
                                           document.documentElement.clientHeight ||
                                           document.body.clientHeight; })
                  .onValue(function(value) {
-                     root.attr('height', value);
+                     svg.attr('height', value);
                  });
-
-            Kefir.fromEvents(root.node(), 'selectstart').onValue(preventDefault);
 
         },
 
@@ -120,12 +117,13 @@ return function(networkRoot, userConfig) {
             currentPatch = update.patch;
             navigation.switch(update.patch);
             networkRoot.append(tree.patches[update.patch.id].node());
+
             tree.patchToLinks[update.patch.id].updateAll();
         },
 
         'patch/exit': function(update) {
             currentPatch = null;
-            root.remove();
+            svg.remove();
         },
 
         'patch/refer': function(update) {
@@ -184,7 +182,7 @@ return function(networkRoot, userConfig) {
                                                  processTarget: nodeElm.select('.rpd-process') });
 
             // add possiblity to drag nodes
-            if (config.nodeMovingAllowed) addDragNDrop(node, root, nodeElm.select('.rpd-title'), nodeBox);
+            if (config.nodeMovingAllowed) addDragNDrop(node, svg, nodeElm.select('.rpd-title'), nodeBox);
 
             // use custom node body renderer, if defined
             if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process').node()));
@@ -210,8 +208,8 @@ return function(networkRoot, userConfig) {
                 limitSrc = tree.patches[currentPatch.id],
                 nextRect = layout.nextRect(node, config.boxSize, { width: limitSrc.node().offsetWidth,
                                                                    height: limitSrc.node().offsetHeight });
-            nodeBox.style('min-width',  Math.floor(nextRect.width) + 'px');
-            nodeBox.style('min-height',  Math.floor(nextRect.height) + 'px');
+            nodeBox.attr('width',  Math.floor(nextRect.width) + 'px');
+            nodeBox.attr('height', Math.floor(nextRect.height) + 'px');
 
             node.move(nextRect.x, nextRect.y);
 
@@ -223,7 +221,8 @@ return function(networkRoot, userConfig) {
                  });
 
             // append to the the patch root node
-            root.append(nodeBox.node());
+            var patchRoot = tree.patches[node.patch.id].data();
+            patchRoot.append(nodeBox.node());
 
         },
 
@@ -290,7 +289,7 @@ return function(networkRoot, userConfig) {
 
             var editor = null;
             if (!inlet.readonly && render.edit) {
-                editor = new ValueEditor(inlet, render, root,
+                editor = new ValueEditor(inlet, render, svg,
                                          inletElm.select('.rpd-value-holder'),
                                          inletElm.select('.rpd-value'));
             }
@@ -434,7 +433,7 @@ return function(networkRoot, userConfig) {
 
             vlink.listenForClicks();
 
-            vlink.appendTo(root);
+            vlink.appendTo(svg);
 
         },
 
