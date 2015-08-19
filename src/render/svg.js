@@ -151,10 +151,17 @@ return function(networkRoot, userConfig) {
             var render = update.render;
 
             var nodeBox = d3.select(document.createElement('g')).attr('class', 'rpd-node-box');
-            var nodeElm = nodeBox.append('rect').attr('class', 'rpd-node');
+            var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
 
-            nodeElm.append('rect').attr('class', 'rpd-remove-button')
-                   .append('text').text('x');
+            // node body
+            nodeElm.append('rect');
+
+            nodeElm.append('g').attr('class', 'rpd-remove-button')
+                   .call(function(button) {
+                       button.append('rect');
+                       button.append('text').text('x');
+                   })
+
             nodeElm.append('g').attr('class', 'rpd-title')
                    .call(function(title) {
                        title.append('text').attr('class', 'rpd-name').text(node.name);
@@ -208,8 +215,8 @@ return function(networkRoot, userConfig) {
                 limitSrc = tree.patches[currentPatch.id],
                 nextRect = layout.nextRect(node, config.boxSize, { width: limitSrc.node().offsetWidth,
                                                                    height: limitSrc.node().offsetHeight });
-            nodeBox.attr('width',  Math.floor(nextRect.width) + 'px');
-            nodeBox.attr('height', Math.floor(nextRect.height) + 'px');
+            nodeBox.attr('width',  Math.floor(nextRect.width));
+            nodeBox.attr('height', Math.floor(nextRect.height));
 
             node.move(nextRect.x, nextRect.y);
 
