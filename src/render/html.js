@@ -148,6 +148,7 @@ return function(networkRoot, userConfig) {
         'patch/add-node': function(update) {
 
             var node = update.node;
+            var patch = update.patch;
 
             var render = update.render;
 
@@ -288,7 +289,7 @@ return function(networkRoot, userConfig) {
                  });
 
             // append to the the patch root node
-            root.append(nodeBox.node());
+            tree.patches[patch.id].append(nodeBox.node());
 
         },
 
