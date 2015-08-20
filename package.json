@@ -20,7 +20,7 @@
     "user-interface"
   ],
   "dependencies": {
-    "kefir": "shamansir/kefir"
+    "kefir": "rpominov/kefir"
   },
   "devDependencies": {
     "jasmine": "latest",
