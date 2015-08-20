@@ -60,7 +60,7 @@ function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
 }
 
-function HtmlRenderer(patch) {
+function SvgRenderer(patch) {
 
 return function(networkRoot, userConfig) {
 
@@ -1030,8 +1030,8 @@ function addClickSwitch(elm, on_true, on_false, initial) {
 // ============================ registration ===================================
 // =============================================================================
 
-Rpd.HtmlRenderer = HtmlRenderer;
+Rpd.SvgRenderer = SvgRenderer;
 
-Rpd.renderer('html', HtmlRenderer);
+Rpd.renderer('svg', SvgRenderer);
 
 })();
