@@ -56,6 +56,10 @@ var currentPatch;
 var nodeTypes = Rpd.allNodeTypes,
     nodeDescriptions = Rpd.allNodeDescriptions;
 
+function _createSvgElement(name) {
+    return document.createElementNS(d3.ns.prefix.svg, name);
+}
+
 function HtmlRenderer(patch) {
 
 return function(networkRoot, userConfig) {
@@ -78,17 +82,18 @@ return function(networkRoot, userConfig) {
             var docElm = d3.select(document.documentElement);
 
             // build root element as a target for all further patch modifications
-            svg = d3.select(document.createElement('svg'))
+            svg = d3.select(_createSvgElement('svg'))
                     .attr('width', 500)
-                    .attr('height', docElm.property('clientHeight'));
+                    .attr('height', docElm.property('clientHeight'))
+                    .style('border', '1px solid #000');
 
-            var patchRoot = svg.append('g').attr('class', function() {
+            var patchRoot = svg.append('g');/*.attr('class', function() {
                 var classes = [ 'rpd-patch' ];
                 classes.push('rpd-layout-' + config.mode);
                 classes.push('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'));
                 if (config.showBoxes) classes.push('rpd-show-boxes');
                 return classes.join(' ');
-            }).data(update.patch);
+            }).data(update.patch); */
 
             tree.patches[patch.id] = svg.data(patchRoot);
 
@@ -98,7 +103,7 @@ return function(networkRoot, userConfig) {
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
             // links if they were clicked in the appropriate order
-            connectivity = new Connectivity(patchRoot);
+            //connectivity = new Connectivity(patchRoot);
 
             //if (config.renderNodeList) buildNodeList(root, nodeTypes, nodeDescriptions);
 
@@ -126,7 +131,7 @@ return function(networkRoot, userConfig) {
             svg.remove();
         },
 
-        'patch/refer': function(update) {
+        /* 'patch/refer': function(update) {
             var node = update.node;
 
             var nodeBox = tree.nodes[node.id];
@@ -142,7 +147,7 @@ return function(networkRoot, userConfig) {
                         target.enter();
                     }
                  })(patch, update.target));
-        },
+        }, */
 
         'patch/add-node': function(update) {
 
@@ -150,26 +155,27 @@ return function(networkRoot, userConfig) {
 
             var render = update.render;
 
-            var nodeBox = d3.select(document.createElement('g')).attr('class', 'rpd-node-box');
-            var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
+            var nodeBox = d3.select(_createSvgElement('g'))/*.attr('class', 'rpd-node-box')*/;
+            var nodeElm = nodeBox.append('g')/*.attr('class', 'rpd-node')*/;
 
-            var nodeBody = nodeElm.append('rect').attr('class', 'rpd-body');
+            var nodeBody = nodeElm.append('rect')/*.attr('class', 'rpd-body')*/
+                                  .attr('fill', 'green');
 
-            nodeElm.append('g').attr('class', 'rpd-remove-button')
+            /* nodeElm.append('g').attr('class', 'rpd-remove-button')
                    .call(function(button) {
                        button.append('rect');
                        button.append('text').text('x');
-                   })
+                   }) */
 
-            nodeElm.append('g').attr('class', 'rpd-title')
+            /* nodeElm.append('g').attr('class', 'rpd-title')
                    .call(function(title) {
                        title.append('text').attr('class', 'rpd-name').text(node.name);
                        if (config.showType) title.append('text').attr('class', 'rpd-type').text('node-type');
-                   });
+                   }); */
 
-            nodeElm.append('g').attr('class', 'rpd-inlets');
-            nodeElm.append('g').attr('class', 'rpd-process');
-            nodeElm.append('g').attr('class', 'rpd-outlets');
+            //nodeElm.append('g').attr('class', 'rpd-inlets');
+            //nodeElm.append('g').attr('class', 'rpd-process');
+            //nodeElm.append('g').attr('class', 'rpd-outlets');
 
             if (config.mode === QUARTZ_MODE) {
 
@@ -177,10 +183,10 @@ return function(networkRoot, userConfig) {
 
             }
 
-            nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
+            /*nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                    .classed('rpd-'+node.type.replace('/','-'), true);
 
-            nodeBox.style('z-index', NODE_LAYER);
+            nodeBox.style('z-index', NODE_LAYER); */
 
             // store targets information and node root element itself
             tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets'),
@@ -188,10 +194,10 @@ return function(networkRoot, userConfig) {
                                                  processTarget: nodeElm.select('.rpd-process') });
 
             // add possiblity to drag nodes
-            if (config.nodeMovingAllowed) addDragNDrop(node, svg, nodeElm.select('.rpd-title'), nodeBox);
+            //if (config.nodeMovingAllowed) addDragNDrop(node, svg, nodeElm.select('.rpd-title'), nodeBox);
 
             // use custom node body renderer, if defined
-            if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process').node()));
+            //if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process').node()));
 
             var nodeLinks = new VLinks();
             tree.nodeToLinks[node.id] = nodeLinks;
@@ -220,11 +226,11 @@ return function(networkRoot, userConfig) {
             node.move(nextRect.x, nextRect.y);
 
             // remove node when remove button was clicked
-            Kefir.fromEvents(nodeElm.select('.rpd-remove-button').node(), 'click')
+            /* Kefir.fromEvents(nodeElm.select('.rpd-remove-button').node(), 'click')
                  .tap(stopPropagation)
                  .onValue(function() {
                      patch.removeNode(node);
-                 });
+                 }); */
 
             // append to the the patch root node
             var patchRoot = tree.patches[node.patch.id].data();
@@ -232,7 +238,7 @@ return function(networkRoot, userConfig) {
 
         },
 
-        'patch/remove-node': function(update) {
+        /* 'patch/remove-node': function(update) {
             var node = update.node;
 
             var nodeBox = tree.nodes[node.id];
@@ -478,7 +484,7 @@ return function(networkRoot, userConfig) {
 
         'link/disable': function(update) {
             tree.links[update.link.id].disable();
-        }
+        } */
 
     }
 
@@ -552,7 +558,7 @@ function VLink(link) { // visual representation of the link
 }
 VLink.prototype.construct = function(x0, y0, x1, y1) {
     if (this.elm) throw new Error('VLink is already constructed');
-    var linkElm = d3.select(document.createElement('line'))
+    var linkElm = d3.select(_createSvgElement('line'))
                     .attr('class', 'rpd-link')
                     .attr('x1', x0).attr('y1', y0)
                     .attr('x2', x1).attr('y2', y1)
