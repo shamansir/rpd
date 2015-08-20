@@ -153,10 +153,9 @@ return function(networkRoot, userConfig) {
             var nodeBox = d3.select(document.createElement('g')).attr('class', 'rpd-node-box');
             var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
 
-            var nodeRect = nodeElm.append('rect').attr('class', 'rpd-body')
-                   .attr('width', 400).attr('height', 400).attr('fill', 'green');
+            var nodeBody = nodeElm.append('rect').attr('class', 'rpd-body');
 
-            /* nodeElm.append('g').attr('class', 'rpd-remove-button')
+            nodeElm.append('g').attr('class', 'rpd-remove-button')
                    .call(function(button) {
                        button.append('rect');
                        button.append('text').text('x');
@@ -166,7 +165,7 @@ return function(networkRoot, userConfig) {
                    .call(function(title) {
                        title.append('text').attr('class', 'rpd-name').text(node.name);
                        if (config.showType) title.append('text').attr('class', 'rpd-type').text('node-type');
-                   }); */
+                   });
 
             nodeElm.append('g').attr('class', 'rpd-inlets');
             nodeElm.append('g').attr('class', 'rpd-process');
@@ -189,7 +188,7 @@ return function(networkRoot, userConfig) {
                                                  processTarget: nodeElm.select('.rpd-process') });
 
             // add possiblity to drag nodes
-            //if (config.nodeMovingAllowed) addDragNDrop(node, svg, nodeElm.select('.rpd-title'), nodeBox);
+            if (config.nodeMovingAllowed) addDragNDrop(node, svg, nodeElm.select('.rpd-title'), nodeBox);
 
             // use custom node body renderer, if defined
             if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process').node()));
@@ -215,17 +214,17 @@ return function(networkRoot, userConfig) {
                 limitSrc = tree.patches[currentPatch.id],
                 nextRect = layout.nextRect(node, config.boxSize, { width: limitSrc.node().offsetWidth,
                                                                    height: limitSrc.node().offsetHeight });
-            nodeRect.attr('width',  Math.floor(nextRect.width));
-            nodeRect.attr('height', Math.floor(nextRect.height));
+            nodeBody.attr('width',  Math.floor(nextRect.width));
+            nodeBody.attr('height', Math.floor(nextRect.height));
 
             node.move(nextRect.x, nextRect.y);
 
             // remove node when remove button was clicked
-            /* Kefir.fromEvents(nodeElm.select('.rpd-remove-button').node(), 'click')
+            Kefir.fromEvents(nodeElm.select('.rpd-remove-button').node(), 'click')
                  .tap(stopPropagation)
                  .onValue(function() {
                      patch.removeNode(node);
-                 }); */
+                 });
 
             // append to the the patch root node
             var patchRoot = tree.patches[node.patch.id].data();
@@ -249,7 +248,7 @@ return function(networkRoot, userConfig) {
         'node/move': function(update) {
             var nodeBox = tree.nodes[update.node.id];
             var position = update.position;
-            //nodeBox.attr('transform', 'translate(' + Math.floor(position[0]) + ',' + Math.floor(position[1]) + ')');
+            nodeBox.attr('transform', 'translate(' + Math.floor(position[0]) + ',' + Math.floor(position[1]) + ')');
         },
 
         'node/process': function(update) {
@@ -276,11 +275,10 @@ return function(networkRoot, userConfig) {
             inletElm = d3.select(document.createElement('g')).attr('class', 'rpd-inlet')
                          .call(function(group) {
                              group.append('circle').attr('class', 'rpd-connector');
-                             group.append('text').attr('class', 'rpd-value');
-                             //group.append('g').attr('class', 'rpd-value-holder')
-                             //  .append('text').attr('class', 'rpd-value');
-                             //group.append('text').attr('class', 'rpd-name').text(inlet.name);
-                             //if (config.showTypes) group.append('text').attr('class', 'rpd-type').text(inlet.type);
+                             group.append('g').attr('class', 'rpd-value-holder')
+                                  .append('text').attr('class', 'rpd-value');
+                             group.append('text').attr('class', 'rpd-name').text(inlet.name);
+                             if (config.showTypes) group.append('text').attr('class', 'rpd-type').text(inlet.type);
                          });
 
             if (config.mode == QUARTZ_MODE) {
@@ -296,11 +294,11 @@ return function(networkRoot, userConfig) {
                              });
 
             var editor = null;
-            /*if (!inlet.readonly && render.edit) {
+            if (!inlet.readonly && render.edit) {
                 editor = new ValueEditor(inlet, render, svg,
                                          inletElm.select('.rpd-value-holder'),
                                          inletElm.select('.rpd-value'));
-            }*/
+            }
 
             tree.inlets[inlet.id] = inletElm.data({
                 connector: inletElm.select('.rpd-connector'),
@@ -315,7 +313,7 @@ return function(networkRoot, userConfig) {
             });
 
             // listen for clicks in connector and allow to edit links this way
-            //connectivity.subscribeInlet(inlet, inletElm.select('.rpd-connector'));
+            connectivity.subscribeInlet(inlet, inletElm.select('.rpd-connector'));
 
             inletsTarget.append(inletElm.node());
         },
@@ -332,11 +330,10 @@ return function(networkRoot, userConfig) {
             outletElm = d3.select(document.createElement('g')).attr('class', 'rpd-outlet')
                           .call(function(group) {
                               group.append('circle').attr('class', 'rpd-connector');
-                              group.append('text').attr('class', 'rpd-value');
-                              //group.append('g').attr('class', 'rpd-value-holder')
-                              //   .append('text').attr('class', 'rpd-value');
-                              //group.append('text').attr('class', 'rpd-name').text(outlet.name);
-                              //if (config.showTypes) group.append('text').attr('class', 'rpd-type').text(outlet.type);
+                              group.append('g').attr('class', 'rpd-value-holder')
+                                   .append('text').attr('class', 'rpd-value');
+                              group.append('text').attr('class', 'rpd-name').text(outlet.name);
+                              if (config.showTypes) group.append('text').attr('class', 'rpd-type').text(outlet.type);
                           });
 
             if (config.mode == QUARTZ_MODE) {
@@ -355,7 +352,7 @@ return function(networkRoot, userConfig) {
             });
 
             // listen for clicks in connector and allow to edit links this way
-            //connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
+            connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
 
             outletsTarget.append(outletElm.node());
         },
@@ -371,12 +368,12 @@ return function(networkRoot, userConfig) {
             var inletElm = tree.inlets[inlet.id];
             var valueElm = inletElm.data().value;
 
-            /* var valueRepr = inlet.def.show ? inlet.def.show(update.value) : update.value;
+            var valueRepr = inlet.def.show ? inlet.def.show(update.value) : update.value;
             if (render.show) {
                 render.show(valueElm.node(), update.value, valueRepr);
             } else {
                 valueElm.text(valueRepr);
-            } */
+            }
 
             // adds `rpd-fresh` CSS class and removes it by timeout
             addValueUpdateEffect(inlet.id, inletElm, config.effectTime);
@@ -391,12 +388,12 @@ return function(networkRoot, userConfig) {
             var outletElm = tree.outlets[outlet.id];
             var valueElm = outletElm.data().value;
 
-            /* var valueRepr = outlet.def.show ? outlet.def.show(update.value) : update.value;
+            var valueRepr = outlet.def.show ? outlet.def.show(update.value) : update.value;
             if (render.show) {
                 render.show(valueElm.node(), update.value, valueRepr);
             } else {
                 valueElm.text(valueRepr);
-            } */
+            }
 
             // adds `rpd-fresh` CSS class and removes it by timeout
             addValueUpdateEffect(outlet.id, outletElm, config.effectTime);
