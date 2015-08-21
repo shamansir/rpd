@@ -87,13 +87,13 @@ return function(networkRoot, userConfig) {
                     .attr('height', docElm.property('clientHeight'))
                     .style('border', '1px solid #000');
 
-            var patchRoot = svg.append('g');/*.attr('class', function() {
+            var patchRoot = svg.append('g').attr('class', function() {
                 var classes = [ 'rpd-patch' ];
                 classes.push('rpd-layout-' + config.mode);
                 classes.push('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'));
                 if (config.showBoxes) classes.push('rpd-show-boxes');
                 return classes.join(' ');
-            }).data(update.patch); */
+            }).data(update.patch);
 
             tree.patches[patch.id] = svg.data(patchRoot);
 
@@ -155,10 +155,10 @@ return function(networkRoot, userConfig) {
 
             var render = update.render;
 
-            var nodeBox = d3.select(_createSvgElement('g'))/*.attr('class', 'rpd-node-box')*/;
-            var nodeElm = nodeBox.append('g')/*.attr('class', 'rpd-node')*/;
+            var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
+            var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
 
-            var nodeBody = nodeElm.append('rect')/*.attr('class', 'rpd-body')*/
+            var nodeBody = nodeElm.append('rect').attr('class', 'rpd-body')
                                   .attr('fill', 'green');
 
             /* nodeElm.append('g').attr('class', 'rpd-remove-button')

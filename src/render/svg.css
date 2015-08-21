@@ -1,10 +1,17 @@
 .rpd-network {
     margin: 0;
+    font-family: 'PT Mono', 'Andale Mono', 'Fira mono', 'Menlo', sans-serif;
+    font-size: 0.7em;
 }
 
 .rpd-patch {
-    font-family: 'PT Mono', 'Andale Mono', 'Fira mono', 'Menlo', sans-serif;
-    font-size: 0.7em;
-    color: #111;
-    background-color: #3c464c;
+    fill: #3c464c;
+}
+
+.rpd-patch text {
+    fill: #111;
+}
+
+.rpd-node .rpd-body {
+    fill: #50607e;
 }
