@@ -66,7 +66,7 @@ return function(networkRoot, userConfig) {
 
     var config = mergeConfig(userConfig, defaultConfig);
 
-    networkRoot = d3.select(networkRoot);
+    networkRoot = d3.select(networkRoot).attr('class', 'rpd-network');
 
     var svg;
 
@@ -83,9 +83,12 @@ return function(networkRoot, userConfig) {
 
             // build root element as a target for all further patch modifications
             svg = d3.select(_createSvgElement('svg'))
-                    .attr('width', 500)
-                    .attr('height', docElm.property('clientHeight'))
-                    .style('border', '1px solid #000');
+                    .attr('width', docElm.property('clientWidth'))
+                    .attr('height', docElm.property('clientHeight'));
+
+            svg.append('rect').attr('class', 'rpd-background')
+               .attr('width', docElm.property('clientWidth'))
+               .attr('height', docElm.property('clientHeight'));
 
             var patchRoot = svg.append('g').attr('class', function() {
                 var classes = [ 'rpd-patch' ];
@@ -158,8 +161,7 @@ return function(networkRoot, userConfig) {
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
 
-            var nodeBody = nodeElm.append('rect').attr('class', 'rpd-body')
-                                  .attr('fill', 'green');
+            var nodeBody = nodeElm.append('rect').attr('class', 'rpd-body');
 
             /* nodeElm.append('g').attr('class', 'rpd-remove-button')
                    .call(function(button) {
@@ -249,7 +251,7 @@ return function(networkRoot, userConfig) {
                                         // so it's just to avoid holding memory for it
             tree.nodeToLinks[node.id] = null;
 
-        },
+        },*/
 
         'node/move': function(update) {
             var nodeBox = tree.nodes[update.node.id];
@@ -257,7 +259,7 @@ return function(networkRoot, userConfig) {
             nodeBox.attr('transform', 'translate(' + Math.floor(position[0]) + ',' + Math.floor(position[1]) + ')');
         },
 
-        'node/process': function(update) {
+        /* 'node/process': function(update) {
             var node = update.node;
             var render = update.render;
 
