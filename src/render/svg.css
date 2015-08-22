@@ -16,8 +16,16 @@
     fill: #111;
 }
 
-.rpd-node .rpd-body {
+.rpd-node .rpd-title {
+    fill: #464646;
+}
+
+.rpd-node .rpd-content {
     fill: #50607e;
+}
+
+.rpd-node .rpd-body {
     stroke: rgba(255, 255, 255, 0.4);
     stroke-width: 1;
+    fill: transparent;
 }

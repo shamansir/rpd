@@ -161,7 +161,10 @@ return function(networkRoot, userConfig) {
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
 
-            var nodeBody = nodeElm.append('rect').attr('class', 'rpd-body');
+
+            nodeElm.append('rect').attr('class', 'rpd-title').attr('width', 140).attr('height', 20);
+            nodeElm.append('rect').attr('class', 'rpd-content').attr('y', 20).attr('width', 140).attr('height', 20);
+            var nodeBody = nodeElm.append('rect').attr('class', 'rpd-body').attr('rx', 20).attr('ry', 20);
 
             /* nodeElm.append('g').attr('class', 'rpd-remove-button')
                    .call(function(button) {
