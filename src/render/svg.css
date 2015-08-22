@@ -22,6 +22,8 @@
 
 .rpd-node .rpd-content {
     fill: #50607e;
+    clip-path: url(#try-to-clip);
+    border-radius: 25%;
 }
 
 .rpd-node .rpd-body {
