@@ -162,7 +162,7 @@ Patch.prototype.addNode = function(type, name) {
                     .bufferWhileBy(patch.nodesToRemove
                                         .filter(function(rnode) { return (rnode.id === node.id); })
                                         .map(ƒ(false)).toProperty(ƒ(true)),
-                                        { flushOnChange: true })
+                                        { flushOnChange: true, emitEmpty: true })
                     .take(1).flatten().onValue(function(update) {
                         update.outlet.disconnect(update.link);
                     })
