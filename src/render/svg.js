@@ -1031,48 +1031,18 @@ function addClickSwitch(elm, on_true, on_false, initial) {
          })
 }
 
-function topRoundedRect(x, y, width, height, radius) {
-  return "M" + x + "," + y
-       + "v" + radius
-       + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + -radius
-       + "h" + (width - 2 * radius)
-       + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
-       + "v" + (height - radius)
-       + "h" + (-width)
-       + "z";
-}
-
-function bottomRoundedRect(x, y, width, height, radius) {
-  return "M" + x + "," + y
-       + "h" + width
-       + "v" + (height - radius)
-       + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
-       + "h" + (-1 * (width - 2 * radius))
-       + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + -radius
-       + "v" + (-1 * (height - radius))
-       + "z";
-}
-
-function rightRoundedRect(x, y, width, height, radius) {
-  return "M" + x + "," + y
-       + "h" + (width - radius)
-       + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
-       + "v" + (height - 2 * radius)
-       + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
-       + "h" + (radius - width)
-       + "z";
-}
-
-function leftRoundedRect(x, y, width, height, radius) {
-  return "M" + x + "," + y
-       + "v" + radius
-       + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + -radius
-       + "h" + (width - radius)
-       + "v" + height
-       + "h" + (radius - width)
-       + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + -radius
-       + "v" + (height - 2 * radius)
-       + "z";
+function roundedRect(x, y, width, height, rtl, rtr, rbr, rbl) {
+    return "M" + x + "," + y
+         + (rtl ? ("v" + rtl
+                 + "a" + rtl + "," + rtl + " 0 0 1 " +  rtl + "," + -rtl) : "")
+         + "h" + (width  - (rtl ? rtl : 0) - (rtr ? rtr : 0))
+         + (rtr ? ("a" + rtr + "," + rtr + " 0 0 1 " +  rtr + "," +  rtr) : "")
+         + "v" + (height - (rtr ? rtr : 0) - (rbr ? rbr : 0))
+         + (rbr ? ("a" + rbr + "," + rbr + " 0 0 1 " + -rbr + "," +  rbr) : "")
+         + "h" + ((rbr ? rbr : 0) + (rbl ? rbl : 0) - width)
+         + (rbl ? ("a" + rbl + "," + rbl + " 0 0 1 " + -rbl + "," + -rbl) : "")
+         + "v" + ((rbl ? rbl : 0) + (rtl ? rtl : 0) - height)
+         + "z";
 }
 
 // =============================================================================
