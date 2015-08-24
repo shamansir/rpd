@@ -1031,7 +1031,7 @@ function addClickSwitch(elm, on_true, on_false, initial) {
          })
 }
 
-function tl_tr_RoundedRect(x, y, width, height, radius) {
+function topRoundedRect(x, y, width, height, radius) {
   return "M" + x + "," + y
        + "v" + radius
        + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + -radius
@@ -1042,13 +1042,36 @@ function tl_tr_RoundedRect(x, y, width, height, radius) {
        + "z";
 }
 
-function roundedRect(x, y, width, height, radius) {
-  return "M" + 0 + "," + radius
-       + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + -radius
-       + "h" + (width - 2 * radius)
-       + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
+function bottomRoundedRect(x, y, width, height, radius) {
+  return "M" + x + "," + y
+       + "h" + width
        + "v" + (height - radius)
-       + "h" + (-width)
+       + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
+       + "h" + (-1 * (width - 2 * radius))
+       + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + -radius
+       + "v" + (-1 * (height - radius))
+       + "z";
+}
+
+function rightRoundedRect(x, y, width, height, radius) {
+  return "M" + x + "," + y
+       + "h" + (width - radius)
+       + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
+       + "v" + (height - 2 * radius)
+       + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
+       + "h" + (radius - width)
+       + "z";
+}
+
+function leftRoundedRect(x, y, width, height, radius) {
+  return "M" + x + "," + y
+       + "v" + radius
+       + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + -radius
+       + "h" + (width - radius)
+       + "v" + height
+       + "h" + (radius - width)
+       + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + -radius
+       + "v" + (height - 2 * radius)
        + "z";
 }
 
