@@ -98,7 +98,10 @@ return function(networkRoot, userConfig) {
                 return classes.join(' ');
             }).data(update.patch);
 
-            tree.patches[patch.id] = svg.data(patchRoot);
+            tree.patches[patch.id] = svg.data({ root: patchRoot,
+                                                width: docElm.property('clientWidth'),
+                                                height: docElm.property('clientHeight')
+                                              });
 
             // initialize the node layout (helps in determining the position where new node should be placed)
             tree.patchToLayout[patch.id] = new GridLayout();
@@ -117,6 +120,7 @@ return function(networkRoot, userConfig) {
                                           document.body.clientHeight; })
                  .onValue(function(value) {
                      svg.attr('height', value);
+                     svg.data().height = value;
                  });
 
         },
@@ -158,13 +162,24 @@ return function(networkRoot, userConfig) {
 
             var render = update.render;
 
+            // find a rectange to place the new node
+            var layout = tree.patchToLayout[update.patch.id],
+                // current patch root should be used as a limit source, even if we add to another patch
+                // or else other root may have no dimensions yet
+                limitSrc = tree.patches[currentPatch.id].data(),
+                nextRect = layout.nextRect(node, config.boxSize, { width: limitSrc.width,
+                                                                   height: limitSrc.height });
+
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
 
+            var width = nextRect.width,
+                height = nextRect.height;
 
-            nodeElm.append('rect').attr('class', 'rpd-title').attr('width', 140).attr('height', 20);
-            nodeElm.append('rect').attr('class', 'rpd-content').attr('y', 20).attr('width', 140).attr('height', 20);
-            var nodeBody = nodeElm.append('rect').attr('class', 'rpd-body').attr('rx', 20).attr('ry', 20);
+            nodeElm.append('path').attr('class', 'rpd-title').attr('d', roundedRect(0, 0, width, height*0.2, 5, 5, 0, 0));
+            nodeElm.append('path').attr('class', 'rpd-content').attr('d', roundedRect(0, height*0.2, width, height*0.8, 0, 0, 5, 5));
+            nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 5).attr('ry', 5);
+            //var nodeBody = nodeElm.append('rect').attr('class', 'rpd-body').attr('rx', 20).attr('ry', 20);
 
             /* nodeElm.append('g').attr('class', 'rpd-remove-button')
                    .call(function(button) {
@@ -198,6 +213,8 @@ return function(networkRoot, userConfig) {
                                                  outletsTarget: nodeElm.select('.rpd-outlets'),
                                                  processTarget: nodeElm.select('.rpd-process') });
 
+            node.move(nextRect.x, nextRect.y);
+
             // add possiblity to drag nodes
             //if (config.nodeMovingAllowed) addDragNDrop(node, svg, nodeElm.select('.rpd-title'), nodeBox);
 
@@ -218,18 +235,6 @@ return function(networkRoot, userConfig) {
                 });
             }
 
-            // find a rectange to place the new node, and actually place it there
-            var layout = tree.patchToLayout[update.patch.id],
-                // current patch root should be used as a limit source, even if we add to another patch
-                // or else other root may have no dimensions yet
-                limitSrc = tree.patches[currentPatch.id],
-                nextRect = layout.nextRect(node, config.boxSize, { width: limitSrc.node().offsetWidth,
-                                                                   height: limitSrc.node().offsetHeight });
-            nodeBody.attr('width',  Math.floor(nextRect.width));
-            nodeBody.attr('height', Math.floor(nextRect.height));
-
-            node.move(nextRect.x, nextRect.y);
-
             // remove node when remove button was clicked
             /* Kefir.fromEvents(nodeElm.select('.rpd-remove-button').node(), 'click')
                  .tap(stopPropagation)
@@ -238,7 +243,7 @@ return function(networkRoot, userConfig) {
                  }); */
 
             // append to the the patch root node
-            var patchRoot = tree.patches[node.patch.id].data();
+            var patchRoot = tree.patches[node.patch.id].data().root;
             patchRoot.append(nodeBox.node());
 
         },

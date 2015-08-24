@@ -17,13 +17,13 @@
 }
 
 .rpd-node .rpd-title {
-    fill: #464646;
+    fill: #617b79;
 }
 
 .rpd-node .rpd-content {
     fill: #50607e;
-    clip-path: url(#try-to-clip);
-    border-radius: 25%;
+    /* clip-path: url(#try-to-clip); */
+    /* border-radius: 25%; */
 }
 
 .rpd-node .rpd-body {
