@@ -23,9 +23,9 @@ var defaultConfig = {
     // is node list collapsed by default, if shown
     nodeListCollapsed: true,
     // dimensions of the box used to measure everything
-    boxSize: { width: 100, height: 40 },
+    boxSize: { width: 100, height: 60 },
     // padding of the box to fit inlets/otlets and other useful information, relative to boxSize
-    boxPadding: { 'quartz': { horizontal: 0.3, vertical: 0.25 },
+    boxPadding: { 'quartz': { horizontal: 0.6, vertical: 0.6 },
                   'pd': { horizontal: 0.15, vertical: 0.3 } },
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
@@ -281,8 +281,6 @@ return function(networkRoot, userConfig) {
                                                    height: limitSrc.node().offsetHeight });
             nodeBox.style('min-width',  Math.floor(nextRect.width) + 'px');
             nodeBox.style('min-height', Math.floor(nextRect.height) + 'px');
-            nodeBox.style('margin',     Math.floor(nextRect.vPadding) + 'px' + ' ' +
-                                        Math.floor(nextRect.hPadding) + 'px');
 
             node.move(nextRect.x, nextRect.y); // x and y positions will be set in node/move event handler
 
@@ -603,25 +601,20 @@ function GridLayout(boxSize, boxPadding) {
     this.boxSize = boxSize;
     this.boxPadding = boxPadding;
 }
-GridLayout.DEFAULT_WIDTH = 1, // in boxes
-GridLayout.DEFAULT_HEIGHT = 1, // in boxes
-GridLayout.DEFAULT_X_MARGIN = 0.5,  // in boxes
-GridLayout.DEFAULT_Y_MARGIN = 1, // in boxes
 GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
 GridLayout.prototype.nextRect = function(node, limits) {
     limits = limits || GridLayout.DEFAULT_LIMITS;
     var nodeRects = this.nodeRects, boxSize = this.boxSize, boxPadding = this.boxPadding;
-    var width =  (node.def.width  || GridLayout.DEFAULT_WIDTH)  * boxSize.width,
-        height = (node.def.height || GridLayout.DEFAULT_HEIGHT) * boxSize.height;
+    var width =  (node.def.width  || 1) * boxSize.width,
+        height = (node.def.height || 1) * boxSize.height,
+        hPadding = (boxPadding.horizontal * boxSize.width),
+        vPadding = (boxPadding.vertical   * boxSize.height)
     var lastRect = (nodeRects.length ? nodeRects[nodeRects.length-1] : null);
-    var newRect = { x: lastRect ? lastRect.x : 0,
-                    y: lastRect ? (lastRect.y + lastRect.height +
-                                  (GridLayout.DEFAULT_Y_MARGIN * boxSize.height)) : 0,
-                    width: width, height: height,
-                    hPadding: boxPadding.horizontal * boxSize.width,
-                    vPadding: boxPadding.vertical   * boxSize.height };
-    if ((newRect.y + boxSize.height) > limits.height) {
-        newRect.x = newRect.x + width + (GridLayout.DEFAULT_X_MARGIN * boxSize.width);
+    var newRect = { x: lastRect ? lastRect.x : hPadding,
+                    y: lastRect ? (lastRect.y + lastRect.height + vPadding) : vPadding,
+                    width: width, height: height, hPadding: hPadding, vPadding: vPadding };
+    if ((newRect.y + height + vPadding) > limits.height) {
+        newRect.x = newRect.x + width + hPadding;
         newRect.y = 0;
     }
     nodeRects.push(newRect);

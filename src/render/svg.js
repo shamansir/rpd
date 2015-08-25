@@ -537,25 +537,20 @@ function GridLayout(boxSize, boxPadding) {
     this.boxSize = boxSize;
     this.boxPadding = boxPadding;
 }
-GridLayout.DEFAULT_WIDTH = 1, // in boxes
-GridLayout.DEFAULT_HEIGHT = 1, // in boxes
-GridLayout.DEFAULT_X_MARGIN = 0.5,  // in boxes
-GridLayout.DEFAULT_Y_MARGIN = 1, // in boxes
 GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
 GridLayout.prototype.nextRect = function(node, limits) {
     limits = limits || GridLayout.DEFAULT_LIMITS;
     var nodeRects = this.nodeRects, boxSize = this.boxSize, boxPadding = this.boxPadding;
-    var width =  (node.def.width  || GridLayout.DEFAULT_WIDTH)  * boxSize.width,
-        height = (node.def.height || GridLayout.DEFAULT_HEIGHT) * boxSize.height;
+    var width =  (node.def.width  || 1) * boxSize.width,
+        height = (node.def.height || 1) * boxSize.height,
+        hPadding = (boxPadding.horizontal * boxSize.width),
+        vPadding = (boxPadding.vertical   * boxSize.height)
     var lastRect = (nodeRects.length ? nodeRects[nodeRects.length-1] : null);
-    var newRect = { x: lastRect ? lastRect.x : 0,
-                    y: lastRect ? (lastRect.y + lastRect.height +
-                                  (GridLayout.DEFAULT_Y_MARGIN * boxSize.height)) : 0,
-                    width: width, height: height,
-                    hPadding: boxPadding.horizontal * boxSize.width,
-                    vPadding: boxPadding.vertical   * boxSize.height };
-    if ((newRect.y + boxSize.height) > limits.height) {
-        newRect.x = newRect.x + width + (GridLayout.DEFAULT_X_MARGIN * boxSize.width);
+    var newRect = { x: lastRect ? lastRect.x : hPadding,
+                    y: lastRect ? (lastRect.y + lastRect.height + vPadding) : vPadding,
+                    width: width, height: height, hPadding: hPadding, vPadding: vPadding };
+    if ((newRect.y + height + vPadding) > limits.height) {
+        newRect.x = newRect.x + width + hPadding;
         newRect.y = 0;
     }
     nodeRects.push(newRect);
