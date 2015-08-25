@@ -24,6 +24,9 @@ var defaultConfig = {
     nodeListCollapsed: true,
     // dimensions of the box used to measure everything
     boxSize: { width: 100, height: 40 },
+    // padding of the box to fit inlets/otlets and other useful information, relative to boxSize
+    boxPadding: { 'quartz': { horizontal: 0.3, vertical: 0.25 },
+                  'pd': { horizontal: 0.15, vertical: 0.3 } },
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
 };
@@ -167,8 +170,8 @@ return function(networkRoot, userConfig) {
                 // current patch root should be used as a limit source, even if we add to another patch
                 // or else other root may have no dimensions yet
                 limitSrc = tree.patches[currentPatch.id].data(),
-                nextRect = layout.nextRect(node, config.boxSize, { width: limitSrc.width,
-                                                                   height: limitSrc.height });
+                nextRect = layout.nextRect(node, config.boxSize, config.boxPadding,
+                                           { width: limitSrc.width, height: limitSrc.height });
 
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
@@ -179,7 +182,6 @@ return function(networkRoot, userConfig) {
             nodeElm.append('path').attr('class', 'rpd-title').attr('d', roundedRect(0, 0, width, height*0.2, 5, 5, 0, 0));
             nodeElm.append('path').attr('class', 'rpd-content').attr('d', roundedRect(0, height*0.2, width, height*0.8, 0, 0, 5, 5));
             nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 5).attr('ry', 5);
-            //var nodeBody = nodeElm.append('rect').attr('class', 'rpd-body').attr('rx', 20).attr('ry', 20);
 
             /* nodeElm.append('g').attr('class', 'rpd-remove-button')
                    .call(function(button) {
@@ -539,7 +541,7 @@ GridLayout.DEFAULT_HEIGHT = 1, // in boxes
 GridLayout.DEFAULT_X_MARGIN = 0.5,  // in boxes
 GridLayout.DEFAULT_Y_MARGIN = 1, // in boxes
 GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
-GridLayout.prototype.nextRect = function(node, boxSize, limits) {
+GridLayout.prototype.nextRect = function(node, boxSize, boxPadding, limits) {
     limits = limits || GridLayout.DEFAULT_LIMITS;
     var nodeRects = this.nodeRects;
     var width =  (node.def.width  || GridLayout.DEFAULT_WIDTH)  * boxSize.width,
@@ -548,8 +550,9 @@ GridLayout.prototype.nextRect = function(node, boxSize, limits) {
     var newRect = { x: lastRect ? lastRect.x : 0,
                     y: lastRect ? (lastRect.y + lastRect.height +
                                   (GridLayout.DEFAULT_Y_MARGIN * boxSize.height)) : 0,
-                    width: width,
-                    height: height };
+                    width: width, height: height,
+                    hPadding: boxPadding.horizontal * boxSize.width,
+                    vPadding: boxPadding.vertical   * boxSize.height };
     if ((newRect.y + boxSize.height) > limits.height) {
         newRect.x = newRect.x + width + (GridLayout.DEFAULT_X_MARGIN * boxSize.width);
         newRect.y = 0;

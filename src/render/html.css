@@ -232,7 +232,7 @@
 /* QUARTZ COMPOSER LAYOUT STYLE */
 
 .rpd-layout-quartz .rpd-node {
-    margin: 9px 30px;
+    /* margin: 9px 30px; */
 }
 
 .rpd-layout-quartz .rpd-node, .rpd-layout-quartz .rpd-node > .rpd-title {
@@ -358,7 +358,7 @@
 /* PURE DATA LAYOUT STYLE */
 
 .rpd-layout-pd .rpd-node {
-    margin: 15px 12px;
+    /* margin: 15px 12px; */
 }
 
 .rpd-layout-pd .rpd-content {
