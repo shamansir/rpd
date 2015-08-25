@@ -107,7 +107,7 @@ return function(networkRoot, userConfig) {
                                               });
 
             // initialize the node layout (helps in determining the position where new node should be placed)
-            tree.patchToLayout[patch.id] = new GridLayout();
+            tree.patchToLayout[patch.id] = new GridLayout(config.boxSize, config.boxPadding[config.mode]);
             tree.patchToLinks[patch.id] = new VLinks();
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
@@ -170,8 +170,7 @@ return function(networkRoot, userConfig) {
                 // current patch root should be used as a limit source, even if we add to another patch
                 // or else other root may have no dimensions yet
                 limitSrc = tree.patches[currentPatch.id].data(),
-                nextRect = layout.nextRect(node, config.boxSize, config.boxPadding,
-                                           { width: limitSrc.width, height: limitSrc.height });
+                nextRect = layout.nextRect(node, { width: limitSrc.width, height: limitSrc.height });
 
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
@@ -533,17 +532,19 @@ Navigation.prototype.switch = function(targetPatch) {
 // ============================== Layout =======================================
 // =============================================================================
 
-function GridLayout() {
+function GridLayout(boxSize, boxPadding) {
     this.nodeRects = [];
+    this.boxSize = boxSize;
+    this.boxPadding = boxPadding;
 }
 GridLayout.DEFAULT_WIDTH = 1, // in boxes
 GridLayout.DEFAULT_HEIGHT = 1, // in boxes
 GridLayout.DEFAULT_X_MARGIN = 0.5,  // in boxes
 GridLayout.DEFAULT_Y_MARGIN = 1, // in boxes
 GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
-GridLayout.prototype.nextRect = function(node, boxSize, boxPadding, limits) {
+GridLayout.prototype.nextRect = function(node, limits) {
     limits = limits || GridLayout.DEFAULT_LIMITS;
-    var nodeRects = this.nodeRects;
+    var nodeRects = this.nodeRects, boxSize = this.boxSize, boxPadding = this.boxPadding;
     var width =  (node.def.width  || GridLayout.DEFAULT_WIDTH)  * boxSize.width,
         height = (node.def.height || GridLayout.DEFAULT_HEIGHT) * boxSize.height;
     var lastRect = (nodeRects.length ? nodeRects[nodeRects.length-1] : null);
