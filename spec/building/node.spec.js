@@ -81,6 +81,52 @@ describe('building: node', function() {
         });
     });
 
+    it('does not disconnect same link twice on node removal', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var nodeOne = patch.addNode('spec/empty');
+            var nodeTwo = patch.addNode('spec/empty');
+
+            var outlet = nodeOne.addOutlet('spec/any', 'one');
+            var inlet = nodeTwo.addInlet('spec/any', 'one');
+
+            var link = outlet.connect(inlet, 'spec/pass');
+
+            var deleteLinkSpy = jasmine.createSpy('delete-link-' + link.id);
+
+            updateSpy.and.callFake(function(update) {
+                if ((update.type === 'outlet/disconnect') &&
+                    (update.link.id === link.id)) {
+                    deleteLinkSpy();
+                }
+            });
+
+            patch.removeNode(nodeTwo);
+            patch.removeNode(nodeOne);
+
+            expect(deleteLinkSpy).toHaveBeenCalledOnce();
+        });
+    });
+
+    it('does not disconnect links, which were disconnected before', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var nodeOne = patch.addNode('spec/empty');
+            var nodeTwo = patch.addNode('spec/empty');
+
+            var outlet = nodeOne.addOutlet('spec/any', 'one');
+            var inlet = nodeTwo.addInlet('spec/any', 'one');
+
+            var link = outlet.connect(inlet, 'spec/pass');
+            outlet.disconnect(link);
+
+            patch.removeNode(nodeOne);
+
+            expect(updateSpy).not.toHaveBeenCalledWith(jasmine.objectContaining({
+                type: 'outlet/disconnect',
+                link: link
+            }));
+        });
+    });
+
     it('fires no events after it was removed from a patch', function() {
         withNewPatch(function(patch, updateSpy) {
             var node = patch.addNode('spec/empty');

@@ -54,7 +54,7 @@ function Patch(name) {
     this.id = short_uid();
     this.name = name;
 
-    var myself = this;
+    var patch = this;
 
     var event_types = {
         'patch/is-ready':    [ ],
@@ -73,14 +73,14 @@ function Patch(name) {
     // this stream controls the way patch events reach the assigned renderer
     this.renderQueue = Kefir.emitter();
     var renderStream = Kefir.combine([ this.events ],
-                  [ this.renderQueue.scan(function(renderers, event) {
+                  [ this.renderQueue.scan(function(storage, event) {
                         var alias = event.alias, target = event.target, configuration = event.config;
-                        var renderer = renderers[alias];
+                        var renderer = storage[alias];
                         if (!renderer) {
                             renderer = {};
-                            renderer.produce = renderer_registry[alias](myself);
+                            renderer.produce = renderer_registry[alias](patch);
                             renderer.handlers = [];
-                            renderers[alias] = renderer;
+                            storage[alias] = renderer;
                         }
                         if (renderer.produce) {
                             var handler = renderer.produce(target, configuration);
@@ -93,9 +93,9 @@ function Patch(name) {
                                 );
                             }
                         }
-                        return renderers;
-                    }, { }) ]);
-    // we need to wait for first renderer and then push buffered events to it
+                        return storage;
+                    }, {}) ]);
+    // we need to wait for first renderer and then push there events happened before, then proceed
     renderStream = renderStream.bufferBy(this.renderQueue).take(1).flatten().concat(renderStream);
     renderStream.onValue(function(value) {
                     var event = value[0], renderers = value[1];
@@ -132,8 +132,8 @@ function Patch(name) {
                 return function(value) { outlet.send(value); };
             })(outlet));
         } // use output.onUpdate?
-        myself.event['patch/project'].emit({ node: node, target: node.patch });
-        node.patch.event['patch/refer'].emit({ node: node, target: myself });
+        patch.event['patch/project'].emit({ node: node, target: node.patch });
+        node.patch.event['patch/refer'].emit({ node: node, target: patch });
     });
 
     this.nodesToRemove = Kefir.emitter();
@@ -157,19 +157,33 @@ Patch.prototype.addNode = function(type, name) {
 
     var node = new Node(type, this, name, function(node) {
         // disconnect everything before removing the node itself
-        patch.events.filter(function(update) { return (update.type === 'outlet/connect'); })
-                    .filter(function(update) { return (update.outlet.node === node) || (update.inlet.node === node); })
-                    .bufferWhileBy(patch.nodesToRemove
-                                        .filter(function(rnode) { return (rnode.id === node.id); })
-                                        .map(ƒ(false)).toProperty(ƒ(true)),
-                                        { flushOnChange: true, emitEmpty: true })
-                    .take(1).flatten().onValue(function(update) {
-                        update.outlet.disconnect(update.link);
-                    })
-                    .onEnd(function() {
-                        node.turnOff();
-                        patch.event['patch/remove-node'].emit(node);
-                    });
+        // FIXME: move to Patch constructor
+        Kefir.merge([ patch.events.filter(function(update) {
+                                      return (update.type === 'outlet/connect'); })
+                                  .filter(function(update) {
+                                      return (update.outlet.node === node) || (update.inlet.node === node); }),
+                      patch.events.filter(function(update) {
+                                      return (update.type === 'outlet/disconnect'); })
+                                  .filter(function(update) {
+                                      return (update.link.outlet.node === node) || (update.link.inlet.node === node); }) ])
+             .scan(function(storage, update) {
+                 storage[update.outlet.id] = (update.type === 'outlet/connect') ? update : null;
+                 return storage; }, {})
+             .takeUntilBy(patch.nodesToRemove
+                               .filter(function(rnode) { return (rnode.id === node.id); }))
+             .onValue(function(storage) {
+                    var outlets = Object.keys(storage);
+                    var update;
+                    for (var i = 0, il = outlets.length; i < il; i++) {
+                        if (update = storage[outlets[i]]) {
+                            update.outlet.disconnect(update.link);
+                        }
+                    }
+                })
+             .onEnd(function() {
+                 node.turnOff();
+                 patch.event['patch/remove-node'].emit(node);
+             });
 
         patch.events.plug(node.events);
         patch.event['patch/add-node'].emit(node);
@@ -237,12 +251,12 @@ function Node(type, patch, name, callback) {
 
     if (callback) callback(this);
 
-    var myself = this;
+    var node = this;
 
     if (this.def.handle) {
         this.events.onValue(function(event) {
-            if (myself.def.handle[event.type]) {
-                myself.def.handle[event.type](event);
+            if (node.def.handle[event.type]) {
+                node.def.handle[event.type](event);
             };
         });
     }
@@ -250,7 +264,6 @@ function Node(type, patch, name, callback) {
     if (this.def.process) {
 
         var process_f = this.def.process;
-        var myself = this;
 
         var process = Kefir.combine([
 
@@ -260,16 +273,16 @@ function Node(type, patch, name, callback) {
                 var updates = inlet.event['inlet/update'].map(function(value) {
                     return { inlet: inlet, value: value };
                 });;
-                if (myself.def.tune) updates = myself.def.tune(updates);
+                if (node.def.tune) updates = node.def.tune(updates);
                 return updates;
             })
 
         ],
         [
             // collect all the existing outlets aliases as a passive stream
-            this.event['node/add-outlet'].scan(function(outlets, outlet) {
-                outlets[outlet.alias] = outlet;
-                return outlets;
+            this.event['node/add-outlet'].scan(function(storage, outlet) {
+                storage[outlet.alias] = outlet;
+                return storage;
             }, {})
 
         ])
@@ -278,15 +291,15 @@ function Node(type, patch, name, callback) {
         // later events are fired after node/is-ready corresponding to their time of firing, as usual
         process = process.bufferBy(this.event['node/is-ready']).take(1).flatten().concat(process);
 
-        process = process.scan(function(data, update) {
+        process = process.scan(function(storage, update) {
             // update[0] is inlet value update, update[1] is a list of outlets
             var inlet = update[0].inlet;
             var alias = inlet.alias;
-            data.inlets.prev[alias] = data.inlets.cur[alias];
-            data.inlets.cur[alias] = update[0].value;
-            data.outlets = update[1];
-            data.source = inlet;
-            return data;
+            storage.inlets.prev[alias] = storage.inlets.cur[alias];
+            storage.inlets.cur[alias] = update[0].value;
+            storage.outlets = update[1];
+            storage.source = inlet;
+            return storage;
         }, { inlets: { prev: {}, cur: {} }, outlets: {} }).changes();
 
         // filter cold inlets, so the update data will be stored, but process event won't fire
@@ -294,8 +307,8 @@ function Node(type, patch, name, callback) {
 
         process.onValue(function(data) {
             // call a node/process event using collected inlet values
-            var outlets_vals = process_f.bind(myself)(data.inlets.cur, data.inlets.prev);
-            myself.event['node/process'].emit({ inlets: data.inlets.cur, outlets: outlets_vals });
+            var outlets_vals = process_f.bind(node)(data.inlets.cur, data.inlets.prev);
+            node.event['node/process'].emit({ inlets: data.inlets.cur, outlets: outlets_vals });
             // send the values provided from a `process` function to corresponding outlets
             var outlets = data.outlets;
             for (var outlet_name in outlets_vals) {
@@ -393,7 +406,6 @@ function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
 
     this.render = prepare_render_obj(channelrenderers[this.type], this);
 
-    var myself = this;
     var event_types = {
         'inlet/update': [ 'value' ]
     };
@@ -446,7 +458,6 @@ function Outlet(type, node, alias, name, _default) {
 
     // outlets values are not editable
 
-    var myself = this;
     var event_types = {
         'outlet/update':     [ 'value' ],
         'outlet/connect':    [ 'link', 'inlet' ],
@@ -461,10 +472,11 @@ function Outlet(type, node, alias, name, _default) {
     this.events = events_stream(event_types, this.event, 'outlet', this);
 
     // re-send last value on connection
+    var outlet = this;
     Kefir.sampledBy([ this.event['outlet/update'] ],
                     [ this.event['outlet/connect'] ])
          .onValue(function(update) {
-             myself.value.emit(update[0]);
+             outlet.value.emit(update[0]);
          });
 
 }
@@ -512,17 +524,13 @@ function Link(type, outlet, inlet, name) {
 
     this.value = Kefir.emitter();
 
-    var myself = this;
+    var link = this;
 
     this.receiver = (outlet.node.id !== inlet.node.id)
-        ? (function(link) {
-            return function(x) {
-                link.pass(x);
-            }
-          })(myself)
+        ? function(x) { link.pass(x); }
         : function(x) {
             // this avoids stack overflow on recursive connections
-            setTimeout(function() { myself.pass(x); }, 0);
+            setTimeout(function() { link.pass(x); }, 0);
         };
 
     var event_types = {
@@ -550,7 +558,7 @@ function Link(type, outlet, inlet, name) {
     Kefir.sampledBy([ this.event['link/pass'] ],
                     [ this.event['link/enable'] ])
          .onValue(function(event) {
-              myself.pass(event[0]);
+              link.pass(event[0]);
           });
 }
 Link.prototype.pass = function(value) {
