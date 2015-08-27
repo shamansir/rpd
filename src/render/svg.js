@@ -181,7 +181,8 @@ return function(networkRoot, userConfig) {
             nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2);
             nodeElm.append('path').attr('class', 'rpd-title').attr('d', roundedRect(0, 0, width, height*0.35, 2, 2, 0, 0));
             nodeElm.append('path').attr('class', 'rpd-content').attr('d', roundedRect(0, height*0.35, width, height*0.65, 0, 0, 2, 2));
-            nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2);
+            nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2)
+                                  .style('pointer-events', 'none');
 
             /* nodeElm.append('g').attr('class', 'rpd-remove-button')
                    .call(function(button) {
@@ -218,7 +219,7 @@ return function(networkRoot, userConfig) {
             node.move(nextRect.x, nextRect.y);
 
             // add possiblity to drag nodes
-            //if (config.nodeMovingAllowed) addDragNDrop(node, svg, nodeElm.select('.rpd-title'), nodeBox);
+            if (config.nodeMovingAllowed) addDragNDrop(node, svg, nodeElm.select('.rpd-title'), nodeElm);
 
             // use custom node body renderer, if defined
             //if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process').node()));
