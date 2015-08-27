@@ -178,6 +178,7 @@ return function(networkRoot, userConfig) {
             var width = nextRect.width,
                 height = nextRect.height;
 
+            nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2);
             nodeElm.append('path').attr('class', 'rpd-title').attr('d', roundedRect(0, 0, width, height*0.35, 2, 2, 0, 0));
             nodeElm.append('path').attr('class', 'rpd-content').attr('d', roundedRect(0, height*0.35, width, height*0.65, 0, 0, 2, 2));
             nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2);

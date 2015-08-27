@@ -16,6 +16,21 @@
     fill: #111;
 }
 
+.rpd-node .rpd-shadow {
+    fill: #000;
+    x: 5;
+    y: 6;
+    opacity: 0.4;
+    /* -1px 5px 13px 1px rgba(30,30,30,0.8) */
+}
+
+.rpd-node.rpd-dragging .rpd-shadow {
+    x: 6;
+    y: 7;
+    opacity: 0.3;
+    /* 4px 8px 20px 0px rgba(30,30,30,0.8) */
+}
+
 .rpd-node .rpd-title {
     fill: #617b79;
 }
@@ -30,4 +45,5 @@
     stroke: rgba(255, 255, 255, 0.4);
     stroke-width: 1;
     fill: transparent;
+    /* -webkit-filter: drop-shadow(9px 9px 9px rgba(0,0,0,0.9)); */
 }
