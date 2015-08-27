@@ -88,9 +88,8 @@ function Patch(name) {
                                 renderer.handlers.push(
                                     (typeof handler === 'function') ? handler
                                                                     : function(event) {
-                                                                        if (handler[event.type]) handler[event.type](event);
-                                                                      }
-                                );
+                                                                          if (handler[event.type]) handler[event.type](event);
+                                                                      } );
                             }
                         }
                         return storage;
@@ -170,7 +169,7 @@ Patch.prototype.addNode = function(type, name) {
                  storage[update.outlet.id] = (update.type === 'outlet/connect') ? update : null;
                  return storage; }, {})
              .takeUntilBy(patch.nodesToRemove
-                               .filter(function(rnode) { return (rnode.id === node.id); }))
+                               .filter(function(rnode) { return (rnode.id === node.id); })).last()
              .onValue(function(storage) {
                     var outlets = Object.keys(storage);
                     var update;
