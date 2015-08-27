@@ -155,7 +155,7 @@ Patch.prototype.addNode = function(type, name) {
     var patch = this;
 
     var node = new Node(type, this, name, function(node) {
-        // disconnect everything before removing the node itself
+        // disconnect every link belonging to this node before removing the node itself
         // FIXME: move to Patch constructor
         Kefir.merge([ patch.events.filter(function(update) {
                                       return (update.type === 'outlet/connect'); })

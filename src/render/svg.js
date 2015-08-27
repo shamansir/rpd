@@ -23,9 +23,9 @@ var defaultConfig = {
     // is node list collapsed by default, if shown
     nodeListCollapsed: true,
     // dimensions of the box used to measure everything
-    boxSize: { width: 100, height: 40 },
+    boxSize: { width: 100, height: 60 },
     // padding of the box to fit inlets/otlets and other useful information, relative to boxSize
-    boxPadding: { 'quartz': { horizontal: 0.3, vertical: 0.25 },
+    boxPadding: { 'quartz': { horizontal: 0.6, vertical: 0.6 },
                   'pd': { horizontal: 0.15, vertical: 0.3 } },
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
@@ -178,9 +178,9 @@ return function(networkRoot, userConfig) {
             var width = nextRect.width,
                 height = nextRect.height;
 
-            nodeElm.append('path').attr('class', 'rpd-title').attr('d', roundedRect(0, 0, width, height*0.2, 5, 5, 0, 0));
-            nodeElm.append('path').attr('class', 'rpd-content').attr('d', roundedRect(0, height*0.2, width, height*0.8, 0, 0, 5, 5));
-            nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 5).attr('ry', 5);
+            nodeElm.append('path').attr('class', 'rpd-title').attr('d', roundedRect(0, 0, width, height*0.35, 2, 2, 0, 0));
+            nodeElm.append('path').attr('class', 'rpd-content').attr('d', roundedRect(0, height*0.35, width, height*0.65, 0, 0, 2, 2));
+            nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2);
 
             /* nodeElm.append('g').attr('class', 'rpd-remove-button')
                    .call(function(button) {
@@ -544,14 +544,14 @@ GridLayout.prototype.nextRect = function(node, limits) {
     var width =  (node.def.width  || 1) * boxSize.width,
         height = (node.def.height || 1) * boxSize.height,
         hPadding = (boxPadding.horizontal * boxSize.width),
-        vPadding = (boxPadding.vertical   * boxSize.height)
+        vPadding = (boxPadding.vertical   * boxSize.height);
     var lastRect = (nodeRects.length ? nodeRects[nodeRects.length-1] : null);
     var newRect = { x: lastRect ? lastRect.x : hPadding,
                     y: lastRect ? (lastRect.y + lastRect.height + vPadding) : vPadding,
                     width: width, height: height, hPadding: hPadding, vPadding: vPadding };
     if ((newRect.y + height + vPadding) > limits.height) {
         newRect.x = newRect.x + width + hPadding;
-        newRect.y = 0;
+        newRect.y = vPadding;
     }
     nodeRects.push(newRect);
     return newRect;

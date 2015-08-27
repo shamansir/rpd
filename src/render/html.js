@@ -608,14 +608,14 @@ GridLayout.prototype.nextRect = function(node, limits) {
     var width =  (node.def.width  || 1) * boxSize.width,
         height = (node.def.height || 1) * boxSize.height,
         hPadding = (boxPadding.horizontal * boxSize.width),
-        vPadding = (boxPadding.vertical   * boxSize.height)
+        vPadding = (boxPadding.vertical   * boxSize.height);
     var lastRect = (nodeRects.length ? nodeRects[nodeRects.length-1] : null);
     var newRect = { x: lastRect ? lastRect.x : hPadding,
                     y: lastRect ? (lastRect.y + lastRect.height + vPadding) : vPadding,
                     width: width, height: height, hPadding: hPadding, vPadding: vPadding };
     if ((newRect.y + height + vPadding) > limits.height) {
         newRect.x = newRect.x + width + hPadding;
-        newRect.y = 0;
+        newRect.y = vPadding;
     }
     nodeRects.push(newRect);
     return newRect;
