@@ -118,6 +118,8 @@ describe('building: node', function() {
             var link = outlet.connect(inlet, 'spec/pass');
             outlet.disconnect(link);
 
+            updateSpy.calls.reset();
+
             patch.removeNode(nodeOne);
 
             expect(updateSpy).not.toHaveBeenCalledWith(jasmine.objectContaining({
