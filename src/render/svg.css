@@ -20,6 +20,8 @@
     fill: #000;
     x: 5;
     y: 6;
+    rx: 3;
+    ry: 3;
     opacity: 0.4;
     /* -1px 5px 13px 1px rgba(30,30,30,0.8) */
 }

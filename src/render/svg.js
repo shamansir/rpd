@@ -31,12 +31,6 @@ var defaultConfig = {
     effectTime: 1000
 };
 
-// z-indexes
-var NODE_LAYER = 0,
-    NODEDRAG_LAYER = 1,
-    LINK_LAYER = 2,
-    LINKDRAG_LAYER = 3;
-
 // either use the full d3.js library or the super-tiny version provided with RPD
 var d3 = d3_tiny || d3;
 
@@ -73,7 +67,7 @@ return function(networkRoot, userConfig) {
 
     var svg;
 
-    var connectivity;
+    var connectivity, dnd;
 
     return {
 
@@ -113,6 +107,9 @@ return function(networkRoot, userConfig) {
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
             // links if they were clicked in the appropriate order
             //connectivity = new Connectivity(patchRoot);
+
+            // initialized drag-n-drop support (used to allow user drag nodes)
+            if (config.nodeMovingAllowed) dnd = new DragAndDrop(svg);
 
             //if (config.renderNodeList) buildNodeList(root, nodeTypes, nodeDescriptions);
 
@@ -178,7 +175,7 @@ return function(networkRoot, userConfig) {
             var width = nextRect.width,
                 height = nextRect.height;
 
-            nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2);
+            nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('rx', 3).attr('ry', 3);
             nodeElm.append('path').attr('class', 'rpd-title').attr('d', roundedRect(0, 0, width, height*0.35, 2, 2, 0, 0));
             nodeElm.append('path').attr('class', 'rpd-content').attr('d', roundedRect(0, height*0.35, width, height*0.65, 0, 0, 2, 2));
             nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2)
@@ -188,7 +185,7 @@ return function(networkRoot, userConfig) {
                    .call(function(button) {
                        button.append('rect');
                        button.append('text').text('x');
-                   }) */
+                   }); */
 
             /* nodeElm.append('g').attr('class', 'rpd-title')
                    .call(function(title) {
@@ -214,18 +211,34 @@ return function(networkRoot, userConfig) {
             // store targets information and node root element itself
             tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets'),
                                                  outletsTarget: nodeElm.select('.rpd-outlets'),
-                                                 processTarget: nodeElm.select('.rpd-process') });
+                                                 processTarget: nodeElm.select('.rpd-process'),
+                                                 pos: { x: 0, y: 0 } });
 
             node.move(nextRect.x, nextRect.y);
 
+            var nodeLinks = new VLinks();
+            tree.nodeToLinks[node.id] = nodeLinks;
+
             // add possiblity to drag nodes
-            if (config.nodeMovingAllowed) addDragNDrop(node, svg, nodeElm.select('.rpd-title'), nodeElm);
+            if (config.nodeMovingAllowed) {
+                dnd.add(nodeElm.select('.rpd-title').classed('rpd-drag-handle', true),
+                        { start: function() {
+                            nodeElm.classed('rpd-dragging', true);
+                            return nodeBox.data().pos;
+                          },
+                          drag: function(pos) {
+                              nodeBox.attr('transform', 'translate(' + pos.x + ',' + pos.y + ')');
+                              nodeLinks.each(function(vlink) { vlink.update(); });
+                          },
+                          end: function(pos) {
+                              node.move(pos.x, pos.y);
+                              nodeElm.classed('rpd-dragging', false);
+                          }
+                      });
+            }
 
             // use custom node body renderer, if defined
             //if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process').node()));
-
-            var nodeLinks = new VLinks();
-            tree.nodeToLinks[node.id] = nodeLinks;
 
             // if node body should be re-rendered, update links (since body element bounds could change)
             if (render.always) {
@@ -268,6 +281,7 @@ return function(networkRoot, userConfig) {
             var nodeBox = tree.nodes[update.node.id];
             var position = update.position;
             nodeBox.attr('transform', 'translate(' + Math.floor(position[0]) + ',' + Math.floor(position[1]) + ')');
+            nodeBox.data().pos = { x: position[0], y: position[1] };
         },
 
         /* 'node/process': function(update) {
@@ -955,25 +969,21 @@ function subscribeUpdates(node, subscriptions) {
 
 
 // =============================================================================
-// ============================== DragNDrop ====================================
+// ============================= DragAndDrop ===================================
 // =============================================================================
 
-function addDragNDrop(node, root, handle, box) {
-    function eachLink(node, f) {
-        tree.nodeToLinks[node.id].each(f);
-    }
+function DragAndDrop(root) {
+    this.root = root;
+}
 
-    var nodeData = tree.nodes[node.id];
-    handle.classed('rpd-drag-handle', true);
-    var nodeLinks;
+DragAndDrop.prototype.add = function(handle, spec) {
+    var root = this.root;
+    var start = spec.start, end = spec.end, drag = spec.drag;
     Kefir.fromEvents(handle.node(), 'mousedown').map(extractPos)
                                                 .flatMap(function(pos) {
-        box.classed('rpd-dragging', true);
-        var initPos = getPos(box.node()),
+        var initPos = start(),
             diffPos = { x: pos.x - initPos.x,
                         y: pos.y - initPos.y };
-        nodeLinks = null;
-        box.style('z-index', NODEDRAG_LAYER);
         var moveStream = Kefir.fromEvents(root.node(), 'mousemove')
                               .tap(stopPropagation)
                               .takeUntilBy(Kefir.fromEvents(root.node(), 'mouseup'))
@@ -981,24 +991,10 @@ function addDragNDrop(node, root, handle, box) {
                               .map(function(absPos) {
                                   return { x: absPos.x - diffPos.x,
                                            y: absPos.y - diffPos.y };
-                              })
-                              .onEnd(function() {
-                                  box.classed('rpd-dragging', false);
-                                  box.style('z-index', NODE_LAYER);
-                                  eachLink(node, function(vlink) {
-                                      vlink.elm.style('z-index', LINK_LAYER);
-                                  });
                               });
-        moveStream.last().onValue(function(pos) { node.move(pos.x, pos.y); });
+        moveStream.last().onValue(end);
         return moveStream;
-    }).onValue(function(pos) {
-        box.style('left', pos.x + 'px');
-        box.style('top',  pos.y + 'px');
-        eachLink(node, function(vlink) {
-            vlink.elm.style('z-index', LINKDRAG_LAYER);
-            vlink.update();
-        });
-    });
+    }).onValue(drag);
 }
 
 // =============================================================================

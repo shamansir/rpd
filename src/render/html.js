@@ -32,10 +32,10 @@ var defaultConfig = {
 };
 
 // z-indexes
-var NODE_LAYER = 0,
-    NODEDRAG_LAYER = 1,
-    LINK_LAYER = 2,
-    LINKDRAG_LAYER = 3;
+var NODE_LAYER = 0, // normally, nodes are layed out below everything
+    NODEDRAG_LAYER = 1, // dragged nodes should appear above other nodes, but below dragged links
+    LINK_LAYER = 2, // normal links are above the normal nodes, but below the dragged nodes
+    LINKDRAG_LAYER = 3; // dragged links are above normal nodes and their links, and also above dragged nodes
 
 // either use the full d3.js library or the super-tiny version provided with RPD
 var d3 = d3_tiny || d3;
@@ -70,7 +70,7 @@ return function(networkRoot, userConfig) {
 
     var root;
 
-    var connectivity;
+    var connectivity, dnd;
 
     return {
 
@@ -102,6 +102,9 @@ return function(networkRoot, userConfig) {
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
             // links if they were clicked in the appropriate order
             connectivity = new Connectivity(root);
+
+            // initialized drag-n-drop support (used to allow user drag nodes)
+            if (config.nodeMovingAllowed) dnd = new DragAndDrop(root);
 
             if (config.renderNodeList) buildNodeList(root, nodeTypes, nodeDescriptions);
 
@@ -250,16 +253,43 @@ return function(networkRoot, userConfig) {
             // store targets information and node root element itself
             tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets-target'),
                                                  outletsTarget: nodeElm.select('.rpd-outlets-target'),
-                                                 processTarget: nodeElm.select('.rpd-process-target') });
-
-            // add possiblity to drag nodes
-            if (config.nodeMovingAllowed) addDragNDrop(node, root, nodeElm.select('.rpd-title'), nodeBox);
-
-            // use custom node body renderer, if defined
-            if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process-target').node()));
+                                                 processTarget: nodeElm.select('.rpd-process-target'),
+                                                 pos: { x: 0, y: 0 } });
 
             var nodeLinks = new VLinks();
             tree.nodeToLinks[node.id] = nodeLinks;
+
+            // add possiblity to drag nodes
+            if (config.nodeMovingAllowed) {
+
+                dnd.add(nodeElm.select('.rpd-title').classed('rpd-drag-handle', true),
+                        { start: function() {
+                            nodeBox.classed('rpd-dragging', true);
+                            nodeBox.style('z-index', NODEDRAG_LAYER);
+                            return nodeBox.data().pos;
+                          },
+                          drag: function(pos) {
+                              nodeBox.style('left', pos.x + 'px');
+                              nodeBox.style('top',  pos.y + 'px');
+                              nodeLinks.each(function(vlink) {
+                                   vlink.elm.style('z-index', LINKDRAG_LAYER);
+                                   vlink.update();
+                              });
+                          },
+                          end: function(pos) {
+                              node.move(pos.x, pos.y);
+                              nodeBox.classed('rpd-dragging', false);
+                              nodeBox.style('z-index', NODE_LAYER);
+                              nodeLinks.each(function(vlink) {
+                                  vlink.elm.style('z-index', LINK_LAYER);
+                              });
+                          }
+                      });
+
+            }
+
+            // use custom node body renderer, if defined
+            if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process-target').node()));
 
             // if node body should be re-rendered, update links (since body element bounds could change)
             if (render.always) {
@@ -314,6 +344,7 @@ return function(networkRoot, userConfig) {
             var position = update.position;
             nodeBox.style('left', Math.floor(position[0]) + 'px');
             nodeBox.style('top',  Math.floor(position[1]) + 'px');
+            nodeBox.data().pos = { x: position[0], y: position[1] };
         },
 
         'node/process': function(update) {
@@ -1034,25 +1065,21 @@ function subscribeUpdates(node, subscriptions) {
 
 
 // =============================================================================
-// ============================== DragNDrop ====================================
+// ============================= DragAndDrop ===================================
 // =============================================================================
 
-function addDragNDrop(node, root, handle, box) {
-    function eachLink(node, f) {
-        tree.nodeToLinks[node.id].each(f);
-    }
+function DragAndDrop(root) {
+    this.root = root;
+}
 
-    var nodeData = tree.nodes[node.id];
-    handle.classed('rpd-drag-handle', true);
-    var nodeLinks;
+DragAndDrop.prototype.add = function(handle, spec) {
+    var root = this.root;
+    var start = spec.start, end = spec.end, drag = spec.drag;
     Kefir.fromEvents(handle.node(), 'mousedown').map(extractPos)
                                                 .flatMap(function(pos) {
-        box.classed('rpd-dragging', true);
-        var initPos = getPos(box.node()),
+        var initPos = start(),
             diffPos = { x: pos.x - initPos.x,
                         y: pos.y - initPos.y };
-        nodeLinks = null;
-        box.style('z-index', NODEDRAG_LAYER);
         var moveStream = Kefir.fromEvents(root.node(), 'mousemove')
                               .tap(stopPropagation)
                               .takeUntilBy(Kefir.fromEvents(root.node(), 'mouseup'))
@@ -1060,24 +1087,10 @@ function addDragNDrop(node, root, handle, box) {
                               .map(function(absPos) {
                                   return { x: absPos.x - diffPos.x,
                                            y: absPos.y - diffPos.y };
-                              })
-                              .onEnd(function() {
-                                  box.classed('rpd-dragging', false);
-                                  box.style('z-index', NODE_LAYER);
-                                  eachLink(node, function(vlink) {
-                                      vlink.elm.style('z-index', LINK_LAYER);
-                                  });
                               });
-        moveStream.last().onValue(function(pos) { node.move(pos.x, pos.y); });
+        moveStream.last().onValue(end);
         return moveStream;
-    }).onValue(function(pos) {
-        box.style('left', pos.x + 'px');
-        box.style('top',  pos.y + 'px');
-        eachLink(node, function(vlink) {
-            vlink.elm.style('z-index', LINKDRAG_LAYER);
-            vlink.update();
-        });
-    });
+    }).onValue(drag);
 }
 
 // =============================================================================
