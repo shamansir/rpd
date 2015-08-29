@@ -136,6 +136,8 @@ function Patch(name) {
         node.patch.event['patch/refer'].emit({ node: node, target: myself });
     });
 
+    this.nodesToRemove = Kefir.emitter();
+
     this.event['patch/is-ready'].emit();
 }
 Patch.prototype.render = function(aliases, targets, config) {
@@ -152,16 +154,33 @@ Patch.prototype.render = function(aliases, targets, config) {
 }
 Patch.prototype.addNode = function(type, name) {
     var patch = this;
+
     var node = new Node(type, this, name, function(node) {
+        // disconnect everything before removing the node itself
+        patch.events.filter(function(update) { return (update.type === 'outlet/connect'); })
+                    .filter(function(update) { return (update.outlet.node === node) || (update.inlet.node === node); })
+                    .bufferWhileBy(patch.nodesToRemove
+                                        .filter(function(rnode) { return (rnode.id === node.id); })
+                                        .map(ƒ(false)).toProperty(ƒ(true)),
+                                        { flushOnChange: true })
+                    .take(1).flatten().onValue(function(update) {
+                        update.outlet.disconnect(update.link);
+                    })
+                    .onEnd(function() {
+                        node.turnOff();
+                        patch.event['patch/remove-node'].emit(node);
+                    });
+
         patch.events.plug(node.events);
         patch.event['patch/add-node'].emit(node);
+
         node.turnOn();
     });
+
     return node;
 }
 Patch.prototype.removeNode = function(node) {
-    node.turnOff();
-    this.event['patch/remove-node'].emit(node);
+    this.nodesToRemove.emit(node); // see addNode for a handling code
     this.events.unplug(node.events);
 }
 Patch.prototype.enter = function() {
@@ -197,7 +216,6 @@ function Node(type, patch, name, callback) {
     this.def = def;
 
     this.name = name || def.name || type;
-    this.def = def;
 
     this.patch = patch;
 
@@ -556,7 +574,11 @@ function clone_obj(src) {
     // this way is not a deep-copy and actually not cloning at all, but that's ok,
     // since we use it few times for events, which are simple objects and the objects they
     // pass, should be the same objects they got; just events by themselves should be different.
-    return Object.create(src);
+    var res = {}; var keys = Object.keys(src);
+    for (var i = 0, il = keys.length; i < il; i++) {
+        res[keys[i]] = src[keys[i]];
+    }
+    return res;
 }
 
 function is_defined(val) {
@@ -691,7 +713,7 @@ return {
     'import': {}, 'export': {},
 
     'allNodeTypes': nodetypes,
-    'allDescriptions': nodedescriptions,
+    'allNodeDescriptions': nodedescriptions,
 
     'short_uid': short_uid
 }

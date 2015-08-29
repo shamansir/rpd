@@ -70,31 +70,46 @@
     padding: 2px;
 }
 
-.rpd-connector {
-    cursor: pointer;
-}
-
 .rpd-inlet .rpd-connector,
 .rpd-outlet .rpd-connector {
+    cursor: pointer;
     border-radius: 6px;
     border-width: 3px;
     border-style: solid;
 }
 
+.rpd-connector:hover {
+    transition: none;
+}
+
 .rpd-fresh .rpd-connector {
     border-color: #c00;
     background-color: #ff0;
-    transition: border-color .3s;
+}
+
+.rpd-fresh .rpd-connector:hover {
+    border-color: #c66;
 }
 
 .rpd-stale .rpd-connector {
     border-color: #000;
     background-color: #fff;
-    transition: border-color .3s;
+    transition: border-color .3s ease-out;
+}
+
+.rpd-stale .rpd-connector:hover {
+    transition: none;
+    /* border-color: #333; */
+    border-color: #ccc;
+    opacity: 0.7;
 }
 
 .rpd-cold .rpd-connector {
     border-color: #009;
+}
+
+.rpd-cold .rpd-connector:hover {
+    border-color: #669;
 }
 
 .rpd-error .rpd-connector {
@@ -103,9 +118,17 @@
     transition: border-color .3s;
 }
 
+.rpd-error .rpd-connector:hover {
+    border-color: #aa0;
+}
+
 .rpd-inlet .rpd-value,
 .rpd-outlet .rpd-value {
     color: rgba(200, 200, 200, 0.7);
+}
+
+.rpd-value.rpd-edited {
+    color: rgba(150, 150, 225, 0.7);
 }
 
 .rpd-outlet .rpd-value,
@@ -190,15 +213,19 @@
     cursor: pointer;
 }
 
+.rpd-node .rpd-remove-button:hover {
+    color: #ff6666;
+}
+
 .rpd-node:hover .rpd-remove-button {
     display: block;
 }
 
-.rpd-node.rpd-patch-reference .rpd-body {
+.rpd-node.rpd-patch-reference .rpd-process-target {
     cursor: pointer;
 }
 
-.rpd-node.rpd-patch-reference .rpd-body:hover {
+.rpd-node.rpd-patch-reference .rpd-process-target:hover {
     color: #ccc;
 }
 

@@ -17,15 +17,13 @@ var defaultConfig = {
     // show node containers for debugging purposes
     showBoxes: false,
     // are nodes allowed to be dragged
-    nodesMovingAllowed: true,
+    nodeMovingAllowed: true,
     // show the list of nodes
     renderNodeList: true,
     // is node list collapsed by default, if shown
     nodeListCollapsed: true,
     // dimensions of the box used to measure everything
-    boxSize: [ 100, 40 ],
-    // width of a link, sometimes it's hard to catch so could be increased
-    linkWidth: null, // null means use the value from CSS
+    boxSize: { width: 100, height: 40 },
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
 };
@@ -36,617 +34,400 @@ var NODE_LAYER = 0,
     LINK_LAYER = 2,
     LINKDRAG_LAYER = 3;
 
-// ============================= HtmlRenderer ==================================
-// =============================================================================
+// either use the full d3.js library or the super-tiny version provided with RPD
+var d3 = d3_tiny || d3;
 
-var patchToRoot = {};
-var patches = {};
+var tree = {
+    patches: {},
+    nodes: {},
+    inlets: {},
+    outlets: {},
+    links: {},
 
-var navigation = Navigation();
+    patchToLayout: {},
+    patchToLinks: {},
+    nodeToLinks: {}
+};
+
+var navigation = new Navigation();
+
+var currentPatch;
+
+var nodeTypes = Rpd.allNodeTypes,
+    nodeDescriptions = Rpd.allNodeDescriptions;
 
 function HtmlRenderer(patch) {
 
-patches[patch.id] = patch;
-
 return function(networkRoot, userConfig) {
-
-    // these objects store elements and data corresponding to given nodes,
-    // inlets, outlets, links as hashes, by their ID;
-    // it's not pure functional way, especially in comparison to RPD engine code,
-    // but in this case semi-imperative way appeared to be easier and faster;
-    // nodes:   { id: { elm, body, bodyTrg, inletsTrg, outletsTrg, links }, ... }
-    // outlets: { id: { elm, valueElm, connectorElm, links }, ... }
-    // inlets:  { id: { elm, valueElm, connectorElm, link  }, ... }
-    // links:   { id: { elm, link  }, ... }
-    var nodes = {}, outlets = {}, inlets = {}, links = {};
 
     var config = mergeConfig(userConfig, defaultConfig);
 
-    // Connections object manages only the run-time editing of the links,
-    // it's completely written in FRP style;
-    var connections = Connections();
-
-    // Layout determines where new node boxes will appear.
-    var layout = BoxLayout();
-
-    var descriptions = Rpd.allDescriptions;
+    networkRoot = d3.select(networkRoot)
+                    .classed('rpd-network', true);
 
     var root;
 
-    networkRoot.classList.add('rpd-network');
+    var connectivity;
 
     return {
 
         // the object below reacts on every Patch event and constructs corresponding
-        // HTML structures in response, or modifies them; some blocks of code
-        // are really huge because of massive createElement, appendChild and stuff,
-        // but I decided that it is the only way which needs no external library
-        // to build required DOM; may be later I'll decide to use `shaven` templates
-        // or something similar, but actually it's not a lot to build here, it just
-        // looks massive;
-
-        // =====================================================================
-        // ======================== patch/is-ready =============================
-        // =====================================================================
+        // HTML structures in response, or modifies them;
 
         'patch/is-ready': function(update) {
 
-            /* <build HTML> */
+            var docElm = d3.select(document.documentElement);
 
-            root = document.createElement('div');
-            patchToRoot[patch.id] = root;
+            // build root element as a target for all further patch modifications
+            root = d3.select(document.createElement('div'))
+                     .property('className', function() {
+                         var classes = [ 'rpd-patch' ];
+                         classes.push('rpd-layout-' + config.mode);
+                         classes.push('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'));
+                         if (config.showBoxes) classes.push('rpd-show-boxes');
+                         return classes.join(' ');
+                     })
+                     .style('height', docElm.property('clientHeight') + 'px')
+                     .data(update.patch);
 
-            root.classList.add('rpd-patch');
-            if (config.mode) root.classList.add('rpd-layout-' + config.mode);
-            if (config.valuesOnHover) {
-                root.classList.add('rpd-values-on-hover');
-            } else {
-                root.classList.add('rpd-values-always-shown');
-            }
-            if (config.showBoxes) root.classList.add('rpd-show-boxes');
+            tree.patches[patch.id] = root;
 
-            root.style.height = document.documentElement.clientHeight + 'px';
-            // window.innerHeight + 'px';
+            // initialize the node layout (helps in determining the position where new node should be placed)
+            tree.patchToLayout[patch.id] = new GridLayout();
+            tree.patchToLinks[patch.id] = new VLinks();
 
-            Kefir.fromEvents(root, 'resize').onValue(function() {
-                root.style.height = document.documentElement.clientHeight + 'px';
-            });
+            // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
+            // links if they were clicked in the appropriate order
+            connectivity = new Connectivity(root);
 
-            /* </build HTML> */
+            if (config.renderNodeList) buildNodeList(root, nodeTypes, nodeDescriptions);
 
-            // initialize connection editor
-            connections.init(root);
+            // resize root element on window resize
+            Kefir.fromEvents(window, 'resize')
+                 .map(function() { return window.innerHeight ||
+                                          document.documentElement.clientHeight ||
+                                          document.body.clientHeight; })
+                 .onValue(function(value) {
+                     root.style('height', value + 'px');
+                 });
 
-            if (config.renderNodeList) addNodeList(root, Rpd.allNodeTypes, descriptions);
-
-            Kefir.fromEvents(root, 'selectstart').onValue(function(evt) { evt.preventDefault(); });
+            Kefir.fromEvents(root.node(), 'selectstart').onValue(preventDefault);
 
         },
-
-        // =====================================================================
-        // ============================ patch/enter ============================
-        // =====================================================================
 
         'patch/enter': function(update) {
+            currentPatch = update.patch;
             navigation.switch(update.patch);
-            networkRoot.appendChild(root);
-            updateAllLinks(nodes);
+            networkRoot.append(tree.patches[update.patch.id].node());
+            tree.patchToLinks[update.patch.id].updateAll();
         },
-
-        // =====================================================================
-        // ============================ patch/exit =============================
-        // =====================================================================
 
         'patch/exit': function(update) {
-            networkRoot.removeChild(root);
+            currentPatch = null;
+            root.remove();
         },
-
-        // =====================================================================
-        // =========================== patch/project ===========================
-        // =====================================================================
-
-        // 'patch/project': function(update) { },
-
-        // =====================================================================
-        // ============================ patch/refer ============================
-        // =====================================================================
 
         'patch/refer': function(update) {
             var node = update.node;
 
-            var nodeElm = nodes[node.id].elm;
-            var bodyTrg = nodes[node.id].bodyTrg;
+            var nodeBox = tree.nodes[node.id];
 
-            nodeElm.classList.add('rpd-patch-reference');
+            nodeBox.select('.rpd-node').classed('rpd-patch-reference', true);
+            nodeBox.data().processTarget.text('[' + (update.target.name || update.target.id) + ']');
 
-            nodes[node.id].body.innerText = '[' + (update.target.name || update.target.id) + ']';
-
-            bodyTrg.addEventListener('click',
-                (function(current, target) {
+            // add the ability to enter the patch by clicking node body (TODO: move to special node type)
+            Kefir.fromEvents(nodeBox.data().processTarget.node(), 'click')
+                 .onValue((function(current, target) {
                     return function() {
                         current.exit();
                         target.enter();
                     }
-                })(patch, update.target));
+                 })(patch, update.target));
         },
-
-        // =====================================================================
-        // ========================= patch/add-node ============================
-        // =====================================================================
 
         'patch/add-node': function(update) {
 
             var node = update.node;
 
-            /* <build HTML> */
-
-            // div.rpd-node-box
-            //   table.rpd-node
-            //     ...
-
             var render = update.render;
 
-            var nodeBox = quickElm('div', 'rpd-node-box');
-            var nodeElm = quickElm('table', 'rpd-node');
+            var nodeBox = d3.select(document.createElement('div')).attr('className', 'rpd-node-box');
+            var nodeElm = nodeBox.append('table').attr('className', 'rpd-node');
 
-            var dragTrg;
+            if (config.mode === QUARTZ_MODE) {
 
-            var bodyTrg, inletsTrg, outletsTrg, bodyElm, removeButton;
+                // node header: node title and remove button
+                nodeElm.append('thead').attr('className', 'rpd-title')
+                       // remove button
+                       .call(function(thead) {
+                           thead.append('tr').attr('className', 'rpd-remove-button')
+                                .append('th')/*.attr('colspan', '3')*/.text('x');
+                       })
+                       // node name, and type, if requested
+                       .call(function(thead) {
+                            thead.append('tr').attr('className', 'rpd-header')
+                                 .append('th').attr('colspan', 3)
+                                               // add description to be shown on hover
+                                              .attr('title', nodeDescriptions[node.type] + ' (' + node.type + ')')
+                                 .call(function(th) {
+                                     if (config.showTypes) th.append('span').attr('className', 'rpd-type').text(node.type);
+                                     th.append('span').attr('className', 'rpd.name').text(node.name);
+                                 });
+                       });
 
-            if (config.mode == QUARTZ_MODE) {
+                // node content
+                nodeElm.append('tbody').attr('className', 'rpd-content')
+                       .call(function(tbody) {
+                           tbody.append('tr')
+                                // inlets placeholder
+                                .call(function(tr) {
+                                    tr.append('td').attr('className', 'rpd-inlets')
+                                      .append('table')
+                                      .append('tbody')
+                                      .append('div').attr('className', 'rpd-inlets-target'); // -> node/add-inlet
+                                })
+                                // node body
+                                .call(function(tr) {
+                                    tr.append('td').attr('className', 'rpd-body')
+                                      .append('table')
+                                      .append('tbody').append('tr').append('td')
+                                      .append('div').attr('className', 'rpd-process-target'); // -> node/process
+                                })
+                                // outlets placeholder
+                                .call(function(tr) {
+                                    tr.append('td').attr('className', 'rpd-outlets')
+                                      .append('table')
+                                      .append('tbody')
+                                      .append('div').attr('className', 'rpd-outlets-target'); // -> node/add-outlet
+                                })
+                       });
 
-                // thead.rpd-title
-                //   tr.rpd-remove-button
-                //     th
-                //   tr
-                //     th[colspan=3]
-                //       span.rpd-name: node.name
-                //       span.rpd-type: node.type
+            } else if (config.mode === PD_MODE) {
 
-                var headElm = quickElm('thead', 'rpd-title');
-                var headRow = quickElm('tr');
+                // inlets placehoder
+                nodeElm.append('tr').attr('className', 'rpd-inlets')
+                       .append('td')
+                       .append('table').append('tbody').append('tr')
+                       .append('div').attr('className', 'rpd-inlets-target'); // -> node/add-inlet
 
-                var removeButtonRow = quickElm('tr', 'rpd-remove-button');
-                removeButton = quickElm('th');
-                //removeButton.setAttribute('colspan', 3);
-                removeButton.innerText = removeButton.textContent = 'x';
-                removeButtonRow.appendChild(removeButton);
-                headElm.appendChild(removeButtonRow);
+                // remove button
+                nodeElm.append('tr').attr('className', 'rpd-remove-button')
+                       .append('td').text('x');
 
-                var headCell = quickElm('th');
-                headCell.setAttribute('colspan', 3);
-                headCell.appendChild(quickElmVal('span', 'rpd-name', node.name));
-                if (config.showTypes) headCell.appendChild(quickElmVal('span', 'rpd-type', node.type));
-                headRow.appendChild(headCell);
-                headElm.appendChild(headRow);
+                // node content
+                nodeElm.append('tr').attr('className', 'rpd-content')
+                        .call(function(tr) {
+                            tr.append('td').attr('className', 'rpd-title').classed('rpd-header', true)
+                              .call(function(td) {
+                                  td.append('span').attr('className', 'rpd-name').text(node.name);
+                                  if (config.showTypes) td.append('span').attr('className', 'rpd-type').text(node.type);
+                              })
+                              // add description to be shown on hover
+                              .attr('title', nodeDescriptions[node.type] + ' (' + node.type + ')');
+                            tr.append('td').attr('className', 'rpd-body')
+                              .append('div')
+                              .append('table').append('tbody').append('tr').append('td')
+                              .append('div').attr('className', 'rpd-process-target'); // -> node/process
+                        })
 
-                // tbody.rpd-content
-                //   tr
-                //     td.rpd-inlets
-                //       table
-                //         tbody
-                //           ... (see node/add-inlet)
-                //     td.rpd-body
-                //       table
-                //         tbody
-                //           tr
-                //             td
-                //               ... (see node/process)
-                //     td.rpd-outlets
-                //       table
-                //         tbody
-                //           ... (see node/add-outlet)
-
-                var contentElm = quickElm('tbody', 'rpd-content');
-                var contentRow = quickElm('tr');
-
-                var inletsCell = quickElm('td', 'rpd-inlets');
-                var inletsTable = quickElm('table');
-                var inletsBody = quickElm('tbody');
-
-                inletsTrg = inletsBody;
-
-                inletsTable.appendChild(inletsBody);
-                inletsCell.appendChild(inletsTable);
-
-                bodyElm = quickElm('div');
-
-                var bodyCell = quickElm('td', 'rpd-body');
-                var innerBodyTable = quickElm('table');
-                var innerBodyBody = quickElm('tbody');
-                var innerBodyRow = quickElm('tr');
-                var innerBodyCell = quickElm('td');
-                innerBodyCell.appendChild(bodyElm);
-                innerBodyRow.appendChild(innerBodyCell);
-                innerBodyBody.appendChild(innerBodyRow);
-                innerBodyTable.appendChild(innerBodyBody);
-                bodyCell.appendChild(innerBodyTable);
-
-                bodyTrg = bodyCell;
-
-                var outletsCell = quickElm('td', 'rpd-outlets');
-                var outletsTable = quickElm('table');
-                var outletsBody = quickElm('tbody');
-
-                outletsTrg = outletsBody;
-
-                outletsTable.appendChild(outletsBody);
-                outletsCell.appendChild(outletsTable);
-
-                contentRow.appendChild(inletsCell);
-                contentRow.appendChild(bodyCell);
-                contentRow.appendChild(outletsCell);
-                contentElm.appendChild(contentRow);
-
-                nodeElm.appendChild(headElm);
-                nodeElm.appendChild(contentElm);
-
-                dragTrg = headElm;
-
-            } else if (config.mode == PD_MODE) {
-
-                // tr.rpd-inlets
-                //   td
-                //     table
-                //       tbody
-                //         tr
-                //           ... (see node/add-inlet)
-                // tr.rpd-remove-button
-                //   td
-                // tr.rpd-content
-                //   td.rpd-title
-                //     span.rpd-name: node.name
-                //     span.rpd-type: node.type
-                //   td.rpd-body
-                //     div
-                //       table
-                //         tbody
-                //           tr
-                //             td
-                //               ... (see node/process)
-                // tr.rpd-outlets
-                //   td
-                //     table
-                //       tbody
-                //         tr
-                //           ... (see node/add-outlet)
-
-                var inletsRow = quickElm('tr', 'rpd-inlets');
-
-                var inletsCell = quickElm('td');
-                var inletsTable = quickElm('table');
-                var inletsBody = quickElm('tbody');
-                var inletsHolder = quickElm('tr');
-
-                inletsTrg = inletsHolder;
-
-                inletsBody.appendChild(inletsHolder);
-                inletsTable.appendChild(inletsBody);
-                inletsCell.appendChild(inletsTable);
-                inletsRow.appendChild(inletsCell);
-                nodeElm.appendChild(inletsRow);
-
-                var removeButtonRow = quickElm('tr', 'rpd-remove-button');
-                removeButton = quickElm('td');
-                removeButton.innerText = removeButton.textContent = 'x';
-                removeButtonRow.appendChild(removeButton);
-                nodeElm.appendChild(removeButtonRow);
-
-                var contentRow = quickElm('tr', 'rpd-content');
-
-                var headCell = quickElm('td', 'rpd-title');
-                //headCell.setAttribute('colspan', 3);
-                headCell.appendChild(quickElmVal('span', 'rpd-name', node.name));
-                if (config.showTypes) headCell.appendChild(quickElmVal('span', 'rpd-type', node.type));
-                contentRow.appendChild(headCell);
-
-                var bodyCell = quickElm('td', 'rpd-body');
-                var bodyElm = quickElm('div');
-                var innerBodyTable = quickElm('table');
-                var innerBodyBody = quickElm('tbody');
-                var innerBodyRow = quickElm('tr');
-                var innerBodyCell = quickElm('td');
-                innerBodyCell.appendChild(bodyElm);
-                innerBodyRow.appendChild(innerBodyCell);
-                innerBodyBody.appendChild(innerBodyRow);
-                innerBodyTable.appendChild(innerBodyBody);
-
-                bodyCell.appendChild(innerBodyTable);
-                contentRow.appendChild(bodyCell);
-                nodeElm.appendChild(contentRow);
-
-                bodyTrg = bodyCell;
-
-                var outletsRow = quickElm('tr', 'rpd-outlets');
-
-                var outletsCell = quickElm('td');
-                var outletsTable = quickElm('table');
-                var outletsBody = quickElm('tbody');
-                var outletsHolder = quickElm('tr');
-
-                outletsTrg = outletsHolder;
-
-                outletsBody.appendChild(outletsHolder);
-                outletsTable.appendChild(outletsBody);
-                outletsCell.appendChild(outletsTable);
-                outletsRow.appendChild(outletsCell);
-                nodeElm.appendChild(outletsRow);
-
-                dragTrg = headCell;
+                // outlets placeholder
+                nodeElm.append('tr').attr('className', 'rpd-outlets')
+                       .append('td')
+                       .append('table').append('tbody').append('tr')
+                       .append('div').attr('className', 'rpd-outlets-target'); // -> node/add-outlet
 
             }
 
-            /* </build HTML> */
+            nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
+                   .classed('rpd-'+node.type.replace('/','-'), true);
 
-            nodeElm.classList.add('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-tk-node');
-            nodeElm.classList.add('rpd-'+node.type.replace('/','-'));
-            nodeBox.style.zIndex = NODE_LAYER;
+            nodeBox.style('z-index', NODE_LAYER);
 
-            if (descriptions[node.type]) headCell.title = descriptions[node.type];
+            // find a rectange to place the new node, and actually place it there
+            var layout = tree.patchToLayout[update.patch.id],
+                // current patch root should be used as a limit source, even if we add to another patch
+                // or else other root may have no dimensions yet
+                limitSrc = tree.patches[currentPatch.id],
+                nextRect = layout.nextRect(node, config.boxSize, { width: limitSrc.node().offsetWidth,
+                                                                   height: limitSrc.node().offsetHeight });
+            nodeBox.style('left', Math.floor(nextRect.x) + 'px');
+            nodeBox.style('top',  Math.floor(nextRect.y) + 'px');
+            nodeBox.style('min-width',  Math.floor(nextRect.width) + 'px');
+            nodeBox.style('min-height',  Math.floor(nextRect.height) + 'px');
 
-            // place node box wrapper in a suitable empty space in layout
-            layout.nextBox(node, nodeBox, nodeElm, config.boxSize,
-                           [ root.offsetWidth, root.offsetHeight ]);
+            node.move(nextRect.x, nextRect.y);
 
-            nodeBox.appendChild(nodeElm);
+            // store targets information and node root element itself
+            tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets-target'),
+                                                 outletsTarget: nodeElm.select('.rpd-outlets-target'),
+                                                 processTarget: nodeElm.select('.rpd-process-target') });
 
-            root.appendChild(nodeBox);
-
-            // save node data
-            nodes[node.id] = {
-                box: nodeBox, elm: nodeElm, body: bodyElm,
-                bodyTrg: bodyTrg, inletsTrg: inletsTrg, outletsTrg: outletsTrg,
-                links: {} };
-
-            if (render.always) {
-                // if node body should be re-rendered,
-                updateLinksOnChange(node, bodyElm);
-            }
+            // add possiblity to drag nodes
+            if (config.nodeMovingAllowed) addDragNDrop(node, root, nodeElm.select('.rpd-title'), nodeBox);
 
             // use custom node body renderer, if defined
-            if (render.first) {
-                subscribeUpdates(node, render.first(bodyElm));
+            if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process-target').node()));
+
+            var nodeLinks = new VLinks();
+            tree.nodeToLinks[node.id] = nodeLinks;
+
+            // if node body should be re-rendered, update links (since body element bounds could change)
+            if (render.always) {
+                // this code used getBoundingClientRect to determine if node body width/height
+                // values were changed and updates links positions only when they really did,
+                // but it appeared to be quite hard to check, i.e. height value, since browsers
+                // keep it equal to 0
+                node.event['node/process'].throttle(500).onValue(function() {
+                    nodeLinks.updateAll();
+                });
             }
 
-            if (config.nodesMovingAllowed) {
-                addDragNDrop(node, root, dragTrg, nodeBox);
-            }
-
-            Kefir.fromEvents(removeButton, 'click')
+            // remove node when remove button was clicked
+            Kefir.fromEvents(nodeElm.select('.rpd-remove-button').node(), 'click')
                  .tap(stopPropagation)
                  .onValue(function() {
                      patch.removeNode(node);
                  });
 
-        },
+            // append to the the patch root node
+            root.append(nodeBox.node());
 
-        // =====================================================================
-        // ========================= patch/remove-node =========================
-        // =====================================================================
+        },
 
         'patch/remove-node': function(update) {
-
             var node = update.node;
 
-            var nodeData = nodes[node.id];
+            var nodeBox = tree.nodes[node.id];
 
-            var nodeLinks = nodeData.links;
+            nodeBox.remove();
 
-            eachLink(nodeLinks, function(linkData) {
-                linkData.link.outlet.disconnect(linkData.link);
-            });
-
-            root.removeChild(nodeData.box);
-
-            nodes[node.id] = null;
+            tree.nodes[node.id] = null; // no updates will fire from this node,
+                                        // so it's just to avoid holding memory for it
+            tree.nodeToLinks[node.id] = null;
 
         },
 
-        // =====================================================================
-        // ========================== node/is-ready ============================
-        // =====================================================================
-
-        // 'node/is-ready': function(update) { },
-
-        // =====================================================================
-        // =========================== node/process ============================
-        // =====================================================================
-
         'node/process': function(update) {
-
             var node = update.node;
             var render = update.render;
 
             // update node body with custom renderer, if defined
             if (render.always) {
-                var bodyElm = nodes[node.id].body;
+                var bodyElm = tree.nodes[node.id].data().processTarget.node();
                 render.always(bodyElm, update.inlets, update.outlets);
             }
-
         },
-
-        // =====================================================================
-        // ========================= node/add-inlet ============================
-        // =====================================================================
 
         'node/add-inlet': function(update) {
 
             var inlet = update.inlet;
-
             if (inlet.hidden) return;
 
-            var nodeData = nodes[inlet.node.id];
-
-            /* <build HTML> */
-
+            var inletsTarget = tree.nodes[update.node.id].data().inletsTarget;
             var render = update.render;
 
-            var inletsTrg = nodeData.inletsTrg;
-
-            var inletElm, valueElm, connectorElm;
+            var inletElm;
 
             if (config.mode == QUARTZ_MODE) {
 
-                // tr.rpd-inlet.rpd-stale
-                //   td.rpd-connector
-                //   td.rpd-value-holder
-                //     span.rpd-value
-                //     [span.rpd-value-edit]
-                //   td.rpd-name: inlet.name
-                //   td.rpd-type: inlet.type
-
-                inletElm = quickElm('tr', 'rpd-inlet rpd-stale');
-                connectorElm = quickElm('td', 'rpd-connector');
-                valueHolder = quickElm('td', 'rpd-value-holder');
-                valueElm = quickElm('span', 'rpd-value');
-                valueHolder.appendChild(valueElm);
-                inletElm.appendChild(connectorElm);
-                inletElm.appendChild(valueHolder);
-                inletElm.appendChild(quickElmVal('td', 'rpd-name', inlet.name));
-                if (config.showTypes) inletElm.appendChild(quickElmVal('td', 'rpd-type', inlet.type));
+                inletElm = d3.select(document.createElement('tr')).attr('className', 'rpd-inlet')
+                             .call(function(tr) {
+                                 tr.append('td').attr('className', 'rpd-connector');
+                                 tr.append('td').attr('className', 'rpd-value-holder')
+                                                .append('span').attr('className', 'rpd-value');
+                                 tr.append('td').attr('className', 'rpd-name').text(inlet.name);
+                                 if (config.showTypes) tr.append('td').attr('className', 'rpd-type').text(inlet.type);
+                             });
 
             } else if (config.mode == PD_MODE) {
 
-                // td.rpd-inlet.rpd-stale
-                //   span.rpd-connector
-                //   span.rpd-name: inlet.name
-                //   span.rpd-value-holder
-                //     span.rpd-value
-                //     [span.rpd-value-edit]
-                //   span.rpd-type: inlet.type
-
-                inletElm = quickElm('td', 'rpd-inlet rpd-stale');
-                connectorElm = quickElm('span', 'rpd-connector');
-                valueHolder = quickElm('span', 'rpd-value-holder');
-                valueElm = quickElm('span', 'rpd-value');
-                valueHolder.appendChild(valueElm);
-                inletElm.appendChild(connectorElm);
-                inletElm.appendChild(quickElmVal('span', 'rpd-name', inlet.name));
-                inletElm.appendChild(valueHolder);
-                if (config.showTypes) inletElm.appendChild(quickElmVal('span', 'rpd-type', inlet.type));
+                inletElm = d3.select(document.createElement('td')).attr('className', 'rpd-inlet')
+                             .call(function(td) {
+                                 td.append('span').attr('className', 'rpd-connector');
+                                 td.append('span').attr('className', 'rpd-name').text(inlet.name);
+                                 td.append('span').attr('className', 'rpd-value-holder')
+                                                  .append('span').attr('className', 'rpd-value');
+                                 if (config.showTypes) td.append('span').attr('className', 'rpd-type').text(inlet.type);
+                             });
 
             }
 
-            inletElm.classList.add('rpd-'+inlet.type.replace('/','-'));
+            inletElm.classed('rpd-'+inlet.type.replace('/','-'), true);
+            inletElm.classed({ 'rpd-stale': true,
+                               'rpd-readonly': inlet.readonly,
+                               'rpd-cold': inlet.cold
+                             });
 
-            inletsTrg.appendChild(inletElm);
-
-            /* </build HTML> */
-
-            var inletData = { elm: inletElm, valueElm: valueElm,
-                                             connectorElm: connectorElm,
-                              disableEditor: null, // if inlet has a value editor, this way
-                                                   // we may disable it when new link
-                                                   // is connected to this inlet
-                              link: null };
-
-            inlets[inlet.id] = inletData;
-
-            if (inlet.readonly) inletElm.classList.add('rpd-readonly');
-            if (inlet.cold) inletElm.classList.add('rpd-cold');
-
+            var editor = null;
             if (!inlet.readonly && render.edit) {
-                addValueEditor(inlet, inletData, render, root, valueHolder, valueElm);
+                editor = new ValueEditor(inlet, render, root,
+                                         inletElm.select('.rpd-value-holder'),
+                                         inletElm.select('.rpd-value'));
             }
+
+            tree.inlets[inlet.id] = inletElm.data({
+                connector: inletElm.select('.rpd-connector'),
+                value: inletElm.select('.rpd-value'),
+                vlink: null, // a link associated with this inlet
+                editor: editor
+            });
 
             // adds `rpd-error` CSS class and removes it by timeout
             inlet.event['inlet/update'].onError(function() {
-                valueErrorEffect(inletData, inletElm, config.effectTime);
+                addValueErrorEffect(inlet.id, inletElm, config.effectTime);
             });
 
             // listen for clicks in connector and allow to edit links this way
-            connections.subscribeInlet(inlet, connectorElm);
+            connectivity.subscribeInlet(inlet, inletElm.select('.rpd-connector'));
 
+            inletsTarget.append(inletElm.node());
         },
-
-        // =====================================================================
-        // ========================= node/remove-inlet =========================
-        // =====================================================================
-
-        // 'node/remove-inlet': function(update) {},
-
-        // =====================================================================
-        // ========================= node/add-outlet ===========================
-        // =====================================================================
 
         'node/add-outlet': function(update) {
 
             var outlet = update.outlet;
 
-            /* <build HTML> */
+            var outletsTarget = tree.nodes[update.node.id].data().outletsTarget;
+            var render = update.render;
 
-            var nodeData = nodes[outlet.node.id];
-            var outletsTrg = nodeData.outletsTrg;
-
-            var outletElm, valueElm, connectorElm;
+            var outletElm;
 
             if (config.mode == QUARTZ_MODE) {
 
-                // tr.rpd-outlet.rpd-stale
-                //   td.rpd-connector
-                //   td.rpd-value
-                //   td.rpd-name: inlet.name
-                //   td.rpd-type: inlet.type
-
-                outletElm = quickElm('tr', 'rpd-outlet rpd-stale');
-                connectorElm = quickElm('td', 'rpd-connector');
-                valueElm = quickElm('td', 'rpd-value');
-
-                if (config.showTypes) outletElm.appendChild(quickElmVal('td', 'rpd-type', outlet.type));
-                outletElm.appendChild(quickElmVal('td', 'rpd-name', outlet.name));
-                outletElm.appendChild(valueElm);
-                outletElm.appendChild(connectorElm);
+                outletElm = d3.select(document.createElement('tr')).attr('className', 'rpd-outlet')
+                              .call(function(tr) {
+                                  tr.append('td').attr('className', 'rpd-connector');
+                                  tr.append('td').attr('className', 'rpd-value');
+                                  if (config.showTypes) tr.append('td').attr('className', 'rpd-type').text(outlet.type);
+                                  tr.append('td').attr('className', 'rpd-name').text(outlet.name);
+                              });
 
             } else if (config.mode == PD_MODE) {
 
-                // td.rpd-outlet.rpd-stale
-                //   span.rpd-connector
-                //   span.rpd-name: inlet.name
-                //   span.rpd-value
-                //   span.rpd-type: inlet.type
-
-                outletElm = quickElm('td', 'rpd-outlet rpd-stale');
-                connectorElm = quickElm('span', 'rpd-connector');
-                valueElm = quickElm('span', 'rpd-value');
-                outletElm.appendChild(connectorElm);
-                outletElm.appendChild(quickElmVal('span', 'rpd-name', outlet.name));
-                outletElm.appendChild(valueElm);
-                if (config.showTypes) outletElm.appendChild(quickElmVal('span', 'rpd-type', outlet.type));
+                outletElm = d3.select(document.createElement('td')).attr('className', 'rpd-outlet')
+                              .call(function(td) {
+                                  td.append('span').attr('className', 'rpd-connector');
+                                  td.append('span').attr('className', 'rpd-name').text(outlet.name);
+                                  td.append('span').attr('className', 'rpd-value');
+                                  if (config.showTypes) td.append('span').attr('className', 'rpd-type').text(outlet.type);
+                              });
 
             }
 
-            outletElm.classList.add('rpd-'+outlet.type.replace('/','-'));
+            outletElm.classed('rpd-'+outlet.type.replace('/','-'), true);
+            outletElm.classed('rpd-stale', true);
 
-            outletsTrg.appendChild(outletElm);
-
-            /* </build HTML> */
-
-            var outletData = { elm: outletElm,
-                               valueElm: valueElm,
-                               connectorElm: connectorElm,
-                               links: {} };
-
-            outlets[outlet.id] = outletData;
+            tree.outlets[outlet.id] = outletElm.data({
+                connector: outletElm.select('.rpd-connector'),
+                value: outletElm.select('.rpd-value'),
+                vlinks: new VLinks() // links associated with this outlet
+            });
 
             // listen for clicks in connector and allow to edit links this way
-            connections.subscribeOutlet(outlet, connectorElm);
+            connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
+
+            outletsTarget.append(outletElm.node());
         },
-
-        // =====================================================================
-        // ========================= node/remove-outlet ========================
-        // =====================================================================
-
-        // 'node/remove-outlet': function(update) {},
-
-        // =====================================================================
-        // ============================= node/move =============================
-        // =====================================================================
-
-        // 'node/move': function(update) {},
-
-        // =====================================================================
-        // =========================== inlet/update ============================
-        // =====================================================================
 
         'inlet/update': function(update) {
 
@@ -656,595 +437,644 @@ return function(networkRoot, userConfig) {
 
             var render = update.render;
 
-            var inletData = inlets[inlet.id];
-            var inletElm = inletData.elm;
-
-            var valueElm = inletData.valueElm;
+            var inletElm = tree.inlets[inlet.id];
+            var valueElm = inletElm.data().value;
 
             var valueRepr = inlet.def.show ? inlet.def.show(update.value) : update.value;
             if (render.show) {
-                render.show(valueElm, update.value, valueRepr);
+                render.show(valueElm.node(), update.value, valueRepr);
             } else {
-                valueElm.innerText = valueElm.textContent = valueRepr;
+                valueElm.text(valueRepr);
             }
 
             // adds `rpd-fresh` CSS class and removes it by timeout
-            valueUpdateEffect(inletData, inletElm, config.effectTime);
+            addValueUpdateEffect(inlet.id, inletElm, config.effectTime);
 
         },
-
-        // =====================================================================
-        // =========================== outlet/update ===========================
-        // =====================================================================
 
         'outlet/update': function(update) {
 
             var outlet = update.outlet;
             var render = update.render;
 
-            var outletData = outlets[outlet.id];
-            var outletElm = outletData.elm;
+            var outletElm = tree.outlets[outlet.id];
+            var valueElm = outletElm.data().value;
 
-            var valueElm = outletData.valueElm;
-
+            var valueRepr = outlet.def.show ? outlet.def.show(update.value) : update.value;
             if (render.show) {
-                render.show(valueElm, update.value);
+                render.show(valueElm.node(), update.value, valueRepr);
             } else {
-                valueElm.innerText = valueElm.textContent =
-                    outlet.def.show ? outlet.def.show(update.value)
-                                    : update.value;
+                valueElm.text(valueRepr);
             }
 
             // adds `rpd-fresh` CSS class and removes it by timeout
-            valueUpdateEffect(outletData, outletElm, config.effectTime);
+            addValueUpdateEffect(outlet.id, outletElm, config.effectTime);
 
         },
-
-        // =====================================================================
-        // =========================== outlet/connect ==========================
-        // =====================================================================
 
         'outlet/connect': function(update) {
 
-            var link = update.link;
+            var link   = update.link;
             var outlet = link.outlet;
             var inlet  = link.inlet;
 
-            var outletData = outlets[outlet.id];
-            var inletData = inlets[inlet.id];
+            var outletElm = tree.outlets[outlet.id];
+            var inletElm  = tree.inlets[inlet.id];
 
-            var outletConnector = outletData.connectorElm;
-            var inletConnector  = inletData.connectorElm;
+            var outletData = outletElm.data();
+            var inletData  = inletElm.data();
 
-            outletData.links[outlet.id] = link;
-            if (inletData.link) throw new Error('Inlet is already connected to a link');
-            inletData.link = link;
+            if (inletData.vlink) throw new Error('Inlet is already connected to a link');
+
+            if (inletData.editor) inletData.editor.disable();
+
+            var outletConnector = outletData.connector;
+            var inletConnector  = inletData.connector;
 
             // disable value editor when connecting to inlet
-            if (inletData.disableEditor) inletData.disableEditor.emit();
+            if (inletData.editor) inletData.editor.disable();
+
+            var vlink = new VLink(link);
 
             // visually link is just a CSS-rotated div with 1px border
-            var p0 = outletConnector.getBoundingClientRect(),
-                p1 = inletConnector.getBoundingClientRect();
-            var linkElm = constructLink(p0.left, p0.top, p1.left, p1.top,
-                                        config.linkWidth);
+            var p0 = getPos(outletConnector.node()),
+                p1 = getPos(inletConnector.node());
+            vlink.construct(p0.x, p0.y, p1.x, p1.y, config.linkWidth);
 
-            links[link.id] = { elm: linkElm,
-                               link: link };
+            tree.links[link.id] = vlink;
+            outletData.vlinks.add(vlink);
+            inletData.vlink = vlink;
 
-            var fromNode = nodes[outlet.node.id];
-            var toNode   = nodes[ inlet.node.id];
-            fromNode.links[link.id] = links[link.id];
-              toNode.links[link.id] = links[link.id];
+            tree.nodeToLinks[outlet.node.id].add(vlink);
+            tree.nodeToLinks[inlet.node.id].add(vlink);
+            tree.patchToLinks[patch.id].add(vlink);
 
-            addClickSwitch(linkElm,
-                           function() { link.enable(); },
-                           function() { link.disable(); });
+            vlink.listenForClicks();
 
-            // add link element
-            root.appendChild(linkElm);
+            vlink.appendTo(root);
 
         },
-
-        // =====================================================================
-        // ========================== outlet/disconnect ========================
-        // =====================================================================
 
         'outlet/disconnect': function(update) {
 
             var link = update.link;
-            var linkElm = links[link.id].elm;
+            var vlink = tree.links[link.id];
 
             var outlet = link.outlet;
             var inlet  = link.inlet;
 
-            var outletData = outlets[outlet.id];
-            var inletData = inlets[inlet.id];
+            var outletData = tree.outlets[outlet.id].data();
+            var inletData  = tree.inlets[inlet.id].data();
 
             // forget all references
-            outletData.links[link.id] = null;
-            inletData.link = null;
+            tree.links[link.id] = null;
+            outletData.vlinks.remove(vlink);
+            inletData.vlink = null;
 
-            links[link.id] = null;
-
-            var fromNode = nodes[outlet.node.id];
-            var toNode   = nodes[ inlet.node.id];
-            fromNode.links[link.id] = null;
-              toNode.links[link.id] = null;
+            tree.nodeToLinks[outlet.node.id].remove(vlink);
+            tree.nodeToLinks[inlet.node.id].remove(vlink);
+            tree.patchToLinks[patch.id].remove(vlink);
 
             // remove link element
-            root.removeChild(linkElm);
-        },
+            vlink.removeFrom(root);
 
-        // =====================================================================
-        // ============================ link/enable ============================
-        // =====================================================================
+        },
 
         'link/enable': function(update) {
-            var link = update.link;
-            var linkElm = links[link.id].elm;
-            linkElm.classList.remove('rpd-disabled');
+            var inlet = update.link.inlet;
+            var inletData  = tree.inlets[inlet.id].data();
+            if (inletData.editor) inletData.editor.disable();
+
+            tree.links[update.link.id].enable();
         },
 
-        // =====================================================================
-        // ============================ link/disable ===========================
-        // =====================================================================
-
         'link/disable': function(update) {
-            var link = update.link;
-            var linkElm = links[link.id].elm;
-            linkElm.classList.add('rpd-disabled');
+            tree.links[update.link.id].disable();
         }
 
-        // =====================================================================
-        // ============================ link/adapt =============================
-        // =====================================================================
-
-        // 'link/adapt': function(update) {},
-
-        // =====================================================================
-        // ============================ link/error =============================
-        // =====================================================================
-
-        // 'link/error': function(update) {}
-
-    }; // return
-
-    // ============================== helpers for FRP ==========================
-
-    function stopPropagation(evt) { evt.stopPropagation(); };
-    function extractPos(evt) { return { x: evt.clientX,
-                                        y: evt.clientY }; };
-    function getPos(elm) { var bounds = elm.getBoundingClientRect();
-                           return { x: bounds.left, y: bounds.top } };
-    function addTarget(target) {
-        return function(pos) {
-            return { pos: pos, target: target };
-        }
-    };
-    function invertValue(prev) { return !prev; };
-    function addClickSwitch(elm, on_true, on_false, initial) {
-        Kefir.fromEvents(elm, 'click')
-             .tap(stopPropagation)
-             .mapTo(initial || false)
-             .scan(invertValue)  // will toggle between `true` and `false`
-             .onValue(function(val) {
-                 if (val) { on_true(); }
-                 else { on_false(); }
-             })
-    }
-
-    // ============================== ValueEdit ================================
-    // =========================================================================
-
-    function addValueEditor(inlet, inletData, render, root, valueHolder, valueElm) {
-        var editor = quickElm('div', 'rpd-value-editor');
-        var valueIn = Kefir.emitter(),
-            disableEditor = Kefir.emitter();
-        inletData.disableEditor = disableEditor;
-        var valueOut = render.edit(editor, inlet, valueIn);
-        valueOut.onValue(function(value) { inlet.receive(value); });
-        Kefir.sampledBy([ inlet.event['inlet/update'] ],
-                        [ Kefir.merge([
-                                    Kefir.fromEvents(valueHolder, 'click')
-                                         .tap(stopPropagation)
-                                         .mapTo(true),
-                                    Kefir.fromEvents(root, 'click')
-                                         .merge(disableEditor)
-                                         .mapTo(false) ])
-                               .toProperty(ƒ(false))
-                               .skipDuplicates() ])
-             .map(function(val) { return { lastValue: val[0],
-                                           startEditing: val[1],
-                                           cancelEditing: !val[1] }; })
-             .onValue(function(conf) {
-                if (conf.startEditing) {
-                    if (inletData.link) inletData.link.disable();
-                    valueIn.emit(conf.lastValue);
-                    valueHolder.classList.add('rpd-editor-enabled');
-                } else if (conf.cancelEditing) {
-                    valueHolder.classList.remove('rpd-editor-enabled');
-                }
-             });
-        valueHolder.classList.add('rpd-editor-disabled');
-        valueHolder.appendChild(editor);
-    }
-
-    // ============================== Connections ==============================
-    // =========================================================================
-
-    // FRP-based connection (links b/w outlets and inlets) editor logic
-
-    function Connections() {
-
-        var rootClicks,
-            inletClicks,
-            outletClicks;
-
-        var startLink,
-            finishLink,
-            doingLink;
-
-        var root;
-
-        // helper functions
-
-        function getLink(inlet) {
-            return inlets[inlet.id].link;
-        };
-        var hasLink = function(inlet) {
-            return function() {
-                return getLink(inlet);
-            };
-        };
-        function getConnector(outlet) {
-            return outlets[outlet.id].connectorElm;
-        }
-
-        return {
-            init: function(rootElm) {
-
-                root = rootElm;
-
-                rootClicks = Kefir.fromEvents(rootElm, 'click');
-                inletClicks = Kefir.pool(),
-                outletClicks = Kefir.pool();
-
-                startLink = Kefir.emitter(),
-                finishLink = Kefir.emitter(),
-                doingLink = Kefir.merge([ startLink.mapTo(true),
-                                          finishLink.mapTo(false) ]).toProperty(ƒ(false));
-
-            },
-            subscribeOutlet: function(outlet, connector) {
-
-                // - Every time user clicks an outlet, a new link is created which user can drag, then:
-                // - If user clicks other outlet after that, linking process is cancelled;
-                // - If user clicks root element (like document.body), linking process is cancelled;
-                // - If user clicks an inlet, linking process is considered successful and finished, but also...
-                // - If this inlet had a link there connected, this previous link is removed and disconnected;
-
-                outletClicks.plug(Kefir.fromEvents(connector, 'click')
-                                       .map(extractPos)
-                                       .map(addTarget(outlet)));
-
-                Kefir.fromEvents(connector, 'click').tap(stopPropagation)
-                                                   .filterBy(outletClicks.awaiting(doingLink))
-                                                   .map(extractPos)
-                                                   .onValue(function(pos) {
-                    startLink.emit();
-                    var pivot = getPos(connector);
-                    var ghost = constructLink(pivot.x, pivot.y, pos.x, pos.y,
-                                              config.linkWidth);
-                    root.appendChild(ghost);
-                    return Kefir.fromEvents(root, 'mousemove')
-                                .takeUntilBy(Kefir.merge([ inletClicks,
-                                                           outletClicks.mapTo(false),
-                                                           rootClicks.mapTo(false) ])
-                                                  .take(1)
-                                                  .onValue(function(success) {
-                                                      if (!success) return;
-                                                      var inlet = success.target,
-                                                          prevLink = getLink(inlet);
-                                                      if (prevLink) {
-                                                          var otherOutlet = prevLink.outlet;
-                                                          otherOutlet.disconnect(prevLink);
-                                                      }
-                                                      outlet.connect(inlet);
-                                                  }))
-                                .map(extractPos)
-                                .onValue(function(pos) {
-                                    rotateLink(ghost, pivot.x, pivot.y, pos.x, pos.y);
-                                }).onEnd(function() {
-                                    root.removeChild(ghost);
-                                    finishLink.emit();
-                                });
-                });
-
-            },
-            subscribeInlet: function(inlet, connector) {
-
-                // - Every time user clicks an inlet which has a link there connected:
-                // - This link becomes editable and so can be dragged by user,
-                // - If user clicks outlet after that, linking process is cancelled and this link is removed;
-                // - If user clicks root element (like document.body) after that, linking process is cancelled,
-                //   and this link is removed;
-                // - If user clicks other inlet, the link user drags/edits now is moved to be connected
-                //   to this other inlet, instead of first-clicked one;
-
-                inletClicks.plug(Kefir.fromEvents(connector, 'click')
-                                      .map(extractPos)
-                                      .map(addTarget(inlet)));
-
-                Kefir.fromEvents(connector, 'click').tap(stopPropagation)
-                                                   .filterBy(inletClicks.awaiting(doingLink))
-                                                   .filter(hasLink(inlet))
-                                                   .onValue(function(pos) {
-                    var prevLink = getLink(inlet);
-                    var outlet = prevLink.outlet;
-                    outlet.disconnect(prevLink);
-                    startLink.emit();
-                    var pivot = getPos(getConnector(outlet));
-                    var ghost = constructLink(pivot.x, pivot.y, pos.x, pos.y,
-                                              config.linkWidth);
-                    root.appendChild(ghost);
-                    return Kefir.fromEvents(root, 'mousemove')
-                                .takeUntilBy(Kefir.merge([ inletClicks,
-                                                           outletClicks.mapTo(false),
-                                                           rootClicks.mapTo(false) ])
-                                                  .take(1)
-                                                  .onValue(function(success) {
-                                                      if (!success) return;
-                                                      var otherInlet = success.target,
-                                                          prevLink = getLink(otherInlet);
-                                                      if (prevLink) {
-                                                          var otherOutlet = prevLink.outlet;
-                                                          otherOutlet.disconnect(prevLink);
-                                                      }
-                                                      outlet.connect(otherInlet);
-                                                  }))
-                                .map(extractPos)
-                                .onValue(function(pos) {
-                                    rotateLink(ghost, pivot.x, pivot.y, pos.x, pos.y);
-                                }).onEnd(function() {
-                                    root.removeChild(ghost);
-                                    finishLink.emit();
-                                });
-                });
-
-            }
-
-        } // return
-
-    } // Connections
-
-    // ============================== BodyInlets ===============================
-    // =========================================================================
-
-    function subscribeUpdates(node, subscriptions) {
-        if (!subscriptions) return;
-        for (var alias in subscriptions) {
-            (function(subscription, alias) {
-                node.event['node/add-inlet']
-                    .filter(function(inlet) { return inlet.alias === alias; })
-                    .onValue(function(inlet) {
-                        if (subscription.default) inlet.receive(subscription.default());
-                        if (subscription.valueOut) {
-                            subscription.valueOut.onValue(function(value) {
-                                inlet.receive(value);
-                            });
-                        }
-                });
-            })(subscriptions[alias], alias);
-        }
-    }
-
-    // ============================== DragNDrop ================================
-    // =========================================================================
-
-    function eachLink(links, f) {
-        if (!links) return;
-        for (var id in links) {
-            if (!links[id]) continue;
-            f(links[id]);
-        }
-    }
-
-    function updateLinks(node, nodeLinks) {
-        var link, linkElm, inletConnector, outletConnector,
-            inletPos, outletPos;
-        eachLink(nodeLinks, function(linkData) {
-            link = linkData.link;
-            linkElm = linkData.elm;
-            inletConnector = inlets[link.inlet.id].connectorElm;
-            outletConnector = outlets[link.outlet.id].connectorElm;
-            inletPos = getPos(inletConnector);
-            outletPos = getPos(outletConnector);
-            rotateLink(linkElm, outletPos.x, outletPos.y, inletPos.x, inletPos.y);
-        });
-    }
-
-    function updateAllLinks(nodes) {
-        var nodeLinks;
-        for (var id in nodes) {
-            nodeLinks = nodes[id].links;
-            updateLinks(nodes[id], nodeLinks);
-        }
-    }
-
-    function addDragNDrop(node, root, handle, box) {
-        var nodeData = nodes[node.id];
-        handle.classList.add('rpd-drag-handle');
-        var nodeLinks;
-        Kefir.fromEvents(handle, 'mousedown').map(extractPos)
-                                             .flatMap(function(pos) {
-            box.classList.add('rpd-dragging');
-            var initPos = getPos(box),
-                diffPos = { x: pos.x - initPos.x,
-                            y: pos.y - initPos.y };
-            nodeLinks = null;
-            box.style.zIndex = NODEDRAG_LAYER;
-            var moveStream = Kefir.fromEvents(root, 'mousemove')
-                                  .tap(stopPropagation)
-                                  .takeUntilBy(Kefir.fromEvents(root, 'mouseup'))
-                                  .map(extractPos)
-                                  .map(function(absPos) {
-                                      return { x: absPos.x - diffPos.x,
-                                               y: absPos.y - diffPos.y };
-                                  })
-                                  .onEnd(function() {
-                                      box.classList.remove('rpd-dragging');
-                                      box.style.zIndex = NODE_LAYER;
-                                      eachLink(nodeLinks, function(linkData) {
-                                          linkData.elm.style.zIndex = LINK_LAYER;
-                                      });
-                                  });
-            moveStream.last().onValue(function(pos) { node.move(pos.x, pos.y); });
-            return moveStream;
-        }).onValue(function(pos) {
-            box.style.left = pos.x + 'px';
-            box.style.top  = pos.y + 'px';
-            if (!nodeLinks) {
-                nodeLinks = nodes[node.id].links;
-                eachLink(nodeLinks, function(linkData) {
-                    linkData.elm.style.zIndex = LINKDRAG_LAYER;
-                });
-            }
-            updateLinks(node, nodeLinks);
-        });
-    }
-
-    function updateLinksOnChange(node, nodeBody) {
-        // this code used getBoundingClientRect to determine if node body width/height
-        // values were changed and updates links positions only when they really did,
-        // but it appeared to be quite hard to check, i.e. height value, since browsers
-        // keep it equal to 0
-        var nodeLinks = nodes[node.id].links;
-        node.event['node/process'].throttle(500).onValue(function() {
-            updateLinks(node, nodeLinks);
-        });
-    }
-
-    // ============================== NodeList =================================
-    // =========================================================================
-
-    function addNodeList(root, registeredNodeTypes, descriptions) {
-        var toolkits = {},
-            typesList = [];
-
-        var toolkitElements = {},
-            nodeTitleElements = {},
-            nodeDescriptionElements = {};
-
-        var nodeType, toolkit, typeId, typeName;
-        for (nodeType in registeredNodeTypes) {
-            typeId = nodeType.split('/');
-            toolkit = typeId[0]; typeName = typeId[1];
-            typesList.push([ typeId, toolkit, typeName ]);
-            if (!toolkits[toolkit]) toolkits[toolkit] = {};
-            toolkits[toolkit][typeName] = registeredNodeTypes[nodeType];
-        }
-
-        var listRoot = quickElm('dl', 'rpd-nodelist');
-
-        var nodeTypes, typeDef;
-        var toolkitHolder, toolkitElm, toolkitNameElm, nodeTitleElm, nodeDescElm, addButton;
-        for (toolkit in toolkits) {
-            toolkitNameElm = quickElmVal('dd', 'rpd-toolkit-name', toolkit);
-            listRoot.appendChild(toolkitNameElm);
-            toolkitHolder = quickElm('dt');
-            toolkitElm = quickElm('dl', 'rpd-toolkit');
-            nodeTypes = toolkits[toolkit];
-            for (typeName in nodeTypes) {
-                nodeType = toolkit + '/' + typeName;
-                nodeTitleElm = quickElmVal('dd', 'rpd-node-title', typeName);
-                addButton = quickElmVal('span', 'rpd-add-node', '+ Add');
-                nodeTitleElm.appendChild(addButton);
-                nodeTitleElements[nodeType] = nodeTitleElm;
-                nodeDescElm = quickElmVal('dd', 'rpd-node-description', descriptions[nodeType] || '[No Description]');
-                nodeDescriptionElements[nodeType] = nodeDescElm;
-                toolkitElm.appendChild(nodeTitleElm);
-                toolkitElm.appendChild(nodeDescElm);
-
-                nodeDescElm.classList.add('rpd-collapsed');
-                (function(nodeDescElm) {
-                    addClickSwitch(nodeTitleElm,
-                        function() { nodeDescElm.classList.add('rpd-collapsed') },
-                        function() { nodeDescElm.classList.remove('rpd-collapsed'); });
-                })(nodeDescElm);
-
-                (function(nodeType) {
-                    Kefir.fromEvents(addButton, 'click')
-                         .tap(stopPropagation)
-                         .onValue(function() {
-                             patch.addNode(nodeType);
-                         });
-                })(nodeType);
-
-            }
-            toolkitElements[toolkit] = toolkitHolder;
-            toolkitHolder.appendChild(toolkitElm);
-            listRoot.appendChild(toolkitHolder);
-
-            (function(toolkitElm) {
-                addClickSwitch(toolkitNameElm,
-                               function() { toolkitElm.classList.add('rpd-collapsed') },
-                               function() { toolkitElm.classList.remove('rpd-collapsed'); },
-                               true);
-            })(toolkitElm);
-        }
-
-        root.appendChild(listRoot);
-
-        var collapseButton = quickElm('span', 'rpd-collapse-nodelist');
-        collapseButton.innerText = collapseButton.textContent = '>>';
-        addClickSwitch(collapseButton,
-                       function() { collapseButton.classList.add('rpd-collapsed');
-                                    collapseButton.innerText = collapseButton.textContent = '<<';
-                                    listRoot.classList.add('rpd-collapsed'); },
-                       function() { collapseButton.classList.remove('rpd-collapsed');
-                                    collapseButton.innerText = collapseButton.textContent = '>>';
-                                    listRoot.classList.remove('rpd-collapsed'); },
-                       true);
-
-        root.appendChild(collapseButton);
     }
 
 } // function(target, config)
 
 } // function(patch)
 
-
-// ============================== Navigation ===============================
-// =========================================================================
+// =============================================================================
+// ============================ Navigation =====================================
+// =============================================================================
 
 function Navigation() {
+    this.current = null;
 
-    var current;
-
-    var instance = {
-        'switch': function(target) {
-            if (!target) return;
-            current = target;
-            window.location.hash = target.id;
-        }
-    };
+    var me = this;
 
     Kefir.fromEvents(window, 'hashchange')
          .map(function() { return (window.location.hash ? window.location.hash.slice(1) : null); })
-         .onValue(function(new_hash) {
-             if (current && (new_hash === current.id)) return;
-             var target = patches[new_hash];
-             if (target) {
-                 if (current) current.exit();
-                 target.enter();
-             }
+         .filter(function(newHash) { return !(me.currentPatch && (newHash === me.currentPatch.id)); })
+         .map(function(newHash) { return tree.patches[newHash].data(); })
+         .filter(function(targetPatch) { return targetPatch != null; })
+         .onValue(function(targetPatch) {
+             if (me.currentPatch) me.currentPatch.exit(); // TODO: pass this value through a stream
+             targetPatch.enter();
          });
-
-    return instance;
+}
+Navigation.prototype.switch = function(targetPatch) {
+    if (!targetPatch) return;
+    this.currentPatch = targetPatch;
+    window.location.hash = targetPatch.id;
 }
 
-// ================================ utils ======================================
+// =============================================================================
+// ============================== Layout =======================================
+// =============================================================================
+
+function GridLayout() {
+    this.nodeRects = [];
+}
+GridLayout.DEFAULT_WIDTH = 1, // in boxes
+GridLayout.DEFAULT_HEIGHT = 1, // in boxes
+GridLayout.DEFAULT_X_MARGIN = 0.5,  // in boxes
+GridLayout.DEFAULT_Y_MARGIN = 1, // in boxes
+GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
+GridLayout.prototype.nextRect = function(node, boxSize, limits) {
+    limits = limits || GridLayout.DEFAULT_LIMITS;
+    var nodeRects = this.nodeRects;
+    var width =  (node.def.width  || GridLayout.DEFAULT_WIDTH)  * boxSize.width,
+        height = (node.def.height || GridLayout.DEFAULT_HEIGHT) * boxSize.height;
+    var lastRect = (nodeRects.length ? nodeRects[nodeRects.length-1] : null);
+    var newRect = { x: lastRect ? lastRect.x : 0,
+                    y: lastRect ? (lastRect.y + lastRect.height +
+                                  (GridLayout.DEFAULT_Y_MARGIN * boxSize.height)) : 0,
+                    width: width,
+                    height: height };
+    if ((newRect.y + boxSize.height) > limits.height) {
+        newRect.x = newRect.x + width + (GridLayout.DEFAULT_X_MARGIN * boxSize.width);
+        newRect.y = 0;
+    }
+    nodeRects.push(newRect);
+    return newRect;
+}
+
+// =============================================================================
+// ================================ Links ======================================
+// =============================================================================
+
+function VLink(link) { // visual representation of the link
+    this.link = link; // may be null, if it's a ghost
+    this.elm = null;
+}
+VLink.prototype.construct = function(x0, y0, x1, y1) {
+    if (this.elm) throw new Error('VLink is already constructed');
+    var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
+                             ((y0 - y1) * (y0 - y1)));
+    var angle = Math.atan2(y1 - y0, x1 - x0);
+
+    var linkElm = d3.select(document.createElement('span'))
+                    .attr('className', 'rpd-link')
+                    .style('position', 'absolute')
+                    .style('z-index', LINK_LAYER)
+                    .style('width', Math.floor(distance) + 'px')
+                    .style('left', x0 + 'px')
+                    .style('top', y0 + 'px')
+                    .style('transform-origin', 'left top')
+                    .style('-webkit-transform-origin', 'left top')
+                    .style('transform', 'rotateZ(' + angle + 'rad)')
+                    .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
+    this.elm = linkElm;
+    return this;
+}
+VLink.prototype.rotate = function(x0, y0, x1, y1) {
+    var linkElm = this.elm;
+    var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
+                             ((y0 - y1) * (y0 - y1)));
+    var angle = Math.atan2(y1 - y0, x1 - x0);
+    linkElm.style('left', x0 + 'px')
+           .style('top', y0 + 'px')
+           .style('width', Math.floor(distance) + 'px')
+           .style('transform', 'rotateZ(' + angle + 'rad)')
+           .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
+    return this;
+}
+VLink.prototype.update = function() {
+    if (!this.link) return;
+    var link = this.link;
+    var inletConnector = tree.inlets[link.inlet.id].data().connector,
+        outletConnector = tree.outlets[link.outlet.id].data().connector;
+    var inletPos = getPos(inletConnector.node()),
+        outletPos = getPos(outletConnector.node());
+    this.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
+    return this;
+}
+VLink.prototype.appendTo = function(target) {
+    target.append(this.elm.node());
+    return this;
+}
+VLink.prototype.removeFrom = function(target) {
+    this.elm.remove();
+    return this;
+}
+VLink.prototype.listenForClicks = function() {
+    var link = this.link; var elm = this.elm;
+    addClickSwitch(this.elm.node(),
+                   function() { link.enable(); },
+                   function() { link.disable(); });
+    return this;
+}
+VLink.prototype.enable = function() { this.elm.classed('rpd-disabled', false); }
+VLink.prototype.disable = function() { this.elm.classed('rpd-disabled', true); }
+
+function VLinks() {
+    this.vlinks = {}; // VLink instances
+}
+VLinks.prototype.clear = function() { this.vlinks = {}; }
+VLinks.prototype.add = function(vlink) { this.vlinks[vlink.link.id] = vlink; }
+VLinks.prototype.remove = function(vlink) {
+    this.vlinks[vlink.link.id] = null;
+}
+VLinks.prototype.each = function(f) {
+    var vlinks = this.vlinks;
+    for (var id in vlinks) {
+        if (vlinks[id]) f(vlinks[id]);
+    }
+}
+VLinks.prototype.updateAll = function() {
+    this.each(function(vlink) { vlink.update(); });
+}
+
+// =============================================================================
+// ============================= Connectivity ==================================
+// =============================================================================
+
+// FRP-based connection (links b/w outlets and inlets) editor logic
+
+var Connectivity = (function() {
+
+    function getLink(inlet) {
+        var inletData = tree.inlets[inlet.id].data();
+        return inletData.vlink ? inletData.vlink.link : null;
+    }
+    function hasLink(inlet) {
+        return function() {
+            return getLink(inlet);
+        };
+    };
+    function getConnector(outlet) {
+        return tree.outlets[outlet.id].data().connector;
+    }
+
+    function Connectivity(root) {
+        this.root = root;
+
+        this.rootClicks = Kefir.fromEvents(this.root.node(), 'click');
+        this.inletClicks = Kefir.pool(),
+        this.outletClicks = Kefir.pool();
+
+        this.startLink = Kefir.emitter(),
+        this.finishLink = Kefir.emitter(),
+        this.doingLink = Kefir.merge([ this.startLink.map(ƒ(true)),
+                                       this.finishLink.map(ƒ(false)) ]).toProperty(ƒ(false));
+    }
+    Connectivity.prototype.subscribeOutlet = function(outlet, connector) {
+
+        var root = this.root;
+        var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
+        var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
+
+        // - Every time user clicks an outlet, a new link is created which user can drag, then:
+        // - If user clicks other outlet after that, linking process is cancelled;
+        // - If user clicks root element (like document.body), linking process is cancelled;
+        // - If user clicks an inlet, linking process is considered successful and finished, but also...
+        // - If this inlet had a link there connected, this previous link is removed and disconnected;
+
+        outletClicks.plug(Kefir.fromEvents(connector.node(), 'click')
+                               .map(extractPos)
+                               .map(addTarget(outlet)));
+
+        Kefir.fromEvents(connector.node(), 'click')
+             .tap(stopPropagation)
+             .filterBy(outletClicks.awaiting(doingLink))
+             .map(extractPos)
+             .onValue(function(pos) {
+                 startLink.emit();
+                 var pivot = getPos(connector.node());
+                 var ghost = new VLink().construct(pivot.x, pivot.y, pos.x, pos.y)
+                                        .appendTo(root);
+                 return Kefir.fromEvents(root.node(), 'mousemove')
+                             .takeUntilBy(Kefir.merge([ inletClicks,
+                                                        outletClicks.mapTo(false),
+                                                        rootClicks.mapTo(false) ])
+                                               .take(1)
+                                               .onValue(function(success) {
+                                                   if (!success) return;
+                                                   var inlet = success.target,
+                                                       prevLink = getLink(inlet);
+                                                   if (prevLink) {
+                                                       var otherOutlet = prevLink.outlet;
+                                                       otherOutlet.disconnect(prevLink);
+                                                   }
+                                                   outlet.connect(inlet);
+                                               }))
+                             .map(extractPos)
+                             .onValue(function(pos) {
+                                 ghost.rotate(pivot.x, pivot.y, pos.x, pos.y);
+                             }).onEnd(function() {
+                                 ghost.removeFrom(root);
+                                 finishLink.emit();
+                             });
+             });
+
+    };
+    Connectivity.prototype.subscribeInlet = function(inlet, connector) {
+
+        var root = this.root;
+        var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
+        var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
+
+        // - Every time user clicks an inlet which has a link there connected:
+        // - This link becomes editable and so can be dragged by user,
+        // - If user clicks outlet after that, linking process is cancelled and this link is removed;
+        // - If user clicks root element (like document.body) after that, linking process is cancelled,
+        //   and this link is removed;
+        // - If user clicks other inlet, the link user drags/edits now is moved to be connected
+        //   to this other inlet, instead of first-clicked one;
+
+        inletClicks.plug(Kefir.fromEvents(connector.node(), 'click')
+                              .map(extractPos)
+                              .map(addTarget(inlet)));
+
+        Kefir.fromEvents(connector.node(), 'click')
+             .tap(stopPropagation)
+             .filterBy(inletClicks.awaiting(doingLink))
+             .filter(hasLink(inlet))
+             .onValue(function(pos) {
+                 var prevLink = getLink(inlet);
+                 var outlet = prevLink.outlet;
+                 outlet.disconnect(prevLink);
+                 startLink.emit();
+                 var pivot = getPos(getConnector(outlet).node());
+                 var ghost = new VLink().construct(pivot.x, pivot.y, pos.x, pos.y)
+                                        .appendTo(root);
+                 return Kefir.fromEvents(root.node(), 'mousemove')
+                             .takeUntilBy(Kefir.merge([ inletClicks,
+                                                        outletClicks.mapTo(false),
+                                                        rootClicks.mapTo(false) ])
+                                               .take(1)
+                                               .onValue(function(success) {
+                                                   if (!success) return;
+                                                   var otherInlet = success.target,
+                                                       prevLink = getLink(otherInlet);
+                                                   if (prevLink) {
+                                                       var otherOutlet = prevLink.outlet;
+                                                       otherOutlet.disconnect(prevLink);
+                                                   }
+                                                   outlet.connect(otherInlet);
+                                               }))
+                             .map(extractPos)
+                             .onValue(function(pos) {
+                                 ghost.rotate(pivot.x, pivot.y, pos.x, pos.y);
+                             }).onEnd(function() {
+                                 ghost.removeFrom(root);
+                                 finishLink.emit();
+                             });
+             });
+
+    };
+
+    return Connectivity;
+
+})();
+
+// =============================================================================
+// ============================== NodeMenu =====================================
+// =============================================================================
+
+
+// =============================================================================
+// ============================== NodeList =====================================
+// =============================================================================
+
+function buildNodeList(root, nodeTypes, nodeDescriptions) {
+
+    var toolkits = {};
+
+    var toolkitElements = {},
+        nodeTitleElements = {},
+        nodeDescriptionElements = {};
+
+    for (var nodeType in nodeTypes) {
+        var typeId = nodeType.split('/');
+        var toolkit = typeId[0]; var typeName = typeId[1];
+        if (!toolkits[toolkit]) toolkits[toolkit] = {};
+        toolkits[toolkit][typeName] = nodeTypes[nodeType];
+    }
+
+    var listRoot = d3.select(document.createElement('dl')).attr('className', 'rpd-nodelist');
+
+    var toolkitNodeTypes, typeDef;
+
+    for (var toolkit in toolkits) { // TODO: use d3.enter() here
+
+        var titleElm = listRoot.append('dd').attr('className', 'rpd-toolkit-name').text(toolkit);
+
+        listRoot.append('dt')
+                .append('dl').attr('className', 'rpd-toolkit').data({ titleElm: titleElm,
+                                                                      nodeTypes: toolkits[toolkit],
+                                                                      toolkit: toolkit })
+                .call(function(toolkitList) {
+                    // toolkit title element, could expand or collapse the types in this toolkit
+                    var titleElm = toolkitList.data().titleElm;
+                    addClickSwitch(titleElm.node(),
+                                   function() { toolkitList.classed('rpd-collapsed', true) },
+                                   function() { toolkitList.classed('rpd-collapsed', false); },
+                                   true);
+                })
+                .call(function(dl) {
+                    var toolkit = dl.data().toolkit,
+                        toolkitNodeTypes = dl.data().nodeTypes;
+                    for (var typeName in toolkitNodeTypes) { // TODO: use d3.enter() here
+                        var nodeType = toolkit + '/' + typeName;
+
+                        // node type title
+                        var titleElm = dl.append('dd').attr('className', 'rpd-node-title').text(typeName);
+
+                        // add node button
+                        titleElm.append('span').attr('className', 'rpd-add-node').text('+ Add').data(nodeType)
+                                .call(function(addButton) {
+                                    Kefir.fromEvents(addButton.node(), 'click')
+                                         .tap(stopPropagation)
+                                         .onValue(function() {
+                                             currentPatch.addNode(addButton.data());
+                                         });
+                                });
+
+                        // node type description, could be expanded or collapsed by clicking on node type title
+                        dl.append('dd').attr('className', 'rpd-node-description').data({ titleElm: titleElm })
+                                       .text(nodeDescriptions[nodeType] || '[No Description]')
+                                       .classed('rpd-collapsed', true)
+                                       .call(function(descElm) {
+                                           addClickSwitch(descElm.data().titleElm.node(),
+                                               function() { descElm.classed('rpd-collapsed', true) },
+                                               function() { descElm.classed('rpd-collapsed', false); });
+                                       });
+                    }
+                });
+
+    }
+
+    root.append(listRoot.node());
+
+    // the button to collapse this node list
+    root.append(d3.select(document.createElement('span'))
+                  .attr('className', 'rpd-collapse-nodelist')
+                  .text('>>')
+                  .call(function(collapseButton) {
+                      addClickSwitch(collapseButton.node(),
+                                     function() { collapseButton.classed('rpd-collapsed', true).text('<<');
+                                                  listRoot.classed('rpd-collapsed', true); },
+                                     function() { collapseButton.classed('rpd-collapsed', false).text('>>');
+                                                  listRoot.classed('rpd-collapsed', false); },
+                                     true);
+                  }).node());
+
+}
+
+// =============================================================================
+// =============================== Values ======================================
+// =============================================================================
+
+function ValueEditor(inlet, render, root, valueHolder, valueElm) {
+    var editor = d3.select(document.createElement('div')).attr('className', 'rpd-value-editor');
+    var valueIn = Kefir.emitter(),
+        disableEditor = Kefir.emitter();
+    this.disableEditor = disableEditor;
+    this.valueElm = valueElm;
+    var valueOut = render.edit(editor.node(), inlet, valueIn);
+    valueOut.onValue(function(value) { inlet.receive(value); });
+    Kefir.sampledBy([ inlet.event['inlet/update'] ],
+                    [ Kefir.merge([
+                                Kefir.fromEvents(valueHolder.node(), 'click')
+                                     .tap(stopPropagation)
+                                     .map(ƒ(true)),
+                                Kefir.fromEvents(root.node(), 'click')
+                                     .merge(disableEditor)
+                                     .map(ƒ(false)) ])
+                           .toProperty(ƒ(false))
+                           .skipDuplicates() ])
+         .map(function(val) { return { lastValue: val[0],
+                                       startEditing: val[1],
+                                       cancelEditing: !val[1] }; })
+         .onValue(function(conf) {
+            if (conf.startEditing) {
+                var inletData = tree.inlets[inlet.id].data();
+                if (inletData.link) inletData.link.disable();
+                valueIn.emit(conf.lastValue);
+                valueHolder.classed('rpd-editor-enabled', true);
+            } else if (conf.cancelEditing) {
+                valueElm.classed('rpd-edited', true);
+                valueHolder.classed('rpd-editor-enabled', false);
+            }
+         });
+    valueHolder.classed('rpd-editor-disabled', true);
+    valueHolder.append(editor.node());
+}
+ValueEditor.prototype.disable = function() {
+    this.valueElm.classed('rpd-edited', false);
+    this.disableEditor.emit();
+}
+
+var errorEffects = {};
+function addValueErrorEffect(key, target, duration) {
+    target.classed('rpd-error', true);
+    if (errorEffects[key]) clearTimeout(errorEffects[key]);
+    errorEffects[key] = setTimeout(function() {
+        target.classed('rpd-error', false);
+        errorEffects[key] = null;
+    }, duration || 1);
+}
+
+var updateEffects = {};
+function addValueUpdateEffect(key, target, duration) {
+    target.classed('rpd-stale', false);
+    target.classed('rpd-fresh', true);
+    if (updateEffects[key]) clearTimeout(updateEffects[key]);
+    updateEffects[key] = setTimeout(function() {
+        target.classed('rpd-fresh', false);
+        target.classed('rpd-stale', true);
+        updateEffects[key] = null;
+    }, duration || 1);
+}
+
+// =============================================================================
+// =============================== Updates =====================================
+// =============================================================================
+
+function subscribeUpdates(node, subscriptions) {
+    if (!subscriptions) return;
+    for (var alias in subscriptions) {
+        (function(subscription, alias) {
+            node.event['node/add-inlet']
+                .filter(function(inlet) { return inlet.alias === alias; })
+                .onValue(function(inlet) {
+                    if (subscription.default) inlet.receive(subscription.default());
+                    if (subscription.valueOut) {
+                        subscription.valueOut.onValue(function(value) {
+                            inlet.receive(value);
+                        });
+                    }
+            });
+        })(subscriptions[alias], alias);
+    }
+}
+
+
+// =============================================================================
+// ============================== DragNDrop ====================================
+// =============================================================================
+
+function addDragNDrop(node, root, handle, box) {
+    function eachLink(node, f) {
+        tree.nodeToLinks[node.id].each(f);
+    }
+
+    var nodeData = tree.nodes[node.id];
+    handle.classed('rpd-drag-handle', true);
+    var nodeLinks;
+    Kefir.fromEvents(handle.node(), 'mousedown').map(extractPos)
+                                                .flatMap(function(pos) {
+        box.classed('rpd-dragging', true);
+        var initPos = getPos(box.node()),
+            diffPos = { x: pos.x - initPos.x,
+                        y: pos.y - initPos.y };
+        nodeLinks = null;
+        box.style('z-index', NODEDRAG_LAYER);
+        var moveStream = Kefir.fromEvents(root.node(), 'mousemove')
+                              .tap(stopPropagation)
+                              .takeUntilBy(Kefir.fromEvents(root.node(), 'mouseup'))
+                              .map(extractPos)
+                              .map(function(absPos) {
+                                  return { x: absPos.x - diffPos.x,
+                                           y: absPos.y - diffPos.y };
+                              })
+                              .onEnd(function() {
+                                  box.classed('rpd-dragging', false);
+                                  box.style('z-index', NODE_LAYER);
+                                  eachLink(node, function(vlink) {
+                                      vlink.elm.style('z-index', LINK_LAYER);
+                                  });
+                              });
+        moveStream.last().onValue(function(pos) { node.move(pos.x, pos.y); });
+        return moveStream;
+    }).onValue(function(pos) {
+        box.style('left', pos.x + 'px');
+        box.style('top',  pos.y + 'px');
+        eachLink(node, function(vlink) {
+            vlink.elm.style('z-index', LINKDRAG_LAYER);
+            vlink.update();
+        });
+    });
+}
+
+// =============================================================================
+// =============================== helpers =====================================
 // =============================================================================
 
 function mergeConfig(user_conf, defaults) {
@@ -1256,107 +1086,31 @@ function mergeConfig(user_conf, defaults) {
     } else return defaults;
 }
 
-function quickElm(type, cls) {
-    var elm = document.createElement(type);
-    if (cls) elm.className = cls;
-    return elm;
-}
-
-function quickElmVal(type, cls, value) {
-    var elm = document.createElement(type);
-    if (cls) elm.className = cls;
-    elm.innerText = elm.textContent = value;
-    return elm;
-}
-
-function valueErrorEffect(storage, elmHolder, duration) {
-    elmHolder.classList.add("rpd-error");
-    if (storage.errRemoveTimeout) clearTimeout(storage.errRemoveTimeout);
-    storage.errRemoveTimeout = setTimeout(function() {
-        elmHolder.classList.remove("rpd-error");
-        storage.errRemoveTimeout = null;
-    }, duration || 1);
-}
-
-function valueUpdateEffect(storage, elmHolder, duration) {
-    elmHolder.classList.remove("rpd-stale");
-    elmHolder.classList.add("rpd-fresh");
-    if (storage.updRemoveTimeout) clearTimeout(storage.updRemoveTimeout);
-    storage.updRemoveTimeout = setTimeout(function() {
-        elmHolder.classList.remove("rpd-fresh");
-        elmHolder.classList.add("rpd-stale");
-        storage.updRemoveTimeout = null;
-    }, duration || 1);
-}
-
-function constructLink(x0, y0, x1, y1, w) {
-    var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
-                             ((y0 - y1) * (y0 - y1)));
-    var angle = Math.atan2(y1 - y0, x1 - x0);
-
-    var linkElm = quickElm('span','rpd-link');
-    linkElm.style.position = 'absolute';
-    linkElm.style.zIndex = LINK_LAYER;
-    linkElm.style.width = Math.floor(distance) + 'px';
-    linkElm.style.left = x0 + 'px';
-    linkElm.style.top = y0 + 'px';
-    linkElm.style.transformOrigin = 'left top';
-    linkElm.style.webkitTransformOrigin = 'left top';
-    linkElm.style.transform = 'rotateZ(' + angle + 'rad)';
-    linkElm.style.webkitTransform = 'rotateZ(' + angle + 'rad)';
-    if (w) linkElm.style.height = w + 'px';
-    return linkElm;
-}
-
-function rotateLink(linkElm, x0, y0, x1, y1) {
-    var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
-                             ((y0 - y1) * (y0 - y1)));
-    var angle = Math.atan2(y1 - y0, x1 - x0);
-    linkElm.style.left = x0 + 'px';
-    linkElm.style.top = y0 + 'px';
-    linkElm.style.width = Math.floor(distance) + 'px';
-    linkElm.style.transform = 'rotateZ(' + angle + 'rad)';
-    linkElm.style.webkitTransform = 'rotateZ(' + angle + 'rad)';
-}
-
-var default_width = 1, // in boxes
-    default_height = 1, // in boxes
-    default_x_margin = 0.5,  // in boxes
-    default_y_margin = 1, // in boxes
-    default_limits = [ 1000, 1000 ]; // in pixels
-
-function BoxLayout() {
-
-    var node_rects = [];
-
-    return {
-        nextBox: function(node, nodeBox, nodeElm, boxSize, limits) {
-            var width =  (node.def.width  || default_width)  * boxSize[0],
-                height = (node.def.height || default_height) * boxSize[1];
-            var last_rect = (node_rects.length ? node_rects[node_rects.length-1] : null);
-            var new_rect = [ /* x */ last_rect ? last_rect[0] : 0,
-                             /* y */ last_rect ? (last_rect[1] + last_rect[3] + (default_y_margin * boxSize[1])) : 0,
-                             width,
-                             height ];
-            if ((new_rect[1] + boxSize[1]) > limits[1]) {
-                new_rect[0] = new_rect[0] + width + (default_x_margin * boxSize[0]);
-                new_rect[1] = 0;
-            }
-            node_rects.push(new_rect);
-            // relative positioning
-            nodeBox.style.left = Math.floor(new_rect[0]) + 'px';
-            nodeBox.style.top  = Math.floor(new_rect[1]) + 'px';
-            nodeElm.style.minWidth  = Math.floor(new_rect[2]) + 'px';
-            nodeElm.style.minHeight = Math.floor(new_rect[3]) + 'px';
-            node_rects.push(new_rect);
-            node.move(new_rect[0], new_rect[1]);
-        }
+function preventDefault(evt) { evt.preventDefault(); };
+function stopPropagation(evt) { evt.stopPropagation(); };
+function extractPos(evt) { return { x: evt.clientX,
+                                    y: evt.clientY }; };
+function getPos(elm) { var bounds = elm.getBoundingClientRect();
+                       return { x: bounds.left, y: bounds.top } };
+function addTarget(target) {
+    return function(pos) {
+        return { pos: pos, target: target };
     }
-
 };
+function invertValue(prev) { return !prev; };
+function addClickSwitch(elm, on_true, on_false, initial) {
+    Kefir.fromEvents(elm, 'click')
+         .tap(stopPropagation)
+         .map(ƒ(initial || false))
+         .scan(invertValue)  // will toggle between `true` and `false`
+         .onValue(function(val) {
+             if (val) { on_true(); }
+             else { on_false(); }
+         })
+}
 
-
-// =========================== registration ====================================
+// =============================================================================
+// ============================ registration ===================================
 // =============================================================================
 
 Rpd.HtmlRenderer = HtmlRenderer;
