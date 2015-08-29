@@ -12,8 +12,6 @@ var defaultConfig = {
     // show inlet/outlet value only when user hovers over its connector
     // (always showing, by default)
     valuesOnHover: false,
-    // show inlets/outlets and node types for debugging purposes
-    showTypes: false,
     // show node containers for debugging purposes
     showBoxes: false,
     // are nodes allowed to be dragged
@@ -176,22 +174,23 @@ return function(networkRoot, userConfig) {
                 height = nextRect.height;
 
             nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('rx', 3).attr('ry', 3);
-            nodeElm.append('path').attr('class', 'rpd-title').attr('d', roundedRect(0, 0, width, height*0.35, 2, 2, 0, 0));
+            nodeElm.append('path').attr('class', 'rpd-header').attr('d', roundedRect(0, 0, width, height*0.35, 2, 2, 0, 0));
+            nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
+                                  .attr('x', 5).attr('y', 6).style('pointer-events', 'none');
             nodeElm.append('path').attr('class', 'rpd-content').attr('d', roundedRect(0, height*0.35, width, height*0.65, 0, 0, 2, 2));
             nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2)
                                   .style('pointer-events', 'none');
 
-            /* nodeElm.append('g').attr('class', 'rpd-remove-button')
-                   .call(function(button) {
-                       button.append('rect');
-                       button.append('text').text('x');
-                   }); */
+            /*nodeElm.select('.rpd-header').attr('title', nodeDescriptions[node.type]
+                                                        ? (nodeDescriptions[node.type] + ' (' + node.type + ')')
+                                                        : node.type);*/
 
-            /* nodeElm.append('g').attr('class', 'rpd-title')
-                   .call(function(title) {
-                       title.append('text').attr('class', 'rpd-name').text(node.name);
-                       if (config.showType) title.append('text').attr('class', 'rpd-type').text('node-type');
-                   }); */
+            nodeElm.append('g').attr('class', 'rpd-remove-button')
+                               .attr('transform', 'translate(' + (width-12) + ',1)')
+                   .call(function(button) {
+                       button.append('path').attr('d', roundedRect(0, 0, 11, 11, 2, 2, 2, 3));
+                       button.append('text').text('x').attr('x', 3).attr('y', 2).style('pointer-events', 'none');
+                   });
 
             //nodeElm.append('g').attr('class', 'rpd-inlets');
             //nodeElm.append('g').attr('class', 'rpd-process');
@@ -203,10 +202,8 @@ return function(networkRoot, userConfig) {
 
             }
 
-            /*nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
+            nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                    .classed('rpd-'+node.type.replace('/','-'), true);
-
-            nodeBox.style('z-index', NODE_LAYER); */
 
             // store targets information and node root element itself
             tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets'),
@@ -221,7 +218,7 @@ return function(networkRoot, userConfig) {
 
             // add possiblity to drag nodes
             if (config.nodeMovingAllowed) {
-                dnd.add(nodeElm.select('.rpd-title').classed('rpd-drag-handle', true),
+                dnd.add(nodeElm.select('.rpd-header').classed('rpd-drag-handle', true),
                         { start: function() {
                             nodeElm.classed('rpd-dragging', true);
                             return nodeBox.data().pos;
@@ -252,11 +249,11 @@ return function(networkRoot, userConfig) {
             }
 
             // remove node when remove button was clicked
-            /* Kefir.fromEvents(nodeElm.select('.rpd-remove-button').node(), 'click')
+            Kefir.fromEvents(nodeElm.select('.rpd-remove-button path').node(), 'click')
                  .tap(stopPropagation)
                  .onValue(function() {
                      patch.removeNode(node);
-                 }); */
+                 });
 
             // append to the the patch root node
             var patchRoot = tree.patches[node.patch.id].data().root;
@@ -264,7 +261,7 @@ return function(networkRoot, userConfig) {
 
         },
 
-        /* 'patch/remove-node': function(update) {
+        'patch/remove-node': function(update) {
             var node = update.node;
 
             var nodeBox = tree.nodes[node.id];
@@ -275,7 +272,7 @@ return function(networkRoot, userConfig) {
                                         // so it's just to avoid holding memory for it
             tree.nodeToLinks[node.id] = null;
 
-        },*/
+        },
 
         'node/move': function(update) {
             var nodeBox = tree.nodes[update.node.id];

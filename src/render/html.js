@@ -174,12 +174,15 @@ return function(networkRoot, userConfig) {
                        .call(function(thead) {
                             thead.append('tr').attr('class', 'rpd-header')
                                  .append('th').attr('colspan', 3)
-                                               // add description to be shown on hover
-                                              .attr('title', nodeDescriptions[node.type] + ' (' + node.type + ')')
                                  .call(function(th) {
                                      if (config.showTypes) th.append('span').attr('class', 'rpd-type').text(node.type);
                                      th.append('span').attr('class', 'rpd-name').text(node.name);
+                                     // add description to be shown on hover
+                                     th.attr('title', nodeDescriptions[node.type]
+                                                      ? (nodeDescriptions[node.type] + ' (' + node.type + ')')
+                                                      : node.type);
                                  });
+
                        });
 
                 // node content
@@ -228,9 +231,11 @@ return function(networkRoot, userConfig) {
                               .call(function(td) {
                                   td.append('span').attr('class', 'rpd-name').text(node.name);
                                   if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(node.type);
+                                  // add description to be shown on hover
+                                  td.attr('title', nodeDescriptions[node.type]
+                                                   ? (nodeDescriptions[node.type] + ' (' + node.type + ')')
+                                                   : node.type);
                               })
-                              // add description to be shown on hover
-                              .attr('title', nodeDescriptions[node.type] + ' (' + node.type + ')');
                             tr.append('td').attr('class', 'rpd-body')
                               .append('div')
                               .append('table').append('tbody').append('tr').append('td')

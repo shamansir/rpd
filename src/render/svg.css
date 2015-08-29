@@ -16,6 +16,10 @@
     fill: #111;
 }
 
+.rpd-node .rpd-drag-handle {
+    cursor: pointer;
+}
+
 .rpd-node .rpd-shadow {
     fill: #000;
     x: 5;
@@ -33,8 +37,13 @@
     /* 4px 8px 20px 0px rgba(30,30,30,0.8) */
 }
 
-.rpd-node .rpd-title {
+.rpd-node .rpd-header {
     fill: #617b79;
+}
+
+.rpd-node text.rpd-name {
+    fill: rgba(250,250,250,0.9);
+    dominant-baseline: hanging;
 }
 
 .rpd-node .rpd-content {
@@ -48,4 +57,27 @@
     stroke-width: 1;
     fill: transparent;
     /* -webkit-filter: drop-shadow(9px 9px 9px rgba(0,0,0,0.9)); */
+}
+
+.rpd-node .rpd-remove-button {
+    display: none;
+    cursor: pointer;
+}
+
+.rpd-node .rpd-remove-button path {
+    fill: rgba(30,30,30,0.2);
+}
+
+.rpd-node .rpd-remove-button text {
+    fill: rgba(250,250,250,0.8);
+    dominant-baseline: hanging;
+    font-size: 0.7em;
+}
+
+.rpd-node .rpd-remove-button:hover text {
+    fill: #ff6666;
+}
+
+.rpd-node:hover .rpd-remove-button {
+    display: inline;
 }
