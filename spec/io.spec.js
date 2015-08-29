@@ -121,7 +121,7 @@ describe('import and export', function() {
                 );
             });
 
-            xit('removing node', function() {
+            it('removing node', function() {
                 testAction(
                     function() {
                         var patch = Rpd.addPatch('RemoveNode');

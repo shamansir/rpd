@@ -18,7 +18,7 @@ describe('building: node', function() {
         });
     });
 
-    xit('informs it was removed from a patch with an event', function() {
+    it('informs it was removed from a patch with an event', function() {
         withNewPatch(function(patch, updateSpy) {
             var node = patch.addNode('spec/empty');
             patch.removeNode(node);
