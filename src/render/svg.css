@@ -81,3 +81,9 @@
 .rpd-node:hover .rpd-remove-button {
     display: inline;
 }
+
+.rpd-inlet .rpd-connector {
+    fill: white;
+    stroke-width: 3;
+    stroke: black;
+}
