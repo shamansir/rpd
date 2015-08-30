@@ -632,10 +632,11 @@ Navigation.prototype.switch = function(targetPatch) {
 // ============================== Layout =======================================
 // =============================================================================
 
-function GridLayout(boxSize, boxPadding) {
+function GridLayout(boxSize, boxPadding, contentPaddding) {
     this.nodeRects = [];
     this.boxSize = boxSize;
     this.boxPadding = boxPadding;
+    this.contentPadding = contentPadding;
 }
 GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
 GridLayout.prototype.nextRect = function(node, limits) {

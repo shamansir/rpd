@@ -19,6 +19,7 @@ Rpd.noderenderer('core/number', 'html', function() {
 });
 
 Rpd.noderenderer('core/sum-of-three', 'html', {
+    size: [ null, 200 ],
     always: function(bodyElm, inlets, outlets) {
         bodyElm.innerHTML = '∑ (' + (inlets.a || '?') + ', '
                                   + (inlets.b || '?') + ', '

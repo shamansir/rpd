@@ -22,9 +22,12 @@ var defaultConfig = {
     nodeListCollapsed: true,
     // dimensions of the box used to measure everything
     boxSize: { width: 100, height: 60 },
-    // padding of the box to fit inlets/otlets and other useful information, relative to boxSize
+    // padding of the box to fit outer side of inlets/otlets and other useful information, relative to boxSize
     boxPadding: { 'quartz': { horizontal: 0.6, vertical: 0.6 },
                   'pd': { horizontal: 0.15, vertical: 0.3 } },
+    // padding of the content to fit innet side inlets/otlets and other useful information, in SVG units
+    contentPadding: { 'quartz': { horizontal: 20, vertical: 0 },
+                      'pd': { horizontal: 0, vertical: 10 } },
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
 };
@@ -99,7 +102,8 @@ return function(networkRoot, userConfig) {
                                               });
 
             // initialize the node layout (helps in determining the position where new node should be placed)
-            tree.patchToLayout[patch.id] = new GridLayout(config.boxSize, config.boxPadding[config.mode]);
+            tree.patchToLayout[patch.id] = new GridLayout(config.boxSize, config.boxPadding[config.mode],
+                                                                          config.contentPadding[config.mode]);
             tree.patchToLinks[patch.id] = new VLinks();
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
@@ -165,7 +169,7 @@ return function(networkRoot, userConfig) {
                 // current patch root should be used as a limit source, even if we add to another patch
                 // or else other root may have no dimensions yet
                 limitSrc = tree.patches[currentPatch.id].data(),
-                nextRect = layout.nextRect(node, { width: limitSrc.width, height: limitSrc.height });
+                nextRect = layout.nextRect(node, render.size, { width: limitSrc.width, height: limitSrc.height });
 
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
@@ -574,13 +578,14 @@ Navigation.prototype.switch = function(targetPatch) {
 // ============================== Layout =======================================
 // =============================================================================
 
-function GridLayout(boxSize, boxPadding) {
+function GridLayout(boxSize, boxPadding, contentPaddding) {
     this.nodeRects = [];
     this.boxSize = boxSize;
     this.boxPadding = boxPadding;
+    this.contentPadding = contentPadding;
 }
 GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
-GridLayout.prototype.nextRect = function(node, limits) {
+GridLayout.prototype.nextRect = function(node, contentSize, limits) {
     limits = limits || GridLayout.DEFAULT_LIMITS;
     var nodeRects = this.nodeRects, boxSize = this.boxSize, boxPadding = this.boxPadding;
     var width =  (node.def.width  || 1) * boxSize.width,
