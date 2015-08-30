@@ -21,10 +21,12 @@ var defaultConfig = {
     // is node list collapsed by default, if shown
     nodeListCollapsed: true,
     // dimensions of the box used to measure everything
-    boxSize: { width: 100, height: 60 },
+    //boxSize: { width: 100, height: 60 },
     // padding of the box to fit outer side of inlets/otlets and other useful information, relative to boxSize
     boxPadding: { 'quartz': { horizontal: 0.6, vertical: 0.6 },
                   'pd': { horizontal: 0.15, vertical: 0.3 } },
+    // dimensions of the content to fit in the box
+    contentSize: { width: 100, height: 60 },
     // padding of the content to fit innet side inlets/otlets and other useful information, in SVG units
     contentPadding: { 'quartz': { horizontal: 20, vertical: 0 },
                       'pd': { horizontal: 0, vertical: 10 } },
@@ -169,12 +171,15 @@ return function(networkRoot, userConfig) {
                 // current patch root should be used as a limit source, even if we add to another patch
                 // or else other root may have no dimensions yet
                 limitSrc = tree.patches[currentPatch.id].data(),
-                nextRect = layout.nextRect(node, render.size, { width: limitSrc.width, height: limitSrc.height });
+                contentSize = render.size ? { width: render.size.width || config.contentSize.width,
+                                              height: render.size.height || config.contentSize.height,
+                                          : config.contentSize;
+                nodeRect = layout.nextRect(node, contentSize, { width: limitSrc.width, height: limitSrc.height });
 
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
 
-            var width = nextRect.width, height = nextRect.height,
+            var width = nodeRect.width, height = nodeRect.height,
                 headerHeight = height*0.35, bodyHeight = height*0.65;
 
             nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('rx', 3).attr('ry', 3);
@@ -218,7 +223,7 @@ return function(networkRoot, userConfig) {
                                                  processTarget: nodeElm.select('.rpd-process'),
                                                  position: { x: 0, y: 0 } });
 
-            node.move(nextRect.x, nextRect.y);
+            node.move(nodeRect.x, nodeRect.y);
 
             var nodeLinks = new VLinks();
             tree.nodeToLinks[node.id] = nodeLinks;
@@ -578,16 +583,16 @@ Navigation.prototype.switch = function(targetPatch) {
 // ============================== Layout =======================================
 // =============================================================================
 
-function GridLayout(boxSize, boxPadding, contentPaddding) {
+function GridLayout(boxPadding, contentPaddding) {
     this.nodeRects = [];
-    this.boxSize = boxSize;
     this.boxPadding = boxPadding;
     this.contentPadding = contentPadding;
 }
 GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
 GridLayout.prototype.nextRect = function(node, contentSize, limits) {
     limits = limits || GridLayout.DEFAULT_LIMITS;
-    var nodeRects = this.nodeRects, boxSize = this.boxSize, boxPadding = this.boxPadding;
+    var nodeRects = this.nodeRects,
+        boxPadding = this.boxPadding, contentPadding = this.contentPadding;
     var width =  (node.def.width  || 1) * boxSize.width,
         height = (node.def.height || 1) * boxSize.height,
         hPadding = (boxPadding.horizontal * boxSize.width),
