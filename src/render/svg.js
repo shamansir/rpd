@@ -20,16 +20,6 @@ var defaultConfig = {
     renderNodeList: true,
     // is node list collapsed by default, if shown
     nodeListCollapsed: true,
-    // dimensions of the box used to measure everything
-    //boxSize: { width: 100, height: 60 },
-    // padding of the box to fit outer side of inlets/otlets and other useful information, relative to boxSize
-    boxPadding: { 'quartz': { horizontal: 0.6, vertical: 0.6 },
-                  'pd': { horizontal: 0.15, vertical: 0.3 } },
-    // dimensions of the content to fit in the box
-    contentSize: { width: 100, height: 60 },
-    // padding of the content to fit innet side inlets/otlets and other useful information, in SVG units
-    contentPadding: { 'quartz': { horizontal: 20, vertical: 0 },
-                      'pd': { horizontal: 0, vertical: 10 } },
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
 };
@@ -104,8 +94,7 @@ return function(networkRoot, userConfig) {
                                               });
 
             // initialize the node layout (helps in determining the position where new node should be placed)
-            tree.patchToLayout[patch.id] = new GridLayout(config.boxSize, config.boxPadding[config.mode],
-                                                                          config.contentPadding[config.mode]);
+            tree.patchToLayout[patch.id] = new GridLayout(config.mode);
             tree.patchToLinks[patch.id] = new VLinks();
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
@@ -170,11 +159,11 @@ return function(networkRoot, userConfig) {
             var layout = tree.patchToLayout[update.patch.id],
                 // current patch root should be used as a limit source, even if we add to another patch
                 // or else other root may have no dimensions yet
-                limitSrc = tree.patches[currentPatch.id].data(),
-                contentSize = render.size ? { width: render.size.width || config.contentSize.width,
-                                              height: render.size.height || config.contentSize.height,
-                                          : config.contentSize;
-                nodeRect = layout.nextRect(node, contentSize, { width: limitSrc.width, height: limitSrc.height });
+                limitSrc = tree.patches[currentPatch.id].data();
+
+            var nodeRect = layout.nextRect(node, render.size ? { width: render.size.width || 100, height: render.size.height || 100 }
+                                                             : { width: 100, height: 60 },
+                                                 { width: limitSrc.width, height: limitSrc.height });
 
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
@@ -583,15 +572,15 @@ Navigation.prototype.switch = function(targetPatch) {
 // ============================== Layout =======================================
 // =============================================================================
 
-function GridLayout(boxPadding, contentPaddding) {
+function GridLayout(boxPadding, contentPadding, headerRatio) {
     this.nodeRects = [];
-    this.boxPadding = boxPadding;
-    this.contentPadding = contentPadding;
+    this.boxPadding = (mode === QUARTZ_MODE) ? { horizontal: 0.6, vertical: 0.6 }
+                                               { horizontal: 0.15, vertical: 0.3 };
 }
 GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
-GridLayout.prototype.nextRect = function(node, contentSize, limits) {
+GridLayout.prototype.nextRect = function(node, minumumSize, limits) {
     limits = limits || GridLayout.DEFAULT_LIMITS;
-    var nodeRects = this.nodeRects,
+    var nodeRects = this.nodeRects, headerRatio = this.headerRatio,
         boxPadding = this.boxPadding, contentPadding = this.contentPadding;
     var width =  (node.def.width  || 1) * boxSize.width,
         height = (node.def.height || 1) * boxSize.height,
