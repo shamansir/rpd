@@ -161,15 +161,44 @@ return function(networkRoot, userConfig) {
                 // or else other root may have no dimensions yet
                 limitSrc = tree.patches[currentPatch.id].data();
 
-            var nodeRect = layout.nextRect(node, render.size ? { width: render.size.width || 100, height: render.size.height || 100 }
-                                                             : { width: 100, height: 60 },
-                                                 { width: limitSrc.width, height: limitSrc.height });
+            var numInlets  = node.def.inlets  ? Object.keys(node.def.inlets).length  : 0,
+                numOutlets = node.def.outlets ? Object.keys(node.def.outlets).length : 0;
+
+            var socketPadding = 5; // distance between inlets/outlets in SVG units
+            var headerHeight = 30; // height of a node header in SVG units, for Quartz mode
+            var headerWidth = 50; // width of a node header in SVG units, for PD mode
+            var findBestNodeSize = (config.mode === QUARTZ_MODE)
+                ? function(numInlets, numOutlets, minContentSize) {
+                      var requiredContentHeight = (Math.max(numInlets, numOutlets) + 1) * socketPadding;
+                      return { width: minContentSize.width,
+                               height: headerHeight + Math.max(requiredContentHeight, minContentSize.height) };
+                  }
+                : function(numInlets, numOutlets, minContentSize) {
+                      var requiredContentWidth = (Math.max(numInlets, numOutlets) + 1) * socketPadding;
+                      return { width: headerWidth + Math.max(requiredContentWidth, minContentSize.width), minContentSize.width,
+                               height: minContentSize.height };
+                  };
+
+            var initialSize = findBestNodeSize(numInlets, numOutlets,
+                                     render.size ? { width: render.size.width || 100,
+                                                     height: render.size.height || 60 }
+                                                 : { width: 100, height: 60 });
+
+
+            function resizeNode(nodeElm, curSize, numInlets, numOutlets, minSize) {
+                var nodeSize = findBestNodeSize(numInlets, numOutlets, minSize);
+                if (nodeSize.width === curSize.width) && (nodeSize.height === curSize.height) return;
+                nodeElm.select('rect.rpd-shadow').attr('height', nodeSize.height);
+                nodeElm.select('rect.rpd-body').attr('height', nodeSize.height);
+                nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight, nodeSize.width, nodeSize.height, 0, 0, 2, 2));
+            }
+
+            var nodePos = layout.nextPosition(node, initialSize, { width: limitSrc.width, height: limitSrc.height });
 
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
 
-            var width = nodeRect.width, height = nodeRect.height,
-                headerHeight = height*0.35, bodyHeight = height*0.65;
+            var width = initialSize.width, height = initialSize.height, bodyHeight = height - headerHeight;
 
             nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('rx', 3).attr('ry', 3);
             nodeElm.append('path').attr('class', 'rpd-header').attr('d', roundedRect(0, 0, width, headerHeight, 2, 2, 0, 0));
@@ -210,36 +239,13 @@ return function(networkRoot, userConfig) {
             tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets'),
                                                  outletsTarget: nodeElm.select('.rpd-outlets'),
                                                  processTarget: nodeElm.select('.rpd-process'),
-                                                 position: { x: 0, y: 0 } });
+                                                 position: { x: 0, y: 0 },
+                                                 size: initialSize });
 
             node.move(nodeRect.x, nodeRect.y);
 
             var nodeLinks = new VLinks();
             tree.nodeToLinks[node.id] = nodeLinks;
-
-            /* // the logic to enlarge body area if new inlets/outlets doesn't fit
-            var inletsCount = 0, outletsCount = 0;
-            var socketPadding = 5;
-            var lastBodyHeight = bodyHeight, requiredHeight;
-            function ensureFits(requiredHeight) {
-                if (lastBodyHeight >= requiredHeight) return;
-                // not lastBodyHeight in a line below, since we use this diff to get
-                // total node height relative to the first calculated height, not the last
-                var heightDiff = bodyHeight - requiredHeight;
-                lastBodyHeight = requiredHeight;
-                nodeElm.select('rect.rpd-shadow').attr('height', height + heightDiff);
-                nodeElm.select('rect.rpd-body').attr('height', height + heightDiff);
-                nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight, width, requiredHeight, 0, 0, 2, 2));
-            }
-            nodeBox.data().getNextInletY = function() {
-                inletsCount++;
-                ensureFits(socketPadding * (inletsCount + 1));
-                return (socketPadding * inletsCount); };
-            nodeBox.data().getNextOutletY = function() {
-                outletsCount++;
-                ensureFits(socketPadding * (outletsCount + 1));
-                return (socketPadding * outletsCount);
-            }; */
 
             // add possiblity to drag nodes
             if (config.nodeMovingAllowed) {
