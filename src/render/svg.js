@@ -161,11 +161,8 @@ return function(networkRoot, userConfig) {
                 // or else other root may have no dimensions yet
                 limitSrc = tree.patches[currentPatch.id].data();
 
-            var numInlets  = node.def.inlets  ? Object.keys(node.def.inlets).length  : 0,
-                numOutlets = node.def.outlets ? Object.keys(node.def.outlets).length : 0;
-
-            var socketPadding = 5; // distance between inlets/outlets in SVG units
-            var headerHeight = 30; // height of a node header in SVG units, for Quartz mode
+            var socketPadding = 10; // distance between inlets/outlets in SVG units
+            var headerHeight = 21; // height of a node header in SVG units, for Quartz mode
             var headerWidth = 50; // width of a node header in SVG units, for PD mode
             var findBestNodeSize = (config.mode === QUARTZ_MODE)
                 ? function(numInlets, numOutlets, minContentSize) {
@@ -175,23 +172,17 @@ return function(networkRoot, userConfig) {
                   }
                 : function(numInlets, numOutlets, minContentSize) {
                       var requiredContentWidth = (Math.max(numInlets, numOutlets) + 1) * socketPadding;
-                      return { width: headerWidth + Math.max(requiredContentWidth, minContentSize.width), minContentSize.width,
+                      return { width: headerWidth + Math.max(requiredContentWidth, minContentSize.width),
                                height: minContentSize.height };
                   };
 
-            var initialSize = findBestNodeSize(numInlets, numOutlets,
-                                     render.size ? { width: render.size.width || 100,
-                                                     height: render.size.height || 60 }
-                                                 : { width: 100, height: 60 });
+            var numInlets  = node.def.inlets  ? Object.keys(node.def.inlets).length  : 0,
+                numOutlets = node.def.outlets ? Object.keys(node.def.outlets).length : 0;
+            var minContentSize = render.size ? { width: render.size.width || 100,
+                                                 height: render.size.height || 40 }
+                                             : { width: 100, height: 40 };
 
-
-            function resizeNode(nodeElm, curSize, numInlets, numOutlets, minSize) {
-                var nodeSize = findBestNodeSize(numInlets, numOutlets, minSize);
-                if (nodeSize.width === curSize.width) && (nodeSize.height === curSize.height) return;
-                nodeElm.select('rect.rpd-shadow').attr('height', nodeSize.height);
-                nodeElm.select('rect.rpd-body').attr('height', nodeSize.height);
-                nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight, nodeSize.width, nodeSize.height, 0, 0, 2, 2));
-            }
+            var initialSize = findBestNodeSize(numInlets, numOutlets, minContentSize);
 
             var nodePos = layout.nextPosition(node, initialSize, { width: limitSrc.width, height: limitSrc.height });
 
@@ -235,14 +226,27 @@ return function(networkRoot, userConfig) {
             nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                    .classed('rpd-'+node.type.replace('/','-'), true);
 
+            function resizeNode(numInlets, numOutlets) {
+                var nodeData = nodeBox.data(), curSize = nodeData.size;
+                var nodeSize = findBestNodeSize(numInlets, numOutlets, minContentSize);
+                nodeData.numInlets = numInlets;
+                nodeData.numOutlets = numOutlets;
+                if ((nodeSize.width === curSize.width) && (nodeSize.height === curSize.height)) return;
+                nodeElm.select('rect.rpd-shadow').attr('height', nodeSize.height);
+                nodeElm.select('rect.rpd-body').attr('height', nodeSize.height);
+                nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight,
+                    nodeSize.width, nodeSize.height - headerHeight, 0, 0, 2, 2));
+                nodeData.size = nodeSize;
+            }
+
             // store targets information and node root element itself
             tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets'),
                                                  outletsTarget: nodeElm.select('.rpd-outlets'),
                                                  processTarget: nodeElm.select('.rpd-process'),
-                                                 position: { x: 0, y: 0 },
-                                                 size: initialSize });
+                                                 position: nodePos, size: initialSize, resize: resizeNode,
+                                                 numInlets: 0, numOutlets: 0 });
 
-            node.move(nodeRect.x, nodeRect.y);
+            node.move(nodePos.x, nodePos.y);
 
             var nodeLinks = new VLinks();
             tree.nodeToLinks[node.id] = nodeLinks;
@@ -332,6 +336,8 @@ return function(networkRoot, userConfig) {
 
             var inletsTarget = nodeData.inletsTarget;
             var render = update.render;
+
+            nodeData.resize(nodeData.numInlets + 1, nodeData.numOutlets);
 
             var inletElm;
 
@@ -578,30 +584,27 @@ Navigation.prototype.switch = function(targetPatch) {
 // ============================== Layout =======================================
 // =============================================================================
 
-function GridLayout(boxPadding, contentPadding, headerRatio) {
+function GridLayout(mode) {
     this.nodeRects = [];
-    this.boxPadding = (mode === QUARTZ_MODE) ? { horizontal: 0.6, vertical: 0.6 }
-                                               { horizontal: 0.15, vertical: 0.3 };
+    this.boxPadding = (mode === QUARTZ_MODE) ? { horizontal: 20, vertical: 30 }
+                                             : { horizontal: 20, vertical: 30 };
 }
 GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
-GridLayout.prototype.nextRect = function(node, minumumSize, limits) {
+GridLayout.prototype.nextPosition = function(node, size, limits) {
     limits = limits || GridLayout.DEFAULT_LIMITS;
-    var nodeRects = this.nodeRects, headerRatio = this.headerRatio,
-        boxPadding = this.boxPadding, contentPadding = this.contentPadding;
-    var width =  (node.def.width  || 1) * boxSize.width,
-        height = (node.def.height || 1) * boxSize.height,
-        hPadding = (boxPadding.horizontal * boxSize.width),
-        vPadding = (boxPadding.vertical   * boxSize.height);
+    var nodeRects = this.nodeRects, boxPadding = this.boxPadding;
+    var width =  size.width, height = size.height,
+        hPadding = boxPadding.horizontal, vPadding = boxPadding.vertical;
     var lastRect = (nodeRects.length ? nodeRects[nodeRects.length-1] : null);
     var newRect = { x: lastRect ? lastRect.x : hPadding,
                     y: lastRect ? (lastRect.y + lastRect.height + vPadding) : vPadding,
-                    width: width, height: height, hPadding: hPadding, vPadding: vPadding };
+                    width: width, height: height };
     if ((newRect.y + height + vPadding) > limits.height) {
         newRect.x = newRect.x + width + hPadding;
         newRect.y = vPadding;
     }
     nodeRects.push(newRect);
-    return newRect;
+    return { x: newRect.x, y: newRect.y };
 }
 
 // =============================================================================

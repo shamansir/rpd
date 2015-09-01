@@ -36,6 +36,11 @@
             var genA = root.addNode('core/custom', 'Generate B');
             var outB = genA.addOutlet('core/number', 'B', '', 1);
 
+            var test = root.addNode('core/sum-of-three', 'foo')
+            test.addInlet('core/number', 'C');
+            test.addInlet('core/number', 'D');
+            test.addInlet('core/number', 'E');
+
             var sum = Rpd.addPatch('sum');
 
             var sumOfThree1 = sum.addNode('core/sum-of-three', 'Sum1');
