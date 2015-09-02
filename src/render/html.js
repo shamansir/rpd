@@ -22,11 +22,6 @@ var defaultConfig = {
     renderNodeList: true,
     // is node list collapsed by default, if shown
     nodeListCollapsed: true,
-    // dimensions of the box used to measure everything
-    boxSize: { width: 100, height: 60 },
-    // padding of the box to fit inlets/otlets and other useful information, relative to boxSize
-    boxPadding: { 'quartz': { horizontal: 0.6, vertical: 0.6 },
-                  'pd': { horizontal: 0.15, vertical: 0.3 } },
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
 };
@@ -96,7 +91,7 @@ return function(networkRoot, userConfig) {
             tree.patches[patch.id] = root;
 
             // initialize the node layout (helps in determining the position where new node should be placed)
-            tree.patchToLayout[patch.id] = new GridLayout(config.boxSize, config.boxPadding[config.mode]);
+            tree.patchToLayout[patch.id] = new GridLayout(config.mode);
             tree.patchToLinks[patch.id] = new VLinks();
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
@@ -311,13 +306,16 @@ return function(networkRoot, userConfig) {
             var layout = tree.patchToLayout[update.patch.id],
                 // current patch root should be used as a limit source, even if we add to another patch
                 // or else other root may have no dimensions yet
-                limitSrc = tree.patches[currentPatch.id],
-                nextRect = layout.nextRect(node, { width:  limitSrc.node().offsetWidth,
-                                                   height: limitSrc.node().offsetHeight });
-            nodeBox.style('min-width',  Math.floor(nextRect.width) + 'px');
-            nodeBox.style('min-height', Math.floor(nextRect.height) + 'px');
+                limitSrc = tree.patches[currentPatch.id];
 
-            node.move(nextRect.x, nextRect.y); // x and y positions will be set in node/move event handler
+            var nodeSize = { width: 100, height: 60 },
+                nodePos = layout.nextPosition(node, nodeSize, { width:  limitSrc.node().offsetWidth,
+                                                                height: limitSrc.node().offsetHeight });
+
+            nodeBox.style('min-width',  Math.floor(nodePos.width) + 'px');
+            nodeBox.style('min-height', Math.floor(nodePos.height) + 'px');
+
+            node.move(nodePos.x, nodePos.y); // x and y positions will be set in node/move event handler
 
             // remove node when remove button was clicked
             Kefir.fromEvents(nodeElm.select('.rpd-remove-button').node(), 'click')
@@ -632,30 +630,27 @@ Navigation.prototype.switch = function(targetPatch) {
 // ============================== Layout =======================================
 // =============================================================================
 
-function GridLayout(boxSize, boxPadding, contentPaddding) {
+function GridLayout(mode) {
     this.nodeRects = [];
-    this.boxSize = boxSize;
-    this.boxPadding = boxPadding;
-    this.contentPadding = contentPadding;
+    this.boxPadding = (mode === QUARTZ_MODE) ? { horizontal: 20, vertical: 30 }
+                                             : { horizontal: 20, vertical: 30 };
 }
 GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
-GridLayout.prototype.nextRect = function(node, limits) {
+GridLayout.prototype.nextPosition = function(node, size, limits) {
     limits = limits || GridLayout.DEFAULT_LIMITS;
-    var nodeRects = this.nodeRects, boxSize = this.boxSize, boxPadding = this.boxPadding;
-    var width =  (node.def.width  || 1) * boxSize.width,
-        height = (node.def.height || 1) * boxSize.height,
-        hPadding = (boxPadding.horizontal * boxSize.width),
-        vPadding = (boxPadding.vertical   * boxSize.height);
+    var nodeRects = this.nodeRects, boxPadding = this.boxPadding;
+    var width =  size.width, height = size.height,
+        hPadding = boxPadding.horizontal, vPadding = boxPadding.vertical;
     var lastRect = (nodeRects.length ? nodeRects[nodeRects.length-1] : null);
     var newRect = { x: lastRect ? lastRect.x : hPadding,
                     y: lastRect ? (lastRect.y + lastRect.height + vPadding) : vPadding,
-                    width: width, height: height, hPadding: hPadding, vPadding: vPadding };
+                    width: width, height: height };
     if ((newRect.y + height + vPadding) > limits.height) {
         newRect.x = newRect.x + width + hPadding;
         newRect.y = vPadding;
     }
     nodeRects.push(newRect);
-    return newRect;
+    return { x: newRect.x, y: newRect.y };
 }
 
 // =============================================================================
