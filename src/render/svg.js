@@ -161,7 +161,7 @@ return function(networkRoot, userConfig) {
                 // or else other root may have no dimensions yet
                 limitSrc = tree.patches[currentPatch.id].data();
 
-            var socketPadding = 10; // distance between inlets/outlets in SVG units
+            var socketPadding = 25; // distance between inlets/outlets in SVG units
             var headerHeight = 21; // height of a node header in SVG units, for Quartz mode
             var headerWidth = 50; // width of a node header in SVG units, for PD mode
             var findBestNodeSize = (config.mode === QUARTZ_MODE)
@@ -244,7 +244,7 @@ return function(networkRoot, userConfig) {
                                                  outletsTarget: nodeElm.select('.rpd-outlets'),
                                                  processTarget: nodeElm.select('.rpd-process'),
                                                  position: nodePos, size: initialSize, resize: resizeNode,
-                                                 numInlets: 0, numOutlets: 0 });
+                                                 numInlets: 0, numOutlets: 0, socketPadding: socketPadding });
 
             node.move(nodePos.x, nodePos.y);
 
@@ -340,9 +340,11 @@ return function(networkRoot, userConfig) {
             nodeData.resize(nodeData.numInlets + 1, nodeData.numOutlets);
 
             var inletElm;
+            var inletPos = { x: 0, y: nodeData.socketPadding * nodeData.numInlets };
 
             inletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-inlet')
                          .call(function(group) {
+                             group.attr('transform', 'translate(' + inletPos.x + ',' + inletPos.y + ')')
                              group.append('circle').attr('class', 'rpd-connector')
                                                    .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
                              group.append('g').attr('class', 'rpd-value-holder')
@@ -373,7 +375,8 @@ return function(networkRoot, userConfig) {
                 connector: inletElm.select('.rpd-connector'),
                 value: inletElm.select('.rpd-value'),
                 vlink: null, // a link associated with this inlet
-                //editor: editor
+                //editor: editor,
+                position: inletPos
             });
 
             // adds `rpd-error` CSS class and removes it by timeout
