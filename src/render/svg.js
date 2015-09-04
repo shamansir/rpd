@@ -416,22 +416,30 @@ return function(networkRoot, userConfig) {
             inletsTarget.append(inletElm.node());
         },
 
-        /* 'node/add-outlet': function(update) {
+        'node/add-outlet': function(update) {
 
             var outlet = update.outlet;
 
-            var outletsTarget = tree.nodes[update.node.id].data().outletsTarget;
+            var nodeData = tree.nodes[update.node.id].data();
+
+            var outletsTarget = nodeData.outletsTarget;
             var render = update.render;
 
             var outletElm;
+            var outletPos = nodeData.findOutletPos(nodeData.numOutlets);
 
-            outletElm = d3.select(document.createElement('g')).attr('class', 'rpd-outlet')
+            nodeData.resize(nodeData.numInlets, nodeData.numOutlets + 1);
+
+            outletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-outlet')
                           .call(function(group) {
-                              group.append('circle').attr('class', 'rpd-connector');
+                              group.attr('transform', 'translate(' + outletPos.x + ',' + outletPos.y + ')')
+                              group.append('circle').attr('class', 'rpd-connector')
+                                                    .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
                               group.append('g').attr('class', 'rpd-value-holder')
-                                   .append('text').attr('class', 'rpd-value');
-                              group.append('text').attr('class', 'rpd-name').text(outlet.name);
-                              if (config.showTypes) group.append('text').attr('class', 'rpd-type').text(outlet.type);
+                                   .append('text').attr('class', 'rpd-value')
+                                                  .attr('x', 10).attr('y', 0);
+                              group.append('text').attr('class', 'rpd-name').text(outlet.name)
+                                                  .attr('x', -10).attr('y', 0);
                           });
 
             if (config.mode == QUARTZ_MODE) {
@@ -446,16 +454,17 @@ return function(networkRoot, userConfig) {
             tree.outlets[outlet.id] = outletElm.data({
                 connector: outletElm.select('.rpd-connector'),
                 value: outletElm.select('.rpd-value'),
-                vlinks: new VLinks() // links associated with this outlet
+                vlinks: new VLinks(), // links associated with this outlet
+                position: outletPos
             });
 
             // listen for clicks in connector and allow to edit links this way
-            connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
+            //connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
 
             outletsTarget.append(outletElm.node());
         },
 
-        'inlet/update': function(update) {
+        /* 'inlet/update': function(update) {
 
             var inlet = update.inlet;
 
