@@ -242,23 +242,23 @@ return function(networkRoot, userConfig) {
 
             function findInletPos(idx) { // index from top to down for Quartz mode, or left to right for PD mode
                 var nodeData = nodeBox.data();
-                var numInlets = nodeData.numInlets, numOutlets = nodeData.numInlets;
+                var numInlets = nodeData.numInlets, numOutlets = nodeData.numOutlets;
                 if (numInlets >= numOutlets) {
                     return { x: 0, y: socketsMargin + (socketPadding * idx) };
                 } else {
-                    var fullSide = (2 * socketsMargin) + ((Math.max(numInlets, numOutlets) - 1) * socketPadding);
-                    return { x: 0, y: (fullSide / 2) + (((-1 * (numInlets - 1)) / 2) + idx) * socketPadding };
+                    var fullSide = (2 * socketsMargin) + (numOutlets - 1) * socketPadding;
+                    return { x: 0, y: (fullSide / 2) + (((-1 * (numOutlets - 1)) / 2) + idx) * socketPadding };
                 }
             }
 
             function findOutletPos(idx) { // index from top to down for Quartz mode, or left to right for PD mode
                 var nodeData = nodeBox.data();
-                var numOutlets = nodeData.numInlets, numOutlets = nodeData.numInlets;
+                var numInlets = nodeData.numInlets, numOutlets = nodeData.numOutlets;
                 if (numOutlets >= numInlets) {
                     return { x: 0, y: socketsMargin + (socketPadding * idx) };
                 } else {
-                    var fullSide = (2 * socketsMargin) + ((Math.max(numInlets, numOutlets) - 1) * socketPadding);
-                    return { x: 0, y: (fullSide / 2) + (((-1 * (numOutlets - 1)) / 2) + idx) * socketPadding };
+                    var fullSide = (2 * socketsMargin) + (numInlets - 1) * socketPadding;
+                    return { x: 0, y: (fullSide / 2) + (((-1 * (numInlets - 1)) / 2) + idx) * socketPadding };
                 }
             }
 
