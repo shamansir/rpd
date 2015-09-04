@@ -87,3 +87,7 @@
     stroke-width: 3;
     stroke: black;
 }
+
+.rpd-inlet text.rpd-value, .rpd-inlet text.rpd-name {
+    dominant-baseline: central;
+}

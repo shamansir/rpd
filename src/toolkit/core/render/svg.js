@@ -1,7 +1,7 @@
 Rpd.noderenderer('core/sum-of-three', 'svg', function() {
     var textElement;
     return {
-        size: { width: null, height: 200 },
+        //size: { width: null, height: 200 },
         first: function(bodyElm) {
             textElement = document.createElementNS(null, bodyElm);
             bodyElm.appendChild(textElement);
