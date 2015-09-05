@@ -241,8 +241,7 @@ return function(networkRoot, userConfig) {
                 nodeData.size = nodeSize;
             }
 
-            function notifyNewInlet(elm) {
-                numInlets++; inletElms.push(elm); checkNodeSize();
+            function recalculateSockets() {
                 var inletElm;
                 for (var i = 0, il = inletElms.length; i < il; i++) {
                     inletElm = inletElms[i];
@@ -250,10 +249,6 @@ return function(networkRoot, userConfig) {
                     inletElm.attr('transform',  'translate(' + inletPos.x + ',' + inletPos.y + ')');
                     inletElm.data().position = inletPos;
                 }
-            }
-
-            function notifyNewOutlet(elm) {
-                numOutlets++; outletElms.push(elm); checkNodeSize();
                 var outletElm;
                 for (var i = 0, il = outletElms.length; i < il; i++) {
                     outletElm = outletElms[i];
@@ -263,12 +258,22 @@ return function(networkRoot, userConfig) {
                 }
             }
 
+            function notifyNewInlet(elm) {
+                numInlets++; inletElms.push(elm); checkNodeSize();
+                recalculateSockets();
+            }
+
+            function notifyNewOutlet(elm) {
+                numOutlets++; outletElms.push(elm); checkNodeSize();
+                recalculateSockets();
+            }
+
             function findInletPos(idx) { // index from top to down for Quartz mode, or left to right for PD mode
                 if (numInlets >= numOutlets) {
                     return { x: 0, y: socketsMargin + (socketPadding * idx) };
                 } else {
                     var fullSide = (2 * socketsMargin) + (numOutlets - 1) * socketPadding;
-                    return { x: 0, y: (fullSide / 2) + (((-1 * (numOutlets - 1)) / 2) + idx) * socketPadding };
+                    return { x: 0, y: (fullSide / 2) + (((-1 * (numInlets - 1)) / 2) + idx) * socketPadding };
                 }
             }
 
@@ -277,7 +282,7 @@ return function(networkRoot, userConfig) {
                     return { x: 0, y: socketsMargin + (socketPadding * idx) };
                 } else {
                     var fullSide = (2 * socketsMargin) + (numInlets - 1) * socketPadding;
-                    return { x: 0, y: (fullSide / 2) + (((-1 * (numInlets - 1)) / 2) + idx) * socketPadding };
+                    return { x: 0, y: (fullSide / 2) + (((-1 * (numOutlets - 1)) / 2) + idx) * socketPadding };
                 }
             }
 
