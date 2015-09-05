@@ -302,18 +302,18 @@ return function(networkRoot, userConfig) {
                 });
             }
 
-            // find a rectange to place the new node, and actually place it there
             var layout = tree.patchToLayout[update.patch.id],
                 // current patch root should be used as a limit source, even if we add to another patch
                 // or else other root may have no dimensions yet
                 limitSrc = tree.patches[currentPatch.id];
 
-            var nodeSize = { width: 100, height: 60 },
+            // find a rectange to place the new node, and actually place it there
+            var nodeSize = { width: 100, height: 60 }, // FIXME: use contentSize in render.size
                 nodePos = layout.nextPosition(node, nodeSize, { width:  limitSrc.node().offsetWidth,
                                                                 height: limitSrc.node().offsetHeight });
 
-            nodeBox.style('min-width',  Math.floor(nodePos.width) + 'px');
-            nodeBox.style('min-height', Math.floor(nodePos.height) + 'px');
+            nodeBox.style('min-width',  Math.floor(nodeSize.width) + 'px');
+            nodeBox.style('min-height', Math.floor(nodeSize.height) + 'px');
 
             node.move(nodePos.x, nodePos.y); // x and y positions will be set in node/move event handler
 
