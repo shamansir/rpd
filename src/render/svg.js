@@ -238,7 +238,8 @@ return function(networkRoot, userConfig) {
                 nodeElm.select('rect.rpd-body').attr('height', nodeSize.height);
                 nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight,
                     nodeSize.width, nodeSize.height - headerHeight, 0, 0, 2, 2));
-                nodeElm.select('g.rpd-process').attr('transform',  'translate(' + 25 + ',' + (headerHeight + (nodeSize.height / 2)) + ')');
+                nodeElm.select('g.rpd-process').attr('transform',
+                    'translate(' + 25 + ',' + (headerHeight + ((nodeSize.height - headerHeight) / 2)) + ')');
                 nodeData.size = nodeSize;
             }
 
