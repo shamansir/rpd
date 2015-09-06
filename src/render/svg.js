@@ -165,6 +165,7 @@ return function(networkRoot, userConfig) {
                 socketsMargin = 15; // distance between first/last inlet/outlet and body edge
             var headerHeight = 21, // height of a node header in SVG units, for Quartz mode
                 headerWidth = 50; // width of a node header in SVG units, for PD mode
+
             var findBestNodeSize = (config.mode === QUARTZ_MODE)
                 ? function(numInlets, numOutlets, minContentSize) {
                       var requiredContentHeight = (2 * socketsMargin) + ((Math.max(numInlets, numOutlets) - 1) * socketPadding);
@@ -176,7 +177,6 @@ return function(networkRoot, userConfig) {
                       return { width: headerWidth + Math.max(requiredContentWidth, minContentSize.width),
                                height: minContentSize.height };
                   };
-
             var minContentSize = render.size ? { width: render.size.width || 100,
                                                  height: render.size.height || 40 }
                                              : { width: 100, height: 40 };
@@ -213,7 +213,7 @@ return function(networkRoot, userConfig) {
 
             nodeElm.append('g').attr('class', 'rpd-inlets').attr('transform', 'translate(' + 0 + ',' + headerHeight + ')')
                                                            .data({ position: { x: 0, y: headerHeight } });
-            nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + 0 + ',' + headerHeight + ')')
+            nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + 25 + ',' + (headerHeight + (initialSize / 2)) + ')')
                                                             .data({ position: { x: 0, y: headerHeight } });
             nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + width + ',' + headerHeight + ')')
                                                             .data({ position: { x: width, y: headerHeight } });
@@ -238,6 +238,7 @@ return function(networkRoot, userConfig) {
                 nodeElm.select('rect.rpd-body').attr('height', nodeSize.height);
                 nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight,
                     nodeSize.width, nodeSize.height - headerHeight, 0, 0, 2, 2));
+                nodeElm.select('g.rpd-process').attr('transform',  'translate(' + 25 + ',' + (headerHeight + (nodeSize.height / 2)) + ')');
                 nodeData.size = nodeSize;
             }
 
@@ -317,7 +318,7 @@ return function(networkRoot, userConfig) {
             }
 
             // use custom node body renderer, if defined
-            //if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process').node()));
+            if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process').node()));
 
             // if node body should be re-rendered, update links (since body element bounds could change)
             if (render.always) {
@@ -363,7 +364,7 @@ return function(networkRoot, userConfig) {
             nodeBox.data().position = { x: position[0], y: position[1] };
         },
 
-        /* 'node/process': function(update) {
+        'node/process': function(update) {
             var node = update.node;
             var render = update.render;
 
@@ -372,7 +373,7 @@ return function(networkRoot, userConfig) {
                 var bodyElm = tree.nodes[node.id].data().processTarget.node();
                 render.always(bodyElm, update.inlets, update.outlets);
             }
-        }, */
+        },
 
         'node/add-inlet': function(update) {
 

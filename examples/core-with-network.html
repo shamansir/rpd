@@ -4,7 +4,7 @@
         <meta charset="utf-8" />
         <title>Core with Network</title>
 
-        <link rel="stylesheet" href="../src/toolkit/core/render/html.css"></link>
+        <link rel="stylesheet" href="../src/toolkit/core/render/svg.css"></link>
         <link rel="stylesheet" href="../src/render/svg.css"></style>
 
         <script src="../vendor/kefir.min.js"></script>
@@ -39,7 +39,7 @@
             var test = root.addNode('core/sum-of-three', 'foo')
             test.addInlet('core/number', 'D');
             test.addInlet('core/number', 'E');
-            test.addInlet('core/number', 'F');
+            test.addOutlet('core/number', 'F');
 
             var sum = Rpd.addPatch('sum');
 
