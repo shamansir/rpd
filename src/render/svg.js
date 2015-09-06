@@ -99,7 +99,7 @@ return function(networkRoot, userConfig) {
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
             // links if they were clicked in the appropriate order
-            //connectivity = new Connectivity(patchRoot);
+            connectivity = new Connectivity(svg);
 
             // initialized drag-n-drop support (used to allow user drag nodes)
             if (config.nodeMovingAllowed) dnd = new DragAndDrop(svg);
@@ -213,7 +213,7 @@ return function(networkRoot, userConfig) {
 
             nodeElm.append('g').attr('class', 'rpd-inlets').attr('transform', 'translate(' + 0 + ',' + headerHeight + ')')
                                                            .data({ position: { x: 0, y: headerHeight } });
-            nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + 25 + ',' + (headerHeight + (initialSize / 2)) + ')')
+            nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + 25 + ',' + (headerHeight + (initialSize.height / 2)) + ')')
                                                             .data({ position: { x: 0, y: headerHeight } });
             nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + width + ',' + headerHeight + ')')
                                                             .data({ position: { x: width, y: headerHeight } });
@@ -435,7 +435,7 @@ return function(networkRoot, userConfig) {
             }); */
 
             // listen for clicks in connector and allow to edit links this way
-            //connectivity.subscribeInlet(inlet, inletElm.select('.rpd-connector'));
+            connectivity.subscribeInlet(inlet, inletElm.select('.rpd-connector'));
 
             inletsTarget.append(inletElm.node());
         },
@@ -482,7 +482,7 @@ return function(networkRoot, userConfig) {
             nodeData.notifyNewOutlet(outletElm);
 
             // listen for clicks in connector and allow to edit links this way
-            //connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
+            connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
 
             outletsTarget.append(outletElm.node());
         },
@@ -528,7 +528,7 @@ return function(networkRoot, userConfig) {
             // adds `rpd-fresh` CSS class and removes it by timeout
             addValueUpdateEffect(outlet.id, outletElm, config.effectTime);
 
-        },
+        }, */
 
         'outlet/connect': function(update) {
 
@@ -544,13 +544,11 @@ return function(networkRoot, userConfig) {
 
             if (inletData.vlink) throw new Error('Inlet is already connected to a link');
 
-            if (inletData.editor) inletData.editor.disable();
+            // disable value editor when connecting to inlet
+            //if (inletData.editor) inletData.editor.disable();
 
             var outletConnector = outletData.connector;
             var inletConnector  = inletData.connector;
-
-            // disable value editor when connecting to inlet
-            if (inletData.editor) inletData.editor.disable();
 
             var vlink = new VLink(link);
 
@@ -573,7 +571,7 @@ return function(networkRoot, userConfig) {
 
         },
 
-        'outlet/disconnect': function(update) {
+        /* 'outlet/disconnect': function(update) {
 
             var link = update.link;
             var vlink = tree.links[link.id];
@@ -681,8 +679,7 @@ VLink.prototype.construct = function(x0, y0, x1, y1) {
     var linkElm = d3.select(_createSvgElement('line'))
                     .attr('class', 'rpd-link')
                     .attr('x1', x0).attr('y1', y0)
-                    .attr('x2', x1).attr('y2', y1)
-                    .style('z-index', LINK_LAYER);
+                    .attr('x2', x1).attr('y2', y1);
     this.elm = linkElm;
     return this;
 }
@@ -707,6 +704,10 @@ VLink.prototype.appendTo = function(target) {
 }
 VLink.prototype.removeFrom = function(target) {
     this.elm.remove();
+    return this;
+}
+VLink.prototype.noPointerEvents = function() {
+    this.elm.style('pointer-events', 'none');
     return this;
 }
 VLink.prototype.listenForClicks = function() {
@@ -794,7 +795,7 @@ var Connectivity = (function() {
                  startLink.emit();
                  var pivot = getPos(connector.node());
                  var ghost = new VLink().construct(pivot.x, pivot.y, pos.x, pos.y)
-                                        .appendTo(root);
+                                        .noPointerEvents().appendTo(root);
                  return Kefir.fromEvents(root.node(), 'mousemove')
                              .takeUntilBy(Kefir.merge([ inletClicks,
                                                         outletClicks.mapTo(false),
@@ -849,7 +850,7 @@ var Connectivity = (function() {
                  startLink.emit();
                  var pivot = getPos(getConnector(outlet).node());
                  var ghost = new VLink().construct(pivot.x, pivot.y, pos.x, pos.y)
-                                        .appendTo(root);
+                                        .noPointerEvents().appendTo(root);
                  return Kefir.fromEvents(root.node(), 'mousemove')
                              .takeUntilBy(Kefir.merge([ inletClicks,
                                                         outletClicks.mapTo(false),

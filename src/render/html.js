@@ -529,13 +529,11 @@ return function(networkRoot, userConfig) {
 
             if (inletData.vlink) throw new Error('Inlet is already connected to a link');
 
+            // disable value editor when connecting to inlet
             if (inletData.editor) inletData.editor.disable();
 
             var outletConnector = outletData.connector;
             var inletConnector  = inletData.connector;
-
-            // disable value editor when connecting to inlet
-            if (inletData.editor) inletData.editor.disable();
 
             var vlink = new VLink(link);
 
@@ -711,6 +709,10 @@ VLink.prototype.removeFrom = function(target) {
     this.elm.remove();
     return this;
 }
+VLink.prototype.noPointerEvents = function() {
+    // a stub to be compatible with SVG renderer
+    return this;
+}
 VLink.prototype.listenForClicks = function() {
     var link = this.link; var elm = this.elm;
     addClickSwitch(this.elm.node(),
@@ -796,7 +798,7 @@ var Connectivity = (function() {
                  startLink.emit();
                  var pivot = getPos(connector.node());
                  var ghost = new VLink().construct(pivot.x, pivot.y, pos.x, pos.y)
-                                        .appendTo(root);
+                                        .noPointerEvents().appendTo(root);
                  return Kefir.fromEvents(root.node(), 'mousemove')
                              .takeUntilBy(Kefir.merge([ inletClicks,
                                                         outletClicks.mapTo(false),
@@ -851,7 +853,7 @@ var Connectivity = (function() {
                  startLink.emit();
                  var pivot = getPos(getConnector(outlet).node());
                  var ghost = new VLink().construct(pivot.x, pivot.y, pos.x, pos.y)
-                                        .appendTo(root);
+                                        .noPointerEvents().appendTo(root);
                  return Kefir.fromEvents(root.node(), 'mousemove')
                              .takeUntilBy(Kefir.merge([ inletClicks,
                                                         outletClicks.mapTo(false),

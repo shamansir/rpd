@@ -97,3 +97,12 @@
 .rpd-outlet text.rpd-name {
     text-anchor: end;
 }
+
+.rpd-connector {
+    cursor: pointer;
+}
+
+.rpd-link {
+    stroke: rgba(250,250,250,0.8);
+    stroke-width: 1;
+}
