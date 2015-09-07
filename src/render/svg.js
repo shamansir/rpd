@@ -395,7 +395,7 @@ return function(networkRoot, userConfig) {
                                                    .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
                              group.append('g').attr('class', 'rpd-value-holder')
                                   .append('text').attr('class', 'rpd-value')
-                                                 .attr('x', -10).attr('y', 0);
+                                                 .attr('x', -15).attr('y', 0);
                              group.append('text').attr('class', 'rpd-name').text(inlet.name)
                                                  .attr('x', 10).attr('y', 0);
                          });
@@ -487,7 +487,7 @@ return function(networkRoot, userConfig) {
             outletsTarget.append(outletElm.node());
         },
 
-        /* 'inlet/update': function(update) {
+        'inlet/update': function(update) {
 
             var inlet = update.inlet;
 
@@ -506,7 +506,7 @@ return function(networkRoot, userConfig) {
             }
 
             // adds `rpd-fresh` CSS class and removes it by timeout
-            addValueUpdateEffect(inlet.id, inletElm, config.effectTime);
+            //addValueUpdateEffect(inlet.id, inletElm, config.effectTime);
 
         },
 
@@ -526,9 +526,9 @@ return function(networkRoot, userConfig) {
             }
 
             // adds `rpd-fresh` CSS class and removes it by timeout
-            addValueUpdateEffect(outlet.id, outletElm, config.effectTime);
+            //addValueUpdateEffect(outlet.id, outletElm, config.effectTime);
 
-        }, */
+        },
 
         'outlet/connect': function(update) {
 
@@ -571,7 +571,7 @@ return function(networkRoot, userConfig) {
 
         },
 
-        /* 'outlet/disconnect': function(update) {
+        'outlet/disconnect': function(update) {
 
             var link = update.link;
             var vlink = tree.links[link.id];
@@ -596,7 +596,7 @@ return function(networkRoot, userConfig) {
 
         },
 
-        'link/enable': function(update) {
+        /* 'link/enable': function(update) {
             var inlet = update.link.inlet;
             var inletData  = tree.inlets[inlet.id].data();
             if (inletData.editor) inletData.editor.disable();

@@ -94,6 +94,12 @@
     dominant-baseline: central;
 }
 
+.rpd-inlet text.rpd-value,
+.rpd-outlet text.rpd-value {
+    fill: rgba(200, 200, 200, 0.7);
+    font-size: 0.8em;
+}
+
 .rpd-outlet text.rpd-name {
     text-anchor: end;
 }
