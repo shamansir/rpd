@@ -112,3 +112,47 @@
     stroke: rgba(250,250,250,0.8);
     stroke-width: 1;
 }
+
+.rpd-connector:hover {
+    transition: none;
+}
+
+.rpd-fresh .rpd-connector {
+    stroke: #c00;
+    fill: #ff0;
+}
+
+.rpd-fresh .rpd-connector:hover {
+    stroke: #c66;
+}
+
+.rpd-stale .rpd-connector {
+    stroke: #000;
+    fill: #fff;
+    transition: stroke .3s ease-out;
+}
+
+.rpd-stale .rpd-connector:hover {
+    transition: none;
+    /* stroke: #333; */
+    stroke: #ccc;
+    opacity: 0.6;
+}
+
+.rpd-cold .rpd-connector {
+    stroke: #009;
+}
+
+.rpd-cold .rpd-connector:hover {
+    stroke: #669;
+}
+
+.rpd-error .rpd-connector {
+    stroke: #cc0;
+    fill: #f00;
+    transition: stroke .3s;
+}
+
+.rpd-error .rpd-connector:hover {
+    stroke: #aa0;
+}

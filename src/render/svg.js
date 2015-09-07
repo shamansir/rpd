@@ -430,9 +430,9 @@ return function(networkRoot, userConfig) {
             nodeData.notifyNewInlet(inletElm);
 
             // adds `rpd-error` CSS class and removes it by timeout
-            /* inlet.event['inlet/update'].onError(function() {
+            inlet.event['inlet/update'].onError(function() {
                 addValueErrorEffect(inlet.id, inletElm, config.effectTime);
-            }); */
+            });
 
             // listen for clicks in connector and allow to edit links this way
             connectivity.subscribeInlet(inlet, inletElm.select('.rpd-connector'));
@@ -506,7 +506,7 @@ return function(networkRoot, userConfig) {
             }
 
             // adds `rpd-fresh` CSS class and removes it by timeout
-            //addValueUpdateEffect(inlet.id, inletElm, config.effectTime);
+            addValueUpdateEffect(inlet.id, inletElm, config.effectTime);
 
         },
 
@@ -526,7 +526,7 @@ return function(networkRoot, userConfig) {
             }
 
             // adds `rpd-fresh` CSS class and removes it by timeout
-            //addValueUpdateEffect(outlet.id, outletElm, config.effectTime);
+            addValueUpdateEffect(outlet.id, outletElm, config.effectTime);
 
         },
 
@@ -552,9 +552,8 @@ return function(networkRoot, userConfig) {
 
             var vlink = new VLink(link);
 
-            // visually link is just a CSS-rotated div with 1px border
-            var p0 = getPos(outletConnector.node()),
-                p1 = getPos(inletConnector.node());
+            var p0 = incrementPos(getPos(outletConnector.node()), 3),
+                p1 = incrementPos(getPos(inletConnector.node()),  3);
             vlink.construct(p0.x, p0.y, p1.x, p1.y, config.linkWidth);
 
             tree.links[link.id] = vlink;
@@ -596,7 +595,7 @@ return function(networkRoot, userConfig) {
 
         },
 
-        /* 'link/enable': function(update) {
+        'link/enable': function(update) {
             var inlet = update.link.inlet;
             var inletData  = tree.inlets[inlet.id].data();
             if (inletData.editor) inletData.editor.disable();
@@ -606,7 +605,7 @@ return function(networkRoot, userConfig) {
 
         'link/disable': function(update) {
             tree.links[update.link.id].disable();
-        } */
+        }
 
     }
 
@@ -693,8 +692,8 @@ VLink.prototype.update = function() {
     var link = this.link;
     var inletConnector = tree.inlets[link.inlet.id].data().connector,
         outletConnector = tree.outlets[link.outlet.id].data().connector;
-    var inletPos = getPos(inletConnector.node()),
-        outletPos = getPos(outletConnector.node());
+    var inletPos  = incrementPos(getPos(inletConnector.node()),  3),
+        outletPos = incrementPos(getPos(outletConnector.node()), 3);
     this.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
     return this;
 }
@@ -793,7 +792,7 @@ var Connectivity = (function() {
              .map(extractPos)
              .onValue(function(pos) {
                  startLink.emit();
-                 var pivot = getPos(connector.node());
+                 var pivot = incrementPos(getPos(connector.node()), 3);
                  var ghost = new VLink().construct(pivot.x, pivot.y, pos.x, pos.y)
                                         .noPointerEvents().appendTo(root);
                  return Kefir.fromEvents(root.node(), 'mousemove')
@@ -848,7 +847,7 @@ var Connectivity = (function() {
                  var outlet = prevLink.outlet;
                  outlet.disconnect(prevLink);
                  startLink.emit();
-                 var pivot = getPos(getConnector(outlet).node());
+                 var pivot = incrementPos(getPos(getConnector(outlet).node()), 3);
                  var ghost = new VLink().construct(pivot.x, pivot.y, pos.x, pos.y)
                                         .noPointerEvents().appendTo(root);
                  return Kefir.fromEvents(root.node(), 'mousemove')
@@ -1112,6 +1111,9 @@ function extractPos(evt) { return { x: evt.clientX,
                                     y: evt.clientY }; };
 function getPos(elm) { var bounds = elm.getBoundingClientRect();
                        return { x: bounds.left, y: bounds.top } };
+function incrementPos(pos, incX, incY) {
+    return { x: pos.x + incX, y: pos.y + (incY || incX) };
+}
 function addTarget(target) {
     return function(pos) {
         return { pos: pos, target: target };
