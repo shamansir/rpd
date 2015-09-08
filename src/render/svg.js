@@ -412,18 +412,18 @@ return function(networkRoot, userConfig) {
                                'rpd-cold': inlet.cold
                              });
 
-            /* var editor = null;
+            var editor = null;
             if (!inlet.readonly && render.edit) {
                 editor = new ValueEditor(inlet, render, svg,
                                          inletElm.select('.rpd-value-holder'),
                                          inletElm.select('.rpd-value'));
-            } */
+            }
 
             tree.inlets[inlet.id] = inletElm.data({
                 connector: inletElm.select('.rpd-connector'),
                 value: inletElm.select('.rpd-value'),
                 vlink: null, // a link associated with this inlet
-                //editor: editor,
+                editor: editor,
                 //position: inletPos
             });
 
