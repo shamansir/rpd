@@ -168,3 +168,16 @@
 .rpd-error .rpd-connector:hover {
     stroke: #aa0;
 }
+
+.rpd-inlet .rpd-value-holder .rpd-value-editor {
+    display: none;
+}
+
+.rpd-inlet .rpd-value-holder.rpd-editor-enabled .rpd-value {
+    display: none;
+}
+
+.rpd-inlet .rpd-value-holder.rpd-editor-enabled .rpd-value-editor {
+    display: block;
+    z-index: 1000;
+}
