@@ -17,13 +17,19 @@ Rpd.noderenderer('core/sum-of-three', 'svg', function() {
 Rpd.channelrenderer('core/number', 'svg', {
     /* show: function(target, value) { }, */
     edit: function(target, inlet, valueIn) {
-        var valInput = document.createElement('input');
+        var foElm = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+        foElm.setAttributeNS(null, 'width', 30);
+        foElm.setAttributeNS(null, 'height', 30);
+        var valInput = document.createElementNS('http://www.w3.org/1999/xhtml', 'input');
         valInput.type = 'number';
         valueIn.onValue(function(val) {
             valInput.value = val;
         });
-        target.appendChild(valInput);
+        foElm.appendChild(valInput);
+        target.appendChild(foElm);
         return Kefir.fromEvents(valInput, 'change')
-                    .map(function() { return valInput.value; });
+                    .map(function() {
+                        return valInput.value;
+                    });
     }
 });

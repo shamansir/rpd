@@ -416,7 +416,9 @@ return function(networkRoot, userConfig) {
             if (!inlet.readonly && render.edit) {
                 editor = new ValueEditor(inlet, render, svg,
                                          inletElm.select('.rpd-value-holder'),
-                                         inletElm.select('.rpd-value'));
+                                         inletElm.select('.rpd-value'),
+                                         d3.select(_createSvgElement('g')));
+                inletElm.select('.rpd-value-holder').append(editor.editorElm.node());
             }
 
             tree.inlets[inlet.id] = inletElm.data({
@@ -545,7 +547,7 @@ return function(networkRoot, userConfig) {
             if (inletData.vlink) throw new Error('Inlet is already connected to a link');
 
             // disable value editor when connecting to inlet
-            //if (inletData.editor) inletData.editor.disable();
+            if (inletData.editor) inletData.editor.disable();
 
             var outletConnector = outletData.connector;
             var inletConnector  = inletData.connector;
@@ -978,13 +980,14 @@ function buildNodeList(root, nodeTypes, nodeDescriptions) {
 // =============================== Values ======================================
 // =============================================================================
 
-function ValueEditor(inlet, render, root, valueHolder, valueElm) {
-    var editor = d3.select(document.createElement('div')).attr('class', 'rpd-value-editor');
+function ValueEditor(inlet, render, root, valueHolder, valueElm, editorElm) {
     var valueIn = Kefir.emitter(),
         disableEditor = Kefir.emitter();
     this.disableEditor = disableEditor;
+    this.editorElm = editorElm;
     this.valueElm = valueElm;
-    var valueOut = render.edit(editor.node(), inlet, valueIn);
+    editorElm.classed('rpd-value-editor', true);
+    var valueOut = render.edit(editorElm.node(), inlet, valueIn);
     valueOut.onValue(function(value) { inlet.receive(value); });
     Kefir.sampledBy([ inlet.event['inlet/update'] ],
                     [ Kefir.merge([
@@ -1011,7 +1014,6 @@ function ValueEditor(inlet, render, root, valueHolder, valueElm) {
             }
          });
     valueHolder.classed('rpd-editor-disabled', true);
-    valueHolder.append(editor.node());
 }
 ValueEditor.prototype.disable = function() {
     this.valueElm.classed('rpd-edited', false);
