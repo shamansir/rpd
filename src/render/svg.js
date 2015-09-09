@@ -202,9 +202,9 @@ return function(networkRoot, userConfig) {
             nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2)
                                   .style('pointer-events', 'none');
 
-            /*nodeElm.select('.rpd-header').attr('title', nodeDescriptions[node.type]
-                                                        ? (nodeDescriptions[node.type] + ' (' + node.type + ')')
-                                                        : node.type);*/
+            nodeElm.select('.rpd-header').append(_createSvgElement('title')).text(
+                                                 nodeDescriptions[node.type] ? (nodeDescriptions[node.type] + ' (' + node.type + ')')
+                                                                             : node.type);
 
             nodeElm.append('g').attr('class', 'rpd-remove-button')
                                .attr('transform', 'translate(' + (width-12) + ',1)')
