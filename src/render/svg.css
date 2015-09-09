@@ -22,17 +22,11 @@
 
 .rpd-node .rpd-shadow {
     fill: #000;
-    x: 5;
-    y: 6;
-    rx: 3;
-    ry: 3;
     opacity: 0.4;
     /* -1px 5px 13px 1px rgba(30,30,30,0.8) */
 }
 
 .rpd-node.rpd-dragging .rpd-shadow {
-    x: 6;
-    y: 7;
     opacity: 0.3;
     /* 4px 8px 20px 0px rgba(30,30,30,0.8) */
 }

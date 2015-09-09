@@ -194,7 +194,8 @@ return function(networkRoot, userConfig) {
 
             var width = initialSize.width, height = initialSize.height, bodyHeight = height - headerHeight;
 
-            nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('rx', 3).attr('ry', 3);
+            nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('x', 5).attr('y', 6)
+                                                                                                          .attr('rx', 3).attr('ry', 3);
             nodeElm.append('path').attr('class', 'rpd-header').attr('d', roundedRect(0, 0, width, headerHeight, 2, 2, 0, 0));
             nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
                                   .attr('x', 5).attr('y', 6).style('pointer-events', 'none');
@@ -307,6 +308,7 @@ return function(networkRoot, userConfig) {
                 dnd.add(nodeElm.select('.rpd-header').classed('rpd-drag-handle', true),
                         { start: function() {
                             nodeElm.classed('rpd-dragging', true);
+                            nodeElm.select('.rpd-shadow').attr('x', 7).attr('y', 8);
                             return nodeBox.data().position;
                           },
                           drag: function(pos) {
@@ -315,6 +317,7 @@ return function(networkRoot, userConfig) {
                           },
                           end: function(pos) {
                               node.move(pos.x, pos.y);
+                              nodeElm.select('.rpd-shadow').attr('x', 5).attr('y', 6);
                               nodeElm.classed('rpd-dragging', false);
                           }
                       });
