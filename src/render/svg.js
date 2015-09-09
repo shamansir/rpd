@@ -90,7 +90,8 @@ return function(networkRoot, userConfig) {
 
             tree.patches[patch.id] = svg.data({ root: patchRoot,
                                                 width: docElm.property('clientWidth'),
-                                                height: docElm.property('clientHeight')
+                                                height: docElm.property('clientHeight'),
+                                                patch: update.patch
                                               });
 
             // initialize the node layout (helps in determining the position where new node should be placed)
@@ -131,13 +132,14 @@ return function(networkRoot, userConfig) {
             svg.remove();
         },
 
-        /* 'patch/refer': function(update) {
+        'patch/refer': function(update) {
             var node = update.node;
 
             var nodeBox = tree.nodes[node.id];
 
             nodeBox.select('.rpd-node').classed('rpd-patch-reference', true);
-            nodeBox.data().processTarget.text('[' + (update.target.name || update.target.id) + ']');
+            nodeBox.data().processTarget.append(_createSvgElement('text'))
+                                                .text('[' + (update.target.name || update.target.id) + ']');
 
             // add the ability to enter the patch by clicking node body (TODO: move to special node type)
             Kefir.fromEvents(nodeBox.data().processTarget.node(), 'click')
@@ -147,7 +149,7 @@ return function(networkRoot, userConfig) {
                         target.enter();
                     }
                  })(patch, update.target));
-        }, */
+        },
 
         'patch/add-node': function(update) {
 
@@ -627,7 +629,7 @@ function Navigation() {
     Kefir.fromEvents(window, 'hashchange')
          .map(function() { return (window.location.hash ? window.location.hash.slice(1) : null); })
          .filter(function(newHash) { return !(me.currentPatch && (newHash === me.currentPatch.id)); })
-         .map(function(newHash) { return tree.patches[newHash].data(); })
+         .map(function(newHash) { return tree.patches[newHash].data().patch; })
          .filter(function(targetPatch) { return targetPatch != null; })
          .onValue(function(targetPatch) {
              if (me.currentPatch) me.currentPatch.exit(); // TODO: pass this value through a stream
@@ -891,7 +893,7 @@ var Connectivity = (function() {
 // ============================== NodeList =====================================
 // =============================================================================
 
-function buildNodeList(root, nodeTypes, nodeDescriptions) {
+/* function buildNodeList(root, nodeTypes, nodeDescriptions) {
 
     var toolkits = {};
 
@@ -974,7 +976,7 @@ function buildNodeList(root, nodeTypes, nodeDescriptions) {
                                      true);
                   }).node());
 
-}
+} */
 
 // =============================================================================
 // =============================== Values ======================================

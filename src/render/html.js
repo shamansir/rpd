@@ -86,7 +86,7 @@ return function(networkRoot, userConfig) {
                          return classes.join(' ');
                      })
                      .style('height', docElm.property('clientHeight') + 'px')
-                     .data(update.patch);
+                     .data({ patch: update.patch });
 
             tree.patches[patch.id] = root;
 
@@ -613,7 +613,7 @@ function Navigation() {
     Kefir.fromEvents(window, 'hashchange')
          .map(function() { return (window.location.hash ? window.location.hash.slice(1) : null); })
          .filter(function(newHash) { return !(me.currentPatch && (newHash === me.currentPatch.id)); })
-         .map(function(newHash) { return tree.patches[newHash].data(); })
+         .map(function(newHash) { return tree.patches[newHash].data().patch; })
          .filter(function(targetPatch) { return targetPatch != null; })
          .onValue(function(targetPatch) {
              if (me.currentPatch) me.currentPatch.exit(); // TODO: pass this value through a stream

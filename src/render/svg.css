@@ -181,3 +181,11 @@
     display: block;
     z-index: 1000;
 }
+
+.rpd-node.rpd-patch-reference .rpd-process > text {
+    cursor: pointer;
+}
+
+.rpd-node.rpd-patch-reference .rpd-process:hover > text {
+    fill: #ccc;
+}
