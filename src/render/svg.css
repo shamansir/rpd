@@ -35,7 +35,7 @@
     fill: #617b79;
 }
 
-.rpd-node text.rpd-name {
+.rpd-node text.rpd-name/*, .rpd-fake-name*/ {
     fill: rgba(250,250,250,0.9);
     dominant-baseline: hanging;
 }
@@ -182,4 +182,8 @@
 
 .rpd-node.rpd-patch-reference .rpd-process:hover > text {
     fill: #ccc;
+}
+
+.rpd-node .rpd-process text {
+    text-anchor: middle;
 }

@@ -166,7 +166,14 @@ return function(networkRoot, userConfig) {
             var socketPadding = 25, // distance between inlets/outlets in SVG units
                 socketsMargin = 15; // distance between first/last inlet/outlet and body edge
             var headerHeight = 21, // height of a node header in SVG units, for Quartz mode
-                headerWidth = 50; // width of a node header in SVG units, for PD mode
+                headerWidth; // width of a node header in SVG units, for PD mode
+
+            if (config.mode === PD_MODE) {
+                var fakeName = d3.select(_createSvgElement('text')).attr('class', 'rpd-fake-name').text(node.name).attr('x', -1000).attr('y', -1000);
+                tree.patches[currentPatch.id].append(fakeName.node());
+                headerWidth = fakeName.node().getBBox().width + 12;
+                fakeName.remove();
+            }
 
             var findBestNodeSize = (config.mode === QUARTZ_MODE)
                 ? function(numInlets, numOutlets, minContentSize) {
@@ -189,19 +196,30 @@ return function(networkRoot, userConfig) {
 
             var nodePos = layout.nextPosition(node, initialSize, { width: limitSrc.width, height: limitSrc.height });
 
+            var width = initialSize.width, height = initialSize.height;
+            var bodyWidth = (config.mode === QUARTZ_MODE) ? width : (width - headerWidth),
+                bodyHeight = (config.mode === QUARTZ_MODE) ? (height - headerHeight) : height;
+
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
 
-            var width = initialSize.width, height = initialSize.height, bodyHeight = height - headerHeight;
-
             nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('x', 5).attr('y', 6)
                                                                                                           .attr('rx', 3).attr('ry', 3);
-            nodeElm.append('path').attr('class', 'rpd-header').attr('d', roundedRect(0, 0, width, headerHeight, 2, 2, 0, 0));
-            nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
-                                  .attr('x', 5).attr('y', 6).style('pointer-events', 'none');
-            nodeElm.append('path').attr('class', 'rpd-content').attr('d', roundedRect(0, headerHeight, width, bodyHeight, 0, 0, 2, 2));
-            nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2)
-                                  .style('pointer-events', 'none');
+
+            if (config.mode === QUARTZ_MODE) {
+                nodeElm.append('path').attr('class', 'rpd-header').attr('d', roundedRect(0, 0, width, headerHeight, 2, 2, 0, 0));
+                nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
+                                      .attr('x', 5).attr('y', 6).style('pointer-events', 'none');
+                nodeElm.append('path').attr('class', 'rpd-content').attr('d', roundedRect(0, headerHeight, width, bodyHeight, 0, 0, 2, 2));
+                nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2)
+                                      .style('pointer-events', 'none');
+            } else if (config.mode === PD_MODE) {
+                nodeElm.append('rect').attr('class', 'rpd-header').attr('x', 0).attr('y', 0).attr('width', headerWidth).attr('height', height);
+                nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
+                                      .attr('x', 5).attr('y', 6).style('pointer-events', 'none');
+                nodeElm.append('rect').attr('class', 'rpd-content').attr('x', headerWidth).attr('y', 0).attr('width', width - headerWidth).attr('height', height);
+                nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).style('pointer-events', 'none');
+            }
 
             nodeElm.select('.rpd-header').append(_createSvgElement('title')).text(
                                                  nodeDescriptions[node.type] ? (nodeDescriptions[node.type] + ' (' + node.type + ')')
@@ -214,17 +232,17 @@ return function(networkRoot, userConfig) {
                        button.append('text').text('x').attr('x', 3).attr('y', 2).style('pointer-events', 'none');
                    });
 
-            nodeElm.append('g').attr('class', 'rpd-inlets').attr('transform', 'translate(' + 0 + ',' + headerHeight + ')')
-                                                           .data({ position: { x: 0, y: headerHeight } });
-            nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + 25 + ',' + (headerHeight + (initialSize.height / 2)) + ')')
-                                                            .data({ position: { x: 0, y: headerHeight } });
-            nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + width + ',' + headerHeight + ')')
-                                                            .data({ position: { x: width, y: headerHeight } });
-
             if (config.mode === QUARTZ_MODE) {
-
+                nodeElm.append('g').attr('class', 'rpd-inlets').attr('transform', 'translate(' + 0 + ',' + headerHeight + ')')
+                                                               .data({ position: { x: 0, y: headerHeight } });
+                nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (width / 2) + ',' + (headerHeight + ((height - headerHeight) / 2)) + ')');
+                nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + width + ',' + headerHeight + ')')
+                                                                .data({ position: { x: width, y: headerHeight } });
             } else if (config.mode === PD_MODE) {
-
+                nodeElm.append('g').attr('class', 'rpd-inlets').data({ position: { x: 0, y: 0 } });
+                nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (headerWidth + ((width - headerWidth) / 2)) + ',' + (height / 2) + ')');
+                nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + 0 + ',' + height + ')')
+                                                                .data({ position: { x: 0, y: height } });
             }
 
             nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
@@ -242,7 +260,7 @@ return function(networkRoot, userConfig) {
                 nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight,
                     nodeSize.width, nodeSize.height - headerHeight, 0, 0, 2, 2));
                 nodeElm.select('g.rpd-process').attr('transform',
-                    'translate(' + 25 + ',' + (headerHeight + ((nodeSize.height - headerHeight) / 2)) + ')');
+                    'translate(' + (nodeSize.width / 2) + ',' + (headerHeight + ((nodeSize.height - headerHeight) / 2)) + ')');
                 nodeData.size = nodeSize;
             }
 
@@ -465,7 +483,8 @@ return function(networkRoot, userConfig) {
                                                     .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
                               group.append('g').attr('class', 'rpd-value-holder')
                                    .append('text').attr('class', 'rpd-value')
-                                                  .attr('x', 10).attr('y', 0);
+                                                  .attr('x', 10).attr('y', 0)
+                                                  .style('pointer-events', 'none');
                               group.append('text').attr('class', 'rpd-name').text(outlet.name)
                                                   .attr('x', -10).attr('y', 0);
                           });
