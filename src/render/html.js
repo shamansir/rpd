@@ -60,6 +60,9 @@ return function(networkRoot, userConfig) {
 
     var config = mergeConfig(userConfig, defaultConfig);
 
+    var isQuartzMode = (config.mode === QUARTZ_MODE),
+        isPdMode = (config.mode === PD_MODE);
+
     networkRoot = d3.select(networkRoot)
                     .classed('rpd-network', true);
 
@@ -156,7 +159,7 @@ return function(networkRoot, userConfig) {
             var nodeBox = d3.select(document.createElement('div')).attr('class', 'rpd-node-box');
             var nodeElm = nodeBox.append('table').attr('class', 'rpd-node');
 
-            if (config.mode === QUARTZ_MODE) {
+            if (isQuartzMode) {
 
                 // node header: node title and remove button
                 nodeElm.append('thead').attr('class', 'rpd-title')
@@ -207,7 +210,7 @@ return function(networkRoot, userConfig) {
                                 })
                        });
 
-            } else if (config.mode === PD_MODE) {
+            } else if (isPdMode) {
 
                 // inlets placehoder
                 nodeElm.append('tr').attr('class', 'rpd-inlets')
@@ -371,7 +374,7 @@ return function(networkRoot, userConfig) {
 
             var inletElm;
 
-            if (config.mode == QUARTZ_MODE) {
+            if (isQuartzMode) {
 
                 inletElm = d3.select(document.createElement('tr')).attr('class', 'rpd-inlet')
                              .call(function(tr) {
@@ -382,7 +385,7 @@ return function(networkRoot, userConfig) {
                                  if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(inlet.type);
                              });
 
-            } else if (config.mode == PD_MODE) {
+            } else if (isPdMode) {
 
                 inletElm = d3.select(document.createElement('td')).attr('class', 'rpd-inlet')
                              .call(function(td) {
@@ -437,7 +440,7 @@ return function(networkRoot, userConfig) {
 
             var outletElm;
 
-            if (config.mode == QUARTZ_MODE) {
+            if (isQuartzMode) {
 
                 outletElm = d3.select(document.createElement('tr')).attr('class', 'rpd-outlet')
                               .call(function(tr) {
@@ -447,7 +450,7 @@ return function(networkRoot, userConfig) {
                                   tr.append('td').attr('class', 'rpd-name').text(outlet.name);
                               });
 
-            } else if (config.mode == PD_MODE) {
+            } else if (isPdMode) {
 
                 outletElm = d3.select(document.createElement('td')).attr('class', 'rpd-outlet')
                               .call(function(td) {

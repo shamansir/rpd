@@ -94,8 +94,15 @@
     font-size: 0.8em;
 }
 
-.rpd-outlet text.rpd-name {
+.rpd-layout-quartz .rpd-outlet text.rpd-name {
     text-anchor: end;
+}
+
+.rpd-layout-pd .rpd-inlet text.rpd-name,
+.rpd-layout-pd .rpd-inlet text.rpd-value,
+.rpd-layout-pd .rpd-outlet text.rpd-name,
+.rpd-layout-pd .rpd-outlet text.rpd-value {
+    text-anchor: middle;
 }
 
 .rpd-connector {

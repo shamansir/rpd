@@ -56,6 +56,9 @@ return function(networkRoot, userConfig) {
 
     var config = mergeConfig(userConfig, defaultConfig);
 
+    var isQuartzMode = (config.mode === QUARTZ_MODE),
+        isPdMode = (config.mode === PD_MODE);
+
     networkRoot = d3.select(networkRoot).attr('class', 'rpd-network');
 
     var svg;
@@ -168,14 +171,14 @@ return function(networkRoot, userConfig) {
             var headerHeight = 21, // height of a node header in SVG units, for Quartz mode
                 headerWidth; // width of a node header in SVG units, for PD mode
 
-            if (config.mode === PD_MODE) {
+            if (isPdMode) {
                 var fakeName = d3.select(_createSvgElement('text')).attr('class', 'rpd-fake-name').text(node.name).attr('x', -1000).attr('y', -1000);
                 tree.patches[currentPatch.id].append(fakeName.node());
                 headerWidth = fakeName.node().getBBox().width + 12;
                 fakeName.remove();
             }
 
-            var findBestNodeSize = (config.mode === QUARTZ_MODE)
+            var findBestNodeSize = isQuartzMode
                 ? function(numInlets, numOutlets, minContentSize) {
                       var requiredContentHeight = (2 * socketsMargin) + ((Math.max(numInlets, numOutlets) - 1) * socketPadding);
                       return { width: minContentSize.width,
@@ -197,8 +200,8 @@ return function(networkRoot, userConfig) {
             var nodePos = layout.nextPosition(node, initialSize, { width: limitSrc.width, height: limitSrc.height });
 
             var width = initialSize.width, height = initialSize.height;
-            var bodyWidth = (config.mode === QUARTZ_MODE) ? width : (width - headerWidth),
-                bodyHeight = (config.mode === QUARTZ_MODE) ? (height - headerHeight) : height;
+            var bodyWidth = isQuartzMode ? width : (width - headerWidth),
+                bodyHeight = isQuartzMode ? (height - headerHeight) : height;
 
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
@@ -206,14 +209,14 @@ return function(networkRoot, userConfig) {
             nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('x', 5).attr('y', 6)
                                                                                                           .attr('rx', 3).attr('ry', 3);
 
-            if (config.mode === QUARTZ_MODE) {
+            if (isQuartzMode) {
                 nodeElm.append('path').attr('class', 'rpd-header').attr('d', roundedRect(0, 0, width, headerHeight, 2, 2, 0, 0));
                 nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
                                       .attr('x', 5).attr('y', 6).style('pointer-events', 'none');
                 nodeElm.append('path').attr('class', 'rpd-content').attr('d', roundedRect(0, headerHeight, width, bodyHeight, 0, 0, 2, 2));
                 nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2)
                                       .style('pointer-events', 'none');
-            } else if (config.mode === PD_MODE) {
+            } else if (isPdMode) {
                 nodeElm.append('rect').attr('class', 'rpd-header').attr('x', 0).attr('y', 0).attr('width', headerWidth).attr('height', height);
                 nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
                                       .attr('x', 5).attr('y', 6).style('pointer-events', 'none');
@@ -232,13 +235,13 @@ return function(networkRoot, userConfig) {
                        button.append('text').text('x').attr('x', 3).attr('y', 2).style('pointer-events', 'none');
                    });
 
-            if (config.mode === QUARTZ_MODE) {
+            if (isQuartzMode) {
                 nodeElm.append('g').attr('class', 'rpd-inlets').attr('transform', 'translate(' + 0 + ',' + headerHeight + ')')
                                                                .data({ position: { x: 0, y: headerHeight } });
                 nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (width / 2) + ',' + (headerHeight + ((height - headerHeight) / 2)) + ')');
                 nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + width + ',' + headerHeight + ')')
                                                                 .data({ position: { x: width, y: headerHeight } });
-            } else if (config.mode === PD_MODE) {
+            } else if (isPdMode) {
                 nodeElm.append('g').attr('class', 'rpd-inlets').data({ position: { x: 0, y: 0 } });
                 nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (headerWidth + ((width - headerWidth) / 2)) + ',' + (height / 2) + ')');
                 nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + 0 + ',' + height + ')')
@@ -257,10 +260,16 @@ return function(networkRoot, userConfig) {
                 if ((nodeSize.width === curSize.width) && (nodeSize.height === curSize.height)) return;
                 nodeElm.select('rect.rpd-shadow').attr('height', nodeSize.height);
                 nodeElm.select('rect.rpd-body').attr('height', nodeSize.height);
-                nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight,
-                    nodeSize.width, nodeSize.height - headerHeight, 0, 0, 2, 2));
-                nodeElm.select('g.rpd-process').attr('transform',
-                    'translate(' + (nodeSize.width / 2) + ',' + (headerHeight + ((nodeSize.height - headerHeight) / 2)) + ')');
+                if (isQuartzMode) {
+                    nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight,
+                        nodeSize.width, nodeSize.height - headerHeight, 0, 0, 2, 2));
+                    nodeElm.select('g.rpd-process').attr('transform',
+                        'translate(' + (nodeSize.width / 2) + ',' + (headerHeight + ((nodeSize.height - headerHeight) / 2)) + ')');
+                } else if (isPdMode) {
+                    nodeElm.select('rect.rpd-content').attr('width', headerWidth - nodeSize.width);
+                    nodeElm.select('g.rpd-process').attr('transform',
+                        'translate(' + (nodeSize.width / 2) + ',' + (headerHeight + ((nodeSize.height - headerHeight) / 2)) + ')');
+                }
                 nodeData.size = nodeSize;
             }
 
@@ -292,20 +301,28 @@ return function(networkRoot, userConfig) {
             }
 
             function findInletPos(idx) { // index from top to down for Quartz mode, or left to right for PD mode
-                if (numInlets >= numOutlets) {
-                    return { x: 0, y: socketsMargin + (socketPadding * idx) };
-                } else {
-                    var fullSide = (2 * socketsMargin) + (numOutlets - 1) * socketPadding;
-                    return { x: 0, y: (fullSide / 2) + (((-1 * (numInlets - 1)) / 2) + idx) * socketPadding };
+                if (isQuartzMode) {
+                    if (numInlets >= numOutlets) {
+                        return { x: 0, y: socketsMargin + (socketPadding * idx) };
+                    } else {
+                        var fullSide = (2 * socketsMargin) + (numOutlets - 1) * socketPadding;
+                        return { x: 0, y: (fullSide / 2) + (((-1 * (numInlets - 1)) / 2) + idx) * socketPadding };
+                    }
+                } else if (isPdMode) {
+                    return { x: socketsMargin + (socketPadding * idx), y: 0 };
                 }
             }
 
             function findOutletPos(idx) { // index from top to down for Quartz mode, or left to right for PD mode
-                if (numOutlets >= numInlets) {
-                    return { x: 0, y: socketsMargin + (socketPadding * idx) };
-                } else {
-                    var fullSide = (2 * socketsMargin) + (numInlets - 1) * socketPadding;
-                    return { x: 0, y: (fullSide / 2) + (((-1 * (numOutlets - 1)) / 2) + idx) * socketPadding };
+                if (isQuartzMode) {
+                    if (numOutlets >= numInlets) {
+                        return { x: 0, y: socketsMargin + (socketPadding * idx) };
+                    } else {
+                        var fullSide = (2 * socketsMargin) + (numInlets - 1) * socketPadding;
+                        return { x: 0, y: (fullSide / 2) + (((-1 * (numOutlets - 1)) / 2) + idx) * socketPadding };
+                    }
+                } else if (isPdMode) {
+                    return { x: socketsMargin + (socketPadding * idx), y: 1 };
                 }
             }
 
@@ -418,16 +435,12 @@ return function(networkRoot, userConfig) {
                                                    .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
                              group.append('g').attr('class', 'rpd-value-holder')
                                   .append('text').attr('class', 'rpd-value')
-                                                 .attr('x', -15).attr('y', 0);
+                                                 .attr('x', isQuartzMode ? -15 : 0)
+                                                 .attr('y', isQuartzMode ? 0 : -30);
                              group.append('text').attr('class', 'rpd-name').text(inlet.name)
-                                                 .attr('x', 10).attr('y', 0);
+                                                 .attr('x', isQuartzMode ? 10 : 0)
+                                                 .attr('y', isQuartzMode ? 0 : -15);
                          });
-
-            if (config.mode == QUARTZ_MODE) {
-
-            } else if (config.mode == PD_MODE) {
-
-            }
 
             inletElm.classed('rpd-'+inlet.type.replace('/','-'), true);
             inletElm.classed({ 'rpd-stale': true,
@@ -483,17 +496,13 @@ return function(networkRoot, userConfig) {
                                                     .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
                               group.append('g').attr('class', 'rpd-value-holder')
                                    .append('text').attr('class', 'rpd-value')
-                                                  .attr('x', 10).attr('y', 0)
+                                                  .attr('x', isQuartzMode ? 10 : 0)
+                                                  .attr('y', isQuartzMode ? 0 : 30)
                                                   .style('pointer-events', 'none');
                               group.append('text').attr('class', 'rpd-name').text(outlet.name)
-                                                  .attr('x', -10).attr('y', 0);
+                                                  .attr('x', isQuartzMode ? -10 : 0)
+                                                  .attr('y', isQuartzMode ? 0 : 15);
                           });
-
-            if (config.mode == QUARTZ_MODE) {
-
-            } else if (config.mode == PD_MODE) {
-
-            }
 
             outletElm.classed('rpd-'+outlet.type.replace('/','-'), true);
             outletElm.classed('rpd-stale', true);
