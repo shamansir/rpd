@@ -635,22 +635,25 @@ Navigation.prototype.switch = function(targetPatch) {
 
 function GridLayout(mode) {
     this.nodeRects = [];
-    this.boxPadding = (mode === QUARTZ_MODE) ? { horizontal: 20, vertical: 30 }
-                                             : { horizontal: 20, vertical: 30 };
+    this.edgePadding = (mode === QUARTZ_MODE) ? { horizontal: 30, vertical: 20 }
+                                              : { horizontal: 20, vertical: 40 };
+    this.boxPadding  = (mode === QUARTZ_MODE) ? { horizontal: 20, vertical: 30 }
+                                              : { horizontal: 20, vertical: 80 };
 }
 GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
 GridLayout.prototype.nextPosition = function(node, size, limits) {
     limits = limits || GridLayout.DEFAULT_LIMITS;
-    var nodeRects = this.nodeRects, boxPadding = this.boxPadding;
-    var width =  size.width, height = size.height,
-        hPadding = boxPadding.horizontal, vPadding = boxPadding.vertical;
+    var nodeRects = this.nodeRects,
+        boxPadding = this.boxPadding, edgePadding = this.edgePadding;
+    var width =  size.width, height = size.height;
     var lastRect = (nodeRects.length ? nodeRects[nodeRects.length-1] : null);
-    var newRect = { x: lastRect ? lastRect.x : hPadding,
-                    y: lastRect ? (lastRect.y + lastRect.height + vPadding) : vPadding,
+    var newRect = { x: lastRect ? lastRect.x : edgePadding.horizontal,
+                    y: lastRect ? (lastRect.y + lastRect.height + boxPadding.vertical)
+                                : edgePadding.vertical,
                     width: width, height: height };
-    if ((newRect.y + height + vPadding) > limits.height) {
-        newRect.x = newRect.x + width + hPadding;
-        newRect.y = vPadding;
+    if ((newRect.y + height + edgePadding.vertical) > limits.height) {
+        newRect.x = newRect.x + width + boxPadding.horizontal;
+        newRect.y = edgePadding.vertical;
     }
     nodeRects.push(newRect);
     return { x: newRect.x, y: newRect.y };

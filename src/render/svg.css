@@ -35,9 +35,19 @@
     fill: #617b79;
 }
 
-.rpd-node text.rpd-name/*, .rpd-fake-name*/ {
+.rpd-node text.rpd-name,
+.rpd-node text.rpd-fake-name {
     fill: rgba(250,250,250,0.9);
+}
+
+.rpd-layout-quartz .rpd-node text.rpd-name,
+.rpd-layout-quartz .rpd-node text.rpd-fake-name {
     dominant-baseline: hanging;
+}
+
+.rpd-layout-pd .rpd-node text.rpd-name,
+.rpd-layout-pd .rpd-node text.rpd-fake-name {
+    dominant-baseline: central;
 }
 
 .rpd-node .rpd-content {
@@ -83,8 +93,8 @@
     stroke: black;
 }
 
-.rpd-inlet text.rpd-value, .rpd-inlet text.rpd-name,
-.rpd-outlet text.rpd-value, .rpd-outlet text.rpd-name {
+.rpd-node .rpd-inlet text.rpd-value, .rpd-node .rpd-inlet text.rpd-name,
+.rpd-node .rpd-outlet text.rpd-value, .rpd-node .rpd-outlet text.rpd-name {
     dominant-baseline: central;
 }
 
@@ -192,5 +202,6 @@
 }
 
 .rpd-node .rpd-process text {
+    dominant-baseline: central;
     text-anchor: middle;
 }

@@ -219,7 +219,7 @@ return function(networkRoot, userConfig) {
             } else if (isPdMode) {
                 nodeElm.append('rect').attr('class', 'rpd-header').attr('x', 0).attr('y', 0).attr('width', headerWidth).attr('height', height);
                 nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
-                                      .attr('x', 5).attr('y', 6).style('pointer-events', 'none');
+                                      .attr('x', 5).attr('y', height / 2).style('pointer-events', 'none');
                 nodeElm.append('rect').attr('class', 'rpd-content').attr('x', headerWidth).attr('y', 0).attr('width', width - headerWidth).attr('height', height);
                 nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).style('pointer-events', 'none');
             }
@@ -434,9 +434,9 @@ return function(networkRoot, userConfig) {
                              group.append('circle').attr('class', 'rpd-connector')
                                                    .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
                              group.append('g').attr('class', 'rpd-value-holder')
-                                  .append('text').attr('class', 'rpd-value')
-                                                 .attr('x', isQuartzMode ? -15 : 0)
-                                                 .attr('y', isQuartzMode ? 0 : -30);
+                                  .attr('transform', 'translate(' + (isQuartzMode ? -15 : 0) + ',' +
+                                                                    (isQuartzMode ? 0 : -30) + ')')
+                                  .append('text').attr('class', 'rpd-value');
                              group.append('text').attr('class', 'rpd-name').text(inlet.name)
                                                  .attr('x', isQuartzMode ? 10 : 0)
                                                  .attr('y', isQuartzMode ? 0 : -15);
@@ -679,22 +679,25 @@ Navigation.prototype.switch = function(targetPatch) {
 
 function GridLayout(mode) {
     this.nodeRects = [];
-    this.boxPadding = (mode === QUARTZ_MODE) ? { horizontal: 20, vertical: 30 }
-                                             : { horizontal: 20, vertical: 30 };
+    this.edgePadding = (mode === QUARTZ_MODE) ? { horizontal: 30, vertical: 20 }
+                                              : { horizontal: 20, vertical: 40 };
+    this.boxPadding  = (mode === QUARTZ_MODE) ? { horizontal: 20, vertical: 30 }
+                                              : { horizontal: 20, vertical: 80 };
 }
 GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
 GridLayout.prototype.nextPosition = function(node, size, limits) {
     limits = limits || GridLayout.DEFAULT_LIMITS;
-    var nodeRects = this.nodeRects, boxPadding = this.boxPadding;
-    var width =  size.width, height = size.height,
-        hPadding = boxPadding.horizontal, vPadding = boxPadding.vertical;
+    var nodeRects = this.nodeRects,
+        boxPadding = this.boxPadding, edgePadding = this.edgePadding;
+    var width =  size.width, height = size.height;
     var lastRect = (nodeRects.length ? nodeRects[nodeRects.length-1] : null);
-    var newRect = { x: lastRect ? lastRect.x : hPadding,
-                    y: lastRect ? (lastRect.y + lastRect.height + vPadding) : vPadding,
+    var newRect = { x: lastRect ? lastRect.x : edgePadding.horizontal,
+                    y: lastRect ? (lastRect.y + lastRect.height + boxPadding.vertical)
+                                : edgePadding.vertical,
                     width: width, height: height };
-    if ((newRect.y + height + vPadding) > limits.height) {
-        newRect.x = newRect.x + width + hPadding;
-        newRect.y = vPadding;
+    if ((newRect.y + height + edgePadding.vertical) > limits.height) {
+        newRect.x = newRect.x + width + boxPadding.horizontal;
+        newRect.y = edgePadding.vertical;
     }
     nodeRects.push(newRect);
     return { x: newRect.x, y: newRect.y };
