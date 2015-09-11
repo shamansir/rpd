@@ -34,7 +34,7 @@ var tree = {
     outlets: {},
     links: {},
 
-    patchToLayout: {},
+    patchToPlacing: {},
     patchToLinks: {},
     nodeToLinks: {}
 };
@@ -97,8 +97,8 @@ return function(networkRoot, userConfig) {
                                                 patch: update.patch
                                               });
 
-            // initialize the node layout (helps in determining the position where new node should be placed)
-            tree.patchToLayout[patch.id] = new GridLayout(config.mode);
+            // initialize the node placing (helps in determining the position where new node should be located)
+            tree.patchToPlacing[patch.id] = new GridPlacing(config.mode);
             tree.patchToLinks[patch.id] = new VLinks();
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
@@ -158,20 +158,24 @@ return function(networkRoot, userConfig) {
 
             var node = update.node;
 
-            var render = update.render;
+            var render = update.render,
+                layout = render.layout || config.nodeLayout,
+                hasHeader = (layout !== 'no-header'),
+                hasContent = (layout !== 'no-content');
 
             // find a rectange to place the new node
-            var layout = tree.patchToLayout[update.patch.id],
+            var placing = tree.patchToPlacing[update.patch.id],
                 // current patch root should be used as a limit source, even if we add to another patch
                 // or else other root may have no dimensions yet
                 limitSrc = tree.patches[currentPatch.id].data();
 
             var socketPadding = 25, // distance between inlets/outlets in SVG units
                 socketsMargin = 15; // distance between first/last inlet/outlet and body edge
-            var headerHeight = 21, // height of a node header in SVG units, for Quartz mode
-                headerWidth; // width of a node header in SVG units, for PD mode
+            var headerHeight = hasHeader ? 21 : 0, // height of a node header in SVG units, for Quartz mode
+                headerWidth = 0; // width of a node header in SVG units, for PD mode, will be calculated below
 
-            if (isPdMode) {
+            if (isPdMode && hasHeader) {
+                // it is required to know the header size before constructing the node itself
                 var fakeName = d3.select(_createSvgElement('text')).attr('class', 'rpd-fake-name').text(node.name).attr('x', -1000).attr('y', -1000);
                 tree.patches[currentPatch.id].append(fakeName.node());
                 headerWidth = fakeName.node().getBBox().width + 12;
@@ -197,7 +201,7 @@ return function(networkRoot, userConfig) {
                                                node.def.outlets ? Object.keys(node.def.outlets).length : 0,
                                                minContentSize);
 
-            var nodePos = layout.nextPosition(node, initialSize, { width: limitSrc.width, height: limitSrc.height });
+            var nodePos = placing.nextPosition(node, initialSize, { width: limitSrc.width, height: limitSrc.height });
 
             var width = initialSize.width, height = initialSize.height;
             var bodyWidth = isQuartzMode ? width : (width - headerWidth),
@@ -206,28 +210,35 @@ return function(networkRoot, userConfig) {
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
 
+            // append shadow
             nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('x', 5).attr('y', 6)
                                                                                                           .attr('rx', 3).attr('ry', 3);
 
             if (isQuartzMode) {
-                nodeElm.append('path').attr('class', 'rpd-header').attr('d', roundedRect(0, 0, width, headerHeight, 2, 2, 0, 0));
-                nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
+                // append node header
+                if (hasHeader) nodeElm.append('path').attr('class', 'rpd-header').attr('d', roundedRect(0, 0, width, headerHeight, 2, 2, 0, 0));
+                if (hasHeader) nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
                                       .attr('x', 5).attr('y', 6).style('pointer-events', 'none');
+                // append node body
                 nodeElm.append('path').attr('class', 'rpd-content').attr('d', roundedRect(0, headerHeight, width, bodyHeight, 0, 0, 2, 2));
                 nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2)
                                       .style('pointer-events', 'none');
             } else if (isPdMode) {
-                nodeElm.append('rect').attr('class', 'rpd-header').attr('x', 0).attr('y', 0).attr('width', headerWidth).attr('height', height);
-                nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
+                // append node header
+                if (hasHeader) nodeElm.append('rect').attr('class', 'rpd-header').attr('x', 0).attr('y', 0).attr('width', headerWidth).attr('height', height);
+                if (hasHeader) nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
                                       .attr('x', 5).attr('y', height / 2).style('pointer-events', 'none');
+                // append node body
                 nodeElm.append('rect').attr('class', 'rpd-content').attr('x', headerWidth).attr('y', 0).attr('width', width - headerWidth).attr('height', height);
                 nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).style('pointer-events', 'none');
             }
 
-            nodeElm.select('.rpd-header').append(_createSvgElement('title')).text(
-                                                 nodeDescriptions[node.type] ? (nodeDescriptions[node.type] + ' (' + node.type + ')')
-                                                                             : node.type);
+            // append tooltip with description
+            nodeElm.select(hasHeader ? '.rpd-header' : '.rpd-content')
+                   .append(_createSvgElement('title')).text(
+                            nodeDescriptions[node.type] ? (nodeDescriptions[node.type] + ' (' + node.type + ')') : node.type);
 
+            // append remove button
             nodeElm.append('g').attr('class', 'rpd-remove-button')
                                .attr('transform', 'translate(' + (width-12) + ',1)')
                    .call(function(button) {
@@ -235,6 +246,7 @@ return function(networkRoot, userConfig) {
                        button.append('text').text('x').attr('x', 3).attr('y', 2).style('pointer-events', 'none');
                    });
 
+            // append placeholders for inlets, outlets and a target element to render body into
             if (isQuartzMode) {
                 nodeElm.append('g').attr('class', 'rpd-inlets').attr('transform', 'translate(' + 0 + ',' + headerHeight + ')')
                                                                .data({ position: { x: 0, y: headerHeight } });
@@ -266,7 +278,7 @@ return function(networkRoot, userConfig) {
                     nodeElm.select('g.rpd-process').attr('transform',
                         'translate(' + (nodeSize.width / 2) + ',' + (headerHeight + ((nodeSize.height - headerHeight) / 2)) + ')');
                 } else if (isPdMode) {
-                    nodeElm.select('rect.rpd-content').attr('width', headerWidth - nodeSize.width);
+                    nodeElm.select('rect.rpd-content').attr('width', nodeSize.width - headerWidth);
                     nodeElm.select('g.rpd-process').attr('transform',
                         'translate(' + (nodeSize.width / 2) + ',' + (headerHeight + ((nodeSize.height - headerHeight) / 2)) + ')');
                 }
@@ -340,7 +352,8 @@ return function(networkRoot, userConfig) {
 
             // add possiblity to drag nodes
             if (config.nodeMovingAllowed) {
-                dnd.add(nodeElm.select('.rpd-header').classed('rpd-drag-handle', true),
+                dnd.add(nodeElm.select(hasHeader ? '.rpd-header' : '.rpd-content')
+                               .classed('rpd-drag-handle', true),
                         { start: function() {
                             nodeElm.classed('rpd-dragging', true);
                             nodeElm.select('.rpd-shadow').attr('x', 7).attr('y', 8);
@@ -674,19 +687,19 @@ Navigation.prototype.switch = function(targetPatch) {
 }
 
 // =============================================================================
-// ============================== Layout =======================================
+// ============================= Placing =======================================
 // =============================================================================
 
-function GridLayout(mode) {
+function GridPlacing(mode) {
     this.nodeRects = [];
     this.edgePadding = (mode === QUARTZ_MODE) ? { horizontal: 30, vertical: 20 }
                                               : { horizontal: 20, vertical: 40 };
     this.boxPadding  = (mode === QUARTZ_MODE) ? { horizontal: 20, vertical: 30 }
                                               : { horizontal: 20, vertical: 80 };
 }
-GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
-GridLayout.prototype.nextPosition = function(node, size, limits) {
-    limits = limits || GridLayout.DEFAULT_LIMITS;
+GridPlacing.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
+GridPlacing.prototype.nextPosition = function(node, size, limits) {
+    limits = limits || GridPlacing.DEFAULT_LIMITS;
     var nodeRects = this.nodeRects,
         boxPadding = this.boxPadding, edgePadding = this.edgePadding;
     var width =  size.width, height = size.height;

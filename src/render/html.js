@@ -42,7 +42,7 @@ var tree = {
     outlets: {},
     links: {},
 
-    patchToLayout: {},
+    patchToPlacing: {},
     patchToLinks: {},
     nodeToLinks: {}
 };
@@ -93,8 +93,8 @@ return function(networkRoot, userConfig) {
 
             tree.patches[patch.id] = root;
 
-            // initialize the node layout (helps in determining the position where new node should be placed)
-            tree.patchToLayout[patch.id] = new GridLayout(config.mode);
+            // initialize the node placing (helps in determining the position where new node should be located)
+            tree.patchToPlacing[patch.id] = new GridPlacing(config.mode);
             tree.patchToLinks[patch.id] = new VLinks();
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
@@ -305,15 +305,15 @@ return function(networkRoot, userConfig) {
                 });
             }
 
-            var layout = tree.patchToLayout[update.patch.id],
+            var placing = tree.patchToPlacing[update.patch.id],
                 // current patch root should be used as a limit source, even if we add to another patch
                 // or else other root may have no dimensions yet
                 limitSrc = tree.patches[currentPatch.id];
 
             // find a rectange to place the new node, and actually place it there
             var nodeSize = { width: 100, height: 60 }, // FIXME: use contentSize in render.size
-                nodePos = layout.nextPosition(node, nodeSize, { width:  limitSrc.node().offsetWidth,
-                                                                height: limitSrc.node().offsetHeight });
+                nodePos = placing.nextPosition(node, nodeSize, { width:  limitSrc.node().offsetWidth,
+                                                                 height: limitSrc.node().offsetHeight });
 
             nodeBox.style('min-width',  Math.floor(nodeSize.width) + 'px');
             nodeBox.style('min-height', Math.floor(nodeSize.height) + 'px');
@@ -630,19 +630,19 @@ Navigation.prototype.switch = function(targetPatch) {
 }
 
 // =============================================================================
-// ============================== Layout =======================================
+// ============================= Placing =======================================
 // =============================================================================
 
-function GridLayout(mode) {
+function GridPlacing(mode) {
     this.nodeRects = [];
     this.edgePadding = (mode === QUARTZ_MODE) ? { horizontal: 30, vertical: 20 }
                                               : { horizontal: 20, vertical: 40 };
     this.boxPadding  = (mode === QUARTZ_MODE) ? { horizontal: 20, vertical: 30 }
                                               : { horizontal: 20, vertical: 80 };
 }
-GridLayout.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
-GridLayout.prototype.nextPosition = function(node, size, limits) {
-    limits = limits || GridLayout.DEFAULT_LIMITS;
+GridPlacing.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
+GridPlacing.prototype.nextPosition = function(node, size, limits) {
+    limits = limits || GridPlacing.DEFAULT_LIMITS;
     var nodeRects = this.nodeRects,
         boxPadding = this.boxPadding, edgePadding = this.edgePadding;
     var width =  size.width, height = size.height;
