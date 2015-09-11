@@ -159,9 +159,9 @@ return function(networkRoot, userConfig) {
             var node = update.node;
 
             var render = update.render,
-                layout = render.layout || config.nodeLayout,
-                hasHeader = (layout !== 'no-header'),
-                hasContent = (layout !== 'no-content');
+                layout = render.contentRule || config.contentRule,
+                hasHeader = (layout !== 'replace'),
+                hasContent = (render.first || render.always);
 
             // find a rectange to place the new node
             var placing = tree.patchToPlacing[update.patch.id],
@@ -182,6 +182,10 @@ return function(networkRoot, userConfig) {
                 fakeName.remove();
             }
 
+            var minContentSize = render.size ? { width: render.size.width || 100,
+                                                 height: render.size.height || 40 }
+                                             : { width: 100, height: 40 };
+
             var findBestNodeSize = isQuartzMode
                 ? function(numInlets, numOutlets, minContentSize) {
                       var requiredContentHeight = (2 * socketsMargin) + ((Math.max(numInlets, numOutlets) - 1) * socketPadding);
@@ -193,9 +197,6 @@ return function(networkRoot, userConfig) {
                       return { width: headerWidth + Math.max(requiredContentWidth, minContentSize.width),
                                height: minContentSize.height };
                   };
-            var minContentSize = render.size ? { width: render.size.width || 100,
-                                                 height: render.size.height || 40 }
-                                             : { width: 100, height: 40 };
 
             var initialSize = findBestNodeSize(node.def.inlets  ? Object.keys(node.def.inlets).length  : 0,
                                                node.def.outlets ? Object.keys(node.def.outlets).length : 0,
@@ -270,8 +271,8 @@ return function(networkRoot, userConfig) {
                 var nodeData = nodeBox.data(), curSize = nodeData.size;
                 var nodeSize = findBestNodeSize(numInlets, numOutlets, minContentSize);
                 if ((nodeSize.width === curSize.width) && (nodeSize.height === curSize.height)) return;
-                nodeElm.select('rect.rpd-shadow').attr('height', nodeSize.height);
-                nodeElm.select('rect.rpd-body').attr('height', nodeSize.height);
+                nodeElm.select('rect.rpd-shadow').attr('height', nodeSize.height).attr('width', nodeSize.width);
+                nodeElm.select('rect.rpd-body').attr('height', nodeSize.height).attr('width', nodeSize.width);
                 if (isQuartzMode) {
                     nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight,
                         nodeSize.width, nodeSize.height - headerHeight, 0, 0, 2, 2));
@@ -280,7 +281,8 @@ return function(networkRoot, userConfig) {
                 } else if (isPdMode) {
                     nodeElm.select('rect.rpd-content').attr('width', nodeSize.width - headerWidth);
                     nodeElm.select('g.rpd-process').attr('transform',
-                        'translate(' + (nodeSize.width / 2) + ',' + (headerHeight + ((nodeSize.height - headerHeight) / 2)) + ')');
+                        'translate(' + (headerWidth + ((nodeSize.width - headerWidth) / 2)) + ',' + (nodeSize.height / 2) + ')');
+                    nodeElm.select('.rpd-remove-button').attr('transform', 'translate(' + (nodeSize.width-12) + ',1)');
                 }
                 nodeData.size = nodeSize;
             }
