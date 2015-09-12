@@ -13,21 +13,24 @@ function modify(s, v, each) {
 
 function Selection(v, root, all) {
     root = root || document;
-    var selection;
     if (typeof v === 'string') selection = (all ? Array.prototype.slice.call(root.querySelectorAll(v), 0)
                                                 : [ root.querySelector(v) ]);
     else if (v instanceof Node) selection = [ v ];
     else if (Array.isArray(v)) selection = v;
     else selection = [ v ];
+    this.namespace = ((selection.length === 1) && (selection[0])) ? selection[0].namespaceURI : null;
     this.selection = selection;
 };
 
 Selection.prototype.attr = function(attr, val) {
-    if (!val && (this.selection.length === 1)) return this.selection[0][attr];
-    return modify(this, val, function(subj, s_val) { subj[attr] = s_val; });
+    if ((typeof val === 'undefined') && (this.selection.length === 1)) return this.selection[0].getAttribute(attr);
+    return modify(this, val, function(subj, s_val) { subj.setAttributeNS(null, attr, s_val); });
 };
 
-Selection.prototype.property = Selection.prototype.attr;
+Selection.prototype.property = function(prop, val) {
+    if ((typeof val === 'undefined') && (this.selection.length === 1)) return this.selection[0][prop];
+    return modify(this, val, function(subj, s_val) { subj[prop] = s_val; });
+};
 
 Selection.prototype.style = function(prop, val) {
     if (prop[0] === '-') prop = prop.slice(1);
@@ -56,7 +59,7 @@ Selection.prototype.selectAll = function(v) { return new Selection(v, this.selec
 
 Selection.prototype.append = function(name) {
     var selection = [];
-    modify(this, (typeof name === 'string') ? document.createElement(name) : name,
+    modify(this, (typeof name === 'string') ? document.createElementNS(this.namespace, name) : name,
                  function(subj, elm) { subj.appendChild(elm); selection.push(elm); });
     return new Selection(selection);
 };
@@ -83,7 +86,8 @@ Selection.prototype.call = function(fn) {
     fn(this); return this;
 }
 
-return { 'select': function(v, root) { return new Selection(v, root); },
+return { 'ns': { 'prefix': { 'svg': 'http://www.w3.org/2000/svg', 'html': 'http://www.w3.org/1999/xhtml' } },
+         'select': function(v, root) { return new Selection(v, root); },
          'selectAll': function(v, root) { return new Selection(v, root, true); } };
 
 })();
