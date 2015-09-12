@@ -158,10 +158,7 @@ return function(networkRoot, userConfig) {
 
             var node = update.node;
 
-            var render = update.render,
-                layout = render.contentRule || config.contentRule,
-                hasHeader = (layout !== 'replace'),
-                hasContent = (render.first || render.always);
+            var render = update.render;
 
             // find a rectange to place the new node
             var placing = tree.patchToPlacing[update.patch.id],
@@ -171,10 +168,10 @@ return function(networkRoot, userConfig) {
 
             var socketPadding = 25, // distance between inlets/outlets in SVG units
                 socketsMargin = 15; // distance between first/last inlet/outlet and body edge
-            var headerHeight = hasHeader ? 21 : 0, // height of a node header in SVG units, for Quartz mode
+            var headerHeight = 21, // height of a node header in SVG units, for Quartz mode
                 headerWidth = 0; // width of a node header in SVG units, for PD mode, will be calculated below
 
-            if (isPdMode && hasHeader) {
+            if (isPdMode) {
                 // it is required to know the header size before constructing the node itself
                 var fakeName = d3.select(_createSvgElement('text')).attr('class', 'rpd-fake-name').text(node.name).attr('x', -1000).attr('y', -1000);
                 tree.patches[currentPatch.id].append(fakeName.node());
@@ -217,8 +214,8 @@ return function(networkRoot, userConfig) {
 
             if (isQuartzMode) {
                 // append node header
-                if (hasHeader) nodeElm.append('path').attr('class', 'rpd-header').attr('d', roundedRect(0, 0, width, headerHeight, 2, 2, 0, 0));
-                if (hasHeader) nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
+                nodeElm.append('path').attr('class', 'rpd-header').attr('d', roundedRect(0, 0, width, headerHeight, 2, 2, 0, 0));
+                nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
                                       .attr('x', 5).attr('y', 6).style('pointer-events', 'none');
                 // append node body
                 nodeElm.append('path').attr('class', 'rpd-content').attr('d', roundedRect(0, headerHeight, width, bodyHeight, 0, 0, 2, 2));
@@ -226,8 +223,8 @@ return function(networkRoot, userConfig) {
                                       .style('pointer-events', 'none');
             } else if (isPdMode) {
                 // append node header
-                if (hasHeader) nodeElm.append('rect').attr('class', 'rpd-header').attr('x', 0).attr('y', 0).attr('width', headerWidth).attr('height', height);
-                if (hasHeader) nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
+                nodeElm.append('rect').attr('class', 'rpd-header').attr('x', 0).attr('y', 0).attr('width', headerWidth).attr('height', height);
+                nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
                                       .attr('x', 5).attr('y', height / 2).style('pointer-events', 'none');
                 // append node body
                 nodeElm.append('rect').attr('class', 'rpd-content').attr('x', headerWidth).attr('y', 0).attr('width', width - headerWidth).attr('height', height);
@@ -235,7 +232,7 @@ return function(networkRoot, userConfig) {
             }
 
             // append tooltip with description
-            nodeElm.select(hasHeader ? '.rpd-header' : '.rpd-content')
+            nodeElm.select('.rpd-header')
                    .append(_createSvgElement('title')).text(
                             nodeDescriptions[node.type] ? (nodeDescriptions[node.type] + ' (' + node.type + ')') : node.type);
 
@@ -354,7 +351,7 @@ return function(networkRoot, userConfig) {
 
             // add possiblity to drag nodes
             if (config.nodeMovingAllowed) {
-                dnd.add(nodeElm.select(hasHeader ? '.rpd-header' : '.rpd-content')
+                dnd.add(nodeElm.select('.rpd-header')
                                .classed('rpd-drag-handle', true),
                         { start: function() {
                             nodeElm.classed('rpd-dragging', true);
