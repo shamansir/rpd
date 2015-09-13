@@ -51,6 +51,24 @@ Rpd.style('pd', 'html', {
                                      .append('span').attr('class', 'rpd-value');
                      if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(inlet.type);
                  })
+    },
+
+    createOutlet: function() {
+        return d3.select(document.createElement('td')).attr('class', 'rpd-outlet')
+                 .call(function(td) {
+                     td.append('span').attr('class', 'rpd-connector');
+                     td.append('span').attr('class', 'rpd-name').text(outlet.name);
+                     td.append('span').attr('class', 'rpd-value');
+                     if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(outlet.type);
+                 });
+    },
+
+    createLink: function() {
+        return d3.select(document.createElement('span'))
+                 .attr('class', 'rpd-link')
+                 .style('position', 'absolute')
+                 .style('transform-origin', 'left top')
+                 .style('-webkit-transform-origin', 'left top');
     }
 
 });

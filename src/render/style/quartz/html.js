@@ -77,6 +77,14 @@ Rpd.style('quartz', 'html', {
                      if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(outlet.type);
                      tr.append('td').attr('class', 'rpd-name').text(outlet.name);
                  });
+    },
+
+    createLink: function() {
+        return d3.select(document.createElement('span'))
+                 .attr('class', 'rpd-link')
+                 .style('position', 'absolute')
+                 .style('transform-origin', 'left top')
+                 .style('-webkit-transform-origin', 'left top');
     }
 
 });

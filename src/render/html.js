@@ -538,17 +538,13 @@ VLink.prototype.construct = function(x0, y0, x1, y1) {
                              ((y0 - y1) * (y0 - y1)));
     var angle = Math.atan2(y1 - y0, x1 - x0);
 
-    var linkElm = d3.select(document.createElement('span'))
-                    .attr('class', 'rpd-link')
-                    .style('position', 'absolute')
-                    .style('z-index', LINK_LAYER)
-                    .style('width', Math.floor(distance) + 'px')
-                    .style('left', x0 + 'px')
-                    .style('top', y0 + 'px')
-                    .style('transform-origin', 'left top')
-                    .style('-webkit-transform-origin', 'left top')
-                    .style('transform', 'rotateZ(' + angle + 'rad)')
-                    .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
+    var linkElm = style.createLink()
+                       .style('z-index', LINK_LAYER)
+                       .style('width', Math.floor(distance) + 'px')
+                       .style('left', x0 + 'px')
+                       .style('top', y0 + 'px')
+                       .style('transform', 'rotateZ(' + angle + 'rad)')
+                       .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
     this.elm = linkElm;
     return this;
 }
