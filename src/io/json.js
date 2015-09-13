@@ -30,7 +30,6 @@ Rpd.import.json = function(json) {
     if ((json.version !== Rpd.VERSION) && console && console.warn) {
         console.warn('JSON version', json.version, 'and RPD Version',
                                      Rpd.VERSION, 'are not equal to each other');
-        return;
     }
 
     var commands = json.commands;

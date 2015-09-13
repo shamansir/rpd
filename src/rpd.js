@@ -20,6 +20,7 @@ var channeltypes = {};
 var noderenderers = {};
 var channelrenderers = {};
 var nodedescriptions = {};
+var styles = {};
 
 var renderer_registry = {};
 
@@ -690,6 +691,11 @@ function nodedescription(type, description) {
     nodedescriptions[type] = description;
 }
 
+function style(name, renderer, obj) {
+    if (!styles[name]) styles[name] = {};
+    styles[name][renderer] = obj;
+}
+
 // =============================================================================
 // =============================== export ======================================
 // =============================================================================
@@ -713,7 +719,7 @@ return {
     'channeltype': channeltype,
     'nodedescription': nodedescription,
 
-    'renderer': renderer,
+    'renderer': renderer, 'style': style,
     'noderenderer': noderenderer,
     'channelrenderer': channelrenderer,
 

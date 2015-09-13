@@ -157,96 +157,7 @@ return function(networkRoot, userConfig) {
             var render = update.render;
 
             var nodeBox = d3.select(document.createElement('div')).attr('class', 'rpd-node-box');
-            var nodeElm = nodeBox.append('table').attr('class', 'rpd-node');
-
-            if (isQuartzMode) {
-
-                // node header: node title and remove button
-                nodeElm.append('thead').attr('class', 'rpd-title')
-                       // remove button
-                       .call(function(thead) {
-                           thead.append('tr').attr('class', 'rpd-remove-button')
-                                .append('th')/*.attr('colspan', '3')*/.text('x');
-                       })
-                       // node name, and type, if requested
-                       .call(function(thead) {
-                            thead.append('tr').attr('class', 'rpd-header')
-                                 .append('th').attr('colspan', 3)
-                                 .call(function(th) {
-                                     if (config.showTypes) th.append('span').attr('class', 'rpd-type').text(node.type);
-                                     th.append('span').attr('class', 'rpd-name').text(node.name);
-                                     // add description to be shown on hover
-                                     th.attr('title', nodeDescriptions[node.type]
-                                                      ? (nodeDescriptions[node.type] + ' (' + node.type + ')')
-                                                      : node.type);
-                                 });
-
-                       });
-
-                // node content
-                nodeElm.append('tbody').attr('class', 'rpd-content')
-                       .call(function(tbody) {
-                           tbody.append('tr')
-                                // inlets placeholder
-                                .call(function(tr) {
-                                    tr.append('td').attr('class', 'rpd-inlets')
-                                      .append('table')
-                                      .append('tbody')
-                                      .append('div').attr('class', 'rpd-inlets-target'); // -> node/add-inlet
-                                })
-                                // node body
-                                .call(function(tr) {
-                                    tr.append('td').attr('class', 'rpd-body')
-                                      .append('table')
-                                      .append('tbody').append('tr').append('td')
-                                      .append('div').attr('class', 'rpd-process-target'); // -> node/process
-                                })
-                                // outlets placeholder
-                                .call(function(tr) {
-                                    tr.append('td').attr('class', 'rpd-outlets')
-                                      .append('table')
-                                      .append('tbody')
-                                      .append('div').attr('class', 'rpd-outlets-target'); // -> node/add-outlet
-                                })
-                       });
-
-            } else if (isPdMode) {
-
-                // inlets placehoder
-                nodeElm.append('tr').attr('class', 'rpd-inlets')
-                       .append('td')
-                       .append('table').append('tbody').append('tr')
-                       .append('div').attr('class', 'rpd-inlets-target'); // -> node/add-inlet
-
-                // remove button
-                nodeElm.append('tr').attr('class', 'rpd-remove-button')
-                       .append('td').text('x');
-
-                // node content
-                nodeElm.append('tr').attr('class', 'rpd-content')
-                        .call(function(tr) {
-                            tr.append('td').attr('class', 'rpd-title').classed('rpd-header', true)
-                              .call(function(td) {
-                                  td.append('span').attr('class', 'rpd-name').text(node.name);
-                                  if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(node.type);
-                                  // add description to be shown on hover
-                                  td.attr('title', nodeDescriptions[node.type]
-                                                   ? (nodeDescriptions[node.type] + ' (' + node.type + ')')
-                                                   : node.type);
-                              })
-                            tr.append('td').attr('class', 'rpd-body')
-                              .append('div')
-                              .append('table').append('tbody').append('tr').append('td')
-                              .append('div').attr('class', 'rpd-process-target'); // -> node/process
-                        })
-
-                // outlets placeholder
-                nodeElm.append('tr').attr('class', 'rpd-outlets')
-                       .append('td')
-                       .append('table').append('tbody').append('tr')
-                       .append('div').attr('class', 'rpd-outlets-target'); // -> node/add-outlet
-
-            }
+            var nodeElm = nodeBox.append(style.createNode().node());
 
             nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                    .classed('rpd-'+node.type.replace('/','-'), true);
@@ -372,31 +283,7 @@ return function(networkRoot, userConfig) {
             var inletsTarget = tree.nodes[update.node.id].data().inletsTarget;
             var render = update.render;
 
-            var inletElm;
-
-            if (isQuartzMode) {
-
-                inletElm = d3.select(document.createElement('tr')).attr('class', 'rpd-inlet')
-                             .call(function(tr) {
-                                 tr.append('td').attr('class', 'rpd-connector');
-                                 tr.append('td').attr('class', 'rpd-value-holder')
-                                                .append('span').attr('class', 'rpd-value');
-                                 tr.append('td').attr('class', 'rpd-name').text(inlet.name);
-                                 if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(inlet.type);
-                             });
-
-            } else if (isPdMode) {
-
-                inletElm = d3.select(document.createElement('td')).attr('class', 'rpd-inlet')
-                             .call(function(td) {
-                                 td.append('span').attr('class', 'rpd-connector');
-                                 td.append('span').attr('class', 'rpd-name').text(inlet.name);
-                                 td.append('span').attr('class', 'rpd-value-holder')
-                                                  .append('span').attr('class', 'rpd-value');
-                                 if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(inlet.type);
-                             });
-
-            }
+            var inletElm = style.createInlet().node();
 
             inletElm.classed('rpd-'+inlet.type.replace('/','-'), true);
             inletElm.classed({ 'rpd-stale': true,
@@ -438,29 +325,7 @@ return function(networkRoot, userConfig) {
             var outletsTarget = tree.nodes[update.node.id].data().outletsTarget;
             var render = update.render;
 
-            var outletElm;
-
-            if (isQuartzMode) {
-
-                outletElm = d3.select(document.createElement('tr')).attr('class', 'rpd-outlet')
-                              .call(function(tr) {
-                                  tr.append('td').attr('class', 'rpd-connector');
-                                  tr.append('td').attr('class', 'rpd-value');
-                                  if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(outlet.type);
-                                  tr.append('td').attr('class', 'rpd-name').text(outlet.name);
-                              });
-
-            } else if (isPdMode) {
-
-                outletElm = d3.select(document.createElement('td')).attr('class', 'rpd-outlet')
-                              .call(function(td) {
-                                  td.append('span').attr('class', 'rpd-connector');
-                                  td.append('span').attr('class', 'rpd-name').text(outlet.name);
-                                  td.append('span').attr('class', 'rpd-value');
-                                  if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(outlet.type);
-                              });
-
-            }
+            var outletElm = style.createOutlet().node();
 
             outletElm.classed('rpd-'+outlet.type.replace('/','-'), true);
             outletElm.classed('rpd-stale', true);
