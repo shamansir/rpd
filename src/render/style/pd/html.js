@@ -1,8 +1,16 @@
-Rpd.style('pd', 'html', {
+Rpd.style('pd', 'html', function(config) {
 
-    createNode: function(nodeBox) {
+var d3 = d3 || d3_tiny;
 
-        var nodeElm = nodeBox.append('table');//.attr('class', 'rpd-node');
+return {
+
+    edgePadding: { horizontal: 20, vertical: 40 },
+    boxPadding:  { horizontal: 20, vertical: 80 },
+
+    createNode: function(node, description) {
+
+        var nodeElm = d3.select(document.createElement('table'))
+                        .attr('class', 'rpd-node');
 
         // inlets placehoder
         nodeElm.append('tr').attr('class', 'rpd-inlets')
@@ -22,9 +30,7 @@ Rpd.style('pd', 'html', {
                           td.append('span').attr('class', 'rpd-name').text(node.name);
                           if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(node.type);
                           // add description to be shown on hover
-                          td.attr('title', nodeDescriptions[node.type]
-                                           ? (nodeDescriptions[node.type] + ' (' + node.type + ')')
-                                           : node.type);
+                          td.attr('title', description ? (description + ' (' + node.type + ')') : node.type);
                       })
                     tr.append('td').attr('class', 'rpd-body')
                       .append('div')
@@ -42,7 +48,7 @@ Rpd.style('pd', 'html', {
 
     },
 
-    createInlet: function() {
+    createInlet: function(inlet) {
         return d3.select(document.createElement('td')).attr('class', 'rpd-inlet')
                  .call(function(td) {
                      td.append('span').attr('class', 'rpd-connector');
@@ -53,7 +59,7 @@ Rpd.style('pd', 'html', {
                  })
     },
 
-    createOutlet: function() {
+    createOutlet: function(outlet) {
         return d3.select(document.createElement('td')).attr('class', 'rpd-outlet')
                  .call(function(td) {
                      td.append('span').attr('class', 'rpd-connector');
@@ -63,12 +69,14 @@ Rpd.style('pd', 'html', {
                  });
     },
 
-    createLink: function() {
+    createLink: function(link) {
         return d3.select(document.createElement('span'))
                  .attr('class', 'rpd-link')
                  .style('position', 'absolute')
                  .style('transform-origin', 'left top')
                  .style('-webkit-transform-origin', 'left top');
     }
+
+};
 
 });

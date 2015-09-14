@@ -691,9 +691,9 @@ function nodedescription(type, description) {
     nodedescriptions[type] = description;
 }
 
-function style(name, renderer, obj) {
+function style(name, renderer, func) {
     if (!styles[name]) styles[name] = {};
-    styles[name][renderer] = obj;
+    styles[name][renderer] = func;
 }
 
 // =============================================================================
@@ -719,7 +719,7 @@ return {
     'channeltype': channeltype,
     'nodedescription': nodedescription,
 
-    'renderer': renderer, 'style': style,
+    'renderer': renderer, 'styles': styles, 'style': style,
     'noderenderer': noderenderer,
     'channelrenderer': channelrenderer,
 

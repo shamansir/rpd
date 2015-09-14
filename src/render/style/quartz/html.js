@@ -1,6 +1,13 @@
-Rpd.style('quartz', 'html', {
+Rpd.style('quartz', 'html', function(config) {
 
-    createNode: function() {
+var d3 = d3 || d3_tiny;
+
+return {
+
+    edgePadding: { horizontal: 30, vertical: 20 },
+    boxPadding:  { horizontal: 20, vertical: 30 },
+
+    createNode: function(node, description) {
 
         var nodeElm = d3.select(document.createElement('table'))
                         .attr('class', 'rpd-node');
@@ -20,9 +27,7 @@ Rpd.style('quartz', 'html', {
                              if (config.showTypes) th.append('span').attr('class', 'rpd-type').text(node.type);
                              th.append('span').attr('class', 'rpd-name').text(node.name);
                              // add description to be shown on hover
-                             th.attr('title', nodeDescriptions[node.type]
-                                              ? (nodeDescriptions[node.type] + ' (' + node.type + ')')
-                                              : node.type);
+                             th.attr('title', description ? (description + ' (' + node.type + ')') : node.type);
                          });
 
                });
@@ -58,7 +63,7 @@ Rpd.style('quartz', 'html', {
 
     },
 
-    createInlet: function() {
+    createInlet: function(inlet) {
         return d3.select(document.createElement('tr')).attr('class', 'rpd-inlet')
                  .call(function(tr) {
                      tr.append('td').attr('class', 'rpd-connector');
@@ -69,7 +74,7 @@ Rpd.style('quartz', 'html', {
         });
     },
 
-    createOutlet: function() {
+    createOutlet: function(outlet) {
         return d3.select(document.createElement('tr')).attr('class', 'rpd-outlet')
                  .call(function(tr) {
                      tr.append('td').attr('class', 'rpd-connector');
@@ -79,12 +84,14 @@ Rpd.style('quartz', 'html', {
                  });
     },
 
-    createLink: function() {
+    createLink: function(link) {
         return d3.select(document.createElement('span'))
                  .attr('class', 'rpd-link')
                  .style('position', 'absolute')
                  .style('transform-origin', 'left top')
                  .style('-webkit-transform-origin', 'left top');
     }
+
+};
 
 });

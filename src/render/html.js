@@ -2,13 +2,8 @@
 
 var ƒ = Rpd.unit;
 
-    // inlets/outlets are at the left/right sides of a node body
-var QUARTZ_MODE = 'quartz',
-    // inlets/outlets are at the top/bottom sides of a node body
-    PD_MODE = 'pd';
-
 var defaultConfig = {
-    mode: QUARTZ_MODE,
+    style: 'quartz',
     // show inlet/outlet value only when user hovers over its connector
     // (always showing, by default)
     valuesOnHover: false,
@@ -60,8 +55,13 @@ return function(networkRoot, userConfig) {
 
     var config = mergeConfig(userConfig, defaultConfig);
 
-    var isQuartzMode = (config.mode === QUARTZ_MODE),
-        isPdMode = (config.mode === PD_MODE);
+    if (!config.style) throw new Error('No style defined in configuration');
+
+    var style = Rpd.styles[config.style]['html'];
+
+    if (!style) throw new Error('Style ' + config.style + ' has no definition for HTML render');
+
+    style = style(config);
 
     networkRoot = d3.select(networkRoot)
                     .classed('rpd-network', true);
@@ -94,7 +94,7 @@ return function(networkRoot, userConfig) {
             tree.patches[patch.id] = root;
 
             // initialize the node placing (helps in determining the position where new node should be located)
-            tree.patchToPlacing[patch.id] = new GridPlacing(config.mode);
+            tree.patchToPlacing[patch.id] = new GridPlacing(style);
             tree.patchToLinks[patch.id] = new VLinks();
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
@@ -157,7 +157,7 @@ return function(networkRoot, userConfig) {
             var render = update.render;
 
             var nodeBox = d3.select(document.createElement('div')).attr('class', 'rpd-node-box');
-            var nodeElm = nodeBox.append(style.createNode().node());
+            var nodeElm = nodeBox.append(style.createNode(node, nodeDescriptions[node.type]).node());
 
             nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                    .classed('rpd-'+node.type.replace('/','-'), true);
@@ -283,7 +283,7 @@ return function(networkRoot, userConfig) {
             var inletsTarget = tree.nodes[update.node.id].data().inletsTarget;
             var render = update.render;
 
-            var inletElm = style.createInlet().node();
+            var inletElm = style.createInlet(inlet);
 
             inletElm.classed('rpd-'+inlet.type.replace('/','-'), true);
             inletElm.classed({ 'rpd-stale': true,
@@ -325,7 +325,7 @@ return function(networkRoot, userConfig) {
             var outletsTarget = tree.nodes[update.node.id].data().outletsTarget;
             var render = update.render;
 
-            var outletElm = style.createOutlet().node();
+            var outletElm = style.createOutlet(outlet);
 
             outletElm.classed('rpd-'+outlet.type.replace('/','-'), true);
             outletElm.classed('rpd-stale', true);
@@ -498,12 +498,10 @@ Navigation.prototype.switch = function(targetPatch) {
 // ============================= Placing =======================================
 // =============================================================================
 
-function GridPlacing(mode) {
+function GridPlacing(style) {
     this.nodeRects = [];
-    this.edgePadding = (mode === QUARTZ_MODE) ? { horizontal: 30, vertical: 20 }
-                                              : { horizontal: 20, vertical: 40 };
-    this.boxPadding  = (mode === QUARTZ_MODE) ? { horizontal: 20, vertical: 30 }
-                                              : { horizontal: 20, vertical: 80 };
+    this.edgePadding = style.edgePadding || { horizontal: 30, vertical: 20 };
+    this.boxPadding  = style.boxPadding  || { horizontal: 20, vertical: 30 };
 }
 GridPlacing.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
 GridPlacing.prototype.nextPosition = function(node, size, limits) {
@@ -528,9 +526,10 @@ GridPlacing.prototype.nextPosition = function(node, size, limits) {
 // ================================ Links ======================================
 // =============================================================================
 
-function VLink(link) { // visual representation of the link
+function VLink(link, style) { // visual representation of the link
     this.link = link; // may be null, if it's a ghost
     this.elm = null;
+    this.style = style;
 }
 VLink.prototype.construct = function(x0, y0, x1, y1) {
     if (this.elm) throw new Error('VLink is already constructed');
@@ -538,13 +537,13 @@ VLink.prototype.construct = function(x0, y0, x1, y1) {
                              ((y0 - y1) * (y0 - y1)));
     var angle = Math.atan2(y1 - y0, x1 - x0);
 
-    var linkElm = style.createLink()
-                       .style('z-index', LINK_LAYER)
-                       .style('width', Math.floor(distance) + 'px')
-                       .style('left', x0 + 'px')
-                       .style('top', y0 + 'px')
-                       .style('transform', 'rotateZ(' + angle + 'rad)')
-                       .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
+    var linkElm = this.style.createLink(this.link)
+                            .style('z-index', LINK_LAYER)
+                            .style('width', Math.floor(distance) + 'px')
+                            .style('left', x0 + 'px')
+                            .style('top', y0 + 'px')
+                            .style('transform', 'rotateZ(' + angle + 'rad)')
+                            .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
     this.elm = linkElm;
     return this;
 }
