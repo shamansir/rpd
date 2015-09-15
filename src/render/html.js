@@ -55,13 +55,7 @@ return function(networkRoot, userConfig) {
 
     var config = mergeConfig(userConfig, defaultConfig);
 
-    if (!config.style) throw new Error('No style defined in configuration');
-
-    var style = Rpd.styles[config.style]['html'];
-
-    if (!style) throw new Error('Style ' + config.style + ' has no definition for HTML render');
-
-    style = style(config);
+    var style = Rpd.getStyle(config.style, 'html')(config);
 
     networkRoot = d3.select(networkRoot)
                     .classed('rpd-network', true);
@@ -83,7 +77,7 @@ return function(networkRoot, userConfig) {
             root = d3.select(document.createElement('div'))
                      .attr('class', function() {
                          var classes = [ 'rpd-patch' ];
-                         classes.push('rpd-layout-' + config.mode);
+                         classes.push('rpd-style-' + config.style);
                          classes.push('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'));
                          if (config.showBoxes) classes.push('rpd-show-boxes');
                          return classes.join(' ');
@@ -99,7 +93,7 @@ return function(networkRoot, userConfig) {
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
             // links if they were clicked in the appropriate order
-            connectivity = new Connectivity(root);
+            connectivity = new Connectivity(root, style);
 
             // initialized drag-n-drop support (used to allow user drag nodes)
             if (config.nodeMovingAllowed) dnd = new DragAndDrop(root);
@@ -405,7 +399,7 @@ return function(networkRoot, userConfig) {
             var outletConnector = outletData.connector;
             var inletConnector  = inletData.connector;
 
-            var vlink = new VLink(link);
+            var vlink = new VLink(link, style);
 
             // visually link is just a CSS-rotated div with 1px border
             var p0 = getPos(outletConnector.node()),
@@ -630,8 +624,9 @@ var Connectivity = (function() {
         return tree.outlets[outlet.id].data().connector;
     }
 
-    function Connectivity(root) {
+    function Connectivity(root, style) {
         this.root = root;
+        this.style = style;
 
         this.rootClicks = Kefir.fromEvents(this.root.node(), 'click');
         this.inletClicks = Kefir.pool(),
@@ -644,7 +639,7 @@ var Connectivity = (function() {
     }
     Connectivity.prototype.subscribeOutlet = function(outlet, connector) {
 
-        var root = this.root;
+        var root = this.root; var style = this.style;
         var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
         var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
 
@@ -665,8 +660,8 @@ var Connectivity = (function() {
              .onValue(function(pos) {
                  startLink.emit();
                  var pivot = getPos(connector.node());
-                 var ghost = new VLink().construct(pivot.x, pivot.y, pos.x, pos.y)
-                                        .noPointerEvents().appendTo(root);
+                 var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
+                                                   .noPointerEvents().appendTo(root);
                  return Kefir.fromEvents(root.node(), 'mousemove')
                              .takeUntilBy(Kefir.merge([ inletClicks,
                                                         outletClicks.mapTo(false),
@@ -694,7 +689,7 @@ var Connectivity = (function() {
     };
     Connectivity.prototype.subscribeInlet = function(inlet, connector) {
 
-        var root = this.root;
+        var root = this.root; var style = this.style;
         var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
         var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
 
@@ -720,8 +715,8 @@ var Connectivity = (function() {
                  outlet.disconnect(prevLink);
                  startLink.emit();
                  var pivot = getPos(getConnector(outlet).node());
-                 var ghost = new VLink().construct(pivot.x, pivot.y, pos.x, pos.y)
-                                        .noPointerEvents().appendTo(root);
+                 var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
+                                                   .noPointerEvents().appendTo(root);
                  return Kefir.fromEvents(root.node(), 'mousemove')
                              .takeUntilBy(Kefir.merge([ inletClicks,
                                                         outletClicks.mapTo(false),

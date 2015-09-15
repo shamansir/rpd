@@ -655,6 +655,14 @@ function inject_render(update, alias) {
     return update;
 }
 
+function getStyle(name, renderer) {
+    if (!name) throw new Error('Unknown style requested: ' + name);
+    if (!styles[name]) throw new Error('Style \'' + name + '\' is not registered');
+    var style = styles[name][renderer];
+    if (!style) throw new Error('Style \'' + name + '\' has no definition for \'' + renderer + '\' renderer');
+    return style;
+}
+
 // =============================================================================
 // =========================== registration ====================================
 // =============================================================================
@@ -727,6 +735,8 @@ return {
 
     'allNodeTypes': nodetypes,
     'allNodeDescriptions': nodedescriptions,
+
+    'getStyle': getStyle,
 
     'short_uid': short_uid
 }
