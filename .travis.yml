@@ -2,8 +2,8 @@ language: node_js
 node_js:
     - "0.12"
     - "iojs"
-script: make test
-before_script: make test-deps
+script: gulp test
+before_script: npm install -g gulp
 
 # Google Chrome
 #

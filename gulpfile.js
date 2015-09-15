@@ -1,6 +1,7 @@
-// npm install --save-dev gulp yargs
+// npm install --save-dev gulp gulp-download yargs
 
-var gulp = require('gulp');
+var gulp = require('gulp'),
+    download = require('gulp-download');
 
 var argv = require('yargs')
            .array('renderer')
@@ -15,19 +16,32 @@ var argv = require('yargs')
            })
            .argv;
 
-gulp.task('default', function() {
+var Server = require('karma').Server;
+
+var VENDOR = [ 'http://rpominov.github.io/kefir/dist/kefir.min.js'/*,
+               'http://mohayonao.github.io/timbre.js/timbre.js',
+               'http://player-dev.animatron.com/latest/bundle/animatron.min.js'*/ ];
+
+gulp.task('default', ['build'], function() {
     console.log(argv);
-  // place code for your default task here
+
 });
 
 gulp.task('get-deps', function() {
-
+    download(VENDOR).pipe(gulp.dest('./vendor'));
 });
 
 gulp.task('build', function() {
 
 });
 
-gulp.task('test', function() {
+gulp.task('test', function(done) {
+    new Server({
+        configFile: __dirname + '/spec/karma.conf.js',
+        singleRun: true
+    }, done).start();
+});
+
+gulp.task('html-head', function() {
 
 });

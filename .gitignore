@@ -2,4 +2,5 @@ dist/
 vendor/
 gifs/
 spec/lib
+spec/Runner.html
 compiler.jar
