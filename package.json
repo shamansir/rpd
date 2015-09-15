@@ -23,8 +23,11 @@
     "kefir": "rpominov/kefir"
   },
   "devDependencies": {
+    "google-closure-compiler": "^20150901.0.0",
     "gulp": "^3.9.0",
+    "gulp-closure-compiler": "^0.3.0",
     "gulp-download": "0.0.1",
+    "gulp-util": "^3.0.6",
     "jasmine": "latest",
     "jasmine-core": "^2.3.4",
     "karma": "^0.13.9",
@@ -35,7 +38,7 @@
     "yargs": "^3.25.0"
   },
   "scripts": {
-    "test": "make test"
+    "test": "gulp test"
   },
   "license": "MIT"
 }
