@@ -3,7 +3,9 @@ node_js:
     - "0.12"
     - "iojs"
 script: gulp test
-before_script: npm install -g gulp
+before_script:
+    - npm install -g gulp
+    - gulp get-deps
 
 # Google Chrome
 #

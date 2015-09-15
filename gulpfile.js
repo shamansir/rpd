@@ -23,7 +23,7 @@ var VENDOR = [ 'http://rpominov.github.io/kefir/dist/kefir.min.js'/*,
                'http://player-dev.animatron.com/latest/bundle/animatron.min.js'*/ ];
 
 gulp.task('default', ['build'], function() {
-    console.log(argv);
+    console.log('Options: ', argv);
 
 });
 
