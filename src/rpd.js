@@ -20,6 +20,7 @@ var channeltypes = {};
 var noderenderers = {};
 var channelrenderers = {};
 var nodedescriptions = {};
+var styles = {};
 
 var renderer_registry = {};
 
@@ -654,6 +655,14 @@ function inject_render(update, alias) {
     return update;
 }
 
+function getStyle(name, renderer) {
+    if (!name) throw new Error('Unknown style requested: ' + name);
+    if (!styles[name]) throw new Error('Style \'' + name + '\' is not registered');
+    var style = styles[name][renderer];
+    if (!style) throw new Error('Style \'' + name + '\' has no definition for \'' + renderer + '\' renderer');
+    return style;
+}
+
 // =============================================================================
 // =========================== registration ====================================
 // =============================================================================
@@ -690,6 +699,11 @@ function nodedescription(type, description) {
     nodedescriptions[type] = description;
 }
 
+function style(name, renderer, func) {
+    if (!styles[name]) styles[name] = {};
+    styles[name][renderer] = func;
+}
+
 // =============================================================================
 // =============================== export ======================================
 // =============================================================================
@@ -713,7 +727,7 @@ return {
     'channeltype': channeltype,
     'nodedescription': nodedescription,
 
-    'renderer': renderer,
+    'renderer': renderer, 'styles': styles, 'style': style,
     'noderenderer': noderenderer,
     'channelrenderer': channelrenderer,
 
@@ -721,6 +735,8 @@ return {
 
     'allNodeTypes': nodetypes,
     'allNodeDescriptions': nodedescriptions,
+
+    'getStyle': getStyle,
 
     'short_uid': short_uid
 }
