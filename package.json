@@ -25,9 +25,10 @@
   "devDependencies": {
     "google-closure-compiler": "^20150901.0.0",
     "gulp": "^3.9.0",
-    "gulp-header": "^1.7.1",
     "gulp-closure-compiler": "^0.3.0",
+    "gulp-concat": "^2.6.0",
     "gulp-download": "0.0.1",
+    "gulp-header": "^1.7.1",
     "gulp-size": "^2.0.0",
     "gulp-util": "^3.0.6",
     "jasmine": "latest",
