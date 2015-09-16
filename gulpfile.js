@@ -9,6 +9,22 @@ var gulp = require('gulp'),
     download = require('gulp-download'),
     closureCompiler = require('gulp-closure-compiler');
 
+var Paths = {
+    Src: './src',
+    Rpd: function() { return Paths.Src + '/rpd.js'; },
+    Kefir: function() { return './vendor/kefir.min.js'; },
+    D3: function() { return './vendor/d3.min.js'; },
+    D3Tiny: function() { return Paths.Src + '/render/d3_tiny.js'; },
+    Renderer: function(renderer) { return Paths.Src + '/render/' + renderer; },
+    Toolkit: function(toolkit) { return Paths.Src + '/toolkit/' + toolkit; },
+    ToolkitRenderer: function(toolkit, renderer) { return Paths.Src + '/toolkit/' + toolkit + '/render/' + renderer; },
+    UserToolkit: function(toolkit) { return toolkit; },
+    UserToolkitRenderer: function(toolkit, renderer) { return toolkit + '/render/' + renderer; },
+    StyleRenderer: function(style, renderer) { return Paths.Src + '/render/style/' + style + '/' + renderer; },
+    UserStyleRenderer: function(style, renderer) { return style + '/' + renderer; },
+    Io: function(io) { return Paths.Src + '/io/' + io; }
+}
+
 var argv = require('yargs')
            .array('renderer').array('style').array('toolkit').array('io').boolean('d3')
            .array('user-style').array('user-toolkit')
@@ -102,7 +118,7 @@ gulp.task('html-head', ['list-opts'], function() {
     getHtmlHead(argv);
 });
 
-// Helpers ========================================================
+// Helpers =====================================================================
 
 function distJsHeader(pkg, options) {
     var banner = ['/**',
@@ -156,16 +172,26 @@ function logFiles(list) {
 function getCssFiles(options) {
     var list = [];
     options.renderer.forEach(function(renderer) {
-        list.push('./src/render/' + renderer + '.css');
+        list.push(Paths.Renderer(renderer) + '.css');
     });
     options.style.forEach(function(style) {
         options.renderer.forEach(function(renderer) {
-            list.push('./src/render/style/' + style + '/' + renderer + '.css');
+            list.push(Paths.StyleRenderer(style, renderer) + '.css');
+        });
+    });
+    options['user-style'].forEach(function(style) {
+        options.renderer.forEach(function(renderer) {
+            list.push(Paths.UserStyleRenderer(style, renderer) + '.css');
         });
     });
     options.toolkit.forEach(function(toolkit) {
         options.renderer.forEach(function(renderer) {
-            list.push('./src/toolkit/' + toolkit + '/render/' + renderer + '.css');
+            list.push(Paths.ToolkitRenderer(toolkit, renderer) + '.css');
+        });
+    });
+    options['user-toolkit'].forEach(function(toolkit) {
+        options.renderer.forEach(function(renderer) {
+            list.push(Paths.UserToolkitRenderer(toolkit, renderer) + '.css');
         });
     });
     return list;
@@ -173,23 +199,34 @@ function getCssFiles(options) {
 
 function getJsFiles(options) {
     var list = [];
-    list.push('./src/rpd.js');
+    list.push(Paths.Rpd());
     options.io.forEach(function(io) {
-        list.push('./src/io/' + io + '.js');
+        list.push(Paths.Io(io) + '.js');
     });
-    if (!options.d3) list.push('./src/render/d3_tiny.js');
+    if (!options.d3) list.push(Paths.D3Tiny());
     options.style.forEach(function(style) {
         options.renderer.forEach(function(renderer) {
-            list.push('./src/render/style/' + style + '/' + renderer + '.js');
+            list.push(Paths.StyleRenderer(style, renderer) + '.js');
+        });
+    });
+    options['user-style'].forEach(function(style) {
+        options.renderer.forEach(function(renderer) {
+            list.push(Paths.UserStyleRenderer(style, renderer) + '.js');
         });
     });
     options.renderer.forEach(function(renderer) {
-        list.push('./src/render/' + renderer + '.js');
+        list.push(Paths.Renderer(renderer) + '.js');
     });
     options.toolkit.forEach(function(toolkit) {
-        list.push('./src/toolkit/' + toolkit + '.js');
+        list.push(Paths.Toolkit(toolkit) + '.js');
         options.renderer.forEach(function(renderer) {
-            list.push('./src/toolkit/' + toolkit + '/render/' + renderer + '.js');
+            list.push(Paths.ToolkitRenderer(toolkit, renderer) + '.js');
+        });
+    });
+    options['user-toolkit'].forEach(function(toolkit) {
+        list.push(Paths.UserToolkit(toolkit) + '.js');
+        options.renderer.forEach(function(renderer) {
+            list.push(Paths.UserToolkitRenderer(toolkit, renderer) + '.js');
         });
     });
     return list;
@@ -209,47 +246,73 @@ function getHtmlHead(options) {
     }
     options.renderer.forEach(function(renderer) {
         comment('RPD Renderer: ' + renderer);
-        cssFile('./src/render/' + renderer + '.css');
+        cssFile(Paths.Renderer(renderer) + '.css');
     });
     options.style.forEach(function(style) {
         options.renderer.forEach(function(renderer) {
             comment('RPD Style: ' + style + ' (' + renderer + ')');
-            cssFile('./src/render/style/' + style + '/' + renderer + '.css');
+            cssFile(Paths.StyleRenderer(style, renderer) + '.css');
+        });
+    });
+    options['user-style'].forEach(function(style) {
+        options.renderer.forEach(function(renderer) {
+            comment('RPD User Style: ' + style + ' (' + renderer + ')');
+            cssFile(Paths.UserStyleRenderer(style, renderer) + '.css');
         });
     });
     options.toolkit.forEach(function(toolkit) {
         options.renderer.forEach(function(renderer) {
             comment('RPD Toolkit: ' + toolkit + ' (' + renderer + ')');
-            cssFile('./src/render/' + renderer + '.css');
+            cssFile(Paths.ToolkitRenderer(toolkit, renderer) + '.css');
         });
     });
-    comment('Kefir'); jsFile('./vendor/kefir.min.js');
-    comment('RPD'); jsFile('./src/rpd.js');
+    options['user-toolkit'].forEach(function(toolkit) {
+        options.renderer.forEach(function(renderer) {
+            comment('RPD User Toolkit: ' + toolkit + ' (' + renderer + ')');
+            cssFile(Paths.UserToolkitRenderer(toolkit, renderer) + '.css');
+        });
+    });
+    comment('Kefir'); jsFile(Paths.Kefir());
+    comment('RPD'); jsFile(Paths.Rpd());
     options.io.forEach(function(io) {
         comment('RPD I/O: ' + io);
-        jsFile('./src/io/' + io + '.js');
+        jsFile(Paths.Io(io) + '.js');
     });
     if (options.d3) {
-        comment('d3.js'); jsFile('./vendor/d3.js');
+        comment('d3.js'); jsFile(Paths.D3());
     } else {
-        comment('d3_tiny.js'); jsFile('./src/render/d3_tiny.js');
+        comment('d3_tiny.js'); jsFile(Paths.D3Tiny());
     }
     options.style.forEach(function(style) {
         options.renderer.forEach(function(renderer) {
             comment('RPD Style: ' + style + ' (' + renderer + ')');
-            jsFile('./src/render/style/' + style + '/' + renderer + '.js');
+            jsFile(Paths.StyleRenderer(style, renderer) + '.js');
+        });
+    });
+    options['user-style'].forEach(function(style) {
+        options.renderer.forEach(function(renderer) {
+            comment('RPD User Style: ' + style + ' (' + renderer + ')');
+            jsFile(Paths.UserStyleRenderer(style, renderer) + '.js');
         });
     });
     options.renderer.forEach(function(renderer) {
         comment('RPD Renderer: ' + renderer);
-        jsFile('./src/render/' + renderer + '.js');
+        jsFile(Paths.Renderer(renderer) + '.js');
     });
     options.toolkit.forEach(function(toolkit) {
         comment('RPD Toolkit: ' + toolkit);
-        jsFile('./src/toolkit/' + toolkit + '.js');
+        jsFile(Paths.Toolkit(toolkit) + '.js');
         options.renderer.forEach(function(renderer) {
             comment('RPD Toolkit: ' + toolkit + ' (' + renderer + ')');
-            jsFile('./src/toolkit/' + toolkit + '/render/' + renderer + '.js');
+            jsFile(Paths.ToolkitRenderer(toolkit, renderer) + '.js');
+        });
+    });
+    options['user-toolkit'].forEach(function(toolkit) {
+        comment('RPD User Toolkit: ' + toolkit);
+        jsFile(Paths.UserToolkit(toolkit) + '.js');
+        options.renderer.forEach(function(renderer) {
+            comment('RPD User Toolkit: ' + toolkit + ' (' + renderer + ')');
+            jsFile(Paths.UserToolkitRenderer(toolkit, renderer) + '.js');
         });
     });
     console.log('</head>');
