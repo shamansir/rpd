@@ -10,26 +10,29 @@ var gulp = require('gulp'),
     closureCompiler = require('gulp-closure-compiler');
 
 var Paths = {
-    Src: './src',
-    Vendor: './vendor',
-    Rpd: function() { return Paths.Src + '/rpd.js'; },
-    Kefir: function() { return Paths.Vendor + '/kefir.min.js'; },
-    D3: function() { return Paths.Vendor + '/d3.min.js'; },
-    D3Tiny: function() { return Paths.Src + '/d3_tiny.js'; },
-    Renderer: function(renderer) { return Paths.Src + '/render/' + renderer; },
-    Toolkit: function(toolkit) { return Paths.Src + '/toolkit/' + toolkit + '/toolkit'; },
-    ToolkitRenderer: function(toolkit, renderer) { return Paths.Src + '/toolkit/' + toolkit + '/' + renderer; },
+    Root: '.',
+    Src: function() { return Paths.Root + '/src'; },
+    Vendor: function() { return Paths.Root + '/vendor'; },
+    Rpd: function() { return Paths.Src() + '/rpd.js'; },
+    Kefir: function() { return Paths.Vendor() + '/kefir.min.js'; },
+    D3: function() { return Paths.Vendor() + '/d3.min.js'; },
+    D3Tiny: function() { return Paths.Src() + '/d3_tiny.js'; },
+    Renderer: function(renderer) { return Paths.Src() + '/render/' + renderer; },
+    Toolkit: function(toolkit) { return Paths.Src() + '/toolkit/' + toolkit + '/toolkit'; },
+    ToolkitRenderer: function(toolkit, renderer) { return Paths.Src() + '/toolkit/' + toolkit + '/' + renderer; },
     UserToolkit: function(toolkit) { return toolkit; },
     UserToolkitRenderer: function(toolkit, renderer) { return toolkit + '/' + renderer; },
-    StyleRenderer: function(style, renderer) { return Paths.Src + '/style/' + style + '/' + renderer; },
+    StyleRenderer: function(style, renderer) { return Paths.Src() + '/style/' + style + '/' + renderer; },
     UserStyleRenderer: function(style, renderer) { return style + '/' + renderer; },
-    Io: function(io) { return Paths.Src + '/io/' + io; }
+    Io: function(io) { return Paths.Src() + '/io/' + io; }
 }
 
 var argv = require('yargs')
+           .string('root')
            .array('renderer').array('style').array('toolkit').array('io').boolean('d3')
            .array('user-style').array('user-toolkit')
            .default({
+               root: '.',
                renderer: [ 'svg' ],
                style: [ 'quartz' ],
                toolkit: [ 'core' ],
@@ -59,7 +62,7 @@ gulp.task('get-deps', function() {
     download(VENDOR).pipe(gulp.dest('./vendor'));
 });
 
-gulp.task('build', ['list-opts', 'concat-css'], function() {
+gulp.task('build', ['check-root', 'list-opts', 'concat-css'], function() {
     gutil.log(infoColor('Compiling rpd.js with Closure compiler'));
     gutil.log(infoColor('Sources included:'));
     return gulp.src(logFiles(getJsFiles(argv)))
@@ -79,7 +82,7 @@ gulp.task('build', ['list-opts', 'concat-css'], function() {
                });
 });
 
-gulp.task('concat-css', function() {
+gulp.task('concat-css', ['check-root'], function() {
     gutil.log(infoColor('Concatenating rpd.css'));
     return gulp.src(logFiles(getCssFiles(argv)))
                .pipe(concat('rpd.css'))
@@ -98,7 +101,13 @@ gulp.task('test', function(done) {
     }, done).start();
 });
 
+gulp.task('check-root', function() {
+    checkRootPath(argv);
+});
+
 gulp.task('list-opts', function() {
+    gutil.log(infoColor('Root Path (--root):'),
+              argv.root ? valueColor(argv.root) : '.');
     gutil.log(infoColor('Selected Renderers (--renderer):'),
               argv.renderer.length ? valueColor(argv.renderer.join(', ')) : '[None]');
     gutil.log(infoColor('Selected Styles (--style):'),
@@ -115,11 +124,15 @@ gulp.task('list-opts', function() {
               argv['user-toolkit'].length ? valueColor(argv['user-toolkit'].join(', ')) : '[None]');
 });
 
-gulp.task('html-head', ['list-opts'], function() {
+gulp.task('html-head', ['check-root', 'list-opts'], function() {
     getHtmlHead(argv);
 });
 
 // Helpers =====================================================================
+
+function checkRootPath(argv) {
+    if (argv.root) { Paths.Root = argv.root; }
+}
 
 function distJsHeader(pkg, options) {
     var banner = ['/**',
@@ -243,7 +256,7 @@ function getHtmlHead(options) {
         console.log('  <link rel="stylesheet" href="' + path + '"></style>');
     }
     function jsFile(path) {
-        console.log('  <script src="' + path + '""></script>');
+        console.log('  <script src="' + path + '"></script>');
     }
     options.renderer.forEach(function(renderer) {
         comment('RPD Renderer: ' + renderer);
@@ -273,8 +286,10 @@ function getHtmlHead(options) {
             cssFile(Paths.UserToolkitRenderer(toolkit, renderer) + '.css');
         });
     });
+    console.log();
     comment('Kefir'); jsFile(Paths.Kefir());
     comment('RPD'); jsFile(Paths.Rpd());
+    console.log();
     options.io.forEach(function(io) {
         comment('RPD I/O: ' + io);
         jsFile(Paths.Io(io) + '.js');
@@ -282,7 +297,7 @@ function getHtmlHead(options) {
     if (options.d3) {
         comment('d3.js'); jsFile(Paths.D3());
     } else {
-        comment('d3_tiny.js'); jsFile(Paths.D3Tiny());
+        comment('RPD\'s d3_tiny.js'); jsFile(Paths.D3Tiny());
     }
     options.style.forEach(function(style) {
         options.renderer.forEach(function(renderer) {
