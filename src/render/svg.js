@@ -2,13 +2,8 @@
 
 var ƒ = Rpd.unit;
 
-    // inlets/outlets are at the left/right sides of a node body
-var QUARTZ_MODE = 'quartz',
-    // inlets/outlets are at the top/bottom sides of a node body
-    PD_MODE = 'pd';
-
 var defaultConfig = {
-    mode: QUARTZ_MODE,
+    style: 'quartz',
     // show inlet/outlet value only when user hovers over its connector
     // (always showing, by default)
     valuesOnHover: false,
@@ -56,10 +51,10 @@ return function(networkRoot, userConfig) {
 
     var config = mergeConfig(userConfig, defaultConfig);
 
-    var isQuartzMode = (config.mode === QUARTZ_MODE),
-        isPdMode = (config.mode === PD_MODE);
+    var style = Rpd.getStyle(config.style, 'svg')(config);
 
-    networkRoot = d3.select(networkRoot).attr('class', 'rpd-network');
+    networkRoot = d3.select(networkRoot)
+                    .classed('class', 'rpd-network');
 
     var svg;
 
@@ -171,7 +166,7 @@ return function(networkRoot, userConfig) {
             var headerHeight = 21, // height of a node header in SVG units, for Quartz mode
                 headerWidth = 0; // width of a node header in SVG units, for PD mode, will be calculated below
 
-            if (isPdMode) {
+            if (style === 'pd') {
                 // it is required to know the header size before constructing the node itself
                 var fakeName = d3.select(_createSvgElement('text')).attr('class', 'rpd-fake-name').text(node.name).attr('x', -1000).attr('y', -1000);
                 tree.patches[currentPatch.id].append(fakeName.node());

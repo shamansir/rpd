@@ -7,7 +7,7 @@ return {
     edgePadding: { horizontal: 30, vertical: 20 },
     boxPadding:  { horizontal: 20, vertical: 30 },
 
-    createNode: function(node, description) {
+    createNode: function(node, render, description) {
 
         var nodeElm = d3.select(document.createElement('table'))
                         .attr('class', 'rpd-node');
@@ -63,7 +63,7 @@ return {
 
     },
 
-    createInlet: function(inlet) {
+    createInlet: function(inlet, render) {
         return d3.select(document.createElement('tr')).attr('class', 'rpd-inlet')
                  .call(function(tr) {
                      tr.append('td').attr('class', 'rpd-connector');
@@ -74,7 +74,7 @@ return {
         });
     },
 
-    createOutlet: function(outlet) {
+    createOutlet: function(outlet, render) {
         return d3.select(document.createElement('tr')).attr('class', 'rpd-outlet')
                  .call(function(tr) {
                      tr.append('td').attr('class', 'rpd-connector');
