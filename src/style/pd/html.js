@@ -7,6 +7,10 @@ return {
     edgePadding: { horizontal: 20, vertical: 40 },
     boxPadding:  { horizontal: 20, vertical: 80 },
 
+    createRoot: function(patch, parent) {
+        return d3.select(document.createElement('div'));
+    },
+
     createNode: function(node, render, description) {
 
         var nodeElm = d3.select(document.createElement('table'))

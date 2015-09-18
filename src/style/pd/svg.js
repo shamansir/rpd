@@ -7,6 +7,10 @@ return {
     edgePadding: { horizontal: 0, vertical: 0 },
     boxPadding:  { horizontal: 0, vertical: 0 },
 
+    createRoot: function(patch, parent) {
+
+    },
+
     createNode: function(node, render, description) {
     },
 
@@ -19,6 +23,10 @@ return {
     },
 
     createLink: function(link) {
+    },
+
+    onSwitchRoot: function(patch, root) {
+
     }
 
 };

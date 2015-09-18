@@ -74,16 +74,14 @@ return function(networkRoot, userConfig) {
             var docElm = d3.select(document.documentElement);
 
             // build root element as a target for all further patch modifications
-            root = d3.select(document.createElement('div'))
-                     .attr('class', function() {
-                         var classes = [ 'rpd-patch' ];
-                         classes.push('rpd-style-' + config.style);
-                         classes.push('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'));
-                         if (config.showBoxes) classes.push('rpd-show-boxes');
-                         return classes.join(' ');
-                     })
-                     .style('height', docElm.property('clientHeight') + 'px')
-                     .data({ patch: update.patch });
+            root = style.createRoot(patch, networkRoot)
+                        .classed('rpd-patch', true)
+                        .style('height', docElm.property('clientHeight') + 'px')
+                        .data({ patch: update.patch });
+
+            root.classed('rpd-style-' + config.style, true);
+                .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
+                .classed('rpd-show-boxes', config.showBoxes);
 
             tree.patches[patch.id] = root;
 
@@ -116,8 +114,11 @@ return function(networkRoot, userConfig) {
         'patch/enter': function(update) {
             currentPatch = update.patch;
             navigation.switch(update.patch);
-            networkRoot.append(tree.patches[update.patch.id].node());
+            var newRoot = tree.patches[update.patch.id];
+            networkRoot.append(newRoot.node());
+
             tree.patchToLinks[update.patch.id].updateAll();
+            if (style.onSwitchRoot) style.onSwitchRoot(currentPatch, newRoot.node());
         },
 
         'patch/exit': function(update) {

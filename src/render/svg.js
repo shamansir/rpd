@@ -120,9 +120,11 @@ return function(networkRoot, userConfig) {
         'patch/enter': function(update) {
             currentPatch = update.patch;
             navigation.switch(update.patch);
-            networkRoot.append(tree.patches[update.patch.id].node());
+            var newRoot = tree.patches[update.patch.id];
+            networkRoot.append(newRoot.node());
 
             tree.patchToLinks[update.patch.id].updateAll();
+            if (style.onSwitchRoot) style.onSwitchRoot(currentPatch, newRoot.node());
         },
 
         'patch/exit': function(update) {
