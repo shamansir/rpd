@@ -45,6 +45,9 @@ function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
 }
 
+var isQuartzMode = false,
+    isPdMode = true;
+
 function SvgRenderer(patch) {
 
 return function(networkRoot, userConfig) {
@@ -78,13 +81,12 @@ return function(networkRoot, userConfig) {
                .attr('width', docElm.property('clientWidth'))
                .attr('height', docElm.property('clientHeight'));
 
-            var patchRoot = svg.append('g').attr('class', function() {
-                var classes = [ 'rpd-patch' ];
-                classes.push('rpd-layout-' + config.mode);
-                classes.push('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'));
-                if (config.showBoxes) classes.push('rpd-show-boxes');
-                return classes.join(' ');
-            }).data(update.patch);
+            var patchRoot = svg.append(style.createRoot(patch, networkRoot).node())
+                               .classed('rpd-patch', true)
+                               .classed('rpd-style-' + config.style, true)
+                               .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
+                               .classed('rpd-show-boxes', config.showBoxes)
+                               .data(update.patch);
 
             tree.patches[patch.id] = svg.data({ root: patchRoot,
                                                 width: docElm.property('clientWidth'),
@@ -93,7 +95,7 @@ return function(networkRoot, userConfig) {
                                               });
 
             // initialize the node placing (helps in determining the position where new node should be located)
-            tree.patchToPlacing[patch.id] = new GridPlacing(config.mode);
+            tree.patchToPlacing[patch.id] = new GridPlacing(style);
             tree.patchToLinks[patch.id] = new VLinks();
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
@@ -124,7 +126,7 @@ return function(networkRoot, userConfig) {
             networkRoot.append(newRoot.node());
 
             tree.patchToLinks[update.patch.id].updateAll();
-            if (style.onSwitchRoot) style.onSwitchRoot(currentPatch, newRoot.node());
+            if (style.onSwitchPatch) style.onSwitchPatch(currentPatch, newRoot.node());
         },
 
         'patch/exit': function(update) {
@@ -686,12 +688,10 @@ Navigation.prototype.switch = function(targetPatch) {
 // ============================= Placing =======================================
 // =============================================================================
 
-function GridPlacing(mode) {
+function GridPlacing(style) {
     this.nodeRects = [];
-    this.edgePadding = (mode === QUARTZ_MODE) ? { horizontal: 30, vertical: 20 }
-                                              : { horizontal: 20, vertical: 40 };
-    this.boxPadding  = (mode === QUARTZ_MODE) ? { horizontal: 20, vertical: 30 }
-                                              : { horizontal: 20, vertical: 80 };
+    this.edgePadding = style.edgePadding || { horizontal: 30, vertical: 20 };
+    this.boxPadding  = style.boxPadding  || { horizontal: 20, vertical: 30 };
 }
 GridPlacing.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
 GridPlacing.prototype.nextPosition = function(node, size, limits) {
