@@ -4,6 +4,8 @@ var d3 = d3 || d3_tiny;
 
 return {
 
+    defaultContentSize: { width: 100, height: 40 },
+
     edgePadding: { horizontal: 20, vertical: 40 },
     boxPadding:  { horizontal: 20, vertical: 80 },
 

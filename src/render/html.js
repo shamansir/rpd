@@ -118,7 +118,7 @@ return function(networkRoot, userConfig) {
             networkRoot.append(newRoot.node());
 
             tree.patchToLinks[update.patch.id].updateAll();
-            if (style.onSwitchPatch) style.onSwitchPatch(currentPatch, newRoot.node());
+            if (style.onPatchSwitch) style.onPatchSwitch(currentPatch, newRoot.node());
         },
 
         'patch/exit': function(update) {

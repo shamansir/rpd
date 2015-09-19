@@ -57,7 +57,7 @@ return function(networkRoot, userConfig) {
     var style = Rpd.getStyle(config.style, 'svg')(config);
 
     networkRoot = d3.select(networkRoot)
-                    .classed('class', 'rpd-network');
+                    .classed('rpd-network', true);
 
     var svg;
 
@@ -126,7 +126,7 @@ return function(networkRoot, userConfig) {
             networkRoot.append(newRoot.node());
 
             tree.patchToLinks[update.patch.id].updateAll();
-            if (style.onSwitchPatch) style.onSwitchPatch(currentPatch, newRoot.node());
+            if (style.onPatchSwitch) style.onPatchSwitch(currentPatch, newRoot.node());
         },
 
         'patch/exit': function(update) {
@@ -170,33 +170,26 @@ return function(networkRoot, userConfig) {
             var headerHeight = 21, // height of a node header in SVG units, for Quartz mode
                 headerWidth = 0; // width of a node header in SVG units, for PD mode, will be calculated below
 
-            if (style === 'pd') {
+            /* ========================================================== */
+
+            if (isPdMode) {
                 // it is required to know the header size before constructing the node itself
-                var fakeName = d3.select(_createSvgElement('text')).attr('class', 'rpd-fake-name').text(node.name).attr('x', -1000).attr('y', -1000);
+                var fakeName = d3.select(_createSvgElement('text'))
+                                 .attr('class', 'rpd-fake-name')
+                                 .text(node.name).attr('x', -1000).attr('y', -1000);
                 tree.patches[currentPatch.id].append(fakeName.node());
                 headerWidth = fakeName.node().getBBox().width + 12;
                 fakeName.remove();
             }
 
-            var minContentSize = render.size ? { width: render.size.width || 100,
-                                                 height: render.size.height || 40 }
-                                             : { width: 100, height: 40 };
+            var defaultContentSize = style.defaultContentSize;
+            var minContentSize = render.size ? { width: render.size.width || defaultContentSize.width,
+                                                 height: render.size.height || defaultContentSize.height }
+                                             : defaultContentSize;
 
-            var findBestNodeSize = isQuartzMode
-                ? function(numInlets, numOutlets, minContentSize) {
-                      var requiredContentHeight = (2 * socketsMargin) + ((Math.max(numInlets, numOutlets) - 1) * socketPadding);
-                      return { width: minContentSize.width,
-                               height: headerHeight + Math.max(requiredContentHeight, minContentSize.height) };
-                  }
-                : function(numInlets, numOutlets, minContentSize) {
-                      var requiredContentWidth = (2 * socketsMargin) + ((Math.max(numInlets, numOutlets) - 1) * socketPadding);
-                      return { width: headerWidth + Math.max(requiredContentWidth, minContentSize.width),
-                               height: minContentSize.height };
-                  };
-
-            var initialSize = findBestNodeSize(node.def.inlets  ? Object.keys(node.def.inlets).length  : 0,
-                                               node.def.outlets ? Object.keys(node.def.outlets).length : 0,
-                                               minContentSize);
+            var initialSize = style.findBestNodeSize(node.def.inlets  ? Object.keys(node.def.inlets).length  : 0,
+                                                     node.def.outlets ? Object.keys(node.def.outlets).length : 0,
+                                                     minContentSize);
 
             var nodePos = placing.nextPosition(node, initialSize, { width: limitSrc.width, height: limitSrc.height });
 
@@ -335,6 +328,8 @@ return function(networkRoot, userConfig) {
                     return { x: socketsMargin + (socketPadding * idx), y: 1 };
                 }
             }
+
+            /* ========================================================== */
 
             // store targets information and node root element itself
             tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets'),
