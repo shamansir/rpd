@@ -6,11 +6,15 @@ function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
 }
 
+var lastRoot;
+
+var socketPadding = 25, // distance between inlets/outlets in SVG units
+    socketsMargin = 15; // distance between first/last inlet/outlet and body edge
+var headerHeight = 21; // height of a node header in SVG units
+
 var listeners = {};
 
 return {
-
-    defaultContentSize: { width: 100, height: 40 },
 
     edgePadding: { horizontal: 30, vertical: 20 },
     boxPadding:  { horizontal: 20, vertical: 30 },
@@ -22,9 +26,9 @@ return {
     createNode: function(node, render, description) {
 
         var defaultContentSize = style.defaultContentSize;
-        var minContentSize = render.size ? { width: render.size.width || defaultContentSize.width,
-                                             height: render.size.height || defaultContentSize.height }
-                                         : defaultContentSize;
+        var minContentSize = render.size ? { width: render.size.width || 100,
+                                             height: render.size.height || 40 }
+                                         : { width: 100, height: 40 };
 
         function findBestNodeSize(numInlets, numOutlets, minContentSize) {
             var requiredContentHeight = (2 * socketsMargin) + ((Math.max(numInlets, numOutlets) - 1) * socketPadding);
@@ -42,8 +46,7 @@ return {
         var bodyWidth = width,
             bodyHeight = height - headerHeight;
 
-        var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
-        var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
+        var nodeElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-node');
 
         // append shadow
         nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('x', 5).attr('y', 6)
@@ -83,18 +86,19 @@ return {
 
         var numInlets = 0, numOutlets = 0;
         var inletElms = [], outletElms = [];
+        var lastSize = initialSize;
 
         function checkNodeSize() {
-            var nodeData = nodeBox.data(), curSize = nodeData.size;
-            var nodeSize = findBestNodeSize(numInlets, numOutlets, minContentSize);
-            if ((nodeSize.width === curSize.width) && (nodeSize.height === curSize.height)) return;
-            nodeElm.select('rect.rpd-shadow').attr('height', nodeSize.height).attr('width', nodeSize.width);
-            nodeElm.select('rect.rpd-body').attr('height', nodeSize.height).attr('width', nodeSize.width);
+            var curSize = lastSize;
+            var newSize = findBestNodeSize(numInlets, numOutlets, minContentSize);
+            if ((newSize.width === curSize.width) && (newSize.height === curSize.height)) return;
+            nodeElm.select('rect.rpd-shadow').attr('height', newSize.height).attr('width', newSize.width);
+            nodeElm.select('rect.rpd-body').attr('height', newSize.height).attr('width', newSize.width);
             nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight,
-                nodeSize.width, nodeSize.height - headerHeight, 0, 0, 2, 2));
+                newSize.width, newSize.height - headerHeight, 0, 0, 2, 2));
             nodeElm.select('g.rpd-process').attr('transform',
-                'translate(' + (nodeSize.width / 2) + ',' + (headerHeight + ((nodeSize.height - headerHeight) / 2)) + ')');
-            nodeData.size = nodeSize;
+                'translate(' + (newSize.width / 2) + ',' + (headerHeight + ((newSize.height - headerHeight) / 2)) + ')');
+            lastSize = newSize;
         }
 
         function recalculateSockets() {
@@ -147,7 +151,7 @@ return {
             outlet: notifyNewOutlet
         };
 
-        return nodeBox;
+        return nodeElm;
 
     },
 

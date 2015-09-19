@@ -43,9 +43,9 @@ return {
                     height: minContentSize.height };
         }
 
-        var initialSize = style.findBestNodeSize(node.def.inlets  ? Object.keys(node.def.inlets).length  : 0,
-                                                 node.def.outlets ? Object.keys(node.def.outlets).length : 0,
-                                                 minContentSize);
+        var initialSize = findBestNodeSize(node.def.inlets  ? Object.keys(node.def.inlets).length  : 0,
+                                           node.def.outlets ? Object.keys(node.def.outlets).length : 0,
+                                           minContentSize);
 
         var nodePos = placing.nextPosition(node, initialSize, { width: limitSrc.width, height: limitSrc.height });
 
@@ -53,8 +53,7 @@ return {
         var bodyWidth = width - headerWidth,
             bodyHeight = height;
 
-        var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
-        var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
+        var nodeElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-node');
 
         // append shadow
         nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('x', 5).attr('y', 6)
@@ -92,18 +91,19 @@ return {
 
         var numInlets = 0, numOutlets = 0;
         var inletElms = [], outletElms = [];
+        var lastSize = initialSize;
 
         function checkNodeSize() {
-            var nodeData = nodeBox.data(), curSize = nodeData.size;
-            var nodeSize = findBestNodeSize(numInlets, numOutlets, minContentSize);
-            if ((nodeSize.width === curSize.width) && (nodeSize.height === curSize.height)) return;
-            nodeElm.select('rect.rpd-shadow').attr('height', nodeSize.height).attr('width', nodeSize.width);
-            nodeElm.select('rect.rpd-body').attr('height', nodeSize.height).attr('width', nodeSize.width);
-            nodeElm.select('rect.rpd-content').attr('width', nodeSize.width - headerWidth);
+            var curSize = lastSize;
+            var newSize = findBestNodeSize(numInlets, numOutlets, minContentSize);
+            if ((newSize.width === curSize.width) && (newSize.height === curSize.height)) return;
+            nodeElm.select('rect.rpd-shadow').attr('height', newSize.height).attr('width', newSize.width);
+            nodeElm.select('rect.rpd-body').attr('height', newSize.height).attr('width', newSize.width);
+            nodeElm.select('rect.rpd-content').attr('width', newSize.width - headerWidth);
             nodeElm.select('g.rpd-process').attr('transform',
-                'translate(' + (headerWidth + ((nodeSize.width - headerWidth) / 2)) + ',' + (nodeSize.height / 2) + ')');
-            nodeElm.select('.rpd-remove-button').attr('transform', 'translate(' + (nodeSize.width-12) + ',1)');
-            nodeData.size = nodeSize;
+                'translate(' + (headerWidth + ((newSize.width - headerWidth) / 2)) + ',' + (newSize.height / 2) + ')');
+            nodeElm.select('.rpd-remove-button').attr('transform', 'translate(' + (newSize.width-12) + ',1)');
+            lastSize = nodeSize;
         }
 
         function recalculateSockets() {
@@ -146,7 +146,7 @@ return {
             outlet: notifyNewOutlet
         };
 
-        return nodeBox;
+        return nodeElm;
 
     },
 
