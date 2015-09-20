@@ -185,6 +185,7 @@ return {
     },
 
     createLink: function(link) {
+        return d3.select(_createSvgElement('line'));
     },
 
     onSwitchPatch: function(patch, root) {
