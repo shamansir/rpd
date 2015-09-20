@@ -74,10 +74,10 @@ return function(networkRoot, userConfig) {
             var docElm = d3.select(document.documentElement);
 
             // build root element as a target for all further patch modifications
-            root = style.createRoot(patch, networkRoot)
-                        .classed('rpd-patch', true)
-                        .style('height', docElm.property('clientHeight') + 'px')
-                        .data({ patch: update.patch });
+            root = d3.select(style.createRoot(patch, networkRoot))
+                     .classed('rpd-patch', true)
+                     .style('height', docElm.property('clientHeight') + 'px')
+                     .data({ patch: update.patch });
 
             root.classed('rpd-style-' + config.style, true);
                 .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
@@ -153,7 +153,7 @@ return function(networkRoot, userConfig) {
 
             var nodeBox = d3.select(document.createElement('div')).attr('class', 'rpd-node-box');
             var styledNode = style.createNode(node, render, nodeDescriptions[node.type]);
-            var nodeElm = nodeBox.append(styledNode.element.node());
+            var nodeElm = nodeBox.append(styledNode.element);
 
             nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                    .classed('rpd-'+node.type.replace('/','-'), true);
@@ -280,7 +280,7 @@ return function(networkRoot, userConfig) {
             var inletsTarget = tree.nodes[update.node.id].data().inletsTarget;
             var render = update.render;
 
-            var inletElm = style.createInlet(inlet, render);
+            var inletElm = d3.select(style.createInlet(inlet, render));
 
             inletElm.classed('rpd-'+inlet.type.replace('/','-'), true);
             inletElm.classed({ 'rpd-stale': true,
@@ -322,7 +322,7 @@ return function(networkRoot, userConfig) {
             var outletsTarget = tree.nodes[update.node.id].data().outletsTarget;
             var render = update.render;
 
-            var outletElm = style.createOutlet(outlet, render);
+            var outletElm = d3.select(style.createOutlet(outlet, render));
 
             outletElm.classed('rpd-'+outlet.type.replace('/','-'), true);
             outletElm.classed('rpd-stale', true);
@@ -534,13 +534,13 @@ VLink.prototype.construct = function(x0, y0, x1, y1) {
                              ((y0 - y1) * (y0 - y1)));
     var angle = Math.atan2(y1 - y0, x1 - x0);
 
-    var linkElm = this.style.createLink(this.link)
-                            .style('z-index', LINK_LAYER)
-                            .style('width', Math.floor(distance) + 'px')
-                            .style('left', x0 + 'px')
-                            .style('top', y0 + 'px')
-                            .style('transform', 'rotateZ(' + angle + 'rad)')
-                            .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
+    var linkElm = d3.select(this.style.createLink(this.link))
+                    .style('z-index', LINK_LAYER)
+                    .style('width', Math.floor(distance) + 'px')
+                    .style('left', x0 + 'px')
+                    .style('top', y0 + 'px')
+                    .style('transform', 'rotateZ(' + angle + 'rad)')
+                    .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
     this.elm = linkElm;
     return this;
 }

@@ -81,7 +81,7 @@ return function(networkRoot, userConfig) {
                .attr('width', docElm.property('clientWidth'))
                .attr('height', docElm.property('clientHeight'));
 
-            var patchRoot = svg.append(style.createRoot(patch, networkRoot).node())
+            var patchRoot = svg.append(style.createRoot(patch, networkRoot))
                                .classed('rpd-patch', true)
                                .classed('rpd-style-' + config.style, true)
                                .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
@@ -167,13 +167,13 @@ return function(networkRoot, userConfig) {
 
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var styledNode = style.createNode(node, render, nodeDescriptions[node.type]);
-            var nodeElm = nodeBox.append(styledNode.element.node());
+            var nodeElm = nodeBox.append(styledNode.element);
 
             // store targets information and node root element itself
             tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets'),
                                                  outletsTarget: nodeElm.select('.rpd-outlets'),
                                                  processTarget: nodeElm.select('.rpd-process'),
-                                                 position: nodePos, size: initialSize });
+                                                 position: nodePos, size: styledNode.size });
 
             var nodePos = placing.nextPosition(node, styledNode.size, { width: limitSrc.width, height: limitSrc.height });
 
@@ -274,7 +274,7 @@ return function(networkRoot, userConfig) {
 
             var inletElm;
 
-            var inletElm = style.createInlet(inlet, render);
+            var inletElm = d3.select(style.createInlet(inlet, render));
 
             inletElm.classed('rpd-'+inlet.type.replace('/','-'), true);
             inletElm.classed({ 'rpd-stale': true,
@@ -319,7 +319,7 @@ return function(networkRoot, userConfig) {
             var outletsTarget = nodeData.outletsTarget;
             var render = update.render;
 
-            var outletElm = style.createOutlet(inlet, render);
+            var outletElm = d3.select(style.createOutlet(outlet, render));
 
             outletElm.classed('rpd-'+outlet.type.replace('/','-'), true);
             outletElm.classed('rpd-stale', true);
@@ -527,10 +527,10 @@ function VLink(link, style) { // visual representation of the link
 }
 VLink.prototype.construct = function(x0, y0, x1, y1) {
     if (this.elm) throw new Error('VLink is already constructed');
-    var linkElm = this.style.createLink(this.link)
-                            .attr('class', 'rpd-link')
-                            .attr('x1', x0).attr('y1', y0)
-                            .attr('x2', x1).attr('y2', y1);
+    var linkElm = d3.select(this.style.createLink(this.link))
+                    .attr('class', 'rpd-link')
+                    .attr('x1', x0).attr('y1', y0)
+                    .attr('x2', x1).attr('y2', y1);
     this.elm = linkElm;
     return this;
 }
@@ -982,20 +982,6 @@ function addClickSwitch(elm, on_true, on_false, initial) {
              if (val) { on_true(); }
              else { on_false(); }
          })
-}
-
-function roundedRect(x, y, width, height, rtl, rtr, rbr, rbl) {
-    return "M" + x + "," + y
-         + (rtl ? ("v" + rtl
-                 + "a" + rtl + "," + rtl + " 0 0 1 " +  rtl + "," + -rtl) : "")
-         + "h" + (width  - (rtl ? rtl : 0) - (rtr ? rtr : 0))
-         + (rtr ? ("a" + rtr + "," + rtr + " 0 0 1 " +  rtr + "," +  rtr) : "")
-         + "v" + (height - (rtr ? rtr : 0) - (rbr ? rbr : 0))
-         + (rbr ? ("a" + rbr + "," + rbr + " 0 0 1 " + -rbr + "," +  rbr) : "")
-         + "h" + ((rbr ? rbr : 0) + (rbl ? rbl : 0) - width)
-         + (rbl ? ("a" + rbl + "," + rbl + " 0 0 1 " + -rbl + "," + -rbl) : "")
-         + "v" + ((rbl ? rbl : 0) + (rtl ? rtl : 0) - height)
-         + "z";
 }
 
 // =============================================================================

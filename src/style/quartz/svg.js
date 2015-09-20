@@ -20,7 +20,7 @@ return {
     boxPadding:  { horizontal: 20, vertical: 30 },
 
     createRoot: function(patch, parent) {
-        return d3.select(_createSvgElement('g'));
+        return d3.select(_createSvgElement('g')).node();
     },
 
     createNode: function(node, render, description) {
@@ -47,29 +47,36 @@ return {
         var nodeElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-node');
 
         // append shadow
-        nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('x', 5).attr('y', 6)
-                                                                                                      .attr('rx', 3).attr('ry', 3);
+        nodeElm.append('rect').attr('class', 'rpd-shadow')
+                              .attr('width', width).attr('height', height)
+                              .attr('x', 5).attr('y', 6).attr('rx', 3).attr('ry', 3);
 
         // append node header
-        nodeElm.append('path').attr('class', 'rpd-header').attr('d', roundedRect(0, 0, width, headerHeight, 2, 2, 0, 0));
+        nodeElm.append('path').attr('class', 'rpd-header')
+                              .attr('d', roundedRect(0, 0, width, headerHeight, 2, 2, 0, 0));
         nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
-                              .attr('x', 5).attr('y', 6).style('pointer-events', 'none');
+                              .attr('x', 5).attr('y', 6)
+                              .style('pointer-events', 'none');
         // append node body
-        nodeElm.append('path').attr('class', 'rpd-content').attr('d', roundedRect(0, headerHeight, width, bodyHeight, 0, 0, 2, 2));
-        nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2)
+        nodeElm.append('path').attr('class', 'rpd-content')
+                              .attr('d', roundedRect(0, headerHeight, width, bodyHeight, 0, 0, 2, 2));
+        nodeElm.append('rect').attr('class', 'rpd-body')
+                              .attr('width', width).attr('height', height)
+                              .attr('rx', 2).attr('ry', 2)
                               .style('pointer-events', 'none');
 
         // append tooltip with description
         nodeElm.select('.rpd-header')
-               .append(_createSvgElement('title')).text(
-                        nodeDescriptions[node.type] ? (nodeDescriptions[node.type] + ' (' + node.type + ')') : node.type);
+               .append(_createSvgElement('title'))
+               .text(description ? (description + ' (' + node.type + ')') : node.type);
 
         // append remove button
         nodeElm.append('g').attr('class', 'rpd-remove-button')
                            .attr('transform', 'translate(' + (width-12) + ',1)')
                .call(function(button) {
                    button.append('path').attr('d', roundedRect(0, 0, 11, 11, 2, 2, 2, 3));
-                   button.append('text').text('x').attr('x', 3).attr('y', 2).style('pointer-events', 'none');
+                   button.append('text').text('x').attr('x', 3).attr('y', 2)
+                                        .style('pointer-events', 'none');
                });
 
         // append placeholders for inlets, outlets and a target element to render body into
@@ -150,7 +157,7 @@ return {
         };
 
         return {
-            element: nodeElm,
+            element: nodeElm.node(),
             size: initialSize
         };
 
@@ -169,7 +176,7 @@ return {
                                 .attr('x', 10).attr('y', 0);
         });
         listeners[inlet.node.id].inlet(inletElm);
-        return inletElm;
+        return inletElm.node();
     },
 
     createOutlet: function(outlet, render) {
@@ -186,15 +193,15 @@ return {
                                 .attr('x', -10).attr('y', 0);
         });
         listeners[outlet.node.id].inlet(outletElm);
-        return outletElm;
+        return outletElm.node();
     },
 
     createLink: function(link) {
-        return d3.select(_createSvgElement('line'));
+        return d3.select(_createSvgElement('line')).node();;
     },
 
     onPatchSwitch: function(patch, root) {
-        lastRoot = root;
+        lastRoot = d3.select(root);
     },
 
     onNodeRemove: function(node) {
@@ -202,5 +209,19 @@ return {
     }
 
 };
+
+function roundedRect(x, y, width, height, rtl, rtr, rbr, rbl) {
+    return "M" + x + "," + y
+         + (rtl ? ("v" + rtl
+                 + "a" + rtl + "," + rtl + " 0 0 1 " +  rtl + "," + -rtl) : "")
+         + "h" + (width  - (rtl ? rtl : 0) - (rtr ? rtr : 0))
+         + (rtr ? ("a" + rtr + "," + rtr + " 0 0 1 " +  rtr + "," +  rtr) : "")
+         + "v" + (height - (rtr ? rtr : 0) - (rbr ? rbr : 0))
+         + (rbr ? ("a" + rbr + "," + rbr + " 0 0 1 " + -rbr + "," +  rbr) : "")
+         + "h" + ((rbr ? rbr : 0) + (rbl ? rbl : 0) - width)
+         + (rbl ? ("a" + rbl + "," + rbl + " 0 0 1 " + -rbl + "," + -rbl) : "")
+         + "v" + ((rbl ? rbl : 0) + (rtl ? rtl : 0) - height)
+         + "z";
+}
 
 });

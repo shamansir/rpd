@@ -20,7 +20,7 @@ return {
     boxPadding:  { horizontal: 20, vertical: 80 },
 
     createRoot: function(patch, parent) {
-        return d3.select(_createSvgElement('g'));
+        return d3.select(_createSvgElement('g')).node();
     },
 
     createNode: function(node, render, description) {
@@ -54,28 +54,37 @@ return {
         var nodeElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-node');
 
         // append shadow
-        nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('x', 5).attr('y', 6)
-                                                                                                      .attr('rx', 3).attr('ry', 3);
+        nodeElm.append('rect').attr('class', 'rpd-shadow')
+                              .attr('width', width).attr('height', height)
+                              .attr('x', 5).attr('y', 6).attr('rx', 3).attr('ry', 3);
 
         // append node header
-        nodeElm.append('rect').attr('class', 'rpd-header').attr('x', 0).attr('y', 0).attr('width', headerWidth).attr('height', height);
+        nodeElm.append('rect').attr('class', 'rpd-header')
+                              .attr('x', 0).attr('y', 0)
+                              .attr('width', headerWidth).attr('height', height);
         nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
-                              .attr('x', 5).attr('y', height / 2).style('pointer-events', 'none');
+                              .attr('x', 5).attr('y', height / 2)
+                              .style('pointer-events', 'none');
         // append node body
-        nodeElm.append('rect').attr('class', 'rpd-content').attr('x', headerWidth).attr('y', 0).attr('width', width - headerWidth).attr('height', height);
-        nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).style('pointer-events', 'none');
+        nodeElm.append('rect').attr('class', 'rpd-content')
+                              .attr('x', headerWidth).attr('y', 0)
+                              .attr('width', width - headerWidth).attr('height', height);
+        nodeElm.append('rect').attr('class', 'rpd-body')
+                              .attr('width', width).attr('height', height)
+                              .style('pointer-events', 'none');
 
         // append tooltip with description
         nodeElm.select('.rpd-header')
-               .append(_createSvgElement('title')).text(
-                        nodeDescriptions[node.type] ? (nodeDescriptions[node.type] + ' (' + node.type + ')') : node.type);
+               .append(_createSvgElement('title'))
+               .text(description ? (description + ' (' + node.type + ')') : node.type);
 
         // append remove button
         nodeElm.append('g').attr('class', 'rpd-remove-button')
                            .attr('transform', 'translate(' + (width-12) + ',1)')
                .call(function(button) {
                    button.append('path').attr('d', roundedRect(0, 0, 11, 11, 2, 2, 2, 3));
-                   button.append('text').text('x').attr('x', 3).attr('y', 2).style('pointer-events', 'none');
+                   button.append('text').text('x').attr('x', 3).attr('y', 2)
+                                        .style('pointer-events', 'none');
                });
 
         // append placeholders for inlets, outlets and a target element to render body into
@@ -101,7 +110,7 @@ return {
             nodeElm.select('g.rpd-process').attr('transform',
                 'translate(' + (headerWidth + ((newSize.width - headerWidth) / 2)) + ',' + (newSize.height / 2) + ')');
             nodeElm.select('.rpd-remove-button').attr('transform', 'translate(' + (newSize.width-12) + ',1)');
-            lastSize = nodeSize;
+            lastSize = newSize;
         }
 
         function recalculateSockets() {
@@ -110,14 +119,14 @@ return {
                 inletElm = inletElms[i];
                 var inletPos = findInletPos(i);
                 inletElm.attr('transform',  'translate(' + inletPos.x + ',' + inletPos.y + ')');
-                inletElm.data().position = inletPos;
+                //inletElm.data().position = inletPos;
             }
             var outletElm;
             for (var i = 0, il = outletElms.length; i < il; i++) {
                 outletElm = outletElms[i];
                 var outletPos = findOutletPos(i);
                 outletElm.attr('transform',  'translate(' + outletPos.x + ',' + outletPos.y + ')');
-                outletElm.data().position = outletPos;
+                //outletElm.data().position = outletPos;
             }
         }
 
@@ -145,7 +154,7 @@ return {
         };
 
         return {
-            element: nodeElm,
+            element: nodeElm.node(),
             size: initialSize
         };
 
@@ -164,7 +173,7 @@ return {
                                 .attr('x', 0).attr('y', -15);
         });
         listeners[inlet.node.id].inlet(inletElm);
-        return inletElm;
+        return inletElm.node();
     },
 
     createOutlet: function(outlet, render) {
@@ -181,19 +190,15 @@ return {
                                 .attr('x', 0).attr('y', 15);
         });
         listeners[outlet.node.id].inlet(outletElm);
-        return outletElm;
+        return outletElm.node();
     },
 
     createLink: function(link) {
-        return d3.select(_createSvgElement('line'));
-    },
-
-    onSwitchPatch: function(patch, root) {
-        lastRoot = root;
+        return d3.select(_createSvgElement('line')).node();
     },
 
     onPatchSwitch: function(patch, root) {
-        lastRoot = root;
+        lastRoot = d3.select(root);
     },
 
     onNodeRemove: function(node) {
@@ -202,5 +207,19 @@ return {
 
 
 };
+
+function roundedRect(x, y, width, height, rtl, rtr, rbr, rbl) {
+    return "M" + x + "," + y
+         + (rtl ? ("v" + rtl
+                 + "a" + rtl + "," + rtl + " 0 0 1 " +  rtl + "," + -rtl) : "")
+         + "h" + (width  - (rtl ? rtl : 0) - (rtr ? rtr : 0))
+         + (rtr ? ("a" + rtr + "," + rtr + " 0 0 1 " +  rtr + "," +  rtr) : "")
+         + "v" + (height - (rtr ? rtr : 0) - (rbr ? rbr : 0))
+         + (rbr ? ("a" + rbr + "," + rbr + " 0 0 1 " + -rbr + "," +  rbr) : "")
+         + "h" + ((rbr ? rbr : 0) + (rbl ? rbl : 0) - width)
+         + (rbl ? ("a" + rbl + "," + rbl + " 0 0 1 " + -rbl + "," + -rbl) : "")
+         + "v" + ((rbl ? rbl : 0) + (rtl ? rtl : 0) - height)
+         + "z";
+}
 
 });

@@ -10,7 +10,7 @@ return {
     boxPadding:  { horizontal: 20, vertical: 30 },
 
     createRoot: function(patch, parent) {
-        return d3.select(document.createElement('div'));
+        return d3.select(document.createElement('div')).node();
     },
 
     createNode: function(node, render, description) {
@@ -66,7 +66,7 @@ return {
                });
 
         return {
-            element: nodeElm,
+            element: nodeElm.node(),
             size: render.size ? { width: render.size.width || 100, height: render.size.height || 40 }
                               : { width: 100, height: 40 }
         };
@@ -81,7 +81,7 @@ return {
                                     .append('span').attr('class', 'rpd-value');
                      tr.append('td').attr('class', 'rpd-name').text(inlet.name);
                      if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(inlet.type);
-        });
+                 }).node();
     },
 
     createOutlet: function(outlet, render) {
@@ -91,7 +91,7 @@ return {
                      tr.append('td').attr('class', 'rpd-value');
                      if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(outlet.type);
                      tr.append('td').attr('class', 'rpd-name').text(outlet.name);
-                 });
+                 }).node();
     },
 
     createLink: function(link) {
@@ -99,7 +99,8 @@ return {
                  .attr('class', 'rpd-link')
                  .style('position', 'absolute')
                  .style('transform-origin', 'left top')
-                 .style('-webkit-transform-origin', 'left top');
+                 .style('-webkit-transform-origin', 'left top')
+                 .node();
     }
 
 };
