@@ -665,28 +665,28 @@ var Connectivity = (function() {
                  var pivot = getPos(connector.node());
                  var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
                                                    .noPointerEvents().appendTo(root);
-                 return Kefir.fromEvents(root.node(), 'mousemove')
-                             .takeUntilBy(Kefir.merge([ inletClicks,
-                                                        outletClicks.mapTo(false),
-                                                        rootClicks.mapTo(false) ])
-                                               .take(1)
-                                               .onValue(function(success) {
-                                                   if (!success) return;
-                                                   var inlet = success.target,
-                                                       prevLink = getLink(inlet);
-                                                   if (prevLink) {
-                                                       var otherOutlet = prevLink.outlet;
-                                                       otherOutlet.disconnect(prevLink);
-                                                   }
-                                                   outlet.connect(inlet);
-                                               }))
-                             .map(extractPos)
-                             .onValue(function(pos) {
-                                 ghost.rotate(pivot.x, pivot.y, pos.x, pos.y);
-                             }).onEnd(function() {
-                                 ghost.removeFrom(root);
-                                 finishLink.emit();
-                             });
+                 Kefir.fromEvents(root.node(), 'mousemove')
+                      .takeUntilBy(Kefir.merge([ inletClicks,
+                                                 outletClicks.mapTo(false),
+                                                 rootClicks.mapTo(false) ])
+                                        .take(1)
+                                        .onValue(function(success) {
+                                            if (!success) return;
+                                            var inlet = success.target,
+                                                prevLink = getLink(inlet);
+                                            if (prevLink) {
+                                                var otherOutlet = prevLink.outlet;
+                                                otherOutlet.disconnect(prevLink);
+                                            }
+                                            outlet.connect(inlet);
+                                        }))
+                      .map(extractPos)
+                      .onValue(function(pos) {
+                          ghost.rotate(pivot.x, pivot.y, pos.x, pos.y);
+                      }).onEnd(function() {
+                          ghost.removeFrom(root);
+                          finishLink.emit();
+                      });
              });
 
     };
@@ -720,28 +720,28 @@ var Connectivity = (function() {
                  var pivot = getPos(getConnector(outlet).node());
                  var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
                                                    .noPointerEvents().appendTo(root);
-                 return Kefir.fromEvents(root.node(), 'mousemove')
-                             .takeUntilBy(Kefir.merge([ inletClicks,
-                                                        outletClicks.mapTo(false),
-                                                        rootClicks.mapTo(false) ])
-                                               .take(1)
-                                               .onValue(function(success) {
-                                                   if (!success) return;
-                                                   var otherInlet = success.target,
-                                                       prevLink = getLink(otherInlet);
-                                                   if (prevLink) {
-                                                       var otherOutlet = prevLink.outlet;
-                                                       otherOutlet.disconnect(prevLink);
-                                                   }
-                                                   outlet.connect(otherInlet);
-                                               }))
-                             .map(extractPos)
-                             .onValue(function(pos) {
-                                 ghost.rotate(pivot.x, pivot.y, pos.x, pos.y);
-                             }).onEnd(function() {
-                                 ghost.removeFrom(root);
-                                 finishLink.emit();
-                             });
+                 Kefir.fromEvents(root.node(), 'mousemove')
+                      .takeUntilBy(Kefir.merge([ inletClicks,
+                                                 outletClicks.mapTo(false),
+                                                 rootClicks.mapTo(false) ])
+                                        .take(1)
+                                        .onValue(function(success) {
+                                            if (!success) return;
+                                            var otherInlet = success.target,
+                                                prevLink = getLink(otherInlet);
+                                            if (prevLink) {
+                                                var otherOutlet = prevLink.outlet;
+                                                otherOutlet.disconnect(prevLink);
+                                            }
+                                            outlet.connect(otherInlet);
+                                        }))
+                      .map(extractPos)
+                      .onValue(function(pos) {
+                          ghost.rotate(pivot.x, pivot.y, pos.x, pos.y);
+                      }).onEnd(function() {
+                          ghost.removeFrom(root);
+                          finishLink.emit();
+                      });
              });
 
     };
