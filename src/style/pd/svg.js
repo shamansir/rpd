@@ -208,7 +208,7 @@ return {
             group.append('text').attr('class', 'rpd-name').text(outlet.name)
                                 .attr('x', 0).attr('y', 15);
         });
-        listeners[outlet.node.id].inlet(outletElm);
+        listeners[outlet.node.id].outlet(outletElm);
         return outletElm.node();
     },
 

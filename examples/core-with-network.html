@@ -4,12 +4,12 @@
         <meta charset="utf-8" />
         <title>Core with Network</title>
 
-        <!-- gulp html-head --style pd --io json --renderer svg --root .. -->
+        <!-- gulp html-head --style quartz --io json --renderer svg --root .. -->
 
         <!-- RPD Renderer: svg -->
         <link rel="stylesheet" href="../src/render/svg.css"></style>
-        <!-- RPD Style: pd (svg) -->
-        <link rel="stylesheet" href="../src/style/pd/svg.css"></style>
+        <!-- RPD Style: quartz (svg) -->
+        <link rel="stylesheet" href="../src/style/quartz/svg.css"></style>
         <!-- RPD Toolkit: core (svg) -->
         <link rel="stylesheet" href="../src/toolkit/core/svg.css"></style>
 
@@ -22,8 +22,8 @@
         <script src="../src/io/json.js"></script>
         <!-- RPD's d3_tiny.js -->
         <script src="../src/d3_tiny.js"></script>
-        <!-- RPD Style: pd (svg) -->
-        <script src="../src/style/pd/svg.js"></script>
+        <!-- RPD Style: quartz (svg) -->
+        <script src="../src/style/quartz/svg.js"></script>
         <!-- RPD Renderer: svg -->
         <script src="../src/render/svg.js"></script>
         <!-- RPD Toolkit: core -->
@@ -37,7 +37,7 @@
         <script>
             var finalize = Rpd.export.json('Core with Network');
 
-            Rpd.render('svg', document.body, { style: 'pd' });
+            Rpd.render('svg', document.body, { style: 'quartz' });
 
             var root = Rpd.addPatch('root').enter();
 

@@ -25,7 +25,6 @@ return {
 
     createNode: function(node, render, description) {
 
-        var defaultContentSize = style.defaultContentSize;
         var minContentSize = render.size ? { width: render.size.width || 100,
                                              height: render.size.height || 40 }
                                          : { width: 100, height: 40 };
@@ -112,14 +111,14 @@ return {
                 inletElm = inletElms[i];
                 var inletPos = findInletPos(i);
                 inletElm.attr('transform',  'translate(' + inletPos.x + ',' + inletPos.y + ')');
-                inletElm.data().position = inletPos;
+                //inletElm.data().position = inletPos;
             }
             var outletElm;
             for (var i = 0, il = outletElms.length; i < il; i++) {
                 outletElm = outletElms[i];
                 var outletPos = findOutletPos(i);
                 outletElm.attr('transform',  'translate(' + outletPos.x + ',' + outletPos.y + ')');
-                outletElm.data().position = outletPos;
+                //outletElm.data().position = outletPos;
             }
         }
 
@@ -192,7 +191,7 @@ return {
             group.append('text').attr('class', 'rpd-name').text(outlet.name)
                                 .attr('x', -10).attr('y', 0);
         });
-        listeners[outlet.node.id].inlet(outletElm);
+        listeners[outlet.node.id].outlet(outletElm);
         return outletElm.node();
     },
 

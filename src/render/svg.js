@@ -45,9 +45,6 @@ function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
 }
 
-var isQuartzMode = false,
-    isPdMode = true;
-
 function SvgRenderer(patch) {
 
 return function(networkRoot, userConfig) {
