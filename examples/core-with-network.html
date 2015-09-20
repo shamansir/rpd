@@ -4,12 +4,14 @@
         <meta charset="utf-8" />
         <title>Core with Network</title>
 
-        <!-- RPD Renderer: html -->
-        <link rel="stylesheet" href="../src/render/html.css"></style>
-        <!-- RPD Style: pd (html) -->
-        <link rel="stylesheet" href="../src/style/pd/html.css"></style>
-        <!-- RPD Toolkit: core (html) -->
-        <link rel="stylesheet" href="../src/toolkit/core/html.css"></style>
+        <!-- gulp html-head ==style quartz ==io json ==renderer svg ==root .. -->
+
+        <!-- RPD Renderer: svg -->
+        <link rel="stylesheet" href="../src/render/svg.css"></style>
+        <!-- RPD Style: quartz (svg) -->
+        <link rel="stylesheet" href="../src/style/quartz/svg.css"></style>
+        <!-- RPD Toolkit: core (svg) -->
+        <link rel="stylesheet" href="../src/toolkit/core/svg.css"></style>
 
         <!-- Kefir -->
         <script src="../vendor/kefir.min.js"></script>
@@ -20,14 +22,14 @@
         <script src="../src/io/json.js"></script>
         <!-- RPD's d3_tiny.js -->
         <script src="../src/d3_tiny.js"></script>
-        <!-- RPD Style: pd (html) -->
-        <script src="../src/style/pd/html.js"></script>
-        <!-- RPD Renderer: html -->
-        <script src="../src/render/html.js"></script>
+        <!-- RPD Style: quartz (svg) -->
+        <script src="../src/style/quartz/svg.js"></script>
+        <!-- RPD Renderer: svg -->
+        <script src="../src/render/svg.js"></script>
         <!-- RPD Toolkit: core -->
         <script src="../src/toolkit/core/toolkit.js"></script>
-        <!-- RPD Toolkit: core (html) -->
-        <script src="../src/toolkit/core/html.js"></script>
+        <!-- RPD Toolkit: core (svg) -->
+        <script src="../src/toolkit/core/svg.js"></script>
     </head>
 
     <body>
@@ -35,7 +37,7 @@
         <script>
             var finalize = Rpd.export.json('Core with Network');
 
-            Rpd.render('html', document.body, { style: 'pd' });
+            Rpd.render('svg', document.body, { style: 'quartz' });
 
             var root = Rpd.addPatch('root').enter();
 

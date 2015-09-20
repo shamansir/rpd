@@ -7,7 +7,11 @@ return {
     edgePadding: { horizontal: 20, vertical: 40 },
     boxPadding:  { horizontal: 20, vertical: 80 },
 
-    createNode: function(node, description) {
+    createRoot: function(patch, parent) {
+        return d3.select(document.createElement('div')).node();
+    },
+
+    createNode: function(node, render, description) {
 
         var nodeElm = d3.select(document.createElement('table'))
                         .attr('class', 'rpd-node');
@@ -44,11 +48,15 @@ return {
                .append('table').append('tbody').append('tr')
                .append('div').attr('class', 'rpd-outlets-target'); // -> node/add-outlet
 
-        return nodeElm;
+        return {
+            element: nodeElm.node(),
+            size: render.size ? { width: render.size.width || 100, height: render.size.height || 40 }
+                              : { width: 100, height: 40 }
+        };
 
     },
 
-    createInlet: function(inlet) {
+    createInlet: function(inlet, render) {
         return d3.select(document.createElement('td')).attr('class', 'rpd-inlet')
                  .call(function(td) {
                      td.append('span').attr('class', 'rpd-connector');
@@ -56,17 +64,17 @@ return {
                      td.append('span').attr('class', 'rpd-value-holder')
                                      .append('span').attr('class', 'rpd-value');
                      if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(inlet.type);
-                 })
+                 }).node();
     },
 
-    createOutlet: function(outlet) {
+    createOutlet: function(outlet, render) {
         return d3.select(document.createElement('td')).attr('class', 'rpd-outlet')
                  .call(function(td) {
                      td.append('span').attr('class', 'rpd-connector');
                      td.append('span').attr('class', 'rpd-name').text(outlet.name);
                      td.append('span').attr('class', 'rpd-value');
                      if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(outlet.type);
-                 });
+                 }).node();
     },
 
     createLink: function(link) {
@@ -74,7 +82,8 @@ return {
                  .attr('class', 'rpd-link')
                  .style('position', 'absolute')
                  .style('transform-origin', 'left top')
-                 .style('-webkit-transform-origin', 'left top');
+                 .style('-webkit-transform-origin', 'left top')
+                 .node();
     }
 
 };

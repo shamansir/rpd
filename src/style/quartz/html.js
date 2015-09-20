@@ -4,10 +4,16 @@ var d3 = d3 || d3_tiny;
 
 return {
 
+    defaultContentSize: { width: 100, height: 40 },
+
     edgePadding: { horizontal: 30, vertical: 20 },
     boxPadding:  { horizontal: 20, vertical: 30 },
 
-    createNode: function(node, description) {
+    createRoot: function(patch, parent) {
+        return d3.select(document.createElement('div')).node();
+    },
+
+    createNode: function(node, render, description) {
 
         var nodeElm = d3.select(document.createElement('table'))
                         .attr('class', 'rpd-node');
@@ -59,11 +65,15 @@ return {
                         })
                });
 
-        return nodeElm;
+        return {
+            element: nodeElm.node(),
+            size: render.size ? { width: render.size.width || 100, height: render.size.height || 40 }
+                              : { width: 100, height: 40 }
+        };
 
     },
 
-    createInlet: function(inlet) {
+    createInlet: function(inlet, render) {
         return d3.select(document.createElement('tr')).attr('class', 'rpd-inlet')
                  .call(function(tr) {
                      tr.append('td').attr('class', 'rpd-connector');
@@ -71,17 +81,17 @@ return {
                                     .append('span').attr('class', 'rpd-value');
                      tr.append('td').attr('class', 'rpd-name').text(inlet.name);
                      if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(inlet.type);
-        });
+                 }).node();
     },
 
-    createOutlet: function(outlet) {
+    createOutlet: function(outlet, render) {
         return d3.select(document.createElement('tr')).attr('class', 'rpd-outlet')
                  .call(function(tr) {
                      tr.append('td').attr('class', 'rpd-connector');
                      tr.append('td').attr('class', 'rpd-value');
                      if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(outlet.type);
                      tr.append('td').attr('class', 'rpd-name').text(outlet.name);
-                 });
+                 }).node();
     },
 
     createLink: function(link) {
@@ -89,7 +99,8 @@ return {
                  .attr('class', 'rpd-link')
                  .style('position', 'absolute')
                  .style('transform-origin', 'left top')
-                 .style('-webkit-transform-origin', 'left top');
+                 .style('-webkit-transform-origin', 'left top')
+                 .node();
     }
 
 };

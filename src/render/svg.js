@@ -2,13 +2,8 @@
 
 var ƒ = Rpd.unit;
 
-    // inlets/outlets are at the left/right sides of a node body
-var QUARTZ_MODE = 'quartz',
-    // inlets/outlets are at the top/bottom sides of a node body
-    PD_MODE = 'pd';
-
 var defaultConfig = {
-    mode: QUARTZ_MODE,
+    style: 'quartz',
     // show inlet/outlet value only when user hovers over its connector
     // (always showing, by default)
     valuesOnHover: false,
@@ -56,10 +51,10 @@ return function(networkRoot, userConfig) {
 
     var config = mergeConfig(userConfig, defaultConfig);
 
-    var isQuartzMode = (config.mode === QUARTZ_MODE),
-        isPdMode = (config.mode === PD_MODE);
+    var style = Rpd.getStyle(config.style, 'svg')(config);
 
-    networkRoot = d3.select(networkRoot).attr('class', 'rpd-network');
+    networkRoot = d3.select(networkRoot)
+                    .classed('rpd-network', true);
 
     var svg;
 
@@ -83,13 +78,12 @@ return function(networkRoot, userConfig) {
                .attr('width', docElm.property('clientWidth'))
                .attr('height', docElm.property('clientHeight'));
 
-            var patchRoot = svg.append('g').attr('class', function() {
-                var classes = [ 'rpd-patch' ];
-                classes.push('rpd-layout-' + config.mode);
-                classes.push('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'));
-                if (config.showBoxes) classes.push('rpd-show-boxes');
-                return classes.join(' ');
-            }).data(update.patch);
+            var patchRoot = svg.append(style.createRoot(patch, networkRoot))
+                               .classed('rpd-patch', true)
+                               .classed('rpd-style-' + config.style, true)
+                               .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
+                               .classed('rpd-show-boxes', config.showBoxes)
+                               .data(update.patch);
 
             tree.patches[patch.id] = svg.data({ root: patchRoot,
                                                 width: docElm.property('clientWidth'),
@@ -98,12 +92,12 @@ return function(networkRoot, userConfig) {
                                               });
 
             // initialize the node placing (helps in determining the position where new node should be located)
-            tree.patchToPlacing[patch.id] = new GridPlacing(config.mode);
+            tree.patchToPlacing[patch.id] = new GridPlacing(style);
             tree.patchToLinks[patch.id] = new VLinks();
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
             // links if they were clicked in the appropriate order
-            connectivity = new Connectivity(svg);
+            connectivity = new Connectivity(svg, style);
 
             // initialized drag-n-drop support (used to allow user drag nodes)
             if (config.nodeMovingAllowed) dnd = new DragAndDrop(svg);
@@ -125,9 +119,11 @@ return function(networkRoot, userConfig) {
         'patch/enter': function(update) {
             currentPatch = update.patch;
             navigation.switch(update.patch);
-            networkRoot.append(tree.patches[update.patch.id].node());
+            var newRoot = tree.patches[update.patch.id];
+            networkRoot.append(newRoot.node());
 
             tree.patchToLinks[update.patch.id].updateAll();
+            if (style.onPatchSwitch) style.onPatchSwitch(currentPatch, newRoot.node());
         },
 
         'patch/exit': function(update) {
@@ -166,183 +162,17 @@ return function(networkRoot, userConfig) {
                 // or else other root may have no dimensions yet
                 limitSrc = tree.patches[currentPatch.id].data();
 
-            var socketPadding = 25, // distance between inlets/outlets in SVG units
-                socketsMargin = 15; // distance between first/last inlet/outlet and body edge
-            var headerHeight = 21, // height of a node header in SVG units, for Quartz mode
-                headerWidth = 0; // width of a node header in SVG units, for PD mode, will be calculated below
-
-            if (isPdMode) {
-                // it is required to know the header size before constructing the node itself
-                var fakeName = d3.select(_createSvgElement('text')).attr('class', 'rpd-fake-name').text(node.name).attr('x', -1000).attr('y', -1000);
-                tree.patches[currentPatch.id].append(fakeName.node());
-                headerWidth = fakeName.node().getBBox().width + 12;
-                fakeName.remove();
-            }
-
-            var minContentSize = render.size ? { width: render.size.width || 100,
-                                                 height: render.size.height || 40 }
-                                             : { width: 100, height: 40 };
-
-            var findBestNodeSize = isQuartzMode
-                ? function(numInlets, numOutlets, minContentSize) {
-                      var requiredContentHeight = (2 * socketsMargin) + ((Math.max(numInlets, numOutlets) - 1) * socketPadding);
-                      return { width: minContentSize.width,
-                               height: headerHeight + Math.max(requiredContentHeight, minContentSize.height) };
-                  }
-                : function(numInlets, numOutlets, minContentSize) {
-                      var requiredContentWidth = (2 * socketsMargin) + ((Math.max(numInlets, numOutlets) - 1) * socketPadding);
-                      return { width: headerWidth + Math.max(requiredContentWidth, minContentSize.width),
-                               height: minContentSize.height };
-                  };
-
-            var initialSize = findBestNodeSize(node.def.inlets  ? Object.keys(node.def.inlets).length  : 0,
-                                               node.def.outlets ? Object.keys(node.def.outlets).length : 0,
-                                               minContentSize);
-
-            var nodePos = placing.nextPosition(node, initialSize, { width: limitSrc.width, height: limitSrc.height });
-
-            var width = initialSize.width, height = initialSize.height;
-            var bodyWidth = isQuartzMode ? width : (width - headerWidth),
-                bodyHeight = isQuartzMode ? (height - headerHeight) : height;
-
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
-            var nodeElm = nodeBox.append('g').attr('class', 'rpd-node');
-
-            // append shadow
-            nodeElm.append('rect').attr('class', 'rpd-shadow').attr('width', width).attr('height', height).attr('x', 5).attr('y', 6)
-                                                                                                          .attr('rx', 3).attr('ry', 3);
-
-            if (isQuartzMode) {
-                // append node header
-                nodeElm.append('path').attr('class', 'rpd-header').attr('d', roundedRect(0, 0, width, headerHeight, 2, 2, 0, 0));
-                nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
-                                      .attr('x', 5).attr('y', 6).style('pointer-events', 'none');
-                // append node body
-                nodeElm.append('path').attr('class', 'rpd-content').attr('d', roundedRect(0, headerHeight, width, bodyHeight, 0, 0, 2, 2));
-                nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).attr('rx', 2).attr('ry', 2)
-                                      .style('pointer-events', 'none');
-            } else if (isPdMode) {
-                // append node header
-                nodeElm.append('rect').attr('class', 'rpd-header').attr('x', 0).attr('y', 0).attr('width', headerWidth).attr('height', height);
-                nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
-                                      .attr('x', 5).attr('y', height / 2).style('pointer-events', 'none');
-                // append node body
-                nodeElm.append('rect').attr('class', 'rpd-content').attr('x', headerWidth).attr('y', 0).attr('width', width - headerWidth).attr('height', height);
-                nodeElm.append('rect').attr('class', 'rpd-body').attr('width', width).attr('height', height).style('pointer-events', 'none');
-            }
-
-            // append tooltip with description
-            nodeElm.select('.rpd-header')
-                   .append(_createSvgElement('title')).text(
-                            nodeDescriptions[node.type] ? (nodeDescriptions[node.type] + ' (' + node.type + ')') : node.type);
-
-            // append remove button
-            nodeElm.append('g').attr('class', 'rpd-remove-button')
-                               .attr('transform', 'translate(' + (width-12) + ',1)')
-                   .call(function(button) {
-                       button.append('path').attr('d', roundedRect(0, 0, 11, 11, 2, 2, 2, 3));
-                       button.append('text').text('x').attr('x', 3).attr('y', 2).style('pointer-events', 'none');
-                   });
-
-            // append placeholders for inlets, outlets and a target element to render body into
-            if (isQuartzMode) {
-                nodeElm.append('g').attr('class', 'rpd-inlets').attr('transform', 'translate(' + 0 + ',' + headerHeight + ')')
-                                                               .data({ position: { x: 0, y: headerHeight } });
-                nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (width / 2) + ',' + (headerHeight + ((height - headerHeight) / 2)) + ')');
-                nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + width + ',' + headerHeight + ')')
-                                                                .data({ position: { x: width, y: headerHeight } });
-            } else if (isPdMode) {
-                nodeElm.append('g').attr('class', 'rpd-inlets').data({ position: { x: 0, y: 0 } });
-                nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (headerWidth + ((width - headerWidth) / 2)) + ',' + (height / 2) + ')');
-                nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + 0 + ',' + height + ')')
-                                                                .data({ position: { x: 0, y: height } });
-            }
-
-            nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
-                   .classed('rpd-'+node.type.replace('/','-'), true);
-
-            var numInlets = 0, numOutlets = 0;
-            var inletElms = [], outletElms = [];
-
-            function checkNodeSize() {
-                var nodeData = nodeBox.data(), curSize = nodeData.size;
-                var nodeSize = findBestNodeSize(numInlets, numOutlets, minContentSize);
-                if ((nodeSize.width === curSize.width) && (nodeSize.height === curSize.height)) return;
-                nodeElm.select('rect.rpd-shadow').attr('height', nodeSize.height).attr('width', nodeSize.width);
-                nodeElm.select('rect.rpd-body').attr('height', nodeSize.height).attr('width', nodeSize.width);
-                if (isQuartzMode) {
-                    nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight,
-                        nodeSize.width, nodeSize.height - headerHeight, 0, 0, 2, 2));
-                    nodeElm.select('g.rpd-process').attr('transform',
-                        'translate(' + (nodeSize.width / 2) + ',' + (headerHeight + ((nodeSize.height - headerHeight) / 2)) + ')');
-                } else if (isPdMode) {
-                    nodeElm.select('rect.rpd-content').attr('width', nodeSize.width - headerWidth);
-                    nodeElm.select('g.rpd-process').attr('transform',
-                        'translate(' + (headerWidth + ((nodeSize.width - headerWidth) / 2)) + ',' + (nodeSize.height / 2) + ')');
-                    nodeElm.select('.rpd-remove-button').attr('transform', 'translate(' + (nodeSize.width-12) + ',1)');
-                }
-                nodeData.size = nodeSize;
-            }
-
-            function recalculateSockets() {
-                var inletElm;
-                for (var i = 0, il = inletElms.length; i < il; i++) {
-                    inletElm = inletElms[i];
-                    var inletPos = findInletPos(i);
-                    inletElm.attr('transform',  'translate(' + inletPos.x + ',' + inletPos.y + ')');
-                    inletElm.data().position = inletPos;
-                }
-                var outletElm;
-                for (var i = 0, il = outletElms.length; i < il; i++) {
-                    outletElm = outletElms[i];
-                    var outletPos = findOutletPos(i);
-                    outletElm.attr('transform',  'translate(' + outletPos.x + ',' + outletPos.y + ')');
-                    outletElm.data().position = outletPos;
-                }
-            }
-
-            function notifyNewInlet(elm) {
-                numInlets++; inletElms.push(elm); checkNodeSize();
-                recalculateSockets();
-            }
-
-            function notifyNewOutlet(elm) {
-                numOutlets++; outletElms.push(elm); checkNodeSize();
-                recalculateSockets();
-            }
-
-            function findInletPos(idx) { // index from top to down for Quartz mode, or left to right for PD mode
-                if (isQuartzMode) {
-                    if (numInlets >= numOutlets) {
-                        return { x: 0, y: socketsMargin + (socketPadding * idx) };
-                    } else {
-                        var fullSide = (2 * socketsMargin) + (numOutlets - 1) * socketPadding;
-                        return { x: 0, y: (fullSide / 2) + (((-1 * (numInlets - 1)) / 2) + idx) * socketPadding };
-                    }
-                } else if (isPdMode) {
-                    return { x: socketsMargin + (socketPadding * idx), y: 0 };
-                }
-            }
-
-            function findOutletPos(idx) { // index from top to down for Quartz mode, or left to right for PD mode
-                if (isQuartzMode) {
-                    if (numOutlets >= numInlets) {
-                        return { x: 0, y: socketsMargin + (socketPadding * idx) };
-                    } else {
-                        var fullSide = (2 * socketsMargin) + (numInlets - 1) * socketPadding;
-                        return { x: 0, y: (fullSide / 2) + (((-1 * (numOutlets - 1)) / 2) + idx) * socketPadding };
-                    }
-                } else if (isPdMode) {
-                    return { x: socketsMargin + (socketPadding * idx), y: 1 };
-                }
-            }
+            var styledNode = style.createNode(node, render, nodeDescriptions[node.type]);
+            var nodeElm = nodeBox.append(styledNode.element);
 
             // store targets information and node root element itself
             tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets'),
                                                  outletsTarget: nodeElm.select('.rpd-outlets'),
                                                  processTarget: nodeElm.select('.rpd-process'),
-                                                 position: nodePos, size: initialSize,
-                                                 notifyNewInlet: notifyNewInlet, notifyNewOutlet: notifyNewOutlet });
+                                                 position: nodePos, size: styledNode.size });
+
+            var nodePos = placing.nextPosition(node, styledNode.size, { width: limitSrc.width, height: limitSrc.height });
 
             node.move(nodePos.x, nodePos.y);
 
@@ -403,6 +233,7 @@ return function(networkRoot, userConfig) {
             var nodeBox = tree.nodes[node.id];
 
             nodeBox.remove();
+            if (style.onNodeRemove) style.onNodeRemove(node);
 
             tree.nodes[node.id] = null; // no updates will fire from this node,
                                         // so it's just to avoid holding memory for it
@@ -440,19 +271,7 @@ return function(networkRoot, userConfig) {
 
             var inletElm;
 
-            inletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-inlet')
-                         .call(function(group) {
-                             //group.attr('transform', 'translate(' + inletPos.x + ',' + inletPos.y + ')')
-                             group.append('circle').attr('class', 'rpd-connector')
-                                                   .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
-                             group.append('g').attr('class', 'rpd-value-holder')
-                                  .attr('transform', 'translate(' + (isQuartzMode ? -15 : 0) + ',' +
-                                                                    (isQuartzMode ? 0 : -30) + ')')
-                                  .append('text').attr('class', 'rpd-value');
-                             group.append('text').attr('class', 'rpd-name').text(inlet.name)
-                                                 .attr('x', isQuartzMode ? 10 : 0)
-                                                 .attr('y', isQuartzMode ? 0 : -15);
-                         });
+            var inletElm = d3.select(style.createInlet(inlet, render));
 
             inletElm.classed('rpd-'+inlet.type.replace('/','-'), true);
             inletElm.classed({ 'rpd-stale': true,
@@ -477,8 +296,6 @@ return function(networkRoot, userConfig) {
                 //position: inletPos
             });
 
-            nodeData.notifyNewInlet(inletElm);
-
             // adds `rpd-error` CSS class and removes it by timeout
             inlet.event['inlet/update'].onError(function() {
                 addValueErrorEffect(inlet.id, inletElm, config.effectTime);
@@ -499,22 +316,7 @@ return function(networkRoot, userConfig) {
             var outletsTarget = nodeData.outletsTarget;
             var render = update.render;
 
-            var outletElm;
-
-            outletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-outlet')
-                          .call(function(group) {
-                              //group.attr('transform', 'translate(' + outletPos.x + ',' + outletPos.y + ')')
-                              group.append('circle').attr('class', 'rpd-connector')
-                                                    .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
-                              group.append('g').attr('class', 'rpd-value-holder')
-                                   .append('text').attr('class', 'rpd-value')
-                                                  .attr('x', isQuartzMode ? 10 : 0)
-                                                  .attr('y', isQuartzMode ? 0 : 30)
-                                                  .style('pointer-events', 'none');
-                              group.append('text').attr('class', 'rpd-name').text(outlet.name)
-                                                  .attr('x', isQuartzMode ? -10 : 0)
-                                                  .attr('y', isQuartzMode ? 0 : 15);
-                          });
+            var outletElm = d3.select(style.createOutlet(outlet, render));
 
             outletElm.classed('rpd-'+outlet.type.replace('/','-'), true);
             outletElm.classed('rpd-stale', true);
@@ -525,8 +327,6 @@ return function(networkRoot, userConfig) {
                 vlinks: new VLinks(), // links associated with this outlet
                 //position: outletPos
             });
-
-            nodeData.notifyNewOutlet(outletElm);
 
             // listen for clicks in connector and allow to edit links this way
             connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
@@ -597,7 +397,7 @@ return function(networkRoot, userConfig) {
             var outletConnector = outletData.connector;
             var inletConnector  = inletData.connector;
 
-            var vlink = new VLink(link);
+            var vlink = new VLink(link, style);
 
             var p0 = incrementPos(getPos(outletConnector.node()), 3),
                 p1 = incrementPos(getPos(inletConnector.node()),  3);
@@ -689,12 +489,10 @@ Navigation.prototype.switch = function(targetPatch) {
 // ============================= Placing =======================================
 // =============================================================================
 
-function GridPlacing(mode) {
+function GridPlacing(style) {
     this.nodeRects = [];
-    this.edgePadding = (mode === QUARTZ_MODE) ? { horizontal: 30, vertical: 20 }
-                                              : { horizontal: 20, vertical: 40 };
-    this.boxPadding  = (mode === QUARTZ_MODE) ? { horizontal: 20, vertical: 30 }
-                                              : { horizontal: 20, vertical: 80 };
+    this.edgePadding = style.edgePadding || { horizontal: 30, vertical: 20 };
+    this.boxPadding  = style.boxPadding  || { horizontal: 20, vertical: 30 };
 }
 GridPlacing.DEFAULT_LIMITS = [ 1000, 1000 ]; // in pixels
 GridPlacing.prototype.nextPosition = function(node, size, limits) {
@@ -719,13 +517,14 @@ GridPlacing.prototype.nextPosition = function(node, size, limits) {
 // ================================ Links ======================================
 // =============================================================================
 
-function VLink(link) { // visual representation of the link
+function VLink(link, style) { // visual representation of the link
     this.link = link; // may be null, if it's a ghost
     this.elm = null;
+    this.style = style;
 }
 VLink.prototype.construct = function(x0, y0, x1, y1) {
     if (this.elm) throw new Error('VLink is already constructed');
-    var linkElm = d3.select(_createSvgElement('line'))
+    var linkElm = d3.select(this.style.createLink(this.link))
                     .attr('class', 'rpd-link')
                     .attr('x1', x0).attr('y1', y0)
                     .attr('x2', x1).attr('y2', y1);
@@ -808,8 +607,9 @@ var Connectivity = (function() {
         return tree.outlets[outlet.id].data().connector;
     }
 
-    function Connectivity(root) {
+    function Connectivity(root, style) {
         this.root = root;
+        this.style = style;
 
         this.rootClicks = Kefir.fromEvents(this.root.node(), 'click');
         this.inletClicks = Kefir.pool(),
@@ -822,7 +622,7 @@ var Connectivity = (function() {
     }
     Connectivity.prototype.subscribeOutlet = function(outlet, connector) {
 
-        var root = this.root;
+        var root = this.root; var style = this.style;
         var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
         var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
 
@@ -843,8 +643,8 @@ var Connectivity = (function() {
              .onValue(function(pos) {
                  startLink.emit();
                  var pivot = incrementPos(getPos(connector.node()), 3);
-                 var ghost = new VLink().construct(pivot.x, pivot.y, pos.x, pos.y)
-                                        .noPointerEvents().appendTo(root);
+                 var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
+                                                   .noPointerEvents().appendTo(root);
                  return Kefir.fromEvents(root.node(), 'mousemove')
                              .takeUntilBy(Kefir.merge([ inletClicks,
                                                         outletClicks.mapTo(false),
@@ -872,7 +672,7 @@ var Connectivity = (function() {
     };
     Connectivity.prototype.subscribeInlet = function(inlet, connector) {
 
-        var root = this.root;
+        var root = this.root; var style = this.style;
         var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
         var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
 
@@ -898,8 +698,8 @@ var Connectivity = (function() {
                  outlet.disconnect(prevLink);
                  startLink.emit();
                  var pivot = incrementPos(getPos(getConnector(outlet).node()), 3);
-                 var ghost = new VLink().construct(pivot.x, pivot.y, pos.x, pos.y)
-                                        .noPointerEvents().appendTo(root);
+                 var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
+                                                   .noPointerEvents().appendTo(root);
                  return Kefir.fromEvents(root.node(), 'mousemove')
                              .takeUntilBy(Kefir.merge([ inletClicks,
                                                         outletClicks.mapTo(false),
@@ -1179,20 +979,6 @@ function addClickSwitch(elm, on_true, on_false, initial) {
              if (val) { on_true(); }
              else { on_false(); }
          })
-}
-
-function roundedRect(x, y, width, height, rtl, rtr, rbr, rbl) {
-    return "M" + x + "," + y
-         + (rtl ? ("v" + rtl
-                 + "a" + rtl + "," + rtl + " 0 0 1 " +  rtl + "," + -rtl) : "")
-         + "h" + (width  - (rtl ? rtl : 0) - (rtr ? rtr : 0))
-         + (rtr ? ("a" + rtr + "," + rtr + " 0 0 1 " +  rtr + "," +  rtr) : "")
-         + "v" + (height - (rtr ? rtr : 0) - (rbr ? rbr : 0))
-         + (rbr ? ("a" + rbr + "," + rbr + " 0 0 1 " + -rbr + "," +  rbr) : "")
-         + "h" + ((rbr ? rbr : 0) + (rbl ? rbl : 0) - width)
-         + (rbl ? ("a" + rbl + "," + rbl + " 0 0 1 " + -rbl + "," + -rbl) : "")
-         + "v" + ((rbl ? rbl : 0) + (rtl ? rtl : 0) - height)
-         + "z";
 }
 
 // =============================================================================
