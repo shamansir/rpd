@@ -65,7 +65,11 @@ return {
                         })
                });
 
-        return nodeElm;
+        return {
+            element: nodeElm,
+            size: render.size ? { width: render.size.width || 100, height: render.size.height || 40 }
+                              : { width: 100, height: 40 }
+        };
 
     },
 

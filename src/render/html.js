@@ -152,7 +152,8 @@ return function(networkRoot, userConfig) {
             var render = update.render;
 
             var nodeBox = d3.select(document.createElement('div')).attr('class', 'rpd-node-box');
-            var nodeElm = nodeBox.append(style.createNode(node, render, nodeDescriptions[node.type]).node());
+            var styledNode = style.createNode(node, render, nodeDescriptions[node.type]);
+            var nodeElm = nodeBox.append(styledNode.element.node());
 
             nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                    .classed('rpd-'+node.type.replace('/','-'), true);
@@ -217,7 +218,7 @@ return function(networkRoot, userConfig) {
                 limitSrc = tree.patches[currentPatch.id];
 
             // find a rectange to place the new node, and actually place it there
-            var nodeSize = { width: 100, height: 60 }, // FIXME: use contentSize in render.size
+            var nodeSize = styledNode.size;
                 nodePos = placing.nextPosition(node, nodeSize, { width:  limitSrc.node().offsetWidth,
                                                                  height: limitSrc.node().offsetHeight });
 
@@ -244,6 +245,7 @@ return function(networkRoot, userConfig) {
             var nodeBox = tree.nodes[node.id];
 
             nodeBox.remove();
+            if (style.onNodeRemove) style.onNodeRemove(node);
 
             tree.nodes[node.id] = null; // no updates will fire from this node,
                                         // so it's just to avoid holding memory for it

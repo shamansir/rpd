@@ -4,8 +4,6 @@ var d3 = d3 || d3_tiny;
 
 return {
 
-    defaultContentSize: { width: 100, height: 40 },
-
     edgePadding: { horizontal: 20, vertical: 40 },
     boxPadding:  { horizontal: 20, vertical: 80 },
 
@@ -50,7 +48,11 @@ return {
                .append('table').append('tbody').append('tr')
                .append('div').attr('class', 'rpd-outlets-target'); // -> node/add-outlet
 
-        return nodeElm;
+        return {
+            element: nodeElm,
+            size: render.size ? { width: render.size.width || 100, height: render.size.height || 40 }
+                              : { width: 100, height: 40 }
+        };
 
     },
 

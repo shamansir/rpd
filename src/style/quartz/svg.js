@@ -40,8 +40,6 @@ return {
                                            node.def.outlets ? Object.keys(node.def.outlets).length : 0,
                                            minContentSize);
 
-        var nodePos = placing.nextPosition(node, initialSize, { width: limitSrc.width, height: limitSrc.height });
-
         var width = initialSize.width, height = initialSize.height;
         var bodyWidth = width,
             bodyHeight = height - headerHeight;
@@ -151,16 +149,44 @@ return {
             outlet: notifyNewOutlet
         };
 
-        return nodeElm;
+        return {
+            element: nodeElm,
+            size: initialSize
+        };
 
     },
 
     createInlet: function(inlet, render) {
-
+        var inletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-inlet');
+        inletElm.call(function(group) {
+            //group.attr('transform', 'translate(' + inletPos.x + ',' + inletPos.y + ')')
+            group.append('circle').attr('class', 'rpd-connector')
+                                  .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
+            group.append('g').attr('class', 'rpd-value-holder')
+                 .attr('transform', 'translate(-15,0)')
+                 .append('text').attr('class', 'rpd-value');
+            group.append('text').attr('class', 'rpd-name').text(inlet.name)
+                                .attr('x', 10).attr('y', 0);
+        });
+        listeners[inlet.node.id].inlet(inletElm);
+        return inletElm;
     },
 
     createOutlet: function(outlet, render) {
-
+        var outletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-outlet');
+        outletElm.call(function(group) {
+            //group.attr('transform', 'translate(' + outletPos.x + ',' + outletPos.y + ')')
+            group.append('circle').attr('class', 'rpd-connector')
+                                  .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
+            group.append('g').attr('class', 'rpd-value-holder')
+                 .append('text').attr('class', 'rpd-value')
+                                .attr('x', 10).attr('y', 0)
+                                .style('pointer-events', 'none');
+            group.append('text').attr('class', 'rpd-name').text(outlet.name)
+                                .attr('x', -10).attr('y', 0);
+        });
+        listeners[outlet.node.id].inlet(outletElm);
+        return outletElm;
     },
 
     createLink: function(link) {

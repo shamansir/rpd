@@ -166,14 +166,16 @@ return function(networkRoot, userConfig) {
                 limitSrc = tree.patches[currentPatch.id].data();
 
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
-            var nodeElm = nodeBox.append(style.createNode(node, render, nodeDescriptions[node.type]).node());
+            var styledNode = style.createNode(node, render, nodeDescriptions[node.type]);
+            var nodeElm = nodeBox.append(styledNode.element.node());
 
             // store targets information and node root element itself
             tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets'),
                                                  outletsTarget: nodeElm.select('.rpd-outlets'),
                                                  processTarget: nodeElm.select('.rpd-process'),
-                                                 position: nodePos, size: initialSize,
-                                                 notifyNewInlet: notifyNewInlet, notifyNewOutlet: notifyNewOutlet });
+                                                 position: nodePos, size: initialSize });
+
+            var nodePos = placing.nextPosition(node, styledNode.size, { width: limitSrc.width, height: limitSrc.height });
 
             node.move(nodePos.x, nodePos.y);
 
@@ -234,6 +236,7 @@ return function(networkRoot, userConfig) {
             var nodeBox = tree.nodes[node.id];
 
             nodeBox.remove();
+            if (style.onNodeRemove) style.onNodeRemove(node);
 
             tree.nodes[node.id] = null; // no updates will fire from this node,
                                         // so it's just to avoid holding memory for it
@@ -271,19 +274,7 @@ return function(networkRoot, userConfig) {
 
             var inletElm;
 
-            inletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-inlet')
-                         .call(function(group) {
-                             //group.attr('transform', 'translate(' + inletPos.x + ',' + inletPos.y + ')')
-                             group.append('circle').attr('class', 'rpd-connector')
-                                                   .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
-                             group.append('g').attr('class', 'rpd-value-holder')
-                                  .attr('transform', 'translate(' + (isQuartzMode ? -15 : 0) + ',' +
-                                                                    (isQuartzMode ? 0 : -30) + ')')
-                                  .append('text').attr('class', 'rpd-value');
-                             group.append('text').attr('class', 'rpd-name').text(inlet.name)
-                                                 .attr('x', isQuartzMode ? 10 : 0)
-                                                 .attr('y', isQuartzMode ? 0 : -15);
-                         });
+            var inletElm = style.createInlet(inlet, render);
 
             inletElm.classed('rpd-'+inlet.type.replace('/','-'), true);
             inletElm.classed({ 'rpd-stale': true,
@@ -308,8 +299,6 @@ return function(networkRoot, userConfig) {
                 //position: inletPos
             });
 
-            nodeData.notifyNewInlet(inletElm);
-
             // adds `rpd-error` CSS class and removes it by timeout
             inlet.event['inlet/update'].onError(function() {
                 addValueErrorEffect(inlet.id, inletElm, config.effectTime);
@@ -330,22 +319,7 @@ return function(networkRoot, userConfig) {
             var outletsTarget = nodeData.outletsTarget;
             var render = update.render;
 
-            var outletElm;
-
-            outletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-outlet')
-                          .call(function(group) {
-                              //group.attr('transform', 'translate(' + outletPos.x + ',' + outletPos.y + ')')
-                              group.append('circle').attr('class', 'rpd-connector')
-                                                    .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
-                              group.append('g').attr('class', 'rpd-value-holder')
-                                   .append('text').attr('class', 'rpd-value')
-                                                  .attr('x', isQuartzMode ? 10 : 0)
-                                                  .attr('y', isQuartzMode ? 0 : 30)
-                                                  .style('pointer-events', 'none');
-                              group.append('text').attr('class', 'rpd-name').text(outlet.name)
-                                                  .attr('x', isQuartzMode ? -10 : 0)
-                                                  .attr('y', isQuartzMode ? 0 : 15);
-                          });
+            var outletElm = style.createOutlet(inlet, render);
 
             outletElm.classed('rpd-'+outlet.type.replace('/','-'), true);
             outletElm.classed('rpd-stale', true);
@@ -356,8 +330,6 @@ return function(networkRoot, userConfig) {
                 vlinks: new VLinks(), // links associated with this outlet
                 //position: outletPos
             });
-
-            nodeData.notifyNewOutlet(outletElm);
 
             // listen for clicks in connector and allow to edit links this way
             connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
