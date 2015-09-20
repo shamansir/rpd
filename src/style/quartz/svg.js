@@ -200,10 +200,6 @@ return {
         return d3.select(_createSvgElement('line')).node();;
     },
 
-    onPatchSwitch: function(patch, root) {
-        lastRoot = d3.select(root);
-    },
-
     onNodeRemove: function(node) {
         listeners[node.id] = null;
     }

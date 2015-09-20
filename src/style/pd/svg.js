@@ -1,16 +1,35 @@
-Rpd.style('pd', 'svg', function(config) {
+Rpd.style('pd', 'svg', (function() {
+
+// we need this root to be shared between all instances of a function below,
+// it is used to measure node header width, since it contains text, we need
+// some hidden element to measure string width in pixels
+var lastRoot;
 
 var d3 = d3 || d3_tiny;
+
+var socketPadding = 25, // distance between inlets/outlets in SVG units
+    socketsMargin = 15; // distance between first/last inlet/outlet and body edge
+var headerWidth = 0; // width of a node header in SVG units
 
 function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
 }
 
-var lastRoot;
+function roundedRect(x, y, width, height, rtl, rtr, rbr, rbl) {
+    return "M" + x + "," + y
+         + (rtl ? ("v" + rtl
+                 + "a" + rtl + "," + rtl + " 0 0 1 " +  rtl + "," + -rtl) : "")
+         + "h" + (width  - (rtl ? rtl : 0) - (rtr ? rtr : 0))
+         + (rtr ? ("a" + rtr + "," + rtr + " 0 0 1 " +  rtr + "," +  rtr) : "")
+         + "v" + (height - (rtr ? rtr : 0) - (rbr ? rbr : 0))
+         + (rbr ? ("a" + rbr + "," + rbr + " 0 0 1 " + -rbr + "," +  rbr) : "")
+         + "h" + ((rbr ? rbr : 0) + (rbl ? rbl : 0) - width)
+         + (rbl ? ("a" + rbl + "," + rbl + " 0 0 1 " + -rbl + "," + -rbl) : "")
+         + "v" + ((rbl ? rbl : 0) + (rtl ? rtl : 0) - height)
+         + "z";
+}
 
-var socketPadding = 25, // distance between inlets/outlets in SVG units
-    socketsMargin = 15; // distance between first/last inlet/outlet and body edge
-var headerWidth = 0; // width of a node header in SVG units, for PD mode, will be calculated below
+return function(config) {
 
 var listeners = {};
 
@@ -208,18 +227,4 @@ return {
 
 };
 
-function roundedRect(x, y, width, height, rtl, rtr, rbr, rbl) {
-    return "M" + x + "," + y
-         + (rtl ? ("v" + rtl
-                 + "a" + rtl + "," + rtl + " 0 0 1 " +  rtl + "," + -rtl) : "")
-         + "h" + (width  - (rtl ? rtl : 0) - (rtr ? rtr : 0))
-         + (rtr ? ("a" + rtr + "," + rtr + " 0 0 1 " +  rtr + "," +  rtr) : "")
-         + "v" + (height - (rtr ? rtr : 0) - (rbr ? rbr : 0))
-         + (rbr ? ("a" + rbr + "," + rbr + " 0 0 1 " + -rbr + "," +  rbr) : "")
-         + "h" + ((rbr ? rbr : 0) + (rbl ? rbl : 0) - width)
-         + (rbl ? ("a" + rbl + "," + rbl + " 0 0 1 " + -rbl + "," + -rbl) : "")
-         + "v" + ((rbl ? rbl : 0) + (rtl ? rtl : 0) - height)
-         + "z";
-}
-
-});
+} })());
