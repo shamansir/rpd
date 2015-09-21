@@ -1,30 +1,53 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="utf-8">
+        <meta charset="utf-8" />
+        <title>Animatron Toolkit</title>
 
+        <!-- RPD Renderer: html -->
+        <link rel="stylesheet" href="../src/render/html.css"></style>
+        <!-- RPD Style: pd (html) -->
+        <link rel="stylesheet" href="../src/style/pd/html.css"></style>
+        <!-- RPD Toolkit: anm (html) -->
+        <link rel="stylesheet" href="../src/toolkit/anm/html.css"></style>
+        <!-- RPD Toolkit: core (html) -->
+        <link rel="stylesheet" href="../src/toolkit/core/html.css"></style>
+
+        <!-- Animatron -->
+        <script src="http://player.animatron.com/latest/bundle/animatron.min.js"></script>
+        <!-- Kefir -->
         <script src="../vendor/kefir.min.js"></script>
-        <script src="../vendor/anm-player.min.js"></script>
-
+        <!-- RPD -->
         <script src="../src/rpd.js"></script>
 
+        <!-- RPD I/O: json -->
+        <script src="../src/io/json.js"></script>
+        <!-- RPD's d3_tiny.js -->
+        <script src="../src/d3_tiny.js"></script>
+        <!-- RPD Render Core: -->
+        <script src="../src/render/main.js"></script>
+        <!-- RPD Style: pd (html) -->
+        <script src="../src/style/pd/html.js"></script>
+        <!-- RPD Renderer: html -->
         <script src="../src/render/html.js"></script>
-        <link rel="stylesheet" href="../src/render/html.css"></link>
-
-        <script src="../src/toolkit/core/toolkit.js"></script>
-        <script src="../src/toolkit/core/render/html.js"></script>
-        <link rel="stylesheet" href="../src/toolkit/core/render/html.css"></link>
-
+        <!-- RPD Toolkit: anm -->
         <script src="../src/toolkit/anm/model.js"></script>
         <script src="../src/toolkit/anm/toolkit.js"></script>
-        <script src="../src/toolkit/anm/render/html.js"></script>
-        <link rel="stylesheet" href="../src/toolkit/anm/render/html.css"></link>
+        <!-- RPD Toolkit: anm (html) -->
+        <script src="../src/toolkit/anm/html.js"></script>
+        <!-- RPD Toolkit: core -->
+        <script src="../src/toolkit/core/model.js"></script>
+        <script src="../src/toolkit/core/toolkit.js"></script>
+        <!-- RPD Toolkit: core (html) -->
+        <script src="../src/toolkit/core/html.js"></script>
 
     </head>
 
     <body>
         <script>
-            Rpd.addPatch().render('html', document.body, { mode: 'pd' });
+            Rpd.render('html', document.body, { style: 'pd' });
+
+            Rpd.addPatch('root').enter();
         </script>
     </body>
 </html>
