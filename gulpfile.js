@@ -340,6 +340,7 @@ function getHtmlHead(options) {
     });
     options.toolkit.forEach(function(toolkit) {
         comment('RPD Toolkit: ' + toolkit);
+        jsFile(Paths.ToolkitModel(toolkit) + '.js');
         jsFile(Paths.Toolkit(toolkit) + '.js');
         options.renderer.forEach(function(renderer) {
             comment('RPD Toolkit: ' + toolkit + ' (' + renderer + ')');
