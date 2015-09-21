@@ -7,6 +7,7 @@ var gulp = require('gulp'),
     size = require('gulp-size'),
     concat = require('gulp-concat'),
     download = require('gulp-download'),
+    gzip = require('gulp-gzip'),
     closureCompiler = require('gulp-closure-compiler');
 
 var Paths = {
@@ -83,6 +84,16 @@ gulp.task('build', ['check-root', 'list-opts', 'concat-css'], function() {
                .pipe(size({ showFiles: true, title: 'Result:' }))
                .on('end', function() {
                    gutil.log(infoColor('Your dist/' + targetName + '.js is ready!'));
+               });
+});
+
+gulp.task('build-with-gzip', ['build'], function() {
+    return gulp.src('./dist/' + targetName + '.js')
+               .pipe(gzip())
+               .pipe(gulp.dest('dist'))
+               .pipe(size({ showFiles: true, title: 'Result:' }))
+               .on('end', function() {
+                   gutil.log(infoColor('Your dist/' + targetName + '.js.gz is ready!'));
                });
 });
 
