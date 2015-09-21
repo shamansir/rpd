@@ -79,7 +79,7 @@ return function(networkRoot, userConfig) {
             root = d3.select(style.createRoot(patch, networkRoot).element)
                      .style('height', docElm.property('clientHeight') + 'px');
 
-            root.classed('rpd-style-' + config.style, true);
+            root.classed('rpd-style-' + config.style, true)
                 .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
                 .classed('rpd-show-boxes', config.showBoxes);
 
@@ -182,7 +182,7 @@ return function(networkRoot, userConfig) {
                               nodeBox.style('left', pos.x + 'px');
                               nodeBox.style('top',  pos.y + 'px');
                               nodeLinks.each(function(vlink) {
-                                   vlink.elm.style('z-index', LINKDRAG_LAYER);
+                                   vlink.element.style('z-index', LINKDRAG_LAYER);
                                    vlink.update();
                               });
                           },
@@ -191,7 +191,7 @@ return function(networkRoot, userConfig) {
                               nodeBox.classed('rpd-dragging', false);
                               nodeBox.style('z-index', NODE_LAYER);
                               nodeLinks.each(function(vlink) {
-                                  vlink.elm.style('z-index', LINK_LAYER);
+                                  vlink.element.style('z-index', LINK_LAYER);
                               });
                           }
                       });
@@ -629,10 +629,10 @@ function VLink(link, style) { // visual representation of the link
 VLink.prototype.construct = function(x0, y0, x1, y1) {
     if (this.styledLink) throw new Error('VLink is already constructed');
     var styledLink = this.style.createLink(this.link);
-    linkElm.style('z-index', LINK_LAYER);
     styledLink.rotate(x0, y0, x1, y1);
     this.styledLink = styledLink;
     this.element = d3.select(styledLink.element);
+    this.element.style('z-index', LINK_LAYER);
     return this;
 }
 VLink.prototype.rotate = function(x0, y0, x1, y1) {
@@ -816,6 +816,8 @@ ValueEditor.prototype.disable = function() {
 // =============================================================================
 // =============================== helpers =====================================
 // =============================================================================
+
+var VLinks = Render.VLinks;
 
 var mergeConfig = Render.mergeConfig;
 

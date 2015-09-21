@@ -21,7 +21,7 @@ var Paths = {
     RenderCore: function() { return Paths.Src() + '/render/main.js'; },
     Renderer: function(renderer) { return Paths.Src() + '/render/' + renderer; },
     Toolkit: function(toolkit) { return Paths.Src() + '/toolkit/' + toolkit + '/toolkit'; },
-    ToolkitModel: function(toolkit) { return Paths.Src() + '/toolkit/model'; },
+    ToolkitModel: function(toolkit) { return Paths.Src() + '/toolkit/' + toolkit + '/model'; },
     ToolkitRenderer: function(toolkit, renderer) { return Paths.Src() + '/toolkit/' + toolkit + '/' + renderer; },
     UserToolkit: function(toolkit) { return toolkit; },
     UserToolkitModel: function(toolkit) { return toolkit + '/model'; },

@@ -80,7 +80,7 @@ return {
                       td.append('span').attr('class', 'rpd-name').text(outlet.name);
                       td.append('span').attr('class', 'rpd-value');
                       if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(outlet.type);
-                  }).node();
+                  }).node()
        }
     },
 
