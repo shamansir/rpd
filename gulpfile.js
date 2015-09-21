@@ -21,8 +21,10 @@ var Paths = {
     RenderCore: function() { return Paths.Src() + '/render/main.js'; },
     Renderer: function(renderer) { return Paths.Src() + '/render/' + renderer; },
     Toolkit: function(toolkit) { return Paths.Src() + '/toolkit/' + toolkit + '/toolkit'; },
+    ToolkitModel: function(toolkit) { return Paths.Src() + '/toolkit/model'; },
     ToolkitRenderer: function(toolkit, renderer) { return Paths.Src() + '/toolkit/' + toolkit + '/' + renderer; },
     UserToolkit: function(toolkit) { return toolkit; },
+    UserToolkitModel: function(toolkit) { return toolkit + '/model'; },
     UserToolkitRenderer: function(toolkit, renderer) { return toolkit + '/' + renderer; },
     StyleRenderer: function(style, renderer) { return Paths.Src() + '/style/' + style + '/' + renderer; },
     UserStyleRenderer: function(style, renderer) { return style + '/' + renderer; },
@@ -249,12 +251,14 @@ function getJsFiles(options) {
         list.push(Paths.Renderer(renderer) + '.js');
     });
     options.toolkit.forEach(function(toolkit) {
+        list.push(Paths.ToolkitModel(toolkit) + '.js');
         list.push(Paths.Toolkit(toolkit) + '.js');
         options.renderer.forEach(function(renderer) {
             list.push(Paths.ToolkitRenderer(toolkit, renderer) + '.js');
         });
     });
     options['user-toolkit'].forEach(function(toolkit) {
+        list.push(Paths.UserToolkitModel(toolkit) + '.js');
         list.push(Paths.UserToolkit(toolkit) + '.js');
         options.renderer.forEach(function(renderer) {
             list.push(Paths.UserToolkitRenderer(toolkit, renderer) + '.js');
