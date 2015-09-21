@@ -30,6 +30,8 @@ var NODE_LAYER = 0, // normally, nodes are layed out below everything
 // either use the full d3.js library or the super-tiny version provided with RPD
 var d3 = d3_tiny || d3;
 
+var Render = Rpd.Render; // everything common between renderers
+
 var tree = {
     patches: {},
     nodes: {},
@@ -42,7 +44,7 @@ var tree = {
     nodeToLinks: {}
 };
 
-var navigation = new Render.Navigation();
+var navigation = new Render.Navigation(patchByHash(tree));
 
 var currentPatch;
 
@@ -74,16 +76,14 @@ return function(networkRoot, userConfig) {
             var docElm = d3.select(document.documentElement);
 
             // build root element as a target for all further patch modifications
-            root = d3.select(style.createRoot(patch, networkRoot))
-                     .classed('rpd-patch', true)
-                     .style('height', docElm.property('clientHeight') + 'px')
-                     .data({ patch: update.patch });
+            root = d3.select(style.createRoot(patch, networkRoot).element)
+                     .style('height', docElm.property('clientHeight') + 'px');
 
             root.classed('rpd-style-' + config.style, true);
                 .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
                 .classed('rpd-show-boxes', config.showBoxes);
 
-            tree.patches[patch.id] = root;
+            tree.patches[patch.id] = root.data({ patch: update.patch });
 
             // initialize the node placing (helps in determining the position where new node should be located)
             tree.patchToPlacing[patch.id] = new Render.Placing(style);
@@ -91,7 +91,7 @@ return function(networkRoot, userConfig) {
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
             // links if they were clicked in the appropriate order
-            connectivity = new Connectivity(root, style);
+            connectivity = new /*Render.*/Connectivity(root, style);
 
             // initialized drag-n-drop support (used to allow user drag nodes)
             if (config.nodeMovingAllowed) dnd = new Render.DragAndDrop(root);
@@ -280,7 +280,7 @@ return function(networkRoot, userConfig) {
             var inletsTarget = tree.nodes[update.node.id].data().inletsTarget;
             var render = update.render;
 
-            var inletElm = d3.select(style.createInlet(inlet, render));
+            var inletElm = d3.select(style.createInlet(inlet, render).element);
 
             inletElm.classed('rpd-'+inlet.type.replace('/','-'), true);
             inletElm.classed({ 'rpd-stale': true,
@@ -322,7 +322,7 @@ return function(networkRoot, userConfig) {
             var outletsTarget = tree.nodes[update.node.id].data().outletsTarget;
             var render = update.render;
 
-            var outletElm = d3.select(style.createOutlet(outlet, render));
+            var outletElm = d3.select(style.createOutlet(outlet, render).element);
 
             outletElm.classed('rpd-'+outlet.type.replace('/','-'), true);
             outletElm.classed('rpd-stale', true);
@@ -466,91 +466,10 @@ return function(networkRoot, userConfig) {
 
 } // function(patch)
 
-// =============================================================================
-// ================================ Links ======================================
-// =============================================================================
-
-function VLink(link, style) { // visual representation of the link
-    this.link = link; // may be null, if it's a ghost
-    this.elm = null;
-    this.style = style;
-}
-VLink.prototype.construct = function(x0, y0, x1, y1) {
-    if (this.elm) throw new Error('VLink is already constructed');
-    var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
-                             ((y0 - y1) * (y0 - y1)));
-    var angle = Math.atan2(y1 - y0, x1 - x0);
-
-    var linkElm = d3.select(this.style.createLink(this.link))
-                    .style('z-index', LINK_LAYER)
-                    .style('width', Math.floor(distance) + 'px')
-                    .style('left', x0 + 'px')
-                    .style('top', y0 + 'px')
-                    .style('transform', 'rotateZ(' + angle + 'rad)')
-                    .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
-    this.elm = linkElm;
-    return this;
-}
-VLink.prototype.rotate = function(x0, y0, x1, y1) {
-    var linkElm = this.elm;
-    var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
-                             ((y0 - y1) * (y0 - y1)));
-    var angle = Math.atan2(y1 - y0, x1 - x0);
-    linkElm.style('left', x0 + 'px')
-           .style('top', y0 + 'px')
-           .style('width', Math.floor(distance) + 'px')
-           .style('transform', 'rotateZ(' + angle + 'rad)')
-           .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
-    return this;
-}
-VLink.prototype.update = function() {
-    if (!this.link) return;
-    var link = this.link;
-    var inletConnector = tree.inlets[link.inlet.id].data().connector,
-        outletConnector = tree.outlets[link.outlet.id].data().connector;
-    var inletPos = getPos(inletConnector.node()),
-        outletPos = getPos(outletConnector.node());
-    this.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
-    return this;
-}
-VLink.prototype.appendTo = function(target) {
-    target.append(this.elm.node());
-    return this;
-}
-VLink.prototype.removeFrom = function(target) {
-    this.elm.remove();
-    return this;
-}
-VLink.prototype.noPointerEvents = function() {
-    // a stub to be compatible with SVG renderer
-    return this;
-}
-VLink.prototype.listenForClicks = function() {
-    var link = this.link; var elm = this.elm;
-    addClickSwitch(this.elm.node(),
-                   function() { link.enable(); },
-                   function() { link.disable(); });
-    return this;
-}
-VLink.prototype.enable = function() { this.elm.classed('rpd-disabled', false); }
-VLink.prototype.disable = function() { this.elm.classed('rpd-disabled', true); }
-
-function VLinks() {
-    this.vlinks = {}; // VLink instances
-}
-VLinks.prototype.clear = function() { this.vlinks = {}; }
-VLinks.prototype.add = function(vlink) { this.vlinks[vlink.link.id] = vlink; }
-VLinks.prototype.remove = function(vlink) {
-    this.vlinks[vlink.link.id] = null;
-}
-VLinks.prototype.each = function(f) {
-    var vlinks = this.vlinks;
-    for (var id in vlinks) {
-        if (vlinks[id]) f(vlinks[id]);
+function patchByHash(tree) {
+    return function(hash) {
+        return tree.patches[hash].data().patch;
     }
-}
-VLinks.prototype.updateAll = function() {
-    this.each(function(vlink) { vlink.update(); });
 }
 
 // =============================================================================
@@ -609,7 +528,7 @@ var Connectivity = (function() {
              .map(extractPos)
              .onValue(function(pos) {
                  startLink.emit();
-                 var pivot = getPos(connector.node());
+                 var pivot = incrementPos(getPos(connector.node()), 3);
                  var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')
@@ -664,7 +583,7 @@ var Connectivity = (function() {
                  var outlet = prevLink.outlet;
                  outlet.disconnect(prevLink);
                  startLink.emit();
-                 var pivot = getPos(getConnector(outlet).node());
+                 var pivot = incrementPos(getPos(getConnector(outlet).node()), 3);
                  var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')
@@ -696,6 +615,65 @@ var Connectivity = (function() {
     return Connectivity;
 
 })();
+
+// =============================================================================
+// ================================ Links ======================================
+// =============================================================================
+
+function VLink(link, style) { // visual representation of the link
+    this.link = link; // may be null, if it's a ghost
+    this.style = style;
+    this.styledLink = null;
+    this.element = null;
+}
+VLink.prototype.construct = function(x0, y0, x1, y1) {
+    if (this.styledLink) throw new Error('VLink is already constructed');
+    var styledLink = this.style.createLink(this.link);
+    linkElm.style('z-index', LINK_LAYER);
+    styledLink.rotate(x0, y0, x1, y1);
+    this.styledLink = styledLink;
+    this.element = d3.select(styledLink.element);
+    return this;
+}
+VLink.prototype.rotate = function(x0, y0, x1, y1) {
+    this.styledLink.rotate(x0, y0, x1, y1);
+    return this;
+}
+VLink.prototype.update = function() {
+    if (!this.link) return;
+    var link = this.link;
+    var inletConnector = tree.inlets[link.inlet.id].data().connector,
+        outletConnector = tree.outlets[link.outlet.id].data().connector;
+    var inletPos = getPos(inletConnector.node()),
+        outletPos = getPos(outletConnector.node());
+    this.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
+    return this;
+}
+VLink.prototype.appendTo = function(target) {
+    target.append(this.element.node());
+    return this;
+}
+VLink.prototype.removeFrom = function(target) {
+    this.element.remove();
+    return this;
+}
+VLink.prototype.noPointerEvents = function() {
+    // a stub to be compatible with SVG renderer implementation
+    return this;
+}
+VLink.prototype.listenForClicks = function() {
+    var link = this.link;
+    addClickSwitch(this.element.node(),
+                   function() { link.enable(); },
+                   function() { link.disable(); });
+    return this;
+}
+VLink.prototype.enable = function() {
+    this.element.classed('rpd-disabled', false);
+}
+VLink.prototype.disable = function() {
+    this.element.classed('rpd-disabled', true);
+}
 
 // =============================================================================
 // ============================== NodeMenu =====================================
@@ -835,50 +813,6 @@ ValueEditor.prototype.disable = function() {
     this.disableEditor.emit();
 }
 
-var errorEffects = {};
-function addValueErrorEffect(key, target, duration) {
-    target.classed('rpd-error', true);
-    if (errorEffects[key]) clearTimeout(errorEffects[key]);
-    errorEffects[key] = setTimeout(function() {
-        target.classed('rpd-error', false);
-        errorEffects[key] = null;
-    }, duration || 1);
-}
-
-var updateEffects = {};
-function addValueUpdateEffect(key, target, duration) {
-    target.classed('rpd-stale', false);
-    target.classed('rpd-fresh', true);
-    if (updateEffects[key]) clearTimeout(updateEffects[key]);
-    updateEffects[key] = setTimeout(function() {
-        target.classed('rpd-fresh', false);
-        target.classed('rpd-stale', true);
-        updateEffects[key] = null;
-    }, duration || 1);
-}
-
-// =============================================================================
-// =============================== Updates =====================================
-// =============================================================================
-
-function subscribeUpdates(node, subscriptions) {
-    if (!subscriptions) return;
-    for (var alias in subscriptions) {
-        (function(subscription, alias) {
-            node.event['node/add-inlet']
-                .filter(function(inlet) { return inlet.alias === alias; })
-                .onValue(function(inlet) {
-                    if (subscription.default) inlet.receive(subscription.default());
-                    if (subscription.valueOut) {
-                        subscription.valueOut.onValue(function(value) {
-                            inlet.receive(value);
-                        });
-                    }
-            });
-        })(subscriptions[alias], alias);
-    }
-}
-
 // =============================================================================
 // =============================== helpers =====================================
 // =============================================================================
@@ -893,6 +827,11 @@ var extractPos = Render.extractPos,
 
 var addTarget = Render.addTarget,
     addClickSwitch = Render.addClickSwitch;
+
+var addValueErrorEffect = Render.addValueErrorEffect,
+    addValueUpdateEffect = Render.addValueUpdateEffect;
+
+var subscribeUpdates = Render.subscribeUpdates;
 
 // =============================================================================
 // ============================ registration ===================================

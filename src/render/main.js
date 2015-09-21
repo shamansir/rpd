@@ -1,4 +1,4 @@
-var Render = (function() {
+Rpd.Render = (function() {
 
 var ƒ = Rpd.unit,
     invertValue = Rpd.not;
@@ -7,15 +7,16 @@ var ƒ = Rpd.unit,
 // ============================ Navigation =====================================
 // =============================================================================
 
-function Navigation() {
-    this.current = null;
+function Navigation(getPatchByHash) {
+    this.currentPatch = null;
+    this.getPatchByHash = getPatchByHash;
 
     var me = this;
 
     Kefir.fromEvents(window, 'hashchange')
          .map(function() { return (window.location.hash ? window.location.hash.slice(1) : null); })
          .filter(function(newHash) { return !(me.currentPatch && (newHash === me.currentPatch.id)); })
-         .map(function(newHash) { return tree.patches[newHash].data().patch; })
+         .map(me.getPatchByHash)
          .filter(function(targetPatch) { return targetPatch != null; })
          .onValue(function(targetPatch) {
              if (me.currentPatch) me.currentPatch.exit(); // TODO: pass this value through a stream
@@ -25,6 +26,11 @@ function Navigation() {
 Navigation.prototype.switch = function(targetPatch) {
     if (!targetPatch) return;
     this.currentPatch = targetPatch;
+    if (document.title.indexOf('—') >= 0) {
+        document.title = document.title.replace(/—.+$/, '— ' + targetPatch.name || '[Unnamed]');
+    } else {
+        document.title += ' — ' + targetPatch.name || '[Unnamed]';
+    }
     window.location.hash = targetPatch.id;
 }
 
@@ -86,6 +92,30 @@ DragAndDrop.prototype.add = function(handle, spec) {
 }
 
 // =============================================================================
+// ================================ Links ======================================
+// =============================================================================
+
+function VLinks() {
+    // VLink instances
+    // VLink implementation is currently custom for every renderer
+    this.vlinks = {};
+}
+VLinks.prototype.clear = function() { this.vlinks = {}; }
+VLinks.prototype.add = function(vlink) { this.vlinks[vlink.link.id] = vlink; }
+VLinks.prototype.remove = function(vlink) {
+    this.vlinks[vlink.link.id] = null;
+}
+VLinks.prototype.each = function(f) {
+    var vlinks = this.vlinks;
+    for (var id in vlinks) {
+        if (vlinks[id]) f(vlinks[id]);
+    }
+}
+VLinks.prototype.updateAll = function() {
+    this.each(function(vlink) { vlink.update(); });
+}
+
+// =============================================================================
 // =============================== helpers =====================================
 // =============================================================================
 
@@ -123,10 +153,58 @@ function addClickSwitch(elm, on_true, on_false, initial) {
          })
 }
 
+var addValueErrorEffect = (function() {
+    var errorEffects = {};
+    return function(key, target, duration) {
+        target.classed('rpd-error', true);
+        if (errorEffects[key]) clearTimeout(errorEffects[key]);
+        errorEffects[key] = setTimeout(function() {
+            target.classed('rpd-error', false);
+            errorEffects[key] = null;
+        }, duration || 1);
+    }
+})();
+
+var addValueUpdateEffect = (function() {
+    var updateEffects = {};
+    return function(key, target, duration) {
+        target.classed('rpd-stale', false);
+        target.classed('rpd-fresh', true);
+        if (updateEffects[key]) clearTimeout(updateEffects[key]);
+        updateEffects[key] = setTimeout(function() {
+            target.classed('rpd-fresh', false);
+            target.classed('rpd-stale', true);
+            updateEffects[key] = null;
+        }, duration || 1);
+    }
+})();
+
+function subscribeUpdates(node, subscriptions) {
+    if (!subscriptions) return;
+    for (var alias in subscriptions) {
+        (function(subscription, alias) {
+            node.event['node/add-inlet']
+                .filter(function(inlet) { return inlet.alias === alias; })
+                .onValue(function(inlet) {
+                    if (subscription.default) inlet.receive(subscription.default());
+                    if (subscription.valueOut) {
+                        subscription.valueOut.onValue(function(value) {
+                            inlet.receive(value);
+                        });
+                    }
+            });
+        })(subscriptions[alias], alias);
+    }
+}
+
 return {
     Navigation: Navigation,
     Placing: GridPlacing,
     DragAndDrop: DragAndDrop,
+    //Connectivity: Connectivity,
+
+    //VLink: VLink,
+    VLinks: VLinks,
 
     mergeConfig: mergeConfig,
 
@@ -138,7 +216,12 @@ return {
     incrementPos: incrementPos,
 
     addTarget: addTarget,
-    addClickSwitch: addClickSwitch
+    addClickSwitch: addClickSwitch,
+
+    addValueErrorEffect: addValueErrorEffect,
+    addValueUpdateEffect: addValueUpdateEffect,
+
+    subscribeUpdates: subscribeUpdates
 };
 
 })();

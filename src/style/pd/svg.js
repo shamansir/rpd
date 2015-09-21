@@ -39,7 +39,10 @@ return {
     boxPadding:  { horizontal: 20, vertical: 80 },
 
     createRoot: function(patch, parent) {
-        return d3.select(_createSvgElement('g')).node();
+        return {
+            element: d3.select(_createSvgElement('g'))
+                       .classed('rpd-patch', true).node()
+        };
     },
 
     createNode: function(node, render, description) {
@@ -192,7 +195,7 @@ return {
                                 .attr('x', 0).attr('y', -15);
         });
         listeners[inlet.node.id].inlet(inletElm);
-        return inletElm.node();
+        return { element: inletElm.node() };
     },
 
     createOutlet: function(outlet, render) {
@@ -209,11 +212,17 @@ return {
                                 .attr('x', 0).attr('y', 15);
         });
         listeners[outlet.node.id].outlet(outletElm);
-        return outletElm.node();
+        return { element: outletElm.node() };
     },
 
     createLink: function(link) {
-        return d3.select(_createSvgElement('line')).node();
+        var linkElm = d3.select(_createSvgElement('line'))
+                        .attr('class', 'rpd-link');
+        return { element: linkElm.node(),
+                 rotate: function(x0, y0, x1, y1) {
+                     linkElm.attr('x1', x0).attr('y1', y0)
+                            .attr('x2', x1).attr('y2', y1);
+                 } };
     },
 
     onPatchSwitch: function(patch, root) {

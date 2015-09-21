@@ -10,7 +10,10 @@ return {
     boxPadding:  { horizontal: 20, vertical: 30 },
 
     createRoot: function(patch, parent) {
-        return d3.select(document.createElement('div')).node();
+        return {
+            element: d3.select(document.createElement('div'))
+                       .classed('rpd-patch', true).node()
+        };
     },
 
     createNode: function(node, render, description) {
@@ -74,33 +77,52 @@ return {
     },
 
     createInlet: function(inlet, render) {
-        return d3.select(document.createElement('tr')).attr('class', 'rpd-inlet')
-                 .call(function(tr) {
-                     tr.append('td').attr('class', 'rpd-connector');
-                     tr.append('td').attr('class', 'rpd-value-holder')
-                                    .append('span').attr('class', 'rpd-value');
-                     tr.append('td').attr('class', 'rpd-name').text(inlet.name);
-                     if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(inlet.type);
-                 }).node();
+        return {
+            element:
+                d3.select(document.createElement('tr'))
+                  .attr('class', 'rpd-inlet')
+                  .call(function(tr) {
+                      tr.append('td').attr('class', 'rpd-connector');
+                      tr.append('td').attr('class', 'rpd-value-holder')
+                                     .append('span').attr('class', 'rpd-value');
+                      tr.append('td').attr('class', 'rpd-name').text(inlet.name);
+                      if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(inlet.type);
+                  }).node()
+        };
     },
 
     createOutlet: function(outlet, render) {
-        return d3.select(document.createElement('tr')).attr('class', 'rpd-outlet')
-                 .call(function(tr) {
-                     tr.append('td').attr('class', 'rpd-connector');
-                     tr.append('td').attr('class', 'rpd-value');
-                     if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(outlet.type);
-                     tr.append('td').attr('class', 'rpd-name').text(outlet.name);
-                 }).node();
+        return {
+            element:
+                d3.select(document.createElement('tr'))
+                  .attr('class', 'rpd-outlet')
+                  .call(function(tr) {
+                      tr.append('td').attr('class', 'rpd-connector');
+                      tr.append('td').attr('class', 'rpd-value');
+                      if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(outlet.type);
+                      tr.append('td').attr('class', 'rpd-name').text(outlet.name);
+                  }).node()
+        };
     },
 
     createLink: function(link) {
-        return d3.select(document.createElement('span'))
-                 .attr('class', 'rpd-link')
-                 .style('position', 'absolute')
-                 .style('transform-origin', 'left top')
-                 .style('-webkit-transform-origin', 'left top')
-                 .node();
+        var linkElm = d3.select(document.createElement('span'))
+                        .attr('class', 'rpd-link')
+                        .style('position', 'absolute')
+                        .style('transform-origin', 'left top')
+                        .style('-webkit-transform-origin', 'left top');
+        return {
+            element: linkElm.node(),
+            rotate: function(x0, y0, x1, y1) {
+                var distance = Math.sqrt(((x0 - x1) * (x0 - x1)) +
+                                         ((y0 - y1) * (y0 - y1)));
+                var angle = Math.atan2(y1 - y0, x1 - x0);
+                linkElm.style('left', x0 + 'px').style('top', y0 + 'px')
+                       .style('width', Math.floor(distance) + 'px')
+                       .style('transform', 'rotateZ(' + angle + 'rad)')
+                       .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
+            }
+        }
     }
 
 };
