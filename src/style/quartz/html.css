@@ -1,7 +1,3 @@
-.rpd-network {
-    margin: 0;
-}
-
 .rpd-patch {
     font-family: 'PT Mono', 'Andale Mono', 'Fira mono', 'Menlo', sans-serif;
     font-size: 0.7em;
@@ -65,7 +61,8 @@
     transition: background-color .3s;
 }
 
-.rpd-inlets, .rpd-outlets {
+.rpd-inlets,
+.rpd-outlets {
     margin: 0;
     padding: 2px;
 }
@@ -124,11 +121,11 @@
 
 .rpd-inlet .rpd-value,
 .rpd-outlet .rpd-value {
-    color: rgba(200, 200, 200, 0.7);
+    color: rgba(200,200,200,0.7);
 }
 
 .rpd-value.rpd-edited {
-    color: rgba(150, 150, 225, 0.7);
+    color: rgba(150,150,225,0.7);
 }
 
 .rpd-outlet .rpd-value,
@@ -159,7 +156,7 @@
 .rpd-value-holder input {
     border: 1px solid rgba(250,250,250,0.2);
     color: #111;
-    background-color: rgba(201, 201, 220, 0.6);
+    background-color: rgba(201,201,220,0.6);
     margin: 4px 4px 9px 0px;
 }
 
@@ -231,21 +228,23 @@
 
 /* Custom Style */
 
-.rpd-style-quartz .rpd-node {
+.rpd-node {
     /* margin: 9px 30px; */
 }
 
-.rpd-style-quartz .rpd-node, .rpd-style-quartz .rpd-node > .rpd-title {
+.rpd-node,
+.rpd-node > .rpd-title {
     /* box-shadow: 3px 3px 14px 1px rgba(33,33,33,0.7); */
     box-shadow: -1px 5px 13px 1px rgba(30,30,30,0.8);
 }
 
-.rpd-style-quartz .rpd-dragging .rpd-node, .rpd-style-quartz .rpd-dragging .rpd-node > .rpd-title {
+.rpd-dragging .rpd-node,
+.rpd-dragging .rpd-node > .rpd-title {
     box-shadow: 4px 8px 20px 0px rgba(30,30,30,0.8);
     z-index: 100;
 }
 
-.rpd-style-quartz .rpd-node .rpd-title {
+.rpd-node .rpd-title {
     display: table-caption;
     background-clip: border-box;
     border-style: solid;
@@ -256,7 +255,7 @@
     /* border-radius: 4px 0 0 0; */
 }
 
-.rpd-style-quartz .rpd-node .rpd-content {
+.rpd-node .rpd-content {
     border-color: rgba(250,250,250,0.4);
     border-width: 0 1px 1px 1px;
     /* border-radius: 0 0 4px 4px; */
@@ -265,92 +264,92 @@
     background-clip: border-box;
 }
 
-.rpd-style-quartz table.rpd-node {
+table.rpd-node {
     position: relative;
     border-collapse: collapse;
     min-width: 100px;
     min-height: 30px;
 }
 
-.rpd-style-quartz .rpd-node .rpd-remove-button {
+.rpd-node .rpd-remove-button {
     position: absolute;
     right: 0;
     margin-top: -3px;
 }
 
-.rpd-style-quartz table.rpd-node thead.rpd-title th {
+table.rpd-node thead.rpd-title th {
     padding: 2px;
     text-align: left;
     font-weight: normal;
 }
 
-.rpd-style-quartz .rpd-body {
+.rpd-body {
     padding: 9px 6px;
 }
 
-.rpd-style-quartz .rpd-inlet .rpd-value-holder {
+.rpd-inlet .rpd-value-holder {
     margin: 0.2em 5px 0px 5px;
 }
 
-.rpd-style-quartz .rpd-outlet .rpd-value {
+.rpd-outlet .rpd-value {
     margin: 0.6em 5px 0px 5px;
 }
 
-.rpd-style-quartz .rpd-name {
+.rpd-name {
     padding: 4px 2px;
-    color: rgba(250, 250, 250, 0.9);
+    color: rgba(250,250,250,0.9);
 }
 
-.rpd-style-quartz .rpd-inlet,
-.rpd-style-quartz .rpd-outlet {
+.rpd-inlet,
+.rpd-outlet {
     min-height: 20px;
 }
 
-.rpd-style-quartz .rpd-inlet .rpd-name {
+.rpd-inlet .rpd-name {
     text-align: left;
 }
 
-.rpd-style-quartz .rpd-outlet .rpd-name {
+.rpd-outlet .rpd-name {
     text-align: right;
 }
 
-.rpd-style-quartz .rpd-inlet .rpd-connector {
+.rpd-inlet .rpd-connector {
     position: absolute;
     margin-top: 0.5em;
     left: -4px;
 }
 
-.rpd-style-quartz .rpd-outlet .rpd-connector {
+.rpd-outlet .rpd-connector {
     position: absolute;
     margin-top: 0.5em;
     right: -5px;
 }
 
-.rpd-style-quartz .rpd-inlet .rpd-value-holder {
+.rpd-inlet .rpd-value-holder {
     position: absolute;
     right: 103%;
 }
 
-.rpd-style-quartz .rpd-outlet .rpd-value {
+.rpd-outlet .rpd-value {
     position: absolute;
     left: 103%;
 }
 
-.rpd-style-quartz .rpd-outlets > table {
+.rpd-outlets > table {
     margin-left: auto;
 }
 
-.rpd-style-quartz .rpd-inlet:hover .rpd-name,
-.rpd-style-quartz .rpd-outlet:hover .rpd-name {
+.rpd-inlet:hover .rpd-name,
+.rpd-outlet:hover .rpd-name {
     background-color: rgba(250,250,250,0.1);
 }
 
-.rpd-style-quartz .rpd-link {
+.rpd-link {
     margin-left: 4px;
     margin-top: 0.5em;
 }
 
-.rpd-style-quartz .rpd-value-holder input[type="number"] {
+.rpd-value-holder input[type="number"] {
     top: -4px;
     left: 6px;
 }
