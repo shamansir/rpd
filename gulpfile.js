@@ -17,6 +17,7 @@ var Paths = {
     Kefir: function() { return Paths.Vendor() + '/kefir.min.js'; },
     D3: function() { return Paths.Vendor() + '/d3.min.js'; },
     D3Tiny: function() { return Paths.Src() + '/d3_tiny.js'; },
+    RenderCore: function() { return Paths.Src() + '/render/main.js'; },
     Renderer: function(renderer) { return Paths.Src() + '/render/' + renderer; },
     Toolkit: function(toolkit) { return Paths.Src() + '/toolkit/' + toolkit + '/toolkit'; },
     ToolkitRenderer: function(toolkit, renderer) { return Paths.Src() + '/toolkit/' + toolkit + '/' + renderer; },
@@ -218,6 +219,7 @@ function getJsFiles(options) {
         list.push(Paths.Io(io) + '.js');
     });
     if (!options.d3) list.push(Paths.D3Tiny());
+    list.push(Paths.RenderCore());
     options.style.forEach(function(style) {
         options.renderer.forEach(function(renderer) {
             list.push(Paths.StyleRenderer(style, renderer) + '.js');
@@ -299,6 +301,8 @@ function getHtmlHead(options) {
     } else {
         comment('RPD\'s d3_tiny.js'); jsFile(Paths.D3Tiny());
     }
+    comment('RPD Render Core:');
+    jsFile(Paths.RenderCore());
     options.style.forEach(function(style) {
         options.renderer.forEach(function(renderer) {
             comment('RPD Style: ' + style + ' (' + renderer + ')');
