@@ -528,7 +528,7 @@ var Connectivity = (function() {
              .map(extractPos)
              .onValue(function(pos) {
                  startLink.emit();
-                 var pivot = incrementPos(getPos(connector.node()), 3);
+                 var pivot = getPos(connector.node());
                  var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')
@@ -583,7 +583,7 @@ var Connectivity = (function() {
                  var outlet = prevLink.outlet;
                  outlet.disconnect(prevLink);
                  startLink.emit();
-                 var pivot = incrementPos(getPos(getConnector(outlet).node()), 3);
+                 var pivot = getPos(getConnector(outlet).node());
                  var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')

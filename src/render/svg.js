@@ -162,7 +162,7 @@ return function(networkRoot, userConfig) {
             var placing = tree.patchToPlacing[update.patch.id],
                 // current patch root should be used as a limit source, even if we add to another patch
                 // or else other root may have no dimensions yet
-                limitSrc = tree.patches[currentPatch.id].node();
+                limitSrc = tree.patches[currentPatch.id].data();
 
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var styledNode = style.createNode(node, render, nodeDescriptions[node.type]);
