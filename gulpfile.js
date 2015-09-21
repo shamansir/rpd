@@ -29,20 +29,23 @@ var Paths = {
 }
 
 var argv = require('yargs')
-           .string('root')
+           .string('root').string('target-name')
            .array('renderer').array('style').array('toolkit').array('io').boolean('d3')
            .array('user-style').array('user-toolkit')
            .default({
                root: '.',
+               'target-name': 'rpd', // forms dist/rpd.js and dist/rpd.css
                renderer: [ 'svg' ],
                style: [ 'quartz' ],
                toolkit: [ 'core' ],
                io: [],
                d3: false,
                'user-style': [ ],
-               'user-toolkit': [ ],
+               'user-toolkit': [ ]
            })
            .argv;
+
+var targetName = argv['target-name']; // forms dist/<targetName>.js and dist/<targetName>.css
 
 var pkg = require('./package.json');
 var Server = require('karma').Server;
@@ -64,12 +67,12 @@ gulp.task('get-deps', function() {
 });
 
 gulp.task('build', ['check-root', 'list-opts', 'concat-css'], function() {
-    gutil.log(infoColor('Compiling rpd.js with Closure compiler'));
+    gutil.log(infoColor('Compiling ' + targetName + '.js with Closure compiler'));
     gutil.log(infoColor('Sources included:'));
     return gulp.src(logFiles(getJsFiles(argv)))
                .pipe(closureCompiler({
                    compilerPath: './' + CLOSURE_COMPILER_PATH,
-                   fileName: 'rpd.js',
+                   fileName: targetName + '.js',
                    compilerFlags: {
                        //compilation_level: 'ADVANCED_OPTIMIZATIONS',
                        language_in: 'ECMASCRIPT5'
@@ -79,19 +82,19 @@ gulp.task('build', ['check-root', 'list-opts', 'concat-css'], function() {
                .pipe(gulp.dest('dist'))
                .pipe(size({ showFiles: true, title: 'Result:' }))
                .on('end', function() {
-                   gutil.log(infoColor('Your dist/rpd.js is ready!'));
+                   gutil.log(infoColor('Your dist/' + targetName + '.js is ready!'));
                });
 });
 
 gulp.task('concat-css', ['check-root'], function() {
-    gutil.log(infoColor('Concatenating rpd.css'));
+    gutil.log(infoColor('Concatenating ' + targetName + '.css'));
     return gulp.src(logFiles(getCssFiles(argv)))
-               .pipe(concat('rpd.css'))
+               .pipe(concat(targetName + '.css'))
                .pipe(distCssHeader(pkg, argv))
                .pipe(gulp.dest('dist'))
                .pipe(size({ showFiles: true, title: 'Result:' }))
                .on('end', function() {
-                   gutil.log(infoColor('Your dist/rpd.css is ready!'));
+                   gutil.log(infoColor('Your dist/' + targetName + '.css is ready!'));
                });
 });
 
@@ -123,6 +126,7 @@ gulp.task('list-opts', function() {
               argv['user-style'].length ? valueColor(argv['user-style'].join(', ')) : '[None]');
     gutil.log(infoColor('Selected User Toolkits (--user-toolkit):'),
               argv['user-toolkit'].length ? valueColor(argv['user-toolkit'].join(', ')) : '[None]');
+    gutil.log(infoColor('Selected Target Name (--target-name):'), argv['target-name']);
 });
 
 gulp.task('html-head', ['check-root', 'list-opts'], function() {
