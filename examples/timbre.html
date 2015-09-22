@@ -4,12 +4,18 @@
         <meta charset="utf-8" />
         <title>Timbre Toolkit</title>
 
-        <!-- gulp html-head ==style pd ==io json ==renderer html ==toolkit timbre ==toolkit core ==root .. -->
+        <!-- replace double equals signs with double dashes to get html head like below generated -->
+        <!-- gulp html-head ==style quartz ==renderer html ==toolkit timbre ==toolkit core ==root .. -->
+
+        <!-- or run this, and get everything combined in two files: rpd.js and rpd.css -->
+        <!-- gulp ==style quartz ==renderer html ==toolkit timbre ==toolkit core -->
+
+        <!-- Built with RPD v0.2.0 <http://shamansir.github.io/rpd> -->
 
         <!-- RPD Renderer: html -->
         <link rel="stylesheet" href="../src/render/html.css"></style>
-        <!-- RPD Style: pd (html) -->
-        <link rel="stylesheet" href="../src/style/pd/html.css"></style>
+        <!-- RPD Style: quartz (html) -->
+        <link rel="stylesheet" href="../src/style/quartz/html.css"></style>
         <!-- RPD Toolkit: timbre (html) -->
         <link rel="stylesheet" href="../src/toolkit/timbre/html.css"></style>
         <!-- RPD Toolkit: core (html) -->
@@ -22,14 +28,12 @@
         <!-- RPD -->
         <script src="../src/rpd.js"></script>
 
-        <!-- RPD I/O: json -->
-        <script src="../src/io/json.js"></script>
         <!-- RPD's d3_tiny.js -->
         <script src="../src/d3_tiny.js"></script>
         <!-- RPD Render Core: -->
         <script src="../src/render/main.js"></script>
-        <!-- RPD Style: pd (html) -->
-        <script src="../src/style/pd/html.js"></script>
+        <!-- RPD Style: quartz (html) -->
+        <script src="../src/style/quartz/html.js"></script>
         <!-- RPD Renderer: html -->
         <script src="../src/render/html.js"></script>
         <!-- RPD Toolkit: timbre -->
@@ -47,9 +51,30 @@
 
     <body>
         <script>
-            Rpd.render('html', document.body, { style: 'pd' });
+            Rpd.render('html', document.body, { style: 'quartz', valuesOnHover: true });
 
-            Rpd.addPatch('root').enter();
+            var root = Rpd.addPatch('root').enter();
+
+            var wave = root.addNode('timbre/wave').move(30, 30);
+
+            var freq = root.addNode('core/number').move(35, 150);
+            freq.inlets['min'].receive(110);
+            freq.inlets['max'].receive(880);
+            freq.inlets['spinner'].receive(440);
+
+            /*var freq = root.addNode('timbre/number').move(200, 30);
+            num.outlets['out'].connect(freq.inlets['in']);
+            num.inlets['in'].receive(440);*/
+
+            var osc = root.addNode('timbre/osc').move(220, 90);
+            freq.outlets['out'].connect(osc.inlets['freq']);
+            wave.outlets['wave'].connect(osc.inlets['wave']);
+
+            var plot = root.addNode('timbre/plot').move(430, 60);
+            osc.outlets['sound'].connect(plot.inlets['sound']);
+
+            var play = root.addNode('timbre/play').move(420, 250);
+
         </script>
     </body>
 </html>

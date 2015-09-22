@@ -279,6 +279,8 @@ function getHtmlHead(options) {
     function jsFile(path) {
         console.log('  <script src="' + path + '"></script>');
     }
+    comment('Built with RPD v' + pkg.version + ' <http://shamansir.github.io/rpd>');
+    console.log();
     options.renderer.forEach(function(renderer) {
         comment('RPD Renderer: ' + renderer);
         cssFile(Paths.Renderer(renderer) + '.css');

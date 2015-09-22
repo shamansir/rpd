@@ -1,3 +1,5 @@
+(function() {
+
 Rpd.noderenderer('timbre/number', 'html', function() {
     var change;
     return {
@@ -99,3 +101,5 @@ function attachSpinner(target, initial) {
          }).onEnd(function() {});
     return change;
 }
+
+})();

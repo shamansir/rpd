@@ -1,12 +1,15 @@
+(function() {
+
 Rpd.noderenderer('core/number', 'html', function() {
     var config = { min: 0, max: Infinity };
     return {
         first: function(bodyElm) {
             var spinner = document.createElement('span');
-            var change = attachSpinner(spinner, 0, config);
+            change = attachSpinner(spinner, config);
             bodyElm.appendChild(spinner);
             return { 'spinner':
-                { default: function() { change.emit(0); return 0; },
+                { default: function() { change.emit(config.min);
+                                        return config.min; },
                   valueOut: change.map(function(val) {
                       return parseFloat(val);
                 }) }
@@ -87,9 +90,9 @@ Rpd.channelrenderer('core/number', 'html', {
 
 function extractPos(evt) { return { x: evt.clientX,
                                     y: evt.clientY }; };
-function attachSpinner(target, initial, config) {
+function attachSpinner(target, config) {
     target.classList.add('rpd-anm-spinner');
-    var initial = initial || 0;
+    var initial = config.min;
     var state = { value: initial };
     var change = Kefir.emitter();
     change.onValue(function(val) {
@@ -114,3 +117,5 @@ function attachSpinner(target, initial, config) {
          }).onEnd(function() {});
     return change;
 }
+
+})();

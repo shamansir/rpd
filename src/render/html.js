@@ -222,8 +222,8 @@ return function(networkRoot, userConfig) {
                 nodePos = placing.nextPosition(node, nodeSize, { width:  limitSrc.node().offsetWidth,
                                                                  height: limitSrc.node().offsetHeight });
 
-            nodeBox.style('min-width',  Math.floor(nodeSize.width) + 'px');
-            nodeBox.style('min-height', Math.floor(nodeSize.height) + 'px');
+            nodeElm.select('.rpd-body').style('min-width',  Math.floor(nodeSize.width) + 'px');
+            nodeElm.select('.rpd-body').style('height', Math.floor(nodeSize.height) + 'px'); // height is min-height for table cells
 
             node.move(nodePos.x, nodePos.y); // x and y positions will be set in node/move event handler
 

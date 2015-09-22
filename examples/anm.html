@@ -4,6 +4,17 @@
         <meta charset="utf-8" />
         <title>Animatron Toolkit</title>
 
+        <!-- Animatron -->
+        <script src="http://player.animatron.com/latest/bundle/animatron.min.js"></script>
+
+        <!-- replace double equals signs with double dashes to get html head like below generated -->
+        <!-- gulp html-head ==style pd ==renderer html ==toolkit anm ==toolkit core ==root .. -->
+
+        <!-- or run this, and get everything combined in two files: rpd.js and rpd.css -->
+        <!-- gulp ==style pd ==renderer html ==toolkit anm ==toolkit core -->
+
+        <!-- Built with RPD v0.2.0 <http://shamansir.github.io/rpd> -->
+
         <!-- RPD Renderer: html -->
         <link rel="stylesheet" href="../src/render/html.css"></style>
         <!-- RPD Style: pd (html) -->
@@ -13,15 +24,11 @@
         <!-- RPD Toolkit: core (html) -->
         <link rel="stylesheet" href="../src/toolkit/core/html.css"></style>
 
-        <!-- Animatron -->
-        <script src="http://player.animatron.com/latest/bundle/animatron.min.js"></script>
         <!-- Kefir -->
         <script src="../vendor/kefir.min.js"></script>
         <!-- RPD -->
         <script src="../src/rpd.js"></script>
 
-        <!-- RPD I/O: json -->
-        <script src="../src/io/json.js"></script>
         <!-- RPD's d3_tiny.js -->
         <script src="../src/d3_tiny.js"></script>
         <!-- RPD Render Core: -->
@@ -79,7 +86,6 @@
 
                 var render = root.addNode('anm/render').move(400, 450);
                 primitive.outlets['shape'].connect(render.inlets['what']);
-
             }
         </script>
 

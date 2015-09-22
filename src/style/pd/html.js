@@ -51,8 +51,8 @@ return {
 
         return {
             element: nodeElm.node(),
-            size: render.size ? { width: render.size.width || 100, height: render.size.height || 40 }
-                              : { width: 100, height: 40 }
+            size: render.size ? { width: render.size.width || 30, height: render.size.height || 20 }
+                              : { width: 30, height: 20 }
         };
 
     },

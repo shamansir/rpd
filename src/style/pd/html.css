@@ -148,10 +148,6 @@
     display: block;
 }
 
-.rpd-body {
-    min-width: 20px;
-}
-
 .rpd-body input,
 .rpd-value-holder input {
     border: 1px solid rgba(250,250,250,0.2);
