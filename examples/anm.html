@@ -41,13 +41,51 @@
         <!-- RPD Toolkit: core (html) -->
         <script src="../src/toolkit/core/html.js"></script>
 
+        <script>
+            function buildNetwork() {
+                Rpd.render('html', document.body, { style: 'pd' });
+
+                var root = Rpd.addPatch('root').enter();
+
+                var positionValues = root.addNode('anm/spread').move(30, 40);
+                positionValues.inlets['min'].receive(-150);
+                positionValues.inlets['max'].receive(150);
+                positionValues.inlets['count'].receive(26);
+
+                var positions = root.addNode('anm/vector').move(200, 40);
+                positionValues.outlets['spread'].connect(positions.inlets['x']);
+                positionValues.outlets['spread'].connect(positions.inlets['y']);
+
+                var colorValues = root.addNode('anm/spread').move(660, 40);
+                colorValues.inlets['count'].receive(40);
+
+                var colors = root.addNode('anm/color').move(380, 100);
+                colorValues.outlets['spread'].connect(colors.inlets['green']);
+                colorValues.outlets['spread'].connect(colors.inlets['blue']);
+                colorValues.outlets['spread'].connect(colors.inlets['alpha']);
+
+                var sizeValues = root.addNode('anm/spread').move(550, 320);
+                sizeValues.inlets['max'].receive(100);
+
+                var sizes = root.addNode('anm/vector').move(415, 210);
+                sizeValues.outlets['spread'].connect(sizes.inlets['x']);
+                sizeValues.outlets['spread'].connect(sizes.inlets['y']);
+
+                var primitive = root.addNode('anm/primitive').move(300, 350);;
+                primitive.inlets['type'].receive('oval');
+                positions.outlets['vector'].connect(primitive.inlets['pos']);
+                colors.outlets['color'].connect(primitive.inlets['color']);
+                sizes.outlets['vector'].connect(primitive.inlets['size']);
+
+                var render = root.addNode('anm/render').move(400, 450);
+                primitive.outlets['shape'].connect(render.inlets['what']);
+
+            }
+        </script>
+
     </head>
 
-    <body>
-        <script>
-            Rpd.render('html', document.body, { style: 'pd' });
+    <body onload="buildNetwork()">
 
-            Rpd.addPatch('root').enter();
-        </script>
     </body>
 </html>

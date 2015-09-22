@@ -91,6 +91,20 @@
     font-size: 0.85em;
 }
 
+.rpd-inlet .rpd-name {
+    top: 1px;
+    left: 1px;
+    position: relative;
+}
+
+.rpd-outlet .rpd-name {
+    top: -2px;
+    position: relative;
+    left: 2px;
+    /* margin-top: -1px; */
+    /* padding-left: 1px; */
+}
+
 .rpd-style-pd .rpd-anm-toolkit-node .rpd-inlets,
 .rpd-style-pd .rpd-anm-toolkit-node .rpd-outlets {
     display: block;

@@ -269,11 +269,11 @@ table.rpd-node {
 }
 
 .rpd-inlet .rpd-connector {
-    top: 1.3em;
+    top: 1.5em;
 }
 
 .rpd-outlet .rpd-connector {
-    top: -0.6em;
+    top: -10px;
 }
 
 .rpd-inlet .rpd-type,
@@ -299,7 +299,7 @@ table.rpd-node {
 }
 
 .rpd-inlet .rpd-value-holder {
-    top: -1.2em;
+    top: -1em;
 }
 
 .rpd-outlet .rpd-value {

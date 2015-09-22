@@ -16,24 +16,30 @@ Rpd.noderenderer('anm/vector', 'html',
     })
 );
 
-Rpd.noderenderer('anm/primitive', 'html', {
-    first: function(bodyElm) {
-        var chooser = document.createElement('select');
-        chooser.appendChild(createOption('dot'));
-        chooser.appendChild(createOption('rect'));
-        chooser.appendChild(createOption('oval'));
-        chooser.appendChild(createOption('triangle'));
-        bodyElm.appendChild(chooser);
-        return {
-            'type': {
-                default: function() { chooser.value = 'rect'; return 'rect'; },
-                valueOut: Kefir.fromEvents(chooser, 'change')
-                               .map(function() {
-                                    return chooser.options[chooser.selectedIndex].value;
-                               })
+Rpd.noderenderer('anm/primitive', 'html', function() {
+    var chooser;
+    return {
+        first: function(bodyElm) {
+            chooser = document.createElement('select');
+            chooser.appendChild(createOption('dot'));
+            chooser.appendChild(createOption('rect'));
+            chooser.appendChild(createOption('oval'));
+            chooser.appendChild(createOption('triangle'));
+            bodyElm.appendChild(chooser);
+            return {
+                'type': {
+                    default: function() { chooser.value = 'rect'; return 'rect'; },
+                    valueOut: Kefir.fromEvents(chooser, 'change')
+                                   .map(function() {
+                                        return chooser.options[chooser.selectedIndex].value;
+                                   })
+                }
             }
+        },
+        always: function(bodyElm, inlets, outlets) {
+            chooser.value = inlets.type;
         }
-    }
+    };
 });
 
 var RENDER_WIDTH = 140,

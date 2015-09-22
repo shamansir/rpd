@@ -207,15 +207,12 @@ Patch.prototype.exit = function() {
 }
 Patch.prototype.inputs = function(list) {
     this.event['patch/set-inputs'].emit(list);
-    return this;
 }
 Patch.prototype.outputs = function(list) {
     this.event['patch/set-outputs'].emit(list);
-    return this;
 }
 Patch.prototype.project = function(node) {
     this.projections.emit(node);
-    return this;
 }
 
 // =============================================================================
@@ -348,7 +345,6 @@ function Node(type, patch, name, callback) {
     if (this.def.prepare) this.def.prepare(this.inlets, this.outlets);
 
     this.event['node/is-ready'].emit();
-
 }
 Node.prototype.turnOn = function() {
     this.event['node/turn-on'].emit();
@@ -380,6 +376,7 @@ Node.prototype.removeOutlet = function(outlet) {
 }
 Node.prototype.move = function(x, y) {
     this.event['node/move'].emit([ x, y ]);
+    return this;
 }
 
 // =============================================================================
@@ -491,6 +488,7 @@ Outlet.prototype.disconnect = function(link) {
     this.event['outlet/disconnect'].emit(link);
     this.value.offValue(link.receiver);
     this.events.unplug(link.events);
+    return this;
 }
 Outlet.prototype.send = function(value) {
     this.value.emit(value);
