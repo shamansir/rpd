@@ -186,13 +186,15 @@ function subscribeUpdates(node, subscriptions) {
             node.event['node/add-inlet']
                 .filter(function(inlet) { return inlet.alias === alias; })
                 .onValue(function(inlet) {
-                    if (subscription.default) inlet.receive(subscription.default());
-                    if (subscription.valueOut) {
-                        subscription.valueOut.onValue(function(value) {
-                            inlet.receive(value);
-                        });
-                    }
-            });
+                    node.event['node/is-ready'].onValue(function() {
+                        if (subscription.default) inlet.receive(subscription.default());
+                        if (subscription.valueOut) {
+                            subscription.valueOut.onValue(function(value) {
+                                inlet.receive(value);
+                            });
+                        }
+                    });
+                });
         })(subscriptions[alias], alias);
     }
 }

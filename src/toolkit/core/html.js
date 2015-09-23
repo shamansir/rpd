@@ -1,22 +1,24 @@
 (function() {
 
 Rpd.noderenderer('core/number', 'html', function() {
-    var config = { min: 0, max: Infinity };
+    var spinnerElm, spinner;
     return {
         first: function(bodyElm) {
-            var spinner = document.createElement('span');
-            change = attachSpinner(spinner, config);
-            bodyElm.appendChild(spinner);
-            return { 'spinner':
-                { default: function() { change.emit(config.min);
-                                        return config.min; },
-                  valueOut: change.map(function(val) {
-                      return parseFloat(val);
-                }) }
+            spinnerElm = document.createElement('span');
+            spinnerElm.classList.add('rpd-anm-spinner');
+            spinner = new Spinner(spinnerElm);
+            var changes = spinner.getChangesStream();
+            bodyElm.appendChild(spinnerElm);
+            return {
+                /* 'min': { default: function() { return 20; } }, */
+                'spinner': { valueOut: changes.map(function(val) {
+                                 return parseFloat(val);
+                           }) }
             };
         },
         always: function(bodyElm, inlets) {
-            config.min = inlets.min; config.max = inlets.max;
+            spinner.updateBounds(inlets.min, inlets.max);
+            spinnerElm.innerText = spinnerElm.textContent = spinner.setValue(inlets.spinner);
         }
     }
 });
@@ -90,32 +92,56 @@ Rpd.channelrenderer('core/number', 'html', {
 
 function extractPos(evt) { return { x: evt.clientX,
                                     y: evt.clientY }; };
-function attachSpinner(target, config) {
-    target.classList.add('rpd-anm-spinner');
-    var initial = config.min;
-    var state = { value: initial };
-    var change = Kefir.emitter();
-    change.onValue(function(val) {
-        state.value = val;
-        target.innerText = target.textContent = val;
-    });
-    change.emit(initial);
-    Kefir.fromEvents(target, 'mousedown')
+function Spinner(element, min, max) {
+    this.element = element;
+    this.min = min || 0;
+    this.max = isNaN(max) ? Infinity : max;
+    this.value = this.min;
+
+    var spinner = this;
+
+    this.incoming = Kefir.emitter();
+    /*changes.onValue(function(value) {
+        spinner.value = val;
+    });*/
+
+    Kefir.fromEvents(element, 'mousedown')
          .map(extractPos)
          .flatMap(function(startPos) {
-             var start = state.value;
+             var start = spinner.value;
              return Kefir.fromEvents(document.body, 'mousemove')
                          .map(extractPos)
                          .takeUntilBy(Kefir.fromEvents(document.body, 'mouseup'))
                          .map(function(newPos) { return start + (newPos.x - startPos.x); })
-                         .map(function(num) {
-                             if (num >= config.max) return config.max;
-                             if (num <= config.min) return config.min;
-                             return num;
-                          })
-                         .onValue(function(num) { change.emit(num); })
+                         .onValue(function(num) { spinner.incoming.emit(num); })
          }).onEnd(function() {});
-    return change;
+
+    this.changes = this.incoming.map(function(value) {
+        return spinner.setValue(value); // returns value updated to bounds
+    });
+    //this.changes.onValue(function() {});
+}
+Spinner.prototype.setValue = function(value) {
+    this.value = value;
+    return this.checkValue();
+}
+Spinner.prototype.checkValue = function() {
+    if (isNaN(this.value)) this.value = this.min;
+    if (this.value < this.min) {
+        this.value = this.min; this.incoming.emit(this.min);
+    }
+    if (this.value > this.max) {
+        this.value = this.max; this.incoming.emit(this.max);
+    }
+    return this.value;
+}
+Spinner.prototype.updateBounds = function(min, max) {
+    this.min = min || 0;
+    this.max = isNaN(max) ? Infinity : max;
+    return this.checkValue();
+}
+Spinner.prototype.getChangesStream = function() {
+    return this.changes;
 }
 
 })();

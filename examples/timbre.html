@@ -51,16 +51,16 @@
 
     <body>
         <script>
-            Rpd.render('html', document.body, { style: 'quartz', valuesOnHover: true });
+            Rpd.render('html', document.body, { style: 'quartz'/*, valuesOnHover: true*/ });
 
             var root = Rpd.addPatch('root').enter();
 
             var wave = root.addNode('timbre/wave').move(30, 30);
 
             var freq = root.addNode('core/number').move(35, 150);
-            freq.inlets['min'].receive(110);
-            freq.inlets['max'].receive(880);
-            freq.inlets['spinner'].receive(440);
+            //freq.inlets['min'].receive(110);
+            //freq.inlets['max'].receive(880);
+            //freq.inlets['spinner'].receive(440);
 
             /*var freq = root.addNode('timbre/number').move(200, 30);
             num.outlets['out'].connect(freq.inlets['in']);
