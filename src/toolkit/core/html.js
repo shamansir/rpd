@@ -10,7 +10,6 @@ Rpd.noderenderer('core/number', 'html', function() {
             var changes = spinner.getChangesStream();
             bodyElm.appendChild(spinnerElm);
             return {
-                /* 'min': { default: function() { return 20; } }, */
                 'spinner': { valueOut: changes.map(function(val) {
                                  return parseFloat(val);
                            }) }
@@ -126,8 +125,7 @@ Spinner.prototype.setValue = function(value) {
     return this.checkValue();
 }
 Spinner.prototype.checkValue = function() {
-    if (isNaN(this.value)) this.value = this.min;
-    if (this.value < this.min) {
+    if (isNaN(this.value) || (this.value < this.min)) {
         this.value = this.min; this.incoming.emit(this.min);
     }
     if (this.value > this.max) {

@@ -37,6 +37,8 @@ Rpd.nodetype('core/number', {
     outlets: { 'out':     { type: 'core/number' } },
     process: function(inlets) {
         if (!inlets.hasOwnProperty('spinner')) return;
+        // comparison logic is in the renderer, since it communicates with
+        // this node through a hidden spinner inlet
         return { 'out': inlets.spinner };
     }
 });
@@ -45,12 +47,14 @@ Rpd.nodetype('core/random', {
     name: 'Random',
     inlets:  { 'min': { type: 'core/number', default: 0 },
                'max': { type: 'core/number', default: 100 },
-               'period': { type: 'core/number', default: 10, hidden: true } },
+               'period': { type: 'core/number', default: 1000, hidden: true } },
     outlets: { 'out':    { type: 'core/number' } },
     process: function(inlets) {
-        //if (!inlets.hasOwnProperty('period')) return;
-        return { 'out': Kefir.interval(5000/*inlets.period*/, {})
-                             .map(function() { return Math.random() * inlets.max; }) };
+        if (!inlets.hasOwnProperty('period')) return;
+        return { 'out': Kefir.interval(inlets.period, {})
+                             .map(function() {
+                                 return Math.floor(inlets.min + (Math.random() * (inlets.max - inlets.min)));
+                             }) };
     }
 });
 
