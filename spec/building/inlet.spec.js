@@ -154,4 +154,36 @@ describe('building: inlet', function() {
         });
     });
 
+    it('adds new stream to a previous one when new stream sent to it', function() {
+
+        withNewPatch(function(patch, updateSpy) {
+
+            var node = patch.addNode('spec/empty');
+
+            var firstStream = Kefir.emitter();
+            var secondStream = Kefir.emitter();
+
+            var inlet = node.addInlet('spec/any', 'foo');
+
+            inlet.stream(firstStream.map(function() { return 1; }));
+            firstStream.emit({});
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'inlet/update', value: 1 }));
+
+            updateSpy.calls.reset();
+            inlet.stream(secondStream.map(function() { return 2; }));
+            secondStream.emit({});
+            firstStream.emit({});
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'inlet/update', value: 2 }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'inlet/update', value: 1 }));
+
+        });
+
+
+    });
+
 });

@@ -43,18 +43,23 @@ Rpd.nodetype('core/number', {
     }
 });
 
-Rpd.nodetype('core/random', {
-    name: 'Random',
-    inlets:  { 'min': { type: 'core/number', default: 0 },
-               'max': { type: 'core/number', default: 100 },
-               'period': { type: 'core/number', default: 1000, hidden: true } },
-    outlets: { 'out':    { type: 'core/number' } },
-    process: function(inlets) {
-        if (!inlets.hasOwnProperty('period')) return;
-        return { 'out': Kefir.interval(inlets.period, {})
-                             .map(function() {
-                                 return Math.floor(inlets.min + (Math.random() * (inlets.max - inlets.min)));
-                             }) };
+Rpd.nodetype('core/random', function() {
+    var lastEmitter;
+    return {
+        name: 'Random',
+        inlets:  { 'min': { type: 'core/number', default: 0 },
+                   'max': { type: 'core/number', default: 100 },
+                   'period': { type: 'core/number', default: 1000, hidden: true } },
+        outlets: { 'out':    { type: 'core/number' } },
+        process: function(inlets) {
+            if (!inlets.hasOwnProperty('period')) return;
+            if (lastEmitter) lastEmitter.end();
+            return { 'out': Kefir.withInterval(inlets.period, function(emitter) {
+                                      lastEmitter = emitter;
+                                      emitter.emit(Math.floor(inlets.min + (Math.random() * (inlets.max - inlets.min))));
+                                  })
+                   };
+        }
     }
 });
 
