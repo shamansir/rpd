@@ -1,6 +1,9 @@
 Rpd.channeltype('timbre/t-num', {
-    //accept: function(n) { return n.value ? true : false; },
-    show: function(t_num) { return t_num ? t_num.value : '?'; }
+    adapt: function(v) { return !isNaN(v) ? T(v) : v; },
+    accept: function(n) { return !isNaN(n) || (n && n.value); },
+    show: function(t_num) {
+        return t_num ? t_num.value : '?';
+    }
 });
 
 Rpd.channeltype('timbre/spinner', {

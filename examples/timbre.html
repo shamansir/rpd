@@ -58,9 +58,9 @@
             var wave = root.addNode('timbre/wave').move(30, 30);
 
             var freq = root.addNode('core/number').move(35, 150);
-            //freq.inlets['min'].receive(110);
-            //freq.inlets['max'].receive(880);
-            //freq.inlets['spinner'].receive(440);
+            freq.inlets['min'].receive(110);
+            freq.inlets['max'].receive(880);
+            freq.inlets['spinner'].receive(440);
 
             /*var freq = root.addNode('timbre/number').move(200, 30);
             num.outlets['out'].connect(freq.inlets['in']);
@@ -70,10 +70,15 @@
             freq.outlets['out'].connect(osc.inlets['freq']);
             wave.outlets['wave'].connect(osc.inlets['wave']);
 
-            var plot = root.addNode('timbre/plot').move(430, 60);
+            var plot = root.addNode('timbre/plot').move(460, 80);
             osc.outlets['sound'].connect(plot.inlets['sound']);
 
-            var play = root.addNode('timbre/play').move(420, 250);
+            var play = root.addNode('timbre/play').move(430, 270);
+
+            var random = root.addNode('core/random').move(45, 275);
+            random.inlets['min'].receive(110);
+            random.inlets['max'].receive(880);
+            random.inlets['period'].receive(3000);
 
         </script>
     </body>
