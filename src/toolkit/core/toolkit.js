@@ -29,6 +29,16 @@ Rpd.channeltype('core/number', {
     adapt: function(val) { return parseFloat(val); }
 });
 
+Rpd.channeltype('core/time', {
+    default: 1000,
+    accept: function(val) {
+        var parsed = parseFloat(val);
+        return !isNaN(parsed) && isFinite(parsed);
+    },
+    adapt: function(val) { return parseFloat(val); },
+    show: function(val) { return (Math.floor(val / 10) / 100) + 's'; }
+});
+
 Rpd.nodetype('core/number', {
     name: 'number',
     inlets:  { 'min': { type: 'core/number', default: 0 },
@@ -44,20 +54,21 @@ Rpd.nodetype('core/number', {
 });
 
 Rpd.nodetype('core/random', function() {
-    var lastEmitter;
+    var lastEmitterId = 0;
     return {
-        name: 'Random',
+        name: 'random',
         inlets:  { 'min': { type: 'core/number', default: 0 },
                    'max': { type: 'core/number', default: 100 },
-                   'period': { type: 'core/number', default: 1000, hidden: true } },
+                   'period': { type: 'core/time', default: 1000 } },
         outlets: { 'out':    { type: 'core/number' } },
         process: function(inlets) {
             if (!inlets.hasOwnProperty('period')) return;
-            if (lastEmitter) lastEmitter.end();
+            lastEmitterId++;
             return { 'out': Kefir.withInterval(inlets.period, function(emitter) {
-                                      lastEmitter = emitter;
                                       emitter.emit(Math.floor(inlets.min + (Math.random() * (inlets.max - inlets.min))));
-                                  })
+                                  }).takeWhile((function(myId) {
+                                      return function() { return myId === lastEmitterId; }
+                                  })(lastEmitterId))
                    };
         }
     }
