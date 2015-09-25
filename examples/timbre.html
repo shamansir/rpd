@@ -5,10 +5,10 @@
         <title>Timbre Toolkit</title>
 
         <!-- replace double equals signs with double dashes to get html head like below generated -->
-        <!-- gulp html-head ==style quartz ==renderer html ==toolkit timbre ==toolkit core ==root .. -->
+        <!-- gulp html-head ==style quartz ==renderer html ==toolkit core ==toolkit timbre ==root .. -->
 
         <!-- or run this, and get everything combined in two files: rpd.js and rpd.css -->
-        <!-- gulp ==style quartz ==renderer html ==toolkit timbre ==toolkit core -->
+        <!-- gulp ==style quartz ==renderer html ==toolkit core ==toolkit timbre -->
 
         <!-- Built with RPD v0.2.0 <http://shamansir.github.io/rpd> -->
 
@@ -36,16 +36,16 @@
         <script src="../src/style/quartz/html.js"></script>
         <!-- RPD Renderer: html -->
         <script src="../src/render/html.js"></script>
-        <!-- RPD Toolkit: timbre -->
-        <script src="../src/toolkit/timbre/model.js"></script>
-        <script src="../src/toolkit/timbre/toolkit.js"></script>
-        <!-- RPD Toolkit: timbre (html) -->
-        <script src="../src/toolkit/timbre/html.js"></script>
         <!-- RPD Toolkit: core -->
         <script src="../src/toolkit/core/model.js"></script>
         <script src="../src/toolkit/core/toolkit.js"></script>
         <!-- RPD Toolkit: core (html) -->
         <script src="../src/toolkit/core/html.js"></script>
+        <!-- RPD Toolkit: timbre -->
+        <script src="../src/toolkit/timbre/model.js"></script>
+        <script src="../src/toolkit/timbre/toolkit.js"></script>
+        <!-- RPD Toolkit: timbre (html) -->
+        <script src="../src/toolkit/timbre/html.js"></script>
 
     </head>
 
@@ -57,14 +57,10 @@
 
             var wave = root.addNode('timbre/wave').move(30, 30);
 
-            var freq = root.addNode('core/number').move(35, 150);
+            var freq = root.addNode('core/bounded-number').move(35, 150);
             freq.inlets['min'].receive(110);
             freq.inlets['max'].receive(880);
             freq.inlets['spinner'].receive(440);
-
-            /*var freq = root.addNode('timbre/number').move(200, 30);
-            num.outlets['out'].connect(freq.inlets['in']);
-            num.inlets['in'].receive(440);*/
 
             var osc = root.addNode('timbre/osc').move(220, 90);
             freq.outlets['out'].connect(osc.inlets['freq']);

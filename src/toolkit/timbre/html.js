@@ -1,25 +1,5 @@
 (function() {
 
-Rpd.noderenderer('timbre/number', 'html', function() {
-    var change;
-    return {
-        first: function(bodyElm) {
-            var spinner = document.createElement('span');
-            change = attachSpinner(spinner, 0);
-            bodyElm.appendChild(spinner);
-            return { 'spinner':
-                { default: function() { change.emit(0); return T(0); },
-                  valueOut: change.map(function(val) { return T(parseFloat(val)); }) }
-            };
-        },
-        always: function(bodyElm, inlets) {
-            if (inlets.spinner && inlets.in && ((Date.now() - inlets.spinner.time) > 50)) {
-                change.emit(inlets.in.value);
-            }
-        }
-    };
-});
-
 Rpd.noderenderer('timbre/osc', 'html', {
     always: function(bodyElm, inlets) {
         bodyElm.innerText = bodyElm.textContent =
@@ -73,33 +53,6 @@ function createOption(value, selected) {
     option.innerText = option.textContent = value;
     if (selected) option.selected = 'selected';
     return option;
-}
-
-function extractPos(evt) { return { x: evt.clientX,
-                                    y: evt.clientY }; };
-
-function attachSpinner(target, initial) {
-    target.classList.add('rpd-pd-spinner');
-    var initial = initial || 0;
-    var state = { value: initial };
-    var change = Kefir.emitter();
-    change.onValue(function(val) {
-        state.value = val;
-        target.innerText = target.textContent = val;
-    });
-    change.emit(initial);
-    Kefir.fromEvents(target, 'mousedown')
-         .map(extractPos)
-         .flatMap(function(startPos) {
-             var start = state.value;
-             return Kefir.fromEvents(document.body, 'mousemove')
-                         .map(extractPos)
-                         .takeUntilBy(Kefir.fromEvents(document.body, 'mouseup'))
-                         .onValue(function(value) {
-                             change.emit(start + (value.x - startPos.x));
-                         })
-         }).onEnd(function() {});
-    return change;
 }
 
 })();

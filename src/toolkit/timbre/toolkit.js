@@ -6,36 +6,9 @@ Rpd.channeltype('timbre/t-num', {
     }
 });
 
-Rpd.channeltype('timbre/spinner', {
-    adapt: function(val) {
-        return { value: val, time: Date.now() };
-    }
-});
-
 Rpd.channeltype('timbre/t-wave', { });
 
 Rpd.channeltype('timbre/t-obj', { show: function(val) { return val ? '[Some]' : '[None]' } });
-
-// timbre/number
-
-Rpd.nodedescription('timbre/number',
-                    'Choose any number using a handy spinner.');
-Rpd.nodetype('timbre/number', {
-    name: 'num',
-    inlets:  { 'in':      { type: 'timbre/t-num',   default: T(0) },
-               'spinner': { type: 'timbre/spinner', default: T(0), hidden: true } },
-    outlets: { 'out':     { type: 'timbre/t-num' } },
-    process: function(inlets) {
-        if (inlets.spinner) {
-            // if spinner was updated last, use spinner value instead of input
-            if ((Date.now() - inlets.spinner.time) < 50) {
-                return { 'out': inlets.spinner.value };
-            } else {
-                return { 'out': inlets.in };
-            }
-        } else return { 'out': inlets.in };
-    }
-});
 
 // timbre/osc
 

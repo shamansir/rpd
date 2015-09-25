@@ -4,7 +4,9 @@
         <meta charset="utf-8" />
         <title>Core with Network</title>
 
-        <!-- gulp html-head ==style quartz ==io json ==renderer svg ==root .. -->
+        <!-- gulp html-head ==style quartz ==io json ==renderer svg ==toolkit core ==toolkit demo ==root .. -->
+
+        <!-- Built with RPD v0.2.0 <http://shamansir.github.io/rpd> -->
 
         <!-- RPD Renderer: svg -->
         <link rel="stylesheet" href="../src/render/svg.css"></style>
@@ -12,6 +14,8 @@
         <link rel="stylesheet" href="../src/style/quartz/svg.css"></style>
         <!-- RPD Toolkit: core (svg) -->
         <link rel="stylesheet" href="../src/toolkit/core/svg.css"></style>
+        <!-- RPD Toolkit: demo (svg) -->
+        <link rel="stylesheet" href="../src/toolkit/demo/svg.css"></style>
 
         <!-- Kefir -->
         <script src="../vendor/kefir.min.js"></script>
@@ -29,9 +33,15 @@
         <!-- RPD Renderer: svg -->
         <script src="../src/render/svg.js"></script>
         <!-- RPD Toolkit: core -->
+        <script src="../src/toolkit/core/model.js"></script>
         <script src="../src/toolkit/core/toolkit.js"></script>
         <!-- RPD Toolkit: core (svg) -->
         <script src="../src/toolkit/core/svg.js"></script>
+        <!-- RPD Toolkit: demo -->
+        <script src="../src/toolkit/demo/model.js"></script>
+        <script src="../src/toolkit/demo/toolkit.js"></script>
+        <!-- RPD Toolkit: demo (svg) -->
+        <script src="../src/toolkit/demo/svg.js"></script>
     </head>
 
     <body>
@@ -45,23 +55,24 @@
 
             var genA = root.addNode('core/custom', 'Generate A');
             var outA = genA.addOutlet('core/number', 'A');
+            outA.send(3);
 
             var genA = root.addNode('core/custom', 'Generate B');
             var outB = genA.addOutlet('core/number', 'B', '', 1);
 
-            var test = root.addNode('core/sum-of-three', 'foo')
+            var test = root.addNode('demo/sum-of-three', 'foo')
             test.addInlet('core/number', 'D');
             test.addInlet('core/number', 'E');
             test.addOutlet('core/number', 'F');
 
             var sum = Rpd.addPatch('sum');
 
-            var sumOfThree1 = sum.addNode('core/sum-of-three', 'Sum1');
+            var sumOfThree1 = sum.addNode('demo/sum-of-three', 'Sum1');
             var in1A = sumOfThree1.inlets['a'];
             var in1B = sumOfThree1.inlets['b'];
             var sum1 = sumOfThree1.outlets['sum'];
 
-            var sumOfThree2 = sum.addNode('core/sum-of-three', 'Sum2');
+            var sumOfThree2 = sum.addNode('demo/sum-of-three', 'Sum2');
             var in2A = sumOfThree2.inlets['a'];
             var sum2 = sumOfThree2.outlets['sum'];
 
