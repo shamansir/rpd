@@ -18,8 +18,12 @@ function Selection(v, root, all) {
     else if (v instanceof Node) selection = [ v ];
     else if (Array.isArray(v)) selection = v;
     else selection = [ v ];
-    this.namespace = ((selection.length === 1) && (selection[0])) ? selection[0].namespaceURI : null;
+    this.namespace = ((selection.length === 1) && selection[0]) ? selection[0].namespaceURI : null;
     this.selection = selection;
+};
+
+Selection.prototype.empty = function() {
+    return (((this.selection.length === 1) && !this.selection[0]) || !this.selection.length) ? true : false;
 };
 
 Selection.prototype.attr = function(attr, val) {

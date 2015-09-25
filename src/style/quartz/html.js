@@ -23,6 +23,7 @@ return {
 
         // node header: node title and remove button
         nodeElm.append('thead').attr('class', 'rpd-title')
+                               .classed('rpd-drag-handle', true) // a mark for renderer
                // remove button
                .call(function(thead) {
                    thead.append('tr').attr('class', 'rpd-remove-button')

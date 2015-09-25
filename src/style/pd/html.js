@@ -30,7 +30,9 @@ return {
         // node content
         nodeElm.append('tr').attr('class', 'rpd-content')
                 .call(function(tr) {
-                    tr.append('td').attr('class', 'rpd-title').classed('rpd-header', true)
+                    tr.append('td').attr('class', 'rpd-title')
+                                   .classed('rpd-header', true)
+                                   .classed('rpd-drag-handle', true) // a mark for renderer
                       .call(function(td) {
                           td.append('span').attr('class', 'rpd-name').text(node.name);
                           if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(node.type);

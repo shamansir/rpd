@@ -171,8 +171,9 @@ return function(networkRoot, userConfig) {
 
             // add possiblity to drag nodes
             if (config.nodeMovingAllowed) {
-
-                dnd.add(nodeElm.select('.rpd-title').classed('rpd-drag-handle', true),
+                var handle = nodeElm.select('.rpd-drag-handle');
+                if (!handle.empty()) {
+                    dnd.add(handle,
                         { start: function() {
                             nodeBox.classed('rpd-dragging', true);
                             nodeBox.style('z-index', NODEDRAG_LAYER);
@@ -195,7 +196,7 @@ return function(networkRoot, userConfig) {
                               });
                           }
                       });
-
+                }
             }
 
             // use custom node body renderer, if defined
@@ -228,11 +229,14 @@ return function(networkRoot, userConfig) {
             node.move(nodePos.x, nodePos.y); // x and y positions will be set in node/move event handler
 
             // remove node when remove button was clicked
-            Kefir.fromEvents(nodeElm.select('.rpd-remove-button').node(), 'click')
-                 .tap(stopPropagation)
-                 .onValue(function() {
-                     patch.removeNode(node);
-                 });
+            var removeButton = nodeElm.select('.rpd-remove-button');
+            if (!removeButton.empty()) {
+                Kefir.fromEvents(removeButton.node(), 'click')
+                     .tap(stopPropagation)
+                     .onValue(function() {
+                         patch.removeNode(node);
+                     });
+            }
 
             // append to the the patch root node
             tree.patches[patch.id].append(nodeBox.node());

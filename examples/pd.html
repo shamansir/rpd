@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>PD Toolkit</title>
+
+        <!-- replace double equals signs with double dashes to get html head like below generated -->
+        <!-- gulp html-head ==style realpd ==renderer svg ==toolkit pd ==root .. -->
+
+        <!-- or run this, and get everything combined in two files: rpd.js and rpd.css -->
+        <!-- gulp ==style realpd ==renderer svg ==toolkit pd -->
+
+        <!-- Built with RPD v0.2.0 <http://shamansir.github.io/rpd> -->
+
+        <!-- RPD Renderer: svg -->
+        <link rel="stylesheet" href="../src/render/svg.css"></style>
+        <!-- RPD Style: realpd (svg) -->
+        <link rel="stylesheet" href="../src/style/realpd/svg.css"></style>
+        <!-- RPD Toolkit: pd (svg) -->
+        <link rel="stylesheet" href="../src/toolkit/pd/svg.css"></style>
+
+        <!-- Kefir -->
+        <script src="../vendor/kefir.min.js"></script>
+        <!-- RPD -->
+        <script src="../src/rpd.js"></script>
+
+        <!-- RPD's d3_tiny.js -->
+        <script src="../src/d3_tiny.js"></script>
+        <!-- RPD Render Core: -->
+        <script src="../src/render/main.js"></script>
+        <!-- RPD Style: realpd (svg) -->
+        <script src="../src/style/realpd/svg.js"></script>
+        <!-- RPD Renderer: svg -->
+        <script src="../src/render/svg.js"></script>
+        <!-- RPD Toolkit: pd -->
+        <script src="../src/toolkit/pd/model.js"></script>
+        <script src="../src/toolkit/pd/toolkit.js"></script>
+        <!-- RPD Toolkit: pd (svg) -->
+        <script src="../src/toolkit/pd/svg.js"></script>
+      </head>
+
+    </head>
+
+    <body>
+        <script>
+            Rpd.render('svg', document.body, { style: 'realpd' });
+
+            var root = Rpd.addPatch('root').enter();
+
+            var obj = root.addNode('pd/object');
+            var obj = root.addNode('pd/text');
+            var num = root.addNode('pd/gatom');
+            var msg = root.addNode('pd/message');
+            var bang = root.addNode('pd/bang');
+            var toggle = root.addNode('pd/bang');
+
+        </script>
+    </body>
+</html>

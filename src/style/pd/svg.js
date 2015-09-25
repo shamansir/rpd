@@ -81,7 +81,7 @@ return {
                               .attr('x', 5).attr('y', 6).attr('rx', 3).attr('ry', 3);
 
         // append node header
-        nodeElm.append('rect').attr('class', 'rpd-header')
+        nodeElm.append('rect').attr('class', 'rpd-header').classed('rpd-drag-handle', true)
                               .attr('x', 0).attr('y', 0)
                               .attr('width', headerWidth).attr('height', height);
         nodeElm.append('text').attr('class', 'rpd-name').text(node.name)

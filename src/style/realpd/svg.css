@@ -1,0 +1,14 @@
+.rpd-background {
+    fill: white;
+}
+
+.rpd-connector {
+    stroke-width: 1;
+    stroke: black;
+    fill: white;
+}
+
+.rpd-link {
+    stroke-width: 1;
+    stroke: black;
+}

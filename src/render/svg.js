@@ -183,11 +183,13 @@ return function(networkRoot, userConfig) {
 
             // add possiblity to drag nodes
             if (config.nodeMovingAllowed) {
-                dnd.add(nodeElm.select('.rpd-header')
-                               .classed('rpd-drag-handle', true),
+                var shadow = nodeElm.select('.rpd-shadow'),
+                    handle = nodeElm.select('.rpd-drag-handle');
+                if (!handle.empty()) {
+                    dnd.add(handle,
                         { start: function() {
                             nodeElm.classed('rpd-dragging', true);
-                            nodeElm.select('.rpd-shadow').attr('x', 7).attr('y', 8);
+                            if (!shadow.empty()) shadow.attr('x', 7).attr('y', 8);
                             return nodeBox.data().position;
                           },
                           drag: function(pos) {
@@ -196,10 +198,11 @@ return function(networkRoot, userConfig) {
                           },
                           end: function(pos) {
                               node.move(pos.x, pos.y);
-                              nodeElm.select('.rpd-shadow').attr('x', 5).attr('y', 6);
+                              if (!shadow.empty()) shadow.attr('x', 5).attr('y', 6);
                               nodeElm.classed('rpd-dragging', false);
                           }
                       });
+                }
             }
 
             // use custom node body renderer, if defined
@@ -217,11 +220,14 @@ return function(networkRoot, userConfig) {
             }
 
             // remove node when remove button was clicked
-            Kefir.fromEvents(nodeElm.select('.rpd-remove-button path').node(), 'click')
-                 .tap(stopPropagation)
-                 .onValue(function() {
-                     patch.removeNode(node);
-                 });
+            var removeButton = nodeElm.select('.rpd-remove-button');
+            if (!removeButton.empty()) {
+                Kefir.fromEvents(nodeElm.select('.rpd-remove-button path').node(), 'click')
+                     .tap(stopPropagation)
+                     .onValue(function() {
+                         patch.removeNode(node);
+                     });
+            }
 
             // append to the the patch root node
             var patchRoot = tree.patches[node.patch.id].data().root;
