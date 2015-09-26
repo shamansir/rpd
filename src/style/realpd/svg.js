@@ -7,7 +7,9 @@ var lastRoot;
 
 var d3 = d3 || d3_tiny;
 
-var socketPadding = 25; // distance between inlets/outlets in SVG units
+var socketPadding = 10; // distance between inlets/outlets in SVG units
+
+var nodeHeight = 18;
 
 function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
@@ -26,9 +28,9 @@ return {
 
     createNode: function(node, render, description) {
 
-        var minContentSize = render.size ? { width: render.size.width || 100,
-                                             height: render.size.height || 40 }
-                                         : { width: 100, height: 40 };
+        var minContentSize = render.size ? { width: render.size.width || 50,
+                                             height: render.size.height || 18 }
+                                         : { width: 18, height: 18 };
 
         var nodeElm = d3.select(_createSvgElement('g'))
                         .attr('class', 'rpd-node');
@@ -39,7 +41,8 @@ return {
         nodeElm.append('g').classed('rpd-drag-handle', true);
         nodeElm.append('g').classed('rpd-process', true);
         nodeElm.append('g').classed('rpd-inlets', true);
-        nodeElm.append('g').classed('rpd-outlets', true);
+        nodeElm.append('g').classed('rpd-outlets', true)
+                           .attr('transform', 'translate(0,' + (nodeHeight - 2) + ')');
 
         return {
             element: nodeElm.node(),
@@ -51,14 +54,14 @@ return {
     createInlet: function(inlet, render) {
         var inletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-inlet');
         inletElm.append('g').attr('class', 'rpd-connector')
-                .append('rect').attr('width', 8).attr('height', 2);
+                .append('rect').attr('width', 7).attr('height', 2);
         return { element: inletElm.node() };
     },
 
     createOutlet: function(outlet, render) {
         var outletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-outlet');
         outletElm.append('g').attr('class', 'rpd-connector')
-                 .append('rect').attr('width', 8).attr('height', 2);
+                 .append('rect').attr('width', 7).attr('height', 2);
         return { element: outletElm.node() };
     },
 

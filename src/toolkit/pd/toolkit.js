@@ -1,3 +1,5 @@
+Rpd.linktype('core/pass', { });
+
 Rpd.channeltype('pd/atom', { });
 
 Rpd.nodetype('pd/object', { });

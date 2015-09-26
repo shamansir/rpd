@@ -1,0 +1,12 @@
+.rpd-pd-toolkit-node {
+    fill: white;
+    stroke-width: 1;
+    stroke: black;
+}
+
+.rpd-pd-toolkit-node text {
+    font-family: monospace;
+    font-size: 12px;
+    fill: black;
+    stroke-width: 0;
+}
