@@ -8,8 +8,17 @@ function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
 }
 
+var editor = d3.select(document.createElement('input'))
+               .attr('type', 'text');
+
+document.addEventListener('DOMContentLoaded', function() {
+    d3.select(document.body)
+      .append(editor.style('display', 'none')
+                    .style('position', 'absolute').node());
+});
+
 Rpd.noderenderer('pd/gatom', 'svg', function() {
-    var path;
+    var path, editor, text;
     var size = defaultSize;
     return {
         size: size,
@@ -19,13 +28,17 @@ Rpd.noderenderer('pd/gatom', 'svg', function() {
                                 'l ' + 5 + ' ' + 5 + ' ' +
                                 'v ' + (size.height - 5) + ' ' +
                                 'h ' + (-size.width) + ' v ' + (-size.height) + ' z');
-            d3.select(bodyElm).append(path.node());
+            text = d3.select(_createSvgElement('text'));
+            d3.select(bodyElm).call(function(body) {
+                body.append(path.node());
+                body.append(text.node());
+            });
         }
     }
 });
 
 Rpd.noderenderer('pd/message', 'svg', function() {
-    var path;
+    var path, text;
     var size = defaultSize;
     return {
         size: size,
@@ -36,7 +49,11 @@ Rpd.noderenderer('pd/message', 'svg', function() {
                                 'v ' + (size.height - 8) + ' ' +
                                 'l ' + 4 + ' ' + 4 + ' ' +
                                 'h ' + (-size.width) + ' v ' + (-size.height) + ' z');
-            d3.select(bodyElm).append(path.node());
+            text = d3.select(_createSvgElement('text'));
+            d3.select(bodyElm).call(function(body) {
+                body.append(path.node());
+                body.append(text.node());
+            });
         }
     }
 });
@@ -49,20 +66,25 @@ Rpd.noderenderer('pd/text', 'svg', function() {
         first: function(bodyElm) {
             text = d3.select(_createSvgElement('text'))
                      .text('comment');
+            addTextEditor(text.node());
             d3.select(bodyElm).append(text.node());
         }
     }
 });
 
 Rpd.noderenderer('pd/object', 'svg', function() {
-    var rect;
+    var rect, text;
     var size = defaultSize;
     return {
         size: defaultSize,
         first: function(bodyElm) {
             rect = d3.select(_createSvgElement('rect'));
             rect.attr('width', size.width).attr('height', size.height);
-            d3.select(bodyElm).append(rect.node());
+            text = d3.select(_createSvgElement('text'));
+            d3.select(bodyElm).call(function(body) {
+                body.append(rect.node());
+                body.append(text.node());
+            });
         }
     }
 });
@@ -100,5 +122,15 @@ Rpd.noderenderer('pd/bang', 'svg', function() {
         }
     }
 });
+
+function addTextEditor(textNode, getValue, setValue) {
+    Kefir.fromEvents(textNode, 'click')
+         .onValue(function() {
+             var pos = textNode.getBoundingClientRect();
+             editor.style('top', pos.top + 'px');
+             editor.style('left', pos.left + 'px');
+             editor.style('display', 'block');
+         });
+}
 
 })();

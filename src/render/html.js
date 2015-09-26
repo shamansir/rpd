@@ -199,10 +199,14 @@ return function(networkRoot, userConfig) {
                 }
             }
 
+            // node could require some preparation using patch root
+            if (render.prepare) render.prepare(tree.patches[patch.id].node(),
+                                               tree.patches[currentPatch.id].node());
+
             // use custom node body renderer, if defined
             if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process-target').node()));
 
-            // if node body should be re-rendered, update links (since body element bounds could change)
+            // if node body could be re-rendered, update links (since body element bounds could change)
             if (render.always) {
                 // this code used getBoundingClientRect to determine if node body width/height
                 // values were changed and updates links positions only when they really did,

@@ -205,6 +205,10 @@ return function(networkRoot, userConfig) {
                 }
             }
 
+            // node could require some preparation using patch root
+            if (render.prepare) render.prepare(tree.patches[patch.id].node(),
+                                               tree.patches[currentPatch.id].node());
+
             // use custom node body renderer, if defined
             if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process').node()));
 

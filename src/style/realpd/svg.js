@@ -38,8 +38,7 @@ return {
         nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                .classed('rpd-'+node.type.replace('/','-'), true);
 
-        nodeElm.append('g').classed('rpd-drag-handle', true);
-        nodeElm.append('g').classed('rpd-process', true);
+        nodeElm.append('g').classed('rpd-process', true).classed('rpd-drag-handle', true);
         nodeElm.append('g').classed('rpd-inlets', true);
         nodeElm.append('g').classed('rpd-outlets', true)
                            .attr('transform', 'translate(0,' + (nodeHeight - 2) + ')');
