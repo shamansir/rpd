@@ -5,8 +5,12 @@
 }
 
 .rpd-pd-toolkit-node text {
-    font-family: monospace;
-    font-size: 12px;
+    font-family: 'PT Mono', Menlo, Monaco, monospace;
+    font-size: 11px;
     fill: black;
     stroke-width: 0;
+}
+
+.rpd-pd-gatom path {
+    fill: lightgrey;
 }

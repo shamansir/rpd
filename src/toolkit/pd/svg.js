@@ -9,14 +9,17 @@ function _createSvgElement(name) {
 }
 
 Rpd.noderenderer('pd/gatom', 'svg', function() {
-    var rect;
+    var path;
     var size = defaultSize;
     return {
         size: size,
         first: function(bodyElm) {
-            rect = d3.select(_createSvgElement('rect'));
-            rect.attr('width', size.width).attr('height', size.height);
-            d3.select(bodyElm).append(rect.node());
+            path = d3.select(_createSvgElement('path'))
+                     .attr('d', 'M 0,0 h ' + (size.width - 5) + ' ' +
+                                'l ' + 5 + ' ' + 5 + ' ' +
+                                'v ' + (size.height - 5) + ' ' +
+                                'h ' + (-size.width) + ' v ' + (-size.height) + ' z');
+            d3.select(bodyElm).append(path.node());
         }
     }
 });
@@ -29,9 +32,9 @@ Rpd.noderenderer('pd/message', 'svg', function() {
         first: function(bodyElm) {
             path = d3.select(_createSvgElement('path'))
                      .attr('d', 'M 0,0 h ' + size.width + ' ' +
-                                'l ' + (-5) + ' ' + 5 + ' ' +
-                                'v ' + (size.height - 10) + ' ' +
-                                'l ' + 5 + ' ' + 5 + ' ' +
+                                'l ' + (-4) + ' ' + 4 + ' ' +
+                                'v ' + (size.height - 8) + ' ' +
+                                'l ' + 4 + ' ' + 4 + ' ' +
                                 'h ' + (-size.width) + ' v ' + (-size.height) + ' z');
             d3.select(bodyElm).append(path.node());
         }
