@@ -473,7 +473,7 @@ function Outlet(type, node, alias, name, _default) {
     Kefir.combine([ this.event['outlet/connect'] ],
                   [ this.event['outlet/update'] ])
          .onValue(function(update) {
-             outlet.value.plug(Kefir.constant(update[0]));
+             outlet.value.plug(Kefir.constant(update[1]));
          });
 
 }
@@ -556,7 +556,7 @@ function Link(type, outlet, inlet, name) {
     Kefir.combine([ this.event['link/enable'] ],
                   [ this.event['link/pass'] ])
          .onValue(function(event) {
-              link.pass(event[0]);
+              link.pass(event[1]);
           });
 }
 Link.prototype.pass = function(value) {

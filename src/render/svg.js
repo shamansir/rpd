@@ -799,9 +799,9 @@ function ValueEditor(inlet, render, root, valueHolder, valueElm, editorElm) {
                          .toProperty(ƒ(false))
                          .skipDuplicates() ],
                   [ inlet.event['inlet/update'] ])
-         .map(function(val) { return { lastValue: val[0],
-                                       startEditing: val[1],
-                                       cancelEditing: !val[1] }; })
+         .map(function(val) { return { lastValue: val[1],
+                                       startEditing: val[0],
+                                       cancelEditing: !val[0] }; })
          .onValue(function(conf) {
             if (conf.startEditing) {
                 var inletData = tree.inlets[inlet.id].data();
