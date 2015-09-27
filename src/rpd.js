@@ -578,35 +578,14 @@ Link.prototype.disconnect = function() {
 
 function injectKefirEmitter() {
     Kefir.emitter = function() {
-        var emitter;
-        var stream = Kefir.stream(function(_emitter) {
-
-            emitter = _emitter;
-            return function() {
-              emitter = undefined;
-            }
+        var e, stream = Kefir.stream(function(_e) {
+            e = _emitter;
+            return function() { e = undefined; }
         });
-
-        stream.emit = function(x) {
-            emitter && emitter.emit(x);
-            return this;
-        }
-
-        stream.error = function(x) {
-            emitter && emitter.error(x);
-            return this;
-        }
-
-        stream.end = function() {
-            emitter && emitter.end();
-            return this;
-        }
-
-        stream.emitEvent = function(x) {
-            emitter && emitter.emitEvent(x);
-            return this;
-        }
-
+        stream.emit = function(x) { e && e.emit(x); return this; }
+        stream.error = function(x) { e && e.error(x); return this; }
+        stream.end = function() { e && e.end(); return this; }
+        stream.emitEvent = function(x) { e && e.emitEvent(x); return this; }
         return stream.setName('emitter');
     }
 }
