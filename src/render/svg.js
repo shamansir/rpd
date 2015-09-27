@@ -106,6 +106,8 @@ return function(networkRoot, userConfig) {
 
             //if (config.renderNodeList) buildNodeList(root, nodeTypes, nodeDescriptions);
 
+            Kefir.fromEvents(svg.node(), 'selectstart').onValue(preventDefault);
+
             // resize root element on window resize
             Kefir.fromEvents(window, 'resize')
                  .map(function() { return window.innerHeight ||

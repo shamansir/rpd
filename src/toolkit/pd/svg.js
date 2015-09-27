@@ -8,16 +8,18 @@ function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
 }
 
-var editor = d3.select(document.createElement('input'))
-               .attr('type', 'text')
-               .attr('class', 'rpd-text-editor')
-               .style('width', defaultSize.width + 'px')
-               .style('height', defaultSize.height + 'px')
-               .node();
+var stopPropagation = Rpd.Render.stopPropagation;
+
+var editorNode = d3.select(document.createElement('input'))
+                   .attr('type', 'text')
+                   .attr('class', 'rpd-text-editor')
+                   .style('width', defaultSize.width + 'px')
+                   .style('height', defaultSize.height + 'px')
+                   .node();
 
 document.addEventListener('DOMContentLoaded', function() {
     d3.select(document.body)
-      .append(d3.select(editor)
+      .append(d3.select(editorNode)
                 .style('display', 'none')
                 .style('position', 'absolute').node());
 });
@@ -136,18 +138,26 @@ Rpd.noderenderer('pd/bang', 'svg', function() {
 });
 
 function addTextEditor(textNode) {
+    var text = d3.select(textNode)
+    var editor = d3.select(editorNode);
     Kefir.fromEvents(textNode, 'click')
-         .map(function() {
-             return d3.select(textNode).text();
-         })
-         .onValue(function(text) {
+         .map(stopPropagation)
+         .map(function() { return text.text(); })
+         .onValue(function(textValue) {
              var pos = textNode.getBoundingClientRect();
-             d3.select(editor)
-               .attr('value', text)
-               .style('top', (pos.top - 4) + 'px')
-               .style('left', (pos.left - 1) + 'px')
-               .style('display', 'block')
-               .node().focus();
+             editor.attr('value', textValue)
+                   .style('top', (pos.top - 4) + 'px')
+                   .style('left', (pos.left - 1) + 'px');
+             text.text('');
+             editorNode.setSelectionRange(0, editorNode.value.length);
+             editor.style('display', 'block')
+                   .node().focus();
+             Kefir.fromEvents(document.body, 'click').take(1)
+                  .onValue(function() {
+                      editorNode.blur();
+                      text.text(editor.node().value);
+                      editor.style('display', 'none');
+                  });
          });
 }
 
