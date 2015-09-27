@@ -81,7 +81,7 @@ gulp.task('build', ['check-root', 'list-opts', 'concat-css'], function() {
                        language_in: 'ECMASCRIPT5'
                    }
                }))
-               .pipe(distJsHeader(pkg, argv))
+               .pipe(distJsHeader(pkg, argv, new Date()))
                .pipe(gulp.dest('dist'))
                .pipe(size({ showFiles: true, title: 'Result:' }))
                .on('end', function() {
@@ -103,7 +103,7 @@ gulp.task('concat-css', ['check-root'], function() {
     gutil.log(infoColor('Concatenating ' + targetName + '.css'));
     return gulp.src(logFiles(getCssFiles(argv)))
                .pipe(concat(targetName + '.css'))
-               .pipe(distCssHeader(pkg, argv))
+               .pipe(distCssHeader(pkg, argv, new Date()))
                .pipe(gulp.dest('dist'))
                .pipe(size({ showFiles: true, title: 'Result:' }))
                .on('end', function() {
@@ -152,9 +152,10 @@ function checkRootPath(argv) {
     if (argv.root) { Paths.Root = argv.root; }
 }
 
-function distJsHeader(pkg, options) {
+function distJsHeader(pkg, options, time) {
     var banner = ['/**',
     ' * <%= pkg.name %> - <%= pkg.description %>',
+    ' * Built at ' + time.toUTCString(),
     ' *',
     ' * @version v<%= pkg.version %>',
     ' * @link <%= pkg.homepage %>',
@@ -174,9 +175,10 @@ function distJsHeader(pkg, options) {
     return header(banner, { pkg: pkg });
 }
 
-function distCssHeader(pkg, options) {
+function distCssHeader(pkg, options, time) {
     var banner = ['/**',
     ' * <%= pkg.name %> - <%= pkg.description %>',
+    ' * Built at ' + time.toUTCString(),
     ' *',
     ' * @version v<%= pkg.version %>',
     ' * @link <%= pkg.homepage %>',

@@ -236,7 +236,7 @@ return function(networkRoot, userConfig) {
             var removeButton = nodeElm.select('.rpd-remove-button');
             if (!removeButton.empty()) {
                 Kefir.fromEvents(removeButton.node(), 'click')
-                     .tap(stopPropagation)
+                     .map(stopPropagation)
                      .onValue(function() {
                          patch.removeNode(node);
                      });
@@ -484,6 +484,11 @@ function patchByHash(tree) {
 // ============================= Connectivity ==================================
 // =============================================================================
 
+function awaiting(a, b) {
+    return Kefir.merge([ a.map(ƒ(true)),
+                         b.map(ƒ(false)) ]).toProperty(ƒ(false));
+}
+
 // FRP-based connection (links b/w outlets and inlets) editor logic
 
 var Connectivity = (function() {
@@ -511,8 +516,7 @@ var Connectivity = (function() {
 
         this.startLink = Kefir.emitter(),
         this.finishLink = Kefir.emitter(),
-        this.doingLink = Kefir.merge([ this.startLink.map(ƒ(true)),
-                                       this.finishLink.map(ƒ(false)) ]).toProperty(ƒ(false));
+        this.doingLink = awaiting(this.startLink, this.finishLink);
     }
     Connectivity.prototype.subscribeOutlet = function(outlet, connector) {
 
@@ -531,8 +535,8 @@ var Connectivity = (function() {
                                .map(addTarget(outlet)));
 
         Kefir.fromEvents(connector.node(), 'click')
-             .tap(stopPropagation)
-             .filterBy(outletClicks.awaiting(doingLink))
+             .map(stopPropagation)
+             .filterBy(awaiting(outletClicks, doingLink))
              .map(extractPos)
              .onValue(function(pos) {
                  startLink.emit();
@@ -541,8 +545,8 @@ var Connectivity = (function() {
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')
                       .takeUntilBy(Kefir.merge([ inletClicks,
-                                                 outletClicks.mapTo(false),
-                                                 rootClicks.mapTo(false) ])
+                                                 outletClicks.map(ƒ(false)),
+                                                 rootClicks.map(ƒ(false)) ])
                                         .take(1)
                                         .onValue(function(success) {
                                             if (!success) return;
@@ -583,8 +587,8 @@ var Connectivity = (function() {
                               .map(addTarget(inlet)));
 
         Kefir.fromEvents(connector.node(), 'click')
-             .tap(stopPropagation)
-             .filterBy(inletClicks.awaiting(doingLink))
+             .map(stopPropagation)
+             .filterBy(awaiting(inletClicks, doingLink))
              .filter(hasLink(inlet))
              .onValue(function(pos) {
                  var prevLink = getLink(inlet);
@@ -596,8 +600,8 @@ var Connectivity = (function() {
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')
                       .takeUntilBy(Kefir.merge([ inletClicks,
-                                                 outletClicks.mapTo(false),
-                                                 rootClicks.mapTo(false) ])
+                                                 outletClicks.map(ƒ(false)),
+                                                 rootClicks.map(ƒ(false)) ])
                                         .take(1)
                                         .onValue(function(success) {
                                             if (!success) return;
@@ -740,7 +744,7 @@ function buildNodeList(root, nodeTypes, nodeDescriptions) {
                         titleElm.append('span').attr('class', 'rpd-add-node').text('+ Add').data(nodeType)
                                 .call(function(addButton) {
                                     Kefir.fromEvents(addButton.node(), 'click')
-                                         .tap(stopPropagation)
+                                         .map(stopPropagation)
                                          .onValue(function() {
                                              currentPatch.addNode(addButton.data());
                                          });
@@ -790,19 +794,19 @@ function ValueEditor(inlet, render, root, valueHolder, valueElm, editorElm) {
     editorElm.classed('rpd-value-editor', true);
     var valueOut = render.edit(editorElm.node(), inlet, valueIn);
     valueOut.onValue(function(value) { inlet.receive(value); });
-    Kefir.sampledBy([ inlet.event['inlet/update'] ],
-                    [ Kefir.merge([
-                                Kefir.fromEvents(valueHolder.node(), 'click')
-                                     .tap(stopPropagation)
-                                     .map(ƒ(true)),
-                                Kefir.fromEvents(root.node(), 'click')
-                                     .merge(disableEditor)
-                                     .map(ƒ(false)) ])
-                           .toProperty(ƒ(false))
-                           .skipDuplicates() ])
-         .map(function(val) { return { lastValue: val[0],
-                                       startEditing: val[1],
-                                       cancelEditing: !val[1] }; })
+    Kefir.combine([ Kefir.merge([
+                              Kefir.fromEvents(valueHolder.node(), 'click')
+                                   .map(stopPropagation)
+                                   .map(ƒ(true)),
+                              Kefir.fromEvents(root.node(), 'click')
+                                   .merge(disableEditor)
+                                   .map(ƒ(false)) ])
+                         .toProperty(ƒ(false))
+                         .skipDuplicates() ],
+                  [ inlet.event['inlet/update'] ])
+         .map(function(val) { return { lastValue: val[1],
+                                       startEditing: val[0],
+                                       cancelEditing: !val[0] }; })
          .onValue(function(conf) {
             if (conf.startEditing) {
                 var inletData = tree.inlets[inlet.id].data();

@@ -229,7 +229,7 @@ return function(networkRoot, userConfig) {
             var removeButton = nodeElm.select('.rpd-remove-button');
             if (!removeButton.empty()) {
                 Kefir.fromEvents(nodeElm.select('.rpd-remove-button path').node(), 'click')
-                     .tap(stopPropagation)
+                     .map(stopPropagation)
                      .onValue(function() {
                          patch.removeNode(node);
                      });
@@ -484,6 +484,11 @@ function patchByHash(tree) {
 // ============================= Connectivity ==================================
 // =============================================================================
 
+function awaiting(a, b) {
+    return Kefir.merge([ a.map(ƒ(true)),
+                         b.map(ƒ(false)) ]).toProperty(ƒ(false));
+}
+
 // FRP-based connection (links b/w outlets and inlets) editor logic
 
 var Connectivity = (function() {
@@ -511,8 +516,7 @@ var Connectivity = (function() {
 
         this.startLink = Kefir.emitter(),
         this.finishLink = Kefir.emitter(),
-        this.doingLink = Kefir.merge([ this.startLink.map(ƒ(true)),
-                                       this.finishLink.map(ƒ(false)) ]).toProperty(ƒ(false));
+        this.doingLink = awaiting(this.startLink, this.finishLink);
     }
     Connectivity.prototype.subscribeOutlet = function(outlet, connector) {
 
@@ -531,8 +535,8 @@ var Connectivity = (function() {
                                .map(addTarget(outlet)));
 
         Kefir.fromEvents(connector.node(), 'click')
-             .tap(stopPropagation)
-             .filterBy(outletClicks.awaiting(doingLink))
+             .map(stopPropagation)
+             .filterBy(awaiting(outletClicks, doingLink))
              .map(extractPos)
              .onValue(function(pos) {
                  startLink.emit();
@@ -541,8 +545,8 @@ var Connectivity = (function() {
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')
                       .takeUntilBy(Kefir.merge([ inletClicks,
-                                                 outletClicks.mapTo(false),
-                                                 rootClicks.mapTo(false) ])
+                                                 outletClicks.map(ƒ(false)),
+                                                 rootClicks.map(ƒ(false)) ])
                                         .take(1)
                                         .onValue(function(success) {
                                             if (!success) return;
@@ -583,8 +587,8 @@ var Connectivity = (function() {
                               .map(addTarget(inlet)));
 
         Kefir.fromEvents(connector.node(), 'click')
-             .tap(stopPropagation)
-             .filterBy(inletClicks.awaiting(doingLink))
+             .map(stopPropagation)
+             .filterBy(awaiting(inletClicks, doingLink))
              .filter(hasLink(inlet))
              .onValue(function(pos) {
                  var prevLink = getLink(inlet);
@@ -596,8 +600,8 @@ var Connectivity = (function() {
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')
                       .takeUntilBy(Kefir.merge([ inletClicks,
-                                                 outletClicks.mapTo(false),
-                                                 rootClicks.mapTo(false) ])
+                                                 outletClicks.map(ƒ(false)),
+                                                 rootClicks.map(ƒ(false)) ])
                                         .take(1)
                                         .onValue(function(success) {
                                             if (!success) return;
@@ -693,87 +697,6 @@ VLink.prototype.disable = function() {
 
 /* function buildNodeList(root, nodeTypes, nodeDescriptions) {
 
-    var toolkits = {};
-
-    var toolkitElements = {},
-        nodeTitleElements = {},
-        nodeDescriptionElements = {};
-
-    for (var nodeType in nodeTypes) {
-        var typeId = nodeType.split('/');
-        var toolkit = typeId[0]; var typeName = typeId[1];
-        if (!toolkits[toolkit]) toolkits[toolkit] = {};
-        toolkits[toolkit][typeName] = nodeTypes[nodeType];
-    }
-
-    var listRoot = d3.select(document.createElement('dl')).attr('class', 'rpd-nodelist');
-
-    var toolkitNodeTypes, typeDef;
-
-    for (var toolkit in toolkits) { // TODO: use d3.enter() here
-
-        var titleElm = listRoot.append('dd').attr('class', 'rpd-toolkit-name').text(toolkit);
-
-        listRoot.append('dt')
-                .append('dl').attr('class', 'rpd-toolkit').data({ titleElm: titleElm,
-                                                                      nodeTypes: toolkits[toolkit],
-                                                                      toolkit: toolkit })
-                .call(function(toolkitList) {
-                    // toolkit title element, could expand or collapse the types in this toolkit
-                    var titleElm = toolkitList.data().titleElm;
-                    addClickSwitch(titleElm.node(),
-                                   function() { toolkitList.classed('rpd-collapsed', true) },
-                                   function() { toolkitList.classed('rpd-collapsed', false); },
-                                   true);
-                })
-                .call(function(dl) {
-                    var toolkit = dl.data().toolkit,
-                        toolkitNodeTypes = dl.data().nodeTypes;
-                    for (var typeName in toolkitNodeTypes) { // TODO: use d3.enter() here
-                        var nodeType = toolkit + '/' + typeName;
-
-                        // node type title
-                        var titleElm = dl.append('dd').attr('class', 'rpd-node-title').text(typeName);
-
-                        // add node button
-                        titleElm.append('span').attr('class', 'rpd-add-node').text('+ Add').data(nodeType)
-                                .call(function(addButton) {
-                                    Kefir.fromEvents(addButton.node(), 'click')
-                                         .tap(stopPropagation)
-                                         .onValue(function() {
-                                             currentPatch.addNode(addButton.data());
-                                         });
-                                });
-
-                        // node type description, could be expanded or collapsed by clicking on node type title
-                        dl.append('dd').attr('class', 'rpd-node-description').data({ titleElm: titleElm })
-                                       .text(nodeDescriptions[nodeType] || '[No Description]')
-                                       .classed('rpd-collapsed', true)
-                                       .call(function(descElm) {
-                                           addClickSwitch(descElm.data().titleElm.node(),
-                                               function() { descElm.classed('rpd-collapsed', true) },
-                                               function() { descElm.classed('rpd-collapsed', false); });
-                                       });
-                    }
-                });
-
-    }
-
-    root.append(listRoot.node());
-
-    // the button to collapse this node list
-    root.append(d3.select(document.createElement('span'))
-                  .attr('class', 'rpd-collapse-nodelist')
-                  .text('>>')
-                  .call(function(collapseButton) {
-                      addClickSwitch(collapseButton.node(),
-                                     function() { collapseButton.classed('rpd-collapsed', true).text('<<');
-                                                  listRoot.classed('rpd-collapsed', true); },
-                                     function() { collapseButton.classed('rpd-collapsed', false).text('>>');
-                                                  listRoot.classed('rpd-collapsed', false); },
-                                     true);
-                  }).node());
-
 } */
 
 // =============================================================================
@@ -789,19 +712,19 @@ function ValueEditor(inlet, render, root, valueHolder, valueElm, editorElm) {
     editorElm.classed('rpd-value-editor', true);
     var valueOut = render.edit(editorElm.node(), inlet, valueIn);
     valueOut.onValue(function(value) { inlet.receive(value); });
-    Kefir.sampledBy([ inlet.event['inlet/update'] ],
-                    [ Kefir.merge([
-                                Kefir.fromEvents(valueHolder.node(), 'click')
-                                     .tap(stopPropagation)
-                                     .map(ƒ(true)),
-                                Kefir.fromEvents(root.node(), 'click')
-                                     .merge(disableEditor)
-                                     .map(ƒ(false)) ])
-                           .toProperty(ƒ(false))
-                           .skipDuplicates() ])
-         .map(function(val) { return { lastValue: val[0],
-                                       startEditing: val[1],
-                                       cancelEditing: !val[1] }; })
+    Kefir.combine([ Kefir.merge([
+                              Kefir.fromEvents(valueHolder.node(), 'click')
+                                   .map(stopPropagation)
+                                   .map(ƒ(true)),
+                              Kefir.fromEvents(root.node(), 'click')
+                                   .merge(disableEditor)
+                                   .map(ƒ(false)) ])
+                         .toProperty(ƒ(false))
+                         .skipDuplicates() ],
+                  [ inlet.event['inlet/update'] ])
+         .map(function(val) { return { lastValue: val[1],
+                                       startEditing: val[0],
+                                       cancelEditing: !val[0] }; })
          .onValue(function(conf) {
             if (conf.startEditing) {
                 var inletData = tree.inlets[inlet.id].data();

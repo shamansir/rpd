@@ -20,7 +20,7 @@
     "user-interface"
   ],
   "dependencies": {
-    "kefir": "rpominov/kefir#2.8.2"
+    "kefir": "rpominov/kefir"
   },
   "devDependencies": {
     "google-closure-compiler": "^20150901.0.0",
