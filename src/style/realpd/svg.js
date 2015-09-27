@@ -28,9 +28,9 @@ return {
 
     createNode: function(node, render, description) {
 
-        var minContentSize = render.size ? { width: render.size.width || 50,
-                                             height: render.size.height || 18 }
-                                         : { width: 18, height: 18 };
+        var size = render.size ? { width: render.size.width || 50,
+                                   height: render.size.height || 18 }
+                               : { width: 18, height: 18 };
 
         var nodeElm = d3.select(_createSvgElement('g'))
                         .attr('class', 'rpd-node');
@@ -38,14 +38,19 @@ return {
         nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                .classed('rpd-'+node.type.replace('/','-'), true);
 
-        nodeElm.append('g').classed('rpd-process', true).classed('rpd-drag-handle', true);
+        var isPdNode = (node.type.indexOf('pd/') === 0);
+        if (!isPdNode) {
+            nodeElm.append('rect').classed('rpd-background').classed('rpd-drag-handle', true)
+                                  .attr('width', size.width).attr('height', size.height);
+        }
+        nodeElm.append('g').classed('rpd-process', true).classed('rpd-drag-handle', isPdNode);
         nodeElm.append('g').classed('rpd-inlets', true);
         nodeElm.append('g').classed('rpd-outlets', true)
                            .attr('transform', 'translate(0,' + (nodeHeight - 2) + ')');
 
         return {
             element: nodeElm.node(),
-            size: minContentSize
+            size: size
         };
 
     },

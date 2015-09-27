@@ -9,12 +9,17 @@ function _createSvgElement(name) {
 }
 
 var editor = d3.select(document.createElement('input'))
-               .attr('type', 'text');
+               .attr('type', 'text')
+               .attr('class', 'rpd-text-editor')
+               .style('width', defaultSize.width + 'px')
+               .style('height', defaultSize.height + 'px')
+               .node();
 
 document.addEventListener('DOMContentLoaded', function() {
     d3.select(document.body)
-      .append(editor.style('display', 'none')
-                    .style('position', 'absolute').node());
+      .append(d3.select(editor)
+                .style('display', 'none')
+                .style('position', 'absolute').node());
 });
 
 Rpd.noderenderer('pd/gatom', 'svg', function() {
@@ -28,7 +33,9 @@ Rpd.noderenderer('pd/gatom', 'svg', function() {
                                 'l ' + 5 + ' ' + 5 + ' ' +
                                 'v ' + (size.height - 5) + ' ' +
                                 'h ' + (-size.width) + ' v ' + (-size.height) + ' z');
-            text = d3.select(_createSvgElement('text'));
+            text = d3.select(_createSvgElement('text'))
+                     .attr('y', size.height / 2)
+                     .attr('class', 'rpd-noselect');
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
                 body.append(text.node());
@@ -49,7 +56,9 @@ Rpd.noderenderer('pd/message', 'svg', function() {
                                 'v ' + (size.height - 8) + ' ' +
                                 'l ' + 4 + ' ' + 4 + ' ' +
                                 'h ' + (-size.width) + ' v ' + (-size.height) + ' z');
-            text = d3.select(_createSvgElement('text'));
+            text = d3.select(_createSvgElement('text'))
+                     .attr('y', size.height / 2)
+                     .attr('class', 'rpd-noselect');
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
                 body.append(text.node());
@@ -65,6 +74,7 @@ Rpd.noderenderer('pd/text', 'svg', function() {
         size: size,
         first: function(bodyElm) {
             text = d3.select(_createSvgElement('text'))
+                     .attr('y', size.height / 2)
                      .text('comment');
             addTextEditor(text.node());
             d3.select(bodyElm).append(text.node());
@@ -80,7 +90,9 @@ Rpd.noderenderer('pd/object', 'svg', function() {
         first: function(bodyElm) {
             rect = d3.select(_createSvgElement('rect'));
             rect.attr('width', size.width).attr('height', size.height);
-            text = d3.select(_createSvgElement('text'));
+            text = d3.select(_createSvgElement('text'))
+                     .attr('y', size.height / 2)
+                     .attr('class', 'rpd-noselect');
             d3.select(bodyElm).call(function(body) {
                 body.append(rect.node());
                 body.append(text.node());
@@ -123,13 +135,19 @@ Rpd.noderenderer('pd/bang', 'svg', function() {
     }
 });
 
-function addTextEditor(textNode, getValue, setValue) {
+function addTextEditor(textNode) {
     Kefir.fromEvents(textNode, 'click')
-         .onValue(function() {
+         .map(function() {
+             return d3.select(textNode).text();
+         })
+         .onValue(function(text) {
              var pos = textNode.getBoundingClientRect();
-             editor.style('top', pos.top + 'px');
-             editor.style('left', pos.left + 'px');
-             editor.style('display', 'block');
+             d3.select(editor)
+               .attr('value', text)
+               .style('top', (pos.top - 4) + 'px')
+               .style('left', (pos.left - 1) + 'px')
+               .style('display', 'block')
+               .node().focus();
          });
 }
 

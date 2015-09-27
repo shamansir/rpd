@@ -212,7 +212,7 @@ return function(networkRoot, userConfig) {
                 // values were changed and updates links positions only when they really did,
                 // but it appeared to be quite hard to check, i.e. height value, since browsers
                 // keep it equal to 0
-                node.event['node/process'].throttle(500).onValue(function() {
+                node.event['node/process'].throttle(100).onValue(function() {
                     nodeLinks.updateAll();
                 });
             }

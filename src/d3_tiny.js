@@ -43,6 +43,9 @@ Selection.prototype.style = function(prop, val) {
 };
 
 Selection.prototype.text = function(val) {
+    if ((typeof val === 'undefined') && (this.selection.length === 1)) {
+        return this.selection[0].textContent || this.selection[0].innerText;
+    }
     return modify(this, val, function(subj, text) { subj.innerText = subj.textContent = text; });
 }
 
