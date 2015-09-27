@@ -4,7 +4,8 @@
     stroke: black;
 }
 
-.rpd-pd-toolkit-node text, .rpd-text-editor {
+.rpd-pd-toolkit-node text,
+.rpd-pd-text-editor {
     font-family: 'PT Mono', Menlo, Monaco, monospace;
     font-size: 11px;
 }
@@ -27,7 +28,34 @@
     fill: lightgrey;
 }
 
-.rpd-text-editor {
+.rpd-pd-text-editor {
     background-color: transparent;
     border: none;
+}
+
+.rpd-pd-text-editor:focus {
+    outline: none;
+}
+
+.rpd-pd-text-editor.rpd-selected {
+    color: blue;
+}
+
+.rpd-pd-selected,
+.rpd-dragging {
+    stroke: blue;
+}
+
+.rpd-pd-selected text,
+.rpd-dragging text {
+    stroke-width: 0;
+    fill: blue;
+}
+
+.rpd-pd-bang circle {
+    pointer-events: none;
+}
+
+.rpd-pd-text rect {
+    stroke-width: 0;
 }
