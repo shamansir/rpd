@@ -6,11 +6,11 @@ if ((typeof Kefir === 'undefined') &&
     (typeof require !== 'undefined')) Kefir = require('../vendor/kefir.min.js');
 if (!Kefir) throw new Error('Kefir.js (https://github.com/rpominov/kefir) is required for Rpd to work');
 
-Kefir.DEPRECATION_WARNINGS = false;
-
 var VERSION = 'v2.0';
 
 var Rpd = (function() {
+
+injectKefirEmitter();
 
 // Rpd.NOTHING, Rpd.ID_LENGTH, ...
 
@@ -399,7 +399,7 @@ function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
     this.readonly = is_defined(readonly || def.readonly) ? readonly || def.readonly : true;
     this.cold = cold || false;
     this.default = is_defined(_default) ? _default : def.default;
-    this.value = Kefir.bus();
+    this.value = Kefir.pool();
 
     this.render = prepare_render_obj(channelrenderers[this.type], this);
 
@@ -419,7 +419,7 @@ function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
     this.events = events_stream(event_types, this.event, 'inlet', this);
 }
 Inlet.prototype.receive = function(value) {
-    this.value.emit(value);
+    this.value.plug(Kefir.constant(value));
 }
 Inlet.prototype.stream = function(stream) {
     this.value.plug(stream);
@@ -449,7 +449,7 @@ function Outlet(type, node, alias, name, _default) {
 
     this.node = node;
     this.default = is_defined(_default) ? _default : def.default;
-    this.value = Kefir.bus();
+    this.value = Kefir.pool();
 
     this.render = prepare_render_obj(channelrenderers[this.type], this);
 
@@ -470,10 +470,10 @@ function Outlet(type, node, alias, name, _default) {
 
     // re-send last value on connection
     var outlet = this;
-    Kefir.sampledBy([ this.event['outlet/update'] ],
-                    [ this.event['outlet/connect'] ])
+    Kefir.combine([ this.event['outlet/connect'] ],
+                  [ this.event['outlet/update'] ])
          .onValue(function(update) {
-             outlet.value.emit(update[0]);
+             outlet.value.plug(Kefir.constant(update[0]));
          });
 
 }
@@ -491,7 +491,7 @@ Outlet.prototype.disconnect = function(link) {
     return this;
 }
 Outlet.prototype.send = function(value) {
-    this.value.emit(value);
+    this.value.plug(Kefir.constant(value));
 }
 Outlet.prototype.stream = function(stream) {
     this.value.plug(stream);
@@ -553,8 +553,8 @@ function Link(type, outlet, inlet, name) {
     });
 
     // re-send last value on enable
-    Kefir.sampledBy([ this.event['link/pass'] ],
-                    [ this.event['link/enable'] ])
+    Kefir.combine([ this.event['link/enable'] ],
+                  [ this.event['link/pass'] ])
          .onValue(function(event) {
               link.pass(event[0]);
           });
@@ -575,6 +575,41 @@ Link.prototype.disconnect = function() {
 // =============================================================================
 // ================================== utils ====================================
 // =============================================================================
+
+function injectKefirEmitter() {
+    Kefir.emitter = function() {
+        var emitter;
+        var stream = Kefir.stream(function(_emitter) {
+
+            emitter = _emitter;
+            return function() {
+              emitter = undefined;
+            }
+        });
+
+        stream.emit = function(x) {
+            emitter && emitter.emit(x);
+            return this;
+        }
+
+        stream.error = function(x) {
+            emitter && emitter.error(x);
+            return this;
+        }
+
+        stream.end = function() {
+            emitter && emitter.end();
+            return this;
+        }
+
+        stream.emitEvent = function(x) {
+            emitter && emitter.emitEvent(x);
+            return this;
+        }
+
+        return stream.setName('emitter');
+    }
+}
 
 function clone_obj(src) {
     // this way is not a deep-copy and actually not cloning at all, but that's ok,

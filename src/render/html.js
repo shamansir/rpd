@@ -236,7 +236,7 @@ return function(networkRoot, userConfig) {
             var removeButton = nodeElm.select('.rpd-remove-button');
             if (!removeButton.empty()) {
                 Kefir.fromEvents(removeButton.node(), 'click')
-                     .tap(stopPropagation)
+                     .map(stopPropagation)
                      .onValue(function() {
                          patch.removeNode(node);
                      });
@@ -531,7 +531,7 @@ var Connectivity = (function() {
                                .map(addTarget(outlet)));
 
         Kefir.fromEvents(connector.node(), 'click')
-             .tap(stopPropagation)
+             .map(stopPropagation)
              .filterBy(outletClicks.awaiting(doingLink))
              .map(extractPos)
              .onValue(function(pos) {
@@ -583,7 +583,7 @@ var Connectivity = (function() {
                               .map(addTarget(inlet)));
 
         Kefir.fromEvents(connector.node(), 'click')
-             .tap(stopPropagation)
+             .map(stopPropagation)
              .filterBy(inletClicks.awaiting(doingLink))
              .filter(hasLink(inlet))
              .onValue(function(pos) {
@@ -740,7 +740,7 @@ function buildNodeList(root, nodeTypes, nodeDescriptions) {
                         titleElm.append('span').attr('class', 'rpd-add-node').text('+ Add').data(nodeType)
                                 .call(function(addButton) {
                                     Kefir.fromEvents(addButton.node(), 'click')
-                                         .tap(stopPropagation)
+                                         .map(stopPropagation)
                                          .onValue(function() {
                                              currentPatch.addNode(addButton.data());
                                          });
@@ -790,16 +790,16 @@ function ValueEditor(inlet, render, root, valueHolder, valueElm, editorElm) {
     editorElm.classed('rpd-value-editor', true);
     var valueOut = render.edit(editorElm.node(), inlet, valueIn);
     valueOut.onValue(function(value) { inlet.receive(value); });
-    Kefir.sampledBy([ inlet.event['inlet/update'] ],
-                    [ Kefir.merge([
-                                Kefir.fromEvents(valueHolder.node(), 'click')
-                                     .tap(stopPropagation)
-                                     .map(ƒ(true)),
-                                Kefir.fromEvents(root.node(), 'click')
-                                     .merge(disableEditor)
-                                     .map(ƒ(false)) ])
-                           .toProperty(ƒ(false))
-                           .skipDuplicates() ])
+    Kefir.combine([ Kefir.merge([
+                              Kefir.fromEvents(valueHolder.node(), 'click')
+                                   .map(stopPropagation)
+                                   .map(ƒ(true)),
+                              Kefir.fromEvents(root.node(), 'click')
+                                   .merge(disableEditor)
+                                   .map(ƒ(false)) ])
+                         .toProperty(ƒ(false))
+                         .skipDuplicates() ],
+                  [ inlet.event['inlet/update'] ])
          .map(function(val) { return { lastValue: val[0],
                                        startEditing: val[1],
                                        cancelEditing: !val[1] }; })

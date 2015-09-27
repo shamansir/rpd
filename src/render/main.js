@@ -79,7 +79,7 @@ DragAndDrop.prototype.add = function(handle, spec) {
             diffPos = { x: pos.x - initPos.x,
                         y: pos.y - initPos.y };
         var moveStream = Kefir.fromEvents(root.node(), 'mousemove')
-                              .tap(stopPropagation)
+                              .map(stopPropagation)
                               .takeUntilBy(Kefir.fromEvents(root.node(), 'mouseup'))
                               .map(extractPos)
                               .map(function(absPos) {
@@ -128,8 +128,8 @@ function mergeConfig(user_conf, defaults) {
     } else return defaults;
 }
 
-function preventDefault(evt) { evt.preventDefault(); };
-function stopPropagation(evt) { evt.stopPropagation(); };
+function preventDefault(evt) { evt.preventDefault(); return evt; };
+function stopPropagation(evt) { evt.stopPropagation(); return evt; };
 function extractPos(evt) { return { x: evt.clientX,
                                     y: evt.clientY }; };
 function getPos(elm) { var bounds = elm.getBoundingClientRect();
@@ -144,7 +144,7 @@ function addTarget(target) {
 };
 function addClickSwitch(elm, on_true, on_false, initial) {
     Kefir.fromEvents(elm, 'click')
-         .tap(stopPropagation)
+         .map(stopPropagation)
          .map(ƒ(initial || false))
          .scan(invertValue)  // will toggle between `true` and `false`
          .onValue(function(val) {
