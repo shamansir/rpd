@@ -484,6 +484,11 @@ function patchByHash(tree) {
 // ============================= Connectivity ==================================
 // =============================================================================
 
+function awaiting(a, b) {
+    return Kefir.merge([ a.map(ƒ(true)),
+                         b.map(ƒ(false)) ]).toProperty(ƒ(false));
+}
+
 // FRP-based connection (links b/w outlets and inlets) editor logic
 
 var Connectivity = (function() {
@@ -511,8 +516,7 @@ var Connectivity = (function() {
 
         this.startLink = Kefir.emitter(),
         this.finishLink = Kefir.emitter(),
-        this.doingLink = Kefir.merge([ this.startLink.map(ƒ(true)),
-                                       this.finishLink.map(ƒ(false)) ]).toProperty(ƒ(false));
+        this.doingLink = awaiting(this.startLink, this.finishLink);
     }
     Connectivity.prototype.subscribeOutlet = function(outlet, connector) {
 
@@ -532,7 +536,7 @@ var Connectivity = (function() {
 
         Kefir.fromEvents(connector.node(), 'click')
              .map(stopPropagation)
-             .filterBy(outletClicks.awaiting(doingLink))
+             .filterBy(awaiting(outletClicks, doingLink))
              .map(extractPos)
              .onValue(function(pos) {
                  startLink.emit();
@@ -584,7 +588,7 @@ var Connectivity = (function() {
 
         Kefir.fromEvents(connector.node(), 'click')
              .map(stopPropagation)
-             .filterBy(inletClicks.awaiting(doingLink))
+             .filterBy(awaiting(inletClicks, doingLink))
              .filter(hasLink(inlet))
              .onValue(function(pos) {
                  var prevLink = getLink(inlet);
@@ -692,87 +696,6 @@ VLink.prototype.disable = function() {
 // =============================================================================
 
 /* function buildNodeList(root, nodeTypes, nodeDescriptions) {
-
-    var toolkits = {};
-
-    var toolkitElements = {},
-        nodeTitleElements = {},
-        nodeDescriptionElements = {};
-
-    for (var nodeType in nodeTypes) {
-        var typeId = nodeType.split('/');
-        var toolkit = typeId[0]; var typeName = typeId[1];
-        if (!toolkits[toolkit]) toolkits[toolkit] = {};
-        toolkits[toolkit][typeName] = nodeTypes[nodeType];
-    }
-
-    var listRoot = d3.select(document.createElement('dl')).attr('class', 'rpd-nodelist');
-
-    var toolkitNodeTypes, typeDef;
-
-    for (var toolkit in toolkits) { // TODO: use d3.enter() here
-
-        var titleElm = listRoot.append('dd').attr('class', 'rpd-toolkit-name').text(toolkit);
-
-        listRoot.append('dt')
-                .append('dl').attr('class', 'rpd-toolkit').data({ titleElm: titleElm,
-                                                                      nodeTypes: toolkits[toolkit],
-                                                                      toolkit: toolkit })
-                .call(function(toolkitList) {
-                    // toolkit title element, could expand or collapse the types in this toolkit
-                    var titleElm = toolkitList.data().titleElm;
-                    addClickSwitch(titleElm.node(),
-                                   function() { toolkitList.classed('rpd-collapsed', true) },
-                                   function() { toolkitList.classed('rpd-collapsed', false); },
-                                   true);
-                })
-                .call(function(dl) {
-                    var toolkit = dl.data().toolkit,
-                        toolkitNodeTypes = dl.data().nodeTypes;
-                    for (var typeName in toolkitNodeTypes) { // TODO: use d3.enter() here
-                        var nodeType = toolkit + '/' + typeName;
-
-                        // node type title
-                        var titleElm = dl.append('dd').attr('class', 'rpd-node-title').text(typeName);
-
-                        // add node button
-                        titleElm.append('span').attr('class', 'rpd-add-node').text('+ Add').data(nodeType)
-                                .call(function(addButton) {
-                                    Kefir.fromEvents(addButton.node(), 'click')
-                                         .map(stopPropagation)
-                                         .onValue(function() {
-                                             currentPatch.addNode(addButton.data());
-                                         });
-                                });
-
-                        // node type description, could be expanded or collapsed by clicking on node type title
-                        dl.append('dd').attr('class', 'rpd-node-description').data({ titleElm: titleElm })
-                                       .text(nodeDescriptions[nodeType] || '[No Description]')
-                                       .classed('rpd-collapsed', true)
-                                       .call(function(descElm) {
-                                           addClickSwitch(descElm.data().titleElm.node(),
-                                               function() { descElm.classed('rpd-collapsed', true) },
-                                               function() { descElm.classed('rpd-collapsed', false); });
-                                       });
-                    }
-                });
-
-    }
-
-    root.append(listRoot.node());
-
-    // the button to collapse this node list
-    root.append(d3.select(document.createElement('span'))
-                  .attr('class', 'rpd-collapse-nodelist')
-                  .text('>>')
-                  .call(function(collapseButton) {
-                      addClickSwitch(collapseButton.node(),
-                                     function() { collapseButton.classed('rpd-collapsed', true).text('<<');
-                                                  listRoot.classed('rpd-collapsed', true); },
-                                     function() { collapseButton.classed('rpd-collapsed', false).text('>>');
-                                                  listRoot.classed('rpd-collapsed', false); },
-                                     true);
-                  }).node());
 
 } */
 

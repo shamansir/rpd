@@ -579,8 +579,7 @@ Link.prototype.disconnect = function() {
 function injectKefirEmitter() {
     Kefir.emitter = function() {
         var e, stream = Kefir.stream(function(_e) {
-            e = _emitter;
-            return function() { e = undefined; }
+            e = _e; return function() { e = undefined; }
         });
         stream.emit = function(x) { e && e.emit(x); return this; }
         stream.error = function(x) { e && e.error(x); return this; }

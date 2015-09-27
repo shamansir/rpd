@@ -484,6 +484,11 @@ function patchByHash(tree) {
 // ============================= Connectivity ==================================
 // =============================================================================
 
+function awaiting(a, b) {
+    return Kefir.merge([ a.map(ƒ(true)),
+                         b.map(ƒ(false)) ]).toProperty(ƒ(false));
+}
+
 // FRP-based connection (links b/w outlets and inlets) editor logic
 
 var Connectivity = (function() {
@@ -511,8 +516,7 @@ var Connectivity = (function() {
 
         this.startLink = Kefir.emitter(),
         this.finishLink = Kefir.emitter(),
-        this.doingLink = Kefir.merge([ this.startLink.map(ƒ(true)),
-                                       this.finishLink.map(ƒ(false)) ]).toProperty(ƒ(false));
+        this.doingLink = awaiting(this.startLink, this.finishLink);
     }
     Connectivity.prototype.subscribeOutlet = function(outlet, connector) {
 
@@ -532,7 +536,7 @@ var Connectivity = (function() {
 
         Kefir.fromEvents(connector.node(), 'click')
              .map(stopPropagation)
-             .filterBy(outletClicks.awaiting(doingLink))
+             .filterBy(awaiting(outletClicks, doingLink))
              .map(extractPos)
              .onValue(function(pos) {
                  startLink.emit();
@@ -584,7 +588,7 @@ var Connectivity = (function() {
 
         Kefir.fromEvents(connector.node(), 'click')
              .map(stopPropagation)
-             .filterBy(inletClicks.awaiting(doingLink))
+             .filterBy(awaiting(inletClicks, doingLink))
              .filter(hasLink(inlet))
              .onValue(function(pos) {
                  var prevLink = getLink(inlet);
