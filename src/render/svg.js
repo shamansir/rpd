@@ -545,8 +545,8 @@ var Connectivity = (function() {
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')
                       .takeUntilBy(Kefir.merge([ inletClicks,
-                                                 outletClicks.mapTo(false),
-                                                 rootClicks.mapTo(false) ])
+                                                 outletClicks.map(ƒ(false)),
+                                                 rootClicks.map(ƒ(false)) ])
                                         .take(1)
                                         .onValue(function(success) {
                                             if (!success) return;
@@ -600,8 +600,8 @@ var Connectivity = (function() {
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')
                       .takeUntilBy(Kefir.merge([ inletClicks,
-                                                 outletClicks.mapTo(false),
-                                                 rootClicks.mapTo(false) ])
+                                                 outletClicks.map(ƒ(false)),
+                                                 rootClicks.map(ƒ(false)) ])
                                         .take(1)
                                         .onValue(function(success) {
                                             if (!success) return;
