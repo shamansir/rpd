@@ -2,7 +2,7 @@
 
 var d3 = d3 || d3_tiny;
 
-var defaultSize = { width: 40, height: 18 };
+var defaultSize = { width: 50, height: 18 };
 
 function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
@@ -13,8 +13,8 @@ var stopPropagation = Rpd.Render.stopPropagation;
 var editorNode = d3.select(document.createElement('input'))
                    .attr('type', 'text')
                    .attr('class', 'rpd-pd-text-editor')
-                   .style('width', defaultSize.width + 'px')
-                   .style('height', defaultSize.height + 'px')
+                   .style('width', '300px')
+                   .style('height', (defaultSize.height + 1) + 'px')
                    .node();
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -38,8 +38,9 @@ Rpd.noderenderer('pd/gatom', 'svg', function() {
                                 'v ' + (size.height - 5) + ' ' +
                                 'h ' + (-size.width) + ' v ' + (-size.height) + ' z');
             text = d3.select(_createSvgElement('text'))
-                     .attr('y', size.height / 2);
-            listenForSelection(path.node())
+                     .attr('x', 2).attr('y', size.height / 2)
+                     .text('symbol');
+            listenForSelection(path.node());
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
                 body.append(text.node());
@@ -61,7 +62,9 @@ Rpd.noderenderer('pd/message', 'svg', function() {
                                 'l ' + 4 + ' ' + 4 + ' ' +
                                 'h ' + (-size.width) + ' v ' + (-size.height) + ' z');
             text = d3.select(_createSvgElement('text'))
-                     .attr('y', size.height / 2);
+                     .attr('x', 2).attr('y', size.height / 2);
+            text.text('foobar');
+            addTextEditor(text.node());
             listenForSelection(path.node())
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
@@ -102,7 +105,7 @@ Rpd.noderenderer('pd/object', 'svg', function() {
             rect = d3.select(_createSvgElement('rect'));
             rect.attr('width', size.width).attr('height', size.height);
             text = d3.select(_createSvgElement('text'))
-                     .attr('y', size.height / 2);
+                     .attr('x', 2).attr('y', size.height / 2);
             listenForSelection(rect.node())
             d3.select(bodyElm).call(function(body) {
                 body.append(rect.node());
@@ -155,11 +158,11 @@ function addTextEditor(textNode, selectNode) {
          .map(stopPropagation)
          .map(function() { return text.text(); })
          .onValue(function(textValue) {
-             var pos = textNode.getBoundingClientRect();
+             var brect = textNode.getBoundingClientRect();
              editor.attr('value', textValue)
                    .classed('rpd-selected', true)
-                   .style('top', (pos.top - 4) + 'px')
-                   .style('left', (pos.left - 1) + 'px');
+                   .style('top', (brect.top - 5) + 'px')
+                   .style('left', (brect.left - 1) + 'px');
              text.text('');
              editorNode.setSelectionRange(0, editorNode.value.length);
              editor.style('display', 'block')

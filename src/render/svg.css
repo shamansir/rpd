@@ -25,13 +25,3 @@
 .rpd-node.rpd-patch-reference .rpd-process > text {
     cursor: pointer;
 }
-
-/* .rpd-node .rpd-shadow {
-    -webkit-transition: x 1s, y 1s, fill 1s;
-    transition: x 1s, y 1s, fill 1s;
-} */
-
-/* .rpd-node.rpd-dragging .rpd-shadow {
-    -webkit-transition: fill 0.2s ease-out, opacity 0.2s ease-out;
-    transition: fill 0.2s ease-out, opacity 0.2s ease-out;
-} */
