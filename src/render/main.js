@@ -80,12 +80,15 @@ DragAndDrop.prototype.add = function(handle, spec) {
                         y: pos.y - initPos.y };
         var moveStream = Kefir.fromEvents(root.node(), 'mousemove')
                               .map(stopPropagation)
-                              .takeUntilBy(Kefir.fromEvents(root.node(), 'mouseup'))
+                              .takeUntilBy(Kefir.merge([
+                                  Kefir.fromEvents(root.node(), 'mouseup'),
+                                  Kefir.fromEvents(handle.node(), 'mouseup')
+                              ]))
                               .map(extractPos)
                               .map(function(absPos) {
                                   return { x: absPos.x - diffPos.x,
                                            y: absPos.y - diffPos.y };
-                              });
+                              }).toProperty(function() { return initPos; });
         moveStream.last().onValue(end);
         return moveStream;
     }).onValue(drag);
