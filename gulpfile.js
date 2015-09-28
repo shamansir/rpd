@@ -56,7 +56,7 @@ var Server = require('karma').Server;
 var KARMA_CONF_PATH = 'spec/karma.conf.js';
 var CLOSURE_COMPILER_PATH = 'node_modules/google-closure-compiler/compiler.jar';
 
-var VENDOR = [ 'https://cdn.jsdelivr.net/kefir/3.0.0/kefir.js'/*,
+var VENDOR = [ 'https://cdn.jsdelivr.net/kefir/3.0.0/kefir.min.js'/*,
                'http://mohayonao.github.io/timbre.js/timbre.js',
                'http://player-dev.animatron.com/latest/bundle/animatron.min.js'*/ ];
 
