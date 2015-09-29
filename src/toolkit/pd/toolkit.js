@@ -13,7 +13,7 @@ Rpd.nodetype('pd/gatom', {
     outlets: { '0': { type: 'pd/msg' } }
 }); // a.k.a. symbol
 
-Rpd.nodetype('pd/msg', {
+Rpd.nodetype('pd/message', {
     inlets: { '0': { type: 'pd/msg' },
               'v': { type: 'pd/msg', hidden: true } },
     outlets: { '0': { type: 'pd/msg' } }

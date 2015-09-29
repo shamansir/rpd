@@ -208,11 +208,12 @@ return function(networkRoot, userConfig) {
             }
 
             // node could require some preparation using patch root
-            if (render.prepare) render.prepare(tree.patches[patch.id].node(),
+            if (render.prepare) render.prepare.bind(node)
+                                              (tree.patches[patch.id].node(),
                                                tree.patches[currentPatch.id].node());
 
             // use custom node body renderer, if defined
-            if (render.first) subscribeUpdates(node, render.first(nodeElm.select('.rpd-process').node()));
+            if (render.first) subscribeUpdates(node, render.first.bind(node)(nodeElm.select('.rpd-process').node()));
 
             // if node body should be re-rendered, update links (since body element bounds could change)
             if (render.always) {
@@ -269,7 +270,7 @@ return function(networkRoot, userConfig) {
             // update node body with custom renderer, if defined
             if (render.always) {
                 var bodyElm = tree.nodes[node.id].data().processTarget.node();
-                render.always(bodyElm, update.inlets, update.outlets);
+                render.always.bind(node)(bodyElm, update.inlets, update.outlets);
             }
         },
 
@@ -361,7 +362,7 @@ return function(networkRoot, userConfig) {
 
             var valueRepr = inlet.def.show ? inlet.def.show(update.value) : update.value;
             if (render.show) {
-                render.show(valueElm.node(), update.value, valueRepr);
+                render.show.bind(inlet)(valueElm.node(), update.value, valueRepr);
             } else {
                 valueElm.text(valueRepr);
             }
@@ -381,7 +382,7 @@ return function(networkRoot, userConfig) {
 
             var valueRepr = outlet.def.show ? outlet.def.show(update.value) : update.value;
             if (render.show) {
-                render.show(valueElm.node(), update.value, valueRepr);
+                render.show.bind(outlet)(valueElm.node(), update.value, valueRepr);
             } else {
                 valueElm.text(valueRepr);
             }
@@ -710,7 +711,7 @@ function ValueEditor(inlet, render, root, valueHolder, valueElm, editorElm) {
     this.editorElm = editorElm;
     this.valueElm = valueElm;
     editorElm.classed('rpd-value-editor', true);
-    var valueOut = render.edit(editorElm.node(), inlet, valueIn);
+    var valueOut = render.edit.bind(inlet)(editorElm.node(), inlet, valueIn);
     valueOut.onValue(function(value) { inlet.receive(value); });
     Kefir.combine([ Kefir.merge([
                               Kefir.fromEvents(valueHolder.node(), 'click')
