@@ -9,24 +9,21 @@ Rpd.nodetype('pd/text', {
 });
 
 Rpd.nodetype('pd/gatom', {
-    inlets: { '0': { type: 'pd/msg' } },
-    outlets: { '0': { type: 'pd/msg' } }
+    inlets: { 'in': { type: 'pd/msg' } },
+    outlets: { 'out': { type: 'pd/msg' } }
 }); // a.k.a. symbol
 
 Rpd.nodetype('pd/message', {
-    inlets: { '0': { type: 'pd/msg' },
-              'v': { type: 'pd/msg', hidden: true } },
-    outlets: { '0': { type: 'pd/msg' } }
+    inlets: { 'in': { type: 'pd/msg' } },
+    outlets: { 'out': { type: 'pd/msg' } }
 });
 
 Rpd.nodetype('pd/bang', {
-    inlets: { 'in': { type: 'pd/msg' },
-              'v': { type: 'pd/msg', hidden: true } },
+    inlets: { 'in': { type: 'pd/msg' }, },
     outlets: { 'out': { type: 'pd/msg' } }
 });
 
 Rpd.nodetype('pd/toggle', {
-    inlets: { 'in': { type: 'pd/msg' },
-              'v': { type: 'pd/msg', hidden: true } },
+    inlets: { 'in': { type: 'pd/msg' } },
     outlets: { 'out': { type: 'pd/msg' } }
 });
