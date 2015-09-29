@@ -10,16 +10,29 @@ Rpd.export.json = function(name) {
                  version: Rpd.VERSION,
                  commands: commands };
 
+    var moves = {};
+
     var knownEvents = Rpd.events.filter(function(update) { return spec[update.type]; });
 
     var pushCommand = function(update) {
-        commands.push(spec[update.type](update));
+        if (update.type === 'node/move') {
+            moves[update.node.id] = spec['node/move'](update);
+        } else {
+            commands.push(spec[update.type](update));
+        }
+    };
+
+    function storeMoves() {
+        Object.keys(moves).forEach(function(nodeId) {
+            commands.push(moves[nodeId]);
+        });
     };
 
     knownEvents.onValue(pushCommand);
 
     return function() {
         knownEvents.offValue(pushCommand);
+        storeMoves();
         return json;
     };
 }

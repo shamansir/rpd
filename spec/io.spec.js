@@ -231,6 +231,31 @@ describe('import and export', function() {
                 );
             });
 
+            it('moving node several times', function() {
+                // should save only last move
+
+                var finalize = Rpd.export[alias]();
+
+                Rpd.addPatch('Foo').addNode('spec/empty', 'Move').move(10, 25)
+                                                                 .move(20, 12);
+
+                var updateSpy = jasmine.createSpy('update');
+                Rpd.events.onValue(updateSpy);
+
+                Rpd.import.json(finalize());
+
+                expect(updateSpy).not.toHaveBeenCalledWith(jasmine.objectContaining({
+                      type: 'node/move',
+                      node: jasmine.objectContaining({ name: 'Move' }),
+                      position: [ 10, 25 ]
+                  }));
+                expect(updateSpy).toHaveBeenCalledWith(jasmine.objectContaining({
+                      type: 'node/move',
+                      node: jasmine.objectContaining({ name: 'Move' }),
+                      position: [ 20, 12 ]
+                  }));
+            });
+
             it('connecting outlet to inlet', function() {
                 testAction(
                     function() {
