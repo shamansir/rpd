@@ -9,12 +9,6 @@ function _createSvgElement(name) {
 }
 var stopPropagation = Rpd.Render.stopPropagation;
 
-var ƒ = Rpd.unit;
-function awaiting(a, b) {
-    return Kefir.merge([ a.map(ƒ(true)),
-                         b.map(ƒ(false)) ]).toProperty(ƒ(false));
-}
-
 var editorNode = d3.select(document.createElement('input'))
                    .attr('type', 'text')
                    .attr('class', 'rpd-pd-text-editor')
@@ -28,14 +22,10 @@ document.addEventListener('DOMContentLoaded', function() {
                .style('position', 'absolute').node());
 });
 var startEditing = Kefir.emitter(),
-    finishEditing = Kefir.emitter()/*,
-    editing = awaiting(startEditing, finishEditing),
-    notEditing = editing.map(function(v) { return !v })*/;
+    finishEditing = Kefir.emitter();
 
 var startSelection = Kefir.emitter(),
-    finishSelection = Kefir.emitter()/*,
-    selecting = awaiting(startSelection, finishSelection),
-    notSelecting = selecting.map(function(v) { return !v })*/;
+    finishSelection = Kefir.emitter();
 var selected;
 
 Rpd.noderenderer('pd/gatom', 'svg', function() {
@@ -212,6 +202,9 @@ function addEditor(selectNode, textNode) {
                    .node().focus();
 
              Kefir.merge([ Kefir.fromEvents(document.body, 'click'),
+                           Kefir.fromEvents(editorNode, 'keydown')
+                                .map(function(evt) { return evt.keyCode; })
+                                .filter(function(key) { return key === 13; }),
                            startSelection
                          ]).take(1)
                   .onValue(function() {

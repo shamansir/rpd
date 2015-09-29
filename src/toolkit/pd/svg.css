@@ -62,3 +62,7 @@
 .rpd-pd-text rect {
     stroke-width: 0;
 }
+
+.rpd-pd-object rect {
+    stroke-dasharray: 5, 5;
+}

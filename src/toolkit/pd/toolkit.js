@@ -19,6 +19,14 @@ Rpd.nodetype('pd/message', {
     outlets: { '0': { type: 'pd/atom' } }
 });
 
-Rpd.nodetype('pd/bang', { });
+Rpd.nodetype('pd/bang', {
+    inlets: { 'in': { type: 'pd/atom' },
+              'v': { type: 'pd/atom', hidden: true } },
+    outlets: { 'out': { type: 'pd/atom' } }
+});
 
-Rpd.nodetype('pd/toggle', { });
+Rpd.nodetype('pd/toggle', {
+    inlets: { 'in': { type: 'pd/atom' },
+              'v': { type: 'pd/atom', hidden: true } },
+    outlets: { 'out': { type: 'pd/atom' } }
+});
