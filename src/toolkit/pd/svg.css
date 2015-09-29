@@ -36,7 +36,7 @@
     outline: none;
 }
 
-.rpd-pd-text-editor.rpd-selected {
+.rpd-pd-text-editor.rpd-pd-selected {
     color: blue;
 }
 
@@ -48,6 +48,10 @@
 .rpd-pd-selected text,
 .rpd-dragging text {
     stroke-width: 0;
+    fill: blue;
+}
+
+.rpd-pd-bang.rpd-pd-selected circle {
     fill: blue;
 }
 
