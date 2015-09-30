@@ -23,7 +23,8 @@
     /* pointer-events: none; */
 }
 
-.rpd-pd-gatom path {
+.rpd-pd-number path,
+.rpd-pd-symbol path {
     fill: lightgrey;
 }
 
@@ -65,4 +66,9 @@
 
 .rpd-pd-object rect {
     stroke-dasharray: 5, 5;
+}
+
+.rpd-inlet .rpd-connector:hover,
+.rpd-outlet .rpd-connector:hover {
+    fill: blue;
 }

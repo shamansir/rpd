@@ -28,13 +28,36 @@ var startSelection = Kefir.emitter(),
     finishSelection = Kefir.emitter();
 var selected;
 
-Rpd.noderenderer('pd/gatom', 'svg', function() {
+Rpd.noderenderer('pd/number', 'svg', function() {
+    var path, text;
+    var size = defaultSize;
+    return {
+        size: size,
+        first: function(bodyElm) {
+            path = d3.select(_createSvgElement('path'))
+                     .attr('d', 'M 0,0 h ' + (size.width - 5) + ' ' +
+                                'l ' + 5 + ' ' + 5 + ' ' +
+                                'v ' + (size.height - 5) + ' ' +
+                                'h ' + (-size.width) + ' v ' + (-size.height) + ' z');
+            text = d3.select(_createSvgElement('text'))
+                     .attr('x', 2).attr('y', size.height / 2)
+                     .text('0');
+            addSelection(bodyElm);
+            d3.select(bodyElm).call(function(body) {
+                body.append(path.node());
+                body.append(text.node());
+            });
+
+        }
+    }
+});
+
+Rpd.noderenderer('pd/symbol', 'svg', function() {
     var path, editor, text;
     var size = defaultSize;
     return {
         size: size,
         first: function(bodyElm) {
-
             path = d3.select(_createSvgElement('path'))
                      .attr('d', 'M 0,0 h ' + (size.width - 5) + ' ' +
                                 'l ' + 5 + ' ' + 5 + ' ' +

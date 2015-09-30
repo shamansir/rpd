@@ -45,19 +45,19 @@ Rpd.import.pd = function(lines) {
             } else if (rest[1] === 'restore') {
                 // TODO
             } else if (rest[1] === 'floatatom') {
-                node = rootPatch.addNode('pd/gatom');
+                node = rootPatch.addNode('pd/number');
                 node.move(parseInt(rest[2]), parseInt(rest[3]));
                 configureSymbol(node, rest.slice(4));
                 objects.push(node);
             } else if (rest[1] === 'symbolatom') {
-                node = rootPatch.addNode('pd/gatom');
+                node = rootPatch.addNode('pd/symbol');
                 node.move(parseInt(rest[2]), parseInt(rest[3]));
                 configureSymbol(node, rest.slice(4));
                 objects.push(node);
             } else if (rest[1] === 'msg') {
                 node = rootPatch.addNode('pd/message');
                 node.move(parseInt(rest[2]), parseInt(rest[3]));
-                node.inlets['in'].send(rest.slice(4));
+                node.inlets['receive'].send(rest.slice(4));
                 objects.push(node);
             } else if (rest[1] === 'text') {
                 node = rootPatch.addNode('pd/text');
@@ -87,7 +87,8 @@ Rpd.import.pd = function(lines) {
                 } else if (rest[4] === 'cnv') {
 
                 } else {
-
+                    node = rootPatch.addNode('pd/object');
+                    node.move(parseInt(rest[2]), parseInt(rest[3]));
                 }
                 objects.push(node || {});
 
