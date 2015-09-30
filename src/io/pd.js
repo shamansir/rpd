@@ -23,70 +23,68 @@ Rpd.export.pd = function(name) {
 // ================================= IMPORT =================================
 
 Rpd.import.pd = function(lines) {
-    var spec = makeImportSpec();
-
     var objects = [],
         arrays = [];
 
-    var rootPatch = Rpd.addPatch('PD');
+    var rootPatch = Rpd.addPatch('PD').enter();
 
     var node;
 
-    lines.forEach(function(line) {
+    lines.split('\n').forEach(function(line) {
         if (!line.length) return;
-        var rest = line.slice(1).split(' ');
-        if (line[1] === 'A') {
+        var rest = line.slice(1, line.length-1).split(' ');
+        if (rest[0] === 'A') {
             arrays.push(rest);
-        } else if (line[1] === 'N') {
+        } else if (rest[0] === 'N') {
             // TODO
-        } else if (line[1] === 'X') {
+        } else if (rest[0] === 'X') {
 
-            if (rest[0] === 'connect') {
-                connect(objects[rest[1]], rest[2],
-                        objects[rest[3]], rest[4]);
-            } else if (rest[0] === 'restore') {
+            if (rest[1] === 'connect') {
+                connect(objects[rest[2]], rest[3],
+                        objects[rest[4]], rest[5]);
+            } else if (rest[1] === 'restore') {
                 // TODO
-            } else if (rest[0] === 'floatatom') {
+            } else if (rest[1] === 'floatatom') {
                 node = rootPatch.addNode('pd/gatom');
-                node.move(parseInt(rest[1]), parseInt(rest[2]));
-                configureSymbol(node, rest.slice(3));
+                node.move(parseInt(rest[2]), parseInt(rest[3]));
+                configureSymbol(node, rest.slice(4));
                 objects.push(node);
-            } else if (rest[0] === 'symbolatom') {
+            } else if (rest[1] === 'symbolatom') {
                 node = rootPatch.addNode('pd/gatom');
-                node.move(parseInt(rest[1]), parseInt(rest[2]));
-                configureSymbol(node, rest.slice(3));
+                node.move(parseInt(rest[2]), parseInt(rest[3]));
+                configureSymbol(node, rest.slice(4));
                 objects.push(node);
-            } else if (rest[0] === 'msg') {
+            } else if (rest[1] === 'msg') {
                 node = rootPatch.addNode('pd/message');
-                node.move(parseInt(rest[1]), parseInt(rest[2]));
-                node.inlets['in'].send(rest.slice(3));
+                node.move(parseInt(rest[2]), parseInt(rest[3]));
+                node.inlets['in'].send(rest.slice(4));
                 objects.push(node);
-            } else if (rest[0] === 'text') {
+            } else if (rest[1] === 'text') {
                 node = rootPatch.addNode('pd/text');
-                node.move(parseInt(rest[1]), parseInt(rest[2]));
-                node.inlets['text'].send(rest[3]);
+                node.move(parseInt(rest[2]), parseInt(rest[3]));
+                node.inlets['text'].send(rest[4]);
                 objects.push(node);
-            } else if (rest[0] === 'obj') {
+            } else if (rest[1] === 'obj') {
 
-                if (rest[3] === 'bng') {
+                if (rest[4] === 'bng') {
                     node = rootPatch.addNode('pd/bang');
-                    node.move(parseInt(rest[1]), parseInt(rest[2]));
-                } else if (rest[3] === 'tgl') {
+                    node.move(parseInt(rest[2]), parseInt(rest[3]));
+                } else if (rest[4] === 'tgl') {
                     node = rootPatch.addNode('pd/toggle');
-                    node.move(parseInt(rest[1]), parseInt(rest[2]));
-                } else if (rest[3] === 'nbx') {
+                    node.move(parseInt(rest[2]), parseInt(rest[3]));
+                } else if (rest[4] === 'nbx') {
 
-                } else if (rest[3] === 'vsl') {
+                } else if (rest[4] === 'vsl') {
 
-                } else if (rest[3] === 'hsl') {
+                } else if (rest[4] === 'hsl') {
 
-                } else if (rest[3] === 'vradio') {
+                } else if (rest[4] === 'vradio') {
 
-                } else if (rest[3] === 'hradio') {
+                } else if (rest[4] === 'hradio') {
 
-                } else if (rest[3] === 'vu') {
+                } else if (rest[4] === 'vu') {
 
-                } else if (rest[3] === 'cnv') {
+                } else if (rest[4] === 'cnv') {
 
                 } else {
 

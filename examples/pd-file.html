@@ -78,10 +78,9 @@
             textarea.value = localStorage.getItem('last_contents');
 
             loadCode.addEventListener('click', function() {
-                target.innerHtml = '';
-                console.log('got it', textarea.value);
+                //target.innerHtml = '';
                 localStorage.setItem('last_contents', textarea.value);
-                //Rpd.import.pd('Core with Network');
+                Rpd.import.pd(textarea.value);
             });
 
 
