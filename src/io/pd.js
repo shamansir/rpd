@@ -101,7 +101,7 @@ Rpd.import.pd = function(lines) {
     });
 }
 
-function connect(node, inletId, node, outletId) {
+function connect(fromNode, inletId, toNode, outletId) {
 
 }
 

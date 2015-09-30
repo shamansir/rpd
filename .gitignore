@@ -1,6 +1,6 @@
 dist/
 vendor/
-gifs/
+examples/.pd
 spec/lib
 spec/Runner.html
 compiler.jar

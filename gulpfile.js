@@ -234,9 +234,6 @@ function getCssFiles(options) {
 function getJsFiles(options) {
     var list = [];
     list.push(Paths.Rpd());
-    options.io.forEach(function(io) {
-        list.push(Paths.Io(io) + '.js');
-    });
     if (!options.d3) list.push(Paths.D3Tiny());
     list.push(Paths.RenderCore());
     options.style.forEach(function(style) {
@@ -265,6 +262,9 @@ function getJsFiles(options) {
         options.renderer.forEach(function(renderer) {
             list.push(Paths.UserToolkitRenderer(toolkit, renderer) + '.js');
         });
+    });
+    options.io.forEach(function(io) {
+        list.push(Paths.Io(io) + '.js');
     });
     return list;
 }
@@ -315,10 +315,6 @@ function getHtmlHead(options) {
     comment('Kefir'); jsFile(Paths.Kefir());
     comment('RPD'); jsFile(Paths.Rpd());
     console.log();
-    options.io.forEach(function(io) {
-        comment('RPD I/O: ' + io);
-        jsFile(Paths.Io(io) + '.js');
-    });
     if (options.d3) {
         comment('d3.js'); jsFile(Paths.D3());
     } else {
@@ -358,6 +354,11 @@ function getHtmlHead(options) {
             comment('RPD User Toolkit: ' + toolkit + ' (' + renderer + ')');
             jsFile(Paths.UserToolkitRenderer(toolkit, renderer) + '.js');
         });
+    });
+    console.log();
+    options.io.forEach(function(io) {
+        comment('RPD I/O: ' + io);
+        jsFile(Paths.Io(io) + '.js');
     });
     console.log('</head>');
     console.log('===========');

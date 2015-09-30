@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>PD Toolkit — Loading from File</title>
+
+        <!-- replace double equals signs with double dashes to get html head like below generated -->
+        <!-- gulp html-head ==style realpd ==renderer svg ==toolkit pd ==io pd ==root .. -->
+
+        <!-- or run this, and get everything combined in two files: rpd.js and rpd.css -->
+        <!-- gulp ==style realpd ==renderer svg ==io pd ==toolkit pd -->
+
+        <!-- Built with RPD v0.2.0 <http://shamansir.github.io/rpd> -->
+
+        <!-- RPD Renderer: svg -->
+        <link rel="stylesheet" href="../src/render/svg.css"></style>
+        <!-- RPD Style: realpd (svg) -->
+        <link rel="stylesheet" href="../src/style/realpd/svg.css"></style>
+        <!-- RPD Toolkit: pd (svg) -->
+        <link rel="stylesheet" href="../src/toolkit/pd/svg.css"></style>
+
+        <!-- Kefir -->
+        <script src="../vendor/kefir.min.js"></script>
+        <!-- RPD -->
+        <script src="../src/rpd.js"></script>
+
+        <!-- RPD's d3_tiny.js -->
+        <script src="../src/d3_tiny.js"></script>
+        <!-- RPD Render Core: -->
+        <script src="../src/render/main.js"></script>
+        <!-- RPD Style: realpd (svg) -->
+        <script src="../src/style/realpd/svg.js"></script>
+        <!-- RPD Renderer: svg -->
+        <script src="../src/render/svg.js"></script>
+        <!-- RPD Toolkit: pd -->
+        <script src="../src/toolkit/pd/model.js"></script>
+        <script src="../src/toolkit/pd/toolkit.js"></script>
+        <!-- RPD Toolkit: pd (svg) -->
+        <script src="../src/toolkit/pd/svg.js"></script>
+
+        <!-- RPD I/O: pd -->
+        <script src="../src/io/pd.js"></script>
+      </head>
+
+    </head>
+
+    <body>
+        <style>
+            #pd-code {
+                position: fixed;
+                right: 0;
+                margin: 15px;
+                width: 300px;
+                height: 80%;
+                font-family: monospace;
+            }
+
+            #load-pd-code {
+                position: fixed;
+                margin: 15px;
+                right: 0;
+                bottom: 0;
+            }
+        </style>
+
+        <textarea id="pd-code"></textarea>
+        <button id="load-pd-code">Load</button>
+
+        <div id="network"></div>
+
+        <script>
+            var target = document.getElementById('network'),
+                textarea = document.getElementById('pd-code'),
+                loadCode = document.getElementById('load-pd-code');
+
+            Rpd.render('svg', target, { style: 'realpd' });
+
+            textarea.value = localStorage.getItem('last_contents');
+
+            loadCode.addEventListener('click', function() {
+                target.innerHtml = '';
+                console.log('got it', textarea.value);
+                localStorage.setItem('last_contents', textarea.value);
+                //Rpd.import.pd('Core with Network');
+            });
+
+
+        </script>
+    </body>
+</html>
