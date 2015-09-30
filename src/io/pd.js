@@ -26,8 +26,7 @@ Rpd.import.pd = function(lines) {
     var spec = makeImportSpec();
 
     var objects = [],
-        arrays = [],
-        connections = [];
+        arrays = [];
 
     var rootPatch = Rpd.addPatch('PD');
 
@@ -39,15 +38,24 @@ Rpd.import.pd = function(lines) {
         if (line[1] === 'A') {
             arrays.push(rest);
         } else if (line[1] === 'N') {
-
+            // TODO
         } else if (line[1] === 'X') {
 
             if (rest[0] === 'connect') {
-
+                connect(objects[rest[1]], rest[2],
+                        objects[rest[3]], rest[4]);
+            } else if (rest[0] === 'restore') {
+                // TODO
             } else if (rest[0] === 'floatatom') {
-
+                node = rootPatch.addNode('pd/gatom');
+                node.move(parseInt(rest[1]), parseInt(rest[2]));
+                configureSymbol(node, rest.slice(3));
+                objects.push(node);
             } else if (rest[0] === 'symbolatom') {
-
+                node = rootPatch.addNode('pd/gatom');
+                node.move(parseInt(rest[1]), parseInt(rest[2]));
+                configureSymbol(node, rest.slice(3));
+                objects.push(node);
             } else if (rest[0] === 'msg') {
                 node = rootPatch.addNode('pd/message');
                 node.move(parseInt(rest[1]), parseInt(rest[2]));
@@ -60,36 +68,45 @@ Rpd.import.pd = function(lines) {
                 objects.push(node);
             } else if (rest[0] === 'obj') {
 
-                if (rest[1] === 'bng') {
+                if (rest[3] === 'bng') {
                     node = rootPatch.addNode('pd/bang');
                     node.move(parseInt(rest[1]), parseInt(rest[2]));
-                    objects.push(node);
-                } else if (rest[1] === 'tgl') {
+                } else if (rest[3] === 'tgl') {
                     node = rootPatch.addNode('pd/toggle');
                     node.move(parseInt(rest[1]), parseInt(rest[2]));
-                    objects.push(node);
-                } else if (rest[1] === 'nbx') {
+                } else if (rest[3] === 'nbx') {
 
-                } else if (rest[1] === 'vsl') {
+                } else if (rest[3] === 'vsl') {
 
-                } else if (rest[1] === 'hsl') {
+                } else if (rest[3] === 'hsl') {
 
-                } else if (rest[1] === 'vradio') {
+                } else if (rest[3] === 'vradio') {
 
-                } else if (rest[1] === 'hradio') {
+                } else if (rest[3] === 'hradio') {
 
-                } else if (rest[1] === 'vu') {
+                } else if (rest[3] === 'vu') {
 
-                } else if (rest[1] === 'cnv') {
+                } else if (rest[3] === 'cnv') {
+
+                } else {
 
                 }
+                objects.push(node || {});
 
+            } else {
+                // TODO
             }
 
         }
     });
 }
 
-function
+function connect(node, inletId, node, outletId) {
+
+}
+
+function configureSymbol(node, conf) {
+
+}
 
 }(this));
