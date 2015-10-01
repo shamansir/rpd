@@ -1,48 +1,56 @@
-var PdEditor = (function() {
+var PdView = (function() {
+
+    var d3 = d3 || d3_tiny;
 
     var stopPropagation = Rpd.Render.stopPropagation;
 
-    var editorNode = d3.select(document.createElement('input'))
-                       .attr('type', 'text')
-                       .attr('class', 'rpd-pd-text-editor')
-                       .style('width', '300px')
-                       .style('height', (defaultSize.height + 1) + 'px')
-                       .node();
-    document.addEventListener('DOMContentLoaded', function() {
-       d3.select(document.body)
-         .append(d3.select(editorNode)
-                   .style('display', 'none')
-                   .style('position', 'absolute').node());
-    });
+    var editorNode;
     var startEditing = Kefir.emitter(),
         finishEditing = Kefir.emitter();
 
+    var selection = null;
     var startSelection = Kefir.emitter(),
         finishSelection = Kefir.emitter();
-    var selected;
 
-    function addSelection(selectNode) {
+    var objects = {};
+    var editMode = true;
+
+    function PdView(defaultSize) {
+        editorNode = d3.select(document.createElement('input'))
+                           .attr('type', 'text')
+                           .attr('class', 'rpd-pd-text-editor')
+                           .style('width', '300px')
+                           .style('height', (defaultSize.height + 1) + 'px')
+                           .node();
+        document.addEventListener('DOMContentLoaded', function() {
+           d3.select(document.body)
+             .append(d3.select(editorNode)
+                       .style('display', 'none')
+                       .style('position', 'absolute').node());
+        });
+    }
+    PdView.prototype.addSelection = function(selectNode) {
         Kefir.fromEvents(selectNode, 'click')
              .map(stopPropagation)
              .onValue(function() {
 
                  startSelection.emit();
-                 if (selected) d3.select(selected).classed('rpd-pd-selected', false);
-                 selected = selectNode;
+                 if (selection) d3.select(selection).classed('rpd-pd-selected', false);
+                 selection = selectNode;
                  d3.select(selectNode).classed('rpd-pd-selected', true);
 
                  Kefir.fromEvents(document.body, 'click').take(1)
                       .onValue(function() {
 
                           d3.select(selectNode).classed('rpd-pd-selected', false);
-                          selected = null;
+                          selection = null;
                           finishSelection.emit();
 
                       });
              });
     }
 
-    function addEditor(selectNode, textNode) {
+    PdView.prototype.addEditor = function(selectNode, textNode) {
         var text = d3.select(textNode);
         var editor = d3.select(editorNode);
         Kefir.fromEvents(selectNode, 'click')
@@ -81,14 +89,6 @@ var PdEditor = (function() {
              });
     }
 
-    return {
+    return PdView;
 
-        addSelection: addSelection,
-        addEditor: addEditor,
-
-        objects: {},
-        editMode: true,
-        selection: null
-    };
-
-});
+})();

@@ -4,7 +4,7 @@ var d3 = d3 || d3_tiny;
 
 var defaultSize = { width: 50, height: 18 };
 
-var editor = PdEditor;
+var view = new PdView(defaultSize);
 
 function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
@@ -24,7 +24,7 @@ Rpd.noderenderer('pd/number', 'svg', function() {
             text = d3.select(_createSvgElement('text'))
                      .attr('x', 2).attr('y', size.height / 2)
                      .text('0');
-            editor.addSelection(bodyElm);
+            view.addSelection(bodyElm);
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
                 body.append(text.node());
@@ -48,7 +48,7 @@ Rpd.noderenderer('pd/symbol', 'svg', function() {
             text = d3.select(_createSvgElement('text'))
                      .attr('x', 2).attr('y', size.height / 2)
                      .text('symbol');
-            editor.addSelection(bodyElm); /* addTextEditor(bodyElm, text.node()); */
+            view.addSelection(bodyElm); /* view.addEditor(bodyElm, text.node()); */
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
                 body.append(text.node());
@@ -74,7 +74,7 @@ Rpd.noderenderer('pd/message', 'svg', function() {
             text = d3.select(_createSvgElement('text'))
                      .attr('x', 2).attr('y', size.height / 2);
             text.text('foobar');
-            editor.addSelection(bodyElm); addEditor(bodyElm, text.node());
+            view.addSelection(bodyElm); view.addEditor(bodyElm, text.node());
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
                 body.append(text.node());
@@ -97,7 +97,7 @@ Rpd.noderenderer('pd/text', 'svg', function() {
             text = d3.select(_createSvgElement('text'))
                      .attr('y', size.height / 2)
                      .text('comment');
-            addSelection(bodyElm); addEditor(bodyElm, text.node());
+            view.addSelection(bodyElm); view.addEditor(bodyElm, text.node());
             d3.select(bodyElm).call(function(body) {
                 body.append(rect.node());
                 body.append(text.node());
@@ -118,7 +118,7 @@ Rpd.noderenderer('pd/object', 'svg', function() {
             rect.attr('width', size.width).attr('height', size.height);
             text = d3.select(_createSvgElement('text'))
                      .attr('x', 2).attr('y', size.height / 2);
-            addSelection(bodyElm); addEditor(bodyElm, text.node());
+            view.addSelection(bodyElm); view.addEditor(bodyElm, text.node());
             d3.select(bodyElm).call(function(body) {
                 body.append(rect.node());
                 body.append(text.node());
@@ -137,7 +137,7 @@ Rpd.noderenderer('pd/toggle', 'svg', function() {
         first: function(bodyElm) {
             rect = d3.select(_createSvgElement('rect'));
             rect.attr('width', size.width).attr('height', size.height);
-            addSelection(bodyElm);
+            view.addSelection(bodyElm);
             d3.select(bodyElm).append(rect.node());
         }
     }
@@ -156,7 +156,7 @@ Rpd.noderenderer('pd/bang', 'svg', function() {
             circle = d3.select(_createSvgElement('circle'))
                        .attr('cx', size.width / 2).attr('cy', size.width / 2)
                        .attr('r', size.width / 2);
-            addSelection(bodyElm);
+            view.addSelection(bodyElm);
             d3.select(bodyElm).call(function(body) {
                 body.append(rect.node());
                 body.append(circle.node());
