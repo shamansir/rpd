@@ -18,13 +18,13 @@ var Paths = {
     Kefir: function() { return Paths.Vendor() + '/kefir.min.js'; },
     D3: function() { return Paths.Vendor() + '/d3.min.js'; },
     D3Tiny: function() { return Paths.Src() + '/d3_tiny.js'; },
-    RenderCore: function() { return Paths.Src() + '/render/main.js'; },
+    RenderModel: function() { return Paths.Src() + '/render/shared.js'; },
     Renderer: function(renderer) { return Paths.Src() + '/render/' + renderer; },
     Toolkit: function(toolkit) { return Paths.Src() + '/toolkit/' + toolkit + '/toolkit'; },
-    ToolkitModel: function(toolkit) { return Paths.Src() + '/toolkit/' + toolkit + '/model'; },
+    ToolkitModel: function(toolkit) { return Paths.Src() + '/toolkit/' + toolkit + '/shared'; },
     ToolkitRenderer: function(toolkit, renderer) { return Paths.Src() + '/toolkit/' + toolkit + '/' + renderer; },
     UserToolkit: function(toolkit) { return toolkit; },
-    UserToolkitModel: function(toolkit) { return toolkit + '/model'; },
+    UserToolkitModel: function(toolkit) { return toolkit + '/shared'; },
     UserToolkitRenderer: function(toolkit, renderer) { return toolkit + '/' + renderer; },
     StyleRenderer: function(style, renderer) { return Paths.Src() + '/style/' + style + '/' + renderer; },
     UserStyleRenderer: function(style, renderer) { return style + '/' + renderer; },
@@ -235,7 +235,7 @@ function getJsFiles(options) {
     var list = [];
     list.push(Paths.Rpd());
     if (!options.d3) list.push(Paths.D3Tiny());
-    list.push(Paths.RenderCore());
+    list.push(Paths.RenderModel());
     options.style.forEach(function(style) {
         options.renderer.forEach(function(renderer) {
             list.push(Paths.StyleRenderer(style, renderer) + '.js');
@@ -320,8 +320,8 @@ function getHtmlHead(options) {
     } else {
         comment('RPD\'s d3_tiny.js'); jsFile(Paths.D3Tiny());
     }
-    comment('RPD Render Core:');
-    jsFile(Paths.RenderCore());
+    comment('RPD Rendering Engine:');
+    jsFile(Paths.RenderModel());
     options.style.forEach(function(style) {
         options.renderer.forEach(function(renderer) {
             comment('RPD Style: ' + style + ' (' + renderer + ')');

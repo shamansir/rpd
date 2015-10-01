@@ -89,6 +89,7 @@ Rpd.import.pd = function(lines) {
                 } else {
                     node = rootPatch.addNode('pd/object');
                     node.move(parseInt(rest[2]), parseInt(rest[3]));
+                    configureObject(node, rest.slice(4));
                 }
                 objects.push(node || {});
 
@@ -105,6 +106,10 @@ function connect(fromNode, inletId, toNode, outletId) {
 }
 
 function configureSymbol(node, conf) {
+
+}
+
+function configureObject(node, conf) {
 
 }
 
