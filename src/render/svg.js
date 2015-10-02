@@ -453,7 +453,7 @@ return function(networkRoot, userConfig) {
             tree.patchToLinks[patch.id].remove(vlink);
 
             // remove link element
-            vlink.removeFrom(root);
+            vlink.removeFrom(svg);
 
         },
 

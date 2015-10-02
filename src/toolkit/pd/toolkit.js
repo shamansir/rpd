@@ -3,7 +3,12 @@ Rpd.linktype('core/pass', { });
 Rpd.channeltype('pd/msg', { });
 
 Rpd.nodetype('pd/object', {
-    inlets: { 'command': { type: 'pd/msg', hidden: true } }
+    inlets: { 'command': { type: 'pd/msg', hidden: true } },
+    process: function() {
+        if (PdNodeToObject[this.id]) {
+            return PdNodeToObject[this.id].call(this, arguments);
+        }
+    }
 });
 
 Rpd.nodetype('pd/text', {

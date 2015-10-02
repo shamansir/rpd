@@ -12,7 +12,6 @@ var PdView = (function() {
     var startSelection = Kefir.emitter(),
         finishSelection = Kefir.emitter();
 
-    var objects = {};
     var editMode = true;
 
     function PdView(defaultSize) {
@@ -29,6 +28,7 @@ var PdView = (function() {
                        .style('position', 'absolute').node());
         });
     }
+
     PdView.prototype.addSelection = function(selectNode) {
         Kefir.fromEvents(selectNode, 'click')
              .map(stopPropagation)
@@ -50,7 +50,7 @@ var PdView = (function() {
              });
     }
 
-    PdView.prototype.addEditor = function(selectNode, textNode) {
+    PdView.prototype.addEditor = function(selectNode, textNode, onSubmit) {
         var text = d3.select(textNode);
         var editor = d3.select(editorNode);
         Kefir.fromEvents(selectNode, 'click')
@@ -77,18 +77,46 @@ var PdView = (function() {
                              ]).take(1)
                       .onValue(function() {
 
+                          var value = editor.node().value;
+
                           editorNode.blur();
-                          text.text(editor.node().value);
+                          text.text(value);
                           editor.node().value = '';
                           editor.style('display', 'none')
                                 .classed('rpd-selected', false);
                           text.style('display', 'block');
 
                           finishEditing.emit();
+
+                          if (onSubmit) onSubmit(value);
                       });
              });
+    }
+
+    PdView.prototype.configureObjectNode = function(node, text) {
+        var command = text.split(' ');
+        var definition = PdObject[command[0]];
+        var inlets = definition.inlets;
+        Object.keys(inlets).forEach(function(alias) {
+            node.addInlet(inlets[alias].type, alias);
+        });
+        PdNodeToObject[node.id] = definition.process;
+        return true;
     }
 
     return PdView;
 
 })();
+
+var PdObject = {
+
+    'print': {
+        inlets: { 'what': { type: 'pd/msg' } },
+        process: function(inlets) {
+            if (console) console.log(inlets.what);
+        }
+    }
+
+};
+
+var PdNodeToObject = {};

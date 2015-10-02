@@ -64,7 +64,6 @@ Rpd.noderenderer('pd/message', 'svg', function() {
     return {
         size: size,
         first: function(bodyElm) {
-
             path = d3.select(_createSvgElement('path'))
                      .attr('d', 'M 0,0 h ' + size.width + ' ' +
                                 'l ' + (-4) + ' ' + 4 + ' ' +
@@ -85,18 +84,16 @@ Rpd.noderenderer('pd/message', 'svg', function() {
 });
 
 Rpd.noderenderer('pd/text', 'svg', function() {
-    var rect, text;
     var size = defaultSize;
     return {
         size: size,
         first: function(bodyElm) {
-
-            rect = d3.select(_createSvgElement('rect'))
-                     .attr('width', size.width)
-                     .attr('height', size.height);
-            text = d3.select(_createSvgElement('text'))
-                     .attr('y', size.height / 2)
-                     .text('comment');
+            var rect = d3.select(_createSvgElement('rect'))
+                         .attr('width', size.width)
+                         .attr('height', size.height);
+            var text = d3.select(_createSvgElement('text'))
+                         .attr('y', size.height / 2)
+                         .text('comment');
             view.addSelection(bodyElm); view.addEditor(bodyElm, text.node());
             d3.select(bodyElm).call(function(body) {
                 body.append(rect.node());
@@ -108,17 +105,22 @@ Rpd.noderenderer('pd/text', 'svg', function() {
 });
 
 Rpd.noderenderer('pd/object', 'svg', function() {
-    var rect, text;
     var size = defaultSize;
     return {
         size: defaultSize,
         first: function(bodyElm) {
-
-            rect = d3.select(_createSvgElement('rect'));
+            var node = this;
+            var rect = d3.select(_createSvgElement('rect'))
+                         .classed('rpd-pd-erratic', true);
             rect.attr('width', size.width).attr('height', size.height);
-            text = d3.select(_createSvgElement('text'))
-                     .attr('x', 2).attr('y', size.height / 2);
-            view.addSelection(bodyElm); view.addEditor(bodyElm, text.node());
+            var text = d3.select(_createSvgElement('text'))
+                         .attr('x', 2).attr('y', size.height / 2);
+            view.addSelection(bodyElm);
+            view.addEditor(bodyElm, text.node(),
+                           function(text) { // onSubmit
+                                rect.classed('rpd-pd-erratic',
+                                        !view.configureObjectNode(node, text));
+                           });
             d3.select(bodyElm).call(function(body) {
                 body.append(rect.node());
                 body.append(text.node());
@@ -150,7 +152,6 @@ Rpd.noderenderer('pd/bang', 'svg', function() {
     return {
         size: defaultSize,
         first: function(bodyElm) {
-
             rect = d3.select(_createSvgElement('rect'))
                      .attr('width', size.width).attr('height', size.height);
             circle = d3.select(_createSvgElement('circle'))

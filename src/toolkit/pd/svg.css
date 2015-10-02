@@ -64,7 +64,7 @@
     stroke-width: 0;
 }
 
-.rpd-pd-object rect {
+.rpd-pd-object rect.rpd-pd-erratic {
     stroke-dasharray: 5, 5;
 }
 
