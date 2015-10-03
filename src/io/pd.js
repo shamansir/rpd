@@ -110,7 +110,7 @@ function configureSymbol(node, conf) {
 }
 
 function configureObject(node, conf) {
-
+    //PdView.configureObjectNode(node, conf);
 }
 
 }(this));

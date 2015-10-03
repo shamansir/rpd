@@ -111,7 +111,7 @@ Rpd.noderenderer('pd/object', 'svg', function() {
         first: function(bodyElm) {
             var node = this;
             var rect = d3.select(_createSvgElement('rect'))
-                         .classed('rpd-pd-erratic', true);
+                         .classed('rpd-pd-erratic', !PdNodeToObject[node.id]);
             rect.attr('width', size.width).attr('height', size.height);
             var text = d3.select(_createSvgElement('text'))
                          .attr('x', 2).attr('y', size.height / 2);

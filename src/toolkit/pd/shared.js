@@ -96,6 +96,7 @@ var PdView = (function() {
     PdView.prototype.configureObjectNode = function(node, text) {
         var command = text.split(' ');
         var definition = PdObject[command[0]];
+        if (!definition) return false;
         var inlets = definition.inlets;
         Object.keys(inlets).forEach(function(alias) {
             node.addInlet(inlets[alias].type, alias);
