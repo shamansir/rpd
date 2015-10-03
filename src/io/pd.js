@@ -40,19 +40,19 @@ Rpd.import.pd = function(lines) {
         } else if (rest[0] === 'X') {
 
             if (rest[1] === 'connect') {
-                connect(objects[rest[2]], rest[3],
-                        objects[rest[4]], rest[5]);
+                pdConnect(objects[rest[2]], rest[3],
+                          objects[rest[4]], rest[5]);
             } else if (rest[1] === 'restore') {
                 // TODO
             } else if (rest[1] === 'floatatom') {
                 node = rootPatch.addNode('pd/number');
                 node.move(parseInt(rest[2]), parseInt(rest[3]));
-                configureSymbol(node, rest.slice(4));
+                pdConfigureSymbol(node, rest.slice(4));
                 objects.push(node);
             } else if (rest[1] === 'symbolatom') {
                 node = rootPatch.addNode('pd/symbol');
                 node.move(parseInt(rest[2]), parseInt(rest[3]));
-                configureSymbol(node, rest.slice(4));
+                pdConfigureSymbol(node, rest.slice(4));
                 objects.push(node);
             } else if (rest[1] === 'msg') {
                 node = rootPatch.addNode('pd/message');
@@ -89,7 +89,7 @@ Rpd.import.pd = function(lines) {
                 } else {
                     node = rootPatch.addNode('pd/object');
                     node.move(parseInt(rest[2]), parseInt(rest[3]));
-                    configureObject(node, rest.slice(4));
+                    pdConfigureObjectNode(node, rest.slice(4));
                 }
                 objects.push(node || {});
 
@@ -99,18 +99,6 @@ Rpd.import.pd = function(lines) {
 
         }
     });
-}
-
-function connect(fromNode, inletId, toNode, outletId) {
-
-}
-
-function configureSymbol(node, conf) {
-
-}
-
-function configureObject(node, conf) {
-    //PdView.configureObjectNode(node, conf);
 }
 
 }(this));

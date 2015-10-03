@@ -119,7 +119,7 @@ Rpd.noderenderer('pd/object', 'svg', function() {
             view.addEditor(bodyElm, text.node(),
                            function(text) { // onSubmit
                                 rect.classed('rpd-pd-erratic',
-                                        !view.configureObjectNode(node, text));
+                                        !pdConfigureObjectNode(node, text.split(' ')));
                            });
             d3.select(bodyElm).call(function(body) {
                 body.append(rect.node());

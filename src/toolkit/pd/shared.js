@@ -93,18 +93,6 @@ var PdView = (function() {
              });
     }
 
-    PdView.prototype.configureObjectNode = function(node, text) {
-        var command = text.split(' ');
-        var definition = PdObject[command[0]];
-        if (!definition) return false;
-        var inlets = definition.inlets;
-        Object.keys(inlets).forEach(function(alias) {
-            node.addInlet(inlets[alias].type, alias);
-        });
-        PdNodeToObject[node.id] = definition.process;
-        return true;
-    }
-
     return PdView;
 
 })();
@@ -121,3 +109,22 @@ var PdObject = {
 };
 
 var PdNodeToObject = {};
+
+function pdConfigureObjectNode(node, command) {
+    var definition = PdObject[command[0]];
+    if (!definition) return false;
+    var inlets = definition.inlets;
+    Object.keys(inlets).forEach(function(alias) {
+        node.addInlet(inlets[alias].type, alias);
+    });
+    PdNodeToObject[node.id] = definition.process;
+    return true;
+}
+
+function pdConfigureSymbol() {
+
+}
+
+function pdConnect(fromNode, inletId, toNode, outletId) {
+
+}
