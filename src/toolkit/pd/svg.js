@@ -116,16 +116,19 @@ Rpd.noderenderer('pd/object', 'svg', function() {
             var text = d3.select(_createSvgElement('text'))
                          .attr('x', 2).attr('y', size.height / 2);
             view.addSelection(bodyElm);
-            view.addEditor(bodyElm, text.node(),
-                           function(text) { // onSubmit
-                                rect.classed('rpd-pd-erratic',
-                                        !pdConfigureObjectNode(node, text.split(' ')));
-                           });
-            d3.select(bodyElm).call(function(body) {
-                body.append(rect.node());
-                body.append(text.node());
+            view.addEditor(bodyElm, text.node(), function(value) {
+                PdEvent['object/request-resolve'].emit({
+                    node: node, command: value.split(' ')
+                });
             });
 
+            PdEvent['object/is-resolved'].filter(function(value) { return value.node.id === node.id; })
+                                         .onValue(function(value) { rect.classed('rpd-pd-erratic', value.definition); })
+
+            d3.select(bodyElm).call(function(body) {
+                 body.append(rect.node());
+                 body.append(text.node());
+            });
         }
     }
 });

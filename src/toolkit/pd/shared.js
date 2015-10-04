@@ -108,19 +108,6 @@ var PdObject = {
 
 };
 
-var PdNodeToObject = {};
-
-function pdConfigureObjectNode(node, command) {
-    var definition = PdObject[command[0]];
-    if (!definition) return false;
-    var inlets = definition.inlets;
-    Object.keys(inlets).forEach(function(alias) {
-        node.addInlet(inlets[alias].type, alias);
-    });
-    PdNodeToObject[node.id] = definition.process;
-    return true;
-}
-
 function pdConfigureSymbol() {
 
 }
@@ -128,3 +115,42 @@ function pdConfigureSymbol() {
 function pdConnect(fromNode, inletId, toNode, outletId) {
 
 }
+
+var PdEvent = {
+    // This event is emitted every time object node needs to be
+    // resolved, i.e. to determine if we know command it contains,
+    // emits PdObjectResolved event with a result, on each value.
+    // event is: { node: node, command: [] }
+    'object/request-resolve': Kefir.emitter(),
+    // This event is emitted every time object node got (or lost)
+    // the appropriate function, so the number of inlets/outlets
+    // changed and style should be changed as well.
+    // Renderer subscribes to this event.
+    // event is: { node: node,
+    //             command: [ command, params.. ],
+    //             definition: { inlets, outlets, process } }
+    //       or: { node: node,
+    //             command: [ command, params.. ],
+    //             definition: null }, if command wasn't succesfully parsed
+    'object/is-resolved': Kefir.emitter()
+};
+
+PdEvent['object/request-resolve'].map(function(value) {
+    return {
+        node: value.node, command: value.command,
+        definition: PdObject[value.command[0]] || null
+    };
+}).onValue(function(value) {
+    PdEvent['object/is-resolved'].emit(value);
+});
+
+PdEvent['object/is-resolved'].onValue(function(value) {
+    var node = value.node, command = value.command,
+        definition = value.definition;
+    if (!definition) return;
+    var inlets = definition.inlets;
+    Object.keys(inlets).forEach(function(alias) {
+        node.addInlet(inlets[alias].type, alias);
+    });
+    return true;
+})

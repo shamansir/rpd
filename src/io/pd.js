@@ -89,7 +89,9 @@ Rpd.import.pd = function(lines) {
                 } else {
                     node = rootPatch.addNode('pd/object');
                     node.move(parseInt(rest[2]), parseInt(rest[3]));
-                    pdConfigureObjectNode(node, rest.slice(4));
+                    PdEvent['object/request-resolve'].emit({
+                        node: node, command: rest.slice(4)
+                    });
                 }
                 objects.push(node || {});
 
