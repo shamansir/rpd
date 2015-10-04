@@ -859,4 +859,21 @@ describe('registration: node type', function() {
 
     });
 
+    it('could be specified as a single function which returns the defition and gets node instance', function() {
+        var definitionGenSpy = jasmine.createSpy('definition-generator')
+                                .and.callFake(function(node) { return { }; });
+
+        Rpd.nodetype('spec/foo', definitionGenSpy);
+
+        withNewPatch(function(patch, updateSpy) {
+            var firstNode = patch.addNode('spec/foo'),
+                secondNode = patch.addNode('spec/foo');
+
+            expect(definitionGenSpy).toHaveBeenCalled();
+            expect(definitionGenSpy).toHaveBeenCalledWith(firstNode);
+            expect(definitionGenSpy).toHaveBeenCalledWith(secondNode);
+
+        });
+    });
+
 });

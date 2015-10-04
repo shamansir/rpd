@@ -222,7 +222,7 @@ Patch.prototype.project = function(node) {
 function Node(type, patch, name, callback) {
     this.type = type || 'core/empty';
     this.id = short_uid();
-    var def = adapt_to_obj(nodetypes[this.type]);
+    var def = adapt_to_obj(nodetypes[this.type], this);
     if (!def) report_error('Node type ' + this.type + ' is not registered!');
     this.def = def;
 
@@ -386,7 +386,7 @@ Node.prototype.move = function(x, y) {
 function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
     this.type = type || 'core/any';
     this.id = short_uid();
-    var def = adapt_to_obj(channeltypes[this.type]);
+    var def = adapt_to_obj(channeltypes[this.type], this);
     if (!def) report_error('Inlet type ' + this.type + ' is not registered!');
     this.def = def;
 
@@ -439,7 +439,7 @@ Inlet.prototype.toDefault = function() {
 function Outlet(type, node, alias, name, _default) {
     this.type = type || 'core/any';
     this.id = short_uid();
-    var def = adapt_to_obj(channeltypes[this.type]);
+    var def = adapt_to_obj(channeltypes[this.type], this);
     if (!def) report_error('Outlet type ' + this.type + ' is not registered!');
     this.def = def;
 
@@ -511,7 +511,7 @@ Outlet.prototype.toDefault = function() {
 function Link(type, outlet, inlet, name) {
     this.type = type || 'core/pass';
     this.id = short_uid();
-    var def = adapt_to_obj(linktypes[this.type]);
+    var def = adapt_to_obj(linktypes[this.type], this);
     if (!def) report_error('Link type ' + this.type + ' is not registered!');
     this.def = def;
 

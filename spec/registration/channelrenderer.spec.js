@@ -203,9 +203,9 @@ describe('registration: channel renderer', function() {
 
         });
 
-        it('one could define a single function which is executed on every node creation and returns the renderer for that node', function() {
-
+        it('one could define a single function which is executed on every node creation, gets channel instance and returns the renderer for that node', function() {
             var renderers = {};
+
             var rendererGenSpy = jasmine.createSpy('renderer-generator')
                                         .and.callFake(function(channel) {
                 return (renderers[channel.name] = {

@@ -35,4 +35,25 @@ describe('registration: link type', function() {
         });
     });
 
+    it('could be specified as a single function which returns the defition and gets link instance', function() {
+        var definitionGenSpy = jasmine.createSpy('definition-generator')
+                                .and.callFake(function(link) {
+            return { };
+        });
+
+        Rpd.linktype('spec/foo', definitionGenSpy);
+
+        withNewPatch(function(patch, updateSpy) {
+            var firstNode = patch.addNode('spec/empty'),
+                secondNode = patch.addNode('spec/empty');
+            var inlet = secondNode.addInlet('spec/any', 'foo'),
+                outlet = firstNode.addOutlet('spec/any', 'foo');
+            var link = outlet.connect(inlet, 'spec/foo');
+
+            expect(definitionGenSpy).toHaveBeenCalled();
+            expect(definitionGenSpy).toHaveBeenCalledWith(link);
+
+        });
+    });
+
 });

@@ -144,7 +144,7 @@ describe('registration: node renderer', function() {
 
         });
 
-        it('one could define a single function which is executed on every node creation and returns the renderer for that node', function() {
+        it('one could define a single function which is executed on every node creation, gets node instance and returns the renderer for that node', function() {
 
             var renderers = {};
             var rendererGenSpy = jasmine.createSpy('renderer-generator')

@@ -205,4 +205,32 @@ describe('registration: channel type', function() {
 
     });
 
+    it('could be defined as a single function which is executed for every channel and gets channel instance', function() {
+        var definitionGenSpy = jasmine.createSpy('definition-generator')
+                                .and.callFake(function(channel) {
+            return { default: 12 };
+        });
+
+        Rpd.channeltype('spec/foo', definitionGenSpy);
+
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty');
+            var inletA = node.addInlet('spec/foo', 'fooA');
+            var inletB = node.addInlet('spec/foo', 'fooB');
+            var outlet = node.addOutlet('spec/foo', 'fooC');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'inlet/update',
+                                           value: 12 }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'outlet/update',
+                                           value: 12 }));
+
+            expect(definitionGenSpy).toHaveBeenCalledTimes(3);
+            expect(definitionGenSpy).toHaveBeenCalledWith(inletA);
+            expect(definitionGenSpy).toHaveBeenCalledWith(inletB);
+            expect(definitionGenSpy).toHaveBeenCalledWith(outlet);
+        });
+    });
+
 });
