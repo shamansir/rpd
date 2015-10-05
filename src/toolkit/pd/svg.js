@@ -111,7 +111,7 @@ Rpd.noderenderer('pd/object', 'svg', function() {
         first: function(bodyElm) {
             var node = this;
             var rect = d3.select(_createSvgElement('rect'))
-                         .classed('rpd-pd-erratic', !PdNodeToObject[node.id]);
+                         .classed('rpd-pd-erratic', true);
             rect.attr('width', size.width).attr('height', size.height);
             var text = d3.select(_createSvgElement('text'))
                          .attr('x', 2).attr('y', size.height / 2);
@@ -122,8 +122,12 @@ Rpd.noderenderer('pd/object', 'svg', function() {
                 });
             });
 
-            PdEvent['object/is-resolved'].filter(function(value) { return value.node.id === node.id; })
-                                         .onValue(function(value) { rect.classed('rpd-pd-erratic', value.definition); })
+            PdEvent['object/is-resolved'].filter(function(value) {
+                                             return value.node.id === node.id;
+                                         }).onValue(function(value) {
+                                             text.text(value.command.join(' '));
+                                             rect.classed('rpd-pd-erratic', !value.definition);
+                                         });
 
             d3.select(bodyElm).call(function(body) {
                  body.append(rect.node());
