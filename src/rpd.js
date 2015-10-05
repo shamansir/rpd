@@ -284,8 +284,8 @@ function Node(type, patch, name, callback) {
 
         ])
 
-        // do not fire any event until node is ready, then immediately fire them one by one, if any occured
-        // later events are fired after node/is-ready corresponding to their time of firing, as usual
+        // do not fire any event until node is ready, then immediately fire them one by one, if any occured;
+        // later events are fired after node/is-ready, corresponding to their time of firing, as usual
         process = process.bufferBy(this.event['node/is-ready']).take(1).flatten().concat(process);
 
         process = process.scan(function(storage, update) {

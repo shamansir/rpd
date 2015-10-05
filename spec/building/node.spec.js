@@ -107,7 +107,7 @@ describe('building: node', function() {
         });
     });
 
-    it('does not disconnect links, which were disconnected before', function() {
+    it('does not disconnect links on node removal, which were disconnected before', function() {
         withNewPatch(function(patch, updateSpy) {
             var nodeOne = patch.addNode('spec/empty');
             var nodeTwo = patch.addNode('spec/empty');

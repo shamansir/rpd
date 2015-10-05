@@ -349,6 +349,20 @@ return function(networkRoot, userConfig) {
             outletsTarget.append(outletElm.node());
         },
 
+        'node/remove-inlet': function() {
+
+        },
+
+        'node/remove-outlet': function() {
+            var outlet = update.outlet;
+
+            var nodeData = tree.nodes[update.node.id].data();
+
+            var outletsTarget = nodeData.outletsTarget;
+
+            outletsTarget.remove(tree.outlets[outlet.id]);
+        },
+
         'inlet/update': function(update) {
 
             var inlet = update.inlet;

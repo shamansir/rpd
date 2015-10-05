@@ -14,7 +14,7 @@ describe('building: inlet', function() {
         });
     });
 
-    it('informs it has been removed from a node', function() {
+    it('informs it has been removed from a node with an event', function() {
         withNewPatch(function(patch, updateSpy) {
 
             var node = patch.addNode('spec/empty');
@@ -184,6 +184,104 @@ describe('building: inlet', function() {
         });
 
 
+    });
+
+    it('disconnects all the links attached to the inlet after it was removed from a node', function() {
+        withNewPatch(function(patch, updateSpy) {
+
+            var nodeOne = patch.addNode('spec/empty');
+            var nodeTwo = patch.addNode('spec/empty');
+            var nodeThree = patch.addNode('spec/empty');
+
+            var outletOne = nodeOne.addOutlet('spec/any', 'one');
+            var outletTwo = nodeTwo.addOutlet('spec/any', 'two');
+            var inlet = nodeTwo.addInlet('spec/any', 'inlet');
+
+            outletOne.connect(inlet, 'spec/pass');
+            outletTwo.connect(inlet, 'spec/pass');
+
+            nodeTwo.removeInlet(inlet);
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'outlet/disconnect',
+                                           outlet: outletOne }));
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'outlet/disconnect',
+                                           outlet: outletTwo }));
+
+        });
+    });
+
+    it('fires disconnect events before the remove event', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var nodeOne = patch.addNode('spec/empty');
+            var nodeTwo = patch.addNode('spec/empty');
+
+            var outlet = nodeOne.addOutlet('spec/any', 'one');
+            var inlet = nodeTwo.addInlet('spec/any', 'one');
+
+            outlet.connect(inlet, 'spec/pass');
+
+            updateSpy.and.callFake(function(update) {
+                if (update.type === 'node/remove-inlet') {
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'outlet/disconnect' }));
+                }
+            });
+
+            nodeTwo.removeInlet(inlet);
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'node/remove-inlet' }));
+        });
+    });
+
+    it('does not disconnects same link twice on channel removal', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var nodeOne = patch.addNode('spec/empty');
+            var nodeTwo = patch.addNode('spec/empty');
+
+            var outlet = nodeOne.addOutlet('spec/any', 'one');
+            var inlet = nodeTwo.addInlet('spec/any', 'one');
+
+            var link = outlet.connect(inlet, 'spec/pass');
+
+            var deleteLinkSpy = jasmine.createSpy('delete-link-' + link.id);
+
+            updateSpy.and.callFake(function(update) {
+                if ((update.type === 'outlet/disconnect') &&
+                    (update.link.id === link.id)) {
+                    deleteLinkSpy();
+                }
+            });
+
+            nodeTwo.removeInlet(inlet);
+            nodeOne.removeOutlet(outlet);
+
+            expect(deleteLinkSpy).toHaveBeenCalledOnce();
+        });
+    });
+
+    it('does not disconnect links on inlet removal, which were disconnected before', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var nodeOne = patch.addNode('spec/empty');
+            var nodeTwo = patch.addNode('spec/empty');
+
+            var outlet = nodeOne.addOutlet('spec/any', 'one');
+            var inlet = nodeTwo.addInlet('spec/any', 'one');
+
+            var link = outlet.connect(inlet, 'spec/pass');
+            outlet.disconnect(link);
+
+            updateSpy.calls.reset();
+
+            nodeTwo.removeInlet(inlet);
+
+            expect(updateSpy).not.toHaveBeenCalledWith(jasmine.objectContaining({
+                type: 'outlet/disconnect',
+                link: link
+            }));
+        });
     });
 
 });
