@@ -352,6 +352,31 @@ return function(networkRoot, userConfig) {
             outletsTarget.append(outletElm.node());
         },
 
+        'node/remove-inlet': function(update) {
+            var inlet = update.inlet;
+            var inletData = tree.inlets[inlet.id].data();
+
+            if (inletData.vlink) inletData.vlink.get().disconnect();
+
+            tree.inlets[inlet.id].remove();
+
+            tree.inlets[inlet.id] = null;
+
+        },
+
+        'node/remove-outlet': function(update) {
+            var outlet = update.outlet;
+            var outletData = tree.outlets[outlet.id].data();
+
+            outletData.vlinks.forEach(function(vlink) {
+                vlink.get().disconnect();
+            });
+
+            tree.outlets[outlet.id].remove();
+
+            tree.outlets[outlet.id] = null;
+        },
+
         'inlet/update': function(update) {
 
             var inlet = update.inlet;
