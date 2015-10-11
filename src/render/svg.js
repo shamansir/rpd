@@ -21,7 +21,7 @@ var defaultConfig = {
 };
 
 // either use the full d3.js library or the super-tiny version provided with RPD
-var d3 = d3_tiny || d3;
+var d3 = d3 || d3_tiny;
 
 var Render = Rpd.Render; // everything common between renderers
 
@@ -196,7 +196,7 @@ return function(networkRoot, userConfig) {
                           },
                           drag: function(pos) {
                               nodeBox.attr('transform', 'translate(' + pos.x + ',' + pos.y + ')');
-                              nodeLinks.each(function(vlink) { vlink.update(); });
+                              nodeLinks.forEach(function(vlink) { vlink.update(); });
                           },
                           end: function(pos) {
                               node.move(pos.x, pos.y);
@@ -339,7 +339,7 @@ return function(networkRoot, userConfig) {
             tree.outlets[outlet.id] = outletElm.data({
                 connector: outletElm.select('.rpd-connector'),
                 value: outletElm.select('.rpd-value'),
-                vlinks: new VLinks(), // links associated with this outlet
+                vlinks: new VLinks() // links associated with this outlet
                 //position: outletPos
             });
 

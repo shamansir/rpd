@@ -28,7 +28,7 @@ var NODE_LAYER = 0, // normally, nodes are layed out below everything
     LINKDRAG_LAYER = 3; // dragged links are above normal nodes and their links, and also above dragged nodes
 
 // either use the full d3.js library or the super-tiny version provided with RPD
-var d3 = d3_tiny || d3;
+var d3 = d3 || d3_tiny;
 
 var Render = Rpd.Render; // everything common between renderers
 
@@ -182,7 +182,7 @@ return function(networkRoot, userConfig) {
                           drag: function(pos) {
                               nodeBox.style('left', pos.x + 'px');
                               nodeBox.style('top',  pos.y + 'px');
-                              nodeLinks.each(function(vlink) {
+                              nodeLinks.forEach(function(vlink) {
                                    vlink.element.style('z-index', LINKDRAG_LAYER);
                                    vlink.update();
                               });
@@ -191,7 +191,7 @@ return function(networkRoot, userConfig) {
                               node.move(pos.x, pos.y);
                               nodeBox.classed('rpd-dragging', false);
                               nodeBox.style('z-index', NODE_LAYER);
-                              nodeLinks.each(function(vlink) {
+                              nodeLinks.forEach(function(vlink) {
                                   vlink.element.style('z-index', LINK_LAYER);
                               });
                           }
@@ -705,18 +705,18 @@ function buildNodeList(root, nodeTypes, nodeDescriptions) {
         nodeTitleElements = {},
         nodeDescriptionElements = {};
 
-    for (var nodeType in nodeTypes) {
+    Object.keys(nodeTypes).forEach(function(nodeType) { // TODO: use d3.enter() here
         var typeId = nodeType.split('/');
         var toolkit = typeId[0]; var typeName = typeId[1];
         if (!toolkits[toolkit]) toolkits[toolkit] = {};
         toolkits[toolkit][typeName] = nodeTypes[nodeType];
-    }
+    });
 
     var listRoot = d3.select(document.createElement('dl')).attr('class', 'rpd-nodelist');
 
     var toolkitNodeTypes, typeDef;
 
-    for (var toolkit in toolkits) { // TODO: use d3.enter() here
+    Object.keys(toolkits).forEach(function(toolkit) { // TODO: use d3.enter() here
 
         var titleElm = listRoot.append('dd').attr('class', 'rpd-toolkit-name').text(toolkit);
 
@@ -735,7 +735,7 @@ function buildNodeList(root, nodeTypes, nodeDescriptions) {
                 .call(function(dl) {
                     var toolkit = dl.data().toolkit,
                         toolkitNodeTypes = dl.data().nodeTypes;
-                    for (var typeName in toolkitNodeTypes) { // TODO: use d3.enter() here
+                    Object.keys(toolkitNodeTypes).forEach(function(typeName) { // TODO: use d3.enter() here
                         var nodeType = toolkit + '/' + typeName;
 
                         // node type title
@@ -760,10 +760,10 @@ function buildNodeList(root, nodeTypes, nodeDescriptions) {
                                                function() { descElm.classed('rpd-collapsed', true) },
                                                function() { descElm.classed('rpd-collapsed', false); });
                                        });
-                    }
+                    });
                 });
 
-    }
+    });
 
     root.append(listRoot.node());
 
