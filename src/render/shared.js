@@ -106,7 +106,7 @@ function VLinks() {
 VLinks.prototype.clear = function() { this.vlinks = {}; }
 VLinks.prototype.add = function(vlink) { this.vlinks[vlink.link.id] = vlink; }
 VLinks.prototype.remove = function(vlink) {
-    this.vlinks[vlink.link.id] = null;
+    if (this.vlinks[vlink.link.id]) this.vlinks[vlink.link.id] = null;
 }
 VLinks.prototype.forEach = function(f) {
     var vlinks = this.vlinks;

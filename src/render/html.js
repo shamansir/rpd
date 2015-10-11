@@ -253,6 +253,10 @@ return function(networkRoot, userConfig) {
 
             var nodeBox = tree.nodes[node.id];
 
+            tree.nodeToLinks[node.id].forEach(function(vlink) {
+                vlink.get().disconnect();
+            });
+
             nodeBox.remove();
             if (style.onNodeRemove) style.onNodeRemove(node);
 
@@ -686,6 +690,9 @@ VLink.prototype.enable = function() {
 }
 VLink.prototype.disable = function() {
     this.element.classed('rpd-disabled', true);
+}
+VLink.prototype.get = function() {
+    return this.link;
 }
 
 // =============================================================================

@@ -247,6 +247,10 @@ return function(networkRoot, userConfig) {
 
             var nodeBox = tree.nodes[node.id];
 
+            tree.nodeToLinks[node.id].forEach(function(vlink) {
+                vlink.get().disconnect();
+            });
+
             nodeBox.remove();
             if (style.onNodeRemove) style.onNodeRemove(node);
 
@@ -349,18 +353,29 @@ return function(networkRoot, userConfig) {
             outletsTarget.append(outletElm.node());
         },
 
-        'node/remove-inlet': function() {
+        'node/remove-inlet': function(update) {
+            var inlet = update.inlet;
+            var inletData = tree.inlets[inlet.id].data();
+
+            if (inletData.vlink) inletData.vlink.get().disconnect();
+
+            tree.inlets[inlet.id].remove();
+
+            tree.inlets[inlet.id] = null;
 
         },
 
-        'node/remove-outlet': function() {
+        'node/remove-outlet': function(update) {
             var outlet = update.outlet;
+            var outletData = tree.outlets[outlet.id].data();
 
-            var nodeData = tree.nodes[update.node.id].data();
+            outletData.vlinks.forEach(function(vlink) {
+                vlink.get().disconnect();
+            });
 
-            var outletsTarget = nodeData.outletsTarget;
+            tree.outlets[outlet.id].remove();
 
-            outletsTarget.remove(tree.outlets[outlet.id]);
+            tree.outlets[outlet.id] = null;
         },
 
         'inlet/update': function(update) {
@@ -699,6 +714,9 @@ VLink.prototype.enable = function() {
 }
 VLink.prototype.disable = function() {
     this.element.classed('rpd-disabled', true);
+}
+VLink.prototype.get = function() {
+    return this.link;
 }
 
 // =============================================================================
