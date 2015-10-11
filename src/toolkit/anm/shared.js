@@ -67,6 +67,8 @@ Spread.is = function(val, type) {
 Spread.join = function(spreads, res_type, map_fn) {
     return new Spread(res_type, function() {
 
+        // the only for-loops left in a code, instead of forEach (#212)
+
         for (var i = 0; i < spreads.length; i++) {
             if (!spreads[i] || spreads[i].empty()) return function() { return Spread.STOP; };
         }

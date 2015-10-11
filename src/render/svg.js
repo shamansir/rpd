@@ -21,7 +21,7 @@ var defaultConfig = {
 };
 
 // either use the full d3.js library or the super-tiny version provided with RPD
-var d3 = d3_tiny || d3;
+var d3 = d3 || d3_tiny;
 
 var Render = Rpd.Render; // everything common between renderers
 
@@ -196,7 +196,7 @@ return function(networkRoot, userConfig) {
                           },
                           drag: function(pos) {
                               nodeBox.attr('transform', 'translate(' + pos.x + ',' + pos.y + ')');
-                              nodeLinks.each(function(vlink) { vlink.update(); });
+                              nodeLinks.forEach(function(vlink) { vlink.update(); });
                           },
                           end: function(pos) {
                               node.move(pos.x, pos.y);
@@ -246,6 +246,10 @@ return function(networkRoot, userConfig) {
             var node = update.node;
 
             var nodeBox = tree.nodes[node.id];
+
+            tree.nodeToLinks[node.id].forEach(function(vlink) {
+                vlink.get().disconnect();
+            });
 
             nodeBox.remove();
             if (style.onNodeRemove) style.onNodeRemove(node);
@@ -339,7 +343,7 @@ return function(networkRoot, userConfig) {
             tree.outlets[outlet.id] = outletElm.data({
                 connector: outletElm.select('.rpd-connector'),
                 value: outletElm.select('.rpd-value'),
-                vlinks: new VLinks(), // links associated with this outlet
+                vlinks: new VLinks() // links associated with this outlet
                 //position: outletPos
             });
 
@@ -347,6 +351,31 @@ return function(networkRoot, userConfig) {
             connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
 
             outletsTarget.append(outletElm.node());
+        },
+
+        'node/remove-inlet': function(update) {
+            var inlet = update.inlet;
+            var inletData = tree.inlets[inlet.id].data();
+
+            if (inletData.vlink) inletData.vlink.get().disconnect();
+
+            tree.inlets[inlet.id].remove();
+
+            tree.inlets[inlet.id] = null;
+
+        },
+
+        'node/remove-outlet': function(update) {
+            var outlet = update.outlet;
+            var outletData = tree.outlets[outlet.id].data();
+
+            outletData.vlinks.forEach(function(vlink) {
+                vlink.get().disconnect();
+            });
+
+            tree.outlets[outlet.id].remove();
+
+            tree.outlets[outlet.id] = null;
         },
 
         'inlet/update': function(update) {
@@ -685,6 +714,9 @@ VLink.prototype.enable = function() {
 }
 VLink.prototype.disable = function() {
     this.element.classed('rpd-disabled', true);
+}
+VLink.prototype.get = function() {
+    return this.link;
 }
 
 // =============================================================================

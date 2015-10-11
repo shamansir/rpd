@@ -116,41 +116,65 @@ function pdConnect(fromNode, inletId, toNode, outletId) {
 
 }
 
-var PdEvent = {
-    // This event is emitted every time object node needs to be
-    // resolved, i.e. to determine if we know command it contains,
-    // emits PdObjectResolved event with a result, on each value.
-    // event is: { node: node, command: [] }
-    'object/request-resolve': Kefir.emitter(),
-    // This event is emitted every time object node got (or lost)
-    // the appropriate function, so the number of inlets/outlets
-    // changed and style should be changed as well.
-    // Renderer subscribes to this event.
-    // event is: { node: node,
-    //             command: [ command, params.. ],
-    //             definition: { inlets, outlets, process } }
-    //       or: { node: node,
-    //             command: [ command, params.. ],
-    //             definition: null }, if command wasn't succesfully parsed
-    'object/is-resolved': Kefir.emitter()
-};
+var __resolveEmitter
 
-PdEvent['object/request-resolve'].map(function(value) {
-    return {
-        node: value.node, command: value.command,
-        definition: PdObject[value.command[0]] || null
+var PdEvent = (function() {
+    var requestResolveEmitter = Kefir.emitter();
+    var isResolvedEmitter = Kefir.emitter();
+
+    var events = {
+        // This event is emitted every time object node needs to be
+        // resolved, i.e. to determine if we know command it contains,
+        // emits PdObjectResolved event with a result, on each value.
+        // event is: { node: node, command: [] }
+        'object/request-resolve': requestResolveEmitter,
+        // This event is emitted every time object node got (or lost)
+        // the appropriate function, so the number of inlets/outlets
+        // changed and style should be changed as well.
+        // Renderer subscribes to this event.
+        // event is: { node: node,
+        //             command: [ command, params.. ],
+        //             definition: { inlets, outlets, process } }
+        //       or: { node: node,
+        //             command: [ command, params.. ],
+        //             definition: null }, if command wasn't succesfully parsed
+        'object/is-resolved': isResolvedEmitter.toProperty()
     };
-}).onValue(function(value) {
-    PdEvent['object/is-resolved'].emit(value);
-});
 
-PdEvent['object/is-resolved'].onValue(function(value) {
-    var node = value.node, command = value.command,
-        definition = value.definition;
-    if (!definition) return;
-    var inlets = definition.inlets;
-    Object.keys(inlets).forEach(function(alias) {
-        node.addInlet(inlets[alias].type, alias);
+    requestResolveEmitter.map(function(value) {
+        return {
+            node: value.node, command: value.command,
+            definition: PdObject[value.command[0]] || null
+        };
+    }).onValue(function(value) {
+        isResolvedEmitter.emit(value);
     });
-    return true;
-})
+
+    var nodeToInlets = {}, nodeToOutlets = {};
+    isResolvedEmitter.onValue(function(value) {
+        var node = value.node, command = value.command,
+            definition = value.definition;
+        if (nodeToInlets[node.id]) {
+            nodeToInlets[node.id].forEach(function(inlet) { node.removeInlet(inlet); });
+            nodeToInlets[node.id] = null;
+        }
+        if (nodeToOutlets[node.id]) {
+            nodeToOutlets[node.id].forEach(function(outlet) { node.removeOutlet(outlet); });
+            nodeToOutlets[node.id] = null;
+        }
+        if (!definition) return;
+        var inlets = definition.inlets || {}, oultets = definition.outlets || {};
+        var savedInlets = [], savedOutlets = [];
+        Object.keys(inlets).forEach(function(alias) {
+            savedInlets.push(node.addInlet(inlets[alias].type, alias));
+        });
+        Object.keys(oultets).forEach(function(alias) {
+            savedOutlets.push(node.addOutlet(oultets[alias].type, alias));
+        });
+        nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
+        nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
+    });
+
+    return events;
+
+})();

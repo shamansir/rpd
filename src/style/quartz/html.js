@@ -4,8 +4,6 @@ var d3 = d3 || d3_tiny;
 
 return {
 
-    defaultContentSize: { width: 100, height: 40 },
-
     edgePadding: { horizontal: 30, vertical: 20 },
     boxPadding:  { horizontal: 20, vertical: 30 },
 
@@ -71,8 +69,8 @@ return {
 
         return {
             element: nodeElm.node(),
-            size: render.size ? { width: render.size.width || 30, height: render.size.height || 20 }
-                              : { width: 30, height: 20 }
+            size: render.size ? { width: render.size.width || 70, height: render.size.height || 30 }
+                              : { width: 70, height: 30 }
         };
 
     },

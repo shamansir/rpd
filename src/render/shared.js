@@ -106,16 +106,16 @@ function VLinks() {
 VLinks.prototype.clear = function() { this.vlinks = {}; }
 VLinks.prototype.add = function(vlink) { this.vlinks[vlink.link.id] = vlink; }
 VLinks.prototype.remove = function(vlink) {
-    this.vlinks[vlink.link.id] = null;
+    if (this.vlinks[vlink.link.id]) this.vlinks[vlink.link.id] = null;
 }
-VLinks.prototype.each = function(f) {
+VLinks.prototype.forEach = function(f) {
     var vlinks = this.vlinks;
-    for (var id in vlinks) {
+    Object.keys(vlinks).forEach(function(id) {
         if (vlinks[id]) f(vlinks[id]);
-    }
+    });
 }
 VLinks.prototype.updateAll = function() {
-    this.each(function(vlink) { vlink.update(); });
+    this.forEach(function(vlink) { vlink.update(); });
 }
 
 // =============================================================================
@@ -125,8 +125,8 @@ VLinks.prototype.updateAll = function() {
 function mergeConfig(user_conf, defaults) {
     if (user_conf) {
         var merged = {};
-        for (var prop in defaults)  { merged[prop] = defaults[prop]; }
-        for (var prop in user_conf) { merged[prop] = user_conf[prop]; }
+        Object.keys(defaults).forEach(function(prop) { merged[prop] = defaults[prop]; });
+        Object.keys(user_conf).forEach(function(prop) { merged[prop] = user_conf[prop]; });
         return merged;
     } else return defaults;
 }
@@ -184,7 +184,7 @@ var addValueUpdateEffect = (function() {
 
 function subscribeUpdates(node, subscriptions) {
     if (!subscriptions) return;
-    for (var alias in subscriptions) {
+    Object.keys(subscriptions).forEach(function(alias) {
         (function(subscription, alias) {
             node.event['node/add-inlet']
                 .filter(function(inlet) { return inlet.alias === alias; })
@@ -199,7 +199,7 @@ function subscribeUpdates(node, subscriptions) {
                     });
                 });
         })(subscriptions[alias], alias);
-    }
+    });
 }
 
 return {

@@ -156,35 +156,6 @@ Patch.prototype.addNode = function(type, name) {
     var patch = this;
 
     var node = new Node(type, this, name, function(node) {
-        // disconnect every link belonging to this node before removing the node itself
-        // FIXME: move to Patch constructor
-        Kefir.merge([ patch.events.filter(function(update) {
-                                      return (update.type === 'outlet/connect'); })
-                                  .filter(function(update) {
-                                      return (update.outlet.node === node) || (update.inlet.node === node); }),
-                      patch.events.filter(function(update) {
-                                      return (update.type === 'outlet/disconnect'); })
-                                  .filter(function(update) {
-                                      return (update.link.outlet.node === node) || (update.link.inlet.node === node); }) ])
-             .scan(function(storage, update) {
-                 storage[update.outlet.id] = (update.type === 'outlet/connect') ? update : null;
-                 return storage; }, {})
-             .takeUntilBy(patch.nodesToRemove
-                               .filter(function(rnode) { return (rnode.id === node.id); })).last()
-             .onValue(function(storage) {
-                    var outlets = Object.keys(storage);
-                    var update;
-                    for (var i = 0, il = outlets.length; i < il; i++) {
-                        if (update = storage[outlets[i]]) {
-                            update.outlet.disconnect(update.link);
-                        }
-                    }
-                })
-             .onEnd(function() {
-                 node.turnOff();
-                 patch.event['patch/remove-node'].emit(node);
-             });
-
         patch.events.plug(node.events);
         patch.event['patch/add-node'].emit(node);
 
@@ -194,7 +165,8 @@ Patch.prototype.addNode = function(type, name) {
     return node;
 }
 Patch.prototype.removeNode = function(node) {
-    this.nodesToRemove.emit(node); // see addNode for a handling code
+    node.turnOff();
+    this.event['patch/remove-node'].emit(node);
     this.events.unplug(node.events);
 }
 Patch.prototype.enter = function() {
@@ -284,8 +256,8 @@ function Node(type, patch, name, callback) {
 
         ])
 
-        // do not fire any event until node is ready, then immediately fire them one by one, if any occured
-        // later events are fired after node/is-ready corresponding to their time of firing, as usual
+        // do not fire any event until node is ready, then immediately fire them one by one, if any occured;
+        // later events are fired after node/is-ready, corresponding to their time of firing, as usual
         process = process.bufferBy(this.event['node/is-ready']).take(1).flatten().concat(process);
 
         process = process.scan(function(storage, update) {
@@ -355,6 +327,9 @@ Node.prototype.turnOff = function() {
 Node.prototype.addInlet = function(type, alias, name, _default, hidden, readonly, cold) {
     var inlet = new Inlet(type, this, alias, name, _default, hidden, readonly, cold);
     this.events.plug(inlet.events);
+
+    //this.events['outlet/connect'].filter(function(update) { return update.inlet.id === inlet.id; })
+
     this.event['node/add-inlet'].emit(inlet);
     inlet.toDefault();
     return inlet;

@@ -47,9 +47,9 @@ Rpd.import.json = function(json) {
 
     var commands = json.commands;
 
-    for (var i = 0; i < commands.length; i++) {
-        if (spec[commands[i].command]) spec[commands[i].command](commands[i]);
-    }
+    commands.forEach(function(command) {
+        if (command.event) spec[command.event](command);
+    });
 }
 
 // ================================= EXPORT =================================
@@ -57,76 +57,76 @@ Rpd.import.json = function(json) {
 var exportSpec = {
     'network/add-patch': function(update) {
         var patch = update.patch;
-        return { command: 'network/add-patch', patchName: patch.name, patchId: patch.id };
+        return { event: 'network/add-patch', patchName: patch.name, patchId: patch.id };
     },
     'patch/enter': function(update) {
-        return { command: 'patch/enter', patchId: update.patch.id };
+        return { event: 'patch/enter', patchId: update.patch.id };
     },
     'patch/exit': function(update) {
-        return { command: 'patch/exit', patchId: update.patch.id };
+        return { event: 'patch/exit', patchId: update.patch.id };
     },
     'patch/set-inputs': function(update) {
         var patch = update.patch;
         var srcInputs = update.inputs,
             inputs = [];
-        for (var i = 0; i < srcInputs.length; i++) { inputs.push(srcInputs[i].id); }
-        return { command: 'patch/set-inputs', patchId: update.patch.id, inputs: inputs };
+        srcInputs.forEach(function(srcInput) { inputs.push(srcInput.id); });
+        return { event: 'patch/set-inputs', patchId: update.patch.id, inputs: inputs };
     },
     'patch/set-outputs': function(update) {
         var patch = update.patch;
         var srcOutputs = update.outputs,
             outputs = [];
-        for (var i = 0; i < srcOutputs.length; i++) { outputs.push(srcOutputs[i].id); }
-        return { command: 'patch/set-outputs', patchId: update.patch.id, outputs: outputs };
+        srcOutputs.forEach(function(srcOutput) { outputs.push(srcOutput.id); });
+        return { event: 'patch/set-outputs', patchId: update.patch.id, outputs: outputs };
     },
     'patch/project': function(update) {
-        return { command: 'patch/project', patchId: update.patch.id, targetPatchId: update.target.id, nodeId: update.node.id };
+        return { event: 'patch/project', patchId: update.patch.id, targetPatchId: update.target.id, nodeId: update.node.id };
     },
     'patch/add-node': function(update) {
         var node = update.node;
-        return { command: 'patch/add-node', patchId: node.patch.id, nodeType: node.type, nodeName: node.name, nodeId: node.id };
+        return { event: 'patch/add-node', patchId: node.patch.id, nodeType: node.type, nodeName: node.name, nodeId: node.id };
     },
     'patch/remove-node': function(update) {
-        return { command: 'patch/remove-node', patchId: update.patch.id, nodeId: update.node.id };
+        return { event: 'patch/remove-node', patchId: update.patch.id, nodeId: update.node.id };
     },
     'node/turn-on': function(update) {
-        return { command: 'node/turn-on', nodeId: update.node.id };
+        return { event: 'node/turn-on', nodeId: update.node.id };
     },
     'node/turn-off': function(update) {
-        return { command: 'node/turn-off', nodeId: update.node.id };
+        return { event: 'node/turn-off', nodeId: update.node.id };
     },
     'node/add-inlet': function(update) {
         var inlet = update.inlet;
-        return { command: 'node/add-inlet', nodeId: update.node.id, inletId: inlet.id,
+        return { event: 'node/add-inlet', nodeId: update.node.id, inletId: inlet.id,
                  inletType: inlet.type, inletAlias: inlet.alias, inletName: inlet.name };
     },
     'node/remove-inlet': function(update) {
-        return { command: 'node/remove-inlet', nodeId: update.node.id, inletId: update.inlet.id };
+        return { event: 'node/remove-inlet', nodeId: update.node.id, inletId: update.inlet.id };
     },
     'node/add-outlet': function(update) {
         var outlet = update.outlet;
-        return { command: 'node/add-outlet', nodeId: update.node.id, outletId: outlet.id,
+        return { event: 'node/add-outlet', nodeId: update.node.id, outletId: outlet.id,
                  outletType: outlet.type, outletAlias: outlet.alias, outletName: outlet.name };
     },
     'node/remove-outlet': function(update) {
-        return { command: 'node/remove-outlet', nodeId: update.node.id, outletId: update.outlet.id };
+        return { event: 'node/remove-outlet', nodeId: update.node.id, outletId: update.outlet.id };
     },
     'node/move': function(update) {
-        return { command: 'node/move', nodeId: update.node.id, position: update.position };
+        return { event: 'node/move', nodeId: update.node.id, position: update.position };
     },
     'outlet/connect': function(update) {
         var link = update.link;
-        return { command: 'outlet/connect', outletId: update.outlet.id, inletId: update.inlet.id,
+        return { event: 'outlet/connect', outletId: update.outlet.id, inletId: update.inlet.id,
                  linkType: link.type, linkId: link.id };
     },
     'outlet/disconnect': function(update) {
-        return { command: 'outlet/disconnect', outletId: update.outlet.id, linkId: update.link.id };
+        return { event: 'outlet/disconnect', outletId: update.outlet.id, linkId: update.link.id };
     },
     'link/enable': function(update) {
-        return { command: 'link/enable', linkId: update.link.id };
+        return { event: 'link/enable', linkId: update.link.id };
     },
     'link/disable': function(update) {
-        return { command: 'link/disable', linkId: update.link.id };
+        return { event: 'link/disable', linkId: update.link.id };
     }
 };
 
@@ -152,17 +152,17 @@ function makeImportSpec() {
         'patch/set-inputs': function(command) {
             var inputs = command.inputs,
                 inputsTrg = [];
-            for (var i = 0; i < inputs.length; i++) {
-                inputsTrg.push(inlets[inputs[i]]);
-            }
+            inputs.forEach(function(input) {
+                inputsTrg.push(inlets[input]);
+            });
             patches[command.patchId].inputs(inputsTrg);
         },
         'patch/set-outputs': function(command) {
             var outputs = command.outputs,
                 outputsTrg = [];
-            for (var i = 0; i < outputs.length; i++) {
-                outputsTrg.push(outlets[outputs[i]]);
-            }
+            outputs.forEach(function(output) {
+                outputsTrg.push(outlets[output]);
+            });
             patches[command.patchId].outputs(outputsTrg);
         },
         'patch/project': function(command) {

@@ -107,20 +107,16 @@ return {
         }
 
         function recalculateSockets() {
-            var inletElm;
-            for (var i = 0, il = inletElms.length; i < il; i++) {
-                inletElm = inletElms[i];
-                var inletPos = findInletPos(i);
+            inletElms.forEach(function(inletElm, idx) {
+                var inletPos = findInletPos(idx);
                 inletElm.attr('transform',  'translate(' + inletPos.x + ',' + inletPos.y + ')');
                 //inletElm.data().position = inletPos;
-            }
-            var outletElm;
-            for (var i = 0, il = outletElms.length; i < il; i++) {
-                outletElm = outletElms[i];
-                var outletPos = findOutletPos(i);
+            });
+            outletElms.forEach(function(outletElm, idx) {
+                var outletPos = findOutletPos(idx);
                 outletElm.attr('transform',  'translate(' + outletPos.x + ',' + outletPos.y + ')');
                 //outletElm.data().position = outletPos;
-            }
+            });
         }
 
         function notifyNewInlet(elm) {

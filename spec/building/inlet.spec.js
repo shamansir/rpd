@@ -14,7 +14,7 @@ describe('building: inlet', function() {
         });
     });
 
-    it('informs it has been removed from a node', function() {
+    it('informs it has been removed from a node with an event', function() {
         withNewPatch(function(patch, updateSpy) {
 
             var node = patch.addNode('spec/empty');
