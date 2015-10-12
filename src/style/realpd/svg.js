@@ -20,10 +20,10 @@ return function(config) {
 return {
 
     createRoot: function(patch, parent) {
-        return {
-            element: d3.select(_createSvgElement('g'))
-                       .classed('rpd-patch', true).node()
-        };
+        var root = d3.select(_createSvgElement('g'))
+                     .classed('rpd-patch', true).node()
+        if (config.showToolbar) buildToolbar(root);
+        return { element: root };
     },
 
     createNode: function(node, render, description) {
@@ -85,5 +85,9 @@ return {
 
 
 };
+
+function buildToolbar(root) {
+    //var group = d3.select(_createSvgElement('g'));
+}
 
 } })());

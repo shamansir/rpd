@@ -2,6 +2,9 @@ var PdView = (function() {
 
     var d3 = d3 || d3_tiny;
 
+    var ƒ = Rpd.unit,
+        not = Rpd.not;
+
     var stopPropagation = Rpd.Render.stopPropagation;
 
     var editorNode;
@@ -12,9 +15,12 @@ var PdView = (function() {
     var startSelection = Kefir.emitter(),
         finishSelection = Kefir.emitter();
 
-    var editMode = true;
+    var editModeOn = Kefir.emitter(),
+        editModeOff = Kefir.emitter();
 
     function PdView(defaultSize) {
+        this.inEditMode = Kefir.merge([ editModeOn.map(ƒ(true)),
+                                        editModeOff.map(ƒ(false)) ]).toProperty(ƒ(false));
         editorNode = d3.select(document.createElement('input'))
                            .attr('type', 'text')
                            .attr('class', 'rpd-pd-text-editor')
@@ -31,6 +37,7 @@ var PdView = (function() {
 
     PdView.prototype.addSelection = function(selectNode) {
         Kefir.fromEvents(selectNode, 'click')
+             .filterBy(this.inEditMode.map(not))
              .map(stopPropagation)
              .onValue(function() {
 
@@ -54,6 +61,7 @@ var PdView = (function() {
         var text = d3.select(textNode);
         var editor = d3.select(editorNode);
         Kefir.fromEvents(selectNode, 'click')
+             .filterBy(this.inEditMode.map(not))
              .map(stopPropagation)
              .map(function() { return text.text(); })
              .onValue(function(textValue) {
@@ -115,8 +123,6 @@ function pdConfigureSymbol() {
 function pdConnect(fromNode, inletId, toNode, outletId) {
 
 }
-
-var __resolveEmitter
 
 var PdEvent = (function() {
     var requestResolveEmitter = Kefir.emitter();

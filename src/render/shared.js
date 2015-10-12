@@ -1,7 +1,6 @@
 Rpd.Render = (function() {
 
-var ƒ = Rpd.unit,
-    invertValue = Rpd.not;
+var ƒ = Rpd.unit;
 
 // =============================================================================
 // ============================ Navigation =====================================
@@ -149,7 +148,7 @@ function addClickSwitch(elm, on_true, on_false, initial) {
     Kefir.fromEvents(elm, 'click')
          .map(stopPropagation)
          .map(ƒ(initial || false))
-         .scan(invertValue)  // will toggle between `true` and `false`
+         .scan(Rpd.not)  // will toggle between `true` and `false`
          .onValue(function(val) {
              if (val) { on_true(); }
              else { on_false(); }

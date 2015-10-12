@@ -1,7 +1,6 @@
 (function() {
 
-var ƒ = Rpd.unit,
-    invertValue = Rpd.not;
+var ƒ = Rpd.unit;
 
 var defaultConfig = {
     style: 'quartz',
