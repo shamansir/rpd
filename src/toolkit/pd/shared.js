@@ -103,11 +103,20 @@ var PdView = (function() {
 
     PdView.prototype.addEditModeSwitch = function(switchNode, targetNode) {
         Kefir.fromEvents(switchNode, 'click')
+             .map(stopPropagation)
              .map(ƒ(true))
              .scan(Rpd.not) // will toggle between `true` and `false`
              .onValue(function(val) {
                  if (val) { editModeOn.emit(); } else { editModeOff.emit(); };
                  d3.select(targetNode).classed('rpd-pd-enabled', val);
+             });
+    }
+
+    PdView.prototype.addNodeAppender = function(buttonNode, nodeType, targetPatch) {
+        Kefir.fromEvents(buttonNode, 'click')
+             .map(stopPropagation)
+             .onValue(function() {
+                 targetPatch.addNode(nodeType);
              });
     }
 
@@ -124,6 +133,25 @@ var PdObject = {
         }
     }
 
+};
+
+var PdNodeMap = {
+    'Object':  'pd/object',
+    'Message': 'pd/message',
+    'Number':  'pd/number',
+    'Symbol':  'pd/symbol',
+    'Comment': 'pd/text',
+    'Bang':    'pd/bang',
+    'Toggle':  'pd/toggle',
+    'Number2': null /*'pd/number-2'*/,
+    'VSlider': null /*'pd/vslider'*/,
+    'HSlider': null /*'pd/hslider'*/,
+    'VRadio':  null /*'pd/vradio'*/,
+    'HRadio':  null /*'pd/hradio'*/,
+    'VUMeter': null /*'pd/vumeter'*/,
+    'Canvas':  null /*'pd/canvas'*/,
+    'Graph':   null /*'pd/graph'*/,
+    'Array':   null /*'pd/array'*/
 };
 
 function pdConfigureSymbol() {

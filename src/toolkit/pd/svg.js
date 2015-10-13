@@ -173,18 +173,23 @@ Rpd.noderenderer('pd/bang', 'svg', function() {
     }
 });
 
-Rpd.noderenderer('pd/toolbar', 'svg', function() {
+Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
+    var mWidth = 300,
+        mHeight = 70;
     return {
+        size: { width: mWidth + 100,
+                height: mHeight },
         first: function(bodyElm) {
             var group = d3.select(_createSvgElement('g'))
-                          .classed('rpd-pd-toolbar', true);
+                          .classed('rpd-pd-toolbar-group', true);
             group.append('rect').classed('rpd-pd-toolbar-border', true)
-                                .attr('height', 30).attr('width', 100)
+                                .attr('height', mHeight).attr('width', mWidth + 100)
                                 .attr('rx', 5).attr('ry', 5);
 
             // edit mode switch
             group.append('g').call(function(editGroup) {
-                editGroup.attr('transform', 'translate(12, 15)').classed('rpd-pd-edit-mode', true);
+                editGroup.attr('transform', 'translate(12, ' + (mHeight / 2) + ')')
+                         .classed('rpd-pd-edit-mode', true);
                 var outerCircle = d3.select(_createSvgElement('circle')).attr('r', 7);
                 var innerCircle = d3.select(_createSvgElement('circle')).attr('r', 5);
                 editGroup.append(outerCircle.node());
@@ -193,6 +198,26 @@ Rpd.noderenderer('pd/toolbar', 'svg', function() {
                 editGroup.append(text.node());
                 view.addEditModeSwitch(outerCircle.node(), editGroup.node());
                 view.addEditModeSwitch(text.node(), editGroup.node());
+            });
+
+            // node buttons
+            group.append('g').call(function(buttons) {
+                buttons.attr('transform', 'translate(95, 0)')
+                       .classed('rpd-pd-buttons', true);
+                var bWidth = mWidth / 4,
+                    bHeight = mHeight / 4;
+                var xPos, yPos;
+                Object.keys(PdNodeMap).forEach(function(name, idx) {
+                    xPos = (idx % 4) * bWidth;
+                    yPos = (Math.floor(idx / 4)) * bHeight;
+                    var button = d3.select(_createSvgElement('g'))
+                                   .attr('transform', 'translate(' + xPos + ',' + yPos + ')')
+                                   .classed('rpd-pd-accessible', PdNodeMap[name] ? true : false);
+                    button.append('rect').attr('width', bWidth).attr('height', bHeight);
+                    button.append('text').attr('x', 10).attr('y', bHeight / 2).text(name);
+                    if (PdNodeMap[name]) view.addNodeAppender(button.node(), PdNodeMap[name], node.patch);
+                    buttons.append(button.node());
+                });
             });
 
             d3.select(bodyElm).append(group.node());

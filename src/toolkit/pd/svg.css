@@ -73,8 +73,14 @@
     fill: blue;
 }
 
-.rpd-pd-toolbar.rpd-dragging * {
+.rpd-pd-toolbar.rpd-dragging circle,
+.rpd-pd-toolbar.rpd-dragging rect {
     stroke: gray;
+}
+
+.rpd-pd-toolbar.rpd-dragging text,
+.rpd-pd-toolbar.rpd-dragging .rpd-pd-buttons .rpd-pd-accessible text {
+    fill: gray;
 }
 
 .rpd-pd-toolbar .rpd-pd-edit-mode circle:nth-child(2) {
@@ -92,4 +98,20 @@
 
 .rpd-pd-toolbar .rpd-pd-edit-mode.rpd-pd-enabled text {
     fill: black;
+}
+
+.rpd-pd-toolbar .rpd-pd-buttons text {
+    fill: gray;
+}
+
+.rpd-pd-toolbar .rpd-pd-buttons .rpd-pd-accessible text {
+    fill: black;
+}
+
+.rpd-pd-toolbar .rpd-pd-buttons .rpd-pd-accessible:hover rect {
+    fill: black;
+}
+
+.rpd-pd-toolbar .rpd-pd-buttons .rpd-pd-accessible:hover text {
+    fill: white;
 }

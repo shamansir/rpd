@@ -1,10 +1,5 @@
 Rpd.style('realpd', 'svg', (function() {
 
-// we need this root to be shared between all instances of a function below,
-// it is used to measure node header width, since it contains text, we need
-// some hidden element to measure string width in pixels
-var lastRoot;
-
 var d3 = d3 || d3_tiny;
 
 var socketPadding = 10; // distance between inlets/outlets in SVG units
@@ -78,7 +73,7 @@ return {
     },
 
     onPatchSwitch: function(patch, root) {
-        lastRoot = d3.select(root);
+        //lastRoot = d3.select(root);
     }
 
 };
