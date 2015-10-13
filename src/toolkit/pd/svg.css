@@ -72,3 +72,24 @@
 .rpd-outlet .rpd-connector:hover {
     fill: blue;
 }
+
+.rpd-pd-toolbar.rpd-dragging * {
+    stroke: gray;
+}
+
+.rpd-pd-toolbar .rpd-pd-edit-mode circle:nth-child(2) {
+    fill: transparent;
+}
+
+.rpd-pd-toolbar .rpd-pd-edit-mode text {
+    fill: gray;
+    font-size: 0.5em;
+}
+
+.rpd-pd-toolbar .rpd-pd-edit-mode.rpd-pd-enabled circle:nth-child(2) {
+    fill: black;
+}
+
+.rpd-pd-toolbar .rpd-pd-edit-mode.rpd-pd-enabled text {
+    fill: black;
+}

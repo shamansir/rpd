@@ -42,3 +42,5 @@ Rpd.nodetype('pd/toggle', {
     inlets: { 'receive': { type: 'pd/msg' } },
     outlets: { 'send': { type: 'pd/msg' } }
 });
+
+Rpd.nodetype('pd/toolbar', {});

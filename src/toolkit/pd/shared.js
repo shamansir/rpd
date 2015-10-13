@@ -91,13 +91,23 @@ var PdView = (function() {
                           text.text(value);
                           editor.node().value = '';
                           editor.style('display', 'none')
-                                .classed('rpd-selected', false);
+                                .classed('rpd-pd-selected', false);
                           text.style('display', 'block');
 
                           finishEditing.emit();
 
                           if (onSubmit) onSubmit(value);
                       });
+             });
+    }
+
+    PdView.prototype.addEditModeSwitch = function(switchNode, targetNode) {
+        Kefir.fromEvents(switchNode, 'click')
+             .map(ƒ(true))
+             .scan(Rpd.not) // will toggle between `true` and `false`
+             .onValue(function(val) {
+                 if (val) { editModeOn.emit(); } else { editModeOff.emit(); };
+                 d3.select(targetNode).classed('rpd-pd-enabled', val);
              });
     }
 

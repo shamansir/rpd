@@ -29,7 +29,6 @@ Rpd.noderenderer('pd/number', 'svg', function() {
                 body.append(path.node());
                 body.append(text.node());
             });
-
         }
     }
 });
@@ -172,6 +171,33 @@ Rpd.noderenderer('pd/bang', 'svg', function() {
 
         }
     }
+});
+
+Rpd.noderenderer('pd/toolbar', 'svg', function() {
+    return {
+        first: function(bodyElm) {
+            var group = d3.select(_createSvgElement('g'))
+                          .classed('rpd-pd-toolbar', true);
+            group.append('rect').classed('rpd-pd-toolbar-border', true)
+                                .attr('height', 30).attr('width', 100)
+                                .attr('rx', 5).attr('ry', 5);
+
+            // edit mode switch
+            group.append('g').call(function(editGroup) {
+                editGroup.attr('transform', 'translate(12, 15)').classed('rpd-pd-edit-mode', true);
+                var outerCircle = d3.select(_createSvgElement('circle')).attr('r', 7);
+                var innerCircle = d3.select(_createSvgElement('circle')).attr('r', 5);
+                editGroup.append(outerCircle.node());
+                editGroup.append(innerCircle.node()).style('pointer-events', 'none');
+                var text = d3.select(_createSvgElement('text')).attr('x', 10).text('Edit mode');
+                editGroup.append(text.node());
+                view.addEditModeSwitch(outerCircle.node(), editGroup.node());
+                view.addEditModeSwitch(text.node(), editGroup.node());
+            });
+
+            d3.select(bodyElm).append(group.node());
+        }
+    };
 });
 
 })();
