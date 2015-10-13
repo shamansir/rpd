@@ -12,3 +12,8 @@
     stroke-width: 1;
     stroke: black;
 }
+
+.rpd-inlet .rpd-connector:hover,
+.rpd-outlet .rpd-connector:hover {
+    cursor: url(connector-cursor-16.png) 8 8, cell;
+}
