@@ -116,6 +116,9 @@ VLinks.prototype.forEach = function(f) {
 VLinks.prototype.updateAll = function() {
     this.forEach(function(vlink) { vlink.update(); });
 }
+VLinks.prototype.count = function() {
+    return Object.keys(vlinks).length;
+}
 
 // =============================================================================
 // =============================== helpers =====================================

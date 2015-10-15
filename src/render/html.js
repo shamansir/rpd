@@ -17,6 +17,8 @@ var defaultConfig = {
     renderNodeList: true,
     // is node list collapsed by default, if shown
     nodeListCollapsed: true,
+    // only one connection is allowed to inlet (infinite, if false)
+    inletHasOneLink: true,
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
 };
@@ -313,7 +315,7 @@ return function(networkRoot, userConfig) {
             tree.inlets[inlet.id] = inletElm.data({
                 connector: inletElm.select('.rpd-connector'),
                 value: inletElm.select('.rpd-value'),
-                vlink: null, // a link associated with this inlet
+                vlinks: new VLinks(), // links associated with this inlet
                 editor: editor
             });
 
@@ -356,7 +358,9 @@ return function(networkRoot, userConfig) {
             var inlet = update.inlet;
             var inletData = tree.inlets[inlet.id].data();
 
-            if (inletData.vlink) inletData.vlink.get().disconnect();
+            inletData.vlinks.forEach(function(vlink) {
+                vlink.get().disconnect();
+            });
 
             tree.inlets[inlet.id].remove();
 
@@ -432,7 +436,9 @@ return function(networkRoot, userConfig) {
             var outletData = outletElm.data();
             var inletData  = inletElm.data();
 
-            if (inletData.vlink) throw new Error('Inlet is already connected to a link');
+            if (config.inletHasOneLink && (inletData.vlinks.count() === 1)) {
+                throw new Error('Inlet is already connected to a link');
+            }
 
             // disable value editor when connecting to inlet
             if (inletData.editor) inletData.editor.disable();
@@ -449,10 +455,12 @@ return function(networkRoot, userConfig) {
 
             tree.links[link.id] = vlink;
             outletData.vlinks.add(vlink);
-            inletData.vlink = vlink;
+            inletData.vlinks.add(vlink);
 
             tree.nodeToLinks[outlet.node.id].add(vlink);
-            tree.nodeToLinks[inlet.node.id].add(vlink);
+            if (outlet.node.id !== inlet.node.id) {
+                tree.nodeToLinks[inlet.node.id].add(vlink);
+            }
             tree.patchToLinks[patch.id].add(vlink);
 
             vlink.listenForClicks();
@@ -475,10 +483,12 @@ return function(networkRoot, userConfig) {
             // forget all references
             tree.links[link.id] = null;
             outletData.vlinks.remove(vlink);
-            inletData.vlink = null;
+            inletData.vlinks.remove(vlink);
 
             tree.nodeToLinks[outlet.node.id].remove(vlink);
-            tree.nodeToLinks[inlet.node.id].remove(vlink);
+            if (outlet.node.id !== inlet.node.id) {
+                tree.nodeToLinks[inlet.node.id].remove(vlink);
+            }
             tree.patchToLinks[patch.id].remove(vlink);
 
             // remove link element
@@ -536,9 +546,10 @@ var Connectivity = (function() {
         return tree.outlets[outlet.id].data().connector;
     }
 
-    function Connectivity(root, style) {
+    function Connectivity(root, style, config) {
         this.root = root;
         this.style = style;
+        this.config = config;
 
         this.rootClicks = Kefir.fromEvents(this.root.node(), 'click');
         this.inletClicks = Kefir.pool(),
@@ -550,7 +561,7 @@ var Connectivity = (function() {
     }
     Connectivity.prototype.subscribeOutlet = function(outlet, connector) {
 
-        var root = this.root; var style = this.style;
+        var root = this.root; var style = this.style; var config = this.config;
         var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
         var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
 
@@ -600,7 +611,7 @@ var Connectivity = (function() {
     };
     Connectivity.prototype.subscribeInlet = function(inlet, connector) {
 
-        var root = this.root; var style = this.style;
+        var root = this.root; var style = this.style; var config = this.config;
         var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
         var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
 
