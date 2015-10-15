@@ -100,24 +100,26 @@ DragAndDrop.prototype.add = function(handle, spec) {
 function VLinks() {
     // VLink instances
     // VLink implementation is currently custom for every renderer
-    this.vlinks = {};
+    this.vlinks = [];
 }
-VLinks.prototype.clear = function() { this.vlinks = {}; }
-VLinks.prototype.add = function(vlink) { this.vlinks[vlink.link.id] = vlink; }
+VLinks.prototype.clear = function() { this.vlinks = []; }
+VLinks.prototype.add = function(vlink) { this.vlinks.push(vlink); }
 VLinks.prototype.remove = function(vlink) {
-    if (this.vlinks[vlink.link.id]) this.vlinks[vlink.link.id] = null;
+    this.vlinks = this.vlinks.filter(function(my_vlink) {
+        return my_vlink !== vlink;
+    });
 }
 VLinks.prototype.forEach = function(f) {
-    var vlinks = this.vlinks;
-    Object.keys(vlinks).forEach(function(id) {
-        if (vlinks[id]) f(vlinks[id]);
-    });
+    this.vlinks.forEach(f);
 }
 VLinks.prototype.updateAll = function() {
     this.forEach(function(vlink) { vlink.update(); });
 }
 VLinks.prototype.count = function() {
-    return Object.keys(vlinks).length;
+    return this.vlinks.length;
+}
+VLinks.prototype.getLast = function() {
+    return this.count() ? this.vlinks[this.vlinks.length - 1] : null;
 }
 
 // =============================================================================

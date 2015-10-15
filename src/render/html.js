@@ -17,8 +17,8 @@ var defaultConfig = {
     renderNodeList: true,
     // is node list collapsed by default, if shown
     nodeListCollapsed: true,
-    // only one connection is allowed to inlet (infinite, if false)
-    inletHasOneLink: true,
+    // only one connection is allowed to inlet by default
+    inletAcceptsMultipleLinks: false,
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
 };
@@ -93,7 +93,7 @@ return function(networkRoot, userConfig) {
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
             // links if they were clicked in the appropriate order
-            connectivity = new /*Render.*/Connectivity(root, style);
+            connectivity = new /*Render.*/Connectivity(root, style, config);
 
             // initialized drag-n-drop support (used to allow user drag nodes)
             if (config.nodeMovingAllowed) dnd = new Render.DragAndDrop(root);
@@ -436,7 +436,7 @@ return function(networkRoot, userConfig) {
             var outletData = outletElm.data();
             var inletData  = inletElm.data();
 
-            if (config.inletHasOneLink && (inletData.vlinks.count() === 1)) {
+            if (!config.inletAcceptsMultipleLinks && (inletData.vlinks.count() === 1)) {
                 throw new Error('Inlet is already connected to a link');
             }
 
@@ -533,17 +533,31 @@ function awaiting(a, b) {
 
 var Connectivity = (function() {
 
-    function getLink(inlet) {
-        var inletData = tree.inlets[inlet.id].data();
-        return inletData.vlink ? inletData.vlink.link : null;
+    function getLinks(inlet) {
+        return tree.inlets[inlet.id].data().vlinks;
     }
-    function hasLink(inlet) {
+    function hasLinks(inlet) {
         return function() {
-            return getLink(inlet);
-        };
-    };
+            return (getLinks(inlet).count() > 0);
+        }
+    }
     function getConnector(outlet) {
         return tree.outlets[outlet.id].data().connector;
+    }
+    function removeExistingLink(inletLinks) {
+        if (inletLinks.count() === 1) {
+            // cases when .count() > 1 should never happen in this case
+            var prevLink = inletLinks.getLast().link,
+                otherOutlet = prevLink.outlet;
+            otherOutlet.disconnect(prevLink);
+        }
+    }
+    function removeConnectionsToOutlet(inletLinks, outlet) {
+        inletLinks.forEach(function(vlink) {
+            if (vlink.link.outlet.id === outlet.id) {
+                outlet.disconnect(vlink.link);
+            }
+        });
     }
 
     function Connectivity(root, style, config) {
@@ -592,11 +606,10 @@ var Connectivity = (function() {
                                         .onValue(function(success) {
                                             if (!success) return;
                                             var inlet = success.target,
-                                                prevLink = getLink(inlet);
-                                            if (prevLink) {
-                                                var otherOutlet = prevLink.outlet;
-                                                otherOutlet.disconnect(prevLink);
-                                            }
+                                                inletLinks = getLinks(inlet);
+                                            if (config.inletAcceptsMultipleLinks) {
+                                                removeConnectionsToOutlet(inletLinks, outlet);
+                                            } else { removeExistingLink(inletLinks); }
                                             outlet.connect(inlet);
                                         }))
                       .map(extractPos)
@@ -630,11 +643,11 @@ var Connectivity = (function() {
         Kefir.fromEvents(connector.node(), 'click')
              .map(stopPropagation)
              .filterBy(awaiting(inletClicks, doingLink))
-             .filter(hasLink(inlet))
+             .filter(hasLinks(inlet))
              .onValue(function(pos) {
-                 var prevLink = getLink(inlet);
-                 var outlet = prevLink.outlet;
-                 outlet.disconnect(prevLink);
+                 var lastLink = getLinks(inlet).getLast().link;
+                 var outlet = lastLink.outlet;
+                 outlet.disconnect(lastLink);
                  startLink.emit();
                  var pivot = getPos(getConnector(outlet).node());
                  var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
@@ -647,11 +660,10 @@ var Connectivity = (function() {
                                         .onValue(function(success) {
                                             if (!success) return;
                                             var otherInlet = success.target,
-                                                prevLink = getLink(otherInlet);
-                                            if (prevLink) {
-                                                var otherOutlet = prevLink.outlet;
-                                                otherOutlet.disconnect(prevLink);
-                                            }
+                                                otherInletLinks = getLinks(otherInlet);
+                                            if (config.inletAcceptsMultipleLinks) {
+                                                removeConnectionsToOutlet(otherInletLinks, outlet);
+                                            } else { removeExistingLink(otherInletLinks); }
                                             outlet.connect(otherInlet);
                                         }))
                       .map(extractPos)
