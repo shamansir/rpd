@@ -15,6 +15,8 @@ var defaultConfig = {
     renderNodeList: true,
     // is node list collapsed by default, if shown
     nodeListCollapsed: true,
+    // only one connection is allowed to inlet by default
+    inletAcceptsMultipleLinks: false,
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
 };
@@ -98,7 +100,7 @@ return function(networkRoot, userConfig) {
 
             // initialize connectivity module, it listens for clicks on outlets and inlets and builds or removes
             // links if they were clicked in the appropriate order
-            connectivity = new /*Render.*/Connectivity(svg, style);
+            connectivity = new /*Render.*/Connectivity(svg, style, config);
 
             // initialized drag-n-drop support (used to allow user drag nodes)
             if (config.nodeMovingAllowed) dnd = new Render.DragAndDrop(svg);
@@ -309,7 +311,7 @@ return function(networkRoot, userConfig) {
             tree.inlets[inlet.id] = inletElm.data({
                 connector: inletElm.select('.rpd-connector'),
                 value: inletElm.select('.rpd-value'),
-                vlink: null, // a link associated with this inlet
+                vlinks: new VLinks(), // links associated with this inlet
                 editor: editor,
                 //position: inletPos
             });
@@ -356,7 +358,9 @@ return function(networkRoot, userConfig) {
             var inlet = update.inlet;
             var inletData = tree.inlets[inlet.id].data();
 
-            if (inletData.vlink) inletData.vlink.get().disconnect();
+            inletData.vlinks.forEach(function(vlink) {
+                vlink.get().disconnect();
+            });
 
             tree.inlets[inlet.id].remove();
 
@@ -432,7 +436,9 @@ return function(networkRoot, userConfig) {
             var outletData = outletElm.data();
             var inletData  = inletElm.data();
 
-            if (inletData.vlink) throw new Error('Inlet is already connected to a link');
+            if (!config.inletAcceptsMultipleLinks && (inletData.vlinks.count() === 1)) {
+                throw new Error('Inlet is already connected to a link');
+            }
 
             // disable value editor when connecting to inlet
             if (inletData.editor) inletData.editor.disable();
@@ -451,7 +457,9 @@ return function(networkRoot, userConfig) {
             inletData.vlink = vlink;
 
             tree.nodeToLinks[outlet.node.id].add(vlink);
-            tree.nodeToLinks[inlet.node.id].add(vlink);
+            if (outlet.node.id !== inlet.node.id) {
+                tree.nodeToLinks[inlet.node.id].add(vlink);
+            }
             tree.patchToLinks[patch.id].add(vlink);
 
             vlink.listenForClicks();
@@ -474,10 +482,12 @@ return function(networkRoot, userConfig) {
             // forget all references
             tree.links[link.id] = null;
             outletData.vlinks.remove(vlink);
-            inletData.vlink = null;
+            inletData.vlinks.remove(vlink);
 
             tree.nodeToLinks[outlet.node.id].remove(vlink);
-            tree.nodeToLinks[inlet.node.id].remove(vlink);
+            if (outlet.node.id !== inlet.node.id) {
+                tree.nodeToLinks[inlet.node.id].remove(vlink);
+            }
             tree.patchToLinks[patch.id].remove(vlink);
 
             // remove link element
@@ -522,22 +532,37 @@ function awaiting(a, b) {
 
 var Connectivity = (function() {
 
-    function getLink(inlet) {
-        var inletData = tree.inlets[inlet.id].data();
-        return inletData.vlink ? inletData.vlink.link : null;
+    function getLinks(inlet) {
+        return tree.inlets[inlet.id].data().vlinks;
     }
-    function hasLink(inlet) {
+    function hasLinks(inlet) {
         return function() {
-            return getLink(inlet);
-        };
-    };
+            return (getLinks(inlet).count() > 0);
+        }
+    }
     function getConnector(outlet) {
         return tree.outlets[outlet.id].data().connector;
     }
+    function removeExistingLink(inletLinks) {
+        if (inletLinks.count() === 1) {
+            // cases when .count() > 1 should never happen in this case
+            var prevLink = inletLinks.getLast().link,
+                otherOutlet = prevLink.outlet;
+            otherOutlet.disconnect(prevLink);
+        }
+    }
+    function removeConnectionsToOutlet(inletLinks, outlet) {
+        inletLinks.forEach(function(vlink) {
+            if (vlink.link.outlet.id === outlet.id) {
+                outlet.disconnect(vlink.link);
+            }
+        });
+    }
 
-    function Connectivity(root, style) {
+    function Connectivity(root, style, config) {
         this.root = root;
         this.style = style;
+        this.config = config;
 
         this.rootClicks = Kefir.fromEvents(this.root.node(), 'click');
         this.inletClicks = Kefir.pool(),
@@ -549,7 +574,7 @@ var Connectivity = (function() {
     }
     Connectivity.prototype.subscribeOutlet = function(outlet, connector) {
 
-        var root = this.root; var style = this.style;
+        var root = this.root; var style = this.style; var config = this.config;
         var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
         var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
 
@@ -580,11 +605,10 @@ var Connectivity = (function() {
                                         .onValue(function(success) {
                                             if (!success) return;
                                             var inlet = success.target,
-                                                prevLink = getLink(inlet);
-                                            if (prevLink) {
-                                                var otherOutlet = prevLink.outlet;
-                                                otherOutlet.disconnect(prevLink);
-                                            }
+                                                inletLinks = getLinks(inlet);
+                                            if (config.inletAcceptsMultipleLinks) {
+                                                removeConnectionsToOutlet(inletLinks, outlet);
+                                            } else { removeExistingLink(inletLinks); }
                                             outlet.connect(inlet);
                                         }))
                       .map(extractPos)
@@ -599,7 +623,7 @@ var Connectivity = (function() {
     };
     Connectivity.prototype.subscribeInlet = function(inlet, connector) {
 
-        var root = this.root; var style = this.style;
+        var root = this.root; var style = this.style; var config = this.config;
         var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
         var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
 
@@ -620,9 +644,9 @@ var Connectivity = (function() {
              .filterBy(awaiting(inletClicks, doingLink))
              .filter(hasLink(inlet))
              .onValue(function(pos) {
-                 var prevLink = getLink(inlet);
-                 var outlet = prevLink.outlet;
-                 outlet.disconnect(prevLink);
+                 var lastLink = getLinks(inlet).getLast().link;
+                 var outlet = lastLink.outlet;
+                 outlet.disconnect(lastLink);
                  startLink.emit();
                  var pivot = incrementPos(getPos(getConnector(outlet).node()), 3);
                  var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
@@ -635,11 +659,10 @@ var Connectivity = (function() {
                                         .onValue(function(success) {
                                             if (!success) return;
                                             var otherInlet = success.target,
-                                                prevLink = getLink(otherInlet);
-                                            if (prevLink) {
-                                                var otherOutlet = prevLink.outlet;
-                                                otherOutlet.disconnect(prevLink);
-                                            }
+                                                otherInletLinks = getLinks(otherInlet);
+                                            if (config.inletAcceptsMultipleLinks) {
+                                                removeConnectionsToOutlet(otherInletLinks, outlet);
+                                            } else { removeExistingLink(otherInletLinks); }
                                             outlet.connect(otherInlet);
                                         }))
                       .map(extractPos)
