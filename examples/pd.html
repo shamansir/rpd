@@ -43,7 +43,8 @@
 
     <body>
         <script>
-            Rpd.render('svg', document.body, { style: 'realpd', showToolbar: true });
+            Rpd.render('svg', document.body, { style: 'realpd',
+                                               inletAcceptsMultipleLinks: true });
 
             var root = Rpd.addPatch('root').enter();
 

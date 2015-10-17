@@ -454,7 +454,7 @@ return function(networkRoot, userConfig) {
 
             tree.links[link.id] = vlink;
             outletData.vlinks.add(vlink);
-            inletData.vlink = vlink;
+            inletData.vlinks.add(vlink);
 
             tree.nodeToLinks[outlet.node.id].add(vlink);
             if (outlet.node.id !== inlet.node.id) {
@@ -642,7 +642,7 @@ var Connectivity = (function() {
         Kefir.fromEvents(connector.node(), 'click')
              .map(stopPropagation)
              .filterBy(awaiting(inletClicks, doingLink))
-             .filter(hasLink(inlet))
+             .filter(hasLinks(inlet))
              .onValue(function(pos) {
                  var lastLink = getLinks(inlet).getLast().link;
                  var outlet = lastLink.outlet;

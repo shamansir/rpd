@@ -77,7 +77,8 @@
                 textarea = document.getElementById('pd-code'),
                 loadCode = document.getElementById('load-pd-code');
 
-            Rpd.render('svg', target, { style: 'realpd' });
+            Rpd.render('svg', target, { style: 'realpd',
+                                        inletAcceptsMultipleLinks: true });
 
             textarea.value = localStorage.getItem('last_contents');
 
