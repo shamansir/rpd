@@ -194,19 +194,21 @@ var PdEvent = (function() {
         isResolvedEmitter.emit(value);
     });
 
-    var nodeToInlets = {}, nodeToOutlets = {};
+    var nodeToInlets = {}, nodeToOutlets = {}, nodeToCommand = {};
     isResolvedEmitter.onValue(function(value) {
         var node = value.node, command = value.command,
             definition = value.definition;
-        if (nodeToInlets[node.id]) {
+        var commandChanged = !definition || !(nodeToCommand[node.id] && (command[0] === nodeToCommand[node.id]));
+        if (commandChanged && nodeToInlets[node.id]) {
             nodeToInlets[node.id].forEach(function(inlet) { node.removeInlet(inlet); });
             nodeToInlets[node.id] = null;
         }
-        if (nodeToOutlets[node.id]) {
+        if (commandChanged && nodeToOutlets[node.id]) {
             nodeToOutlets[node.id].forEach(function(outlet) { node.removeOutlet(outlet); });
             nodeToOutlets[node.id] = null;
         }
-        if (!definition) return;
+        nodeToCommand[node.id] = command[0] || null;
+        if (!definition || !commandChanged) return;
         var inlets = definition.inlets || {}, oultets = definition.outlets || {};
         var savedInlets = [], savedOutlets = [];
         Object.keys(inlets).forEach(function(alias) {
