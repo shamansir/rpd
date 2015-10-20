@@ -158,10 +158,6 @@ function pdConfigureSymbol() {
 
 }
 
-function pdConnect(fromNode, inletId, toNode, outletId) {
-
-}
-
 var PdEvent = (function() {
     var requestResolveEmitter = Kefir.emitter();
     var isResolvedEmitter = Kefir.emitter();

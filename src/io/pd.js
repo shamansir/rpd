@@ -26,7 +26,31 @@ Rpd.import.pd = function(lines) {
     var objects = [],
         arrays = [];
 
+    var nodeToInlets = {},
+        nodeToOutlets = {};
+
     var rootPatch = Rpd.addPatch('PD').enter();
+
+    function pushInlet(update) {
+        if (!nodeToInlets[update.node.id]) nodeToInlets[update.node.id] = [];
+        nodeToInlets[update.node.id].push(update.inlet);
+    }
+    function pushOutlet(update) {
+        if (!nodeToOutlets[update.node.id]) nodeToOutlets[update.node.id] = [];
+        nodeToOutlets[update.node.id].push(update.outlet);
+    }
+    function popInlet(update) { nodeToInlets[update.node.id].pop(); }
+    function popOutlet(update) { nodeToOutlets[update.node.id].pop(); }
+
+    function eventIs(type) { return function(event) { return event.type === type; } };
+
+    var addInletStream = rootPatch.events.filter(eventIs('node/add-inlet'))
+                                         .filter(function(event) { return !event.inlet.hidden; });
+    var addOutletStream = rootPatch.events.filter(eventIs('node/add-outlet'));
+    var removeInletStream = rootPatch.events.filter(eventIs('node/remove-inlet'));
+    var removeOutletStream = rootPatch.events.filter(eventIs('node/remove-outlet'));
+    addInletStream.onValue(pushInlet); addOutletStream.onValue(pushOutlet);
+    removeInletStream.onValue(popInlet); removeOutletStream.onValue(popOutlet);
 
     var node;
 
@@ -40,8 +64,11 @@ Rpd.import.pd = function(lines) {
         } else if (rest[0] === 'X') {
 
             if (rest[1] === 'connect') {
-                pdConnect(objects[rest[2]], rest[3],
-                          objects[rest[4]], rest[5]);
+                var fromNode = objects[rest[2]],
+                    toNode = objects[rest[4]],
+                    outlet = nodeToOutlets[fromNode.id][rest[3]],
+                    inlet = nodeToInlets[toNode.id][rest[5]];
+                outlet.connect(inlet);
             } else if (rest[1] === 'restore') {
                 // TODO
             } else if (rest[1] === 'floatatom') {
@@ -101,6 +128,10 @@ Rpd.import.pd = function(lines) {
 
         }
     });
+
+    addInletStream.offValue(pushInlet); addOutletStream.offValue(pushOutlet);
+    removeInletStream.offValue(popInlet); removeOutletStream.offValue(popOutlet);
+
 }
 
 }(this));
