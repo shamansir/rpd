@@ -229,4 +229,24 @@ Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
     };
 });
 
+Rpd.noderenderer('pd/edit-switch', 'svg', function(node) {
+    return {
+        first: function(bodyElm) {
+            var group = d3.select(_createSvgElement('g'))
+                          .classed('rpd-pd-edit-switch-group', true);
+
+            var outerCircle = d3.select(_createSvgElement('circle')).attr('r', 7);
+            var innerCircle = d3.select(_createSvgElement('circle')).attr('r', 5);
+            group.append(outerCircle.node());
+            group.append(innerCircle.node()).style('pointer-events', 'none');
+            var text = d3.select(_createSvgElement('text')).attr('x', 10).text('Edit mode');
+            group.append(text.node());
+            view.addEditModeSwitch(outerCircle.node(), group.node());
+            view.addEditModeSwitch(text.node(), group.node());
+
+            d3.select(bodyElm).append(group.node());
+        }
+    }
+})
+
 })();

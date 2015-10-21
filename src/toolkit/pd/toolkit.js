@@ -53,3 +53,5 @@ Rpd.nodetype('pd/toggle', {
 });
 
 Rpd.nodetype('pd/toolbar', {});
+
+Rpd.nodetype('pd/edit-switch', {});

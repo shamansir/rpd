@@ -85,7 +85,8 @@
             loadCode.addEventListener('click', function() {
                 //target.innerHtml = '';
                 localStorage.setItem('last_contents', textarea.value);
-                Rpd.import.pd(textarea.value);
+                var importedPatch = Rpd.import.pd(textarea.value);
+                if (importedPatch) importedPatch.addNode('pd/edit-switch');
             });
 
 

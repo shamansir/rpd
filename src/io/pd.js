@@ -132,6 +132,8 @@ Rpd.import.pd = function(lines) {
     addInletStream.offValue(pushInlet); addOutletStream.offValue(pushOutlet);
     removeInletStream.offValue(popInlet); removeOutletStream.offValue(popOutlet);
 
+    return rootPatch;
+
 }
 
 }(this));
