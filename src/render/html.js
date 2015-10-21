@@ -392,11 +392,14 @@ return function(networkRoot, userConfig) {
             var inletElm = tree.inlets[inlet.id];
             var valueElm = inletElm.data().value;
 
-            var valueRepr = inlet.def.show ? inlet.def.show(update.value) : update.value;
-            if (render.show) {
-                render.show.bind(inlet)(valueElm.node(), update.value, valueRepr);
-            } else {
-                valueElm.text(valueRepr);
+            if (!valueElm.empty()) {
+                var valueRepr = inlet.def.show ? inlet.def.show(update.value)
+                                               : update.value;
+                if (render.show) {
+                    render.show.bind(inlet)(valueElm.node(), update.value, valueRepr);
+                } else {
+                    valueElm.text(valueRepr);
+                }
             }
 
             // adds `rpd-fresh` CSS class and removes it by timeout
@@ -412,11 +415,14 @@ return function(networkRoot, userConfig) {
             var outletElm = tree.outlets[outlet.id];
             var valueElm = outletElm.data().value;
 
-            var valueRepr = outlet.def.show ? outlet.def.show(update.value) : update.value;
-            if (render.show) {
-                render.show.bind(outlet)(valueElm.node(), update.value, valueRepr);
-            } else {
-                valueElm.text(valueRepr);
+            if (!valueElm.empty()) {
+                var valueRepr = outlet.def.show ? outlet.def.show(update.value)
+                                                : update.value;
+                if (render.show) {
+                    render.show.bind(outlet)(valueElm.node(), update.value, valueRepr);
+                } else {
+                    valueElm.text(valueRepr);
+                }
             }
 
             // adds `rpd-fresh` CSS class and removes it by timeout

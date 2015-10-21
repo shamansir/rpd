@@ -120,6 +120,21 @@ var PdView = (function() {
              });
     }
 
+    PdView.prototype.addMessageSend = function(messageNode, message, getValue) {
+        var styleTimeout;
+        Kefir.fromEvents(messageNode, 'click')
+             .filterBy(this.inEditMode)
+             .map(stopPropagation)
+             .onValue(function() {
+                 if (styleTimeout) clearTimeout(styleTimeout);
+                 d3.select(messageNode).classed('rpd-pd-send-value', true);
+                 styleTimeout = setTimeout(function() {
+                     d3.select(messageNode).classed('rpd-pd-send-value', false);
+                 }, 300);
+                 message.inlets['receive'].receive(getValue());
+             });
+    }
+
     return PdView;
 
 })();
@@ -129,7 +144,7 @@ var PdObject = {
     'print': {
         inlets: { 'what': { type: 'pd/msg' } },
         process: function(inlets) {
-            if (console) console.log(inlets.what);
+            if (console) console.log('print:', inlets.what);
         }
     }
 

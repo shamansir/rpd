@@ -5,11 +5,14 @@ Rpd.channeltype('pd/msg', { });
 Rpd.nodetype('pd/object', function(node) {
     var _process;
     PdEvent['object/is-resolved'].filter(function(value) { return value.node.id === node.id; })
-                                 .onValue(function(value) { _process = value.definition; });
+                                 .onValue(function(value) {
+                                     _process = value.definition ? value.definition.process
+                                                                 : null;
+                                 });
     return {
         inlets: { 'command': { type: 'pd/msg', hidden: true } },
         process: function() {
-            return _process ? _process.call(this, arguments) : null;
+            return _process ? _process.apply(this, arguments) : null;
         }
     }
 });
@@ -30,7 +33,10 @@ Rpd.nodetype('pd/symbol', {
 
 Rpd.nodetype('pd/message', {
     inlets: { 'receive': { type: 'pd/msg' } },
-    outlets: { 'send': { type: 'pd/msg' } }
+    outlets: { 'send': { type: 'pd/msg' } },
+    process: function(inlets) {
+        return  { 'send': inlets['receive'] };
+    }
 });
 
 Rpd.nodetype('pd/bang', {

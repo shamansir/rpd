@@ -115,3 +115,8 @@
 .rpd-pd-toolbar .rpd-pd-buttons .rpd-pd-accessible:hover text {
     fill: white;
 }
+
+.rpd-pd-message .rpd-pd-send-value path {
+    stroke-width: 2px;
+    stroke: #ccc;
+}

@@ -60,6 +60,7 @@ Rpd.noderenderer('pd/symbol', 'svg', function() {
 Rpd.noderenderer('pd/message', 'svg', function() {
     var path, text;
     var size = defaultSize;
+    var lastValue = '';
     return {
         size: size,
         first: function(bodyElm) {
@@ -71,8 +72,10 @@ Rpd.noderenderer('pd/message', 'svg', function() {
                                 'h ' + (-size.width) + ' v ' + (-size.height) + ' z');
             text = d3.select(_createSvgElement('text'))
                      .attr('x', 2).attr('y', size.height / 2);
-            text.text('foobar');
-            view.addSelection(bodyElm); view.addEditor(bodyElm, text.node());
+            text.text(lastValue);
+            view.addSelection(bodyElm);
+            view.addEditor(bodyElm, text.node(), function(value) { lastValue = value; });
+            view.addMessageSend(bodyElm, this, function() { return lastValue; });
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
                 body.append(text.node());
