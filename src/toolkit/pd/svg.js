@@ -75,7 +75,7 @@ Rpd.noderenderer('pd/message', 'svg', function() {
             text.text(lastValue);
             view.addSelection(bodyElm);
             view.addEditor(bodyElm, text.node(), function(value) { lastValue = value; });
-            view.addMessageSend(bodyElm, this, function() { return lastValue; });
+            view.addValueSend(bodyElm, this, 'receive', function() { return lastValue; });
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
                 body.append(text.node());
@@ -167,6 +167,7 @@ Rpd.noderenderer('pd/bang', 'svg', function() {
                        .attr('cx', size.width / 2).attr('cy', size.width / 2)
                        .attr('r', size.width / 2);
             view.addSelection(bodyElm);
+            view.addValueSend(bodyElm, this, 'receive', function() { return {}; });
             d3.select(bodyElm).call(function(body) {
                 body.append(rect.node());
                 body.append(circle.node());

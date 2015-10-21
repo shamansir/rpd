@@ -120,18 +120,18 @@ var PdView = (function() {
              });
     }
 
-    PdView.prototype.addMessageSend = function(messageNode, message, getValue) {
+    PdView.prototype.addValueSend = function(sourceNode, node, inlet, getValue) {
         var styleTimeout;
-        Kefir.fromEvents(messageNode, 'click')
+        Kefir.fromEvents(sourceNode, 'click')
              .filterBy(this.inEditMode)
              .map(stopPropagation)
              .onValue(function() {
                  if (styleTimeout) clearTimeout(styleTimeout);
-                 d3.select(messageNode).classed('rpd-pd-send-value', true);
+                 d3.select(sourceNode).classed('rpd-pd-send-value', true);
                  styleTimeout = setTimeout(function() {
-                     d3.select(messageNode).classed('rpd-pd-send-value', false);
+                     d3.select(sourceNode).classed('rpd-pd-send-value', false);
                  }, 300);
-                 message.inlets['receive'].receive(getValue());
+                 node.inlets[inlet].receive(getValue());
              });
     }
 

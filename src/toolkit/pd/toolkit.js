@@ -41,7 +41,10 @@ Rpd.nodetype('pd/message', {
 
 Rpd.nodetype('pd/bang', {
     inlets: { 'receive': { type: 'pd/msg' }, },
-    outlets: { 'send': { type: 'pd/msg' } }
+    outlets: { 'send': { type: 'pd/msg' } },
+    process: function(inlets) {
+        return  { 'send': 'bang' };
+    }
 });
 
 Rpd.nodetype('pd/toggle', {
