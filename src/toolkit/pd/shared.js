@@ -155,7 +155,7 @@ var PdNodeMap = {
     'Message': 'pd/message',
     'Number':  'pd/number',
     'Symbol':  'pd/symbol',
-    'Comment': 'pd/text',
+    'Comment': 'pd/comment',
     'Bang':    'pd/bang',
     'Toggle':  'pd/toggle',
     'Number2': null /*'pd/number-2'*/,

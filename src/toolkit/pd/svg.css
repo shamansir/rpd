@@ -1,7 +1,28 @@
-.rpd-pd-toolkit-node {
-    fill: white;
+/* lightgray: #f8f8f8
+   lightgray2: #e0e0e0
+   gray: #c0c0c0
+   blue: #0921ec
+   lightblue: #c0e0fe
+*/
+
+.rpd-pd-toolkit-node.rpd-pd-object,
+.rpd-pd-toolkit-node.rpd-pd-message,
+.rpd-pd-toolkit-node.rpd-pd-number,
+.rpd-pd-toolkit-node.rpd-pd-symbol,
+.rpd-pd-toolkit-node.rpd-pd-toolbar {
+    fill: #f8f8f8;
     stroke-width: 1;
+    stroke: #c0c0c0;
+}
+
+.rpd-pd-toolkit-node.rpd-pd-bang,
+.rpd-pd-toolkit-node.rpd-pd-toggle {
+    fill: transparent;
     stroke: black;
+}
+
+.rpd-pd-toolkit-node.rpd-pd-comment {
+    fill: none;
 }
 
 .rpd-pd-toolkit-node text,
@@ -25,7 +46,7 @@
 
 .rpd-pd-number path,
 .rpd-pd-symbol path {
-    fill: lightgrey;
+    fill: #e0e0e0;
 }
 
 .rpd-pd-text-editor {
@@ -38,39 +59,54 @@
 }
 
 .rpd-pd-text-editor.rpd-pd-selected {
-    color: blue;
+    color: #0921ec;
 }
 
 .rpd-pd-selected,
 .rpd-dragging {
-    stroke: blue;
+    stroke: #0921ec;
 }
 
 .rpd-pd-selected text,
 .rpd-dragging text {
     stroke-width: 0;
-    fill: blue;
+    fill: #0921ec;
 }
 
 .rpd-pd-bang.rpd-pd-selected circle {
-    fill: blue;
+    fill: #0921ec;
 }
 
-.rpd-pd-bang circle {
-    pointer-events: none;
-}
-
-.rpd-pd-text rect {
+.rpd-pd-comment rect {
     stroke-width: 0;
 }
 
 .rpd-pd-object rect.rpd-pd-erratic {
+    stroke: #c00;
     stroke-dasharray: 5, 5;
+}
+.rpd-pd-object .rpd-pd-selected rect.rpd-pd-erratic {
+    stroke: #0921ec;
 }
 
 .rpd-inlet .rpd-connector:hover,
 .rpd-outlet .rpd-connector:hover {
-    fill: blue;
+    fill: #0921ec;
+}
+
+.rpd-pd-bang .rpd-inlet .rpd-connector,
+.rpd-pd-toggle .rpd-inlet .rpd-connector {
+    fill: black;
+}
+
+.rpd-pd-bang .rpd-outlet .rpd-connector,
+.rpd-pd-toggle .rpd-outlet .rpd-connector {
+    fill: black;
+}
+
+.rpd-pd-toolbar .rpd-pd-toolbar-border,
+.rpd-pd-toolbar rect {
+    stroke: black;
 }
 
 .rpd-pd-toolbar.rpd-dragging circle,

@@ -85,7 +85,7 @@ Rpd.noderenderer('pd/message', 'svg', function() {
     }
 });
 
-Rpd.noderenderer('pd/text', 'svg', function() {
+Rpd.noderenderer('pd/comment', 'svg', function() {
     var size = defaultSize;
     return {
         size: size,

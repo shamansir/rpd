@@ -87,7 +87,7 @@ Rpd.import.pd = function(lines) {
                 node.inlets['receive'].send(rest.slice(4));
                 objects.push(node);
             } else if (rest[1] === 'text') {
-                node = rootPatch.addNode('pd/text');
+                node = rootPatch.addNode('pd/comment');
                 node.move(parseInt(rest[2]), parseInt(rest[3]));
                 node.inlets['text'].send(rest[4]);
                 objects.push(node);

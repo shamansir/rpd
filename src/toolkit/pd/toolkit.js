@@ -17,7 +17,7 @@ Rpd.nodetype('pd/object', function(node) {
     }
 });
 
-Rpd.nodetype('pd/text', {
+Rpd.nodetype('pd/comment', {
     inlets: { 'text': { type: 'pd/msg', hidden: true } }
 });
 
