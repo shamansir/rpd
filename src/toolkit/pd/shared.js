@@ -200,16 +200,36 @@ var PdView = (function() {
 
 })();
 
-var PdObject = {
+var _receiveSend = [ [ 'rcv' ], [ 'snd' ] ];
 
-    'print': {
-        inlets: { 'what': { type: 'pd/msg' } },
-        process: function(inlets) {
-            if (console) console.log('print:', inlets.what);
-        }
-    }
+var PdSpec = {
+    'print': [ [ 'rcv' ], [], function(inlets) { if (console) console.log('print: ' + inlets.rcv); } ],
+    'loadbang': _receiveSend,
+    'phasor~': _receiveSend,
+    'line~': _receiveSend,
+    'r': _receiveSend, 'receive': _receiveSend,
+    'dac~': [ [ 'one', 'two' ], [] ]
+}
 
-};
+var PdObject = {};
+Object.keys(PdSpec).forEach(function(cmd) {
+    var spec = {};
+    var inlets = {};
+    PdSpec[cmd][0].forEach(function(name) {
+        var isCold = (name[0] === '.'),
+            _name = isCold ? name.slice(1) : name;
+        inlets[_name] = { type: 'pd/msg' };
+        if (isCold) inlets[_name].cold = true;
+    });
+    spec.inlets = inlets;
+    var outlets = {};
+    PdSpec[cmd][1].forEach(function(name) {
+        outlets[name] = { type: 'pd/msg' };
+    });
+    spec.outlets = outlets;
+    if (PdSpec[cmd][2]) spec.process = PdSpec[cmd][2];
+    PdObject[cmd] = spec;
+});
 
 var PdNodeMap = {
     'Object':  'pd/object',

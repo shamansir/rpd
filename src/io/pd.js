@@ -65,10 +65,13 @@ Rpd.import.pd = function(lines) {
 
             if (rest[1] === 'connect') {
                 var fromNode = objects[rest[2]],
-                    toNode = objects[rest[4]],
-                    outlet = nodeToOutlets[fromNode.id][rest[3]],
-                    inlet = nodeToInlets[toNode.id][rest[5]];
-                outlet.connect(inlet);
+                    toNode = objects[rest[4]];
+                if (nodeToOutlets[fromNode.id] && nodeToInlets[toNode.id]) {
+                    var outlet = nodeToOutlets[fromNode.id][rest[3]],
+                        inlet = nodeToInlets[toNode.id][rest[5]];
+                    if (inlet && outlet) { outlet.connect(inlet); }
+                    else { console.error('Failed to connect object ' + rest[2] + ' to object ' + rest[4]); };
+                } else { console.error('Failed to connect object ' + rest[2] + ' to object ' + rest[4]); }''
             } else if (rest[1] === 'restore') {
                 // TODO
             } else if (rest[1] === 'floatatom') {
@@ -84,12 +87,12 @@ Rpd.import.pd = function(lines) {
             } else if (rest[1] === 'msg') {
                 node = rootPatch.addNode('pd/message');
                 node.move(parseInt(rest[2]), parseInt(rest[3]));
-                node.inlets['receive'].send(rest.slice(4));
+                node.inlets['receive'].receive(rest.slice(4));
                 objects.push(node);
             } else if (rest[1] === 'text') {
                 node = rootPatch.addNode('pd/comment');
                 node.move(parseInt(rest[2]), parseInt(rest[3]));
-                node.inlets['text'].send(rest[4]);
+                node.inlets['text'].receive(rest[4]);
                 objects.push(node);
             } else if (rest[1] === 'obj') {
 
