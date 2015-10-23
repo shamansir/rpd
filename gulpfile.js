@@ -32,13 +32,14 @@ var Paths = {
 }
 
 var argv = require('yargs')
-           .string('root').string('target-name')
+           .string('root').string('target-name').string('compilation').boolean('pretty')
            .array('renderer').array('style').array('toolkit').array('io').boolean('d3')
            .array('user-style').array('user-toolkit')
            .default({
                root: '.',
                'target-name': 'rpd', // forms dist/rpd.js and dist/rpd.css
                'compilation': 'simple',
+               pretty: false,
                renderer: [ 'svg' ],
                style: [ 'quartz' ],
                toolkit: [ 'core' ],
@@ -77,32 +78,38 @@ gulp.task('get-deps', function() {
 });
 
 gulp.task('build', ['check-root', 'list-opts', 'concat-css'], function() {
-    gutil.log(infoColor('Compiling ' + targetName + '.js with Closure compiler'));
+    var resultName = targetName + ((argv.compilation !== 'whitespace') ? '.min.js' : '.js');
+
+    var compilerFlags = {
+        language_in: 'ECMASCRIPT5',
+        compilation_level: COMPILATION_LEVELS[argv.compilation || 'simple']
+    };
+    if (argv.pretty) compilerFlags['formatting'] = 'PRETTY_PRINT';
+
+    gutil.log(infoColor('Compiling ' + resultName + ' with Closure compiler'));
     gutil.log(infoColor('Sources included:'));
     return gulp.src(logFiles(getJsFiles(argv)))
                .pipe(closureCompiler({
                    compilerPath: './' + CLOSURE_COMPILER_PATH,
-                   fileName: targetName + ((argv.compilation !== 'whitespace') ? '.min.js' : '.js'),
-                   compilerFlags: {
-                       compilation_level: COMPILATION_LEVELS[argv.compilation || 'simple'],
-                       language_in: 'ECMASCRIPT5'
-                   }
+                   fileName: resultName,
+                   compilerFlags: compilerFlags
                }))
                .pipe(distJsHeader(pkg, argv, new Date()))
                .pipe(gulp.dest('dist'))
                .pipe(size({ showFiles: true, title: 'Result:' }))
                .on('end', function() {
-                   gutil.log(infoColor('Your dist/' + targetName + '.js is ready!'));
+                   gutil.log(infoColor('Your dist/' + resultName + 'is ready!'));
                });
 });
 
 gulp.task('build-with-gzip', ['build'], function() {
-    return gulp.src('./dist/' + targetName + '.js')
+    var sourceName = targetName + ((argv.compilation !== 'whitespace') ? '.min.js' : '.js');
+    return gulp.src('./dist/' + sourceName)
                .pipe(gzip())
                .pipe(gulp.dest('dist'))
                .pipe(size({ showFiles: true, title: 'Result:' }))
                .on('end', function() {
-                   gutil.log(infoColor('Your dist/' + targetName + '.js.gz is ready!'));
+                   gutil.log(infoColor('Your dist/' + sourceName + '.gz is ready!'));
                });
 });
 
