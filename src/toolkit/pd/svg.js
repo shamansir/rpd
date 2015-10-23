@@ -2,6 +2,7 @@
 
 var d3 = d3 || d3_tiny;
 
+// TODO: nodes have different size depending on size
 var defaultSize = { width: 50, height: 18 };
 
 var view = new PdView(defaultSize);
@@ -13,6 +14,7 @@ function _createSvgElement(name) {
 Rpd.noderenderer('pd/number', 'svg', function() {
     var path, text;
     var size = defaultSize;
+    var spinner;
     return {
         size: size,
         first: function(bodyElm) {
@@ -24,11 +26,27 @@ Rpd.noderenderer('pd/number', 'svg', function() {
             text = d3.select(_createSvgElement('text'))
                      .attr('x', 2).attr('y', size.height / 2)
                      .text('0');
+
+            spinner = view.addSpinner(text.node());
+            var changes = spinner.getChangesStream();
+
             view.addSelection(bodyElm);
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
                 body.append(text.node());
             });
+
+            return {
+                'spinner': { valueOut: changes.map(function(val) {
+                                 return parseFloat(val);
+                           }) }
+            };
+        },
+        always: function(bodyElm, inlets) {
+            if (inlets.hasOwnProperty('receive')) {
+                spinner.setValue(inlets.receive);
+            }
+            text.text(inlets.receive || inlets.spinner);
         }
     }
 });
@@ -247,6 +265,6 @@ Rpd.noderenderer('pd/edit-switch', 'svg', function(node) {
             d3.select(bodyElm).append(group.node());
         }
     }
-})
+});
 
 })();

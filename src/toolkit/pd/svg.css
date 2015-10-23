@@ -9,7 +9,8 @@
 .rpd-pd-toolkit-node.rpd-pd-message,
 .rpd-pd-toolkit-node.rpd-pd-number,
 .rpd-pd-toolkit-node.rpd-pd-symbol,
-.rpd-pd-toolkit-node.rpd-pd-toolbar {
+.rpd-pd-toolkit-node.rpd-pd-toolbar,
+.rpd-pd-toolkit-node.rpd-pd-edit-switch {
     fill: #f8f8f8;
     stroke-width: 1;
     stroke: #c0c0c0;

@@ -135,6 +135,67 @@ var PdView = (function() {
              });
     }
 
+    PdView.prototype.addSpinner = function(sourceNode) {
+        return new Spinner(sourceNode, this.inEditMode);
+    }
+
+    // ================================ Spinner ====================================
+
+    function extractPos(evt) { return { x: evt.clientX,
+                                        y: evt.clientY }; };
+    function Spinner(element, editMode) {
+        this.element = element;
+        this.min = -Infinity;
+        this.max = Infinity;
+        this.value = 0;
+
+        var spinner = this;
+
+        this.incoming = Kefir.emitter();
+        /*changes.onValue(function(value) {
+            spinner.value = val;
+        });*/
+
+        Kefir.fromEvents(element, 'mousedown')
+             .filterBy(editMode)
+             .map(stopPropagation)
+             .map(extractPos)
+             .flatMap(function(startPos) {
+                 var start = spinner.value;
+                 return Kefir.fromEvents(document.body, 'mousemove')
+                             .map(extractPos)
+                             .takeUntilBy(Kefir.fromEvents(document.body, 'mouseup'))
+                             .map(function(newPos) { return start + (newPos.y - startPos.y); })
+                             .onValue(function(num) { spinner.incoming.emit(num); })
+             }).onEnd(function() {});
+
+        this.changes = this.incoming.map(function(value) {
+            return spinner.setValue(value); // returns value updated to bounds
+        });
+        //this.changes.onValue(function() {});
+    }
+    Spinner.prototype.setValue = function(value) {
+        this.value = value;
+        return this.checkValue();
+    }
+    Spinner.prototype.checkValue = function() {
+        if (isNaN(this.value) || (this.value < this.min)) {
+            this.value = this.min; this.incoming.emit(this.min);
+        }
+        if (this.value > this.max) {
+            this.value = this.max; this.incoming.emit(this.max);
+        }
+        return this.value;
+    }
+    Spinner.prototype.updateBounds = function(min, max) {
+        this.min = min || 0;
+        this.max = isNaN(max) ? Infinity : max;
+        return this.checkValue();
+    }
+    Spinner.prototype.getChangesStream = function() {
+        return this.changes;
+    }
+
     return PdView;
 
 })();

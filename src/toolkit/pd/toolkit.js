@@ -22,8 +22,15 @@ Rpd.nodetype('pd/comment', {
 });
 
 Rpd.nodetype('pd/number', {
-    inlets: { 'receive': { type: 'pd/msg' } },
-    outlets: { 'send': { type: 'pd/msg' } }
+    inlets: { 'receive': { type: 'pd/msg' },
+              'spinner': { type: 'pd/msg', default: 0, hidden: true } },
+    outlets: { 'send': { type: 'pd/msg' } },
+    process: function(inlets) {
+         //if (!inlets.hasOwnProperty('spinner')) return;
+         // comparison logic is in the renderer, since it communicates with
+         // this node through a hidden spinner inlet
+         return { 'send': inlets.spinner };
+    }
 });
 
 Rpd.nodetype('pd/symbol', {
