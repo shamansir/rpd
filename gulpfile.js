@@ -38,6 +38,7 @@ var argv = require('yargs')
            .default({
                root: '.',
                'target-name': 'rpd', // forms dist/rpd.js and dist/rpd.css
+               'compilation': 'simple',
                renderer: [ 'svg' ],
                style: [ 'quartz' ],
                toolkit: [ 'core' ],
@@ -60,6 +61,12 @@ var VENDOR = [ 'https://cdn.jsdelivr.net/kefir/3.0.0/kefir.min.js'/*,
                'http://mohayonao.github.io/timbre.js/timbre.js',
                'http://player-dev.animatron.com/latest/bundle/animatron.min.js'*/ ];
 
+var COMPILATION_LEVELS = {
+    'whitespace': 'WHITESPACE_ONLY',
+    'simple': 'SIMPLE_OPTIMIZATIONS',
+    'advanced': 'ADVANCED_OPTIMIZATIONS'
+};
+
 var valueColor = gutil.colors.yellow,
     infoColor = gutil.colors.black;
 
@@ -75,9 +82,9 @@ gulp.task('build', ['check-root', 'list-opts', 'concat-css'], function() {
     return gulp.src(logFiles(getJsFiles(argv)))
                .pipe(closureCompiler({
                    compilerPath: './' + CLOSURE_COMPILER_PATH,
-                   fileName: targetName + '.js',
+                   fileName: targetName + ((argv.compilation !== 'whitespace') ? '.min.js' : '.js'),
                    compilerFlags: {
-                       //compilation_level: 'ADVANCED_OPTIMIZATIONS',
+                       compilation_level: COMPILATION_LEVELS[argv.compilation || 'simple'],
                        language_in: 'ECMASCRIPT5'
                    }
                }))
