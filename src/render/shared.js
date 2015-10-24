@@ -73,6 +73,7 @@ DragAndDrop.prototype.add = function(handle, spec) {
     var root = this.root;
     var start = spec.start, end = spec.end, drag = spec.drag;
     Kefir.fromEvents(handle.node(), 'mousedown').map(extractPos)
+                                                .map(subtractPosOf(root.node()))
                                                 .flatMap(function(pos) {
         var initPos = start(),
             diffPos = { x: pos.x - initPos.x,
@@ -84,6 +85,7 @@ DragAndDrop.prototype.add = function(handle, spec) {
                                   Kefir.fromEvents(handle.node(), 'mouseup')
                               ]))
                               .map(extractPos)
+                              .map(subtractPosOf(root.node()))
                               .map(function(absPos) {
                                   return { x: absPos.x - diffPos.x,
                                            y: absPos.y - diffPos.y };
@@ -143,6 +145,12 @@ function getPos(elm) { var bounds = elm.getBoundingClientRect();
                        return { x: bounds.left, y: bounds.top } };
 function incrementPos(pos, incX, incY) {
    return { x: pos.x + incX, y: pos.y + (incY || incX) };
+}
+function subtractPosOf(elm) {
+    var bounds = elm.getBoundingClientRect();
+    return function(pos) {
+        return { x: pos.x - bounds.left, y: pos.y - bounds.top };
+    }
 }
 function addTarget(target) {
     return function(pos) {
@@ -223,6 +231,7 @@ return {
     extractPos: extractPos,
     getPos: getPos,
     incrementPos: incrementPos,
+    subtractPosOf: subtractPosOf,
 
     addTarget: addTarget,
     addClickSwitch: addClickSwitch,

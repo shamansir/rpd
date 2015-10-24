@@ -454,8 +454,8 @@ return function(networkRoot, userConfig) {
 
             var vlink = new VLink(link, style);
 
-            var p0 = incrementPos(getPos(outletConnector.node()), 3),
-                p1 = incrementPos(getPos(inletConnector.node()),  3);
+            var p0 = subtractPosOf(svg.node())(incrementPos(getPos(outletConnector.node()), 3)),
+                p1 = subtractPosOf(svg.node())(incrementPos(getPos(inletConnector.node()),  3));
             vlink.construct(p0.x, p0.y, p1.x, p1.y, config.linkWidth);
 
             tree.links[link.id] = vlink;
@@ -600,7 +600,7 @@ var Connectivity = (function() {
              .map(extractPos)
              .onValue(function(pos) {
                  startLink.emit();
-                 var pivot = incrementPos(getPos(connector.node()), 3);
+                 var pivot = subtractPosOf(root.node())(incrementPos(getPos(connector.node()), 3));
                  var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')
@@ -618,6 +618,7 @@ var Connectivity = (function() {
                                             outlet.connect(inlet);
                                         }))
                       .map(extractPos)
+                      .map(subtractPosOf(root.node()))
                       .onValue(function(pos) {
                           ghost.rotate(pivot.x, pivot.y, pos.x, pos.y);
                       }).onEnd(function() {
@@ -654,7 +655,7 @@ var Connectivity = (function() {
                  var outlet = lastLink.outlet;
                  outlet.disconnect(lastLink);
                  startLink.emit();
-                 var pivot = incrementPos(getPos(getConnector(outlet).node()), 3);
+                 var pivot = subtractPosOf(root.node())(incrementPos(getPos(getConnector(outlet).node()), 3));
                  var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')
@@ -672,6 +673,7 @@ var Connectivity = (function() {
                                             outlet.connect(otherInlet);
                                         }))
                       .map(extractPos)
+                      .map(subtractPosOf(root.node()))
                       .onValue(function(pos) {
                           ghost.rotate(pivot.x, pivot.y, pos.x, pos.y);
                       }).onEnd(function() {
@@ -817,7 +819,8 @@ var preventDefault = Render.preventDefault,
 
 var extractPos = Render.extractPos,
     getPos = Render.getPos,
-    incrementPos = Render.incrementPos;
+    incrementPos = Render.incrementPos,
+    subtractPosOf = Render.subtractPosOf;
 
 var addTarget = Render.addTarget,
     addClickSwitch = Render.addClickSwitch;
