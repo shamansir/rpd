@@ -688,68 +688,6 @@ var Connectivity = (function() {
 })();
 
 // =============================================================================
-// ================================ Links ======================================
-// =============================================================================
-
-function VLink(link, style) { // visual representation of the link
-    this.link = link; // may be null, if it's a ghost
-    this.style = style;
-    this.styledLink = null;
-    this.element = null;
-}
-VLink.prototype.construct = function(x0, y0, x1, y1) {
-    if (this.styledLink) throw new Error('VLink is already constructed');
-    var styledLink = this.style.createLink(this.link);
-    styledLink.rotate(x0, y0, x1, y1);
-    this.styledLink = styledLink;
-    this.element = d3.select(styledLink.element);
-    this.element.style('z-index', LINK_LAYER);
-    return this;
-}
-VLink.prototype.rotate = function(x0, y0, x1, y1) {
-    this.styledLink.rotate(x0, y0, x1, y1);
-    return this;
-}
-VLink.prototype.update = function() {
-    if (!this.link) return;
-    var link = this.link;
-    var inletConnector = tree.inlets[link.inlet.id].data().connector,
-        outletConnector = tree.outlets[link.outlet.id].data().connector;
-    var inletPos = getPos(inletConnector.node()),
-        outletPos = getPos(outletConnector.node());
-    this.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
-    return this;
-}
-VLink.prototype.appendTo = function(target) {
-    target.append(this.element.node());
-    return this;
-}
-VLink.prototype.removeFrom = function(target) {
-    this.element.remove();
-    return this;
-}
-VLink.prototype.noPointerEvents = function() {
-    // a stub to be compatible with SVG renderer implementation
-    return this;
-}
-VLink.prototype.listenForClicks = function() {
-    var link = this.link;
-    addClickSwitch(this.element.node(),
-                   function() { link.enable(); },
-                   function() { link.disable(); });
-    return this;
-}
-VLink.prototype.enable = function() {
-    this.element.classed('rpd-disabled', false);
-}
-VLink.prototype.disable = function() {
-    this.element.classed('rpd-disabled', true);
-}
-VLink.prototype.get = function() {
-    return this.link;
-}
-
-// =============================================================================
 // ============================== NodeMenu =====================================
 // =============================================================================
 
