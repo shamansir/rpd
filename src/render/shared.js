@@ -99,7 +99,7 @@ DragAndDrop.prototype.add = function(handle, spec) {
 // ================================ Links ======================================
 // =============================================================================
 
-function VLink(link, style) { // visual representation of the link
+function VLink(link) { // visual representation of the link
     this.link = link; // may be null, if it's a ghost
     this.style = style;
     this.styledLink = null;
@@ -161,13 +161,17 @@ VLink.prototype.get = function() {
     return this.link;
 }
 
-function VLinks() {
-    // VLink instances
-    // VLink implementation is currently custom for every renderer
+function VLinks(spec, style) {
+    this.spec = spec;
+    this.style = style;
     this.vlinks = [];
 }
 VLinks.prototype.clear = function() { this.vlinks = []; }
-VLinks.prototype.add = function(vlink) { this.vlinks.push(vlink); }
+VLinks.prototype.add = function(link) {
+    var vlink = new VLink(this.style, link);
+    this.vlinks.push(vlink);
+    return vlink;
+}
 VLinks.prototype.remove = function(vlink) {
     this.vlinks = this.vlinks.filter(function(my_vlink) {
         return my_vlink !== vlink;
