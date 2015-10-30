@@ -2,6 +2,8 @@ Rpd.Render = (function() {
 
 var ƒ = Rpd.unit;
 
+var d3 = d3_tiny || d3;
+
 // =============================================================================
 // ============================ Navigation =====================================
 // =============================================================================
@@ -99,7 +101,7 @@ DragAndDrop.prototype.add = function(handle, spec) {
 // ================================ Links ======================================
 // =============================================================================
 
-function VLink(link) { // visual representation of the link
+function VLink(link, style) { // visual representation of the link
     this.link = link; // may be null, if it's a ghost
     this.style = style;
     this.styledLink = null;
@@ -121,10 +123,14 @@ VLink.prototype.rotate = function(x0, y0, x1, y1) {
 VLink.prototype.update = function() {
     if (!this.link) return;
     var link = this.link;
+    var styledLink = this.style;
     var inletConnector = tree.inlets[link.inlet.id].data().connector,
         outletConnector = tree.outlets[link.outlet.id].data().connector;
-    var inletPos  = incrementPos(getPos(inletConnector.node()),  3),
-        outletPos = incrementPos(getPos(outletConnector.node()), 3);
+    var inletPos = getPos(inletConnector.node()),
+        outletPos = getPos(outletConnector.node());
+    // svg:
+    // var inletPos  = incrementPos(getPos(inletConnector.node()),  3),
+    //     outletPos = incrementPos(getPos(outletConnector.node()), 3);
     // html:
     // var inletPos = getPos(inletConnector.node()),
     //    outletPos = getPos(outletConnector.node());
@@ -140,8 +146,9 @@ VLink.prototype.removeFrom = function(target) {
     return this;
 }
 VLink.prototype.noPointerEvents = function() {
-    this.element.style('pointer-events', 'none');
-    // html: no
+    if (this.styledLink.noPointerEvents) {
+        this.styledLink.noPointerEvents();
+    }
     return this;
 }
 VLink.prototype.listenForClicks = function() {
@@ -161,14 +168,11 @@ VLink.prototype.get = function() {
     return this.link;
 }
 
-function VLinks(spec, style) {
-    this.spec = spec;
-    this.style = style;
+function VLinks() {
     this.vlinks = [];
 }
 VLinks.prototype.clear = function() { this.vlinks = []; }
-VLinks.prototype.add = function(link) {
-    var vlink = new VLink(this.style, link);
+VLinks.prototype.add = function(vlink) {
     this.vlinks.push(vlink);
     return vlink;
 }
@@ -286,7 +290,7 @@ return {
     DragAndDrop: DragAndDrop,
     //Connectivity: Connectivity,
 
-    //VLink: VLink,
+    VLink: VLink,
     VLinks: VLinks,
 
     mergeConfig: mergeConfig,

@@ -197,8 +197,11 @@ return {
                         .attr('class', 'rpd-link');
         return { element: linkElm.node(),
                  rotate: function(x0, y0, x1, y1) {
-                     linkElm.attr('x1', x0).attr('y1', y0)
-                            .attr('x2', x1).attr('y2', y1);
+                     linkElm.attr('x1', x0 + 3).attr('y1', y0 + 3)
+                            .attr('x2', x1 + 3).attr('y2', y1 + 3);
+                 },
+                 noPointerEvents: function() {
+                     linkElm.style('pointer-events', 'none');
                  } };
     },
 

@@ -829,7 +829,8 @@ ValueEditor.prototype.disable = function() {
 // =============================== helpers =====================================
 // =============================================================================
 
-var VLinks = Render.VLinks;
+var VLink  = Render.VLink,
+    VLinks = Render.VLinks;
 
 var mergeConfig = Render.mergeConfig;
 

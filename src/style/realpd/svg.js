@@ -69,6 +69,9 @@ return {
                  rotate: function(x0, y0, x1, y1) {
                      linkElm.attr('x1', x0).attr('y1', y0)
                             .attr('x2', x1).attr('y2', y1);
+                 },
+                 noPointerEvents: function() {
+                     linkElm.style('pointer-events', 'none');
                  } };
     },
 
