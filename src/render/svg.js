@@ -197,13 +197,7 @@ return function(networkRoot, userConfig) {
                           },
                           drag: function(pos) {
                               nodeBox.attr('transform', 'translate(' + pos.x + ',' + pos.y + ')');
-                              nodeLinks.forEach(function(vlink) {
-                                  var inletConnector = tree.inlets[link.inlet.id].data().connector,
-                                      outletConnector = tree.outlets[link.outlet.id].data().connector;
-                                  var inletPos = incrementPos(getPos(inletConnector.node()), 3),
-                                      outletPos = incrementPos(getPos(outletConnector.node()), 3);
-                                  vlink.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
-                              });
+                              nodeLinks.forEach(function(vlink) { vlink.update(); });
                           },
                           end: function(pos) {
                               node.move(pos.x, pos.y);
@@ -455,14 +449,10 @@ return function(networkRoot, userConfig) {
             // disable value editor when connecting to inlet
             if (inletData.editor) inletData.editor.disable();
 
-            var outletConnector = outletData.connector;
-            var inletConnector  = inletData.connector;
-
             var vlink = new VLink(link, style);
 
-            var p0 = subtractPosOf(svg.node())(incrementPos(getPos(outletConnector.node()), 3)),
-                p1 = subtractPosOf(svg.node())(incrementPos(getPos(inletConnector.node()),  3));
-            vlink.construct(p0.x, p0.y, p1.x, p1.y, config.linkWidth);
+            vlink.construct(config.linkWidth)
+                 .rotateOI(outlet, inlet);
 
             tree.links[link.id] = vlink;
             outletData.vlinks.add(vlink);
@@ -606,8 +596,8 @@ var Connectivity = (function() {
              .map(extractPos)
              .onValue(function(pos) {
                  startLink.emit();
-                 var pivot = subtractPosOf(root.node())(incrementPos(getPos(connector.node()), 3));
-                 var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
+                 var ghost = new VLink(null, style).construct(config.linkWidth)
+                                                   .rotateO(outlet, pos.x, pos.y)
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')
                       .takeUntilBy(Kefir.merge([ inletClicks,
@@ -624,7 +614,7 @@ var Connectivity = (function() {
                                             outlet.connect(inlet);
                                         }))
                       .map(extractPos)
-                      .map(subtractPosOf(root.node()))
+                      .map(style.getAbsolutePos)
                       .onValue(function(pos) {
                           ghost.rotate(pivot.x, pivot.y, pos.x, pos.y);
                       }).onEnd(function() {
@@ -661,8 +651,8 @@ var Connectivity = (function() {
                  var outlet = lastLink.outlet;
                  outlet.disconnect(lastLink);
                  startLink.emit();
-                 var pivot = subtractPosOf(root.node())(incrementPos(getPos(getConnector(outlet).node()), 3));
-                 var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
+                 var ghost = new VLink(null, style).construct(config.linkWidth)
+                                                   .rotateO(outlet, pos.x, pos.y)
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')
                       .takeUntilBy(Kefir.merge([ inletClicks,
@@ -679,7 +669,7 @@ var Connectivity = (function() {
                                             outlet.connect(otherInlet);
                                         }))
                       .map(extractPos)
-                      .map(subtractPosOf(root.node()))
+                      .map(style.getAbsolutePos)
                       .onValue(function(pos) {
                           ghost.rotate(pivot.x, pivot.y, pos.x, pos.y);
                       }).onEnd(function() {
@@ -764,9 +754,7 @@ var preventDefault = Render.preventDefault,
     stopPropagation = Render.stopPropagation;
 
 var extractPos = Render.extractPos,
-    getPos = Render.getPos,
-    incrementPos = Render.incrementPos,
-    subtractPosOf = Render.subtractPosOf;
+    getPos = Render.getPos;
 
 var addTarget = Render.addTarget,
     addClickSwitch = Render.addClickSwitch;

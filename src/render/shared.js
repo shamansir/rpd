@@ -107,10 +107,10 @@ function VLink(link, style) { // visual representation of the link
     this.styledLink = null;
     this.element = null;
 }
-VLink.prototype.construct = function(x0, y0, x1, y1) {
+VLink.prototype.construct = function(width) {
     if (this.styledLink) throw new Error('VLink is already constructed');
     var styledLink = this.style.createLink(this.link);
-    styledLink.rotate(x0, y0, x1, y1);
+    //styledLink.rotate(x0, y0, x1, y1);
     this.styledLink = styledLink;
     this.element = d3.select(styledLink.element);
     // html: this.element.style('z-index', LINK_LAYER);
@@ -118,6 +118,29 @@ VLink.prototype.construct = function(x0, y0, x1, y1) {
 }
 VLink.prototype.rotate = function(x0, y0, x1, y1) {
     this.styledLink.rotate(x0, y0, x1, y1);
+    return this;
+}
+VLink.prototype.rotateI = function(x0, y0, inlet) {
+    var style = this.style;
+    var inletPos = style.getAbsolutePos(style.getInletPos(inlet));
+    return this.rotate(x0, y0, inletPos.x, inlet.y);
+}
+VLink.prototype.rotateO = function(outlet, x1, y1) {
+    var style = this.style;
+    var outletPos = style.getAbsolutePos(style.getOutletPos(outlet));
+    return this.rotate(outletPos.x, outletPos.y, x1, y1);
+}
+VLink.prototype.rotateOI = function(outlet, inlet) {
+    var style = this.style;
+    var outletPos = style.getAbsolutePos(style.getOutletPos(outlet)),
+        inletPos  = style.getAbsolutePos(style.getInletPos(inlet));
+    return this.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
+}
+VLink.prototype.update = function() {
+    if (!this.link) return;
+    var link = this.link;
+    this.rotateOI(link.outlet, link.inlet);
+    var style = this.style;
     return this;
 }
 VLink.prototype.appendTo = function(target) {

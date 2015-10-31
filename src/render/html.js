@@ -186,11 +186,7 @@ return function(networkRoot, userConfig) {
                               nodeBox.style('top',  pos.y + 'px');
                               nodeLinks.forEach(function(vlink) {
                                    vlink.element.style('z-index', LINKDRAG_LAYER);
-                                   var inletConnector = tree.inlets[link.inlet.id].data().connector,
-                                       outletConnector = tree.outlets[link.outlet.id].data().connector;
-                                   var inletPos = getPos(inletConnector.node()),
-                                       outletPos = getPos(outletConnector.node());
-                                   vlink.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
+                                   vlink.update();
                               });
                           },
                           end: function(pos) {
@@ -453,15 +449,11 @@ return function(networkRoot, userConfig) {
             // disable value editor when connecting to inlet
             if (inletData.editor) inletData.editor.disable();
 
-            var outletConnector = outletData.connector;
-            var inletConnector  = inletData.connector;
-
             var vlink = new VLink(link, style);
 
             // visually link is just a CSS-rotated div with 1px border
-            var p0 = getPos(outletConnector.node()),
-                p1 = getPos(inletConnector.node());
-            vlink.construct(p0.x, p0.y, p1.x, p1.y, config.linkWidth);
+            vlink.construct(config.linkWidth)
+                 .rotateOI(outlet, inlet);
 
             tree.links[link.id] = vlink;
             outletData.vlinks.add(vlink);
@@ -551,9 +543,6 @@ var Connectivity = (function() {
             return (getLinks(inlet).count() > 0);
         }
     }
-    function getConnector(outlet) {
-        return tree.outlets[outlet.id].data().connector;
-    }
     function removeExistingLink(inletLinks) {
         if (inletLinks.count() === 1) {
             // cases when .count() > 1 should never happen in this case
@@ -605,8 +594,8 @@ var Connectivity = (function() {
              .map(extractPos)
              .onValue(function(pos) {
                  startLink.emit();
-                 var pivot = getPos(connector.node());
-                 var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
+                 var ghost = new VLink(null, style).construct(config.linkWidth)
+                                                   .rotateO(outlet, pos.x, pos.y)
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')
                       .takeUntilBy(Kefir.merge([ inletClicks,
@@ -624,7 +613,7 @@ var Connectivity = (function() {
                                         }))
                       .map(extractPos)
                       .onValue(function(pos) {
-                          ghost.rotate(pivot.x, pivot.y, pos.x, pos.y);
+                          ghost.rotateO(outlet, pos.x, pos.y);
                       }).onEnd(function() {
                           ghost.removeFrom(root);
                           finishLink.emit();
@@ -659,8 +648,8 @@ var Connectivity = (function() {
                  var outlet = lastLink.outlet;
                  outlet.disconnect(lastLink);
                  startLink.emit();
-                 var pivot = getPos(getConnector(outlet).node());
-                 var ghost = new VLink(null, style).construct(pivot.x, pivot.y, pos.x, pos.y)
+                 var ghost = new VLink(null, style).construct(config.linkWidth)
+                                                   .rotateO(outlet, pos.x, pos.y)
                                                    .noPointerEvents().appendTo(root);
                  Kefir.fromEvents(root.node(), 'mousemove')
                       .takeUntilBy(Kefir.merge([ inletClicks,
@@ -677,8 +666,9 @@ var Connectivity = (function() {
                                             outlet.connect(otherInlet);
                                         }))
                       .map(extractPos)
+                      .map(style.getAbsolutePos)
                       .onValue(function(pos) {
-                          ghost.rotate(pivot.x, pivot.y, pos.x, pos.y);
+                          ghost.rotateO(outlet, pos.x, pos.y);
                       }).onEnd(function() {
                           ghost.removeFrom(root);
                           finishLink.emit();
