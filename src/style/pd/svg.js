@@ -1,11 +1,11 @@
 Rpd.style('pd', 'svg', (function() {
 
+var d3 = d3 || d3_tiny;
+
 // we need this root to be shared between all instances of a function below,
 // it is used to measure node header width, since it contains text, we need
 // some hidden element to measure string width in pixels
 var lastRoot;
-
-var d3 = d3 || d3_tiny;
 
 var socketPadding = 25, // distance between inlets/outlets in SVG units
     socketsMargin = 15; // distance between first/last inlet/outlet and body edge
@@ -28,6 +28,9 @@ function roundedRect(x, y, width, height, rtl, rtr, rbr, rbl) {
          + "v" + ((rbl ? rbl : 0) + (rtl ? rtl : 0) - height)
          + "z";
 }
+
+function getPos(elm) { var bounds = elm.getBoundingClientRect();
+                       return { x: bounds.left, y: bounds.top } };
 
 return function(config) {
 
@@ -222,6 +225,22 @@ return {
                  noPointerEvents: function() {
                      linkElm.style('pointer-events', 'none');
                  } };
+    },
+
+    getInletPos: function(inlet) {
+        var connectorPos = getPos(inletToConnector[inlet.id].node());
+        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
+    },
+
+    getOutletPos: function(outlet) {
+        var connectorPos = getPos(outletToConnector[outlet.id].node());
+        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
+    },
+
+    getAbsolutePos: function(pos) {
+        // calculate once on patch switch?
+        var rootPos = getPos(lastRoot.node());
+        return { x: pos.x + rootPos.x, y: pos.y + rootPos.y };
     },
 
     onPatchSwitch: function(patch, root) {

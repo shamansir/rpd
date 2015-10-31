@@ -205,6 +205,26 @@ return {
                  } };
     },
 
+    getInletPos: function(inlet) {
+        var connectorPos = getPos(inletToConnector[inlet.id].node());
+        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
+    },
+
+    getOutletPos: function(outlet) {
+        var connectorPos = getPos(outletToConnector[outlet.id].node());
+        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
+    },
+
+    getAbsolutePos: function(pos) {
+        // calculate once on patch switch?
+        var rootPos = getPos(lastRoot.node());
+        return { x: pos.x + rootPos.x, y: pos.y + rootPos.y };
+    },
+
+    onPatchSwitch: function(patch, root) {
+        lastRoot = d3.select(root);
+    },
+
     onNodeRemove: function(node) {
         listeners[node.id] = null;
     }
@@ -224,5 +244,8 @@ function roundedRect(x, y, width, height, rtl, rtr, rbr, rbl) {
          + "v" + ((rbl ? rbl : 0) + (rtl ? rtl : 0) - height)
          + "z";
 }
+
+function getPos(elm) { var bounds = elm.getBoundingClientRect();
+                       return { x: bounds.left, y: bounds.top } };
 
 });

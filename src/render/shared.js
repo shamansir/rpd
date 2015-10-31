@@ -217,17 +217,6 @@ function preventDefault(evt) { evt.preventDefault(); return evt; };
 function stopPropagation(evt) { evt.stopPropagation(); return evt; };
 function extractPos(evt) { return { x: evt.clientX,
                                     y: evt.clientY }; };
-function getPos(elm) { var bounds = elm.getBoundingClientRect();
-                       return { x: bounds.left, y: bounds.top } };
-function incrementPos(pos, incX, incY) {
-   return { x: pos.x + incX, y: pos.y + (incY || incX) };
-}
-function subtractPosOf(elm) {
-    var bounds = elm.getBoundingClientRect();
-    return function(pos) {
-        return { x: pos.x - bounds.left, y: pos.y - bounds.top };
-    }
-}
 function addTarget(target) {
     return function(pos) {
         return { pos: pos, target: target };
@@ -305,9 +294,6 @@ return {
     stopPropagation: stopPropagation,
 
     extractPos: extractPos,
-    getPos: getPos,
-    incrementPos: incrementPos,
-    subtractPosOf: subtractPosOf,
 
     addTarget: addTarget,
     addClickSwitch: addClickSwitch,

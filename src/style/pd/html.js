@@ -2,6 +2,11 @@ Rpd.style('pd', 'html', function(config) {
 
 var d3 = d3 || d3_tiny;
 
+var lastRoot;
+
+function getPos(elm) { var bounds = elm.getBoundingClientRect();
+                       return { x: bounds.left, y: bounds.top } };
+
 return {
 
     edgePadding: { horizontal: 20, vertical: 40 },
@@ -104,6 +109,24 @@ return {
                        .style('-webkit-transform', 'rotateZ(' + angle + 'rad)');
             }
         }
+    },
+
+    getInletPos: function(inlet) {
+        return getPos(inletToConnector[inlet.id].node());
+    },
+
+    getOutletPos: function(outlet) {
+        return getPos(outletToConnector[outlet.id].node());
+    },
+
+    getAbsolutePos: function(pos) {
+        // calculate once on patch switch?
+        var rootPos = getPos(lastRoot.node());
+        return { x: pos.x + rootPos.x, y: pos.y + rootPos.y };
+    },
+
+    onPatchSwitch: function(patch, root) {
+        lastRoot = d3.select(root);
     }
 
 };

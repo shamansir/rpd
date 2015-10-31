@@ -831,8 +831,7 @@ var mergeConfig = Render.mergeConfig;
 var preventDefault = Render.preventDefault,
     stopPropagation = Render.stopPropagation;
 
-var extractPos = Render.extractPos,
-    getPos = Render.getPos;
+var extractPos = Render.extractPos;
 
 var addTarget = Render.addTarget,
     addClickSwitch = Render.addClickSwitch;

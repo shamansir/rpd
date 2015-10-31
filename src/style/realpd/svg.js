@@ -10,7 +10,12 @@ function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
 }
 
+function getPos(elm) { var bounds = elm.getBoundingClientRect();
+                       return { x: bounds.left, y: bounds.top } };
+
 return function(config) {
+
+var lastRoot;
 
 return {
 
@@ -75,8 +80,24 @@ return {
                  } };
     },
 
+    getInletPos: function(inlet) {
+        var connectorPos = getPos(inletToConnector[inlet.id].node());
+        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
+    },
+
+    getOutletPos: function(outlet) {
+        var connectorPos = getPos(outletToConnector[outlet.id].node());
+        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
+    },
+
+    getAbsolutePos: function(pos) {
+        // calculate once on patch switch?
+        var rootPos = getPos(lastRoot.node());
+        return { x: pos.x + rootPos.x, y: pos.y + rootPos.y };
+    },
+
     onPatchSwitch: function(patch, root) {
-        //lastRoot = d3.select(root);
+        lastRoot = d3.select(root);
     }
 
 };
