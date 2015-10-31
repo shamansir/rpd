@@ -120,23 +120,6 @@ VLink.prototype.rotate = function(x0, y0, x1, y1) {
     this.styledLink.rotate(x0, y0, x1, y1);
     return this;
 }
-VLink.prototype.update = function() {
-    if (!this.link) return;
-    var link = this.link;
-    var styledLink = this.style;
-    var inletConnector = tree.inlets[link.inlet.id].data().connector,
-        outletConnector = tree.outlets[link.outlet.id].data().connector;
-    var inletPos = getPos(inletConnector.node()),
-        outletPos = getPos(outletConnector.node());
-    // svg:
-    // var inletPos  = incrementPos(getPos(inletConnector.node()),  3),
-    //     outletPos = incrementPos(getPos(outletConnector.node()), 3);
-    // html:
-    // var inletPos = getPos(inletConnector.node()),
-    //    outletPos = getPos(outletConnector.node());
-    this.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
-    return this;
-}
 VLink.prototype.appendTo = function(target) {
     target.append(this.element.node());
     return this;

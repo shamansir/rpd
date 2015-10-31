@@ -197,7 +197,13 @@ return function(networkRoot, userConfig) {
                           },
                           drag: function(pos) {
                               nodeBox.attr('transform', 'translate(' + pos.x + ',' + pos.y + ')');
-                              nodeLinks.forEach(function(vlink) { vlink.update(); });
+                              nodeLinks.forEach(function(vlink) {
+                                  var inletConnector = tree.inlets[link.inlet.id].data().connector,
+                                      outletConnector = tree.outlets[link.outlet.id].data().connector;
+                                  var inletPos = incrementPos(getPos(inletConnector.node()), 3),
+                                      outletPos = incrementPos(getPos(outletConnector.node()), 3);
+                                  vlink.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
+                              });
                           },
                           end: function(pos) {
                               node.move(pos.x, pos.y);

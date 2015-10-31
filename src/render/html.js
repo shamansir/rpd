@@ -186,7 +186,11 @@ return function(networkRoot, userConfig) {
                               nodeBox.style('top',  pos.y + 'px');
                               nodeLinks.forEach(function(vlink) {
                                    vlink.element.style('z-index', LINKDRAG_LAYER);
-                                   vlink.update();
+                                   var inletConnector = tree.inlets[link.inlet.id].data().connector,
+                                       outletConnector = tree.outlets[link.outlet.id].data().connector;
+                                   var inletPos = getPos(inletConnector.node()),
+                                       outletPos = getPos(outletConnector.node());
+                                   vlink.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
                               });
                           },
                           end: function(pos) {
