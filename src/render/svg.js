@@ -103,7 +103,7 @@ return function(networkRoot, userConfig) {
             connectivity = new /*Render.*/Connectivity(svg, style, config);
 
             // initialized drag-n-drop support (used to allow user drag nodes)
-            if (config.nodeMovingAllowed) dnd = new Render.DragAndDrop(svg);
+            if (config.nodeMovingAllowed) dnd = new Render.DragAndDrop(svg, style);
 
             //if (config.renderNodeList) buildNodeList(root, nodeTypes, nodeDescriptions);
 
@@ -616,7 +616,7 @@ var Connectivity = (function() {
                       .map(extractPos)
                       .map(style.getAbsolutePos)
                       .onValue(function(pos) {
-                          ghost.rotate(pivot.x, pivot.y, pos.x, pos.y);
+                          ghost.rotateO(outlet, pos.x, pos.y);
                       }).onEnd(function() {
                           ghost.removeFrom(root);
                           finishLink.emit();

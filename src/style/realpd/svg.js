@@ -17,6 +17,9 @@ return function(config) {
 
 var lastRoot;
 
+var inletToConnector = {},
+    outletToConnector = {};
+
 return {
 
     createRoot: function(patch, parent) {
@@ -57,6 +60,7 @@ return {
         var inletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-inlet');
         inletElm.append('g').attr('class', 'rpd-connector')
                 .append('rect').attr('width', 7).attr('height', 2);
+        inletToConnector[inlet.id] = inletElm.select('.rpd-connector');
         return { element: inletElm.node() };
     },
 
@@ -64,6 +68,7 @@ return {
         var outletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-outlet');
         outletElm.append('g').attr('class', 'rpd-connector')
                  .append('rect').attr('width', 7).attr('height', 2);
+        outletToConnector[outlet.id] = outletElm.select('.rpd-connector');
         return { element: outletElm.node() };
     },
 

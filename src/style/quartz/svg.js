@@ -13,6 +13,8 @@ var socketPadding = 25, // distance between inlets/outlets in SVG units
 var headerHeight = 21; // height of a node header in SVG units
 
 var listeners = {};
+var inletToConnector = {},
+    outletToConnector = {};
 
 return {
 
@@ -172,6 +174,7 @@ return {
                                 .attr('x', 10).attr('y', 0);
         });
         listeners[inlet.node.id].inlet(inletElm);
+        inletToConnector[inlet.id] = inletElm.select('.rpd-connector');
         return { element: inletElm.node() };
     },
 
@@ -189,6 +192,7 @@ return {
                                 .attr('x', -10).attr('y', 0);
         });
         listeners[outlet.node.id].outlet(outletElm);
+        outletToConnector[outlet.id] = outletElm.select('.rpd-connector');
         return { element: outletElm.node() };
     },
 

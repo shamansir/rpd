@@ -4,6 +4,9 @@ var d3 = d3 || d3_tiny;
 
 var lastRoot;
 
+var inletToConnector = {},
+    outletToConnector = {};
+
 function getPos(elm) { var bounds = elm.getBoundingClientRect();
                        return { x: bounds.left, y: bounds.top } };
 
@@ -65,30 +68,28 @@ return {
     },
 
     createInlet: function(inlet, render) {
-        return {
-            element:
-                d3.select(document.createElement('td')).attr('class', 'rpd-inlet')
-                  .call(function(td) {
-                      td.append('span').attr('class', 'rpd-connector');
-                      td.append('span').attr('class', 'rpd-name').text(inlet.name);
-                      td.append('span').attr('class', 'rpd-value-holder')
-                                       .append('span').attr('class', 'rpd-value');
-                      if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(inlet.type);
-                  }).node()
-        }
+        var inletElm = d3.select(document.createElement('td')).attr('class', 'rpd-inlet')
+                         .call(function(td) {
+                             td.append('span').attr('class', 'rpd-connector');
+                             td.append('span').attr('class', 'rpd-name').text(inlet.name);
+                             td.append('span').attr('class', 'rpd-value-holder')
+                               .append('span').attr('class', 'rpd-value');
+                             if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(inlet.type);
+                         }).node();
+        inletToConnector[inlet.id] = inletElm.select('.rpd-connector');
+        return { element: inletElm };
     },
 
     createOutlet: function(outlet, render) {
-        return {
-            element:
-                d3.select(document.createElement('td')).attr('class', 'rpd-outlet')
-                  .call(function(td) {
-                      td.append('span').attr('class', 'rpd-connector');
-                      td.append('span').attr('class', 'rpd-name').text(outlet.name);
-                      td.append('span').attr('class', 'rpd-value');
-                      if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(outlet.type);
-                  }).node()
-       }
+        var outletElm = d3.select(document.createElement('td')).attr('class', 'rpd-outlet')
+                          .call(function(td) {
+                              td.append('span').attr('class', 'rpd-connector');
+                              td.append('span').attr('class', 'rpd-name').text(outlet.name);
+                              td.append('span').attr('class', 'rpd-value');
+                              if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(outlet.type);
+                          }).node();
+        outletToConnector[outlet.id] = outletElm.select('.rpd-connector');
+        return { element: outletElm };
     },
 
     createLink: function(link) {

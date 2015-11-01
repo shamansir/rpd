@@ -96,7 +96,7 @@ return function(networkRoot, userConfig) {
             connectivity = new /*Render.*/Connectivity(root, style, config);
 
             // initialized drag-n-drop support (used to allow user drag nodes)
-            if (config.nodeMovingAllowed) dnd = new Render.DragAndDrop(root);
+            if (config.nodeMovingAllowed) dnd = new Render.DragAndDrop(root, style);
 
             if (config.renderNodeList) buildNodeList(root, nodeTypes, nodeDescriptions);
 

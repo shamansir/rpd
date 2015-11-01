@@ -5,7 +5,7 @@ var d3 = d3 || d3_tiny;
 // we need this root to be shared between all instances of a function below,
 // it is used to measure node header width, since it contains text, we need
 // some hidden element to measure string width in pixels
-var lastRoot;
+var globalLastRoot;
 
 var socketPadding = 25, // distance between inlets/outlets in SVG units
     socketsMargin = 15; // distance between first/last inlet/outlet and body edge
@@ -34,7 +34,12 @@ function getPos(elm) { var bounds = elm.getBoundingClientRect();
 
 return function(config) {
 
+var lastRoot;
+
 var listeners = {};
+
+var inletToConnector = {},
+    outletToConnector = {};
 
 return {
 
@@ -54,7 +59,7 @@ return {
         var fakeName = d3.select(_createSvgElement('text'))
                          .attr('class', 'rpd-fake-name')
                          .text(node.name).attr('x', -1000).attr('y', -1000);
-        lastRoot.append(fakeName.node());
+        globalLastRoot.append(fakeName.node());
         var headerWidth = fakeName.node().getBBox().width + 12;
         fakeName.remove();
 
@@ -194,6 +199,7 @@ return {
                                 .attr('x', 0).attr('y', -15);
         });
         listeners[inlet.node.id].inlet(inletElm);
+        inletToConnector[inlet.id] = inletElm.select('.rpd-connector');
         return { element: inletElm.node() };
     },
 
@@ -211,6 +217,7 @@ return {
                                 .attr('x', 0).attr('y', 15);
         });
         listeners[outlet.node.id].outlet(outletElm);
+        outletToConnector[outlet.id] = outletElm.select('.rpd-connector');
         return { element: outletElm.node() };
     },
 
@@ -245,6 +252,7 @@ return {
 
     onPatchSwitch: function(patch, root) {
         lastRoot = d3.select(root);
+        globalLastRoot = lastRoot;
     },
 
     onNodeRemove: function(node) {
