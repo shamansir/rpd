@@ -46,9 +46,18 @@
 
     <body>
         <style>
+            #file {
+                position: fixed;
+                right: 0;
+                top: 0;
+                margin: 10px;
+                width: 300px;
+            }
+
             #pd-code {
                 position: fixed;
                 right: 0;
+                top: 20px;
                 margin: 15px;
                 width: 300px;
                 height: 80%;
@@ -67,28 +76,70 @@
             } */
         </style>
 
+        <input type="file" id="file" name="file" accept=".pd" />
         <textarea id="pd-code"></textarea>
         <button id="load-pd-code">Load</button>
 
-        <div id="network"></div>
+        <div id="network"><span id="welcome">[Load something...]</span></div>
 
         <script>
             var target = document.getElementById('network'),
                 textarea = document.getElementById('pd-code'),
-                loadCode = document.getElementById('load-pd-code');
+                loadCode = document.getElementById('load-pd-code'),
+                fileInput = document.getElementById('file');
+
+            // ============ rendering patch
 
             Rpd.render('svg', target, { style: 'realpd',
                                         inletAcceptsMultipleLinks: true });
 
+            // ============ loading from localStorage
+
             textarea.value = localStorage.getItem('last_contents');
 
             loadCode.addEventListener('click', function() {
-                //target.innerHtml = '';
                 localStorage.setItem('last_contents', textarea.value);
+                target.innerHTML = target.textContent = '';
                 var importedPatch = Rpd.import.pd(textarea.value);
-                if (importedPatch) importedPatch.addNode('pd/edit-switch');
+                if (importedPatch) {
+                    importedPatch.addNode('pd/edit-switch').move(10, 10);
+                }
             });
 
+            // ============ loading from file
+
+            if (window.File && window.FileReader && window.FileList && window.Blob) {
+
+                fileInput.addEventListener('change', function(evt) {
+                    var files = evt.target.files;
+                    for (var i = 0, file; file = files[i]; i++) {
+
+                        if (file.name.indexOf('.pd') < 0) {
+                            console.error('File ' + file.name + ' ' +
+                                          'is not Pure Data file');
+                        }
+
+                        var reader = new FileReader();
+                        reader.onload = function(evt) {
+                            textarea.value = evt.target.result;
+                            loadCode.click();
+                        };
+                        reader.readAsText(file);
+
+                    };
+                });
+
+            } else {
+
+                document.body.removeChild(document.getElementById('file'));
+                if (!textarea.value) {
+                    textarea.value = '#N canvas 200 388 450 300 10;' + '\n' +
+                                     '#X obj 53 106 print;' + '\n' +
+                                     '#X floatatom 46 32 5 0 0 0 - - -;' + '\n' +
+                                     '#X connect 1 0 0 0;' + '\n';
+                }
+
+            }
 
         </script>
     </body>
