@@ -120,7 +120,7 @@ return {
         return getPos(outletToConnector[outlet.id].node());
     },
 
-    getAbsolutePos: function(pos) {
+    getLocalPos: function(pos) {
         if (!lastRoot) return pos;
         // calculate once on patch switch?
         var rootPos = getPos(lastRoot.node());

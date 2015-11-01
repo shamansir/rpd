@@ -76,7 +76,7 @@ DragAndDrop.prototype.add = function(handle, spec) {
     var root = this.root; var style = this.style;
     var start = spec.start, end = spec.end, drag = spec.drag;
     Kefir.fromEvents(handle.node(), 'mousedown').map(extractPos)
-                                                .map(style.getAbsolutePos)
+                                                .map(style.getLocalPos)
                                                 .flatMap(function(pos) {
         var initPos = start(),
             diffPos = { x: pos.x - initPos.x,
@@ -88,7 +88,7 @@ DragAndDrop.prototype.add = function(handle, spec) {
                                   Kefir.fromEvents(handle.node(), 'mouseup')
                               ]))
                               .map(extractPos)
-                              .map(style.getAbsolutePos)
+                              .map(style.getLocalPos)
                               .map(function(absPos) {
                                   return { x: absPos.x - diffPos.x,
                                            y: absPos.y - diffPos.y };
@@ -123,18 +123,18 @@ VLink.prototype.rotate = function(x0, y0, x1, y1) {
 }
 VLink.prototype.rotateI = function(x0, y0, inlet) {
     var style = this.style;
-    var inletPos = style.getAbsolutePos(style.getInletPos(inlet));
+    var inletPos = style.getLocalPos(style.getInletPos(inlet));
     return this.rotate(x0, y0, inletPos.x, inlet.y);
 }
 VLink.prototype.rotateO = function(outlet, x1, y1) {
     var style = this.style;
-    var outletPos = style.getAbsolutePos(style.getOutletPos(outlet));
+    var outletPos = style.getLocalPos(style.getOutletPos(outlet));
     return this.rotate(outletPos.x, outletPos.y, x1, y1);
 }
 VLink.prototype.rotateOI = function(outlet, inlet) {
     var style = this.style;
-    var outletPos = style.getAbsolutePos(style.getOutletPos(outlet)),
-        inletPos  = style.getAbsolutePos(style.getInletPos(inlet));
+    var outletPos = style.getLocalPos(style.getOutletPos(outlet)),
+        inletPos  = style.getLocalPos(style.getInletPos(inlet));
     return this.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
 }
 VLink.prototype.update = function() {

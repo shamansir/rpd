@@ -244,7 +244,7 @@ return {
         return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
     },
 
-    getAbsolutePos: function(pos) {
+    getLocalPos: function(pos) {
         if (!lastRoot) return pos;
         // calculate once on patch switch?
         var rootPos = getPos(lastRoot.node());
