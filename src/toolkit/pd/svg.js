@@ -78,7 +78,7 @@ Rpd.noderenderer('pd/symbol', 'svg', function() {
 Rpd.noderenderer('pd/message', 'svg', function() {
     var path, text;
     var size = defaultSize;
-    var lastValue = '';
+    var lastValue = [];
     return {
         size: size,
         first: function(bodyElm) {
@@ -92,13 +92,18 @@ Rpd.noderenderer('pd/message', 'svg', function() {
                      .attr('x', 2).attr('y', size.height / 2);
             text.text(lastValue);
             view.addSelection(bodyElm);
-            view.addEditor(bodyElm, text.node(), function(value) { lastValue = value; });
+            view.addEditor(bodyElm, text.node(), function(value) { lastValue = value.split(' '); });
             view.addValueSend(bodyElm, this, 'receive', function() { return lastValue; });
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
                 body.append(text.node());
             });
-
+        },
+        always: function(bodyElm, inlets) {
+            if (inlets.receive) {
+                lastValue = inlets.receive;
+                text.text(inlets.receive.join(' '));
+            }
         }
     }
 });
