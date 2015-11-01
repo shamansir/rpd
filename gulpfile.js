@@ -98,7 +98,7 @@ gulp.task('build', ['check-root', 'list-opts', 'concat-css'], function() {
                .pipe(gulp.dest('dist'))
                .pipe(size({ showFiles: true, title: 'Result:' }))
                .on('end', function() {
-                   gutil.log(infoColor('Your dist/' + resultName + 'is ready!'));
+                   gutil.log(infoColor('Your dist/' + resultName + ' is ready!'));
                });
 });
 

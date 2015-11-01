@@ -71,7 +71,7 @@ Rpd.import.pd = function(lines) {
                         inlet = nodeToInlets[toNode.id][rest[5]];
                     if (inlet && outlet) { outlet.connect(inlet); }
                     else { console.error('Failed to connect object ' + rest[2] + ' to object ' + rest[4]); };
-                } else { console.error('Failed to connect object ' + rest[2] + ' to object ' + rest[4]); }''
+                } else { console.error('Failed to connect object ' + rest[2] + ' to object ' + rest[4]); };
             } else if (rest[1] === 'restore') {
                 // TODO
             } else if (rest[1] === 'floatatom') {
