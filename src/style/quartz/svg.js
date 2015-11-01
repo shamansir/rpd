@@ -6,7 +6,7 @@ function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
 }
 
-var lastRoot;
+var lastRoot = null;
 
 var socketPadding = 25, // distance between inlets/outlets in SVG units
     socketsMargin = 15; // distance between first/last inlet/outlet and body edge
@@ -220,6 +220,7 @@ return {
     },
 
     getAbsolutePos: function(pos) {
+        if (!lastRoot) return pos;
         // calculate once on patch switch?
         var rootPos = getPos(lastRoot.node());
         return { x: pos.x + rootPos.x, y: pos.y + rootPos.y };

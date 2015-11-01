@@ -75,9 +75,9 @@ return {
                              td.append('span').attr('class', 'rpd-value-holder')
                                .append('span').attr('class', 'rpd-value');
                              if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(inlet.type);
-                         }).node();
+                         });
         inletToConnector[inlet.id] = inletElm.select('.rpd-connector');
-        return { element: inletElm };
+        return { element: inletElm.node() };
     },
 
     createOutlet: function(outlet, render) {
@@ -87,9 +87,9 @@ return {
                               td.append('span').attr('class', 'rpd-name').text(outlet.name);
                               td.append('span').attr('class', 'rpd-value');
                               if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(outlet.type);
-                          }).node();
+                          });
         outletToConnector[outlet.id] = outletElm.select('.rpd-connector');
-        return { element: outletElm };
+        return { element: outletElm.node() };
     },
 
     createLink: function(link) {
@@ -121,6 +121,7 @@ return {
     },
 
     getAbsolutePos: function(pos) {
+        if (!lastRoot) return pos;
         // calculate once on patch switch?
         var rootPos = getPos(lastRoot.node());
         return { x: pos.x + rootPos.x, y: pos.y + rootPos.y };

@@ -87,15 +87,16 @@ return {
 
     getInletPos: function(inlet) {
         var connectorPos = getPos(inletToConnector[inlet.id].node());
-        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
+        return { x: connectorPos.x + 3, y: connectorPos.y + 1 };
     },
 
     getOutletPos: function(outlet) {
         var connectorPos = getPos(outletToConnector[outlet.id].node());
-        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
+        return { x: connectorPos.x + 3, y: connectorPos.y + 1 };
     },
 
     getAbsolutePos: function(pos) {
+        if (!lastRoot) return pos;
         // calculate once on patch switch?
         var rootPos = getPos(lastRoot.node());
         return { x: pos.x + rootPos.x, y: pos.y + rootPos.y };
