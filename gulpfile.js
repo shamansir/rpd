@@ -166,6 +166,26 @@ function checkRootPath(argv) {
     if (argv.root) { Paths.Root = argv.root; }
 }
 
+function getCommandString(options) {
+    var command = 'gulp';
+    if (options.root) command += ' --root ' + options.root;
+    options.renderer.forEach(function(renderer) { command += ' --renderer ' + renderer; });
+    options.style.forEach(function(style) { command += ' --style ' + style; });
+    options.toolkit.forEach(function(toolkit) { command += ' --toolkit ' + toolkit; });
+    options.io.forEach(function(io) { command += ' --io ' + io; });
+    if (options.d3) command += ' --d3';
+    options['user-style'].forEach(function(userStyle) {
+        command += ' --user-style ' + userStyle;
+    });
+    options['user-toolkit'].forEach(function(userToolkit) {
+        command += ' --user-toolkit ' + userToolkit;
+    });
+    if (options['target-name']) command += ' --target-name ' + options['target-name'];
+    if (options.compilation) command += ' --compilation ' + options.compilation;
+    if (options.pretty) command += ' --pretty';
+    return command;
+}
+
 function distJsHeader(pkg, options, time) {
     var banner = ['/**',
     ' * <%= pkg.name %> - <%= pkg.description %>',
@@ -184,6 +204,8 @@ function distJsHeader(pkg, options, time) {
     ' *',
     ' * User Styles: ' + (options['user-style'].length ? options['user-style'].join(', ') : '[None]'),
     ' * User Toolkits: ' + (options['user-toolkit'].length ? options['user-toolkit'].join(', ') : '[None]'),
+    ' *',
+    ' * Command: ' + getCommandString(options),
     ' */',
     ''].join('\n');
     return header(banner, { pkg: pkg });
@@ -296,6 +318,8 @@ function getHtmlHead(options) {
         console.log('  <script src="' + path + '"></script>');
     }
     comment('Built with RPD v' + pkg.version + ' <http://shamansir.github.io/rpd>');
+    console.log();
+    comment(getCommandString(options).replace(/--/g, '=='));
     console.log();
     options.renderer.forEach(function(renderer) {
         comment('RPD Renderer: ' + renderer);
