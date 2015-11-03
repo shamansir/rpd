@@ -250,7 +250,8 @@ var PdNodeMap = {
     'Array':   null /*'pd/array'*/
 };
 
-var pdResolveObject = (function(WebPd) {
+var pdResolveObject = (function() {
+    var WebPd = window.Pd || null;
     var cmdToDef = {};
 
     if (WebPd && WebPd._glob && WebPd._glob.library) {
@@ -258,8 +259,10 @@ var pdResolveObject = (function(WebPd) {
         //var definition; var inletsCount, outletsCount;
         Object.keys(library).forEach(function(command) {
             var definition = {};
-            var inletsCount = library[command].prototype.inletsDef.length,
-                outletsCount = library[command].prototype.outletsDef.length;
+            var inletDefs  = library[command].prototype.inletDefs,
+                outletDefs = library[command].prototype.outletDefs;
+            var inletsCount  = inletDefs  ? inletDefs.length  : 0,
+                outletsCount = outletDefs ? outletDefs.length : 0;
             if (inletsCount) {
                 definition.inlets = {};
                 for (var i = 0; i < inletsCount; i++) {
@@ -271,7 +274,8 @@ var pdResolveObject = (function(WebPd) {
                 for (var i = 0; i < outletsCount; i++) {
                     definition.outlets[i] = { type: 'pd/msg' };
                 }
-            }
+            };
+            cmdToDef[command] = definition;
         });
     } else {
         cmdToDef['print'] = {
@@ -286,7 +290,7 @@ var pdResolveObject = (function(WebPd) {
         return cmdToDef[command];
     };
 
-})(Pd);
+})();
 
 function pdConfigureSymbol() {
 
