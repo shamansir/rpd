@@ -455,6 +455,8 @@ return function(networkRoot, userConfig) {
             vlink.construct(config.linkWidth)
                  .rotateOI(outlet, inlet);
 
+            d3.select(vlink.getElement()).style('z-index', LINK_LAYER);
+
             tree.links[link.id] = vlink;
             outletData.vlinks.add(vlink);
             inletData.vlinks.add(vlink);
@@ -597,6 +599,7 @@ var Connectivity = (function() {
                  var ghost = new VLink(null, style).construct(config.linkWidth)
                                                    .rotateO(outlet, pos.x, pos.y)
                                                    .noPointerEvents().appendTo(root);
+                 d3.select(ghost.getElement()).style('z-index', LINK_LAYER);
                  Kefir.fromEvents(root.node(), 'mousemove')
                       .takeUntilBy(Kefir.merge([ inletClicks,
                                                  outletClicks.map(ƒ(false)),
@@ -651,6 +654,7 @@ var Connectivity = (function() {
                  var ghost = new VLink(null, style).construct(config.linkWidth)
                                                    .rotateO(outlet, pos.x, pos.y)
                                                    .noPointerEvents().appendTo(root);
+                 d3.select(ghost.getElement()).style('z-index', LINK_LAYER);
                  Kefir.fromEvents(root.node(), 'mousemove')
                       .takeUntilBy(Kefir.merge([ inletClicks,
                                                  outletClicks.map(ƒ(false)),

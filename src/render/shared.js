@@ -111,7 +111,6 @@ function VLink(link, style) { // visual representation of the link
 VLink.prototype.construct = function(width) {
     if (this.styledLink) throw new Error('VLink is already constructed');
     var styledLink = this.style.createLink(this.link);
-    //styledLink.rotate(x0, y0, x1, y1);
     this.styledLink = styledLink;
     this.element = d3.select(styledLink.element);
     // html: this.element.style('z-index', LINK_LAYER);
@@ -173,6 +172,9 @@ VLink.prototype.disable = function() {
 }
 VLink.prototype.get = function() {
     return this.link;
+}
+VLink.prototype.getElement = function() {
+    return this.element.node();
 }
 
 function VLinks() {
