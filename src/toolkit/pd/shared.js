@@ -200,7 +200,7 @@ var PdView = (function() {
 
 })();
 
-var _receiveSend = [ [ 'rcv' ], [ 'snd' ] ];
+/* var _receiveSend = [ [ 'rcv' ], [ 'snd' ] ];
 
 var PdSpec = {
     'print': [ [ 'rcv' ], [], function(inlets) { if (console) console.log('print: ' + inlets.rcv); } ],
@@ -229,7 +229,7 @@ Object.keys(PdSpec).forEach(function(cmd) {
     spec.outlets = outlets;
     if (PdSpec[cmd][2]) spec.process = PdSpec[cmd][2];
     PdObject[cmd] = spec;
-});
+}); */
 
 var PdNodeMap = {
     'Object':  'pd/object',
@@ -249,6 +249,44 @@ var PdNodeMap = {
     'Graph':   null /*'pd/graph'*/,
     'Array':   null /*'pd/array'*/
 };
+
+var pdResolveObject = (function(WebPd) {
+    var cmdToDef = {};
+
+    if (WebPd && WebPd._glob && WebPd._glob.library) {
+        var library = WebPd._glob.library;
+        //var definition; var inletsCount, outletsCount;
+        Object.keys(library).forEach(function(command) {
+            var definition = {};
+            var inletsCount = library[command].prototype.inletsDef.length,
+                outletsCount = library[command].prototype.outletsDef.length;
+            if (inletsCount) {
+                definition.inlets = {};
+                for (var i = 0; i < inletsCount; i++) {
+                    definition.inlets[i] = { type: 'pd/msg' };
+                }
+            }
+            if (outletsCount) {
+                definition.outlets = {};
+                for (var i = 0; i < outletsCount; i++) {
+                    definition.outlets[i] = { type: 'pd/msg' };
+                }
+            }
+        });
+    } else {
+        cmdToDef['print'] = {
+            inlets: { '0': { type: 'pd/msg' } },
+            process: function(inlets) {
+                if (console) console.log('print: ' + inlets['0']);
+            }
+        };
+    }
+
+    return function(command) {
+        return cmdToDef[command];
+    };
+
+})(Pd);
 
 function pdConfigureSymbol() {
 
@@ -280,7 +318,7 @@ var PdEvent = (function() {
     requestResolveEmitter.map(function(value) {
         return {
             node: value.node, command: value.command,
-            definition: PdObject[value.command[0]] || null
+            definition: pdResolveObject(value.command[0])
         };
     }).onValue(function(value) {
         isResolvedEmitter.emit(value);
