@@ -139,6 +139,16 @@ var PdView = (function() {
         return new Spinner(sourceNode, this.inEditMode);
     }
 
+    PdView.prototype.measureText = function(root, text) {
+        // it is required to know the header size before constructing the node itself
+        var textHolder = d3.select(_createSvgElement('text'))
+                           .attr('class', 'rpd-fake-name')
+                           .text(node.name).attr('x', -1000).attr('y', -1000);
+        root.append(textHolder.node());
+        var headerWidth = textHolder.node().getBBox().width + 12;
+        textHolder.remove();
+    }
+
     // ================================ Spinner ====================================
 
     function extractPos(evt) { return { x: evt.clientX,
