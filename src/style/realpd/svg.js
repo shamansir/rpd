@@ -17,6 +17,11 @@ return function(config) {
 
 var lastRoot;
 
+var nodeToProcessElm = {};
+
+var nodeToInletCount = {},
+    nodeToOutletCount = {};
+
 var inletToConnector = {},
     outletToConnector = {};
 
@@ -49,6 +54,11 @@ return {
         nodeElm.append('g').classed('rpd-outlets', true)
                            .attr('transform', 'translate(0,' + (nodeHeight - 2) + ')');
 
+        nodeToProcessElm[node.id] = nodeElm.select('.rpd-process');
+
+        nodeToInletCount[node.id] = 0;
+        nodeToOutletCount[node.id] = 0;
+
         return {
             element: nodeElm.node(),
             size: size
@@ -57,18 +67,24 @@ return {
     },
 
     createInlet: function(inlet, render) {
+        var bodyWidth = nodeToProcessElm[inlet.node.id].node().getBBox().width;
+        //console.log(bodyWidth);
         var inletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-inlet');
         inletElm.append('g').attr('class', 'rpd-connector')
                 .append('rect').attr('width', 7).attr('height', 2);
         inletToConnector[inlet.id] = inletElm.select('.rpd-connector');
+        nodeToInletCount[inlet.node.id]++;
         return { element: inletElm.node() };
     },
 
     createOutlet: function(outlet, render) {
+        var bodyWidth = nodeToProcessElm[outlet.node.id].node().getBBox().width;
+        //console.log(bodyWidth);
         var outletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-outlet');
         outletElm.append('g').attr('class', 'rpd-connector')
                  .append('rect').attr('width', 7).attr('height', 2);
         outletToConnector[outlet.id] = outletElm.select('.rpd-connector');
+        nodeToOutletCount[outlet.node.id]++;
         return { element: outletElm.node() };
     },
 
@@ -104,6 +120,14 @@ return {
 
     onPatchSwitch: function(patch, root) {
         lastRoot = d3.select(root);
+    },
+
+    onInletRemove: function(inlet) {
+        nodeToInletCount[inlet.node.id]--;
+    },
+
+    onOutletRemove: function(outlet) {
+        nodeToOutletCount[outlet.node.id]--;
     }
 
 };

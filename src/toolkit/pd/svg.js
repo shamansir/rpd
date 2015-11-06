@@ -151,6 +151,8 @@ Rpd.noderenderer('pd/object', 'svg', function() {
                                              return value.node.id === node.id;
                                          }).onValue(function(value) {
                                              text.text(value.command.join(' '));
+                                             var newSize = view.measureText(text);
+                                             rect.attr('width', newSize.width + 6);
                                              rect.classed('rpd-pd-erratic', !value.definition);
                                          });
 

@@ -363,6 +363,7 @@ return function(networkRoot, userConfig) {
             });
 
             tree.inlets[inlet.id].remove();
+            if (style.onInletRemove) style.onInletRemove(inlet);
 
             tree.inlets[inlet.id] = null;
 
@@ -377,6 +378,7 @@ return function(networkRoot, userConfig) {
             });
 
             tree.outlets[outlet.id].remove();
+            if (style.onOutletRemove) style.onOutletRemove(outlet);
 
             tree.outlets[outlet.id] = null;
         },
