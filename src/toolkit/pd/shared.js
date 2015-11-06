@@ -18,6 +18,8 @@ var PdView = (function() {
     var editModeOn = Kefir.emitter(),
         editModeOff = Kefir.emitter();
 
+    var nodeToInlets = {}, nodeToOutlets = {}, nodeToCommand = {};
+
     function PdView(defaultSize) {
         this.inEditMode = Kefir.merge([ editModeOn.map(ƒ(true)),
                                         editModeOff.map(ƒ(false)) ]).toProperty(ƒ(false));
@@ -143,6 +145,31 @@ var PdView = (function() {
         var bbox = textHolder.node().getBBox();
         return { width: bbox.width, height: bbox.height };
     }
+
+    // add required inlets and outlets to the node using the properties from resove-event
+    PdView.prototype.applyDefinition = function(node, command, definition) {
+        var commandChanged = !definition || !(nodeToCommand[node.id] && (command[0] === nodeToCommand[node.id]));
+        if (commandChanged && nodeToInlets[node.id]) {
+            nodeToInlets[node.id].forEach(function(inlet) { node.removeInlet(inlet); });
+            nodeToInlets[node.id] = null;
+        }
+        if (commandChanged && nodeToOutlets[node.id]) {
+            nodeToOutlets[node.id].forEach(function(outlet) { node.removeOutlet(outlet); });
+            nodeToOutlets[node.id] = null;
+        }
+        nodeToCommand[node.id] = command[0] || null;
+        if (!definition || !commandChanged) return;
+        var inlets = definition.inlets || {}, oultets = definition.outlets || {};
+        var savedInlets = [], savedOutlets = [];
+        Object.keys(inlets).forEach(function(alias) {
+            savedInlets.push(node.addInlet(inlets[alias].type, alias));
+        });
+        Object.keys(oultets).forEach(function(alias) {
+            savedOutlets.push(node.addOutlet(oultets[alias].type, alias));
+        });
+        nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
+        nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
+    };
 
     // ================================ Spinner ====================================
 
@@ -331,33 +358,6 @@ var PdEvent = (function() {
         };
     }).onValue(function(value) {
         isResolvedEmitter.emit(value);
-    });
-
-    var nodeToInlets = {}, nodeToOutlets = {}, nodeToCommand = {};
-    isResolvedEmitter.onValue(function(value) {
-        var node = value.node, command = value.command,
-            definition = value.definition;
-        var commandChanged = !definition || !(nodeToCommand[node.id] && (command[0] === nodeToCommand[node.id]));
-        if (commandChanged && nodeToInlets[node.id]) {
-            nodeToInlets[node.id].forEach(function(inlet) { node.removeInlet(inlet); });
-            nodeToInlets[node.id] = null;
-        }
-        if (commandChanged && nodeToOutlets[node.id]) {
-            nodeToOutlets[node.id].forEach(function(outlet) { node.removeOutlet(outlet); });
-            nodeToOutlets[node.id] = null;
-        }
-        nodeToCommand[node.id] = command[0] || null;
-        if (!definition || !commandChanged) return;
-        var inlets = definition.inlets || {}, oultets = definition.outlets || {};
-        var savedInlets = [], savedOutlets = [];
-        Object.keys(inlets).forEach(function(alias) {
-            savedInlets.push(node.addInlet(inlets[alias].type, alias));
-        });
-        Object.keys(oultets).forEach(function(alias) {
-            savedOutlets.push(node.addOutlet(oultets[alias].type, alias));
-        });
-        nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
-        nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
     });
 
     return events;

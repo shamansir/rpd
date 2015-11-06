@@ -5,6 +5,7 @@ var d3 = d3 || d3_tiny;
 var socketPadding = 10; // distance between inlets/outlets in SVG units
 
 var nodeHeight = 18;
+var connectorWidth = 7;
 
 function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
@@ -19,11 +20,35 @@ var lastRoot;
 
 var nodeToProcessElm = {};
 
-var nodeToInletCount = {},
-    nodeToOutletCount = {};
+var nodeToInlets = {},
+    nodeToOutlets = {};
 
-var inletToConnector = {},
-    outletToConnector = {};
+var inletToElm = {},
+    outletToElm = {};
+
+function redistributeInlets(node) {
+    var inlets = nodeToInlets[node.id];
+    var inlet_count = inlets.length;
+    if (inlet_count <= 1) return;
+    var bodyWidth = nodeToProcessElm[node.id].node().getBBox().width;
+    inlets.forEach(function(inlet, idx) {
+        var xPos = idx * (bodyWidth / (inlet_count - 1))
+                 - idx * (connectorWidth / (inlet_count - 1));
+        inletToElm[inlet.id].attr('transform', 'translate(' + xPos + ',0)');
+    });
+}
+
+function redistributeOutlets(node, new_outlet) {
+    var outlets = nodeToOutlets[node.id];
+    var outlet_count = outlets.length;
+    if (outlet_count <= 1) return;
+    var bodyWidth = nodeToProcessElm[node.id].node().getBBox().width;
+    outlets.forEach(function(outlet, idx) {
+        var xPos = idx * (bodyWidth / (outlet_count - 1))
+                 - idx * (connectorWidth / (outlet_count - 1));
+        outletToElm[inlet.id].attr('transform', 'translate(' + xPos + ',0)');
+    });
+}
 
 return {
 
@@ -56,8 +81,8 @@ return {
 
         nodeToProcessElm[node.id] = nodeElm.select('.rpd-process');
 
-        nodeToInletCount[node.id] = 0;
-        nodeToOutletCount[node.id] = 0;
+        nodeToInlets[node.id] = [];
+        nodeToOutlets[node.id] = [];
 
         return {
             element: nodeElm.node(),
@@ -67,24 +92,22 @@ return {
     },
 
     createInlet: function(inlet, render) {
-        var bodyWidth = nodeToProcessElm[inlet.node.id].node().getBBox().width;
-        //console.log(bodyWidth);
         var inletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-inlet');
         inletElm.append('g').attr('class', 'rpd-connector')
                 .append('rect').attr('width', 7).attr('height', 2);
-        inletToConnector[inlet.id] = inletElm.select('.rpd-connector');
-        nodeToInletCount[inlet.node.id]++;
+        inletToElm[inlet.id] = inletElm;
+        nodeToInlets[inlet.node.id].push(inlet);
+        redistributeInlets(inlet.node);
         return { element: inletElm.node() };
     },
 
     createOutlet: function(outlet, render) {
-        var bodyWidth = nodeToProcessElm[outlet.node.id].node().getBBox().width;
-        //console.log(bodyWidth);
         var outletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-outlet');
         outletElm.append('g').attr('class', 'rpd-connector')
                  .append('rect').attr('width', 7).attr('height', 2);
-        outletToConnector[outlet.id] = outletElm.select('.rpd-connector');
-        nodeToOutletCount[outlet.node.id]++;
+        outletToElm[outlet.id] = outletElm;
+        nodeToOutlets[outlet.node.id].push(outlet);
+        redistributeOutlets(outlet.node);
         return { element: outletElm.node() };
     },
 
@@ -102,12 +125,12 @@ return {
     },
 
     getInletPos: function(inlet) {
-        var connectorPos = getPos(inletToConnector[inlet.id].node());
+        var connectorPos = getPos(inletToElm[inlet.id].select('.rpd-connector').node());
         return { x: connectorPos.x + 3, y: connectorPos.y + 1 };
     },
 
     getOutletPos: function(outlet) {
-        var connectorPos = getPos(outletToConnector[outlet.id].node());
+        var connectorPos = getPos(outletToElm[outlet.id].select('.rpd-connector').node());
         return { x: connectorPos.x + 3, y: connectorPos.y + 1 };
     },
 
@@ -123,11 +146,15 @@ return {
     },
 
     onInletRemove: function(inlet) {
-        nodeToInletCount[inlet.node.id]--;
+        nodeToInlets = nodeToInlets.filter(function(other) {
+            return other.id !== inlet.id;
+        });
     },
 
     onOutletRemove: function(outlet) {
-        nodeToOutletCount[outlet.node.id]--;
+        nodeToOutlets = nodeToOutlets.filter(function(other) {
+            return other.id !== outlet.id;
+        });
     }
 
 };
