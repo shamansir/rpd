@@ -321,6 +321,7 @@ function getHtmlHead(options) {
     }
     comment('Built with RPD v' + pkg.version + ' <http://shamansir.github.io/rpd>');
     console.log();
+    console.log('  <meta charset=\'utf-8\' />');
     comment(getCommandString(options).replace(/--/g, '=='));
     console.log();
     options.renderer.forEach(function(renderer) {
