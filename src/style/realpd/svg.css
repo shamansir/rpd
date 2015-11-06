@@ -8,6 +8,11 @@
     fill: white;
 }
 
+.rpd-fresh .rpd-connector {
+    fill: red;
+    transition: fill .3s;
+}
+
 .rpd-link {
     stroke-width: 1;
     stroke: black;
