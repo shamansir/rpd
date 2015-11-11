@@ -146,13 +146,15 @@ return {
     },
 
     onInletRemove: function(inlet) {
-        nodeToInlets = nodeToInlets.filter(function(other) {
+        var nodeId = inlet.node.id;
+        nodeToInlets[nodeId] = nodeToInlets[nodeId].filter(function(other) {
             return other.id !== inlet.id;
         });
     },
 
     onOutletRemove: function(outlet) {
-        nodeToOutlets = nodeToOutlets.filter(function(other) {
+        var nodeId = outlet.node.id;
+        nodeToOutlets[nodeId] = nodeToOutlets[nodeId].filter(function(other) {
             return other.id !== outlet.id;
         });
     }
