@@ -106,7 +106,7 @@
                 target.innerHTML = target.textContent = '';
                 var webPdPatch = WebPd ? WebPd.loadPatch(textarea.value) : null;
                 console.log(webPdPatch, WebPd ? WebPd.objects : null);
-                var importedPatch = Rpd.import.pd(textarea.value, WebPd);
+                var importedPatch = Rpd.import.pd(textarea.value, webPdPatch);
                 if (importedPatch) {
                     importedPatch.addNode('pd/edit-switch').move(10, 10);
                 }

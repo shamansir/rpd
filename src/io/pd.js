@@ -22,7 +22,7 @@ Rpd.export.pd = function(name) {
 
 // ================================= IMPORT =================================
 
-Rpd.import.pd = function(lines) {
+Rpd.import.pd = function(lines, webPdPatch) {
     var objects = [],
         arrays = [];
 
