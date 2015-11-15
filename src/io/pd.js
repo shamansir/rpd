@@ -29,7 +29,11 @@ Rpd.import.pd = function(lines, webPdPatch) {
     var nodeToInlets = {},
         nodeToOutlets = {};
 
-    var rootPatch = Rpd.addPatch('PD').enter();
+    var rootPatch = Rpd.addPatch('PD').enter(); // why entering the patch here?
+
+    rootPatch.webPdPatch = webPdPatch;
+    rootPatch.model = new PdModel(rootPatch, webPdPatch); // it is wrong to do it here as well
+                                                          // since PdModel is defined for toolkit, not the import
 
     function pushInlet(update) {
         if (!nodeToInlets[update.node.id]) nodeToInlets[update.node.id] = [];

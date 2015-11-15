@@ -18,8 +18,6 @@ var PdView = (function() {
     var editModeOn = Kefir.emitter(),
         editModeOff = Kefir.emitter();
 
-    var nodeToInlets = {}, nodeToOutlets = {}, nodeToCommand = {};
-
     function PdView(defaultSize) {
         this.inEditMode = Kefir.merge([ editModeOn.map(ƒ(true)),
                                         editModeOff.map(ƒ(false)) ]).toProperty(ƒ(false));
@@ -146,31 +144,6 @@ var PdView = (function() {
         return { width: bbox.width, height: bbox.height };
     }
 
-    // add required inlets and outlets to the node using the properties from resove-event
-    PdView.prototype.applyDefinition = function(node, command, definition) {
-        var commandChanged = !definition || !(nodeToCommand[node.id] && (command[0] === nodeToCommand[node.id]));
-        if (commandChanged && nodeToInlets[node.id]) {
-            nodeToInlets[node.id].forEach(function(inlet) { node.removeInlet(inlet); });
-            nodeToInlets[node.id] = null;
-        }
-        if (commandChanged && nodeToOutlets[node.id]) {
-            nodeToOutlets[node.id].forEach(function(outlet) { node.removeOutlet(outlet); });
-            nodeToOutlets[node.id] = null;
-        }
-        nodeToCommand[node.id] = command[0] || null;
-        if (!definition || !commandChanged) return;
-        var inlets = definition.inlets || {}, oultets = definition.outlets || {};
-        var savedInlets = [], savedOutlets = [];
-        Object.keys(inlets).forEach(function(alias) {
-            savedInlets.push(node.addInlet(inlets[alias].type, alias));
-        });
-        Object.keys(oultets).forEach(function(alias) {
-            savedOutlets.push(node.addOutlet(oultets[alias].type, alias));
-        });
-        nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
-        nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
-    };
-
     // ================================ Spinner ====================================
 
     function extractPos(evt) { return { x: evt.clientX,
@@ -229,6 +202,44 @@ var PdView = (function() {
     }
 
     return PdView;
+
+})();
+
+var PdModel = (function() {
+
+    var nodeToInlets = {}, nodeToOutlets = {}, nodeToCommand = {};
+
+    function PdModel(patch, webPdPatch) {
+        this.patch = patch;
+        this.webPdPatch = webPdPatch;
+    };
+
+    // add required inlets and outlets to the node using the properties from resove-event
+    PdModel.prototype.applyDefinition = function(node, command, definition) {
+        var commandChanged = !definition || !(nodeToCommand[node.id] && (command[0] === nodeToCommand[node.id]));
+        if (commandChanged && nodeToInlets[node.id]) {
+            nodeToInlets[node.id].forEach(function(inlet) { node.removeInlet(inlet); });
+            nodeToInlets[node.id] = null;
+        }
+        if (commandChanged && nodeToOutlets[node.id]) {
+            nodeToOutlets[node.id].forEach(function(outlet) { node.removeOutlet(outlet); });
+            nodeToOutlets[node.id] = null;
+        }
+        nodeToCommand[node.id] = command[0] || null;
+        if (!definition || !commandChanged) return;
+        var inlets = definition.inlets || {}, oultets = definition.outlets || {};
+        var savedInlets = [], savedOutlets = [];
+        Object.keys(inlets).forEach(function(alias) {
+            savedInlets.push(node.addInlet(inlets[alias].type, alias));
+        });
+        Object.keys(oultets).forEach(function(alias) {
+            savedOutlets.push(node.addOutlet(oultets[alias].type, alias));
+        });
+        nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
+        nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
+    };
+
+    return PdModel;
 
 })();
 
