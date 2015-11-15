@@ -23,7 +23,8 @@ Rpd.export.pd = function(name) {
 // ================================= IMPORT =================================
 
 Rpd.import.pd = function(lines, webPdPatch) {
-    var objects = [],
+    var nodes = [],
+        objects = [],
         arrays = [];
 
     var nodeToInlets = {},
@@ -34,7 +35,6 @@ Rpd.import.pd = function(lines, webPdPatch) {
     rootPatch.webPdPatch = webPdPatch;
     rootPatch.model = new PdModel(rootPatch, webPdPatch); // it is wrong to do it here as well
                                                           // since PdModel is defined for toolkit, not the import
-
     function pushInlet(update) {
         if (!nodeToInlets[update.node.id]) nodeToInlets[update.node.id] = [];
         nodeToInlets[update.node.id].push(update.inlet);
@@ -134,6 +134,12 @@ Rpd.import.pd = function(lines, webPdPatch) {
             }
 
         }
+
+        if (node) {
+            nodes.push(node);
+            if (webPdPatch) node.webPdNode = webPdPatch.objects[nodes.length - 1];
+        }
+
     });
 
     addInletStream.offValue(pushInlet); addOutletStream.offValue(pushOutlet);

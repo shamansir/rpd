@@ -239,6 +239,10 @@ var PdModel = (function() {
         nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
     };
 
+    // TODO: requestResolve
+
+    // TODO: onResolved
+
     return PdModel;
 
 })();
