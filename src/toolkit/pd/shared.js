@@ -207,112 +207,67 @@ var PdView = (function() {
 
 var PdModel = (function() {
 
-    var nodeToInlets = {}, nodeToOutlets = {}, nodeToCommand = {};
-
-    function PdModel(patch, webPdPatch) {
-        this.patch = patch;
-        this.webPdPatch = webPdPatch;
+    var PdNodeMap = {
+        'Object':  'pd/object',
+        'Message': 'pd/message',
+        'Number':  'pd/number',
+        'Symbol':  'pd/symbol',
+        'Comment': 'pd/comment',
+        'Bang':    'pd/bang',
+        'Toggle':  'pd/toggle',
+        'Number2': null /*'pd/number-2'*/,
+        'VSlider': null /*'pd/vslider'*/,
+        'HSlider': null /*'pd/hslider'*/,
+        'VRadio':  null /*'pd/vradio'*/,
+        'HRadio':  null /*'pd/hradio'*/,
+        'VUMeter': null /*'pd/vumeter'*/,
+        'Canvas':  null /*'pd/canvas'*/,
+        'Graph':   null /*'pd/graph'*/,
+        'Array':   null /*'pd/array'*/
     };
 
-    // add required inlets and outlets to the node using the properties from resove-event
-    PdModel.prototype.applyDefinition = function(node, command, definition) {
-        var commandChanged = !definition || !(nodeToCommand[node.id] && (command[0] === nodeToCommand[node.id]));
-        if (commandChanged && nodeToInlets[node.id]) {
-            nodeToInlets[node.id].forEach(function(inlet) { node.removeInlet(inlet); });
-            nodeToInlets[node.id] = null;
-        }
-        if (commandChanged && nodeToOutlets[node.id]) {
-            nodeToOutlets[node.id].forEach(function(outlet) { node.removeOutlet(outlet); });
-            nodeToOutlets[node.id] = null;
-        }
-        nodeToCommand[node.id] = command[0] || null;
-        if (!definition || !commandChanged) return;
-        var inlets = definition.inlets || {}, oultets = definition.outlets || {};
-        var savedInlets = [], savedOutlets = [];
-        Object.keys(inlets).forEach(function(alias) {
-            savedInlets.push(node.addInlet(inlets[alias].type, alias));
-        });
-        Object.keys(oultets).forEach(function(alias) {
-            savedOutlets.push(node.addOutlet(oultets[alias].type, alias));
-        });
-        nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
-        nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
-    };
+    var pdResolveObject = (function() {
+        var WebPd = window.Pd || null;
+        var cmdToDef = {};
 
-    // TODO: requestResolve
-
-    // TODO: onResolved
-
-    return PdModel;
-
-})();
-
-var PdNodeMap = {
-    'Object':  'pd/object',
-    'Message': 'pd/message',
-    'Number':  'pd/number',
-    'Symbol':  'pd/symbol',
-    'Comment': 'pd/comment',
-    'Bang':    'pd/bang',
-    'Toggle':  'pd/toggle',
-    'Number2': null /*'pd/number-2'*/,
-    'VSlider': null /*'pd/vslider'*/,
-    'HSlider': null /*'pd/hslider'*/,
-    'VRadio':  null /*'pd/vradio'*/,
-    'HRadio':  null /*'pd/hradio'*/,
-    'VUMeter': null /*'pd/vumeter'*/,
-    'Canvas':  null /*'pd/canvas'*/,
-    'Graph':   null /*'pd/graph'*/,
-    'Array':   null /*'pd/array'*/
-};
-
-var pdResolveObject = (function() {
-    var WebPd = window.Pd || null;
-    var cmdToDef = {};
-
-    if (WebPd && WebPd._glob && WebPd._glob.library) {
-        var library = WebPd._glob.library;
-        //var definition; var inletsCount, outletsCount;
-        Object.keys(library).forEach(function(command) {
-            var definition = {};
-            var inletDefs  = library[command].prototype.inletDefs,
-                outletDefs = library[command].prototype.outletDefs;
-            var inletsCount  = inletDefs  ? inletDefs.length  : 0,
-                outletsCount = outletDefs ? outletDefs.length : 0;
-            if (inletsCount) {
-                definition.inlets = {};
-                for (var i = 0; i < inletsCount; i++) {
-                    definition.inlets[i] = { type: 'pd/msg' };
+        if (WebPd && WebPd._glob && WebPd._glob.library) {
+            var library = WebPd._glob.library;
+            //var definition; var inletsCount, outletsCount;
+            Object.keys(library).forEach(function(command) {
+                var definition = {};
+                var inletDefs  = library[command].prototype.inletDefs,
+                    outletDefs = library[command].prototype.outletDefs;
+                var inletsCount  = inletDefs  ? inletDefs.length  : 0,
+                    outletsCount = outletDefs ? outletDefs.length : 0;
+                if (inletsCount) {
+                    definition.inlets = {};
+                    for (var i = 0; i < inletsCount; i++) {
+                        definition.inlets[i] = { type: 'pd/msg' };
+                    }
                 }
-            }
-            if (outletsCount) {
-                definition.outlets = {};
-                for (var i = 0; i < outletsCount; i++) {
-                    definition.outlets[i] = { type: 'pd/msg' };
+                if (outletsCount) {
+                    definition.outlets = {};
+                    for (var i = 0; i < outletsCount; i++) {
+                        definition.outlets[i] = { type: 'pd/msg' };
+                    }
+                };
+                cmdToDef[command] = definition;
+            });
+        } else {
+            cmdToDef['print'] = {
+                inlets: { '0': { type: 'pd/msg' } },
+                process: function(inlets) {
+                    if (console) console.log('print: ' + inlets['0']);
                 }
             };
-            cmdToDef[command] = definition;
-        });
-    } else {
-        cmdToDef['print'] = {
-            inlets: { '0': { type: 'pd/msg' } },
-            process: function(inlets) {
-                if (console) console.log('print: ' + inlets['0']);
-            }
+        }
+
+        return function(command) {
+            return cmdToDef[command];
         };
-    }
 
-    return function(command) {
-        return cmdToDef[command];
-    };
+    })();
 
-})();
-
-function pdConfigureSymbol() {
-
-}
-
-var PdEvent = (function() {
     var requestResolveEmitter = Kefir.emitter();
     var isResolvedEmitter = Kefir.emitter();
 
@@ -344,6 +299,58 @@ var PdEvent = (function() {
         isResolvedEmitter.emit(value);
     });
 
-    return events;
+    function PdModel(patch, webPdPatch) {
+        this.patch = patch;
+        this.webPdPatch = webPdPatch;
+
+        this.nodeToInlets = {};
+        this.nodeToOutlets = {};
+        this.nodeToCommand = {};
+    };
+
+    // add required inlets and outlets to the node using the properties from resove-event
+    PdModel.prototype.applyDefinition = function(node, command, definition) {
+        var nodeToInlets = this.nodeToInlets,
+            nodeToOutlets = this.nodeToOutlets,
+            nodeToCommand = this.nodeToCommand;
+
+        var commandChanged = !definition || !(nodeToCommand[node.id] && (command[0] === nodeToCommand[node.id]));
+        if (commandChanged && nodeToInlets[node.id]) {
+            nodeToInlets[node.id].forEach(function(inlet) { node.removeInlet(inlet); });
+            nodeToInlets[node.id] = null;
+        }
+        if (commandChanged && nodeToOutlets[node.id]) {
+            nodeToOutlets[node.id].forEach(function(outlet) { node.removeOutlet(outlet); });
+            nodeToOutlets[node.id] = null;
+        }
+        nodeToCommand[node.id] = command[0] || null;
+        if (!definition || !commandChanged) return;
+        var inlets = definition.inlets || {}, oultets = definition.outlets || {};
+        var savedInlets = [], savedOutlets = [];
+        Object.keys(inlets).forEach(function(alias) {
+            savedInlets.push(node.addInlet(inlets[alias].type, alias));
+        });
+        Object.keys(oultets).forEach(function(alias) {
+            savedOutlets.push(node.addOutlet(oultets[alias].type, alias));
+        });
+        nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
+        nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
+    };
+
+    PdModel.prototype.requestResolve = function(node, command) {
+        requestResolveEmitter.emit({ node: node, command: command });
+    };
+
+    PdModel.prototype.whenResolved = function(node, callback) {
+        isResolvedEmitter.filter(function(value) {
+            return value.node.id === node.id;
+        }).onValue(callback);
+    };
+
+    PdModel.prototype.configureSymbol = function(node, command) {
+
+    };
+
+    return PdModel;
 
 })();

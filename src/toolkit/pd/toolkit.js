@@ -4,11 +4,12 @@ Rpd.channeltype('pd/msg', { });
 
 Rpd.nodetype('pd/object', function(node) {
     var _process;
-    PdEvent['object/is-resolved'].filter(function(value) { return value.node.id === node.id; })
-                                 .onValue(function(value) {
-                                     _process = value.definition ? value.definition.process
-                                                                 : null;
-                                 });
+    var model = node.patch ? node.patch.model : null;
+    if (model) {
+        model.whenResolved(node, function(value) {
+            _process = value.definition ? value.definition.process : null;
+        });
+    };
     return {
         inlets: { 'command': { type: 'pd/msg', hidden: true } },
         process: function() {

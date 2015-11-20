@@ -31,10 +31,12 @@ Rpd.import.pd = function(lines, webPdPatch) {
         nodeToOutlets = {};
 
     var rootPatch = Rpd.addPatch('PD').enter(); // why entering the patch here?
+    var model = new PdModel(rootPatch, webPdPatch); // it is wrong to do it here as well
+                                                    // since PdModel is defined for toolkit, not the import
 
+    rootPatch.model = model;
     rootPatch.webPdPatch = webPdPatch;
-    rootPatch.model = new PdModel(rootPatch, webPdPatch); // it is wrong to do it here as well
-                                                          // since PdModel is defined for toolkit, not the import
+
     function pushInlet(update) {
         if (!nodeToInlets[update.node.id]) nodeToInlets[update.node.id] = [];
         nodeToInlets[update.node.id].push(update.inlet);
@@ -81,12 +83,12 @@ Rpd.import.pd = function(lines, webPdPatch) {
             } else if (rest[1] === 'floatatom') {
                 node = rootPatch.addNode('pd/number');
                 node.move(parseInt(rest[2]), parseInt(rest[3]));
-                pdConfigureSymbol(node, rest.slice(4));
+                model.configureSymbol(node, rest.slice(4));
                 objects.push(node);
             } else if (rest[1] === 'symbolatom') {
                 node = rootPatch.addNode('pd/symbol');
                 node.move(parseInt(rest[2]), parseInt(rest[3]));
-                pdConfigureSymbol(node, rest.slice(4));
+                model.configureSymbol(node, rest.slice(4));
                 objects.push(node);
             } else if (rest[1] === 'msg') {
                 node = rootPatch.addNode('pd/message');
@@ -123,9 +125,7 @@ Rpd.import.pd = function(lines, webPdPatch) {
                 } else {
                     node = rootPatch.addNode('pd/object');
                     node.move(parseInt(rest[2]), parseInt(rest[3]));
-                    PdEvent['object/request-resolve'].emit({
-                        node: node, command: rest.slice(4)
-                    });
+                    model.requestResolve(node, rest.slice(4));
                 }
                 objects.push(node || {});
 

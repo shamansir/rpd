@@ -143,20 +143,18 @@ Rpd.noderenderer('pd/object', 'svg', function() {
                          .attr('x', 2).attr('y', size.height / 2);
             view.addSelection(bodyElm);
             view.addEditor(bodyElm, text.node(), function(value) {
-                PdEvent['object/request-resolve'].emit({
-                    node: node, command: value.split(' ')
-                });
+                if (model) model.requestResolve(node, value.split(' '));
             });
 
-            PdEvent['object/is-resolved'].filter(function(value) {
-                                             return value.node.id === node.id;
-                                         }).onValue(function(value) {
-                                             text.text(value.command.join(' '));
-                                             var newSize = view.measureText(text);
-                                             rect.attr('width', newSize.width + 6);
-                                             rect.classed('rpd-pd-erratic', !value.definition);
-                                             if (model) model.applyDefinition(value.node, value.command, value.definition);
-                                         });
+            if (model) {
+                model.whenResolved(node, function(value) {
+                    text.text(value.command.join(' '));
+                    var newSize = view.measureText(text);
+                    rect.attr('width', newSize.width + 6);
+                    rect.classed('rpd-pd-erratic', !value.definition);
+                    model.applyDefinition(value.node, value.command, value.definition);
+                });
+            }
 
             d3.select(bodyElm).call(function(body) {
                  body.append(rect.node());
