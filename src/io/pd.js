@@ -30,7 +30,7 @@ Rpd.import.pd = function(lines, webPdPatch) {
     var nodeToInlets = {},
         nodeToOutlets = {};
 
-    var rootPatch = Rpd.addPatch('PD').enter(); // why entering the patch here?
+    var rootPatch = Rpd.addPatch('PD').enter(); // why entering the patch required here?
     var model = new PdModel(rootPatch, webPdPatch); // it is wrong to do it here as well
                                                     // since PdModel is defined for toolkit, not the import
 
@@ -49,6 +49,10 @@ Rpd.import.pd = function(lines, webPdPatch) {
     function popOutlet(update) { nodeToOutlets[update.node.id].pop(); }
 
     function eventIs(type) { return function(event) { return event.type === type; } };
+
+    function attachWebPdNode(node, webPdIdx) {
+        if (webPdPatch) node.webPdNode = webPdPatch.objects[webPdIdx];
+    }
 
     var addInletStream = rootPatch.events.filter(eventIs('node/add-inlet'))
                                          .filter(function(event) { return !event.inlet.hidden; });
@@ -84,21 +88,25 @@ Rpd.import.pd = function(lines, webPdPatch) {
                 node = rootPatch.addNode('pd/number');
                 node.move(parseInt(rest[2]), parseInt(rest[3]));
                 model.configureSymbol(node, rest.slice(4));
+                attachWebPdNode(node, objects.length);
                 objects.push(node);
             } else if (rest[1] === 'symbolatom') {
                 node = rootPatch.addNode('pd/symbol');
                 node.move(parseInt(rest[2]), parseInt(rest[3]));
                 model.configureSymbol(node, rest.slice(4));
+                attachWebPdNode(node, objects.length);
                 objects.push(node);
             } else if (rest[1] === 'msg') {
                 node = rootPatch.addNode('pd/message');
                 node.move(parseInt(rest[2]), parseInt(rest[3]));
                 node.inlets['receive'].receive(rest.slice(4));
+                attachWebPdNode(node, objects.length);
                 objects.push(node);
             } else if (rest[1] === 'text') {
                 node = rootPatch.addNode('pd/comment');
                 node.move(parseInt(rest[2]), parseInt(rest[3]));
                 node.inlets['text'].receive(rest[4]);
+                attachWebPdNode(node, objects.length);
                 objects.push(node);
             } else if (rest[1] === 'obj') {
 
@@ -127,6 +135,7 @@ Rpd.import.pd = function(lines, webPdPatch) {
                     node.move(parseInt(rest[2]), parseInt(rest[3]));
                     model.requestResolve(node, rest.slice(4));
                 }
+                if (node) attachWebPdNode(node, objects.length);
                 objects.push(node || {});
 
             } else {
@@ -137,7 +146,6 @@ Rpd.import.pd = function(lines, webPdPatch) {
 
         if (node) {
             nodes.push(node);
-            if (webPdPatch) node.webPdNode = webPdPatch.objects[nodes.length - 1];
         }
 
     });
