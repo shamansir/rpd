@@ -325,13 +325,18 @@ var PdModel = (function() {
         }
         nodeToCommand[node.id] = command[0] || null;
         if (!definition || !commandChanged) return;
+
+        var webPdNode = node.webPdNode;
+
         var inlets = definition.inlets || {}, oultets = definition.outlets || {};
         var savedInlets = [], savedOutlets = [];
-        Object.keys(inlets).forEach(function(alias) {
+        Object.keys(inlets).forEach(function(alias/*, idx*/) {
             savedInlets.push(node.addInlet(inlets[alias].type, alias));
+            //if (webPdNode) webPdNode.i[idx];
         });
-        Object.keys(oultets).forEach(function(alias) {
+        Object.keys(oultets).forEach(function(alias/*, idx*/) {
             savedOutlets.push(node.addOutlet(oultets[alias].type, alias));
+            //if (webPdNode) webPdNode.o[idx];
         });
         nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
         nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
