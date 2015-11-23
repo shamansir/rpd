@@ -205,7 +205,7 @@ var PdView = (function() {
 
 })();
 
-var PdModel = (function() {
+var PdModel = (function(WebPd) {
 
     var PdNodeMap = {
         'Object':  'pd/object',
@@ -306,6 +306,8 @@ var PdModel = (function() {
         this.nodeToInlets = {};
         this.nodeToOutlets = {};
         this.nodeToCommand = {};
+
+        if (webPdPatch) this.webPdDummy = { patch: webPdPatch };
     };
 
     // add required inlets and outlets to the node using the properties from resove-event
@@ -326,20 +328,34 @@ var PdModel = (function() {
         nodeToCommand[node.id] = command[0] || null;
         if (!definition || !commandChanged) return;
 
-        var webPdNode = node.webPdNode;
-
         var inlets = definition.inlets || {}, oultets = definition.outlets || {};
         var savedInlets = [], savedOutlets = [];
-        Object.keys(inlets).forEach(function(alias/*, idx*/) {
+        Object.keys(inlets).forEach(function(alias) {
             savedInlets.push(node.addInlet(inlets[alias].type, alias));
-            //if (webPdNode) webPdNode.i[idx];
         });
-        Object.keys(oultets).forEach(function(alias/*, idx*/) {
+        Object.keys(oultets).forEach(function(alias) {
             savedOutlets.push(node.addOutlet(oultets[alias].type, alias));
-            //if (webPdNode) webPdNode.o[idx];
         });
         nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
         nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
+
+        if (this.webPdPatch && WebPd) {
+            var dummy = this.webPdDummy;
+            var curObject = node.webPdObject;
+            var newObject = patch.createObject(command[0], command.slice(1));
+            savedInlets.forEach(function(inlet, idx) {
+                inlet.event['inlet/update'].onValue(function(val) {
+                    newObject.i[idx].message([val]);
+                });
+            });
+            savedOutlets.forEach(function(outlet, idx) {
+                var receiver = new WebPd.core.portlets.Inlet(dummy);
+                receiver.message = function(args) {
+                    outlet.send(args);
+                };
+                newObject.o[idx].connect(receiver);
+            });
+        }
     };
 
     PdModel.prototype.requestResolve = function(node, command) {
@@ -358,4 +374,4 @@ var PdModel = (function() {
 
     return PdModel;
 
-})();
+})(Pd);
