@@ -342,19 +342,28 @@ var PdModel = (function(WebPd) {
         if (this.webPdPatch && WebPd) {
             var dummy = this.webPdDummy;
             var curObject = node.webPdObject;
-            var newObject = patch.createObject(command[0], command.slice(1));
-            savedInlets.forEach(function(inlet, idx) {
-                inlet.event['inlet/update'].onValue(function(val) {
-                    newObject.i[idx].message([val]);
-                });
-            });
-            savedOutlets.forEach(function(outlet, idx) {
-                var receiver = new WebPd.core.portlets.Inlet(dummy);
-                receiver.message = function(args) {
-                    outlet.send(args);
-                };
-                newObject.o[idx].connect(receiver);
-            });
+            var newObject = this.webPdPatch.createObject(command[0], command.slice(1));
+            console.log(newObject, command[0], command.slice(1));
+            if (newObject) {
+                if (savedInlets) {
+                    savedInlets.forEach(function(inlet, idx) {
+                        console.log(idx, newObject.inlets[idx]);
+                        inlet.event['inlet/update'].onValue(function(val) {
+                            newObject.inlets[idx].message([val]);
+                        });
+                    });
+                }
+                if (savedOutlets) {
+                    savedOutlets.forEach(function(outlet, idx) {
+                        var receiver = new WebPd.core.portlets.Inlet(dummy);
+                        receiver.message = function(args) {
+                            outlet.send(args);
+                        };
+                        console.log(idx, newObject.outlets[idx]);
+                        newObject.outlets[idx].connect(receiver);
+                    });
+                }
+            }
         }
     };
 
