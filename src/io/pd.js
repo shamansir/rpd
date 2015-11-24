@@ -22,19 +22,27 @@ Rpd.export.pd = function(name) {
 
 // ================================= IMPORT =================================
 
-Rpd.import.pd = function(lines, webPdPatch) {
-    var nodes = [],
+Rpd.import.pd = function(lines) {
+
+    var WebPd = global.Pd || null;
+
+    if (!WebPd) throw new Error('WebPd is required to import PD files');
+
+    //var patchData = WebPd.getPatchData(lines);
+    var webPdPatch = WebPd.loadPatch(lines);
+
+    /*var nodes = [],
         objects = [],
         arrays = [];
 
     var nodeToInlets = {},
-        nodeToOutlets = {};
+        nodeToOutlets = {}; */
 
     var rootPatch = Rpd.addPatch('PD').enter(); // why entering the patch required here?
     var model = new PdModel(rootPatch, webPdPatch); // it is wrong to do it here as well
                                                     // since PdModel is defined for toolkit, not the import
 
-    rootPatch.model = model;
+    /* rootPatch.model = model;
     rootPatch.webPdPatch = webPdPatch;
 
     function pushInlet(update) {
@@ -154,7 +162,7 @@ Rpd.import.pd = function(lines, webPdPatch) {
     });
 
     addInletStream.offValue(pushInlet); addOutletStream.offValue(pushOutlet);
-    removeInletStream.offValue(popInlet); removeOutletStream.offValue(popOutlet);
+    removeInletStream.offValue(popInlet); removeOutletStream.offValue(popOutlet); */
 
     return rootPatch;
 

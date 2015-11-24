@@ -347,7 +347,7 @@ var PdModel = (function(WebPd) {
             if (newObject) {
                 if (savedInlets) {
                     savedInlets.forEach(function(inlet, idx) {
-                        console.log(idx, newObject.inlets[idx]);
+                        console.log('inlet', idx, newObject.inlets[idx]);
                         inlet.event['inlet/update'].onValue(function(val) {
                             newObject.inlets[idx].message([val]);
                         });
@@ -359,7 +359,7 @@ var PdModel = (function(WebPd) {
                         receiver.message = function(args) {
                             outlet.send(args);
                         };
-                        console.log(idx, newObject.outlets[idx]);
+                        console.log('outlet', idx, newObject.outlets[idx]);
                         newObject.outlets[idx].connect(receiver);
                     });
                 }

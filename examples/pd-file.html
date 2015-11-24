@@ -21,7 +21,8 @@
 
         <!-- WebPd -->
         <!-- <script src="http://rawgit.com/sebpiq/WebPd/master/dist/webpd-latest.min.js"></script> -->
-        <script src="../vendor/webpd-latest.min.js"></script>
+        <!-- <script src="../vendor/webpd-latest.min.js"></script> -->
+        <script src="../vendor/webpd-latest.js"></script>
         <!-- Kefir -->
         <script src="../vendor/kefir.min.js"></script>
         <!-- RPD -->
@@ -105,6 +106,7 @@
             loadCode.addEventListener('click', function() {
                 localStorage.setItem('last_contents', textarea.value);
                 target.innerHTML = target.textContent = '';
+                // patchData = WebPd.getPatchData(contents)
                 var webPdPatch = WebPd ? WebPd.loadPatch(textarea.value) : null;
                 console.log(webPdPatch, WebPd ? WebPd.objects : null);
                 var importedPatch = Rpd.import.pd(textarea.value, webPdPatch);
