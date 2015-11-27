@@ -5,7 +5,7 @@
 
         <!-- gulp html-head ==style quartz ==renderer html ==toolkit core ==toolkit demo ==root .. -->
 
-        <!-- Built with RPD v0.2.0 <http://shamansir.github.io/rpd> -->
+        <!-- Built with RPD v0.2.0a <http://shamansir.github.io/rpd> -->
 
         <!-- RPD Renderer: html -->
         <link rel="stylesheet" href="../src/render/html.css"></style>
@@ -38,6 +38,8 @@
         <style>
             .rpd-inlet .rpd-name { white-space: nowrap; }
 
+            .rpd-p5-sketch .rpd-inlet .rpd-value-holder { right: 101%; }
+
             .rpd-p5-color .rpd-process-target span {
                 display: block;
                 width: 40px;
@@ -45,6 +47,21 @@
                 border-radius: 4px;
                 position: relative;
                 left: 7px;
+            }
+
+            .rpd-p5-shape .rpd-process-target ul {
+                margin: 0; padding: 0;
+            }
+
+            .rpd-p5-shape .rpd-process-target ul li {
+                list-style-type: none;
+                float: left;
+                padding: 0 4px;
+                cursor: pointer;
+            }
+
+            .rpd-p5-shape .rpd-process-target ul li .active {
+                color: red;
             }
         </style>
 
@@ -55,11 +72,17 @@
         <script>
             window.sketchUpdate = function() {}; // we'll replace it later
 
+            var SHAPES = [ 'circle', 'rect', 'cross', 'diamond' ];
+
             var DEFAULT_COLOR = { r: 0xED, g: 0x22, b: 0x5D };
+
+            // Register p5/color channel type
 
             Rpd.channeltype('p5/color', {
                 show: function(color) { return '(' + color.r + ',' + color.g + ',' + color.b + ')'; }
-            })
+            });
+
+            // Register p5/color node type and renderer
 
             Rpd.nodetype('p5/color', {
                 inlets: {
@@ -88,9 +111,56 @@
                 };
             });
 
-            // registration
+            // Register p5/shape channel type
+
+            Rpd.channeltype('p5/shape', {});
+
+            // Register p5/shape node type and renderer
+
+            Rpd.nodetype('p5/shape', {
+                inlets: { 'shape': { type: 'p5/shape', default: 'circle', hidden: true } },
+                outlets: { 'shape': { type: 'p5/shape' } },
+                process: function(inlets) { return { shape: inlets.shape } }
+            });
+
+            Rpd.noderenderer('p5/shape', 'html', function() {
+                var curShape = 'circle';
+                var links = {};
+                var symbols = { 'circle': '●', 'rect': '■', 'cross': '✕', 'diamond': '◆' };
+                return {
+                    size: { width: 40, height: 40 },
+                    first: function(bodyElm) {
+                        var shapeChange = Kefir.emitter();
+                        var shapesList = document.createElement('ul');
+                        SHAPES.forEach(function(shape, i) {
+                            var liElm = document.createElement('li');
+                            var linkElm = document.createElement('a');
+                            linkElm.textContent = linkElm.innerText = '[' + symbols[SHAPES[i]] + ']';
+                            linkElm.addEventListener('click',
+                                (function(shape) {
+                                    return function() {
+                                        links[curShape].className = '';
+                                        curShape = shape;
+                                        links[curShape].className = 'active';
+                                        shapeChange.emit(curShape);
+                                    }
+                                })(shape));
+                            links[shape] = linkElm;
+                            liElm.appendChild(linkElm);
+                            shapesList.appendChild(liElm);
+                        });
+                        links[curShape].className = 'active';
+                        bodyElm.appendChild(shapesList);
+                        return { 'shape': { valueOut: shapeChange } };
+                    }
+                }
+            });
+
+            // Register p5/sketch node type and renderer
+
             Rpd.nodetype('p5/sketch', {
                 inlets: {
+                    'shape': { type: 'p5/shape', default: 'circle', name: 'Shape' },
                     'wavescount': { type: 'core/number', default: 5, name: 'Num. of waves' },
                     'startcolor': { type: 'p5/color', name: 'Start Color' },
                     'endcolor': { type: 'p5/color', name: 'End Color' },
@@ -111,9 +181,9 @@
                 }
             });
 
-            // create patch
+            // Build and render patch
+
             var patch = Rpd.addPatch('processing');
-            //window.p5Patch = patch;
 
             patch.render('html', document.body).enter();
             patch.addNode('p5/sketch').move(40, 10);
