@@ -35,6 +35,19 @@
         <!-- RPD Toolkit: core (html) -->
         <script src="../src/toolkit/core/html.js"></script>
 
+        <style>
+            .rpd-inlet .rpd-name { white-space: nowrap; }
+
+            .rpd-p5-color .rpd-process-target span {
+                display: block;
+                width: 40px;
+                height: 40px;
+                border-radius: 4px;
+                position: relative;
+                left: 7px;
+            }
+        </style>
+
     </head>
 
     <body>
@@ -42,12 +55,48 @@
         <script>
             window.sketchUpdate = function() {}; // we'll replace it later
 
+            var DEFAULT_COLOR = { r: 0xED, g: 0x22, b: 0x5D };
+
+            Rpd.channeltype('p5/color', {
+                show: function(color) { return '(' + color.r + ',' + color.g + ',' + color.b + ')'; }
+            })
+
+            Rpd.nodetype('p5/color', {
+                inlets: {
+                    'r': { type: 'core/number', default: DEFAULT_COLOR.r },
+                    'g': { type: 'core/number', default: DEFAULT_COLOR.g },
+                    'b': { type: 'core/number', default: DEFAULT_COLOR.b }
+                },
+                outlets: {
+                    'color': { type: 'p5/color' }
+                },
+                process: function(inlets) { return { color: inlets }; }
+            });
+
+            Rpd.noderenderer('p5/color', 'html', function() {
+                var colorElm;
+                return {
+                    size: { width: 40, height: null },
+                    first: function(bodyElm) {
+                        colorElm = document.createElement('span');
+                        bodyElm.appendChild(colorElm);
+                    },
+                    always: function(bodyElm, inlets, outlets) {
+                        var color = outlets.color;
+                        colorElm.style.backgroundColor = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+                    }
+                };
+            });
+
             // registration
             Rpd.nodetype('p5/sketch', {
                 inlets: {
-                    'xspacing': { type: 'core/number', default: 16 },
-                    'amplitude': { type: 'core/number', default: 75 },
-                    'period': { type: 'core/number', default: 500 }
+                    'wavescount': { type: 'core/number', default: 5, name: 'Num. of waves' },
+                    'startcolor': { type: 'p5/color', name: 'Start Color' },
+                    'endcolor': { type: 'p5/color', name: 'End Color' },
+                    'xspacing': { type: 'core/number', default: 16, name: 'X Spacing' },
+                    'amplitude': { type: 'core/number', default: 75, name: 'Amplitude' },
+                    'period': { type: 'core/number', default: 500, name: 'Period' }
                 },
                 process: function(inlets) {
                     window.sketchUpdate(inlets);
@@ -78,7 +127,8 @@
         <script>
             window.sketchUpdate = function(inlets) {
                 sketchConfig = inlets;
-                recalcWaves(sketchConfig);
+                // uses a global function from the sketch
+                updateWithConfig(sketchConfig);
             };
         </script>
 
