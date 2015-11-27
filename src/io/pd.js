@@ -28,8 +28,10 @@ Rpd.import.pd = function(lines) {
 
     if (!WebPd) throw new Error('WebPd is required to import PD files');
 
-    //var patchData = WebPd.getPatchData(lines);
-    var webPdPatch = WebPd.loadPatch(lines);
+    var patchData = WebPd.getPatchData(lines);
+    var webPdPatch = WebPd.loadPatch(patchData);
+
+    console.log(patchData);
 
     /*var nodes = [],
         objects = [],
