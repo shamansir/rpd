@@ -6,7 +6,7 @@ Rpd.noderenderer('core/number', 'html', {
         valInput.style.display = 'block';
         valInput.type = 'number';
         valInput.min = 0;
-        valInput.max = 10;
+        valInput.max = 1000;
         bodyElm.appendChild(valInput);
         return { 'user-value':
                     { default: function() { valInput.value = 0; return 0; },
