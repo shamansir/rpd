@@ -1,0 +1,344 @@
+.rpd-patch {
+    font-family: 'PT Mono', 'Andale Mono', 'Fira mono', 'Menlo', sans-serif;
+    font-size: 10px;
+    color: #111;
+    background-color: #22222a;
+    margin: 0;
+}
+
+.rpd-link {
+    height: 1px;
+    background-color: rgba(250,250,250,0.8);
+}
+
+.rpd-link.rpd-disabled {
+    background-color: rgba(250,250,250,0.3);
+}
+
+.rpd-link:hover {
+    cursor: crosshair;
+}
+
+.rpd-link.rpd-disabled:hover {
+    cursor: cell;
+}
+
+.rpd-node-box {
+    position: absolute;
+    max-width: 250px;
+}
+
+.rpd-node .rpd-title {
+    /* background-color: #000; */
+    background-color: rgba(33,33,99,0.5);
+    padding: 0;
+    color: #eee;
+    max-width: 1.1em;
+    width: 1.1em;
+    vertical-align: bottom;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.rpd-node .rpd-header .rpd-name {
+    font-size: 0.8em;
+    display: block;
+    transform: rotate(-90deg) translate(-6px,1px);
+    -webkit-transform: rotate(-90deg) translate(-6px,1px);
+    -ms-transform: rotate(-90deg) translate(-6px,1px);
+    transform-origin: 0 0;
+    -webkit-transform-origin: 0 0;
+    -ms-transform-origin: 0 0;
+}
+
+.rpd-node .rpd-type {
+    margin-left: 4px;
+    font-size: 0.8em;
+    color: rgba(250,250,250,0.5);
+}
+
+.rpd-inlet .rpd-name,
+.rpd-outlet .rpd-name{
+    font-size: 0.8em;
+}
+
+.rpd-node .rpd-value {
+    font-size: 0.6em;
+}
+
+.rpd-node .rpd-value.rpd-stale {
+    background-color: transparent;
+    transition: background-color .3s;
+}
+
+.rpd-node .rpd-value.rpd-fresh {
+    background-color: #f00;
+    transition: background-color .3s;
+}
+
+.rpd-inlets,
+.rpd-outlets {
+    margin: 0;
+    padding: 2px;
+}
+
+.rpd-inlet .rpd-connector,
+.rpd-outlet .rpd-connector {
+    cursor: pointer;
+    border-width: 2px;
+    border-style: solid;
+}
+
+.rpd-connector:hover {
+    transition: none;
+}
+
+.rpd-fresh .rpd-connector {
+    border-color: #c00;
+    background-color: #ff0;
+}
+
+.rpd-fresh .rpd-connector:hover {
+    border-color: #c66;
+}
+
+.rpd-stale .rpd-connector {
+    border-color: #000;
+    background-color: #fff;
+    transition: border-color .3s ease-out;
+}
+
+.rpd-stale .rpd-connector:hover {
+    transition: none;
+    /* border-color: #333; */
+    border-color: #ccc;
+    opacity: 0.6;
+}
+
+.rpd-cold .rpd-connector {
+    border-color: #009;
+}
+
+.rpd-cold .rpd-connector:hover {
+    border-color: #669;
+}
+
+.rpd-error .rpd-connector {
+    border-color: #cc0;
+    background-color: #f00;
+    transition: border-color .3s;
+}
+
+.rpd-error .rpd-connector:hover {
+    border-color: #aa0;
+}
+
+.rpd-inlet .rpd-value,
+.rpd-outlet .rpd-value {
+    color: rgba(200,200,200,0.7);
+}
+
+.rpd-value.rpd-edited {
+    color: rgba(150,150,225,0.7);
+}
+
+.rpd-outlet .rpd-value,
+.rpd-inlet.rpd-readonly .rpd-value {
+    cursor: default;
+}
+
+.rpd-values-on-hover .rpd-inlet .rpd-value-holder,
+.rpd-values-on-hover .rpd-outlet .rpd-value {
+    display: none;
+}
+
+.rpd-values-on-hover .rpd-inlet:hover .rpd-value-holder,
+.rpd-values-on-hover .rpd-outlet:hover .rpd-value {
+    display: block;
+}
+
+.rpd-values-always-shown .rpd-inlet .rpd-value-holder,
+.rpd-values-always-shown .rpd-outlet .rpd-value {
+    display: block;
+}
+
+.rpd-body input,
+.rpd-value-holder input {
+    border: 1px solid rgba(250,250,250,0.2);
+    color: #111;
+    background-color: rgba(201,201,220,0.6);
+    margin: 4px 4px 9px 0px;
+}
+
+.rpd-body input:focus,
+.rpd-value-holder input:focus {
+    border: 1px solid #000;
+}
+
+.rpd-body input[type="number"] {
+    width: 30px;
+}
+
+.rpd-value-holder input[type="number"] {
+    font-size: 0.8em;
+    text-align: right;
+    width: 26px;
+    position: relative;
+}
+
+.rpd-show-boxes .rpd-node-box {
+    border: 2px solid #f00;
+}
+
+.rpd-drag-handle:hover {
+    cursor: pointer;
+}
+
+/* .rpd-drag-handle:hover span {
+    cursor: text;
+} */
+
+.rpd-inlet .rpd-value-holder .rpd-value-editor {
+    display: none;
+}
+
+.rpd-inlet .rpd-value-holder.rpd-editor-enabled .rpd-value {
+    display: none;
+}
+
+.rpd-inlet .rpd-value-holder.rpd-editor-enabled .rpd-value-editor {
+    display: block;
+    z-index: 1000;
+}
+
+.rpd-node .rpd-remove-button {
+    display: none;
+    background-color: rgba(30,30,30,0.2);
+    padding: 0 2px;
+    border-radius: 0 0 0 3px;
+    font-size: 0.7em;
+    cursor: pointer;
+}
+
+.rpd-node .rpd-remove-button:hover {
+    color: #ff6666;
+}
+
+.rpd-node:hover .rpd-remove-button {
+    display: block;
+}
+
+.rpd-node.rpd-patch-reference .rpd-process-target {
+    cursor: pointer;
+}
+
+.rpd-node.rpd-patch-reference .rpd-process-target:hover {
+    color: #ccc;
+}
+
+/* Custom style */
+
+.rpd-node {
+    /* margin: 15px 12px; */
+}
+
+.rpd-content {
+    background-color: #617b79;
+    color: #eee;
+    display: table;
+    box-shadow: 3px 3px 14px 1px rgba(33,33,33,0.7);
+    /* box-shadow: -1px 5px 13px 1px rgba(30,30,30,0.8); */
+    border: 1px solid rgba(250,250,250,0.4);
+}
+
+table.rpd-node {
+    border-collapse: collapse;
+}
+
+.rpd-node .rpd-remove-button {
+    position: absolute;
+    right: 1px;
+    margin-top: 1px;
+}
+
+.rpd-content > td {
+    /* padding: 8px; */
+}
+
+.rpd-inlet,
+.rpd-outlet {
+    position: relative;
+    min-width: 25px;
+}
+
+.rpd-inlet .rpd-connector,
+.rpd-outlet .rpd-connector {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+}
+
+.rpd-inlet .rpd-connector {
+    top: 1.6em;
+}
+
+.rpd-outlet .rpd-connector {
+    top: -8px;
+}
+
+.rpd-inlet .rpd-type,
+.rpd-outlet .rpd-type {
+    position: absolute;
+    margin-left: 0;
+    left: 0;
+}
+
+.rpd-inlet .rpd-type {
+    top: -2.2em;
+}
+
+.rpd-outlet .rpd-type {
+    top: 3em;
+}
+
+.rpd-inlet .rpd-value-holder,
+.rpd-outlet .rpd-value {
+    position: absolute;
+    margin-left: 0;
+    left: 2px;
+}
+
+.rpd-inlet .rpd-value-holder {
+    top: -0.8em;
+}
+
+.rpd-outlet .rpd-value {
+    top: 2em;
+}
+
+.rpd-inlet .rpd-name,
+.rpd-outlet .rpd-name {
+    color: rgba(132,200,200,0.7);
+}
+
+.rpd-link {
+    margin-left: 4.3px;
+    margin-top: 4px;
+}
+
+.rpd-content {
+    width: 100%;
+}
+
+.rpd-value-holder input[type="number"] {
+    text-align: left;
+    top: -8px;
+    left: -2px;
+    /* min-width: 26px; */
+}
+
+tr.rpd-inlets, tr.rpd-outlets {
+    display: block;
+    position: relative;
+    left: 9px;
+}

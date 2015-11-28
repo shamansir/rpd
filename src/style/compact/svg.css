@@ -1,0 +1,174 @@
+.rpd-patch {
+    font-family: 'PT Mono', 'Andale Mono', 'Fira mono', 'Menlo', sans-serif;
+    font-size: 0.7em;
+}
+
+.rpd-background {
+    fill: #3c464c;
+}
+
+.rpd-patch {
+    fill: #3c464c;
+}
+
+.rpd-patch text {
+    fill: #111;
+}
+
+.rpd-node .rpd-shadow {
+    fill: #000;
+    opacity: 0.4;
+    /* -1px 5px 13px 1px rgba(30,30,30,0.8) */
+}
+
+.rpd-node.rpd-dragging .rpd-shadow {
+    opacity: 0.3;
+    /* 4px 8px 20px 0px rgba(30,30,30,0.8) */
+}
+
+.rpd-node .rpd-header {
+    fill: #617b79;
+}
+
+.rpd-node text.rpd-name,
+.rpd-node text.rpd-fake-name {
+    fill: rgba(250,250,250,0.9);
+    dominant-baseline: central;
+}
+
+.rpd-node .rpd-content {
+    fill: #50607e;
+    /* clip-path: url(#try-to-clip); */
+    /* border-radius: 25%; */
+}
+
+.rpd-node .rpd-body {
+    stroke: rgba(255,255,255,0.4);
+    stroke-width: 1;
+    fill: transparent;
+    /* -webkit-filter: drop-shadow(9px 9px 9px rgba(0,0,0,0.9)); */
+}
+
+.rpd-node .rpd-remove-button {
+    display: none;
+}
+
+.rpd-node .rpd-remove-button path {
+    fill: rgba(30,30,30,0.2);
+}
+
+.rpd-node .rpd-remove-button text {
+    fill: rgba(250,250,250,0.8);
+    dominant-baseline: hanging;
+    font-size: 0.7em;
+}
+
+.rpd-node .rpd-remove-button:hover text {
+    fill: #ff6666;
+}
+
+.rpd-node:hover .rpd-remove-button {
+    display: inline;
+}
+
+.rpd-inlet .rpd-connector,
+.rpd-outlet .rpd-connector {
+    fill: white;
+    stroke-width: 3;
+    stroke: black;
+}
+
+.rpd-node .rpd-inlet text.rpd-value,
+.rpd-node .rpd-inlet text.rpd-name,
+.rpd-node .rpd-outlet text.rpd-value,
+.rpd-node .rpd-outlet text.rpd-name {
+    dominant-baseline: central;
+}
+
+.rpd-inlet text.rpd-value,
+.rpd-outlet text.rpd-value {
+    fill: rgba(200,200,200,0.7);
+    font-size: 0.8em;
+}
+
+.rpd-inlet text.rpd-name,
+.rpd-inlet text.rpd-value,
+.rpd-outlet text.rpd-name,
+.rpd-outlet text.rpd-value {
+    text-anchor: middle;
+}
+
+.rpd-link {
+    stroke: rgba(250,250,250,0.8);
+    stroke-width: 1;
+}
+
+.rpd-link.rpd-disabled {
+    stroke: rgba(250,250,250,0.3);
+}
+
+.rpd-connector:hover {
+    transition: none;
+}
+
+.rpd-fresh .rpd-connector {
+    stroke: #c00;
+    fill: #ff0;
+}
+
+.rpd-fresh .rpd-connector:hover {
+    stroke: #c66;
+}
+
+.rpd-stale .rpd-connector {
+    stroke: #000;
+    fill: #fff;
+    transition: stroke .3s ease-out;
+}
+
+.rpd-stale .rpd-connector:hover {
+    transition: none;
+    /* stroke: #333; */
+    stroke: #ccc;
+    opacity: 0.6;
+}
+
+.rpd-cold .rpd-connector {
+    stroke: #009;
+}
+
+.rpd-cold .rpd-connector:hover {
+    stroke: #669;
+}
+
+.rpd-error .rpd-connector {
+    stroke: #cc0;
+    fill: #f00;
+    transition: stroke .3s;
+}
+
+.rpd-error .rpd-connector:hover {
+    stroke: #aa0;
+}
+
+.rpd-inlet .rpd-value-holder .rpd-value-editor {
+    display: none;
+}
+
+.rpd-inlet .rpd-value-holder.rpd-editor-enabled .rpd-value {
+    display: none;
+}
+
+.rpd-inlet .rpd-value-holder.rpd-editor-enabled .rpd-value-editor {
+    display: block;
+    z-index: 1000;
+}
+
+.rpd-node.rpd-patch-reference .rpd-process:hover > text {
+    fill: #ccc;
+}
+
+.rpd-node .rpd-process text {
+    dominant-baseline: central;
+    text-anchor: middle;
+}
