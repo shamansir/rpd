@@ -1,10 +1,10 @@
 .rpd-patch {
     font-family: 'PT Mono', 'Andale Mono', 'Fira mono', 'Menlo', sans-serif;
-    font-size: 0.7em;
+    font-size: 9px;
 }
 
 .rpd-background {
-    fill: #3c464c;
+    fill: #22222a;
 }
 
 .rpd-patch {
@@ -27,7 +27,7 @@
 }
 
 .rpd-node .rpd-header {
-    fill: #617b79;
+    fill: rgba(33,33,99,0.5);
 }
 
 .rpd-node text.rpd-name,
@@ -36,10 +36,14 @@
     dominant-baseline: central;
 }
 
+.rpd-node > .rpd-name-holder {
+    writing-mode: rb;
+    transform: translate(-8px, 28px) rotate(-90deg);
+    transform-origin: 0 0;
+}
+
 .rpd-node .rpd-content {
     fill: #50607e;
-    /* clip-path: url(#try-to-clip); */
-    /* border-radius: 25%; */
 }
 
 .rpd-node .rpd-body {
@@ -74,7 +78,7 @@
 .rpd-inlet .rpd-connector,
 .rpd-outlet .rpd-connector {
     fill: white;
-    stroke-width: 3;
+    stroke-width: 1px;
     stroke: black;
 }
 
@@ -85,10 +89,15 @@
     dominant-baseline: central;
 }
 
+.rpd-node .rpd-inlet text.rpd-name,
+.rpd-node .rpd-outlet text.rpd-name {
+    font-size: 0.8em;
+}
+
 .rpd-inlet text.rpd-value,
 .rpd-outlet text.rpd-value {
     fill: rgba(200,200,200,0.7);
-    font-size: 0.8em;
+    font-size: 0.7em;
 }
 
 .rpd-inlet text.rpd-name,

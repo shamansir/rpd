@@ -8,8 +8,8 @@ var d3 = d3 || d3_tiny;
 var globalLastRoot;
 
 var socketPadding = 25, // distance between inlets/outlets in SVG units
-    socketsMargin = 15; // distance between first/last inlet/outlet and body edge
-var headerWidth = 0; // width of a node header in SVG units
+    socketsMargin = 20; // distance between first/last inlet/outlet and body edge
+var headerWidth = 10; // width of a node header in SVG units
 
 function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
@@ -54,18 +54,9 @@ return {
     },
 
     createNode: function(node, render, description) {
-
-        // it is required to know the header size before constructing the node itself
-        var fakeName = d3.select(_createSvgElement('text'))
-                         .attr('class', 'rpd-fake-name')
-                         .text(node.name).attr('x', -1000).attr('y', -1000);
-        globalLastRoot.append(fakeName.node());
-        var headerWidth = fakeName.node().getBBox().width + 12;
-        fakeName.remove();
-
-        var minContentSize = render.size ? { width: render.size.width || 100,
-                                             height: render.size.height || 40 }
-                                         : { width: 100, height: 40 };
+        var minContentSize = render.size ? { width: render.size.width || 60,
+                                             height: render.size.height || 25 }
+                                         : { width: 60, height: 25 };
 
         function findBestNodeSize(numInlets, numOutlets, minContentSize) {
            var requiredContentWidth = (2 * socketsMargin) + ((Math.max(numInlets, numOutlets) - 1) * socketPadding);
@@ -92,7 +83,8 @@ return {
         nodeElm.append('rect').attr('class', 'rpd-header').classed('rpd-drag-handle', true)
                               .attr('x', 0).attr('y', 0)
                               .attr('width', headerWidth).attr('height', height);
-        nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
+        nodeElm.append('g').attr('class', 'rpd-name-holder')
+               .append('text').attr('class', 'rpd-name').text(node.name)
                               .attr('x', 5).attr('y', height / 2)
                               .style('pointer-events', 'none');
         // append node body
@@ -190,13 +182,14 @@ return {
         var inletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-inlet');
         inletElm.call(function(group) {
             //group.attr('transform', 'translate(' + inletPos.x + ',' + inletPos.y + ')')
-            group.append('circle').attr('class', 'rpd-connector')
-                                  .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
+            group.append('rect').attr('class', 'rpd-connector')
+                                .attr('x', -2).attr('y', -2)
+                                .attr('width', 4).attr('height', 4);
             group.append('g').attr('class', 'rpd-value-holder')
-                 .attr('transform', 'translate(0,-30)')
+                 .attr('transform', 'translate(0,-20)')
                  .append('text').attr('class', 'rpd-value');
             group.append('text').attr('class', 'rpd-name').text(inlet.name)
-                                .attr('x', 0).attr('y', -15);
+                                .attr('x', 0).attr('y', -10);
         });
         listeners[inlet.node.id].inlet(inletElm);
         inletToConnector[inlet.id] = inletElm.select('.rpd-connector');
@@ -207,14 +200,15 @@ return {
         var outletElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-outlet');
         outletElm.call(function(group) {
             //group.attr('transform', 'translate(' + outletPos.x + ',' + outletPos.y + ')')
-            group.append('circle').attr('class', 'rpd-connector')
-                                  .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
+            group.append('rect').attr('class', 'rpd-connector')
+                                .attr('x', -2).attr('y', -2)
+                                .attr('width', 4).attr('height', 4);
             group.append('g').attr('class', 'rpd-value-holder')
                  .append('text').attr('class', 'rpd-value')
-                                .attr('x', 0).attr('y', 30)
+                                .attr('x', 0).attr('y', 20)
                                 .style('pointer-events', 'none');
             group.append('text').attr('class', 'rpd-name').text(outlet.name)
-                                .attr('x', 0).attr('y', 15);
+                                .attr('x', 0).attr('y', 10);
         });
         listeners[outlet.node.id].outlet(outletElm);
         outletToConnector[outlet.id] = outletElm.select('.rpd-connector');
@@ -236,12 +230,12 @@ return {
 
     getInletPos: function(inlet) {
         var connectorPos = getPos(inletToConnector[inlet.id].node());
-        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
+        return { x: connectorPos.x + 2, y: connectorPos.y + 2};
     },
 
     getOutletPos: function(outlet) {
         var connectorPos = getPos(outletToConnector[outlet.id].node());
-        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
+        return { x: connectorPos.x + 2, y: connectorPos.y + 2 };
     },
 
     getLocalPos: function(pos) {
