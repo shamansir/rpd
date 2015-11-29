@@ -31,8 +31,8 @@ Rpd.import.pd = function(lines) {
     var patchData = WebPd.parsePatch(lines);
     var webPdPatch = WebPd.loadPatch(patchData);
 
-    console.log(patchData);
-    console.log(webPdPatch);
+    //console.log(patchData);
+    //console.log(webPdPatch);
 
     var nodes = [];
 
@@ -64,6 +64,7 @@ Rpd.import.pd = function(lines) {
     var addOutletStream = rootPatch.events.filter(eventIs('node/add-outlet'));
     var removeInletStream = rootPatch.events.filter(eventIs('node/remove-inlet'));
     var removeOutletStream = rootPatch.events.filter(eventIs('node/remove-outlet'));
+
     addInletStream.onValue(pushInlet); addOutletStream.onValue(pushOutlet);
     removeInletStream.onValue(popInlet); removeOutletStream.onValue(popOutlet);
 
@@ -73,7 +74,11 @@ Rpd.import.pd = function(lines) {
         var node = rootPatch.addNode(nodeType || 'pd/object');
         node.move(pdNode.layout.x, pdNode.layout.y);
         node.webPdObject = webPdPatch.objects[idx];
-        if (!nodeType) model.requestResolve(node, proto, pdNode.args);
+        if (!nodeType) {
+            model.requestResolve(node, proto, pdNode.args);
+        } else if (nodeType === 'pd/message') {
+            node.inlets['receive'].receive(pdNode.args);
+        }
         nodes.push(node);
     });
 

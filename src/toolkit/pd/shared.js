@@ -303,13 +303,13 @@ var PdModel = (function(WebPd) {
         nodeToCommand[node.id] = command || null;
         if (!definition || !commandChanged) return;
 
-        var inlets = definition.inlets || {}, oultets = definition.outlets || {};
+        var inlets = definition.inlets || {}, outlets = definition.outlets || {};
         var savedInlets = [], savedOutlets = [];
         Object.keys(inlets).forEach(function(alias) {
             savedInlets.push(node.addInlet(inlets[alias].type, alias));
         });
-        Object.keys(oultets).forEach(function(alias) {
-            savedOutlets.push(node.addOutlet(oultets[alias].type, alias));
+        Object.keys(outlets).forEach(function(alias) {
+            savedOutlets.push(node.addOutlet(outlets[alias].type, alias));
         });
         nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
         nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
@@ -317,11 +317,11 @@ var PdModel = (function(WebPd) {
         var dummy = this.webPdDummy;
         var curObject = node.webPdObject;
         var newObject = this.webPdPatch.createObject(command, arguments);
-        console.log(newObject, command, arguments);
+        //console.log(newObject, command, arguments);
         if (newObject) {
             if (savedInlets) {
                 savedInlets.forEach(function(inlet, idx) {
-                    console.log('inlet', idx, newObject.inlets[idx]);
+                    //console.log('inlet', idx, newObject.inlets[idx]);
                     inlet.event['inlet/update'].onValue(function(val) {
                         newObject.inlets[idx].message([val]);
                     });
@@ -333,8 +333,9 @@ var PdModel = (function(WebPd) {
                     receiver.message = function(args) {
                         outlet.send(args);
                     };
-                    console.log('outlet', idx, newObject.outlets[idx]);
-                    //newObject.outlets[idx].connect(receiver);
+                    //console.log('outlet', idx, newObject.outlets[idx]);
+                    try { newObject.outlets[idx].connect(receiver); }
+                    catch(e) { console.error(e); };
                 });
             }
         }
