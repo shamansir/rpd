@@ -207,25 +207,6 @@ var PdView = (function() {
 
 var PdModel = (function(WebPd) {
 
-    var PdNodeMap = {
-        'Object':  'pd/object',
-        'Message': 'pd/message',
-        'Number':  'pd/number',
-        'Symbol':  'pd/symbol',
-        'Comment': 'pd/comment',
-        'Bang':    'pd/bang',
-        'Toggle':  'pd/toggle',
-        'Number2': null /*'pd/number-2'*/,
-        'VSlider': null /*'pd/vslider'*/,
-        'HSlider': null /*'pd/hslider'*/,
-        'VRadio':  null /*'pd/vradio'*/,
-        'HRadio':  null /*'pd/hradio'*/,
-        'VUMeter': null /*'pd/vumeter'*/,
-        'Canvas':  null /*'pd/canvas'*/,
-        'Graph':   null /*'pd/graph'*/,
-        'Array':   null /*'pd/array'*/
-    };
-
     var pdResolveObject = (function() {
         var WebPd = window.Pd || null;
         var cmdToDef = {};
@@ -379,6 +360,25 @@ var PdModel = (function(WebPd) {
 
     PdModel.prototype.configureSymbol = function(node, command) {
 
+    };
+
+    PdModel.TYPE_MAP = {
+        'obj':        'pd/object',
+        'msg':        'pd/message',
+        'floatatom':  'pd/number',
+        'symbolatom': 'pd/symbol',
+        'text':       'pd/comment',
+        'bng':        'pd/bang',
+        'tgl':        'pd/toggle',
+        'nbx':        null, // 'pd/number-2'
+        'vsl':        null, // 'pd/vslider'
+        'hsl':        null, // 'pd/hslider'
+        'vradio':     null, // 'pd/vradio'
+        'hradio':     null, // 'pd/hradio'
+        'vu':         null, // 'pd/vumeter'
+        'cnv':        null, // 'pd/canvas'
+        'graph':      null, // 'pd/graph'
+        'array':      null  // 'pd/array'
     };
 
     return PdModel;

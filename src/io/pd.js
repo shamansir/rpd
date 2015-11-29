@@ -28,26 +28,34 @@ Rpd.import.pd = function(lines) {
 
     if (!WebPd) throw new Error('WebPd is required to import PD files');
 
-    var patchData = WebPd.getPatchData(lines);
+    var patchData = WebPd.parsePatch(lines);
     var webPdPatch = WebPd.loadPatch(patchData);
 
     console.log(patchData);
+    console.log(webPdPatch);
 
-    /*var nodes = [],
-        objects = [],
-        arrays = [];
+    var nodes = [];
 
-    var nodeToInlets = {},
-        nodeToOutlets = {}; */
+    //var nodeToInlets = {},
+    //    nodeToOutlets = {};
 
     var rootPatch = Rpd.addPatch('PD').enter(); // why entering the patch required here?
     var model = new PdModel(rootPatch, webPdPatch); // it is wrong to do it here as well
                                                     // since PdModel is defined for toolkit, not the import
 
-    /* rootPatch.model = model;
+    rootPatch.model = model;
     rootPatch.webPdPatch = webPdPatch;
 
-    function pushInlet(update) {
+    patchData.nodes.forEach(function(pdNode, idx) {
+        var proto = pdNode.proto,
+            nodeType = PdModel.TYPE_MAP[proto];
+        var node = rootPatch.addNode(nodeType || 'pd/object');
+        node.move(pdNode.layout.x, pdNode.layout.y);
+        node.webPdObject = webPdPatch.objects[idx];
+        nodes.push(node);
+    });
+
+    /* function pushInlet(update) {
         if (!nodeToInlets[update.node.id]) nodeToInlets[update.node.id] = [];
         nodeToInlets[update.node.id].push(update.inlet);
     }

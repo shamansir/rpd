@@ -92,8 +92,6 @@
                 loadCode = document.getElementById('load-pd-code'),
                 fileInput = document.getElementById('file');
 
-            var WebPd = window.Pd || null;
-
             // ============ rendering patch
 
             Rpd.render('svg', target, { style: 'realpd',
@@ -106,10 +104,7 @@
             loadCode.addEventListener('click', function() {
                 localStorage.setItem('last_contents', textarea.value);
                 target.innerHTML = target.textContent = '';
-                // patchData = WebPd.getPatchData(contents)
-                var webPdPatch = WebPd ? WebPd.loadPatch(textarea.value) : null;
-                console.log(webPdPatch, WebPd ? WebPd.objects : null);
-                var importedPatch = Rpd.import.pd(textarea.value, webPdPatch);
+                var importedPatch = Rpd.import.pd(textarea.value);
                 if (importedPatch) {
                     //importedPatch.enter(); // entering is done in the import (wrongly?)
                     importedPatch.addNode('pd/edit-switch').move(10, 10);
