@@ -291,7 +291,7 @@ var PdModel = (function(WebPd) {
             nodeToOutlets = this.nodeToOutlets,
             nodeToCommand = this.nodeToCommand;
 
-        var commandChanged = !definition || !(nodeToCommand[node.id] && (command[0] === nodeToCommand[node.id]));
+        var commandChanged = !definition || !(nodeToCommand[node.id] && (command === nodeToCommand[node.id]));
         if (commandChanged && nodeToInlets[node.id]) {
             nodeToInlets[node.id].forEach(function(inlet) { node.removeInlet(inlet); });
             nodeToInlets[node.id] = null;
@@ -300,7 +300,7 @@ var PdModel = (function(WebPd) {
             nodeToOutlets[node.id].forEach(function(outlet) { node.removeOutlet(outlet); });
             nodeToOutlets[node.id] = null;
         }
-        nodeToCommand[node.id] = command[0] || null;
+        nodeToCommand[node.id] = command || null;
         if (!definition || !commandChanged) return;
 
         var inlets = definition.inlets || {}, oultets = definition.outlets || {};
@@ -334,7 +334,7 @@ var PdModel = (function(WebPd) {
                         outlet.send(args);
                     };
                     console.log('outlet', idx, newObject.outlets[idx]);
-                    newObject.outlets[idx].connect(receiver);
+                    //newObject.outlets[idx].connect(receiver);
                 });
             }
         }
