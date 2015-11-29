@@ -1,6 +1,6 @@
 Rpd.linktype('core/pass', { });
 
-Rpd.channeltype('pd/msg', { });
+Rpd.channeltype('pd/any', { });
 
 Rpd.nodetype('pd/object', function(node) {
     var _process;
@@ -11,7 +11,7 @@ Rpd.nodetype('pd/object', function(node) {
         });
     };
     return {
-        inlets: { 'command': { type: 'pd/msg', hidden: true } },
+        inlets: { 'command': { type: 'pd/any', hidden: true } },
         process: function() {
             return _process ? _process.apply(this, arguments) : null;
         }
@@ -19,13 +19,13 @@ Rpd.nodetype('pd/object', function(node) {
 });
 
 Rpd.nodetype('pd/comment', {
-    inlets: { 'text': { type: 'pd/msg', hidden: true } }
+    inlets: { 'text': { type: 'pd/any', hidden: true } }
 });
 
 Rpd.nodetype('pd/number', {
-    inlets: { 'receive': { type: 'pd/msg' },
-              'spinner': { type: 'pd/msg', default: 0, hidden: true } },
-    outlets: { 'send': { type: 'pd/msg' } },
+    inlets: { 'receive': { type: 'pd/any' },
+              'spinner': { type: 'pd/any', default: 0, hidden: true } },
+    outlets: { 'send': { type: 'pd/any' } },
     process: function(inlets) {
          //if (!inlets.hasOwnProperty('spinner')) return;
          // comparison logic is in the renderer, since it communicates with
@@ -35,29 +35,29 @@ Rpd.nodetype('pd/number', {
 });
 
 Rpd.nodetype('pd/symbol', {
-    inlets: { 'receive': { type: 'pd/msg' } },
-    outlets: { 'send': { type: 'pd/msg' } }
+    inlets: { 'receive': { type: 'pd/any' } },
+    outlets: { 'send': { type: 'pd/any' } }
 });
 
 Rpd.nodetype('pd/message', {
-    inlets: { 'receive': { type: 'pd/msg' } },
-    outlets: { 'send': { type: 'pd/msg' } },
+    inlets: { 'receive': { type: 'pd/any' } },
+    outlets: { 'send': { type: 'pd/any' } },
     process: function(inlets) {
         return  { 'send': inlets['receive'] };
     }
 });
 
 Rpd.nodetype('pd/bang', {
-    inlets: { 'receive': { type: 'pd/msg' }, },
-    outlets: { 'send': { type: 'pd/msg' } },
+    inlets: { 'receive': { type: 'pd/any' }, },
+    outlets: { 'send': { type: 'pd/any' } },
     process: function(inlets) {
         return  { 'send': 'bang' };
     }
 });
 
 Rpd.nodetype('pd/toggle', {
-    inlets: { 'receive': { type: 'pd/msg' } },
-    outlets: { 'send': { type: 'pd/msg' } }
+    inlets: { 'receive': { type: 'pd/any' } },
+    outlets: { 'send': { type: 'pd/any' } }
 });
 
 Rpd.nodetype('pd/toolbar', {});

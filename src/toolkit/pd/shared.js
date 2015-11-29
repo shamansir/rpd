@@ -209,39 +209,31 @@ var PdModel = (function(WebPd) {
 
     var pdResolveObject = (function() {
         var WebPd = window.Pd || null;
+        if (!WebPd) throw new Error('Resolving objects requires WebPd present');
         var cmdToDef = {};
 
-        if (WebPd && WebPd._glob && WebPd._glob.library) {
-            var library = WebPd._glob.library;
-            //var definition; var inletsCount, outletsCount;
-            Object.keys(library).forEach(function(command) {
-                var definition = {};
-                var inletDefs  = library[command].prototype.inletDefs,
-                    outletDefs = library[command].prototype.outletDefs;
-                var inletsCount  = inletDefs  ? inletDefs.length  : 0,
-                    outletsCount = outletDefs ? outletDefs.length : 0;
-                if (inletsCount) {
-                    definition.inlets = {};
-                    for (var i = 0; i < inletsCount; i++) {
-                        definition.inlets[i] = { type: 'pd/msg' };
-                    }
+        var library = WebPd._glob.library;
+        //var definition; var inletsCount, outletsCount;
+        Object.keys(library).forEach(function(command) {
+            var definition = {};
+            var inletDefs  = library[command].prototype.inletDefs,
+                outletDefs = library[command].prototype.outletDefs;
+            var inletsCount  = inletDefs  ? inletDefs.length  : 0,
+                outletsCount = outletDefs ? outletDefs.length : 0;
+            if (inletsCount) {
+                definition.inlets = {};
+                for (var i = 0; i < inletsCount; i++) {
+                    definition.inlets[i] = { type: 'pd/any' };
                 }
-                if (outletsCount) {
-                    definition.outlets = {};
-                    for (var i = 0; i < outletsCount; i++) {
-                        definition.outlets[i] = { type: 'pd/msg' };
-                    }
-                };
-                cmdToDef[command] = definition;
-            });
-        } else {
-            cmdToDef['print'] = {
-                inlets: { '0': { type: 'pd/msg' } },
-                process: function(inlets) {
-                    if (console) console.log('print: ' + inlets['0']);
+            }
+            if (outletsCount) {
+                definition.outlets = {};
+                for (var i = 0; i < outletsCount; i++) {
+                    definition.outlets[i] = { type: 'pd/any' };
                 }
             };
-        }
+            cmdToDef[command] = definition;
+        });
 
         return function(command) {
             return cmdToDef[command];
@@ -263,18 +255,20 @@ var PdModel = (function(WebPd) {
         // changed and style should be changed as well.
         // Renderer subscribes to this event.
         // event is: { node: node,
-        //             command: [ command, params.. ],
+        //             command: command,
+        //             arguments: [],
         //             definition: { inlets, outlets, process } }
         //       or: { node: node,
-        //             command: [ command, params.. ],
+        //             command: command,
+        //             arguments: [],
         //             definition: null }, if command wasn't succesfully parsed
         'object/is-resolved': isResolvedEmitter.toProperty()
     };
 
     requestResolveEmitter.map(function(value) {
         return {
-            node: value.node, command: value.command,
-            definition: pdResolveObject(value.command[0])
+            node: value.node, command: value.command, arguments: value.arguments,
+            definition: pdResolveObject(value.command, value.arguments)
         };
     }).onValue(function(value) {
         isResolvedEmitter.emit(value);
@@ -288,11 +282,11 @@ var PdModel = (function(WebPd) {
         this.nodeToOutlets = {};
         this.nodeToCommand = {};
 
-        if (webPdPatch) this.webPdDummy = { patch: webPdPatch };
+        this.webPdDummy = { patch: webPdPatch };
     };
 
     // add required inlets and outlets to the node using the properties from resove-event
-    PdModel.prototype.applyDefinition = function(node, command, definition) {
+    PdModel.prototype.applyDefinition = function(node, command, arguments, definition) {
         var nodeToInlets = this.nodeToInlets,
             nodeToOutlets = this.nodeToOutlets,
             nodeToCommand = this.nodeToCommand;
@@ -320,36 +314,36 @@ var PdModel = (function(WebPd) {
         nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
         nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
 
-        if (this.webPdPatch && WebPd) {
-            var dummy = this.webPdDummy;
-            var curObject = node.webPdObject;
-            var newObject = this.webPdPatch.createObject(command[0], command.slice(1));
-            console.log(newObject, command[0], command.slice(1));
-            if (newObject) {
-                if (savedInlets) {
-                    savedInlets.forEach(function(inlet, idx) {
-                        console.log('inlet', idx, newObject.inlets[idx]);
-                        inlet.event['inlet/update'].onValue(function(val) {
-                            newObject.inlets[idx].message([val]);
-                        });
+        var dummy = this.webPdDummy;
+        var curObject = node.webPdObject;
+        var newObject = this.webPdPatch.createObject(command, arguments);
+        console.log(newObject, command, arguments);
+        if (newObject) {
+            if (savedInlets) {
+                savedInlets.forEach(function(inlet, idx) {
+                    console.log('inlet', idx, newObject.inlets[idx]);
+                    inlet.event['inlet/update'].onValue(function(val) {
+                        newObject.inlets[idx].message([val]);
                     });
-                }
-                if (savedOutlets) {
-                    savedOutlets.forEach(function(outlet, idx) {
-                        var receiver = new WebPd.core.portlets.Inlet(dummy);
-                        receiver.message = function(args) {
-                            outlet.send(args);
-                        };
-                        console.log('outlet', idx, newObject.outlets[idx]);
-                        newObject.outlets[idx].connect(receiver);
-                    });
-                }
+                });
+            }
+            if (savedOutlets) {
+                savedOutlets.forEach(function(outlet, idx) {
+                    var receiver = new WebPd.core.portlets.Inlet(dummy);
+                    receiver.message = function(args) {
+                        outlet.send(args);
+                    };
+                    console.log('outlet', idx, newObject.outlets[idx]);
+                    newObject.outlets[idx].connect(receiver);
+                });
             }
         }
     };
 
-    PdModel.prototype.requestResolve = function(node, command) {
-        requestResolveEmitter.emit({ node: node, command: command });
+    PdModel.prototype.requestResolve = function(node, command, arguments) {
+        requestResolveEmitter.emit({ node: node,
+                                     command: command,
+                                     arguments: arguments });
     };
 
     PdModel.prototype.whenResolved = function(node, callback) {
@@ -358,7 +352,7 @@ var PdModel = (function(WebPd) {
         }).onValue(callback);
     };
 
-    PdModel.prototype.configureSymbol = function(node, command) {
+    PdModel.prototype.configureSymbol = function(node, command, arguments) {
 
     };
 

@@ -143,16 +143,23 @@ Rpd.noderenderer('pd/object', 'svg', function() {
                          .attr('x', 2).attr('y', size.height / 2);
             view.addSelection(bodyElm);
             view.addEditor(bodyElm, text.node(), function(value) {
-                if (model) model.requestResolve(node, value.split(' '));
+                if (model) {
+                    var definition = value.split(' ');
+                    model.requestResolve(node, definition[0], definition.slice(1));
+                }
             });
 
             if (model) {
                 model.whenResolved(node, function(value) {
-                    text.text(value.command.join(' '));
+                    text.text(value.command +
+                              (value.arguments.length ? ' ' + value.arguments.join(' ')
+                                                      : ''));
                     var newSize = view.measureText(text);
                     rect.attr('width', newSize.width + 6);
                     rect.classed('rpd-pd-erratic', !value.definition);
-                    model.applyDefinition(value.node, value.command, value.definition);
+                    model.applyDefinition(value.node,
+                                          value.command, value.arguments,
+                                          value.definition);
                 });
             }
 

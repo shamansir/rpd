@@ -52,6 +52,7 @@ Rpd.import.pd = function(lines) {
         var node = rootPatch.addNode(nodeType || 'pd/object');
         node.move(pdNode.layout.x, pdNode.layout.y);
         node.webPdObject = webPdPatch.objects[idx];
+        if (!nodeType) model.requestResolve(node, proto, pdNode.args);
         nodes.push(node);
     });
 
