@@ -105,6 +105,11 @@
     fill: black;
 }
 
+.rpd-inlet.rpd-pd-dsp .rpd-connector,
+.rpd-outlet.rpd-pd-dsp .rpd-connector {
+    fill: cyan; /* TODO: mark red only in edit mode */
+}
+
 .rpd-pd-toolbar .rpd-pd-toolbar-border,
 .rpd-pd-toolbar rect {
     stroke: black;

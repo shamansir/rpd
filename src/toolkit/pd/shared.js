@@ -212,6 +212,18 @@ var PdModel = (function(WebPd) {
         if (!WebPd) throw new Error('Resolving objects requires WebPd present');
         var cmdToDef = {};
 
+        var DspInlet = Pd.core.portlets.DspInlet,
+            DspOutlet = Pd.core.portlets.DspOutlet;
+
+        function isDspInletDef(def) {
+            return (def === DspInlet) ||
+                   (def.prototype && (def.prototype instanceof DspInlet));
+        }
+        function isDspOutletDef(def) {
+            return (def === DspOutlet) ||
+                   (def.prototype && (def.prototype instanceof DspOutlet));
+        }
+
         var library = WebPd._glob.library;
         //var definition; var inletsCount, outletsCount;
         Object.keys(library).forEach(function(command) {
@@ -223,13 +235,13 @@ var PdModel = (function(WebPd) {
             if (inletsCount) {
                 definition.inlets = {};
                 for (var i = 0; i < inletsCount; i++) {
-                    definition.inlets[i] = { type: 'pd/any' };
+                    definition.inlets[i] = { type: isDspInletDef(inletDefs[i]) ? 'pd/dsp' : 'pd/any' };
                 }
             }
             if (outletsCount) {
                 definition.outlets = {};
                 for (var i = 0; i < outletsCount; i++) {
-                    definition.outlets[i] = { type: 'pd/any' };
+                    definition.outlets[i] = { type: isDspOutletDef(outletDefs[i]) ? 'pd/dsp' : 'pd/any' };
                 }
             };
             cmdToDef[command] = definition;
@@ -286,7 +298,7 @@ var PdModel = (function(WebPd) {
     };
 
     // add required inlets and outlets to the node using the properties from resove-event
-    PdModel.prototype.applyDefinition = function(node, command, arguments, definition) {
+    PdModel.prototype.applyDefinition = function(node, command, _arguments, definition) {
         var nodeToInlets = this.nodeToInlets,
             nodeToOutlets = this.nodeToOutlets,
             nodeToCommand = this.nodeToCommand;
@@ -316,12 +328,14 @@ var PdModel = (function(WebPd) {
 
         var dummy = this.webPdDummy;
         var curObject = node.webPdObject;
-        var newObject = this.webPdPatch.createObject(command, arguments);
-        //console.log(newObject, command, arguments);
+        var newObject = this.webPdPatch.createObject(command, _arguments);
+        //console.log(newObject, command, _arguments);
         if (newObject) {
             if (savedInlets) {
                 savedInlets.forEach(function(inlet, idx) {
                     //console.log('inlet', idx, newObject.inlets[idx]);
+                    if (inlet.type === 'pd/dsp') return;
+                    // TODO: disconnect/unsubscribe previously connected links
                     inlet.event['inlet/update'].onValue(function(val) {
                         newObject.inlets[idx].message([val]);
                     });
@@ -329,22 +343,23 @@ var PdModel = (function(WebPd) {
             }
             if (savedOutlets) {
                 savedOutlets.forEach(function(outlet, idx) {
+                    if (outlet.type === 'pd/dsp') return;
                     var receiver = new WebPd.core.portlets.Inlet(dummy);
                     receiver.message = function(args) {
                         outlet.send(args);
                     };
                     //console.log('outlet', idx, newObject.outlets[idx]);
-                    try { newObject.outlets[idx].connect(receiver); }
-                    catch(e) { console.error(e); };
+                    // TODO: disconnect previously connected links
+                    newObject.outlets[idx].connect(receiver);
                 });
             }
         }
     };
 
-    PdModel.prototype.requestResolve = function(node, command, arguments) {
+    PdModel.prototype.requestResolve = function(node, command, _arguments) {
         requestResolveEmitter.emit({ node: node,
                                      command: command,
-                                     arguments: arguments });
+                                     arguments: _arguments });
     };
 
     PdModel.prototype.whenResolved = function(node, callback) {
@@ -353,7 +368,7 @@ var PdModel = (function(WebPd) {
         }).onValue(callback);
     };
 
-    PdModel.prototype.configureSymbol = function(node, command, arguments) {
+    PdModel.prototype.configureSymbol = function(node, command, _arguments) {
 
     };
 
