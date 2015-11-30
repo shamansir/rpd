@@ -264,6 +264,7 @@ var PdModel = (function() {
 
         this.nodeToInlets = {};
         this.nodeToOutlets = {};
+        //this.nodeToCommand = {};
 
         this.webPdDummy = { patch: webPdPatch };
     };
@@ -280,16 +281,20 @@ var PdModel = (function() {
 
     // add required inlets and outlets to the node using the properties from resove-event
     PdModel.prototype.applyDefinition = function(node, command, _arguments, object) {
-        var nodeToInlets = this.nodeToInlets,
-            nodeToOutlets = this.nodeToOutlets;
+        //this.nodeToCommand[node.id] = command;
 
-        if (nodeToInlets[node.id]) {
-            nodeToInlets[node.id].forEach(function(inlet) { node.removeInlet(inlet); });
-            nodeToInlets[node.id] = null;
+        var nodeInlets = this.nodeToInlets[node.id],
+            nodeOutlets = this.nodeToOutlets[node.id];
+
+        //if (this.nodeToCommand[node.id] === command) return;
+
+        if (nodeInlets) {
+            nodeInlets.forEach(function(inlet) { node.removeInlet(inlet); });
+            nodeInlets = null;
         }
-        if (nodeToOutlets[node.id]) {
-            nodeToOutlets[node.id].forEach(function(outlet) { node.removeOutlet(outlet); });
-            nodeToOutlets[node.id] = null;
+        if (nodeOutlets) {
+            nodeOutlets.forEach(function(outlet) { node.removeOutlet(outlet); });
+            nodeOutlets = null;
         }
         if (!object) return;
 
@@ -302,8 +307,8 @@ var PdModel = (function() {
         pdOutlets.forEach(function(pdOutlet, idx) {
             savedOutlets.push(node.addOutlet(getOutletType(pdOutlet), idx.toString()));
         });
-        nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
-        nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
+        this.nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
+        this.nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
 
         var dummy = this.webPdDummy;
         var curObject = node.webPdObject;

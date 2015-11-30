@@ -150,16 +150,20 @@ Rpd.noderenderer('pd/object', 'svg', function() {
             });
 
             if (model) {
+                var lastCommand;
                 model.whenResolved(node, function(value) {
-                    text.text(value.command +
+                    var newCommand = value.command +
                               (value.arguments.length ? ' ' + value.arguments.join(' ')
-                                                      : ''));
+                                                      : '');
+                    if (lastCommand && (newCommand === lastCommand)) return;
+                    text.text(newCommand);
                     var newSize = view.measureText(text);
                     rect.attr('width', newSize.width + 6);
                     rect.classed('rpd-pd-erratic', !value.object);
                     model.applyDefinition(value.node,
                                           value.command, value.arguments,
                                           value.object);
+                    lastCommand = newCommand;
                 });
             }
 
