@@ -205,51 +205,23 @@ var PdView = (function() {
 
 })();
 
-var PdModel = (function(WebPd) {
+var PdModel = (function() {
+
+    var WebPd = window.Pd || null;
+    if (!WebPd) throw new Error('Building PD Model requires WebPd present');
 
     var pdResolveObject = (function() {
-        var WebPd = window.Pd || null;
-        if (!WebPd) throw new Error('Resolving objects requires WebPd present');
 
-        var DspInlet = Pd.core.portlets.DspInlet,
-            DspOutlet = Pd.core.portlets.DspOutlet;
-
-        function isDspInletDef(def) {
-            return (def === DspInlet) ||
-                   (def.prototype && (def.prototype instanceof DspInlet));
-        }
-        function isDspOutletDef(def) {
-            return (def === DspOutlet) ||
-                   (def.prototype && (def.prototype instanceof DspOutlet));
-        }
-
-        var library = WebPd._glob.library;
-        var cmdToDefCache = {};
-        //var definition; var inletsCount, outletsCount;
-        function getDefinition(command) {
-            if (cmdToDefCache[command]) return cmdToDefCache[command];
-            var definition = {};
-            var inletDefs  = library[command].prototype.inletDefs,
-                outletDefs = library[command].prototype.outletDefs;
-            var inletsCount  = inletDefs  ? inletDefs.length  : 0,
-                outletsCount = outletDefs ? outletDefs.length : 0;
-            if (inletsCount) {
-                definition.inlets = {};
-                for (var i = 0; i < inletsCount; i++) {
-                    definition.inlets[i] = { type: isDspInletDef(inletDefs[i]) ? 'pd/dsp' : 'pd/any' };
+        return function(patch, command, _arguments) {
+            try {
+                return patch.webPdPatch.createObject(command, _arguments);
+            } catch (e) {
+                if (!(e instanceof WebPd.core.errors.UnkownObjectError)) {
+                    console.error(e, command, _arguments);
                 }
+                return null;
             }
-            if (outletsCount) {
-                definition.outlets = {};
-                for (var i = 0; i < outletsCount; i++) {
-                    definition.outlets[i] = { type: isDspOutletDef(outletDefs[i]) ? 'pd/dsp' : 'pd/any' };
-                }
-            };
-            cmdToDefCache[command] = definition;
-            return definition;
-        }
-
-        return getDefinition;
+        };
 
     })();
 
@@ -279,8 +251,9 @@ var PdModel = (function(WebPd) {
 
     requestResolveEmitter.map(function(value) {
         return {
-            node: value.node, command: value.command, arguments: value.arguments,
-            definition: pdResolveObject(value.command, value.arguments)
+            node: value.node, patch: value.node.patch,
+            command: value.command, arguments: value.arguments,
+            object: pdResolveObject(value.node.patch, value.command, value.arguments)
         };
     }).onValue(function(value) {
         isResolvedEmitter.emit(value);
@@ -292,43 +265,50 @@ var PdModel = (function(WebPd) {
 
         this.nodeToInlets = {};
         this.nodeToOutlets = {};
-        this.nodeToCommand = {};
 
         this.webPdDummy = { patch: webPdPatch };
     };
 
-    // add required inlets and outlets to the node using the properties from resove-event
-    PdModel.prototype.applyDefinition = function(node, command, _arguments, definition) {
-        var nodeToInlets = this.nodeToInlets,
-            nodeToOutlets = this.nodeToOutlets,
-            nodeToCommand = this.nodeToCommand;
+    var DspInlet = Pd.core.portlets.DspInlet,
+        DspOutlet = Pd.core.portlets.DspOutlet;
 
-        var commandChanged = !definition || !(nodeToCommand[node.id] && (command === nodeToCommand[node.id]));
-        if (commandChanged && nodeToInlets[node.id]) {
+    function getInletType(pdInlet) {
+        return (pdInlet instanceof DspInlet) ? 'pd/dsp' : 'pd/any';
+    }
+    function getOutletType(pdOutlet) {
+        return (pdOutlet instanceof DspOutlet) ? 'pd/dsp' : 'pd/any';
+    }
+
+    // add required inlets and outlets to the node using the properties from resove-event
+    PdModel.prototype.applyDefinition = function(node, command, _arguments, object) {
+        var nodeToInlets = this.nodeToInlets,
+            nodeToOutlets = this.nodeToOutlets;
+
+        if (nodeToInlets[node.id]) {
             nodeToInlets[node.id].forEach(function(inlet) { node.removeInlet(inlet); });
             nodeToInlets[node.id] = null;
         }
-        if (commandChanged && nodeToOutlets[node.id]) {
+        if (nodeToOutlets[node.id]) {
             nodeToOutlets[node.id].forEach(function(outlet) { node.removeOutlet(outlet); });
             nodeToOutlets[node.id] = null;
         }
-        nodeToCommand[node.id] = command || null;
-        if (!definition || !commandChanged) return;
+        if (!object) return;
 
-        var inlets = definition.inlets || {}, outlets = definition.outlets || {};
+        var pdInlets = object.inlets || {},
+            pdOutlets = object.outlets || {};
         var savedInlets = [], savedOutlets = [];
-        Object.keys(inlets).forEach(function(alias) {
-            savedInlets.push(node.addInlet(inlets[alias].type, alias));
+        pdInlets.forEach(function(pdInlet, idx) {
+            savedInlets.push(node.addInlet(getInletType(pdInlet), idx.toString()));
         });
-        Object.keys(outlets).forEach(function(alias) {
-            savedOutlets.push(node.addOutlet(outlets[alias].type, alias));
+        pdOutlets.forEach(function(pdOutlet, idx) {
+            savedOutlets.push(node.addOutlet(getOutletType(pdOutlet), idx.toString()));
         });
         nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
         nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
 
         var dummy = this.webPdDummy;
         var curObject = node.webPdObject;
-        var newObject = this.webPdPatch.createObject(command, _arguments);
+        var newObject = object;
         //console.log(newObject, command, _arguments);
         if (newObject) {
             if (savedInlets) {
@@ -393,4 +373,4 @@ var PdModel = (function(WebPd) {
 
     return PdModel;
 
-})(Pd);
+})();

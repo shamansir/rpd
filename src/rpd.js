@@ -362,7 +362,7 @@ function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
     this.type = type || 'core/any';
     this.id = short_uid();
     var def = adapt_to_obj(channeltypes[this.type], this);
-    if (!def) report_error('Inlet type ' + this.type + ' is not registered!');
+    if (!def) report_error('Channel type ' + this.type + ' is not registered!');
     this.def = def;
 
     this.alias = alias || def.alias || name;
@@ -415,7 +415,7 @@ function Outlet(type, node, alias, name, _default) {
     this.type = type || 'core/any';
     this.id = short_uid();
     var def = adapt_to_obj(channeltypes[this.type], this);
-    if (!def) report_error('Outlet type ' + this.type + ' is not registered!');
+    if (!def) report_error('Channel type ' + this.type + ' is not registered!');
     this.def = def;
 
     this.alias = alias || def.alias || name;

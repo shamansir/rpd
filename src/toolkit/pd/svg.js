@@ -156,10 +156,10 @@ Rpd.noderenderer('pd/object', 'svg', function() {
                                                       : ''));
                     var newSize = view.measureText(text);
                     rect.attr('width', newSize.width + 6);
-                    rect.classed('rpd-pd-erratic', !value.definition);
+                    rect.classed('rpd-pd-erratic', !value.object);
                     model.applyDefinition(value.node,
                                           value.command, value.arguments,
-                                          value.definition);
+                                          value.object);
                 });
             }
 

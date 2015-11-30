@@ -46,7 +46,7 @@ function redistributeOutlets(node, new_outlet) {
     outlets.forEach(function(outlet, idx) {
         var xPos = idx * (bodyWidth / (outlet_count - 1))
                  - idx * (connectorWidth / (outlet_count - 1));
-        outletToElm[inlet.id].attr('transform', 'translate(' + xPos + ',0)');
+        outletToElm[outlet.id].attr('transform', 'translate(' + xPos + ',0)');
     });
 }
 
