@@ -211,7 +211,6 @@ var PdModel = (function() {
     if (!WebPd) throw new Error('Building PD Model requires WebPd present');
 
     var pdResolveObject = (function() {
-
         return function(patch, command, _arguments) {
             try {
                 return patch.webPdPatch.createObject(command, _arguments);
