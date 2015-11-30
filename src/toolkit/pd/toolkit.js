@@ -1,6 +1,7 @@
 Rpd.linktype('core/pass', { });
 
 Rpd.channeltype('pd/any', { });
+Rpd.channeltype('pd/dsp', { });
 
 Rpd.nodetype('pd/object', function(node) {
     var _process;
