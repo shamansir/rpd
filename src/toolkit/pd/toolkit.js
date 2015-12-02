@@ -40,11 +40,17 @@ Rpd.nodetype('pd/symbol', {
     outlets: { 'send': { type: 'pd/any' } }
 });
 
-Rpd.nodetype('pd/message', {
-    inlets: { 'receive': { type: 'pd/any' } },
-    outlets: { 'send': { type: 'pd/any' } },
-    process: function(inlets) {
-        return  { 'send': inlets['receive'] };
+Rpd.nodetype('pd/message', function() {
+    var lastVal;
+    return {
+        inlets: { 'receive': { type: 'pd/any' } },
+        outlets: { 'send': { type: 'pd/any' } },
+        process: function(inlets) {
+            if (inlets['receive'][0] !== 'bang') {
+                lastVal = inlets['receive'];
+                return { 'send': inlets['receive'] };
+            } else return { 'send': lastVal };
+        }
     }
 });
 

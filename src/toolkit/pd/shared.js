@@ -321,7 +321,7 @@ var PdModel = (function() {
                     if (inlet.type === 'pd/dsp') return;
                     // TODO: disconnect/unsubscribe previously connected links
                     inlet.event['inlet/update'].onValue(function(val) {
-                        newObject.inlets[idx].message([val]);
+                        newObject.inlets[idx].message(val);
                     });
                 });
             }

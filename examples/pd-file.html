@@ -106,6 +106,7 @@
                 target.innerHTML = target.textContent = '';
                 var importedPatch = Rpd.import.pd(textarea.value);
                 if (importedPatch) {
+                    Pd.start();
                     //importedPatch.enter(); // entering is done in the import (wrongly?)
                     importedPatch.addNode('pd/edit-switch').move(10, 10);
                 }
