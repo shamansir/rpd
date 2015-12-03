@@ -38,7 +38,7 @@ Rpd.noderenderer('pd/number', 'svg', function() {
 
             return {
                 'spinner': { valueOut: changes.map(function(val) {
-                                 return parseFloat(val);
+                                 return [ parseFloat(val) ];
                            }) }
             };
         },
@@ -100,7 +100,7 @@ Rpd.noderenderer('pd/message', 'svg', function() {
             });
         },
         always: function(bodyElm, inlets) {
-            if (inlets.receive) {
+            if (inlets.receive && (inlets.receive[0] !== 'bang')) {
                 lastValue = inlets.receive;
                 text.text(inlets.receive.join(' '));
             }

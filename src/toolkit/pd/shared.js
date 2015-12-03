@@ -131,7 +131,8 @@ var PdView = (function() {
                  styleTimeout = setTimeout(function() {
                      d3.select(sourceNode).classed('rpd-pd-send-value', false);
                  }, 300);
-                 node.inlets[inlet].receive(getValue());
+                 //node.inlets[inlet].receive(getValue());
+                 node.webPdObject.inlets[0].message(getValue());
              });
     }
 

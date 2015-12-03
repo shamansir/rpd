@@ -25,7 +25,7 @@ Rpd.nodetype('pd/comment', {
 
 Rpd.nodetype('pd/number', {
     inlets: { 'receive': { type: 'pd/any' },
-              'spinner': { type: 'pd/any', default: 0, hidden: true } },
+              'spinner': { type: 'pd/any', default: [ 0 ], hidden: true } },
     outlets: { 'send': { type: 'pd/any' } },
     process: function(inlets) {
          //if (!inlets.hasOwnProperty('spinner')) return;
@@ -70,3 +70,5 @@ Rpd.nodetype('pd/toggle', {
 Rpd.nodetype('pd/toolbar', {});
 
 Rpd.nodetype('pd/edit-switch', {});
+
+//Rpd.nodetype('pd/mute', {});
