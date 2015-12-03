@@ -37,15 +37,16 @@ Rpd.noderenderer('pd/number', 'svg', function() {
             });
 
             return {
-                'spinner': { valueOut: changes.map(function(val) {
+                'receive': { valueOut: changes.map(function(val) {
                                  return [ parseFloat(val) ];
                            }) }
             };
         },
         always: function(bodyElm, inlets) {
-            if (inlets.hasOwnProperty('receive')) {
+            /*if (inlets.hasOwnProperty('receive')) {
                 spinner.setValue(inlets.receive);
-            }
+            }*/
+            console.log('renderer / always', this.name, inlets);
             text.text(inlets.receive || inlets.spinner);
         }
     }

@@ -1,6 +1,8 @@
 Rpd.linktype('core/pass', { });
 
-Rpd.channeltype('pd/any', { });
+Rpd.channeltype('pd/values', {
+    accept: function(test) { return Array.isArray(test); }
+});
 Rpd.channeltype('pd/dsp', { });
 
 Rpd.nodetype('pd/object', function(node) {
@@ -12,7 +14,7 @@ Rpd.nodetype('pd/object', function(node) {
         });
     };
     return {
-        inlets: { 'command': { type: 'pd/any', hidden: true } },
+        inlets: { 'command': { type: 'pd/values', hidden: true } },
         process: function() {
             return _process ? _process.apply(this, arguments) : null;
         }
@@ -20,31 +22,32 @@ Rpd.nodetype('pd/object', function(node) {
 });
 
 Rpd.nodetype('pd/comment', {
-    inlets: { 'text': { type: 'pd/any', hidden: true } }
+    inlets: { 'text': { type: 'pd/values', hidden: true } }
 });
 
 Rpd.nodetype('pd/number', {
-    inlets: { 'receive': { type: 'pd/any' },
-              'spinner': { type: 'pd/any', default: [ 0 ], hidden: true } },
-    outlets: { 'send': { type: 'pd/any' } },
+    inlets: { 'receive': { type: 'pd/values' },
+              'spinner': { type: 'pd/values', hidden: true } },
+    outlets: { 'send': { type: 'pd/values' } },
     process: function(inlets) {
          //if (!inlets.hasOwnProperty('spinner')) return;
          // comparison logic is in the renderer, since it communicates with
          // this node through a hidden spinner inlet
-         return { 'send': inlets.spinner };
+         console.log('node/process', this.name, inlets);
+         return { 'send': inlets.receive };
     }
 });
 
 Rpd.nodetype('pd/symbol', {
-    inlets: { 'receive': { type: 'pd/any' } },
-    outlets: { 'send': { type: 'pd/any' } }
+    inlets: { 'receive': { type: 'pd/values' } },
+    outlets: { 'send': { type: 'pd/values' } }
 });
 
 Rpd.nodetype('pd/message', function() {
     var lastVal;
     return {
-        inlets: { 'receive': { type: 'pd/any' } },
-        outlets: { 'send': { type: 'pd/any' } },
+        inlets: { 'receive': { type: 'pd/values' } },
+        outlets: { 'send': { type: 'pd/values' } },
         process: function(inlets) {
             if (inlets['receive'][0] !== 'bang') {
                 lastVal = inlets['receive'];
@@ -55,16 +58,16 @@ Rpd.nodetype('pd/message', function() {
 });
 
 Rpd.nodetype('pd/bang', {
-    inlets: { 'receive': { type: 'pd/any' }, },
-    outlets: { 'send': { type: 'pd/any' } },
+    inlets: { 'receive': { type: 'pd/values' }, },
+    outlets: { 'send': { type: 'pd/values' } },
     process: function(inlets) {
         return  { 'send': 'bang' };
     }
 });
 
 Rpd.nodetype('pd/toggle', {
-    inlets: { 'receive': { type: 'pd/any' } },
-    outlets: { 'send': { type: 'pd/any' } }
+    inlets: { 'receive': { type: 'pd/values' } },
+    outlets: { 'send': { type: 'pd/values' } }
 });
 
 Rpd.nodetype('pd/toolbar', {});

@@ -77,6 +77,7 @@ Rpd.import.pd = function(lines) {
         if (!nodeType) {
             model.requestResolve(node, proto, pdNode.args);
         } else if (nodeType === 'pd/message') {
+            console.log('initial send', node.id, pdNode.args);
             node.inlets['receive'].receive(pdNode.args);
         }
         nodes.push(node);
