@@ -77,8 +77,8 @@ Rpd.import.pd = function(lines) {
         if (!nodeType) {
             model.requestResolve(node, proto, pdNode.args);
         } else if (nodeType === 'pd/message') {
-            console.log('initial send', node.id, pdNode.args);
-            node.inlets['receive'].receive(pdNode.args);
+            console.log('initial send', '<' + node.id + '>', node.webPdObject.prefix || node.type, 0, pdNode.args);
+            node.inlets['init'].receive(pdNode.args);
         }
         nodes.push(node);
     });

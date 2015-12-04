@@ -101,9 +101,10 @@ Rpd.noderenderer('pd/message', 'svg', function() {
             });
         },
         always: function(bodyElm, inlets) {
-            if (inlets.receive && (inlets.receive[0] !== 'bang')) {
-                lastValue = inlets.receive;
-                text.text(inlets.receive.join(' '));
+            if ((inlets.init) ||
+                (inlets.receive && (inlets.receive[0] !== 'bang'))) {
+                lastValue = inlets.receive || inlets.init;
+                text.text(lastValue.join(' '));
             }
         }
     }

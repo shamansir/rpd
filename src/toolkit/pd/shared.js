@@ -301,6 +301,7 @@ var PdModel = (function() {
                     if (inlet.type === 'pd/dsp') return;
                     // TODO: disconnect/unsubscribe previously connected links
                     inlet.event['inlet/update'].onValue(function(val) {
+                        console.log('sending inlet update to', '<' + node.id + '>', newObject.prefix || command || node.type, inlet.name, val);
                         newObject.inlets[idx].message(val);
                     });
                 });
@@ -310,6 +311,7 @@ var PdModel = (function() {
                     if (outlet.type === 'pd/dsp') return;
                     var receiver = new WebPd.core.portlets.Inlet(dummy);
                     receiver.message = function(args) {
+                        console.log('sending outlet update to', '<' + node.id + '>', newObject.prefix || command || node.type, outlet.name, args);
                         outlet.send(args);
                     };
                     //console.log('outlet', idx, newObject.outlets[idx]);

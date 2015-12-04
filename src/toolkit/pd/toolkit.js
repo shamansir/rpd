@@ -46,9 +46,11 @@ Rpd.nodetype('pd/symbol', {
 Rpd.nodetype('pd/message', function() {
     var lastVal;
     return {
-        inlets: { 'receive': { type: 'pd/values' } },
+        inlets: { 'receive': { type: 'pd/values' },
+                  'init': { type: 'pd/values', hidden: true } },
         outlets: { 'send': { type: 'pd/values' } },
         process: function(inlets) {
+            if (inlets['init'] && !inlets['receive']) return;
             if (inlets['receive'][0] !== 'bang') {
                 lastVal = inlets['receive'];
                 return { 'send': inlets['receive'] };
