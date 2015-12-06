@@ -1,7 +1,8 @@
-Rpd.linktype('core/pass', { });
+Rpd.linktype('pd/value', { });
+Rpd.linktype('pd/dsp', { });
 
-Rpd.channeltype('pd/values', {
-    accept: function(test) { return Array.isArray(test); }
+Rpd.channeltype('pd/value', {
+    accept: function(test) { return PdValue.isPdValue(test); }
 });
 Rpd.channeltype('pd/dsp', { });
 
@@ -14,7 +15,7 @@ Rpd.nodetype('pd/object', function(node) {
         });
     };
     return {
-        inlets: { 'command': { type: 'pd/values', hidden: true } },
+        inlets: { 'command': { type: 'pd/value', hidden: true } },
         process: function() {
             return _process ? _process.apply(this, arguments) : null;
         }
@@ -22,13 +23,13 @@ Rpd.nodetype('pd/object', function(node) {
 });
 
 Rpd.nodetype('pd/comment', {
-    inlets: { 'text': { type: 'pd/values', hidden: true } }
+    inlets: { 'text': { type: 'pd/value', hidden: true } }
 });
 
 Rpd.nodetype('pd/number', {
-    inlets: { 'receive': { type: 'pd/values' },
-              'spinner': { type: 'pd/values', hidden: true } },
-    outlets: { 'send': { type: 'pd/values' } },
+    inlets: { 'receive': { type: 'pd/value' },
+              'spinner': { type: 'pd/value', hidden: true } },
+    outlets: { 'send': { type: 'pd/value' } },
     process: function(inlets) {
          //if (!inlets.hasOwnProperty('spinner')) return;
          // comparison logic is in the renderer, since it communicates with
@@ -39,19 +40,19 @@ Rpd.nodetype('pd/number', {
 });
 
 Rpd.nodetype('pd/symbol', {
-    inlets: { 'receive': { type: 'pd/values' } },
-    outlets: { 'send': { type: 'pd/values' } }
+    inlets: { 'receive': { type: 'pd/value' } },
+    outlets: { 'send': { type: 'pd/value' } }
 });
 
 Rpd.nodetype('pd/message', function() {
     var lastVal;
     return {
-        inlets: { 'receive': { type: 'pd/values' },
-                  'init': { type: 'pd/values', hidden: true } },
-        outlets: { 'send': { type: 'pd/values' } },
+        inlets: { 'receive': { type: 'pd/value' },
+                  'init': { type: 'pd/value', hidden: true } },
+        outlets: { 'send': { type: 'pd/value' } },
         process: function(inlets) {
             if (inlets['init'] && !inlets['receive']) return;
-            if (inlets['receive'][0] !== 'bang') {
+            if (inlets['receive'].isBang()) {
                 lastVal = inlets['receive'];
                 return { 'send': inlets['receive'] };
             } else return { 'send': lastVal };
@@ -60,16 +61,16 @@ Rpd.nodetype('pd/message', function() {
 });
 
 Rpd.nodetype('pd/bang', {
-    inlets: { 'receive': { type: 'pd/values' }, },
-    outlets: { 'send': { type: 'pd/values' } },
+    inlets: { 'receive': { type: 'pd/value' }, },
+    outlets: { 'send': { type: 'pd/value' } },
     process: function(inlets) {
-        return  { 'send': 'bang' };
+        return  { 'send': PdValue.bang() };
     }
 });
 
 Rpd.nodetype('pd/toggle', {
-    inlets: { 'receive': { type: 'pd/values' } },
-    outlets: { 'send': { type: 'pd/values' } }
+    inlets: { 'receive': { type: 'pd/value' } },
+    outlets: { 'send': { type: 'pd/value' } }
 });
 
 Rpd.nodetype('pd/toolbar', {});

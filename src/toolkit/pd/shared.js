@@ -253,10 +253,10 @@ var PdModel = (function() {
         DspOutlet = Pd.core.portlets.DspOutlet;
 
     function getInletType(pdInlet) {
-        return (pdInlet instanceof DspInlet) ? 'pd/dsp' : 'pd/values';
+        return (pdInlet instanceof DspInlet) ? 'pd/dsp' : 'pd/value';
     }
     function getOutletType(pdOutlet) {
-        return (pdOutlet instanceof DspOutlet) ? 'pd/dsp' : 'pd/values';
+        return (pdOutlet instanceof DspOutlet) ? 'pd/dsp' : 'pd/value';
     }
 
     // add required inlets and outlets to the node using the properties from resove-event
@@ -301,8 +301,8 @@ var PdModel = (function() {
                     if (inlet.type === 'pd/dsp') return;
                     // TODO: disconnect/unsubscribe previously connected links
                     inlet.event['inlet/update'].onValue(function(val) {
-                        console.log('sending inlet update to', '<' + node.id + '>', newObject.prefix || command || node.type, inlet.name, val);
-                        newObject.inlets[idx].message(val);
+                        console.log('sending inlet update to', '<' + node.id + '>', newObject.prefix || command || node.type, inlet.name, val.get());
+                        newObject.inlets[idx].message(val.get());
                     });
                 });
             }
@@ -312,7 +312,7 @@ var PdModel = (function() {
                     var receiver = new WebPd.core.portlets.Inlet(dummy);
                     receiver.message = function(args) {
                         console.log('sending outlet update to', '<' + node.id + '>', newObject.prefix || command || node.type, outlet.name, args);
-                        outlet.send(args);
+                        outlet.send(PdValue.from(args));
                     };
                     //console.log('outlet', idx, newObject.outlets[idx]);
                     // TODO: disconnect previously connected links
@@ -335,7 +335,7 @@ var PdModel = (function() {
     };
 
     PdModel.prototype.initMessage = function(node, _arguments) {
-        node.inlets['init'].receive(_arguments);
+        node.inlets['init'].receive(PdValue.from(_arguments));
     };
 
     PdModel.TYPE_MAP = {
@@ -358,5 +358,35 @@ var PdModel = (function() {
     };
 
     return PdModel;
+
+})();
+
+PdValue = (function() {
+
+    function PdValue(vals) {
+        this.value = vals;
+    };
+
+    PdValue.prototype.get = function() {
+        return this.value;
+    };
+
+    PdValue.prototype.isBang = function() {
+        return (this.value[0] === 'bang');
+    };
+
+    PdValue.isPdValue = function(test) {
+        return test instanceof PdValue;
+    };
+
+    PdValue.from = function(vals) {
+        return new PdValue(vals);
+    };
+
+    PdValue.bang = function() {
+        return new PdValue(['bang']);
+    };
+
+    return PdValue;
 
 })();

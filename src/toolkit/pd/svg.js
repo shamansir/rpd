@@ -38,7 +38,7 @@ Rpd.noderenderer('pd/number', 'svg', function() {
 
             return {
                 'receive': { valueOut: changes.map(function(val) {
-                                 return [ parseFloat(val) ];
+                                 return PdValue.from([ parseFloat(val) ]);
                            }) }
             };
         },
@@ -47,7 +47,7 @@ Rpd.noderenderer('pd/number', 'svg', function() {
                 spinner.setValue(inlets.receive);
             }*/
             console.log('renderer / always', this.name, inlets);
-            text.text(inlets.receive || inlets.spinner);
+            text.text((inlets.receive || inlets.spinner).get());
         }
     }
 });
@@ -79,7 +79,7 @@ Rpd.noderenderer('pd/symbol', 'svg', function() {
 Rpd.noderenderer('pd/message', 'svg', function() {
     var path, text;
     var size = defaultSize;
-    var lastValue = [];
+    var lastValue;
     return {
         size: size,
         first: function(bodyElm) {
@@ -91,9 +91,9 @@ Rpd.noderenderer('pd/message', 'svg', function() {
                                 'h ' + (-size.width) + ' v ' + (-size.height) + ' z');
             text = d3.select(_createSvgElement('text'))
                      .attr('x', 2).attr('y', size.height / 2);
-            text.text(lastValue);
+            text.text("");
             view.addSelection(bodyElm);
-            view.addEditor(bodyElm, text.node(), function(value) { lastValue = value.split(' '); });
+            view.addEditor(bodyElm, text.node(), function(value) { lastValue = PdValue.from(value.split(' ')); });
             view.addValueSend(bodyElm, this, 'receive', function() { return lastValue; });
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
@@ -103,9 +103,9 @@ Rpd.noderenderer('pd/message', 'svg', function() {
         always: function(bodyElm, inlets) {
             if (inlets.init || inlets.receive) {
                 var value = (inlets.receive || inlets.init);
-                if (value[0] !== 'bang') {
-                    lastValue = inlets.receive || inlets.init;
-                    text.text(lastValue.join(' '));
+                if (!value.isBang()) {
+                    text.text(value.get().join(' '));
+                    lastValue = value;
                 }
             }
         }

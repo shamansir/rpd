@@ -113,7 +113,8 @@ return {
 
     createLink: function(link) {
         var linkElm = d3.select(_createSvgElement('line'))
-                        .attr('class', 'rpd-link');
+                        .attr('class', 'rpd-link')
+                        .classed('rpd-'+link.type.replace('/','-'), true);
         return { element: linkElm.node(),
                  rotate: function(x0, y0, x1, y1) {
                      linkElm.attr('x1', x0).attr('y1', y0)

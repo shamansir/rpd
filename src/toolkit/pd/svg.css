@@ -107,7 +107,12 @@
 
 .rpd-inlet.rpd-pd-dsp .rpd-connector,
 .rpd-outlet.rpd-pd-dsp .rpd-connector {
-    fill: cyan; /* TODO: mark red only in edit mode */
+    fill: darkblue; /* TODO: mark red only in edit mode */
+}
+
+.rpd-link.rpd-pd-dsp {
+    stroke: darkblue;
+    stroke-width: 2;
 }
 
 .rpd-pd-toolbar .rpd-pd-toolbar-border,

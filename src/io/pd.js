@@ -93,7 +93,7 @@ Rpd.import.pd = function(lines) {
         if (nodeToOutlets[fromNode.id] && nodeToInlets[toNode.id]) {
             var outlet = nodeToOutlets[fromNode.id][outletIdx],
                 inlet = nodeToInlets[toNode.id][inletIdx];
-            if (inlet && outlet) { outlet.connect(inlet); }
+            if (inlet && outlet) { outlet.connect(inlet, (outlet.type === 'pd/dsp') ? 'pd/dsp' : 'pd/value'); }
             else { console.error('Failed to connect object ' + fromNodeIdx + ' to object ' + toNodeIdx); };
         } else { console.error('Failed to connect object ' + fromNodeIdx + ' to object ' + toNodeIdx); };
     });
