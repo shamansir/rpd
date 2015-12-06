@@ -334,8 +334,8 @@ var PdModel = (function() {
         }).onValue(callback);
     };
 
-    PdModel.prototype.configureSymbol = function(node, command, _arguments) {
-
+    PdModel.prototype.initMessage = function(node, _arguments) {
+        node.inlets['init'].receive(_arguments);
     };
 
     PdModel.TYPE_MAP = {
