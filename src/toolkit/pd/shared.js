@@ -170,7 +170,7 @@ var PdView = (function() {
                  return Kefir.fromEvents(document.body, 'mousemove')
                              .map(extractPos)
                              .takeUntilBy(Kefir.fromEvents(document.body, 'mouseup'))
-                             .map(function(newPos) { return start + (newPos.y - startPos.y); })
+                             .map(function(newPos) { return start + (startPos.y - newPos.y); })
                              .onValue(function(num) { changes.emit(num); })
              }).onEnd(function() {});
         //this.changes.onValue(function() {});
