@@ -46,7 +46,6 @@ Rpd.noderenderer('pd/number', 'svg', function() {
             /*if (inlets.hasOwnProperty('receive')) {
                 spinner.setValue(inlets.receive);
             }*/
-            console.log('renderer / always', this.name, inlets);
             text.text((inlets.receive || inlets.spinner).get());
         }
     }

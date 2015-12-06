@@ -171,7 +171,7 @@ var PdView = (function() {
                              .map(extractPos)
                              .takeUntilBy(Kefir.fromEvents(document.body, 'mouseup'))
                              .map(function(newPos) { return start + (newPos.y - startPos.y); })
-                             .onValue(function(num) { console.log('spinner.changes', num); changes.emit(num); })
+                             .onValue(function(num) { changes.emit(num); })
              }).onEnd(function() {});
         //this.changes.onValue(function() {});
 
@@ -259,20 +259,18 @@ var PdModel = (function() {
         return (pdOutlet instanceof DspOutlet) ? 'pd/dsp' : 'pd/value';
     }
 
-    PdModel.prototype.connectToWebPd = function(inlets, outlets, webPdInlets, webPdOutlets, label) { // FIXME: remove label
+    PdModel.prototype.connectToWebPd = function(inlets, outlets, webPdInlets, webPdOutlets) { // FIXME: remove label
         if ((inlets && !webPdInlets) ||
-            (inlets && (inlets.length !== webPdInlets.length))) throw new Error('inlets number not matches to WebPd inlets number for ' + label);
+            (inlets && (inlets.length !== webPdInlets.length))) throw new Error('inlets number not matches to WebPd inlets number');
         if ((outlets && !webPdOutlets) ||
-            (outlets && (outlets.length !== webPdOutlets.length))) throw new Error('outlets number not matches to WebPd outlets number for ' + label);
+            (outlets && (outlets.length !== webPdOutlets.length))) throw new Error('outlets number not matches to WebPd outlets number');
         if (inlets && webPdInlets) {
             inlets.forEach(function(inlet, idx) {
-                //console.log('inlet', idx, newObject.inlets[idx]);
                 if (inlet.type === 'pd/dsp') return;
                 // TODO: disconnect/unsubscribe previously connected links
                 var webPdInlet = webPdInlets[idx];
-                if (!webPdInlet) throw new Error('Failed to find WebPd inlet corresponding to', inlet, label)
+                if (!webPdInlet) throw new Error('Failed to find WebPd inlet corresponding to inlet ' + idx);
                 inlet.event['inlet/update'].onValue(function(val) {
-                    console.log('sending inlet update to', label, inlet.name, val.get());
                     webPdInlet.message(val.get());
                 });
             });
@@ -283,14 +281,12 @@ var PdModel = (function() {
                 if (outlet.type === 'pd/dsp') return;
                 var receiver = new WebPd.core.portlets.Inlet(dummy);
                 receiver.message = function(args) {
-                    console.log('sending outlet update to', label, outlet.name, args);
                     outlet.send(PdValue.from(args));
                 };
-                //console.log('outlet', idx, newObject.outlets[idx]);
                 // TODO: disconnect previously connected links
                 if (webPdOutlets[idx]) {
                     webPdOutlets[idx].connect(receiver);
-                } else throw new Error('Failed to find WebPd outlet corresponding to', outlet, label)
+                } else throw new Error('Failed to find WebPd outlet corresponding to outlet ' + idx);
             });
         }
     }
@@ -325,7 +321,6 @@ var PdModel = (function() {
         });
         this.nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
         this.nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
-        //console.log(newObject, command, _arguments);
 
         this.connectToWebPd(savedInlets, savedOutlets,
                             object.inlets, object.outlets,

@@ -31,9 +31,6 @@ Rpd.import.pd = function(lines) {
     var patchData = WebPd.parsePatch(lines);
     var webPdPatch = WebPd.loadPatch(patchData);
 
-    //console.log(patchData);
-    //console.log(webPdPatch);
-
     var nodes = [];
 
     var rootPatch = Rpd.addPatch('PD').enter(); // why entering the patch required here?
@@ -83,10 +80,8 @@ Rpd.import.pd = function(lines) {
             } catch (err) {
                 console.error(err);
             }
-            console.log('<'+node.id+'>', pdNode.args);
         }
         if (nodeType && (nodeType === 'pd/message')) {
-            console.log('initial send', '<' + node.id + '>', node.webPdObject.prefix || node.type, 0, pdNode.args);
             model.initMessage(node, pdNode.args);
         }
         nodes.push(node);
