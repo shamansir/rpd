@@ -1,3 +1,5 @@
+function nop() {};
+
 Rpd.linktype('pd/value', { });
 Rpd.linktype('pd/dsp', { });
 
@@ -30,13 +32,7 @@ Rpd.nodetype('pd/number', {
     inlets: { 'receive': { type: 'pd/value' },
               'spinner': { type: 'pd/value', hidden: true } },
     outlets: { 'send': { type: 'pd/value' } },
-    process: function(inlets) {
-         //if (!inlets.hasOwnProperty('spinner')) return;
-         // comparison logic is in the renderer, since it communicates with
-         // this node through a hidden spinner inlet
-         console.log('node/process', this.name, inlets);
-         return { 'send': inlets.receive };
-    }
+    process: nop
 });
 
 Rpd.nodetype('pd/symbol', {
@@ -50,25 +46,14 @@ Rpd.nodetype('pd/message', function() {
         inlets: { 'receive': { type: 'pd/value' },
                   'init': { type: 'pd/value', hidden: true } },
         outlets: { 'send': { type: 'pd/value' } },
-        process: function(inlets) {
-            if (inlets['init'] && !inlets['receive']) {
-                lastVal = inlets['init'];
-                return;
-            }
-            if (!inlets['receive'].isBang()) {
-                lastVal = inlets['receive'];
-                return { 'send': inlets['receive'] };
-            } else return { 'send': lastVal };
-        }
+        process: nop
     }
 });
 
 Rpd.nodetype('pd/bang', {
     inlets: { 'receive': { type: 'pd/value' }, },
     outlets: { 'send': { type: 'pd/value' } },
-    process: function(inlets) {
-        return  { 'send': PdValue.bang() };
-    }
+    process: nop
 });
 
 Rpd.nodetype('pd/toggle', {

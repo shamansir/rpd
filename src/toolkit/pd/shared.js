@@ -259,6 +259,42 @@ var PdModel = (function() {
         return (pdOutlet instanceof DspOutlet) ? 'pd/dsp' : 'pd/value';
     }
 
+    PdModel.prototype.connectToWebPd = function(inlets, outlets, webPdInlets, webPdOutlets, label) { // FIXME: remove label
+        if ((inlets && !webPdInlets) ||
+            (inlets && (inlets.length !== webPdInlets.length))) throw new Error('inlets number not matches to WebPd inlets number for ' + label);
+        if ((outlets && !webPdOutlets) ||
+            (outlets && (outlets.length !== webPdOutlets.length))) throw new Error('outlets number not matches to WebPd outlets number for ' + label);
+        if (inlets && webPdInlets) {
+            inlets.forEach(function(inlet, idx) {
+                //console.log('inlet', idx, newObject.inlets[idx]);
+                if (inlet.type === 'pd/dsp') return;
+                // TODO: disconnect/unsubscribe previously connected links
+                var webPdInlet = webPdInlets[idx];
+                if (!webPdInlet) throw new Error('Failed to find WebPd inlet corresponding to', inlet, label)
+                inlet.event['inlet/update'].onValue(function(val) {
+                    console.log('sending inlet update to', label, inlet.name, val.get());
+                    webPdInlet.message(val.get());
+                });
+            });
+        }
+        if (outlets && webPdOutlets) {
+            var dummy = this.webPdDummy;
+            outlets.forEach(function(outlet, idx) {
+                if (outlet.type === 'pd/dsp') return;
+                var receiver = new WebPd.core.portlets.Inlet(dummy);
+                receiver.message = function(args) {
+                    console.log('sending outlet update to', label, outlet.name, args);
+                    outlet.send(PdValue.from(args));
+                };
+                //console.log('outlet', idx, newObject.outlets[idx]);
+                // TODO: disconnect previously connected links
+                if (webPdOutlets[idx]) {
+                    webPdOutlets[idx].connect(receiver);
+                } else throw new Error('Failed to find WebPd outlet corresponding to', outlet, label)
+            });
+        }
+    }
+
     // add required inlets and outlets to the node using the properties from resove-event
     PdModel.prototype.applyDefinition = function(node, command, _arguments, object) {
         //this.nodeToCommand[node.id] = command;
@@ -289,37 +325,11 @@ var PdModel = (function() {
         });
         this.nodeToInlets[node.id] = savedInlets.length ? savedInlets : null;
         this.nodeToOutlets[node.id] = savedOutlets.length ? savedOutlets : null;
-
-        var dummy = this.webPdDummy;
-        var curObject = node.webPdObject;
-        var newObject = object;
         //console.log(newObject, command, _arguments);
-        if (newObject) {
-            if (savedInlets) {
-                savedInlets.forEach(function(inlet, idx) {
-                    //console.log('inlet', idx, newObject.inlets[idx]);
-                    if (inlet.type === 'pd/dsp') return;
-                    // TODO: disconnect/unsubscribe previously connected links
-                    inlet.event['inlet/update'].onValue(function(val) {
-                        console.log('sending inlet update to', '<' + node.id + '>', newObject.prefix || command || node.type, inlet.name, val.get());
-                        newObject.inlets[idx].message(val.get());
-                    });
-                });
-            }
-            if (savedOutlets) {
-                savedOutlets.forEach(function(outlet, idx) {
-                    if (outlet.type === 'pd/dsp') return;
-                    var receiver = new WebPd.core.portlets.Inlet(dummy);
-                    receiver.message = function(args) {
-                        console.log('sending outlet update to', '<' + node.id + '>', newObject.prefix || command || node.type, outlet.name, args);
-                        outlet.send(PdValue.from(args));
-                    };
-                    //console.log('outlet', idx, newObject.outlets[idx]);
-                    // TODO: disconnect previously connected links
-                    newObject.outlets[idx].connect(receiver);
-                });
-            }
-        }
+
+        this.connectToWebPd(savedInlets, savedOutlets,
+                            object.inlets, object.outlets,
+                            '<'+node.id+'> ' + (object.prefix || command || node.type));
     };
 
     PdModel.prototype.requestResolve = function(node, command, _arguments) {
@@ -336,6 +346,14 @@ var PdModel = (function() {
 
     PdModel.prototype.initMessage = function(node, _arguments) {
         node.inlets['init'].receive(PdValue.from(_arguments));
+    };
+
+    PdModel.getReceivingInlet = function(node) {
+        return node.inlets['receive'];
+    };
+
+    PdModel.getSendingOutlet = function(node) {
+        return node.outlets['send'];
     };
 
     PdModel.TYPE_MAP = {

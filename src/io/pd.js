@@ -76,7 +76,16 @@ Rpd.import.pd = function(lines) {
         node.webPdObject = webPdPatch.objects[idx];
         if (!nodeType) {
             model.requestResolve(node, proto, pdNode.args);
-        } else if (nodeType === 'pd/message') {
+        } else {
+            try {
+                model.connectToWebPd([ PdModel.getReceivingInlet(node) ], [ PdModel.getSendingOutlet(node) ],
+                                     node.webPdObject.inlets, node.webPdObject.outlets, '<'+node.id+'> ' + nodeType);
+            } catch (err) {
+                console.error(err);
+            }
+            console.log('<'+node.id+'>', pdNode.args);
+        }
+        if (nodeType && (nodeType === 'pd/message')) {
             console.log('initial send', '<' + node.id + '>', node.webPdObject.prefix || node.type, 0, pdNode.args);
             model.initMessage(node, pdNode.args);
         }

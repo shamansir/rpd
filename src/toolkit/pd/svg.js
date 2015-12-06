@@ -94,7 +94,7 @@ Rpd.noderenderer('pd/message', 'svg', function() {
             text.text("");
             view.addSelection(bodyElm);
             view.addEditor(bodyElm, text.node(), function(value) { lastValue = PdValue.from(value.split(' ')); });
-            view.addValueSend(bodyElm, this, 'receive', function() { return lastValue; });
+            view.addValueSend(bodyElm, this, 'receive', function() { return lastValue.get(); });
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
                 body.append(text.node());
