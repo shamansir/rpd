@@ -51,8 +51,11 @@ Rpd.nodetype('pd/message', function() {
                   'init': { type: 'pd/value', hidden: true } },
         outlets: { 'send': { type: 'pd/value' } },
         process: function(inlets) {
-            if (inlets['init'] && !inlets['receive']) return;
-            if (inlets['receive'].isBang()) {
+            if (inlets['init'] && !inlets['receive']) {
+                lastVal = inlets['init'];
+                return;
+            }
+            if (!inlets['receive'].isBang()) {
                 lastVal = inlets['receive'];
                 return { 'send': inlets['receive'] };
             } else return { 'send': lastVal };
