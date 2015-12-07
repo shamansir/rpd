@@ -79,6 +79,7 @@ Rpd.noderenderer('pd/message', 'svg', function() {
     var path, text;
     var size = defaultSize;
     var lastValue;
+    var initialized = false;
     return {
         size: size,
         first: function(bodyElm) {
@@ -100,12 +101,12 @@ Rpd.noderenderer('pd/message', 'svg', function() {
             });
         },
         always: function(bodyElm, inlets) {
-            if (inlets.init || inlets.receive) {
-                var value = (inlets.receive || inlets.init);
-                if (!value.isBang()) {
-                    text.text(value.get().join(' '));
-                    lastValue = value;
-                }
+            if (inlets.init && !initialized) {
+                lastValue = inlets.init;
+                text.text(lastValue.get().join(' '));
+                initialized = true;
+            } else if (inlets.receive && !inlets.receive.isBang()) {
+                lastValue = inlets.receive;
             }
         }
     }
@@ -219,6 +220,7 @@ Rpd.noderenderer('pd/bang', 'svg', function() {
 Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
     var mWidth = 300,
         mHeight = 70;
+    var PdNodeMap = PdModel.TYPE_MAP;
     return {
         size: { width: mWidth + 100,
                 height: mHeight },
