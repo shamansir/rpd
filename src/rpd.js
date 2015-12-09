@@ -452,6 +452,9 @@ function Outlet(type, node, alias, name, _default) {
 
 }
 Outlet.prototype.connect = function(inlet, type) {
+    if (!this.def.allow && (inlet.type !== this.type)) {
+        throw new Error('Inlet of type ' + inlet.type + ' is not allowed to connect to outlet of type ' + this.type);
+    }
     var link = new Link(this, inlet);
     this.events.plug(link.events);
     this.value.onValue(link.receiver);
@@ -485,7 +488,7 @@ Outlet.prototype.toDefault = function() {
 function Link(outlet, inlet, name) {
     this.id = short_uid();
 
-    this.name = name || def.name || '';
+    this.name = name || '';
 
     this.outlet = outlet;
     this.inlet = inlet;
@@ -510,7 +513,6 @@ function Link(outlet, inlet, name) {
     this.event = event_map(event_types);
     var orig_updates = this.event['link/pass'];
     var updates = orig_updates.merge(this.value);
-    if (def.adapt) updates = updates.map(def.adapt);
     // rewrite with the modified stream
     this.event['link/pass'] = updates.onValue(function(v){});
     this.events = events_stream(event_types, this.event, 'link', this);

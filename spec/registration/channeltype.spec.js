@@ -88,6 +88,38 @@ describe('registration: channel type', function() {
         });
     });
 
+    it('may specify list of allowed channel types which are permitted to connect', function() {
+        Rpd.channeltype('spec/foo', { allow: [ 'spec/bar', 'spec/buz' ] });
+        Rpd.channeltype('spec/bar', { allow: [ 'spec/foo' ] });
+        Rpd.channeltype('spec/buz', {});
+
+        withNewPatch(function(patch, updateSpy) {
+
+            var firstNode = patch.addNode('spec/empty');
+            var secondNode = patch.addNode('spec/empty');
+
+            var fooOutlet = firstNode.addOutlet('spec/foo', 'foo');
+            var barOutlet = firstNode.addOutlet('spec/bar', 'bar');
+            var buzOutlet = firstNode.addOutlet('spec/buz', 'buz');
+            var fooInlet  = secondNode.addInlet('spec/foo', 'foo');
+            var barInlet  = secondNode.addInlet('spec/bar', 'bar');
+            var buzInlet  = secondNode.addInlet('spec/buz', 'buz');
+
+            expect(function() { fooOutlet.connect(fooInlet); }).not.toThrow();
+            expect(function() { fooOutlet.connect(barInlet); }).not.toThrow();
+            expect(function() { fooOutlet.connect(buzInlet); }).toThrow();
+
+            expect(function() { barOutlet.connect(fooInlet); }).not.toThrow();
+            expect(function() { barOutlet.connect(barInlet); }).not.toThrow();
+            expect(function() { barOutlet.connect(buzInlet); }).toThrow();
+
+            expect(function() { buzOutlet.connect(fooInlet); }).toThrow();
+            expect(function() { buzOutlet.connect(barInlet); }).toThrow();
+            expect(function() { buzOutlet.connect(buzInlet); }).not.toThrow();
+
+        });
+    });
+
     it('may specify adapting function, which adapts all values going through, streamed or not', function(done) {
         Rpd.channeltype('spec/foo', { default: 2,
                                       adapt: function(val) { return val * 3 } });
@@ -168,6 +200,75 @@ describe('registration: channel type', function() {
                                            value: 42 }));
         });
     });
+
+    it('checks channel type before calling the accepting or adapting handler', function() {
+        var acceptFooSpy = jasmine.createSpy('accept-foo'),
+            acceptBarSpy = jasmine.createSpy('accept-bar'),
+            adaptFooSpy = jasmine.createSpy('adapt-foo'),
+            adaptBarSpy = jasmine.createSpy('adapt-bar');
+
+        Rpd.channeltype('spec/foo', { allow: [ 'spec/bar '],
+                                      accept: acceptFooSpy.and.callFake(function() { return true; }),
+                                      adapt: adaptFooSpy.and.callFake(function(v) { return v; }) });
+        Rpd.channeltype('spec/bar', { allow: [ 'spec/foo '],
+                                      accept: acceptBarSpy.and.callFake(function() { return true; }),
+                                      adapt: adaptBarSpy.and.callFake(function(v) { return v; }) });
+        Rpd.channeltype('spec/buz', {});
+
+        withNewPatch(function(patch, updateSpy) {
+
+            var firstNode = patch.addNode('spec/empty');
+            var secondNode = patch.addNode('spec/empty');
+
+            var fooOutlet = firstNode.addOutlet('spec/foo', 'foo');
+            var barInlet  = secondNode.addInlet('spec/bar', 'bar');
+            var buzInlet  = secondNode.addInlet('spec/buz', 'buz');
+
+            expect(function() { fooOutlet.connect(barInlet); }).not.toThrow();
+            expect(acceptFooSpy).toHaveBeenCalled();
+            expect(acceptBarSpy).toHaveBeenCalled();
+            expect(adaptFooSpy).toHaveBeenCalled();
+            expect(adaptBarSpy).toHaveBeenCalled();
+
+            acceptFooSpy.calls.reset();
+            acceptBarSpy.calls.reset();
+            adaptFooSpy.calls.reset();
+            adaptBarSpy.calls.reset();
+
+            expect(function() { fooOutlet.connect(buzInlet); }).toThrow();
+            expect(acceptFooSpy).not.toHaveBeenCalled();
+            expect(acceptBarSpy).not.toHaveBeenCalled();
+            expect(adaptFooSpy).not.toHaveBeenCalled();
+            expect(adaptBarSpy).not.toHaveBeenCalled();
+
+        });
+    });
+
+    it('checks the allowed list before calling the accepting or adapting handler', function() {
+        var acceptFooSpy = jasmine.createSpy('accept-foo'),
+            acceptBarSpy = jasmine.createSpy('accept-bar'),
+            adaptFooSpy = jasmine.createSpy('adapt-foo'),
+            adaptBarSpy = jasmine.createSpy('adapt-bar');
+
+        Rpd.channeltype('spec/foo', { accept: acceptFooSpy.and.callFake(function() { return true; }) });
+        Rpd.channeltype('spec/bar', { accept: acceptBarSpy.and.callFake(function() { return true; }) });
+
+        withNewPatch(function(patch, updateSpy) {
+
+            var firstNode = patch.addNode('spec/empty');
+            var secondNode = patch.addNode('spec/empty');
+
+            var fooOutlet = firstNode.addOutlet('spec/foo', 'foo');
+            var barInlet  = secondNode.addInlet('spec/bar', 'bar');
+
+            expect(function() { fooOutlet.connect(barInlet); }).toThrow();
+
+            expect(acceptFooSpy).not.toHaveBeenCalled();
+            expect(acceptBarSpy).not.toHaveBeenCalled();
+        });
+    });
+
+    xit('executes checks in order: allow, accept, adapt[, tune]', function() { });
 
     it('may specify tune function, which configures value stream', function() {
         Rpd.channeltype('spec/foo', { default: 'foo',

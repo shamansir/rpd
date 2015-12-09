@@ -37,7 +37,6 @@ module.exports = function(config) {
 
       './spec/registration/nodetype.spec.js',
       './spec/registration/channeltype.spec.js',
-      './spec/registration/linktype.spec.js',
 
       './spec/registration/noderenderer.spec.js',
       './spec/registration/channelrenderer.spec.js',

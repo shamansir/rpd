@@ -167,4 +167,26 @@ describe('building: outlet', function() {
 
     });
 
+    it('connects only to the inlet of the same type', function() {
+        Rpd.channeltype('spec/foo', {});
+        Rpd.channeltype('spec/bar', {});
+
+        withNewPatch(function(patch, updateSpy) {
+
+            var firstNode = patch.addNode('spec/empty');
+            var secondNode = patch.addNode('spec/empty');
+
+            var fooOutlet = firstNode.addOutlet('spec/foo', 'foo');
+            var barOutlet = firstNode.addOutlet('spec/bar', 'bar');
+            var fooInlet  = secondNode.addInlet('spec/foo', 'foo');
+            var barInlet  = secondNode.addInlet('spec/bar', 'bar');
+
+            expect(function() { fooOutlet.connect(barInlet); }).toThrow();
+            expect(function() { barOutlet.connect(fooInlet); }).toThrow();
+            expect(function() { fooOutlet.connect(fooInlet); }).not.toThrow();
+            expect(function() { barOutlet.connect(barInlet); }).not.toThrow();
+
+        });
+    });
+
 });
