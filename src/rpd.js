@@ -15,7 +15,6 @@ injectKefirEmitter();
 // Rpd.NOTHING, Rpd.ID_LENGTH, ...
 
 var nodetypes = {};
-var linktypes = {};
 var channeltypes = {};
 var noderenderers = {};
 var channelrenderers = {};
@@ -453,7 +452,7 @@ function Outlet(type, node, alias, name, _default) {
 
 }
 Outlet.prototype.connect = function(inlet, type) {
-    var link = new Link(type, this, inlet);
+    var link = new Link(this, inlet);
     this.events.plug(link.events);
     this.value.onValue(link.receiver);
     this.event['outlet/connect'].emit({ link: link, inlet: inlet });
@@ -483,12 +482,8 @@ Outlet.prototype.toDefault = function() {
 // ================================= Link ======================================
 // =============================================================================
 
-function Link(type, outlet, inlet, name) {
-    this.type = type || 'core/pass';
+function Link(outlet, inlet, name) {
     this.id = short_uid();
-    var def = adapt_to_obj(linktypes[this.type], this);
-    if (!def) report_error('Link type ' + this.type + ' is not registered!');
-    this.def = def;
 
     this.name = name || def.name || '';
 
@@ -657,10 +652,6 @@ function nodetype(type, def) {
     nodetypes[type] = def || {};
 }
 
-function linktype(type, def) {
-    linktypes[type] = def || {};
-}
-
 function channeltype(type, def) {
     channeltypes[type] = def || {};
 }
@@ -710,7 +701,6 @@ return {
     'render': render,
 
     'nodetype': nodetype,
-    'linktype': linktype,
     'channeltype': channeltype,
     'nodedescription': nodedescription,
 
