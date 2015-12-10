@@ -105,16 +105,25 @@ describe('registration: channel type', function() {
             var barInlet  = secondNode.addInlet('spec/bar', 'bar');
             var buzInlet  = secondNode.addInlet('spec/buz', 'buz');
 
+            // outlets of type spec/foo are allowed to connect to inlets of type spec/foo
             expect(function() { fooOutlet.connect(fooInlet); }).not.toThrow();
-            expect(function() { fooOutlet.connect(barInlet); }).not.toThrow();
-            expect(function() { fooOutlet.connect(buzInlet); }).toThrow();
-
+            // outlets of type spec/bar are allowed to connect to inlets of type spec/foo
             expect(function() { barOutlet.connect(fooInlet); }).not.toThrow();
-            expect(function() { barOutlet.connect(barInlet); }).not.toThrow();
-            expect(function() { barOutlet.connect(buzInlet); }).toThrow();
+            // outlets of type spec/buz are allowed to connect to inlets of type spec/foo
+            expect(function() { buzOutlet.connect(fooInlet); }).not.toThrow();
 
-            expect(function() { buzOutlet.connect(fooInlet); }).toThrow();
+            // outlets of type spec/foo are allowed to connect to inlets of type spec/bar
+            expect(function() { fooOutlet.connect(barInlet); }).not.toThrow();
+            // outlets of type spec/bar are allowed to connect to inlets of type spec/bar
+            expect(function() { barOutlet.connect(barInlet); }).not.toThrow();
+            // outlets of type spec/buz are NOT allowed to connect to inlets of type spec/bar
             expect(function() { buzOutlet.connect(barInlet); }).toThrow();
+
+            // outlets of type spec/foo are NOT allowed to connect to inlets of type spec/buz
+            expect(function() { fooOutlet.connect(buzInlet); }).toThrow();
+            // outlets of type spec/bar are NOT allowed to connect to inlets of type spec/buz
+            expect(function() { barOutlet.connect(buzInlet); }).toThrow();
+            // outlets of type spec/buz are allowed to connect to inlets of type spec/buz
             expect(function() { buzOutlet.connect(buzInlet); }).not.toThrow();
 
         });

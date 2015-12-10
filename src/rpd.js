@@ -405,6 +405,18 @@ Inlet.prototype.toDefault = function() {
         } else this.receive(this.default);
     }
 }
+Inlet.prototype.allows = function(outlet) {
+    if (outlet.type === this.type) return true;
+    if (!this.def.allow && (outlet.type !== this.type)) return false;
+    if (this.def.allow) {
+        var matched = false;
+        this.def.allow.forEach(function(allowedType) {
+            if (outlet.type === allowedType) { matched = true; };
+        });
+        return matched;
+    }
+    return true;
+}
 
 // =============================================================================
 // ================================= Outlet ====================================
@@ -451,7 +463,7 @@ function Outlet(type, node, alias, name, _default) {
 
 }
 Outlet.prototype.connect = function(inlet) {
-    if (!this.allows(inlet)) {
+    if (!inlet.allows(this)) {
         throw new Error('Outlet of type ' + this.type + ' is not allowed to connect to inlet of type ' + inlet.type);
     }
     var link = new Link(this, inlet);
@@ -478,23 +490,6 @@ Outlet.prototype.toDefault = function() {
             this.stream(this.default);
         } else this.send(this.default);
     }
-}
-Outlet.prototype.allows = function(inlet) {
-    if (inlet.type === this.type) return true;
-    if (!this.def.allow && (inlet.type !== this.type)) return false;
-    if (!inlet.def.allow && (inlet.type !== this.type)) return false;
-    if (this.def.allow || inlet.def.allow) {
-        var matchedOutlet = false;
-        this.def.allow.forEach(function(allowedType) {
-            if (inlet.type === allowedType) { matchedOutlet = true; };
-        });
-        var matchedInlet = false;
-        inlet.def.allow.forEach(function(allowedType) {
-            if (this.type === allowedType) { matchedInlet = true; };
-        }.bind(this));
-        return matchedOutlet && matchedInlet;
-    }
-    return true;
 }
 
 // =============================================================================

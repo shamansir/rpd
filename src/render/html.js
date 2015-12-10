@@ -457,7 +457,7 @@ return function(networkRoot, userConfig) {
             vlink.construct(config.linkWidth)
                  .rotateOI(outlet, inlet);
 
-            d3.select(vlink.getElement()).style('z-index', LINK_LAYER);
+            d3.select(vlink.getElement()).style('z-index', LINK_LAYER)
                                          .classed('rpd-' + inlet.type.replace('/', '-'), true)
                                          .classed('rpd-' + outlet.type.replace('/', '-'), true);
 
