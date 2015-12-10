@@ -815,7 +815,7 @@ describe('registration: node type', function() {
                                            inlet: toInlet,
                                            value: 12 }));
 
-            var link = fromOutlet.connect(toInlet, 'spec/pass');
+            var link = fromOutlet.connect(toInlet);
 
             expect(outletConnectSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'outlet/connect',

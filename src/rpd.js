@@ -450,16 +450,9 @@ function Outlet(type, node, alias, name, _default) {
          });
 
 }
-Outlet.prototype.connect = function(inlet, type) {
-    if (!this.def.allow && (inlet.type !== this.type)) {
-        throw new Error('Inlet of type ' + inlet.type + ' is not allowed to connect to outlet of type ' + this.type);
-    }
-    if (this.def.allow) {
-        var matched = false;
-        this.def.allow.forEach(function(allowedType) {
-            if (inlet.type === allowedType) { matched = true; };
-        });
-        if (!matched) throw new Error('Inlet of type ' + inlet.type + ' is not allowed to connect to outlet of type ' + this.type);
+Outlet.prototype.connect = function(inlet) {
+    if (!this.allows(inlet)) {
+        throw new Error('Outlet of type ' + this.type + ' is not allowed to connect to inlet of type ' + inlet.type);
     }
     var link = new Link(this, inlet);
     this.events.plug(link.events);
@@ -485,6 +478,23 @@ Outlet.prototype.toDefault = function() {
             this.stream(this.default);
         } else this.send(this.default);
     }
+}
+Outlet.prototype.allows = function(inlet) {
+    if (inlet.type === this.type) return true;
+    if (!this.def.allow && (inlet.type !== this.type)) return false;
+    if (!inlet.def.allow && (inlet.type !== this.type)) return false;
+    if (this.def.allow || inlet.def.allow) {
+        var matchedOutlet = false;
+        this.def.allow.forEach(function(allowedType) {
+            if (inlet.type === allowedType) { matchedOutlet = true; };
+        });
+        var matchedInlet = false;
+        inlet.def.allow.forEach(function(allowedType) {
+            if (this.type === allowedType) { matchedInlet = true; };
+        }.bind(this));
+        return matchedOutlet && matchedInlet;
+    }
+    return true;
 }
 
 // =============================================================================

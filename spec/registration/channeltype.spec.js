@@ -88,7 +88,7 @@ describe('registration: channel type', function() {
         });
     });
 
-    it('may specify list of allowed channel types which are permitted to connect', function() {
+    it('may specify list of allowed channel types which are permitted to connect to each other', function() {
         Rpd.channeltype('spec/foo', { allow: [ 'spec/bar', 'spec/buz' ] });
         Rpd.channeltype('spec/bar', { allow: [ 'spec/foo' ] });
         Rpd.channeltype('spec/buz', {});
@@ -201,16 +201,16 @@ describe('registration: channel type', function() {
         });
     });
 
-    it('checks channel type before calling the accepting or adapting handler', function() {
+    xit('checks channel type before calling the accepting or adapting handler', function() {
         var acceptFooSpy = jasmine.createSpy('accept-foo'),
             acceptBarSpy = jasmine.createSpy('accept-bar'),
             adaptFooSpy = jasmine.createSpy('adapt-foo'),
             adaptBarSpy = jasmine.createSpy('adapt-bar');
 
-        Rpd.channeltype('spec/foo', { allow: [ 'spec/bar '],
+        Rpd.channeltype('spec/foo', { allow: [ 'spec/bar' ],
                                       accept: acceptFooSpy.and.callFake(function() { return true; }),
                                       adapt: adaptFooSpy.and.callFake(function(v) { return v; }) });
-        Rpd.channeltype('spec/bar', { allow: [ 'spec/foo '],
+        Rpd.channeltype('spec/bar', { allow: [ 'spec/foo' ],
                                       accept: acceptBarSpy.and.callFake(function() { return true; }),
                                       adapt: adaptBarSpy.and.callFake(function(v) { return v; }) });
         Rpd.channeltype('spec/buz', {});

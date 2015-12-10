@@ -10,7 +10,7 @@ describe('import and export', function() {
             var updateSpy = jasmine.createSpy('update');
             Rpd.events.onValue(updateSpy);
 
-            Rpd.import.json(finalize());
+            Rpd.import[alias](finalize());
 
             for (var i = 0; i < expectations.length; i++) {
                 expect(updateSpy).toHaveBeenCalledWith(expectations[i]);
@@ -264,13 +264,13 @@ describe('import and export', function() {
                         var outlet = firstNode.addOutlet('spec/any', 'Outlet');
                         var secondNode = patch.addNode('spec/empty', 'ConnectTwo');
                         var inlet = secondNode.addInlet('spec/any', 'Inlet');
-                        outlet.connect(inlet, 'spec/pass');
+                        outlet.connect(inlet);
                     },
                     [ jasmine.objectContaining({
                           type: 'outlet/connect',
                           inlet: jasmine.objectContaining({ name: 'Inlet' }),
                           outlet: jasmine.objectContaining({ name: 'Outlet' }),
-                          link: jasmine.objectContaining({ type: 'spec/pass' })
+                          link: jasmine.any(Rpd._.Link)
                       }) ]
                 );
             });
@@ -283,13 +283,12 @@ describe('import and export', function() {
                         var outlet = firstNode.addOutlet('spec/any', 'Outlet');
                         var secondNode = patch.addNode('spec/empty', 'ConnectTwo');
                         var inlet = secondNode.addInlet('spec/any', 'Inlet');
-                        var link = outlet.connect(inlet, 'spec/pass');
+                        var link = outlet.connect(inlet);
                         outlet.disconnect(link);
                     },
                     [ jasmine.objectContaining({
                           type: 'outlet/disconnect',
                           link: jasmine.objectContaining({
-                              type: 'spec/pass',
                               inlet: jasmine.objectContaining({ name: 'Inlet' }),
                               outlet: jasmine.objectContaining({ name: 'Outlet' })
                           })
@@ -305,12 +304,11 @@ describe('import and export', function() {
                         var outlet = firstNode.addOutlet('spec/any', 'Outlet');
                         var secondNode = patch.addNode('spec/empty', 'ConnectTwo');
                         var inlet = secondNode.addInlet('spec/any', 'Inlet');
-                        outlet.connect(inlet, 'spec/pass').enable();
+                        outlet.connect(inlet).enable();
                     },
                     [ jasmine.objectContaining({
                           type: 'link/enable',
                           link: jasmine.objectContaining({
-                              type: 'spec/pass',
                               inlet: jasmine.objectContaining({ name: 'Inlet' }),
                               outlet: jasmine.objectContaining({ name: 'Outlet' })
                           })
@@ -326,14 +324,13 @@ describe('import and export', function() {
                         var outlet = firstNode.addOutlet('spec/any', 'Outlet');
                         var secondNode = patch.addNode('spec/empty', 'ConnectTwo');
                         var inlet = secondNode.addInlet('spec/any', 'Inlet');
-                        var link = outlet.connect(inlet, 'spec/pass');
+                        var link = outlet.connect(inlet);
                         link.enable();
                         link.disable();
                     },
                     [ jasmine.objectContaining({
                           type: 'link/disable',
                           link: jasmine.objectContaining({
-                              type: 'spec/pass',
                               inlet: jasmine.objectContaining({ name: 'Inlet' }),
                               outlet: jasmine.objectContaining({ name: 'Outlet' })
                           })
