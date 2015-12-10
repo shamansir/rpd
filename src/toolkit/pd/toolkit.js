@@ -1,8 +1,5 @@
 function nop() {};
 
-Rpd.linktype('pd/value', { });
-Rpd.linktype('pd/dsp', { });
-
 Rpd.channeltype('pd/value', {
     accept: function(test) { return PdValue.isPdValue(test); }
 });
