@@ -334,4 +334,8 @@ describe('registration: channel type', function() {
         });
     });
 
+    xit('accept, adapt and tune are performed only for inlets', function() {
+
+    });
+
 });
