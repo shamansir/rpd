@@ -58,11 +58,14 @@ var Server = require('karma').Server;
 var KARMA_CONF_PATH = 'spec/karma.conf.js';
 var CLOSURE_COMPILER_PATH = 'node_modules/google-closure-compiler/compiler.jar';
 
-var VENDOR = [ 'https://cdn.jsdelivr.net/kefir/3.0.0/kefir.min.js' // Kefir
-               // 'http://mohayonao.github.io/timbre.js/timbre.js', // timbre
-               // 'http://player-dev.animatron.com/latest/bundle/animatron.min.js', // animatron
-               // 'https://raw.githubusercontent.com/sebpiq/WebPd/master/dist/webpd-latest.min.js' // WebPd
-               // 'https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.19/p5.min.js' // p5
+var DEPENDENCIES = [ 'https://cdn.jsdelivr.net/kefir/3.0.0/kefir.min.js' ];
+
+var DEV_DEPENDENCIES = [
+               'https://cdn.jsdelivr.net/kefir/3.0.0/kefir.min.js', // Kefir
+               'http://mohayonao.github.io/timbre.js/timbre.js', // timbre
+               'http://player-dev.animatron.com/latest/bundle/animatron.min.js', // animatron
+               'https://raw.githubusercontent.com/sebpiq/WebPd/master/dist/webpd-latest.min.js', // WebPd
+               'https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.19/p5.min.js' // p5
              ];
 
 var COMPILATION_LEVELS = {
@@ -77,7 +80,11 @@ var valueColor = gutil.colors.yellow,
 gulp.task('default', ['build'], function() { });
 
 gulp.task('get-deps', function() {
-    download(VENDOR).pipe(gulp.dest('./vendor'));
+    download(DEPENDENCIES).pipe(gulp.dest('./vendor'));
+});
+
+gulp.task('get-dev-deps', function() {
+    download(DEV_DEPENDENCIES).pipe(gulp.dest('./vendor'));
 });
 
 gulp.task('build', ['check-root', 'list-opts', 'concat-css'], function() {
