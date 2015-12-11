@@ -302,11 +302,11 @@ var PdModel = (function() {
 
         if (nodeInlets) {
             nodeInlets.forEach(function(inlet) { node.removeInlet(inlet); });
-            nodeInlets = null;
+            this.nodeToInlets[node.id] = null;
         }
         if (nodeOutlets) {
             nodeOutlets.forEach(function(outlet) { node.removeOutlet(outlet); });
-            nodeOutlets = null;
+            this.nodeToOutlets[node.id] = null;
         }
         if (!object) return;
 
