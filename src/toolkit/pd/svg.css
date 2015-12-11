@@ -132,24 +132,25 @@
 
 .rpd-pd-toolbar .rpd-pd-edit-mode circle:nth-child(2),
 .rpd-pd-edit-switch circle:nth-child(2) {
-    fill: transparent;
+    fill: black;
 }
 
 .rpd-pd-toolbar .rpd-pd-edit-mode text,
 .rpd-pd-edit-switch text {
     fill: gray;
     font-size: 0.5em;
+    font-weight: bold;
 }
 
 .rpd-pd-toolbar .rpd-pd-edit-mode.rpd-pd-enabled circle:nth-child(2),
 .rpd-pd-edit-switch .rpd-pd-enabled circle:nth-child(2) {
-    fill: black;
+    fill: transparent;
 }
 
 .rpd-pd-toolbar .rpd-pd-edit-mode.rpd-pd-enabled text,
 .rpd-pd-edit-switch .rpd-pd-enabled text {
-    fill: black;
-    font-weight: bold;
+    fill: gray;
+    font-weight: normal;
 }
 
 .rpd-pd-toolbar .rpd-pd-buttons text {
