@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>PD Toolkit</title>
+
+        <!-- Built with RPD v0.2.0 <http://shamansir.github.io/rpd> -->
+
+        <!-- RPD style -->
+        <link rel="stylesheet" href="./rpd/rpd-pd.css"></style>
+
+        <!-- WebPd -->
+        <script src="./vendor/webpd-latest.min.js"></script>
+        <!-- Kefir -->
+        <script src="./vendor/kefir.min.js"></script>
+        <!-- RPD -->
+        <script src="./rpd/rpd-pd.min.js"></script>
+      </head>
+
+    </head>
+
+    <body>
+        <script>
+            Rpd.render('svg', document.body, { style: 'realpd',
+                                               inletAcceptsMultipleLinks: true });
+
+            var root = Rpd.addPatch('root').enter();
+
+            var toolbar = root.addNode('pd/toolbar');
+
+            var obj = root.addNode('pd/object');
+            var text = root.addNode('pd/comment');
+            var num = root.addNode('pd/number');
+            var num = root.addNode('pd/symbol');
+            var msg = root.addNode('pd/message');
+            var bang = root.addNode('pd/bang');
+            var toggle1 = root.addNode('pd/toggle');
+            var toggle2 = root.addNode('pd/toggle');
+            var toggle3 = root.addNode('pd/toggle');
+
+        </script>
+    </body>
+</html>

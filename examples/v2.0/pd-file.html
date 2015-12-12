@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>PD Toolkit — Loading from File</title>
+
+        <!-- Built with RPD v0.2.0 <http://shamansir.github.io/rpd> -->
+
+        <!-- RPD style -->
+        <link rel="stylesheet" href="./rpd/rpd-pd-file.css"></style>
+
+        <!-- WebPd -->
+        <script src="./vendor/webpd-latest.min.js"></script>
+        <!-- Kefir -->
+        <script src="./vendor/kefir.min.js"></script>
+        <!-- RPD -->
+        <script src="./rpd/rpd-pd-file.min.js"></script>
+      </head>
+
+    </head>
+
+    <body>
+        <style>
+            #file {
+                position: fixed;
+                right: 0;
+                top: 0;
+                margin: 10px;
+                width: 300px;
+            }
+
+            #pd-code {
+                position: fixed;
+                right: 0;
+                top: 20px;
+                margin: 15px;
+                width: 300px;
+                height: 80%;
+                font-family: monospace;
+            }
+
+            #load-pd-code {
+                position: fixed;
+                margin: 15px;
+                right: 0;
+                bottom: 0;
+            }
+
+            /* body {
+                margin: 0;
+            } */
+        </style>
+
+        <input type="file" id="file" name="file" accept=".pd" />
+        <textarea id="pd-code"></textarea>
+        <button id="load-pd-code">Load</button>
+
+        <div id="network"><span id="welcome">[Load something...]</span></div>
+
+        <script>
+            var target = document.getElementById('network'),
+                textarea = document.getElementById('pd-code'),
+                loadCode = document.getElementById('load-pd-code'),
+                fileInput = document.getElementById('file');
+
+            // ============ rendering patch
+
+            Rpd.render('svg', target, { style: 'realpd',
+                                        inletAcceptsMultipleLinks: true });
+
+            // ============ loading from localStorage
+
+            textarea.value = localStorage.getItem('last_contents');
+
+            loadCode.addEventListener('click', function() {
+                localStorage.setItem('last_contents', textarea.value);
+                target.innerHTML = target.textContent = '';
+                var importedPatch = Rpd.import.pd(textarea.value);
+                if (importedPatch) {
+                    Pd.start();
+                    //importedPatch.enter(); // entering is done in the import (wrongly?)
+                    importedPatch.addNode('pd/edit-switch').move(10, 10);
+                }
+            });
+
+            // ============ loading from file
+
+            if (window.File && window.FileReader && window.FileList && window.Blob) {
+
+                fileInput.addEventListener('change', function(evt) {
+                    var files = evt.target.files;
+                    for (var i = 0, file; file = files[i]; i++) {
+
+                        if (file.name.indexOf('.pd') < 0) {
+                            console.error('File ' + file.name + ' ' +
+                                          'is not Pure Data file');
+                        }
+
+                        var reader = new FileReader();
+                        reader.onload = function(evt) {
+                            textarea.value = evt.target.result;
+                            loadCode.click();
+                        };
+                        reader.readAsText(file);
+
+                    };
+                });
+
+            } else {
+
+                document.body.removeChild(document.getElementById('file'));
+                if (!textarea.value) {
+                    textarea.value = '#N canvas 200 388 450 300 10;' + '\n' +
+                                     '#X obj 53 106 print;' + '\n' +
+                                     '#X floatatom 46 32 5 0 0 0 - - -;' + '\n' +
+                                     '#X connect 1 0 0 0;' + '\n';
+                }
+
+            }
+
+        </script>
+    </body>
+</html>

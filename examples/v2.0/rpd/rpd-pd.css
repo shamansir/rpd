@@ -1,0 +1,249 @@
+/**
+ * rpd - RPD is a minimal framework for building Node-Based User Interfaces, powered by Reactive Programming
+ * Built at Sat, 12 Dec 2015 09:16:44 GMT
+ *
+ * @version v0.2.0
+ * @link http://shamansir.github.io/rpd
+ * @author Ulric Wilfred <shaman.sir@gmail.com>
+ * @license MIT
+ * 
+ * Selected Renderers: svg
+ * Selected Styles: realpd
+ * Selected Toolkits: pd
+ *
+ * User Styles: [None]
+ * User Toolkits: [None]
+ */
+
+.rpd-network {
+    margin: 0;
+}
+
+.rpd-node .rpd-drag-handle {
+    cursor: pointer;
+}
+
+.rpd-node .rpd-remove-button {
+    cursor: pointer;
+}
+
+.rpd-connector {
+    cursor: pointer;
+}
+
+.rpd-link:hover {
+    cursor: crosshair;
+}
+
+.rpd-link.rpd-disabled:hover {
+    cursor: cell;
+}
+
+.rpd-node.rpd-patch-reference .rpd-process > text {
+    cursor: pointer;
+}
+
+.rpd-background {
+    fill: white;
+}
+
+.rpd-connector {
+    stroke-width: 1;
+    stroke: black;
+    fill: white;
+}
+
+.rpd-fresh .rpd-connector {
+    fill: red;
+    transition: fill .3s;
+}
+
+.rpd-link {
+    stroke-width: 1;
+    stroke: black;
+}
+
+.rpd-inlet .rpd-connector:hover,
+.rpd-outlet .rpd-connector:hover {
+    cursor: url(connector-cursor-16.png) 8 8, cell;
+}
+
+/* lightgray: #f8f8f8
+   lightgray2: #e0e0e0
+   gray: #c0c0c0
+   blue: #0921ec
+   lightblue: #c0e0fe
+*/
+
+.rpd-pd-toolkit-node.rpd-pd-object,
+.rpd-pd-toolkit-node.rpd-pd-message,
+.rpd-pd-toolkit-node.rpd-pd-number,
+.rpd-pd-toolkit-node.rpd-pd-symbol,
+.rpd-pd-toolkit-node.rpd-pd-toolbar,
+.rpd-pd-toolkit-node.rpd-pd-edit-switch {
+    fill: #f8f8f8;
+    stroke-width: 1;
+    stroke: #c0c0c0;
+}
+
+.rpd-pd-toolkit-node.rpd-pd-bang,
+.rpd-pd-toolkit-node.rpd-pd-toggle {
+    fill: transparent;
+    stroke: black;
+}
+
+.rpd-pd-toolkit-node.rpd-pd-comment {
+    fill: none;
+}
+
+.rpd-pd-toolkit-node text,
+.rpd-pd-text-editor {
+    font-family: 'PT Mono', Menlo, Monaco, monospace;
+    font-size: 11px;
+}
+
+.rpd-pd-toolkit-node text {
+    fill: black;
+    stroke-width: 0;
+    dominant-baseline: central;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    /* pointer-events: none; */
+}
+
+.rpd-pd-number path,
+.rpd-pd-symbol path {
+    fill: #e0e0e0;
+}
+
+.rpd-pd-text-editor {
+    background-color: transparent;
+    border: none;
+}
+
+.rpd-pd-text-editor:focus {
+    outline: none;
+}
+
+.rpd-pd-text-editor.rpd-pd-selected {
+    color: #0921ec;
+}
+
+.rpd-pd-selected,
+.rpd-dragging {
+    stroke: #0921ec;
+}
+
+.rpd-pd-selected text,
+.rpd-dragging text {
+    stroke-width: 0;
+    fill: #0921ec;
+}
+
+.rpd-pd-bang.rpd-pd-selected circle {
+    fill: #0921ec;
+}
+
+.rpd-pd-comment rect {
+    stroke-width: 0;
+}
+
+.rpd-pd-object rect.rpd-pd-erratic {
+    stroke: #c00;
+    stroke-dasharray: 5, 5;
+}
+.rpd-pd-object .rpd-pd-selected rect.rpd-pd-erratic {
+    stroke: #0921ec;
+}
+
+.rpd-inlet .rpd-connector:hover,
+.rpd-outlet .rpd-connector:hover {
+    fill: #0921ec;
+}
+
+.rpd-pd-bang .rpd-inlet .rpd-connector,
+.rpd-pd-toggle .rpd-inlet .rpd-connector {
+    fill: black;
+}
+
+.rpd-pd-bang .rpd-outlet .rpd-connector,
+.rpd-pd-toggle .rpd-outlet .rpd-connector {
+    fill: black;
+}
+
+.rpd-inlet.rpd-pd-dsp .rpd-connector,
+.rpd-outlet.rpd-pd-dsp .rpd-connector {
+    fill: darkblue; /* TODO: mark red only in edit mode */
+}
+
+.rpd-link.rpd-pd-dsp {
+    stroke: darkblue;
+    stroke-width: 2;
+}
+
+.rpd-pd-toolbar .rpd-pd-toolbar-border,
+.rpd-pd-toolbar rect {
+    stroke: black;
+}
+
+.rpd-pd-toolbar.rpd-dragging circle,
+.rpd-pd-toolbar.rpd-dragging rect {
+    stroke: gray;
+}
+
+.rpd-pd-toolbar.rpd-dragging text,
+.rpd-pd-toolbar.rpd-dragging .rpd-pd-buttons .rpd-pd-accessible text {
+    fill: gray;
+}
+
+.rpd-pd-toolbar .rpd-pd-edit-mode circle:nth-child(2),
+.rpd-pd-edit-switch circle:nth-child(2) {
+    fill: black;
+}
+
+.rpd-pd-toolbar .rpd-pd-edit-mode text,
+.rpd-pd-edit-switch text {
+    fill: gray;
+    font-size: 0.5em;
+    font-weight: bold;
+}
+
+.rpd-pd-toolbar .rpd-pd-edit-mode.rpd-pd-enabled circle:nth-child(2),
+.rpd-pd-edit-switch .rpd-pd-enabled circle:nth-child(2) {
+    fill: transparent;
+}
+
+.rpd-pd-toolbar .rpd-pd-edit-mode.rpd-pd-enabled text,
+.rpd-pd-edit-switch .rpd-pd-enabled text {
+    fill: gray;
+    font-weight: normal;
+}
+
+.rpd-pd-toolbar .rpd-pd-buttons text {
+    fill: gray;
+}
+
+.rpd-pd-toolbar .rpd-pd-buttons .rpd-pd-accessible text {
+    fill: black;
+}
+
+.rpd-pd-toolbar .rpd-pd-buttons .rpd-pd-accessible:hover rect {
+    fill: black;
+}
+
+.rpd-pd-toolbar .rpd-pd-buttons .rpd-pd-accessible:hover text {
+    fill: white;
+}
+
+.rpd-pd-message .rpd-pd-send-value path {
+    stroke-width: 2px;
+    stroke: #ccc;
+}
+
+.rpd-pd-bang .rpd-pd-send-value circle {
+    fill: black;
+}
