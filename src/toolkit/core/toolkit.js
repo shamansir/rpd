@@ -76,5 +76,3 @@ Rpd.channeltype('core/boolean', { default: false,
                                   adapt: function(val) {
                                       return (val ? true : false);
                                   } });
-
-Rpd.linktype('core/pass', { });

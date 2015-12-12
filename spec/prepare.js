@@ -2,7 +2,6 @@ prettify(Rpd); // inject pretty-print for Jasmine
 
 Rpd.nodetype('spec/empty', {});
 Rpd.channeltype('spec/any', {});
-Rpd.linktype('spec/pass', {});
 
 function withNewPatch(fn) {
     var updateSpy = jasmine.createSpy('update');

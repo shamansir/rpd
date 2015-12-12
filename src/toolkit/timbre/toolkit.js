@@ -1,4 +1,5 @@
 Rpd.channeltype('timbre/t-num', {
+    allow: [ 'core/number' ],
     adapt: function(v) { return !isNaN(v) ? T(v) : v; },
     accept: function(n) { return !isNaN(n) || (n && n.value); },
     show: function(t_num) {

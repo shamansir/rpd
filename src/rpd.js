@@ -15,7 +15,6 @@ injectKefirEmitter();
 // Rpd.NOTHING, Rpd.ID_LENGTH, ...
 
 var nodetypes = {};
-var linktypes = {};
 var channeltypes = {};
 var noderenderers = {};
 var channelrenderers = {};
@@ -406,6 +405,18 @@ Inlet.prototype.toDefault = function() {
         } else this.receive(this.default);
     }
 }
+Inlet.prototype.allows = function(outlet) {
+    if (outlet.type === this.type) return true;
+    if (!this.def.allow && (outlet.type !== this.type)) return false;
+    if (this.def.allow) {
+        var matched = false;
+        this.def.allow.forEach(function(allowedType) {
+            if (outlet.type === allowedType) { matched = true; };
+        });
+        return matched;
+    }
+    return true;
+}
 
 // =============================================================================
 // ================================= Outlet ====================================
@@ -438,7 +449,6 @@ function Outlet(type, node, alias, name, _default) {
     this.event = event_map(event_types);
     var orig_updates = this.event['outlet/update'];
     var updates = orig_updates.merge(this.value);
-    if (def.adapt) updates = updates.map(def.adapt);
     // rewrite with the modified stream
     this.event['outlet/update'] = updates.onValue(function(v){});
     this.events = events_stream(event_types, this.event, 'outlet', this);
@@ -452,8 +462,11 @@ function Outlet(type, node, alias, name, _default) {
          });
 
 }
-Outlet.prototype.connect = function(inlet, type) {
-    var link = new Link(type, this, inlet);
+Outlet.prototype.connect = function(inlet) {
+    if (!inlet.allows(this)) {
+        throw new Error('Outlet of type ' + this.type + ' is not allowed to connect to inlet of type ' + inlet.type);
+    }
+    var link = new Link(this, inlet);
     this.events.plug(link.events);
     this.value.onValue(link.receiver);
     this.event['outlet/connect'].emit({ link: link, inlet: inlet });
@@ -483,14 +496,10 @@ Outlet.prototype.toDefault = function() {
 // ================================= Link ======================================
 // =============================================================================
 
-function Link(type, outlet, inlet, name) {
-    this.type = type || 'core/pass';
+function Link(outlet, inlet, name) {
     this.id = short_uid();
-    var def = adapt_to_obj(linktypes[this.type], this);
-    if (!def) report_error('Link type ' + this.type + ' is not registered!');
-    this.def = def;
 
-    this.name = name || def.name || '';
+    this.name = name || '';
 
     this.outlet = outlet;
     this.inlet = inlet;
@@ -515,7 +524,6 @@ function Link(type, outlet, inlet, name) {
     this.event = event_map(event_types);
     var orig_updates = this.event['link/pass'];
     var updates = orig_updates.merge(this.value);
-    if (def.adapt) updates = updates.map(def.adapt);
     // rewrite with the modified stream
     this.event['link/pass'] = updates.onValue(function(v){});
     this.events = events_stream(event_types, this.event, 'link', this);
@@ -657,10 +665,6 @@ function nodetype(type, def) {
     nodetypes[type] = def || {};
 }
 
-function linktype(type, def) {
-    linktypes[type] = def || {};
-}
-
 function channeltype(type, def) {
     channeltypes[type] = def || {};
 }
@@ -710,7 +714,6 @@ return {
     'render': render,
 
     'nodetype': nodetype,
-    'linktype': linktype,
     'channeltype': channeltype,
     'nodedescription': nodedescription,
 

@@ -9,7 +9,7 @@ describe('building: link', function() {
             var receiving = patch.addNode('spec/empty');
             var inlet = receiving.addInlet('spec/any', 'foo');
 
-            var link = outlet.connect(inlet, 'spec/pass');
+            var link = outlet.connect(inlet);
             outlet.send(5);
 
             expect(updateSpy).toHaveBeenCalledWith(
@@ -28,7 +28,7 @@ describe('building: link', function() {
             var receiving = patch.addNode('spec/empty');
             var inlet = receiving.addInlet('spec/any', 'foo');
 
-            var link = outlet.connect(inlet, 'spec/pass');
+            var link = outlet.connect(inlet);
 
             var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
             var period = 30;
@@ -56,7 +56,7 @@ describe('building: link', function() {
             var receiving = patch.addNode('spec/empty');
             var inlet = receiving.addInlet('spec/any', 'foo');
 
-            var link = outlet.connect(inlet, 'spec/pass');
+            var link = outlet.connect(inlet);
             outlet.send(5);
 
             expect(updateSpy).toHaveBeenCalledWith(
@@ -76,7 +76,7 @@ describe('building: link', function() {
             var receiving = patch.addNode('spec/empty');
             var inlet = receiving.addInlet('spec/any', 'foo');
 
-            var link = outlet.connect(inlet, 'spec/pass');
+            var link = outlet.connect(inlet);
 
             var userSequence = [ 2, 'foo', { 'foo': 'bar' } ];
             var period = 30;
@@ -105,7 +105,7 @@ describe('building: link', function() {
             var receiving = patch.addNode('spec/empty');
             var inlet = receiving.addInlet('spec/any', 'foo');
 
-            var link = outlet.connect(inlet, 'spec/pass');
+            var link = outlet.connect(inlet);
             link.disable();
             outlet.send(5);
 
@@ -124,7 +124,7 @@ describe('building: link', function() {
             var receiving = patch.addNode('spec/empty');
             var inlet = receiving.addInlet('spec/any', 'foo');
 
-            var link = outlet.connect(inlet, 'spec/pass');
+            var link = outlet.connect(inlet);
             outlet.send(1);
             outlet.send(5);
             link.disable();
@@ -148,7 +148,7 @@ describe('building: link', function() {
             var receiving = patch.addNode('spec/empty');
             var inlet = receiving.addInlet('spec/any', 'foo');
 
-            var link = outlet.connect(inlet, 'spec/pass');
+            var link = outlet.connect(inlet);
             outlet.send(1);
             link.disable();
             outlet.send(5);
