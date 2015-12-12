@@ -247,6 +247,9 @@ var PdModel = (function() {
         //this.nodeToCommand = {};
 
         this.webPdDummy = { patch: webPdPatch };
+
+        patch.event['patch/add-node'].onValue(function(update) {});
+        patch.event['patch/remove-node'].onValue(function(update) {});
     };
 
     var DspInlet = Pd.core.portlets.DspInlet,
