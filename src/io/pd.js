@@ -66,25 +66,14 @@ Rpd.import.pd = function(lines) {
     removeInletStream.onValue(popInlet); removeOutletStream.onValue(popOutlet);
 
     patchData.nodes.forEach(function(pdNode, idx) {
-        var proto = pdNode.proto,
-            nodeType = PdModel.TYPE_MAP[proto];
-        var node = rootPatch.addNode(nodeType || 'pd/object');
-        node.move(pdNode.layout.x, pdNode.layout.y);
-        node.webPdObject = webPdPatch.objects[idx];
-        if (!nodeType) {
-            model.requestResolve(node, proto, pdNode.args);
-        } else {
-            try {
-                model.connectToWebPd([ PdModel.getReceivingInlet(node) ], [ PdModel.getSendingOutlet(node) ],
-                                     node.webPdObject.inlets, node.webPdObject.outlets, '<'+node.id+'> ' + nodeType);
-            } catch (err) {
-                console.error(err);
-            }
-        }
-        if (nodeType && (nodeType === 'pd/message')) {
-            model.initMessage(node, pdNode.args);
-        }
-        nodes.push(node);
+        // var proto = pdNode.proto,
+        //     nodeType = PdModel.TYPE_MAP[proto];
+        // var node = rootPatch.addNode(nodeType || 'pd/object');
+        // node.move(pdNode.layout.x, pdNode.layout.y);
+        // node.webPdObject = webPdPatch.objects[idx];
+        // ...
+        // nodes.push(node);
+        nodes.push(model.resolveNode(rootPatch, webPdPatch, pdNode, webPdObject));
     });
 
     patchData.connections.forEach(function(connection) {
