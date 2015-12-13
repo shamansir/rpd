@@ -66,14 +66,13 @@ Rpd.import.pd = function(lines) {
     removeInletStream.onValue(popInlet); removeOutletStream.onValue(popOutlet);
 
     patchData.nodes.forEach(function(pdNode, idx) {
-        // var proto = pdNode.proto,
-        //     nodeType = PdModel.TYPE_MAP[proto];
-        // var node = rootPatch.addNode(nodeType || 'pd/object');
-        // node.move(pdNode.layout.x, pdNode.layout.y);
+        var proto = pdNode.proto,
+            nodeType = PdModel.TYPE_MAP[proto];
+        var node = rootPatch.addNode(nodeType || 'pd/object');
+        node.move(pdNode.layout.x, pdNode.layout.y);
         // node.webPdObject = webPdPatch.objects[idx];
-        // ...
-        // nodes.push(node);
-        nodes.push(model.resolveNode(rootPatch, webPdPatch, pdNode, webPdObject));
+        model.resolveNode(nodeType, node, proto, pdNode.args, webPdObjects[idx]);
+        nodes.push(node);
     });
 
     patchData.connections.forEach(function(connection) {

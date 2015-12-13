@@ -250,7 +250,8 @@ var PdModel = (function() {
 
         patch.event['patch/add-node'].onValue(function(update) {
             if (!update.node.webPdObject) {
-                //this.resolveNode(this, webPdPatch)
+                this.resolveNode(patch, webPdPatch,
+                    { proto: })
             };
         }.bind(this));
         patch.event['patch/remove-node'].onValue(function(update) {
@@ -268,24 +269,20 @@ var PdModel = (function() {
         return (pdOutlet instanceof DspOutlet) ? 'pd/dsp' : 'pd/value';
     }
 
-    PdModel.prototype.resolveNode = function(patch, webPdPatch, pdNode, webPdObject) {
-        var proto = pdNode.proto,
-            nodeType = PdModel.TYPE_MAP[proto];
-        var node = patch.addNode(nodeType || 'pd/object');
-        node.move(pdNode.layout.x, pdNode.layout.y);
-        node.webPdObject = webPdObject;
-        if (!nodeType) {
-            this.requestResolve(node, proto, pdNode.args);
+    PdModel.prototype.resolveNode = function(type, node, command, args, webPdObject) {
+        node.webPdObject = webPdObject ;
+        if (!type) {
+            this.requestResolve(node, command, args);
         } else {
             try {
                 this.connectToWebPd([ PdModel.getReceivingInlet(node) ], [ PdModel.getSendingOutlet(node) ],
-                                       webPdObject.inlets, webPdObject.outlets, '<'+node.id+'> ' + nodeType);
+                                       webPdObject.inlets, webPdObject.outlets, '<'+node.id+'> ' + type);
             } catch (err) {
                 console.error(err);
             }
         }
-        if (nodeType && (nodeType === 'pd/message')) {
-            this.initMessage(node, pdNode.args);
+        if (type && (type === 'pd/message')) {
+            this.initMessage(node, args);
         }
         return node;
     }
