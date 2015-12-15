@@ -65,9 +65,10 @@ Rpd.import.pd = function(lines) {
     addInletStream.onValue(pushInlet); addOutletStream.onValue(pushOutlet);
     removeInletStream.onValue(popInlet); removeOutletStream.onValue(popOutlet);
 
+    var cmdToType = PdModel.COMMAND_TO_TYPE;
     patchData.nodes.forEach(function(pdNode, idx) {
         var proto = pdNode.proto,
-            nodeType = PdModel.TYPE_MAP[proto];
+            nodeType = cmdToType[proto];
         var node = rootPatch.addNode(nodeType || 'pd/object');
         node.move(pdNode.layout.x, pdNode.layout.y);
         // node.webPdObject = webPdPatch.objects[idx];

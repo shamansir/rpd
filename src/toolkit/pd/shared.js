@@ -248,10 +248,10 @@ var PdModel = (function() {
 
         this.webPdDummy = { patch: webPdPatch };
 
+        var typeToCmd = PdModel.COMMAND_TO_TYPE;
         patch.event['patch/add-node'].onValue(function(update) {
             if (!update.node.webPdObject) {
-                this.resolveNode(patch, webPdPatch,
-                    { proto: })
+                this.resolveNode(node, typeToCmd[update.node.type], [], webPdObject);
             };
         }.bind(this));
         patch.event['patch/remove-node'].onValue(function(update) {
@@ -269,14 +269,14 @@ var PdModel = (function() {
         return (pdOutlet instanceof DspOutlet) ? 'pd/dsp' : 'pd/value';
     }
 
-    PdModel.prototype.resolveNode = function(type, node, command, args, webPdObject) {
-        node.webPdObject = webPdObject ;
+    PdModel.prototype.resolveNode = function(node, command, args, webPdObject) {
+        node.webPdObject = webPdObject;
         if (!type) {
             this.requestResolve(node, command, args);
         } else {
             try {
                 this.connectToWebPd([ PdModel.getReceivingInlet(node) ], [ PdModel.getSendingOutlet(node) ],
-                                       webPdObject.inlets, webPdObject.outlets, '<'+node.id+'> ' + type);
+                                       webPdObject.inlets, webPdObject.outlets, '<'+node.id+'> ' + node.type);
             } catch (err) {
                 console.error(err);
             }
@@ -379,7 +379,7 @@ var PdModel = (function() {
         return node.outlets['send'];
     };
 
-    PdModel.TYPE_MAP = {
+    PdModel.COMMAND_TO_TYPE = {
         'obj':        'pd/object',
         'msg':        'pd/message',
         'floatatom':  'pd/number',
@@ -397,6 +397,11 @@ var PdModel = (function() {
         'graph':      null, // 'pd/graph'
         'array':      null  // 'pd/array'
     };
+    PdModel.TYPE_TO_COMMAND = {};
+    Object.keys(PdModel.COMMAND_TO_TYPE).forEach(function(cmd) {
+        var type = PdModel.COMMAND_TO_TYPE[cmd];
+        if (type) PdModel.TYPE_TO_COMMAND[type] = cmd;
+    });
 
     return PdModel;
 
