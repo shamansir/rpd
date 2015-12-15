@@ -45,7 +45,7 @@ And when I say _minimal_, I really mean it:
 * The HTML renderer is 1200 lines or so, due to masses of DOM manipulation code, and anyway it is 3.9KB when compiled;
 * [Kefir.js][kefir], required for Reactive Streams support, is ~7KB when gzipped and compiled, since it is also targeted as minimal;
 
-Together it takes only **13-14KB** when compiled and gzipped, but still provides tons (!) of aweseome features!
+Together it takes only **13-14KB** when compiled and gzipped, but still provides tons (!) of awesome features!
 
 Moreover, it's built with the help of Reactive programming (thanks to [Kefir.js][kefir]), and this way it allows a programmer to treat and process any data flow as a stream, so:
 
@@ -271,7 +271,7 @@ You'll find the results under `./dist` folder.
 
 Feel free to fix issues or do Pull Requests!
 
-See a Reference below for details in programming Tollkits and different other things.
+See a Reference below for details in programming Toolkits and different other things.
 
 ## Reference
 
