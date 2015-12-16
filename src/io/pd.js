@@ -72,7 +72,7 @@ Rpd.import.pd = function(lines) {
         var node = rootPatch.addNode(nodeType || 'pd/object');
         node.move(pdNode.layout.x, pdNode.layout.y);
         // node.webPdObject = webPdPatch.objects[idx];
-        model.resolveNode(node, proto, pdNode.args, webPdPatch.objects[idx]);
+        model.markResolved(node, proto, pdNode.args, webPdPatch.objects[idx]);
         nodes.push(node);
     });
 
@@ -93,6 +93,8 @@ Rpd.import.pd = function(lines) {
 
     addInletStream.offValue(pushInlet); addOutletStream.offValue(pushOutlet);
     removeInletStream.offValue(popInlet); removeOutletStream.offValue(popOutlet);
+
+    model.listenForNewNodes();
 
     return rootPatch;
 

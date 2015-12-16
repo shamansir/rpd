@@ -139,7 +139,6 @@ Rpd.noderenderer('pd/object', 'svg', function() {
         size: defaultSize,
         first: function(bodyElm) {
             var node = this;
-            var model = node.patch ? node.patch.model : null;
             var rect = d3.select(_createSvgElement('rect'))
                          .classed('rpd-pd-erratic', true);
             rect.attr('width', size.width).attr('height', size.height);
@@ -147,10 +146,8 @@ Rpd.noderenderer('pd/object', 'svg', function() {
                          .attr('x', 2).attr('y', size.height / 2);
             view.addSelection(bodyElm);
             view.addEditor(bodyElm, text.node(), function(value) {
-                if (model) {
-                    var definition = value.split(' ');
-                    model.requestResolve(node, definition[0], definition.slice(1));
-                }
+                var definition = value.split(' ');
+                PdModel.requestResolve(node, definition[0], definition.slice(1));
             });
 
             if (model) {
@@ -164,9 +161,6 @@ Rpd.noderenderer('pd/object', 'svg', function() {
                     var newSize = view.measureText(text);
                     rect.attr('width', newSize.width + 6);
                     rect.classed('rpd-pd-erratic', !value.object);
-                    model.applyDefinition(value.node,
-                                          value.command, value.arguments,
-                                          value.object);
                     lastCommand = newCommand;
                 });
             }

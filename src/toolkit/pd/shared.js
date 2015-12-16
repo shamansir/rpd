@@ -200,23 +200,19 @@ var PdModel = (function() {
         'pd/applied-solution': applySolutionEmitter
     };
 
-    events['pd/request-resolve'].map(function(value) {
-        return {
-            node: value.node, patch: value.node.patch,
-            command: value.command, 'arguments': value['arguments'],
-            webPdObject: (function(patch, command, _arguments) {
-                try {
-                    return patch.webPdPatch.createObject(command, _arguments);
-                } catch (e) {
-                    if (!(e instanceof WebPd.core.errors.UnkownObjectError)) {
-                        console.error(e, command, _arguments);
-                    }
-                    return null;
-                }
-            })(value.node.patch, value.command, value['arguments'])
-        };
-    }).onValue(function(value) {  // FIXME: just map one stream to another?
-        isResolvedEmitter.emit(value);
+    events['pd/request-resolve'].onValue(function(value) {
+        var node = value.node, patch = node.patch,
+            command = value.command, _arguments = value['arguments'];
+        var webPdObject;
+        try {
+            webPdObject = patch.webPdPatch.createObject(command, _arguments);
+        } catch (e) {
+            if (!(e instanceof WebPd.core.errors.UnkownObjectError)) {
+                console.error(e, command, _arguments); // FIXME: should be a stream error (#13)
+            }
+            return;
+        }
+        PdModel.markResolved(node, command, _arguments, webPdObject);
     });
 
     events['pd/is-resolved'].onValue(function(value) {
@@ -351,6 +347,12 @@ var PdModel = (function() {
         requestResolveEmitter.emit({ node: node,
                                      command: command,
                                      arguments: _arguments });
+    };
+
+    PdModel.markResolved = function(node, command, _arguments, webPdObject) {
+        isResolvedEmitter.emit({ node: node, patch: node.patch,
+                                 command: value.command, 'arguments': value['arguments'],
+                                 webPdObject: webPdObject });
     };
 
     PdModel.whenResolved = function(node, callback) {
