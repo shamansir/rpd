@@ -133,12 +133,12 @@ Rpd.noderenderer('pd/comment', 'svg', function() {
     }
 });
 
-Rpd.noderenderer('pd/object', 'svg', function() {
+Rpd.noderenderer('pd/object', 'svg', function(node) {
     var size = defaultSize;
+    var model = node.patch.model;
     return {
         size: defaultSize,
         first: function(bodyElm) {
-            var node = this;
             var rect = d3.select(_createSvgElement('rect'))
                          .classed('rpd-pd-erratic', true);
             rect.attr('width', size.width).attr('height', size.height);
@@ -147,11 +147,11 @@ Rpd.noderenderer('pd/object', 'svg', function() {
             view.addSelection(bodyElm);
             view.addEditor(bodyElm, text.node(), function(value) {
                 var definition = value.split(' ');
-                PdModel.requestResolve(node, definition[0], definition.slice(1));
+                model.requestResolve(node, definition[0], definition.slice(1));
             });
 
             var lastCommand;
-            PdModel.whenResolved(node, function(value) {
+            model.whenResolved(node, function(value) {
                 var newCommand = value.command +
                           (value.arguments.length ? ' ' + value.arguments.join(' ')
                                                   : '');

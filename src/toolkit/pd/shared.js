@@ -190,53 +190,54 @@ var PdModel = (function() {
     var WebPd = window.Pd || null;
     if (!WebPd) throw new Error('Building PD Model requires WebPd present');
 
-    var requestResolveEmitter = Kefir.emitter();
-    var isResolvedEmitter = Kefir.emitter();
-    var applySolutionEmitter = Kefir.emitter();
+    function initEvents(model) {
+        var requestResolveEmitter = Kefir.emitter();
+        var isResolvedEmitter = Kefir.emitter();
+        var applySolutionEmitter = Kefir.emitter();
 
-    var events = {
-        'pd/request-resolve': requestResolveEmitter,
-        'pd/is-resolved': isResolvedEmitter.toProperty(),
-        'pd/applied-solution': applySolutionEmitter
-    };
+        var events = {
+            'pd/request-resolve': requestResolveEmitter,
+            'pd/is-resolved': isResolvedEmitter/*.toProperty()*/,
+            'pd/applied-solution': applySolutionEmitter
+        };
 
-    events['pd/request-resolve'].onValue(function(value) {
-        var node = value.node, patch = node.patch,
-            command = value.command, _arguments = value['arguments'];
-        var webPdObject;
-        try {
-            webPdObject = patch.webPdPatch.createObject(command, _arguments);
-        } catch (e) {
-            if (!(e instanceof WebPd.core.errors.UnkownObjectError)) {
-                console.error(e, command, _arguments); // FIXME: should be a stream error (#13)
-            }
-            return;
-        }
-        PdModel.markResolved(node, command, _arguments, webPdObject);
-    });
-
-    events['pd/is-resolved'].onValue(function(value) {
-        var node = value.node;
-        var model = patchToModel[node.patch.id];
-        var webPdObject = value.webPdObject;
-        if (node.type === 'pd/object') {
-            model.updatePdObject(node, value.command, value['arguments'], webPdObject);
-            // model.connectToWebPd is called from inside of updatePdObject
-        } else {
+        events['pd/request-resolve'].onValue(function(value) {
+            var node = value.node, patch = node.patch,
+                command = value.command, _arguments = value['arguments'];
+            var webPdObject;
             try {
-                model.connectToWebPd([ PdModel.getReceivingInlet(node) ], [ PdModel.getSendingOutlet(node) ],
-                                       webPdObject.inlets, webPdObject.outlets, '<'+node.id+'> ' + node.type);
-            } catch (err) {
-                console.error(err);
+                webPdObject = patch.webPdPatch.createObject(command, _arguments);
+            } catch (e) {
+                if (!(e instanceof WebPd.core.errors.UnkownObjectError)) {
+                    console.error(e, command, _arguments); // FIXME: should be a stream error (#13)
+                }
+                return;
             }
-        }
-        if (node.type === 'pd/message') {
-            model.initPdMessage(node, args);
-        }
-        applySolutionEmitter.emit({ node: node });
-    });
+            PdModel.markResolved(node, command, _arguments, webPdObject);
+        });
 
-    var patchToModel = {};
+        events['pd/is-resolved'].onValue(function(value) {
+            var node = value.node;
+            var webPdObject = value.webPdObject;
+            if (node.type === 'pd/object') {
+                model.updatePdObject(node, value.command, value['arguments'], webPdObject);
+                // model.connectToWebPd is called from inside of updatePdObject
+            } else {
+                try {
+                    model.connectToWebPd([ PdModel.getReceivingInlet(node) ], [ PdModel.getSendingOutlet(node) ],
+                                           webPdObject.inlets, webPdObject.outlets, '<'+node.id+'> ' + node.type);
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+            if (node.type === 'pd/message') {
+                model.initPdMessage(node, args);
+            }
+            applySolutionEmitter.emit({ node: node });
+        });
+
+        return events;
+    };
 
     function PdModel(patch, webPdPatch) {
         this.patch = patch;
@@ -248,7 +249,7 @@ var PdModel = (function() {
 
         this.webPdDummy = { patch: webPdPatch };
 
-        patchToModel[patch.id] = this;
+        this.events = initEvents(this);
     };
 
     PdModel.prototype.listenForNewNodes = function() {
@@ -343,20 +344,20 @@ var PdModel = (function() {
         }
     };
 
-    PdModel.requestResolve = function(node, command, _arguments) {
-        requestResolveEmitter.emit({ node: node,
-                                     command: command,
-                                     arguments: _arguments });
+    PdModel.prototype.requestResolve = function(node, command, _arguments) {
+        this.events['pd/request-resolve'].emit({ node: node,
+                                                 command: command,
+                                                 arguments: _arguments });
     };
 
-    PdModel.markResolved = function(node, command, _arguments, webPdObject) {
-        isResolvedEmitter.emit({ node: node, patch: node.patch,
-                                 command: value.command, 'arguments': value['arguments'],
-                                 webPdObject: webPdObject });
+    PdModel.prototype.markResolved = function(node, command, _arguments, webPdObject) {
+        this.events['pd/is-resolved'].emit({ node: node, patch: node.patch,
+                                             command: value.command, 'arguments': value['arguments'],
+                                             webPdObject: webPdObject });
     };
 
-    PdModel.whenResolved = function(node, callback) {
-        isResolvedEmitter.filter(function(value) {
+    PdModel.prototype.whenResolved = function(node, callback) {
+        this.events['pd/is-resolved'].filter(function(value) {
             return value.node.id === node.id;
         }).onValue(callback);
     };
