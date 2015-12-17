@@ -212,7 +212,7 @@ Rpd.noderenderer('pd/bang', 'svg', function() {
 Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
     var mWidth = 300,
         mHeight = 70;
-    var PdNodeMap = PdModel.TYPE_MAP;
+    var commandToType = PdModel.COMMAND_TO_TYPE;
     return {
         size: { width: mWidth + 100,
                 height: mHeight },
@@ -244,15 +244,15 @@ Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
                 var bWidth = mWidth / 4,
                     bHeight = mHeight / 4;
                 var xPos, yPos;
-                Object.keys(PdNodeMap).forEach(function(name, idx) {
+                Object.keys(commandToType).forEach(function(command, idx) {
                     xPos = (idx % 4) * bWidth;
                     yPos = (Math.floor(idx / 4)) * bHeight;
                     var button = d3.select(_createSvgElement('g'))
                                    .attr('transform', 'translate(' + xPos + ',' + yPos + ')')
-                                   .classed('rpd-pd-accessible', PdNodeMap[name] ? true : false);
+                                   .classed('rpd-pd-accessible', commandToType[command] ? true : false);
                     button.append('rect').attr('width', bWidth).attr('height', bHeight);
                     button.append('text').attr('x', 10).attr('y', bHeight / 2).text(name);
-                    if (PdNodeMap[name]) view.addNodeAppender(button.node(), PdNodeMap[name], node.patch);
+                    if (commandToType[command]) view.addNodeAppender(button.node(), commandToType[command], node.patch);
                     buttons.append(button.node());
                 });
             });

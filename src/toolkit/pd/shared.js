@@ -258,7 +258,7 @@ var PdModel = (function() {
             patch = this.patch;
         patch.event['patch/add-node'].onValue(function(node) {
             node.event['node/is-ready'].onValue(function() {
-                PdModel.requestResolve(node, typeToCmd[node.type], []);
+                model.requestResolve(node, typeToCmd[node.type], []);
             });
         });
         patch.event['patch/remove-node'].onValue(function(update) {
