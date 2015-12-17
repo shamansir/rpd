@@ -7,12 +7,9 @@ Rpd.channeltype('pd/dsp', { });
 
 Rpd.nodetype('pd/object', function(node) {
     var _process;
-    var model = node.patch ? node.patch.model : null;
-    if (model) {
-        model.whenResolved(node, function(value) {
-            _process = value.definition ? value.definition.process : null;
-        });
-    };
+    PdModel.whenResolved(node, function(value) {
+        _process = value.definition ? value.definition.process : null;
+    });
     return {
         inlets: { 'command': { type: 'pd/value', hidden: true } },
         process: function() {

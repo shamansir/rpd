@@ -150,20 +150,18 @@ Rpd.noderenderer('pd/object', 'svg', function() {
                 PdModel.requestResolve(node, definition[0], definition.slice(1));
             });
 
-            if (model) {
-                var lastCommand;
-                model.whenResolved(node, function(value) {
-                    var newCommand = value.command +
-                              (value.arguments.length ? ' ' + value.arguments.join(' ')
-                                                      : '');
-                    if (lastCommand && (newCommand === lastCommand)) return;
-                    text.text(newCommand);
-                    var newSize = view.measureText(text);
-                    rect.attr('width', newSize.width + 6);
-                    rect.classed('rpd-pd-erratic', !value.object);
-                    lastCommand = newCommand;
-                });
-            }
+            var lastCommand;
+            PdModel.whenResolved(node, function(value) {
+                var newCommand = value.command +
+                          (value.arguments.length ? ' ' + value.arguments.join(' ')
+                                                  : '');
+                if (lastCommand && (newCommand === lastCommand)) return;
+                text.text(newCommand);
+                var newSize = view.measureText(text);
+                rect.attr('width', newSize.width + 6);
+                rect.classed('rpd-pd-erratic', !value.object);
+                lastCommand = newCommand;
+            });
 
             d3.select(bodyElm).call(function(body) {
                  body.append(rect.node());

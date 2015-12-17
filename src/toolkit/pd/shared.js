@@ -240,7 +240,7 @@ var PdModel = (function() {
 
     function PdModel(patch, webPdPatch) {
         this.patch = patch;
-        this.webPdPatch = webPdPatch;
+        this.webPdPatch = webPdPatch || WebPd.createPatch();
 
         this.nodeToInlets = {};
         this.nodeToOutlets = {};
