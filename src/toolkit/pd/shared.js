@@ -231,7 +231,7 @@ var PdModel = (function() {
                 }
             }
             if (node.type === 'pd/message') {
-                model.initPdMessage(node, args);
+                model.initPdMessage(node, value['arguments']);
             }
             applySolutionEmitter.emit({ node: node });
         });
@@ -295,8 +295,8 @@ var PdModel = (function() {
         }
         if (!webPdObject) return;
 
-        var pdInlets = object.inlets || {},
-            pdOutlets = object.outlets || {};
+        var pdInlets = webPdObject.inlets || {},
+            pdOutlets = webPdObject.outlets || {};
         var savedInlets = [], savedOutlets = [];
         pdInlets.forEach(function(pdInlet, idx) {
             savedInlets.push(node.addInlet(getInletType(pdInlet), idx.toString()));
@@ -352,7 +352,7 @@ var PdModel = (function() {
 
     PdModel.prototype.markResolved = function(node, command, _arguments, webPdObject) {
         this.events['pd/is-resolved'].emit({ node: node, patch: node.patch,
-                                             command: value.command, 'arguments': value['arguments'],
+                                             command: command, 'arguments': _arguments,
                                              webPdObject: webPdObject });
     };
 
@@ -362,7 +362,7 @@ var PdModel = (function() {
         }).onValue(callback);
     };
 
-    PdModel.initPdMessage = function(node, _arguments) {
+    PdModel.prototype.initPdMessage = function(node, _arguments) {
         node.inlets['init'].receive(PdValue.from(_arguments));
     };
 
