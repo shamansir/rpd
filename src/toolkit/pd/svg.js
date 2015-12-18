@@ -159,7 +159,8 @@ Rpd.noderenderer('pd/object', 'svg', function(node) {
                 text.text(newCommand);
                 var newSize = view.measureText(text);
                 rect.attr('width', newSize.width + 6);
-                rect.classed('rpd-pd-erratic', !value.object);
+                rect.classed('rpd-pd-erratic', !value.webPdObject);
+                console.log('resized node', node);
                 lastCommand = newCommand;
             });
 
@@ -213,6 +214,24 @@ Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
     var mWidth = 300,
         mHeight = 70;
     var commandToType = PdModel.COMMAND_TO_TYPE;
+    var names = {
+        'obj':        'object',
+        'msg':        'message',
+        'floatatom':  'number',
+        'symbolatom': 'symbol',
+        'text':       'comment',
+        'bng':        'bang',
+        'tgl':        'toggle',
+        'nbx':        'number2',
+        'vsl':        'vslider',
+        'hsl':        'hslider',
+        'vradio':     'vradio',
+        'hradio':     'hradio',
+        'vu':         'vumeter',
+        'cnv':        'canvas',
+        'graph':      'graph',
+        'array':      'array'
+    };
     return {
         size: { width: mWidth + 100,
                 height: mHeight },
@@ -245,13 +264,13 @@ Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
                     bHeight = mHeight / 4;
                 var xPos, yPos;
                 Object.keys(commandToType).forEach(function(command, idx) {
-                    xPos = (idx % 4) * bWidth;
-                    yPos = (Math.floor(idx / 4)) * bHeight;
+                    xPos = (Math.floor(idx / 4)) * bWidth;
+                    yPos = (idx % 4) * bHeight;
                     var button = d3.select(_createSvgElement('g'))
                                    .attr('transform', 'translate(' + xPos + ',' + yPos + ')')
                                    .classed('rpd-pd-accessible', commandToType[command] ? true : false);
                     button.append('rect').attr('width', bWidth).attr('height', bHeight);
-                    button.append('text').attr('x', 10).attr('y', bHeight / 2).text(name);
+                    button.append('text').attr('x', 10).attr('y', bHeight / 2).text(names[command]);
                     if (commandToType[command]) view.addNodeAppender(button.node(), commandToType[command], node.patch);
                     buttons.append(button.node());
                 });
