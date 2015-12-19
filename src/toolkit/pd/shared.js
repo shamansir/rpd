@@ -350,14 +350,19 @@ var PdModel = (function() {
                                                  arguments: _arguments });
     };
 
-    PdModel.prototype.requestApply = function(node) {
-        this.events['pd/request-apply'].emit({ node: node });
-    });
+    /* PdModel.prototype.requestApply = function(node) {
+        this.events['pd/apply-solution'].emit({ node: node });
+    }; */
 
     PdModel.prototype.markResolved = function(node, command, _arguments, webPdObject) {
         this.events['pd/is-resolved'].emit({ node: node, patch: node.patch,
                                              command: command, 'arguments': _arguments,
                                              webPdObject: webPdObject });
+    };
+
+    PdModel.prototype.markResolvedAndApply = function(node, command, _arguments, webPdObject) {
+        this.whenResolved(node, function() {});
+        this.markResolved(node, command, _arguments, webPdObject);
     };
 
     PdModel.prototype.whenResolved = function(node, callback) {
