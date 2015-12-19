@@ -203,6 +203,7 @@ var PdModel = (function() {
         };
 
         events['pd/request-resolve'].onValue(function(value) {
+            console.log('request resolve', value.node, value.command);
             var node = value.node, patch = node.patch,
                 command = value.command, _arguments = value['arguments'];
             var webPdObject;
@@ -218,6 +219,7 @@ var PdModel = (function() {
         });
 
         events['pd/apply-solution'].map(function(value) {
+            console.log('apply solution', value, value.node, value.command);
             var node = value.node;
             var webPdObject = value.webPdObject;
             if (node.type === 'pd/object') {
@@ -258,6 +260,7 @@ var PdModel = (function() {
             patch = this.patch;
         patch.event['patch/add-node'].onValue(function(node) {
             node.event['node/is-ready'].onValue(function() {
+                console.log('request resolve', node);
                 model.requestResolve(node, typeToCmd[node.type], []);
             });
         });
@@ -278,6 +281,7 @@ var PdModel = (function() {
 
     // add required inlets and outlets to the node using the properties from resolve-event
     PdModel.prototype.updatePdObject = function(node, command, _arguments, webPdObject) {
+        console.log('update PD Object', node, command);
         //this.nodeToCommand[node.id] = command;
 
         var nodeInlets = this.nodeToInlets[node.id],
@@ -313,6 +317,7 @@ var PdModel = (function() {
     };
 
     PdModel.prototype.connectToWebPd = function(inlets, outlets, webPdInlets, webPdOutlets) { // FIXME: remove label
+        console.log('connect to web PD');
         if ((inlets && !webPdInlets) ||
             (inlets && (inlets.length !== webPdInlets.length))) throw new Error('inlets number not matches to WebPd inlets number');
         if ((outlets && !webPdOutlets) ||
@@ -361,6 +366,7 @@ var PdModel = (function() {
     };
 
     PdModel.prototype.markResolvedAndApply = function(node, command, _arguments, webPdObject) {
+        console.log('mark resolved', command, node);
         this.whenResolved(node, function() {});
         this.markResolved(node, command, _arguments, webPdObject);
     };
@@ -369,6 +375,7 @@ var PdModel = (function() {
         this.events['pd/is-resolved'].filter(function(value) {
             return value.node.id === node.id;
         }).onValue(function(value) {
+            console.log('applying', value.command, node);
             callback(value);
             this.events['pd/apply-solution'].emit(value);
             // FIXME: refactor it using streams

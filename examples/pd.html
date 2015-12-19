@@ -50,7 +50,12 @@
             Rpd.render('svg', document.body, { style: 'realpd',
                                                inletAcceptsMultipleLinks: true });
 
-            var root = Rpd.addPatch('root').enter();
+            var root = Rpd.addPatch('root');
+
+            var model = new PdModel(root);
+            model.listenForNewNodes();
+
+            root.enter();
 
             var toolbar = root.addNode('pd/toolbar');
 

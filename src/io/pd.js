@@ -67,6 +67,7 @@ Rpd.import.pd = function(lines) {
 
     var cmdToType = PdModel.COMMAND_TO_TYPE;
     patchData.nodes.forEach(function(pdNode, idx) {
+        console.log('parsing', pdNode);
         var proto = pdNode.proto,
             nodeType = cmdToType[proto];
         var node = rootPatch.addNode(nodeType || 'pd/object');
@@ -77,6 +78,7 @@ Rpd.import.pd = function(lines) {
     });
 
     patchData.connections.forEach(function(connection) {
+        console.log('connecting', connection);
         var fromNodeIdx = connection.source.id,
             toNodeIdx = connection.sink.id;
         var outletIdx = connection.source.port,
