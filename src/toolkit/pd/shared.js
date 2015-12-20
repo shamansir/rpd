@@ -218,7 +218,7 @@ var PdModel = (function() {
             PdModel.markResolved(node, command, _arguments, webPdObject);
         });
 
-        events['pd/apply-solution'].map(function(value) {
+        events['pd/apply-solution'].onValue(function(value) {
             console.log('apply solution', value, value.node, value.command);
             var node = value.node;
             var webPdObject = value.webPdObject;
