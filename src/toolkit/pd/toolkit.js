@@ -60,4 +60,4 @@ Rpd.nodetype('pd/toolbar', {});
 
 Rpd.nodetype('pd/edit-switch', {});
 
-//Rpd.nodetype('pd/mute', {});
+Rpd.nodetype('pd/audio-control', {});
