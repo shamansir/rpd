@@ -160,7 +160,6 @@ Rpd.noderenderer('pd/object', 'svg', function(node) {
                 var newSize = view.measureText(text);
                 rect.attr('width', newSize.width + 6);
                 rect.classed('rpd-pd-erratic', !value.webPdObject);
-                console.log('resized node', node);
                 lastCommand = newCommand;
             });
 

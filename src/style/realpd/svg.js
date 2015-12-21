@@ -27,7 +27,6 @@ var inletToElm = {},
     outletToElm = {};
 
 function redistributeInlets(node) {
-    console.log('redistributeInlets', node);
     var inlets = nodeToInlets[node.id];
     var inlet_count = inlets.length;
     if (inlet_count <= 1) return;
@@ -40,7 +39,6 @@ function redistributeInlets(node) {
 }
 
 function redistributeOutlets(node) {
-    console.log('redistributeOutlets', node);
     var outlets = nodeToOutlets[node.id];
     var outlet_count = outlets.length;
     if (outlet_count <= 1) return;
