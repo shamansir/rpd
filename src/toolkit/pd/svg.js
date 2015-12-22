@@ -161,6 +161,7 @@ Rpd.noderenderer('pd/object', 'svg', function(node) {
                 rect.attr('width', newSize.width + 6);
                 rect.classed('rpd-pd-erratic', !value.webPdObject);
                 lastCommand = newCommand;
+                return true;
             });
 
             d3.select(bodyElm).call(function(body) {
