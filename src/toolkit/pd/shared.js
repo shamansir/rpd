@@ -204,12 +204,13 @@ var PdModel = (function() {
 
         this.requestResolve = Kefir.emitter();
         this.alreadyResolved = Kefir.emitter();
-        this.applySolution = Kefir.emitter();
+        this.requestApply = Kefir.emitter();
 
         var events = {
             'pd/request-resolve': this.requestResolve,
             'pd/is-resolved': null,
-            'pd/apply-solution': this.applySolution
+            'pd/request-apply': this.requestApply,
+            'pd/is-applied': null
         };
 
         var model = this;
@@ -232,7 +233,17 @@ var PdModel = (function() {
             }
         }).merge(this.alreadyResolved);
 
-        this.applySolution.onValue(function(value) {
+        var allResolved = events['pd/is-resolved'].scan(function(all, current) {
+            all[current.node.id] = current;
+            return all;
+        }).toProperty(function() { return {}; });
+
+        //events['pd/is-resolved'].bufferBy(this.requestApply)
+
+        this.events['pd/is-applied'] = allResolved.sampledBy(this.requestApply, function(vals) {
+            var requestedNode = vals[1].node; var allNodes = vals[0];
+            return allNodes[requestedNode.id];
+        }).map(function(value) {
             var node = value.node;
             var webPdObject = value.webPdObject;
             if (node.type === 'pd/object') {
@@ -256,7 +267,8 @@ var PdModel = (function() {
         models++;
         this.events['pd/request-resolve'].log('request-resolve-' + models);
         this.events['pd/is-resolved'].log('is-resolved-' + models);
-        this.events['pd/apply-solution'].log('apply-solution-' + models);
+        this.events['pd/request-apply'].log('request-apply-' + models);
+        this.events['pd/is-applied'].log('is-applied-' + models);
     };
 
     PdModel.prototype.listenForNewNodes = function() {
@@ -286,18 +298,22 @@ var PdModel = (function() {
     };
 
     PdModel.prototype.markResolvedAndApply = function(node, command, _arguments, webPdObject) {
-        this.whenResolved(node, function() {});
         this.markResolved(node, command, _arguments, webPdObject);
+        this.requestApply.emit({ node: node });
     };
 
+    function isNode(node) { return function(value) { return value.node.id === node.id; } }
+
     PdModel.prototype.whenResolved = function(node, callback) {
-        this.events['pd/is-resolved'].filter(function(value) {
-            return value.node.id === node.id;
-        }).onValue(function(value) {
-            callback(value);
+
+        /* this.events['pd/is-resolved'].filter(isNode(node)).take(1)
+                                     .bufferBy(this.applySolution.filter(isNode(node)).take(1))
+        .onValue(function(value) {
+            console.log(value);
+            if (callback) callback(value);
             this.events['pd/apply-solution'].emit(value);
             // FIXME: refactor it using streams
-        }.bind(this));
+        }.bind(this)); */
     };
 
     var DspInlet = Pd.core.portlets.DspInlet,
