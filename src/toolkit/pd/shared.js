@@ -191,7 +191,6 @@ var PdModel = (function() {
     var WebPd = window.Pd || null;
     if (!WebPd) throw new Error('Building PD Model requires WebPd present');
 
-    var models = 0;
     function PdModel(patch, webPdPatch) {
         this.patch = patch;
         this.webPdPatch = webPdPatch || WebPd.createPatch();
@@ -235,7 +234,7 @@ var PdModel = (function() {
         var allResolved = events['pd/is-resolved'].scan(function(all, current) {
                                                       all[current.node.id] = current;
                                                       return all;
-                                                  }, {}).log('all-resolved');
+                                                  }, {});
 
         //events['pd/is-resolved'].bufferBy(this.requestApply)
 
@@ -244,7 +243,6 @@ var PdModel = (function() {
                                                             return all[requested.id];
                                                         })
                                              .map(function(value) {
-                                                 console.log('applying ', value.command, value.node);
                                                  var node = value.node;
                                                  var webPdObject = value.webPdObject;
                                                  if (node.type === 'pd/object') {
@@ -261,15 +259,9 @@ var PdModel = (function() {
                                                 if (node.type === 'pd/message') {
                                                     model.initPdMessage(node, value['arguments']);
                                                 }
-                                            }).log('is-applied');
+                                            })
 
         this.events = events;
-
-        models++;
-        events['pd/request-resolve'].log('request-resolve-' + models);
-        events['pd/is-resolved'].log('is-resolved-' + models);
-        events['pd/request-apply'].log('request-apply-' + models);
-        events['pd/is-applied'].log('is-applied-' + models);
     };
 
     PdModel.prototype.listenForNewNodes = function() {
