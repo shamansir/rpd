@@ -234,9 +234,7 @@ var PdModel = (function() {
         var allResolved = events['pd/is-resolved'].scan(function(all, current) {
                                                       all[current.node.id] = current;
                                                       return all;
-                                                  }, {});
-
-        //events['pd/is-resolved'].bufferBy(this.requestApply)
+                                                  }, {}).onValue(function() {});
 
         events['pd/is-applied'] = allResolved.sampledBy(this._requestApply.map(function(value) { return value.node; }),
                                                         function(all, requested) {
@@ -259,7 +257,7 @@ var PdModel = (function() {
                                                 if (node.type === 'pd/message') {
                                                     model.initPdMessage(node, value['arguments']);
                                                 }
-                                            })
+                                            }).onValue(function() {});
 
         this.events = events;
     };
