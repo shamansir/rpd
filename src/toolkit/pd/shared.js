@@ -204,12 +204,14 @@ var PdModel = (function() {
         this._requestResolve = Kefir.emitter();
         this._alreadyResolved = Kefir.emitter();
         this._requestApply = Kefir.emitter();
+        this._sendMessage = Kefir.emitter();
 
         var events = {
             'pd/request-resolve': this._requestResolve,
             'pd/is-resolved': null,
             'pd/request-apply': this._requestApply,
-            'pd/is-applied': null
+            'pd/is-applied': null,
+            'pd/send-message': null
         };
 
         var model = this;
@@ -234,7 +236,7 @@ var PdModel = (function() {
         var allResolved = events['pd/is-resolved'].scan(function(all, current) {
                                                       all[current.node.id] = current;
                                                       return all;
-                                                  }, {}).onValue(function() {});
+                                                  }, {});
 
         events['pd/is-applied'] = allResolved.sampledBy(this._requestApply.map(function(value) { return value.node; }),
                                                         function(all, requested) {
@@ -251,13 +253,27 @@ var PdModel = (function() {
                                                         model.connectToWebPd([ PdModel.getReceivingInlet(node) ], [ PdModel.getSendingOutlet(node) ],
                                                                              webPdObject.inlets, webPdObject.outlets, '<'+node.id+'> ' + node.type);
                                                     } catch (err) {
-                                                        console.error(err);
+                                                        console.error(err); // FIXME: use Kefir error stream
                                                     }
                                                 }
                                                 if (node.type === 'pd/message') {
                                                     model.initPdMessage(node, value['arguments']);
                                                 }
                                             }).onValue(function() {});
+
+        events['pd/send-message'] =  allResolved.sampledBy(this._sendMessage,
+                                                           function(all, messagePair) {
+                                                               return { node: messagePair.node,
+                                                                        data: all[messagePair.node.id],
+                                                                        message: messagePair.message }
+                                                           })
+                                                .map(function(value) {
+                                                    if (!value.data || !value.data.webPdObject) {
+                                                        console.error('Message node is not connected to WebPd'); // FIXME: use Kefir error stream
+                                                    }
+                                                    value.data.webPdObject.inlets[0].message(value.message);
+                                                }).onValue(function() {});
+
 
         this.events = events;
     };
@@ -384,10 +400,11 @@ var PdModel = (function() {
         node.inlets['init'].receive(PdValue.from(_arguments));
     };
 
-    PdModel.prototype.sendPdMessageValue = function(node, value) {
-        if (node.webPdObject) {
-            node.webPdObject.inlets[0].message(getValue());
-        } else throw new Error('Message node is not connected to WebPd');
+    PdModel.prototype.sendPdMessageValue = function(node, message) {
+        this._sendMessage.emit({ node: node, message: message });
+        /*if (node.webPdObject) {
+            node.webPdObject.inlets[0].message(value);
+        } else throw new Error('Message node is not connected to WebPd');*/
     };
 
     PdModel.getReceivingInlet = function(node) {
