@@ -473,6 +473,17 @@ PdValue = (function() {
         return new PdValue(vals);
     };
 
+    PdValue.extract = function(test) {
+        if (!test) return PdValue.from([]);
+        if (Array.isArray(test)) return PdValue.from(test);
+        //if (test === 'bang') return PdValue.bang();
+        //if (!Number.isNaN(parseFloat(test))) return PdValue.from([test]);
+        var parts = test.split(' ');
+        return PdValue.from(parts.map(function(part) {
+            return !Number.isNaN(parseFloat(part)) ? parseFloat(part) : part;
+        }));
+    };
+
     PdValue.bang = function() {
         return new PdValue(['bang']);
     };

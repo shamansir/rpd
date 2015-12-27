@@ -93,7 +93,7 @@ Rpd.noderenderer('pd/message', 'svg', function() {
                      .attr('x', 2).attr('y', size.height / 2);
             text.text('');
             view.addSelection(bodyElm);
-            view.addEditor(bodyElm, text.node(), function(value) { lastValue = PdValue.from(value ? value.split(' ') : []); });
+            view.addEditor(bodyElm, text.node(), function(value) { lastValue = PdValue.extract(value); });
             view.addValueSend(bodyElm, this, 'receive', function() { return lastValue.get(); });
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
@@ -146,8 +146,8 @@ Rpd.noderenderer('pd/object', 'svg', function(node) {
                          .attr('x', 2).attr('y', size.height / 2);
             view.addSelection(bodyElm);
             view.addEditor(bodyElm, text.node(), function(value) {
-                var definition = value.split(' ');
-                model.requestResolve(node, definition[0], definition.slice(1));
+                var commandAndArgs = PdValue.extract(value).get();
+                model.requestResolve(node, commandAndArgs[0], commandAndArgs.slice(1));
             });
 
             var lastCommand;
