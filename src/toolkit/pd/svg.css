@@ -110,6 +110,10 @@
     fill: darkblue; /* TODO: mark red only in edit mode */
 }
 
+.rpd-link.rpd-disabled {
+    stroke: red;
+}
+
 .rpd-link.rpd-pd-dsp {
     stroke: darkblue;
     stroke-width: 2;

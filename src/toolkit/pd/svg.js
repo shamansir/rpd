@@ -93,7 +93,7 @@ Rpd.noderenderer('pd/message', 'svg', function() {
                      .attr('x', 2).attr('y', size.height / 2);
             text.text("");
             view.addSelection(bodyElm);
-            view.addEditor(bodyElm, text.node(), function(value) { lastValue = PdValue.from(value.split(' ')); });
+            view.addEditor(bodyElm, text.node(), function(value) { lastValue = PdValue.from(value ? value.split(' ') : []); });
             view.addValueSend(bodyElm, this, 'receive', function() { return lastValue.get(); });
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
@@ -152,14 +152,17 @@ Rpd.noderenderer('pd/object', 'svg', function(node) {
 
             var lastCommand;
             model.whenResolved(node, function(value) {
-                var newCommand = value.command +
+                var newCommand;
+                if (value.command) {
+                    newCommand = value.command +
                           (value.arguments.length ? ' ' + value.arguments.join(' ')
                                                   : '');
+                }
                 if (lastCommand && (newCommand === lastCommand)) return;
-                text.text(newCommand);
+                text.text(newCommand || '');
                 var newSize = view.measureText(text);
                 rect.attr('width', newSize.width + 6);
-                rect.classed('rpd-pd-erratic', !value.webPdObject);
+                rect.classed('rpd-pd-erratic', !value.webPdObject || !value.command);
                 lastCommand = newCommand;
                 return true;
             });
