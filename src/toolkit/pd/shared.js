@@ -280,12 +280,15 @@ var PdModel = (function() {
     };
 
     PdModel.prototype.listenForNewNodes = function() {
-        var typeToCmd = PdModel.COMMAND_TO_TYPE;
+        var typeToCmd = PdModel.TYPE_TO_COMMAND;
         var model = this,
             patch = this.patch;
         patch.event['patch/add-node'].onValue(function(node) {
             node.event['node/is-ready'].onValue(function() {
-                model.requestResolve(node, typeToCmd[node.type], []);
+                if ((node.type !== 'pd/object') && typeToCmd[node.type]) {
+                    model.requestResolve(node, typeToCmd[node.type], []);
+                    model.requestApply(node);
+                }
             });
         });
         patch.event['patch/remove-node'].onValue(function(update) {
@@ -299,6 +302,10 @@ var PdModel = (function() {
                                     arguments: _arguments });
     };
 
+    PdModel.prototype.requestApply = function(node) {
+        this._requestApply.emit({ node: node });
+    };
+
     PdModel.prototype.markResolved = function(node, command, _arguments, webPdObject) {
         this._alreadyResolved.emit({ node: node, patch: node.patch,
                                      command: command, 'arguments': _arguments,
@@ -307,7 +314,7 @@ var PdModel = (function() {
 
     PdModel.prototype.markResolvedAndApply = function(node, command, _arguments, webPdObject) {
         this.markResolved(node, command, _arguments, webPdObject);
-        this._requestApply.emit({ node: node });
+        this.requestApply(node);
     };
 
     PdModel.prototype.whenResolved = function(node, callback) {
