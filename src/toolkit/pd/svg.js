@@ -91,7 +91,7 @@ Rpd.noderenderer('pd/message', 'svg', function() {
                                 'h ' + (-size.width) + ' v ' + (-size.height) + ' z');
             text = d3.select(_createSvgElement('text'))
                      .attr('x', 2).attr('y', size.height / 2);
-            text.text("");
+            text.text('');
             view.addSelection(bodyElm);
             view.addEditor(bodyElm, text.node(), function(value) { lastValue = PdValue.from(value ? value.split(' ') : []); });
             view.addValueSend(bodyElm, this, 'receive', function() { return lastValue.get(); });
@@ -161,7 +161,7 @@ Rpd.noderenderer('pd/object', 'svg', function(node) {
                 if (lastCommand && (newCommand === lastCommand)) return;
                 text.text(newCommand || '');
                 var newSize = view.measureText(text);
-                rect.attr('width', newSize.width + 6);
+                rect.attr('width', (newSize.width > 30) ? (newSize.width + 6) : 30);
                 rect.classed('rpd-pd-erratic', !value.webPdObject || !value.command);
                 lastCommand = newCommand;
                 return true;

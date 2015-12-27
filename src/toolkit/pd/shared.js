@@ -268,10 +268,11 @@ var PdModel = (function() {
                                                                         message: messagePair.message }
                                                            })
                                                 .map(function(value) {
-                                                    if (!value.data || !value.data.webPdObject) {
+                                                    if (value.data && value.data.webPdObject) {
+                                                        value.data.webPdObject.inlets[0].message(value.message);
+                                                    } else {
                                                         console.error('Message node is not connected to WebPd'); // FIXME: use Kefir error stream
                                                     }
-                                                    value.data.webPdObject.inlets[0].message(value.message);
                                                 }).onValue(function() {});
 
 
