@@ -461,6 +461,10 @@ PdValue = (function() {
         return this.value;
     };
 
+    PdValue.prototype.getByIndex = function(idx) {
+        return this.value[idx];
+    };
+
     PdValue.prototype.isBang = function() {
         return (this.value[0] === 'bang');
     };

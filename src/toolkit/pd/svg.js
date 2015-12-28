@@ -46,7 +46,8 @@ Rpd.noderenderer('pd/number', 'svg', function() {
             /*if (inlets.hasOwnProperty('receive')) {
                 spinner.setValue(inlets.receive);
             }*/
-            text.text((inlets.receive || inlets.spinner).get());
+            var newVal = (inlets.receive || inlets.spinner);
+            if (!newVal.isBang()) text.text(newVal.getByIndex(0));
         }
     }
 });
