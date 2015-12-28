@@ -110,6 +110,10 @@
     fill: darkblue; /* TODO: mark red only in edit mode */
 }
 
+.rpd-link.rpd-disabled {
+    stroke: red;
+}
+
 .rpd-link.rpd-pd-dsp {
     stroke: darkblue;
     stroke-width: 2;
@@ -176,4 +180,12 @@
 
 .rpd-pd-bang .rpd-pd-send-value circle {
     fill: black;
+}
+
+.rpd-pd-audio-control .rpd-pd-channel {
+    fill: red;
+}
+
+.rpd-pd-audio-control .rpd-pd-channel-on {
+    fill: green;
 }

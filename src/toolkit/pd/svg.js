@@ -46,7 +46,8 @@ Rpd.noderenderer('pd/number', 'svg', function() {
             /*if (inlets.hasOwnProperty('receive')) {
                 spinner.setValue(inlets.receive);
             }*/
-            text.text((inlets.receive || inlets.spinner).get());
+            var newVal = (inlets.receive || inlets.spinner);
+            if (!newVal.isBang()) text.text(newVal.getByIndex(0));
         }
     }
 });
@@ -91,9 +92,9 @@ Rpd.noderenderer('pd/message', 'svg', function() {
                                 'h ' + (-size.width) + ' v ' + (-size.height) + ' z');
             text = d3.select(_createSvgElement('text'))
                      .attr('x', 2).attr('y', size.height / 2);
-            text.text("");
+            text.text('');
             view.addSelection(bodyElm);
-            view.addEditor(bodyElm, text.node(), function(value) { lastValue = PdValue.from(value.split(' ')); });
+            view.addEditor(bodyElm, text.node(), function(value) { lastValue = PdValue.extract(value); });
             view.addValueSend(bodyElm, this, 'receive', function() { return lastValue.get(); });
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
@@ -133,13 +134,12 @@ Rpd.noderenderer('pd/comment', 'svg', function() {
     }
 });
 
-Rpd.noderenderer('pd/object', 'svg', function() {
+Rpd.noderenderer('pd/object', 'svg', function(node) {
     var size = defaultSize;
+    var model = node.patch.model;
     return {
         size: defaultSize,
         first: function(bodyElm) {
-            var node = this;
-            var model = node.patch ? node.patch.model : null;
             var rect = d3.select(_createSvgElement('rect'))
                          .classed('rpd-pd-erratic', true);
             rect.attr('width', size.width).attr('height', size.height);
@@ -147,29 +147,26 @@ Rpd.noderenderer('pd/object', 'svg', function() {
                          .attr('x', 2).attr('y', size.height / 2);
             view.addSelection(bodyElm);
             view.addEditor(bodyElm, text.node(), function(value) {
-                if (model) {
-                    var definition = value.split(' ');
-                    model.requestResolve(node, definition[0], definition.slice(1));
-                }
+                var commandAndArgs = PdValue.extract(value).get();
+                model.requestResolve(node, commandAndArgs[0], commandAndArgs.slice(1));
             });
 
-            if (model) {
-                var lastCommand;
-                model.whenResolved(node, function(value) {
-                    var newCommand = value.command +
-                              (value.arguments.length ? ' ' + value.arguments.join(' ')
-                                                      : '');
-                    if (lastCommand && (newCommand === lastCommand)) return;
-                    text.text(newCommand);
-                    var newSize = view.measureText(text);
-                    rect.attr('width', newSize.width + 6);
-                    rect.classed('rpd-pd-erratic', !value.object);
-                    model.applyDefinition(value.node,
-                                          value.command, value.arguments,
-                                          value.object);
-                    lastCommand = newCommand;
-                });
-            }
+            var lastCommand;
+            model.whenResolved(node, function(value) {
+                var newCommand;
+                if (value.command) {
+                    newCommand = value.command +
+                          (value.arguments.length ? ' ' + value.arguments.join(' ')
+                                                  : '');
+                }
+                if (lastCommand && (newCommand === lastCommand)) return;
+                text.text(newCommand || '');
+                var newSize = view.measureText(text);
+                rect.attr('width', (newSize.width > 30) ? (newSize.width + 6) : 30);
+                rect.classed('rpd-pd-erratic', !value.webPdObject || !value.command);
+                lastCommand = newCommand;
+                return true;
+            });
 
             d3.select(bodyElm).call(function(body) {
                  body.append(rect.node());
@@ -220,7 +217,25 @@ Rpd.noderenderer('pd/bang', 'svg', function() {
 Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
     var mWidth = 300,
         mHeight = 70;
-    var PdNodeMap = PdModel.TYPE_MAP;
+    var commandToType = PdModel.COMMAND_TO_TYPE;
+    var names = {
+        'obj':        'object',
+        'msg':        'message',
+        'floatatom':  'number',
+        'symbolatom': 'symbol',
+        'text':       'comment',
+        'bng':        'bang',
+        'tgl':        'toggle',
+        'nbx':        'number2',
+        'vsl':        'vslider',
+        'hsl':        'hslider',
+        'vradio':     'vradio',
+        'hradio':     'hradio',
+        'vu':         'vumeter',
+        'cnv':        'canvas',
+        'graph':      'graph',
+        'array':      'array'
+    };
     return {
         size: { width: mWidth + 100,
                 height: mHeight },
@@ -252,15 +267,15 @@ Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
                 var bWidth = mWidth / 4,
                     bHeight = mHeight / 4;
                 var xPos, yPos;
-                Object.keys(PdNodeMap).forEach(function(name, idx) {
-                    xPos = (idx % 4) * bWidth;
-                    yPos = (Math.floor(idx / 4)) * bHeight;
+                Object.keys(commandToType).forEach(function(command, idx) {
+                    xPos = (Math.floor(idx / 4)) * bWidth;
+                    yPos = (idx % 4) * bHeight;
                     var button = d3.select(_createSvgElement('g'))
                                    .attr('transform', 'translate(' + xPos + ',' + yPos + ')')
-                                   .classed('rpd-pd-accessible', PdNodeMap[name] ? true : false);
+                                   .classed('rpd-pd-accessible', commandToType[command] ? true : false);
                     button.append('rect').attr('width', bWidth).attr('height', bHeight);
-                    button.append('text').attr('x', 10).attr('y', bHeight / 2).text(name);
-                    if (PdNodeMap[name]) view.addNodeAppender(button.node(), PdNodeMap[name], node.patch);
+                    button.append('text').attr('x', 10).attr('y', bHeight / 2).text(names[command]);
+                    if (commandToType[command]) view.addNodeAppender(button.node(), commandToType[command], node.patch);
                     buttons.append(button.node());
                 });
             });
@@ -287,6 +302,33 @@ Rpd.noderenderer('pd/edit-switch', 'svg', function(node) {
 
             d3.select(bodyElm).append(group.node());
         }
+    }
+});
+
+Rpd.noderenderer('pd/audio-control', 'svg', {
+    first: function(bodyElm) {
+        var ch0switch = d3.select(_createSvgElement('text'))
+                          .classed('rpd-pd-channel', true);
+        Kefir.fromEvents(ch0switch.node(), 'click').toProperty(function() { return true; })
+             .scan(function(prev, next) { return !prev; })
+             .onValue(function(val) {
+                 Pd._glob.audio.channels[0].gain.value = val ? 1 : 0;
+                 ch0switch.classed('rpd-pd-channel-on', val)
+                          .text('CH0:' + (val ? '✔' : '✘'));
+             });
+        d3.select(bodyElm).append(ch0switch.node());
+        d3.select(bodyElm).append(d3.select(_createSvgElement('text'))
+                                    .text('/').attr('x', 35).node());
+        var ch1switch = d3.select(_createSvgElement('text')).attr('x', 45)
+                          .classed('rpd-pd-channel', true);
+        Kefir.fromEvents(ch1switch.node(), 'click').toProperty(function() { return true; })
+             .scan(function(prev, next) { return !prev; })
+             .onValue(function(val) {
+                 Pd._glob.audio.channels[1].gain.value = val ? 1 : 0;
+                 ch1switch.classed('rpd-pd-channel-on', val)
+                          .text('CH1:' + (val ? '✔' : '✘'));
+             });
+        d3.select(bodyElm).append(ch1switch.node());
     }
 });
 

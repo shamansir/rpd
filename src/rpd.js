@@ -110,7 +110,7 @@ function Patch(name) {
 
     // projections are connections between different patches; patch inlets looking in the outer
     // world are called "inputs" here, and outlets looking in the outer world are, correspondingly,
-    // called "outlets"
+    // called "outputs"
     this.projections = Kefir.emitter();
     Kefir.combine(
         [ this.projections ],
@@ -193,15 +193,7 @@ Patch.prototype.project = function(node) {
 function Node(type, patch, name, callback) {
     this.type = type || 'core/empty';
     this.id = short_uid();
-    var def = adapt_to_obj(nodetypes[this.type], this);
-    if (!def) report_error('Node type ' + this.type + ' is not registered!');
-    this.def = def;
-
-    this.name = name || def.name || type;
-
     this.patch = patch;
-
-    this.render = prepare_render_obj(noderenderers[this.type], this);
 
     var event_types = {
         'node/turn-on':       [ ],
@@ -216,6 +208,14 @@ function Node(type, patch, name, callback) {
     };
     this.event = event_map(event_types);
     this.events = events_stream(event_types, this.event, 'node', this);
+
+    var def = adapt_to_obj(nodetypes[this.type], this);
+    if (!def) report_error('Node type ' + this.type + ' is not registered!');
+    this.def = def;
+
+    this.name = name || def.name || type;
+
+    this.render = prepare_render_obj(noderenderers[this.type], this);
 
     if (callback) callback(this);
 

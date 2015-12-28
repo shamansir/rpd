@@ -108,7 +108,9 @@
                 if (importedPatch) {
                     Pd.start();
                     //importedPatch.enter(); // entering is done in the import (wrongly?)
-                    importedPatch.addNode('pd/edit-switch').move(10, 10);
+                    //importedPatch.addNode('pd/edit-switch').move(10, 10);
+                    importedPatch.addNode('pd/toolbar').move(400, 20);
+                    importedPatch.addNode('pd/audio-control').move(10, 10);
                 }
             });
 

@@ -38,7 +38,7 @@ function redistributeInlets(node) {
     });
 }
 
-function redistributeOutlets(node, new_outlet) {
+function redistributeOutlets(node) {
     var outlets = nodeToOutlets[node.id];
     var outlet_count = outlets.length;
     if (outlet_count <= 1) return;

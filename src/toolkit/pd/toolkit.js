@@ -7,12 +7,10 @@ Rpd.channeltype('pd/dsp', { });
 
 Rpd.nodetype('pd/object', function(node) {
     var _process;
-    var model = node.patch ? node.patch.model : null;
-    if (model) {
-        model.whenResolved(node, function(value) {
-            _process = value.definition ? value.definition.process : null;
-        });
-    };
+    var model = node.patch.model;
+    model.whenResolved(node, function(value) {
+        _process = value.definition ? value.definition.process : null;
+    });
     return {
         inlets: { 'command': { type: 'pd/value', hidden: true } },
         process: function() {
@@ -62,4 +60,4 @@ Rpd.nodetype('pd/toolbar', {});
 
 Rpd.nodetype('pd/edit-switch', {});
 
-//Rpd.nodetype('pd/mute', {});
+Rpd.nodetype('pd/audio-control', {});
