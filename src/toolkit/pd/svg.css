@@ -119,6 +119,29 @@
     stroke-width: 2;
 }
 
+.rpd-pd-message .rpd-pd-send-value path {
+    stroke-width: 2px;
+    stroke: #ccc;
+}
+
+.rpd-pd-bang .rpd-pd-send-value circle {
+    fill: black;
+}
+
+.rpd-pd-audio-control .rpd-pd-channel {
+    fill: red;
+}
+
+.rpd-pd-audio-control .rpd-pd-channel-on {
+    fill: green;
+}
+
+.rpd-pd-number rect.rpd-pd-handle {
+    stroke: none;
+    fill: transparent;
+    cursor: n-resize;
+}
+
 .rpd-pd-toolbar .rpd-pd-toolbar-border,
 .rpd-pd-toolbar rect {
     stroke: black;
@@ -171,21 +194,4 @@
 
 .rpd-pd-toolbar .rpd-pd-buttons .rpd-pd-accessible:hover text {
     fill: white;
-}
-
-.rpd-pd-message .rpd-pd-send-value path {
-    stroke-width: 2px;
-    stroke: #ccc;
-}
-
-.rpd-pd-bang .rpd-pd-send-value circle {
-    fill: black;
-}
-
-.rpd-pd-audio-control .rpd-pd-channel {
-    fill: red;
-}
-
-.rpd-pd-audio-control .rpd-pd-channel-on {
-    fill: green;
 }

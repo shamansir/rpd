@@ -12,7 +12,7 @@ function _createSvgElement(name) {
 }
 
 Rpd.noderenderer('pd/number', 'svg', function() {
-    var path, text;
+    var path, text, handle;
     var size = defaultSize;
     var spinner;
     return {
@@ -23,17 +23,23 @@ Rpd.noderenderer('pd/number', 'svg', function() {
                                 'l ' + 5 + ' ' + 5 + ' ' +
                                 'v ' + (size.height - 5) + ' ' +
                                 'h ' + (-size.width) + ' v ' + (-size.height) + ' z');
+            handle = d3.select(_createSvgElement('rect'))
+                       .classed('rpd-pd-handle', true)
+                       .attr('x', 2).attr('y', 2)
+                       .attr('width', size.height - 2)
+                       .attr('height', Math.floor(size.width * 0.7));
             text = d3.select(_createSvgElement('text'))
                      .attr('x', 2).attr('y', size.height / 2)
                      .text('0');
 
-            spinner = view.addSpinner(text.node());
+            spinner = view.addSpinner(handle.node());
             var changes = spinner.getChangesStream();
 
             view.addSelection(bodyElm);
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
                 body.append(text.node());
+                body.append(handle.node());
             });
 
             return {
