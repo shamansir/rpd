@@ -177,6 +177,17 @@ var PdView = (function() {
         return { width: bbox.width, height: bbox.height };
     }
 
+    PdView.EDIT_MODE_KEY_LABEL = '⌥E';
+    PdView.NODE_TYPE_TO_KEY_LABEL = {
+        'pd/object':  '⌥1',
+        'pd/message': '⌥2',
+        'pd/number':  '⌥3',
+        'pd/symbol':  '⌥4',
+        'pd/comment': '⌥5',
+        'pd/bang': '⌥⇧B',
+        'pd/toggle': '⌥⇧T'
+    };
+
     // ================================ Spinner ====================================
 
     function extractPos(evt) { return { x: evt.clientX,

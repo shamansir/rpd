@@ -265,9 +265,11 @@ Rpd.noderenderer('pd/bang', 'svg', function(node) {
 });
 
 Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
-    var mWidth = 300,
+    var mWidth = 325,
         mHeight = 70;
     var commandToType = PdModel.COMMAND_TO_TYPE;
+    var editModeKeyLabel = PdView.EDIT_MODE_KEY_LABEL;
+    var nodeTypeToKeyLabel = PdView.NODE_TYPE_TO_KEY_LABEL;
     var names = {
         'obj':        'object',
         'msg':        'message',
@@ -304,8 +306,11 @@ Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
                 var innerCircle = d3.select(_createSvgElement('circle')).attr('r', 5);
                 editGroup.append(outerCircle.node());
                 editGroup.append(innerCircle.node()).style('pointer-events', 'none');
-                var text = d3.select(_createSvgElement('text')).attr('x', 10).text('Edit mode');
+                var text = d3.select(_createSvgElement('text')).text('Edit mode').attr('x', 10);
+                var keyLabel = d3.select(_createSvgElement('text')).text('(' + editModeKeyLabel + ')').attr('x', 55).attr('y', 1)
+                                                                   .classed('rpd-pd-key-label', true);
                 editGroup.append(text.node());
+                editGroup.append(keyLabel.node());
                 view.addEditModeSwitch(outerCircle.node(), editGroup.node());
                 view.addEditModeSwitch(text.node(), editGroup.node());
             });
@@ -320,12 +325,18 @@ Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
                 Object.keys(commandToType).forEach(function(command, idx) {
                     xPos = (Math.floor(idx / 4)) * bWidth;
                     yPos = (idx % 4) * bHeight;
+                    var nodeName = names[command];
+                    var nodeType = commandToType[command];
+                    var keyLabel = nodeType ? nodeTypeToKeyLabel[nodeType] : null;
                     var button = d3.select(_createSvgElement('g'))
                                    .attr('transform', 'translate(' + xPos + ',' + yPos + ')')
-                                   .classed('rpd-pd-accessible', commandToType[command] ? true : false);
+                                   .classed('rpd-pd-accessible', nodeType ? true : false);
                     button.append('rect').attr('width', bWidth).attr('height', bHeight);
-                    button.append('text').attr('x', 10).attr('y', bHeight / 2).text(names[command]);
-                    if (commandToType[command]) view.addNodeAppender(button.node(), commandToType[command], node.patch);
+                    button.append('text').attr('x', 10).attr('y', bHeight / 2).text(nodeName);
+                    if (keyLabel) { button.append('text').attr('x', bWidth - 3).attr('y', bHeight / 2)
+                                                         .text('(' + keyLabel + ')')
+                                                         .classed('rpd-pd-key-label', true); }
+                    if (commandToType[command]) view.addNodeAppender(button.node(), nodeType, node.patch);
                     buttons.append(button.node());
                 });
             });
