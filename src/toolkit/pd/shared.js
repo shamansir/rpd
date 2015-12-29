@@ -112,7 +112,7 @@ var PdView = (function() {
 
                  Kefir.merge([ Kefir.fromEvents(root, 'click'),
                                Kefir.fromEvents(editorNode, 'keydown')
-                                    .filter(function(key) { return isKey(13/*Enter*/); }),
+                                    .filter(function(evt) { return isKey(evt, 13/*Enter*/); }),
                                startSelection
                              ]).take(1)
                       .onValue(function() {
