@@ -15,9 +15,7 @@ var PdView = (function() {
     var startSelection = Kefir.emitter(),
         finishSelection = Kefir.emitter();
 
-    var editModeOn = Kefir.emitter(),
-        editModeOff = Kefir.emitter(),
-        editModeKbSwitch = Kefir.emitter();
+    var switchEditMode = Kefir.emitter();
 
     function isMetaAnd(evt, val) {
         return (evt.metaKey || evt.ctrlKey) && (evt.which ? (evt.which === val) : (evt.keyCode === val));
@@ -25,10 +23,9 @@ var PdView = (function() {
 
     function PdView(defaultSize, root) { // FIXME: create view only when document is ready
         this.root = root;
-        this.inEditMode = Kefir.merge([ editModeOn.map(ƒ(true)),
-                                        editModeOff.map(ƒ(false)),
-                                        editModeKbSwitch.map(ƒ(true)).scan(Rpd.not, false) ])
-                               .toProperty(ƒ(false));
+        this.inEditMode = switchEditMode.map(ƒ(true))
+                                        .scan(Rpd.not, false) // will switch between `true` and `false`
+                                        .toProperty(ƒ(false));
         editorNode = d3.select(document.createElement('input'))
                            .attr('type', 'text')
                            .attr('class', 'rpd-pd-text-editor')
@@ -45,7 +42,7 @@ var PdView = (function() {
 
             Kefir.fromEvents(view.root, 'keydown')
                           .filter(function(evt) { return isMetaAnd(evt, 69/*E*/) })
-                          .onValue(function(val) { editModeKbSwitch.emit(val) });
+                          .onValue(function(val) { switchEditMode.emit(); });
         });
     }
 
@@ -120,11 +117,7 @@ var PdView = (function() {
     PdView.prototype.addEditModeSwitch = function(switchNode, targetNode) {
         Kefir.fromEvents(switchNode, 'click')
              .map(stopPropagation)
-             .map(ƒ(true))
-             .scan(Rpd.not) // will toggle between `true` and `false`
-             .onValue(function(val) {
-                 if (val) { editModeOn.emit(); } else { editModeOff.emit(); };
-             });
+             .onValue(function() { switchEditMode.emit(); });
 
         this.inEditMode.onValue(function(val) {
             d3.select(targetNode).classed('rpd-pd-enabled', val);
