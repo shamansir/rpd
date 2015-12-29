@@ -291,7 +291,7 @@ var PdModel = (function() {
                                                  if (node.type === 'pd/object') {
                                                      model.updatePdObject(node, value.command, value['arguments'], webPdObject);
                                                      // model.connectToWebPd is called from inside of updatePdObject
-                                                 } else {
+                                                 } else if (node.type !== 'pd/comment') {
                                                     try {
                                                         model.connectToWebPd([ PdModel.getReceivingInlet(node) ], [ PdModel.getSendingOutlet(node) ],
                                                                              webPdObject.inlets, webPdObject.outlets, '<'+node.id+'> ' + node.type);
