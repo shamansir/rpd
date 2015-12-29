@@ -1,3 +1,8 @@
+function getKey(evt) { return evt.which || evt.keyCode; }
+function isKey(evt, val) { return getKey(evt) === val; }
+function isAltAnd(evt, val) { return evt.altKey && isKey(evt, val); }
+function isAltShiftAnd(evt, val) { return evt.shiftKey && isAltAnd(evt, val); }
+
 var PdView = (function() {
 
     var d3 = d3 || d3_tiny;
@@ -16,10 +21,6 @@ var PdView = (function() {
         finishSelection = Kefir.emitter();
 
     var switchEditMode = Kefir.emitter();
-
-    function getKey(evt) { return evt.which || evt.keyCode; }
-    function isKey(evt, val) { return getKey(evt) === val; }
-    function isMetaAnd(evt, val) { return (evt.metaKey || evt.ctrlKey) && isKey(evt, val); }
 
     function PdView(defaultSize, root) { // FIXME: create view only when document is ready
         this.root = root;
@@ -41,11 +42,11 @@ var PdView = (function() {
                         .style('position', 'absolute').node());
 
             Kefir.fromEvents(view.root, 'keydown')
-                          .filter(function(evt) { return isMetaAnd(evt, 69/*E*/) })
+                          .filter(function(evt) { return isAltAnd(evt, 69/*E*/) })
                           .onValue(function() { switchEditMode.emit(); });
 
             Kefir.fromEvents(view.root, 'keydown')
-                          .filter(function(evt) { return isMetaAnd(evt, 8/*Delete*/) && selection; })
+                          .filter(function(evt) { return isAltAnd(evt, 8/*Delete*/) && selection; })
                           .onValue(function() {
                               var node = selection.node;
                               if (node) {
@@ -53,6 +54,15 @@ var PdView = (function() {
                                   finishEditing.emit(); // FIXME: use filterBy?
                               }
                           });
+
+            Kefir.fromEvents(view.root, 'keydown')
+                 .filter(function() { return PdModel.lastPatch; }) // there's some current patch
+                 .map(function(evt) { return PdModel.getNodeTypeByKey(evt); })
+                 .filter(function(type) { return type; }) // type is defined
+                 .onValue(function(type) {
+                     PdModel.lastPatch.addNode(type);
+                 });
+
         });
     }
 
@@ -221,6 +231,7 @@ var PdModel = (function() {
         //this.nodeToCommand = {};
 
         this.webPdDummy = { patch: webPdPatch };
+        PdModel.lastPatch = patch; // FIXME: it's no good
 
         this._requestResolve = Kefir.emitter();
         this._alreadyResolved = Kefir.emitter();
@@ -477,6 +488,17 @@ var PdModel = (function() {
         var type = PdModel.COMMAND_TO_TYPE[cmd];
         if (type) PdModel.TYPE_TO_COMMAND[type] = cmd;
     });
+
+    PdModel.getNodeTypeByKey = function(evt) {
+        if (!evt.altKey) return;
+        if (isAltAnd(evt, 49/*1*/)) return 'pd/object';
+        if (isAltAnd(evt, 50/*2*/)) return 'pd/message';
+        if (isAltAnd(evt, 51/*3*/)) return 'pd/number';
+        if (isAltAnd(evt, 52/*4*/)) return 'pd/symbol';
+        if (isAltAnd(evt, 53/*5*/)) return 'pd/comment';
+        if (isAltShiftAnd(evt, 66/*B*/)) return 'pd/bang';
+        if (isAltShiftAnd(evt, 84/*T*/)) return 'pd/toggle';
+    };
 
     return PdModel;
 
