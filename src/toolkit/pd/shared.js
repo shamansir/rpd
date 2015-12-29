@@ -16,26 +16,41 @@ var PdView = (function() {
         finishSelection = Kefir.emitter();
 
     var editModeOn = Kefir.emitter(),
-        editModeOff = Kefir.emitter();
+        editModeOff = Kefir.emitter(),
+        editModeKbSwitch = Kefir.emitter();
 
-    function PdView(defaultSize) {
+    function isMetaAnd(evt, val) {
+        return (evt.metaKey || evt.ctrlKey) && (evt.which ? (evt.which === val) : (evt.keyCode === val));
+    }
+
+    function PdView(defaultSize, root) { // FIXME: create view only when document is ready
+        this.root = root;
         this.inEditMode = Kefir.merge([ editModeOn.map(ƒ(true)),
-                                        editModeOff.map(ƒ(false)) ]).toProperty(ƒ(false));
+                                        editModeOff.map(ƒ(false)),
+                                        editModeKbSwitch.map(ƒ(true)).scan(Rpd.not, false) ])
+                               .toProperty(ƒ(false));
         editorNode = d3.select(document.createElement('input'))
                            .attr('type', 'text')
                            .attr('class', 'rpd-pd-text-editor')
                            .style('width', '300px')
                            .style('height', (defaultSize.height + 1) + 'px')
                            .node();
+        var view = this;
         document.addEventListener('DOMContentLoaded', function() {
-           d3.select(document.body)
-             .append(d3.select(editorNode)
-                       .style('display', 'none')
-                       .style('position', 'absolute').node());
+            if (!view.root) view.root = document.body;
+            d3.select(view.root)
+              .append(d3.select(editorNode)
+                        .style('display', 'none')
+                        .style('position', 'absolute').node());
+
+            Kefir.fromEvents(view.root, 'keydown')
+                          .filter(function(evt) { return isMetaAnd(evt, 69/*E*/) })
+                          .onValue(function(val) { editModeKbSwitch.emit(val) });
         });
     }
 
     PdView.prototype.addSelection = function(selectNode) {
+        var root = this.root;
         Kefir.fromEvents(selectNode, 'click')
              .filterBy(this.inEditMode.map(not))
              .map(stopPropagation)
@@ -46,7 +61,7 @@ var PdView = (function() {
                  selection = selectNode;
                  d3.select(selectNode).classed('rpd-pd-selected', true);
 
-                 Kefir.fromEvents(document.body, 'click').take(1)
+                 Kefir.fromEvents(root, 'click').take(1)
                       .onValue(function() {
 
                           d3.select(selectNode).classed('rpd-pd-selected', false);
@@ -58,6 +73,7 @@ var PdView = (function() {
     }
 
     PdView.prototype.addEditor = function(selectNode, textNode, onSubmit) {
+        var root = this.root;
         var text = d3.select(textNode);
         var editor = d3.select(editorNode);
         Kefir.fromEvents(selectNode, 'click')
@@ -77,9 +93,9 @@ var PdView = (function() {
                  editor.style('display', 'block')
                        .node().focus();
 
-                 Kefir.merge([ Kefir.fromEvents(document.body, 'click'),
+                 Kefir.merge([ Kefir.fromEvents(root, 'click'),
                                Kefir.fromEvents(editorNode, 'keydown')
-                                    .map(function(evt) { return evt.keyCode; })
+                                    .map(function(evt) { return evt.which || evt.keyCode; })
                                     .filter(function(key) { return key === 13; }),
                                startSelection
                              ]).take(1)
@@ -108,8 +124,11 @@ var PdView = (function() {
              .scan(Rpd.not) // will toggle between `true` and `false`
              .onValue(function(val) {
                  if (val) { editModeOn.emit(); } else { editModeOff.emit(); };
-                 d3.select(targetNode).classed('rpd-pd-enabled', val);
              });
+
+        this.inEditMode.onValue(function(val) {
+            d3.select(targetNode).classed('rpd-pd-enabled', val);
+        });
     }
 
     PdView.prototype.addNodeAppender = function(buttonNode, nodeType, targetPatch) {
@@ -138,7 +157,7 @@ var PdView = (function() {
     }
 
     PdView.prototype.addSpinner = function(sourceNode) {
-        return new Spinner(sourceNode, this.inEditMode);
+        return new Spinner(this.root, sourceNode, this.inEditMode);
     }
 
     PdView.prototype.measureText = function(textHolder) {
@@ -150,7 +169,7 @@ var PdView = (function() {
 
     function extractPos(evt) { return { x: evt.clientX,
                                         y: evt.clientY }; };
-    function Spinner(element, editMode) {
+    function Spinner(root, element, editMode) {
         this.element = element;
         this.value = 0;
 
@@ -168,9 +187,9 @@ var PdView = (function() {
              .map(extractPos)
              .flatMap(function(startPos) {
                  var start = spinner.value;
-                 return Kefir.fromEvents(document.body, 'mousemove')
+                 return Kefir.fromEvents(root, 'mousemove')
                              .map(extractPos)
-                             .takeUntilBy(Kefir.fromEvents(document.body, 'mouseup'))
+                             .takeUntilBy(Kefir.fromEvents(root, 'mouseup'))
                              .map(function(newPos) { return start + (startPos.y - newPos.y); })
                              .onValue(function(num) { changes.emit(num); })
              }).onEnd(function() {});
