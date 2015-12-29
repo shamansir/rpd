@@ -11,15 +11,15 @@ var PdView = (function() {
     var startEditing = Kefir.emitter(),
         finishEditing = Kefir.emitter();
 
-    var selection = null;
+    var selection = null; //var changeSelection = Kefir.emitter(); TODO
     var startSelection = Kefir.emitter(),
         finishSelection = Kefir.emitter();
 
     var switchEditMode = Kefir.emitter();
 
-    function isMetaAnd(evt, val) {
-        return (evt.metaKey || evt.ctrlKey) && (evt.which ? (evt.which === val) : (evt.keyCode === val));
-    }
+    function getKey(evt) { return evt.which || evt.keyCode; }
+    function isKey(evt, val) { return getKey(evt) === val; }
+    function isMetaAnd(evt, val) { return (evt.metaKey || evt.ctrlKey) && isKey(evt, val); }
 
     function PdView(defaultSize, root) { // FIXME: create view only when document is ready
         this.root = root;
@@ -42,11 +42,21 @@ var PdView = (function() {
 
             Kefir.fromEvents(view.root, 'keydown')
                           .filter(function(evt) { return isMetaAnd(evt, 69/*E*/) })
-                          .onValue(function(val) { switchEditMode.emit(); });
+                          .onValue(function() { switchEditMode.emit(); });
+
+            Kefir.fromEvents(view.root, 'keydown')
+                          .filter(function(evt) { return isMetaAnd(evt, 8/*Delete*/) && selection; })
+                          .onValue(function() {
+                              var node = selection.node;
+                              if (node) {
+                                  node.patch.removeNode(node);
+                                  finishEditing.emit(); // FIXME: use filterBy?
+                              }
+                          });
         });
     }
 
-    PdView.prototype.addSelection = function(selectNode) {
+    PdView.prototype.addSelection = function(selectNode, node) {
         var root = this.root;
         Kefir.fromEvents(selectNode, 'click')
              .filterBy(this.inEditMode.map(not))
@@ -54,8 +64,8 @@ var PdView = (function() {
              .onValue(function() {
 
                  startSelection.emit();
-                 if (selection) d3.select(selection).classed('rpd-pd-selected', false);
-                 selection = selectNode;
+                 if (selection) d3.select(selection.element).classed('rpd-pd-selected', false);
+                 selection = { element: selectNode, node : node };
                  d3.select(selectNode).classed('rpd-pd-selected', true);
 
                  Kefir.fromEvents(root, 'click').take(1)
@@ -92,8 +102,7 @@ var PdView = (function() {
 
                  Kefir.merge([ Kefir.fromEvents(root, 'click'),
                                Kefir.fromEvents(editorNode, 'keydown')
-                                    .map(function(evt) { return evt.which || evt.keyCode; })
-                                    .filter(function(key) { return key === 13; }),
+                                    .filter(function(key) { return isKey(13/*Enter*/); }),
                                startSelection
                              ]).take(1)
                       .onValue(function() {

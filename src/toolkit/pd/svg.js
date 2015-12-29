@@ -11,7 +11,7 @@ function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
 }
 
-Rpd.noderenderer('pd/number', 'svg', function() {
+Rpd.noderenderer('pd/number', 'svg', function(node) {
     var path, text, handle;
     var size = defaultSize;
     var spinner;
@@ -35,7 +35,7 @@ Rpd.noderenderer('pd/number', 'svg', function() {
             spinner = view.addSpinner(handle.node());
             var changes = spinner.getChangesStream();
 
-            view.addSelection(bodyElm);
+            view.addSelection(bodyElm, node);
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
                 body.append(text.node());
@@ -55,7 +55,7 @@ Rpd.noderenderer('pd/number', 'svg', function() {
     }
 });
 
-Rpd.noderenderer('pd/symbol', 'svg', function() {
+Rpd.noderenderer('pd/symbol', 'svg', function(node) {
     var path, editor, text;
     var size = defaultSize;
     return {
@@ -69,7 +69,7 @@ Rpd.noderenderer('pd/symbol', 'svg', function() {
             text = d3.select(_createSvgElement('text'))
                      .attr('x', 2).attr('y', size.height / 2)
                      .text('symbol');
-            view.addSelection(bodyElm); /* view.addEditor(bodyElm, text.node()); */
+            view.addSelection(bodyElm, node); /* view.addEditor(bodyElm, text.node()); */
             d3.select(bodyElm).call(function(body) {
                 body.append(path.node());
                 body.append(text.node());
@@ -79,7 +79,7 @@ Rpd.noderenderer('pd/symbol', 'svg', function() {
     }
 });
 
-Rpd.noderenderer('pd/message', 'svg', function() {
+Rpd.noderenderer('pd/message', 'svg', function(node) {
     var path, text;
     var size = defaultSize;
     var lastValue;
@@ -96,7 +96,7 @@ Rpd.noderenderer('pd/message', 'svg', function() {
             text = d3.select(_createSvgElement('text'))
                      .attr('x', 2).attr('y', size.height / 2);
             text.text('');
-            view.addSelection(bodyElm);
+            view.addSelection(bodyElm, node);
             //view.addResize()
             view.addEditor(bodyElm, text.node(), function(value) { lastValue = PdValue.extract(value); });
             view.addValueSend(bodyElm, this, 'receive', function() { return lastValue.get(); });
@@ -117,7 +117,7 @@ Rpd.noderenderer('pd/message', 'svg', function() {
     }
 });
 
-Rpd.noderenderer('pd/comment', 'svg', function() {
+Rpd.noderenderer('pd/comment', 'svg', function(node) {
     var size = defaultSize;
     return {
         size: size,
@@ -128,7 +128,7 @@ Rpd.noderenderer('pd/comment', 'svg', function() {
             var text = d3.select(_createSvgElement('text'))
                          .attr('y', size.height / 2)
                          .text('comment');
-            view.addSelection(bodyElm); view.addEditor(bodyElm, text.node());
+            view.addSelection(bodyElm, node); view.addEditor(bodyElm, text.node());
             d3.select(bodyElm).call(function(body) {
                 body.append(rect.node());
                 body.append(text.node());
@@ -149,7 +149,7 @@ Rpd.noderenderer('pd/object', 'svg', function(node) {
             rect.attr('width', size.width).attr('height', size.height);
             var text = d3.select(_createSvgElement('text'))
                          .attr('x', 2).attr('y', size.height / 2);
-            view.addSelection(bodyElm);
+            view.addSelection(bodyElm, node);
             view.addEditor(bodyElm, text.node(), function(value) {
                 var commandAndArgs = PdValue.extract(value).get();
                 model.requestResolve(node, commandAndArgs[0], commandAndArgs.slice(1));
@@ -184,7 +184,7 @@ function isToggled(val) { return (val.getByIndex(0) > 0); }
 function toggledOff() { return PdValue.from([0]); }
 function toggledOn() { return PdValue.from([1]); }
 function switchToggle(from) { return isToggled(from) ? toggledOff() : toggledOn(); }
-Rpd.noderenderer('pd/toggle', 'svg', function() {
+Rpd.noderenderer('pd/toggle', 'svg', function(node) {
     var rect;
     var mark;
     var size = { width: defaultSize.height,
@@ -209,7 +209,7 @@ Rpd.noderenderer('pd/toggle', 'svg', function() {
                                         .attr('x2', 0).attr('y2', size.height)
                                         .node());
                      });
-            view.addSelection(bodyElm);
+            view.addSelection(bodyElm, node);
             view.addValueSend(rect.node(), this, 'receive', function() {
                 toggle = switchToggle(toggle);
                 changes.emit(toggle);
@@ -241,7 +241,7 @@ Rpd.noderenderer('pd/toggle', 'svg', function() {
     }
 });
 
-Rpd.noderenderer('pd/bang', 'svg', function() {
+Rpd.noderenderer('pd/bang', 'svg', function(node) {
     var rect, circle;
     var size = { width: defaultSize.height,
                  height: defaultSize.height };
@@ -253,7 +253,7 @@ Rpd.noderenderer('pd/bang', 'svg', function() {
             circle = d3.select(_createSvgElement('circle'))
                        .attr('cx', size.width / 2).attr('cy', size.width / 2)
                        .attr('r', size.width / 2);
-            view.addSelection(bodyElm);
+            view.addSelection(bodyElm, node);
             view.addValueSend(bodyElm, this, 'receive', function() { return PdValue.bang().get(); });
             d3.select(bodyElm).call(function(body) {
                 body.append(rect.node());
