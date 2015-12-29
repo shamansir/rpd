@@ -355,31 +355,36 @@ Rpd.noderenderer('pd/edit-switch', 'svg', function(node) {
     }
 });
 
-Rpd.noderenderer('pd/audio-control', 'svg', {
-    first: function(bodyElm) {
-        var ch0switch = d3.select(_createSvgElement('text'))
-                          .classed('rpd-pd-channel', true);
-        Kefir.fromEvents(ch0switch.node(), 'click').toProperty(function() { return true; })
-             .scan(function(prev, next) { return !prev; })
-             .onValue(function(val) {
-                 Pd._glob.audio.channels[0].gain.value = val ? 1 : 0;
-                 ch0switch.classed('rpd-pd-channel-on', val)
-                          .text('CH0:' + (val ? '✔' : '✘'));
-             });
-        d3.select(bodyElm).append(ch0switch.node());
-        d3.select(bodyElm).append(d3.select(_createSvgElement('text'))
-                                    .text('/').attr('x', 35).node());
-        var ch1switch = d3.select(_createSvgElement('text')).attr('x', 45)
-                          .classed('rpd-pd-channel', true);
-        Kefir.fromEvents(ch1switch.node(), 'click').toProperty(function() { return true; })
-             .scan(function(prev, next) { return !prev; })
-             .onValue(function(val) {
-                 Pd._glob.audio.channels[1].gain.value = val ? 1 : 0;
-                 ch1switch.classed('rpd-pd-channel-on', val)
-                          .text('CH1:' + (val ? '✔' : '✘'));
-             });
-        d3.select(bodyElm).append(ch1switch.node());
-    }
+Rpd.noderenderer('pd/audio-control', 'svg', function(node) {
+    var model = node.patch.model;
+    return {
+        first: function(bodyElm) {
+            var ch0switch = d3.select(_createSvgElement('text'))
+                              .classed('rpd-pd-channel', true);
+            Kefir.fromEvents(ch0switch.node(), 'click')
+                 .toProperty(function() { return model.isAudioChannelOn(0); })
+                 .scan(function(prev, next) { return !prev; })
+                 .onValue(function(val) {
+                     model.switchAudioChannel(0, val);
+                     ch0switch.classed('rpd-pd-channel-on', val)
+                              .text('CH0:' + (val ? '✔' : '✘'));
+                 });
+            d3.select(bodyElm).append(ch0switch.node());
+            d3.select(bodyElm).append(d3.select(_createSvgElement('text'))
+                                        .text('/').attr('x', 35).node());
+            var ch1switch = d3.select(_createSvgElement('text')).attr('x', 45)
+                              .classed('rpd-pd-channel', true);
+            Kefir.fromEvents(ch1switch.node(), 'click')
+                 .toProperty(function() { return model.isAudioChannelOn(1); })
+                 .scan(function(prev, next) { return !prev; })
+                 .onValue(function(val) {
+                     model.switchAudioChannel(1, val);
+                     ch1switch.classed('rpd-pd-channel-on', val)
+                              .text('CH1:' + (val ? '✔' : '✘'));
+                 });
+            d3.select(bodyElm).append(ch1switch.node());
+        }
+    };
 });
 
 })();

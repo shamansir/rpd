@@ -345,6 +345,16 @@ var PdModel = (function() {
         });
     };
 
+    PdModel.prototype.switchAudioChannel = function(id, val) {
+        if (!Pd._glob.audio) return; // FIXME: add volume changes stream
+        Pd._glob.audio.channels[id].gain.value = val ? 1 : 0;
+    };
+
+    PdModel.prototype.isAudioChannelOn = function(id) {
+        if (!Pd._glob.audio) return false; // FIXME: add volume changes stream
+        return (Pd._glob.audio.channels[id].gain.value > 0) ? true : false;
+    };
+
     var DspInlet = Pd.core.portlets.DspInlet,
         DspOutlet = Pd.core.portlets.DspOutlet;
 
