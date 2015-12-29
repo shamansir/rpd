@@ -49,9 +49,6 @@ Rpd.noderenderer('pd/number', 'svg', function() {
             };
         },
         always: function(bodyElm, inlets) {
-            /*if (inlets.hasOwnProperty('receive')) {
-                spinner.setValue(inlets.receive);
-            }*/
             var newVal = (inlets.receive || inlets.spinner);
             if (!newVal.isBang()) text.text(newVal.getByIndex(0));
         }
@@ -100,6 +97,7 @@ Rpd.noderenderer('pd/message', 'svg', function() {
                      .attr('x', 2).attr('y', size.height / 2);
             text.text('');
             view.addSelection(bodyElm);
+            //view.addResize()
             view.addEditor(bodyElm, text.node(), function(value) { lastValue = PdValue.extract(value); });
             view.addValueSend(bodyElm, this, 'receive', function() { return lastValue.get(); });
             d3.select(bodyElm).call(function(body) {
@@ -144,7 +142,7 @@ Rpd.noderenderer('pd/object', 'svg', function(node) {
     var size = defaultSize;
     var model = node.patch.model;
     return {
-        size: defaultSize,
+        size: size,
         first: function(bodyElm) {
             var rect = d3.select(_createSvgElement('rect'))
                          .classed('rpd-pd-erratic', true);
@@ -182,17 +180,63 @@ Rpd.noderenderer('pd/object', 'svg', function(node) {
     }
 });
 
+function isToggled(val) { return (val.getByIndex(0) > 0); }
+function toggledOff() { return PdValue.from([0]); }
+function toggledOn() { return PdValue.from([1]); }
+function switchToggle(from) { return isToggled(from) ? toggledOff() : toggledOn(); }
 Rpd.noderenderer('pd/toggle', 'svg', function() {
     var rect;
+    var mark;
     var size = { width: defaultSize.height,
                  height: defaultSize.height };
+    var toggle = toggledOff();
+    var changes = Kefir.emitter();
+    var initialized = false;
     return {
-        size: defaultSize,
+        size: size,
         first: function(bodyElm) {
-            rect = d3.select(_createSvgElement('rect'));
-            rect.attr('width', size.width).attr('height', size.height);
+            rect = d3.select(_createSvgElement('rect'))
+                     .attr('width', size.width).attr('height', size.height);
+            mark = d3.select(_createSvgElement('g'))
+                     .classed('rpd-pd-mark', true)
+                     .call(function(group) {
+                         group.append(d3.select(_createSvgElement('line'))
+                                        .attr('x1', 0).attr('y1', 0)
+                                        .attr('x2', size.width).attr('y2', size.height)
+                                        .node());
+                         group.append(d3.select(_createSvgElement('line'))
+                                        .attr('x1', size.width).attr('y1', 0)
+                                        .attr('x2', 0).attr('y2', size.height)
+                                        .node());
+                     });
             view.addSelection(bodyElm);
+            view.addValueSend(rect.node(), this, 'receive', function() {
+                toggle = switchToggle(toggle);
+                changes.emit(toggle);
+                return toggle.get();
+            });
+            mark.classed('rpd-pd-enabled', isToggled(toggle));
+            d3.select(bodyElm).append(mark.node());
             d3.select(bodyElm).append(rect.node());
+
+            changes.emit(toggle);
+            return {
+                'receive': {
+                    valueOut: changes.toProperty(function() { return toggledOff(); })
+                }
+            };
+        },
+        always: function(bodyElm, inlets) {
+            var incomingValue;
+            if (inlets.init && !initialized) {
+                incomingValue = inlets.init;
+                initialized = true;
+            } else if (inlets.receive) {
+                incomingValue = inlets.receive;
+            }
+            if (incomingValue.isBang()) incomingValue = switchToggle(toggle);
+            toggle = incomingValue;
+            mark.classed('rpd-pd-enabled', isToggled(toggle));
         }
     }
 });
@@ -202,7 +246,7 @@ Rpd.noderenderer('pd/bang', 'svg', function() {
     var size = { width: defaultSize.height,
                  height: defaultSize.height };
     return {
-        size: defaultSize,
+        size: size,
         first: function(bodyElm) {
             rect = d3.select(_createSvgElement('rect'))
                      .attr('width', size.width).attr('height', size.height);
@@ -210,7 +254,7 @@ Rpd.noderenderer('pd/bang', 'svg', function() {
                        .attr('cx', size.width / 2).attr('cy', size.width / 2)
                        .attr('r', size.width / 2);
             view.addSelection(bodyElm);
-            view.addValueSend(bodyElm, this, 'receive', function() { return {}; });
+            view.addValueSend(bodyElm, this, 'receive', function() { return PdValue.bang().get(); });
             d3.select(bodyElm).call(function(body) {
                 body.append(rect.node());
                 body.append(circle.node());

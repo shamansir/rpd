@@ -136,6 +136,14 @@
     fill: green;
 }
 
+.rpd-pd-toggle g.rpd-pd-mark {
+    visibility: hidden;
+}
+
+.rpd-pd-toggle g.rpd-pd-mark.rpd-pd-enabled {
+    visibility: visible;
+}
+
 .rpd-pd-number rect.rpd-pd-handle {
     stroke: none;
     fill: transparent;

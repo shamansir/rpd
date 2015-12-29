@@ -53,7 +53,8 @@ Rpd.nodetype('pd/bang', {
 
 Rpd.nodetype('pd/toggle', {
     inlets: { 'receive': { type: 'pd/value' } },
-    outlets: { 'send': { type: 'pd/value' } }
+    outlets: { 'send': { type: 'pd/value' } },
+    process: nop
 });
 
 Rpd.nodetype('pd/toolbar', {});
