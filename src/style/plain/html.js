@@ -118,11 +118,14 @@ return {
     },
 
     getInletPos: function(inlet) {
-        return getPos(inletToConnector[inlet.id].node());
+        var connectorPos = getPos(inletToConnector[inlet.id].node());
+        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
+        //return getPos(inletToConnector[inlet.id].node());
     },
 
     getOutletPos: function(outlet) {
-        return getPos(outletToConnector[outlet.id].node());
+        var connectorPos = getPos(outletToConnector[outlet.id].node());
+        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
     },
 
     getLocalPos: function(pos) {

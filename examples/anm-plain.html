@@ -51,7 +51,8 @@
         <script>
             function buildNetwork() {
                 Rpd.render('html', document.body, { style: 'plain',
-                                                    renderNodeList: false });
+                                                    renderNodeList: false,
+                                                    valuesOnHover: true });
 
                 var root = Rpd.addPatch('root').enter();
 

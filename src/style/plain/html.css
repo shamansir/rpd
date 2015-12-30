@@ -15,6 +15,16 @@
     background-color: white;
 }
 
+.rpd-header {
+    position: absolute;
+    text-align: left;
+    /* bottom: 2em; */
+    top: -3px;
+    font-size: 0.8em;
+    color: lightgray;
+    font-weight: normal;
+}
+
 .rpd-dragging .rpd-node .rpd-body {
     border: 1px solid darkblue;
 }
@@ -40,6 +50,14 @@ table.rpd-node {
     cursor: cell;
 }
 
+.rpd-inlets, .rpd-outlets {
+    height: 1em;
+}
+
+.rpd-inlet, .rpd-outlet {
+    font-size: 0.8em;
+}
+
 .rpd-inlet .rpd-value-holder .rpd-value-editor {
     display: none;
 }
@@ -59,6 +77,15 @@ table.rpd-node {
     border-radius: 4px;
     border-width: 3px;
     border-style: solid;
+    position: absolute;
+}
+
+.rpd-inlet .rpd-connector {
+    top: 13px;
+}
+
+.rpd-outlet .rpd-connector {
+    top: -8px;
 }
 
 .rpd-connector:hover {
@@ -78,6 +105,8 @@ table.rpd-node {
     border-color: #000;
     background-color: #fff;
     transition: border-color .3s ease-out;
+    /* position: absolute; */
+    /* top: 0; */
 }
 
 .rpd-stale .rpd-connector:hover {
@@ -105,12 +134,20 @@ table.rpd-node {
     border-color: #aa0;
 }
 
+.rpd-value-holder {
+    /* position: absolute; */
+    font-size: 0.6em;
+    /* right: 0px; */
+    padding: 0 3px;
+    color: deepskyblue;
+}
+
 .rpd-node .rpd-remove-button {
     display: none;
     cursor: pointer;
     position: absolute;
     right: 0px;
-    top: 23px;
+    margin-top: -13px;
 }
 
 .rpd-node:hover .rpd-remove-button {

@@ -1,6 +1,7 @@
 .rpd-anm-toolkit-node .rpd-inlet,
 .rpd-anm-toolkit-node .rpd-outlet {
     white-space: nowrap;
+    position: relative;
 }
 
 .rpd-anm-toolkit-node.rpd-anm-color .rpd-body {
