@@ -42,6 +42,31 @@
                 pointer-events: none;
             }
 
+            .rpd-node.rpd-p5-shape .rpd-process .rpd-p5-shape-variant * {
+                pointer-events: all;
+                cursor: pointer;
+            }
+
+            .rpd-p5-shape-variant {
+                fill: black;
+                stroke: black;
+                stroke-width: 0;
+            }
+
+            .rpd-p5-shape-variant line {
+                stroke-width: 2;
+            }
+
+            .rpd-p5-shape-variant:hover {
+                fill: deepskyblue;
+                stroke: deepskyblue;
+            }
+
+            .rpd-p5-shape-variant.rpd-p5-active-variant {
+                fill: crimson;
+                stroke: crimson;
+            }
+
             /* text.rpd-value {
                 display: none;
             }
@@ -67,7 +92,7 @@
 
             var SVG_XMLNS = "http://www.w3.org/2000/svg";
 
-            // Register p5/color channel type
+            // ============= Register p5/color channel type =============
 
             function numberToHex(num) { return (num > 15) ? num.toString(16) : '0' + num.toString(16); }
 
@@ -79,7 +104,7 @@
 
             Rpd.channeltype('p5/color', { show: toHexColor });
 
-            // Register p5/color node type and renderer
+            // ============= Register p5/color node type and renderer =============
 
             Rpd.nodetype('p5/color', {
                 inlets: {
@@ -123,11 +148,11 @@
                 };
             });
 
-            // Register p5/shape channel type
+            // ============= Register p5/shape channel type =============
 
             Rpd.channeltype('p5/shape', {});
 
-            // Register p5/shape node type and renderer
+            // ============= Register p5/shape node type and renderer =============
 
             Rpd.nodetype('p5/shape', {
                 inlets: { 'shape': { type: 'p5/shape', default: 'circle', hidden: true } },
@@ -135,40 +160,81 @@
                 process: function(inlets) { return { shape: inlets.shape } }
             });
 
-            Rpd.noderenderer('p5/shape', 'html', function() {
+            Rpd.noderenderer('p5/shape', 'svg', function() {
                 var curShape = 'circle';
-                var links = {};
-                var symbols = { 'circle': '●', 'rect': '■', 'cross': '✕', 'diamond': '◆' };
+                var variants = {};
+                var symbolSide = 10;
+                var symbols = {
+                    'circle': function() {
+                        var circle = document.createElementNS(SVG_XMLNS, 'circle');
+                        circle.setAttributeNS(null, 'r', Math.floor(symbolSide / 2));
+                        return circle;
+                    },
+                    'rect': function() {
+                        var rect = document.createElementNS(SVG_XMLNS, 'rect');
+                        rect.setAttributeNS(null, 'width', symbolSide);
+                        rect.setAttributeNS(null, 'height', symbolSide);
+                        rect.setAttributeNS(null, 'x', -1 * Math.floor(symbolSide / 2));
+                        rect.setAttributeNS(null, 'y', -1 * Math.floor(symbolSide / 2));
+                        return rect;
+                    },
+                    'cross': function() {
+                        var group = document.createElementNS(SVG_XMLNS, 'g');
+                        group.setAttributeNS(null, 'transform', 'translate(' + (-1 * Math.floor(symbolSide / 2)) + ', '
+                                                                             + (-1 * Math.floor(symbolSide / 2)) + ')');
+                        var line1 = document.createElementNS(SVG_XMLNS, 'line');
+                        line1.setAttributeNS(null, 'x1', 0);
+                        line1.setAttributeNS(null, 'y1', 0);
+                        line1.setAttributeNS(null, 'x2', Math.floor(symbolSide));
+                        line1.setAttributeNS(null, 'y2', Math.floor(symbolSide));
+                        group.appendChild(line1);
+                        var line2 = document.createElementNS(SVG_XMLNS, 'line');
+                        line2.setAttributeNS(null, 'x1', Math.floor(symbolSide));
+                        line2.setAttributeNS(null, 'y1', 0);
+                        line2.setAttributeNS(null, 'x2', 0);
+                        line2.setAttributeNS(null, 'y2', Math.floor(symbolSide));
+                        group.appendChild(line2);
+                        return group;
+                    },
+                    'diamond': function() {
+                        var rect = document.createElementNS(SVG_XMLNS, 'rect');
+                        rect.setAttributeNS(null, 'transform', 'rotate(45)');
+                        rect.setAttributeNS(null, 'width', symbolSide);
+                        rect.setAttributeNS(null, 'height', symbolSide);
+                        rect.setAttributeNS(null, 'x', -1 * Math.floor(symbolSide / 2));
+                        rect.setAttributeNS(null, 'y', -1 * Math.floor(symbolSide / 2));
+                        return rect;
+                    } };
                 return {
-                    size: { width: 40, height: 40 },
+                    size: { width: 80, height: 40 },
                     first: function(bodyElm) {
                         var shapeChange = Kefir.emitter();
-                        var shapesList = document.createElement('ul');
+                        var allShapesGroup = document.createElementNS(SVG_XMLNS, 'g');
                         SHAPES.forEach(function(shape, i) {
-                            var liElm = document.createElement('li');
-                            var linkElm = document.createElement('a');
-                            linkElm.textContent = linkElm.innerText = '[' + symbols[SHAPES[i]] + ']';
-                            linkElm.addEventListener('click',
+                            var shapeGroup = document.createElementNS(SVG_XMLNS, 'g');
+                            shapeGroup.appendChild(symbols[SHAPES[i]]());
+                            shapeGroup.setAttributeNS(null, 'transform', 'translate(' + ((i * symbolSide * 2) + 10) + ', 0)');
+                            shapeGroup.setAttributeNS(null, 'class', 'rpd-p5-shape-variant');
+                            shapeGroup.addEventListener('click',
                                 (function(shape) {
                                     return function() {
-                                        links[curShape].className = '';
+                                        variants[curShape].setAttributeNS(null, 'class', 'rpd-p5-shape-variant');
                                         curShape = shape;
-                                        links[curShape].className = 'active';
+                                        variants[curShape].setAttributeNS(null, 'class', 'rpd-p5-shape-variant rpd-p5-active-variant');
                                         shapeChange.emit(curShape);
                                     }
                                 })(shape));
-                            links[shape] = linkElm;
-                            liElm.appendChild(linkElm);
-                            shapesList.appendChild(liElm);
+                            variants[shape] = shapeGroup;
+                            allShapesGroup.appendChild(shapeGroup);
                         });
-                        links[curShape].className = 'active';
-                        bodyElm.appendChild(shapesList);
+                        variants[curShape].setAttributeNS(null, 'class', 'rpd-p5-shape-variant rpd-p5-active-variant');
+                        bodyElm.appendChild(allShapesGroup);
                         return { 'shape': { valueOut: shapeChange } };
                     }
                 }
             });
 
-            // Register p5/sketch node type and renderer
+            // ============= Register p5/sketch node type and renderer =============
 
             Rpd.nodetype('p5/sketch', {
                 inlets: {
@@ -199,7 +265,7 @@
                 }
             });
 
-            // Build and render patch
+            // ============= Build and render patch =============
 
             var patch = Rpd.addPatch('processing');
 
@@ -220,6 +286,9 @@
 
             var random2 = patch.addNode('core/random').move(160, 150);
             random2.inlets['min'].receive(5); random2.inlets['max'].receive(25);
+
+            var shape = patch.addNode('p5/shape').move(160, 250);
+            shape.outlets['shape'].connect(sketch.inlets['shape']);
         </script>
 
         <!-- p5.js -->
