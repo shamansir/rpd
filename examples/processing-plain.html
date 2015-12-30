@@ -67,6 +67,10 @@
                 stroke: crimson;
             }
 
+            .rpd-core-random .rpd-process text {
+                font-size: 0.8em;
+            }
+
             /* text.rpd-value {
                 display: none;
             }
@@ -264,6 +268,31 @@
                     bodyElm.appendChild(group);
                 }
             });
+
+            // ============= Monkey-patch core/random renderer =============
+
+            var curSvgRandomRendererFunc = Rpd.allNodeRenderers['core/random'].svg;
+            var newSvgRandomRendererFunc = function(node) {
+                var returnObj = curSvgRandomRendererFunc.apply(this, arguments);
+                if (returnObj.size) {
+                    returnObj.size.width = 110;
+                } else {
+                    returnObj.size = { width: 110 };
+                }
+                var textElm;
+                returnObj.first = function(bodyElm) {
+                    textElm = document.createElementNS(SVG_XMLNS, 'text');
+                    textElm.innerText = textElm.textContent = '?';
+                    textElm.setAttributeNS(null, 'x', 3);
+                    textElm.setAttributeNS(null, 'y', 2);
+                    bodyElm.appendChild(textElm);
+                };
+                returnObj.always = function(bodyElm, inlets, outlets) {
+                    textElm.innerText = textElm.textContent = 'from ' + inlets.min + ' to ' + inlets.max + ' every ' + (inlets.period / 1000) + 's';
+                };
+                return returnObj;
+            };
+            Rpd.allNodeRenderers['core/random'].svg = newSvgRandomRendererFunc;
 
             // ============= Build and render patch =============
 
