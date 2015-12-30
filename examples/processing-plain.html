@@ -24,7 +24,7 @@
         <!-- RPD Rendering Engine: -->
         <script src="../src/render/shared.js"></script>
         <!-- RPD Style: plain (svg) -->
-        <script src="../src/style/quartz/html.js"></script>
+        <script src="../src/style/plain/svg.js"></script>
         <!-- RPD Renderer: svg -->
         <script src="../src/render/svg.js"></script>
         <!-- RPD Toolkit: core -->
@@ -34,6 +34,10 @@
         <script src="../src/toolkit/core/svg.js"></script>
 
         <style>
+            #p5-canvas {
+                position: fixed;
+            }
+
             .rpd-inlet .rpd-name { white-space: nowrap; }
 
             .rpd-p5-sketch .rpd-inlet .rpd-value-holder { right: 101%; }
@@ -73,6 +77,8 @@
             var SHAPES = [ 'circle', 'rect', 'cross', 'diamond' ];
 
             var DEFAULT_COLOR = { r: 0xED, g: 0x22, b: 0x5D };
+
+            var SVG_XMLNS = "http://www.w3.org/2000/svg";
 
             // Register p5/color channel type
 
@@ -158,24 +164,30 @@
 
             Rpd.nodetype('p5/sketch', {
                 inlets: {
-                    'shape': { type: 'p5/shape', default: 'circle', name: 'Shape' },
-                    'wavescount': { type: 'core/number', default: 5, name: 'Num. of waves' },
-                    'startcolor': { type: 'p5/color', name: 'Start Color' },
-                    'endcolor': { type: 'p5/color', name: 'End Color' },
-                    'xspacing': { type: 'core/number', default: 16, name: 'X Spacing' },
-                    'amplitude': { type: 'core/number', default: 75, name: 'Amplitude' },
-                    'period': { type: 'core/number', default: 500, name: 'Period' }
+                    'shape': { type: 'p5/shape', default: 'circle', name: 'shape' },
+                    'wavescount': { type: 'core/number', default: 5, name: 'waves' },
+                    'startcolor': { type: 'p5/color', name: 'from' },
+                    'endcolor': { type: 'p5/color', name: 'to' },
+                    'xspacing': { type: 'core/number', default: 16, name: 'xspan' },
+                    'amplitude': { type: 'core/number', default: 75, name: 'ampl.' },
+                    'period': { type: 'core/number', default: 500, name: 'period' }
                 },
                 process: function(inlets) {
                     window.sketchUpdate(inlets);
                 }
             });
 
-            Rpd.noderenderer('p5/sketch', 'html', {
+            Rpd.noderenderer('p5/sketch', 'svg', {
+                size: { width: 420, height: 320 },
                 first: function(bodyElm) {
+                    var group = document.createElementNS(SVG_XMLNS, 'g');
+                    group.setAttributeNS(null, 'transform', 'translate(10, -150)');
+                    var foreign = document.createElementNS(SVG_XMLNS, 'foreignObject');
                     var p5Target = document.createElement('div');
                     p5Target.id = 'p5-canvas';
-                    bodyElm.appendChild(p5Target);
+                    foreign.appendChild(p5Target);
+                    group.appendChild(foreign);
+                    bodyElm.appendChild(group);
                 }
             });
 
@@ -185,7 +197,7 @@
 
             patch.render('svg', document.body, { style: 'plain',
                                                  renderNodeList: false }).enter();
-            patch.addNode('p5/sketch').move(40, 10);
+            patch.addNode('p5/sketch').move(70, 100);
         </script>
 
         <!-- p5.js -->

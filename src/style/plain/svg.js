@@ -2,7 +2,7 @@ Rpd.style('plain', 'svg', (function() {
 
 var d3 = d3 || d3_tiny;
 
-var socketPadding = 25, // distance between inlets/outlets in SVG units
+var socketPadding = 30, // distance between inlets/outlets in SVG units
     socketsMargin = 5; // distance between first/last inlet/outlet and body edge
 
 function _createSvgElement(name) {
