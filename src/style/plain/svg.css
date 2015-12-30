@@ -6,3 +6,80 @@
 .rpd-background {
     fill: transparent;
 }
+
+.rpd-link {
+    stroke: black;
+}
+
+.rpd-link.rpd-disabled {
+    stroke: rgba(250,250,250,0.8);
+    stroke-width: 1;
+}
+
+.rpd-link:hover {
+    cursor: crosshair;
+}
+
+.rpd-link.rpd-disabled:hover {
+    cursor: cell;
+}
+
+.rpd-header {
+    fill: transparent;
+}
+
+.rpd-name-holder text {
+    fill: lightgray;
+    font-weight: bold;
+}
+
+.rpd-body {
+    stroke: black;
+    stroke-width: 1px;
+    fill: white;
+}
+
+.rpd-node.rpd-dragging .rpd-body {
+    stroke: darkblue;
+}
+
+.rpd-node .rpd-remove-button {
+    display: none;
+}
+
+.rpd-node:hover .rpd-remove-button {
+    display: block;
+}
+
+.rpd-remove-button text {
+    alignment-baseline: hanging;
+    text-anchor: end;
+}
+
+.rpd-remove-button:hover text {
+    fill: red;
+}
+
+.rpd-remove-button-handle {
+    fill: transparent;
+}
+
+text.rpd-value {
+    font-size: 0.6em;
+    fill: deepskyblue;
+    display: none;
+}
+
+.rpd-inlet:hover text.rpd-value,
+.rpd-outlet:hover text.rpd-value {
+    display: inline;
+}
+
+.rpd-value-editor {
+    display: none;
+}
+
+.rpd-inlet .rpd-name,
+.rpd-outlet .rpd-name {
+    font-size: 0.9em;
+}
