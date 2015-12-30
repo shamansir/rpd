@@ -142,12 +142,12 @@ return {
 
     getInletPos: function(inlet) {
         var connectorPos = getPos(inletToConnector[inlet.id].node());
-        return { x: connectorPos.x + 2, y: connectorPos.y + 2};
+        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
     },
 
     getOutletPos: function(outlet) {
         var connectorPos = getPos(outletToConnector[outlet.id].node());
-        return { x: connectorPos.x + 2, y: connectorPos.y + 2 };
+        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
     },
 
     getLocalPos: function(pos) {

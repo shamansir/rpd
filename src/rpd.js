@@ -724,6 +724,9 @@ return {
     'import': {}, 'export': {},
 
     'allNodeTypes': nodetypes,
+    'allChannelTypes': channeltypes,
+    'allNodeRenderers': noderenderers,
+    'allChannelRenderers': channelrenderers,
     'allNodeDescriptions': nodedescriptions,
 
     'getStyle': getStyle,

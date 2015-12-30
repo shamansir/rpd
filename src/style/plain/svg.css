@@ -68,12 +68,6 @@
 text.rpd-value {
     font-size: 0.6em;
     fill: deepskyblue;
-    display: none;
-}
-
-.rpd-inlet:hover text.rpd-value,
-.rpd-outlet:hover text.rpd-value {
-    display: inline;
 }
 
 .rpd-value-editor {
@@ -83,4 +77,8 @@ text.rpd-value {
 .rpd-inlet .rpd-name,
 .rpd-outlet .rpd-name {
     font-size: 0.9em;
+}
+
+.rpd-connector {
+    cursor: pointer;
 }
