@@ -1,3 +1,8 @@
+function getKey(evt) { return evt.which || evt.keyCode; }
+function isKey(evt, val) { return getKey(evt) === val; }
+function isAltAnd(evt, val) { return evt.altKey && isKey(evt, val); }
+function isAltShiftAnd(evt, val) { return evt.shiftKey && isAltAnd(evt, val); }
+
 var PdView = (function() {
 
     var d3 = d3 || d3_tiny;
@@ -11,42 +16,69 @@ var PdView = (function() {
     var startEditing = Kefir.emitter(),
         finishEditing = Kefir.emitter();
 
-    var selection = null;
+    var selection = null; //var changeSelection = Kefir.emitter(); TODO
     var startSelection = Kefir.emitter(),
         finishSelection = Kefir.emitter();
 
-    var editModeOn = Kefir.emitter(),
-        editModeOff = Kefir.emitter();
+    var switchEditMode = Kefir.emitter();
 
-    function PdView(defaultSize) {
-        this.inEditMode = Kefir.merge([ editModeOn.map(ƒ(true)),
-                                        editModeOff.map(ƒ(false)) ]).toProperty(ƒ(false));
+    function PdView(defaultSize, root) { // FIXME: create view only when document is ready
+        this.root = root;
+        this.inEditMode = switchEditMode.map(ƒ(true))
+                                        .scan(Rpd.not, false) // will switch between `true` and `false`
+                                        .toProperty(ƒ(false));
         editorNode = d3.select(document.createElement('input'))
                            .attr('type', 'text')
                            .attr('class', 'rpd-pd-text-editor')
                            .style('width', '300px')
                            .style('height', (defaultSize.height + 1) + 'px')
                            .node();
+        var view = this;
         document.addEventListener('DOMContentLoaded', function() {
-           d3.select(document.body)
-             .append(d3.select(editorNode)
-                       .style('display', 'none')
-                       .style('position', 'absolute').node());
+            if (!view.root) view.root = document.body;
+            d3.select(view.root)
+              .append(d3.select(editorNode)
+                        .style('display', 'none')
+                        .style('position', 'absolute').node());
+
+            Kefir.fromEvents(view.root, 'keydown')
+                          .filter(function(evt) { return isAltAnd(evt, 69/*E*/) })
+                          .onValue(function() { switchEditMode.emit(); });
+
+            Kefir.fromEvents(view.root, 'keydown')
+                          .filter(function(evt) { return isAltAnd(evt, 8/*Delete*/) && selection; })
+                          .onValue(function() {
+                              var node = selection.node;
+                              if (node) {
+                                  node.patch.removeNode(node);
+                                  finishEditing.emit(); // FIXME: use filterBy?
+                              }
+                          });
+
+            Kefir.fromEvents(view.root, 'keydown')
+                 .filter(function() { return PdModel.lastPatch; }) // there's some current patch
+                 .map(function(evt) { return PdModel.getNodeTypeByKey(evt); })
+                 .filter(function(type) { return type; }) // type is defined
+                 .onValue(function(type) {
+                     PdModel.lastPatch.addNode(type);
+                 });
+
         });
     }
 
-    PdView.prototype.addSelection = function(selectNode) {
+    PdView.prototype.addSelection = function(selectNode, node) {
+        var root = this.root;
         Kefir.fromEvents(selectNode, 'click')
              .filterBy(this.inEditMode.map(not))
              .map(stopPropagation)
              .onValue(function() {
 
                  startSelection.emit();
-                 if (selection) d3.select(selection).classed('rpd-pd-selected', false);
-                 selection = selectNode;
+                 if (selection) d3.select(selection.element).classed('rpd-pd-selected', false);
+                 selection = { element: selectNode, node : node };
                  d3.select(selectNode).classed('rpd-pd-selected', true);
 
-                 Kefir.fromEvents(document.body, 'click').take(1)
+                 Kefir.fromEvents(root, 'click').take(1)
                       .onValue(function() {
 
                           d3.select(selectNode).classed('rpd-pd-selected', false);
@@ -58,6 +90,7 @@ var PdView = (function() {
     }
 
     PdView.prototype.addEditor = function(selectNode, textNode, onSubmit) {
+        var root = this.root;
         var text = d3.select(textNode);
         var editor = d3.select(editorNode);
         Kefir.fromEvents(selectNode, 'click')
@@ -77,10 +110,9 @@ var PdView = (function() {
                  editor.style('display', 'block')
                        .node().focus();
 
-                 Kefir.merge([ Kefir.fromEvents(document.body, 'click'),
+                 Kefir.merge([ Kefir.fromEvents(root, 'click'),
                                Kefir.fromEvents(editorNode, 'keydown')
-                                    .map(function(evt) { return evt.keyCode; })
-                                    .filter(function(key) { return key === 13; }),
+                                    .filter(function(evt) { return isKey(evt, 13/*Enter*/); }),
                                startSelection
                              ]).take(1)
                       .onValue(function() {
@@ -104,12 +136,11 @@ var PdView = (function() {
     PdView.prototype.addEditModeSwitch = function(switchNode, targetNode) {
         Kefir.fromEvents(switchNode, 'click')
              .map(stopPropagation)
-             .map(ƒ(true))
-             .scan(Rpd.not) // will toggle between `true` and `false`
-             .onValue(function(val) {
-                 if (val) { editModeOn.emit(); } else { editModeOff.emit(); };
-                 d3.select(targetNode).classed('rpd-pd-enabled', val);
-             });
+             .onValue(function() { switchEditMode.emit(); });
+
+        this.inEditMode.onValue(function(val) {
+            d3.select(targetNode).classed('rpd-pd-enabled', val);
+        });
     }
 
     PdView.prototype.addNodeAppender = function(buttonNode, nodeType, targetPatch) {
@@ -138,7 +169,7 @@ var PdView = (function() {
     }
 
     PdView.prototype.addSpinner = function(sourceNode) {
-        return new Spinner(sourceNode, this.inEditMode);
+        return new Spinner(this.root, sourceNode, this.inEditMode);
     }
 
     PdView.prototype.measureText = function(textHolder) {
@@ -146,11 +177,22 @@ var PdView = (function() {
         return { width: bbox.width, height: bbox.height };
     }
 
+    PdView.EDIT_MODE_KEY_LABEL = '⌥E';
+    PdView.NODE_TYPE_TO_KEY_LABEL = {
+        'pd/object':  '⌥1',
+        'pd/message': '⌥2',
+        'pd/number':  '⌥3',
+        'pd/symbol':  '⌥4',
+        'pd/comment': '⌥5',
+        'pd/bang': '⌥⇧B',
+        'pd/toggle': '⌥⇧T'
+    };
+
     // ================================ Spinner ====================================
 
     function extractPos(evt) { return { x: evt.clientX,
                                         y: evt.clientY }; };
-    function Spinner(element, editMode) {
+    function Spinner(root, element, editMode) {
         this.element = element;
         this.value = 0;
 
@@ -168,9 +210,9 @@ var PdView = (function() {
              .map(extractPos)
              .flatMap(function(startPos) {
                  var start = spinner.value;
-                 return Kefir.fromEvents(document.body, 'mousemove')
+                 return Kefir.fromEvents(root, 'mousemove')
                              .map(extractPos)
-                             .takeUntilBy(Kefir.fromEvents(document.body, 'mouseup'))
+                             .takeUntilBy(Kefir.fromEvents(root, 'mouseup'))
                              .map(function(newPos) { return start + (startPos.y - newPos.y); })
                              .onValue(function(num) { changes.emit(num); })
              }).onEnd(function() {});
@@ -200,6 +242,7 @@ var PdModel = (function() {
         //this.nodeToCommand = {};
 
         this.webPdDummy = { patch: webPdPatch };
+        PdModel.lastPatch = patch; // FIXME: it's no good
 
         this._requestResolve = Kefir.emitter();
         this._alreadyResolved = Kefir.emitter();
@@ -248,7 +291,7 @@ var PdModel = (function() {
                                                  if (node.type === 'pd/object') {
                                                      model.updatePdObject(node, value.command, value['arguments'], webPdObject);
                                                      // model.connectToWebPd is called from inside of updatePdObject
-                                                 } else {
+                                                 } else if (node.type !== 'pd/comment') {
                                                     try {
                                                         model.connectToWebPd([ PdModel.getReceivingInlet(node) ], [ PdModel.getSendingOutlet(node) ],
                                                                              webPdObject.inlets, webPdObject.outlets, '<'+node.id+'> ' + node.type);
@@ -324,6 +367,16 @@ var PdModel = (function() {
         }).onValue(function(value) {
             if (callback(value)) model._requestApply.emit({ node: value.node });
         });
+    };
+
+    PdModel.prototype.switchAudioChannel = function(id, val) {
+        if (!Pd._glob.audio) return; // FIXME: add volume changes stream
+        Pd._glob.audio.channels[id].gain.value = val ? 1 : 0;
+    };
+
+    PdModel.prototype.isAudioChannelOn = function(id) {
+        if (!Pd._glob.audio) return false; // FIXME: add volume changes stream
+        return (Pd._glob.audio.channels[id].gain.value > 0) ? true : false;
     };
 
     var DspInlet = Pd.core.portlets.DspInlet,
@@ -446,6 +499,17 @@ var PdModel = (function() {
         var type = PdModel.COMMAND_TO_TYPE[cmd];
         if (type) PdModel.TYPE_TO_COMMAND[type] = cmd;
     });
+
+    PdModel.getNodeTypeByKey = function(evt) {
+        if (!evt.altKey) return;
+        if (isAltAnd(evt, 49/*1*/)) return 'pd/object';
+        if (isAltAnd(evt, 50/*2*/)) return 'pd/message';
+        if (isAltAnd(evt, 51/*3*/)) return 'pd/number';
+        if (isAltAnd(evt, 52/*4*/)) return 'pd/symbol';
+        if (isAltAnd(evt, 53/*5*/)) return 'pd/comment';
+        if (isAltShiftAnd(evt, 66/*B*/)) return 'pd/bang';
+        if (isAltShiftAnd(evt, 84/*T*/)) return 'pd/toggle';
+    };
 
     return PdModel;
 

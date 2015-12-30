@@ -106,7 +106,10 @@
                 target.innerHTML = target.textContent = '';
                 var importedPatch = Rpd.import.pd(textarea.value);
                 if (importedPatch) {
+                    var model = importedPatch.model;
                     Pd.start();
+                    model.switchAudioChannel(0, false); // disable audio
+                    model.switchAudioChannel(1, false); // disable audio
                     //importedPatch.enter(); // entering is done in the import (wrongly?)
                     //importedPatch.addNode('pd/edit-switch').move(10, 10);
                     importedPatch.addNode('pd/toolbar').move(400, 20);

@@ -203,3 +203,17 @@
 .rpd-pd-toolbar .rpd-pd-buttons .rpd-pd-accessible:hover text {
     fill: white;
 }
+
+.rpd-pd-toolbar .rpd-pd-edit-mode.rpd-pd-enabled text.rpd-pd-key-label,
+.rpd-pd-edit-switch text.rpd-pd-key-label,
+.rpd-pd-edit-switch .rpd-pd-enabled text.rpd-pd-key-label,
+.rpd-pd-toolbar text.rpd-pd-key-label,
+.rpd-pd-toolbar .rpd-pd-buttons .rpd-pd-accessible text.rpd-pd-key-label {
+    font-size: 0.4em;
+    font-weight: normal;
+    fill: teal;
+}
+
+.rpd-pd-toolbar .rpd-pd-buttons text.rpd-pd-key-label {
+    text-anchor: end;
+}
