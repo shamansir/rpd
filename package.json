@@ -1,6 +1,6 @@
 {
   "name": "rpd",
-  "version": "0.2.0",
+  "version": "0.2.0-alpha",
   "description": "RPD is a minimal framework for building Node-Based User Interfaces, powered by Reactive Programming",
   "author": "Ulric Wilfred <shaman.sir@gmail.com>",
   "homepage": "http://shamansir.github.io/rpd",
@@ -30,6 +30,7 @@
     "gulp-download": "0.0.1",
     "gulp-gzip": "^1.2.0",
     "gulp-header": "^1.7.1",
+    "gulp-jade": "^1.1.0",
     "gulp-size": "^2.0.0",
     "gulp-util": "^3.0.6",
     "jasmine": "latest",

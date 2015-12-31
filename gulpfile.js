@@ -8,6 +8,7 @@ var gulp = require('gulp'),
     concat = require('gulp-concat'),
     download = require('gulp-download'),
     gzip = require('gulp-gzip'),
+    jade = require('gulp-jade'),
     closureCompiler = require('gulp-closure-compiler');
 
 var Paths = {
@@ -168,6 +169,16 @@ gulp.task('list-opts', function() {
 
 gulp.task('html-head', ['check-root', 'list-opts'], function() {
     getHtmlHead(argv);
+});
+
+gulp.task('docs', function() {
+    gulp.src('./docs/**/*.jade')
+        .pipe(jade({
+            doctype: '<!DOCTYPE html>',
+            pretty: true,
+            locals: { 'title': 'Test' }
+        }))
+        .pipe(gulp.dest('./docs/compiled/'))
 });
 
 // Helpers =====================================================================
