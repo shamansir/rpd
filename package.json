@@ -33,6 +33,7 @@
     "gulp-jade": "^1.1.0",
     "gulp-size": "^2.0.0",
     "gulp-util": "^3.0.6",
+    "gulp-watch": "^4.3.5",
     "jasmine": "latest",
     "jasmine-core": "^2.3.4",
     "karma": "^0.13.9",

@@ -2,6 +2,7 @@
 // npm install --save-dev gulp gulp-util gulp-size gulp-header gulp-concat gulp-download gulp-closure-compiler
 
 var gulp = require('gulp'),
+    watch = require('gulp-watch'),
     gutil = require('gulp-util'),
     header = require('gulp-header'),
     size = require('gulp-size'),
@@ -174,7 +175,17 @@ gulp.task('html-head', ['check-root', 'list-opts'], function() {
 gulp.task('docs', function() {
     gulp.src('./docs/**/*.jade')
         .pipe(jade({
-            doctype: '<!DOCTYPE html>',
+            doctype: 'html',
+            pretty: true,
+            locals: { 'title': 'Test' }
+        }))
+        .pipe(gulp.dest('./docs/compiled/'))
+});
+
+gulp.task('docs-watch', function() {
+    watch('./docs/**/*.jade')
+        .pipe(jade({
+            doctype: 'html',
             pretty: true,
             locals: { 'title': 'Test' }
         }))
