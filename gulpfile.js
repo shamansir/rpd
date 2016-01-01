@@ -181,7 +181,7 @@ gulp.task('docs', function() {
             jade: jadeBin,
             doctype: 'html',
             pretty: true,
-            locals: { 'title': 'Test' }
+            locals: require('./docs/config.json')
         }))
         .pipe(gulp.dest('./docs/compiled/'));
     console.log('Compiled docs to ./docs/compiled');
@@ -194,7 +194,7 @@ gulp.task('docs-watch', function() {
             jade: jadeBin,
             doctype: 'html',
             pretty: true,
-            locals: { 'title': 'Test' }
+            locals: require('./docs/config.json')
         }))
         .pipe(gulp.dest('./docs/compiled/'));
     console.log('Will watch for docs updates...');

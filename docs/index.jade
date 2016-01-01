@@ -2,7 +2,9 @@ html
   head
     title RPD - #{title}
   body
-    :marked
-        # Heading, The Very
+    h1 The Title  
+    each desc, id in contents
+        span= desc.title + ' (' + id + ')'
+        include:markdown= desc.file
     #footer
       p some footer content
