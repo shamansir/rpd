@@ -41,6 +41,7 @@
     "karma-jasmine": "^0.3.5",
     "karma-mocha-reporter": "^1.1.1",
     "karma-nyan-reporter": "^0.0.60",
+    "marked": "^0.3.5",
     "yargs": "^3.25.0"
   },
   "scripts": {

@@ -9,6 +9,8 @@ var gulp = require('gulp'),
     concat = require('gulp-concat'),
     download = require('gulp-download'),
     gzip = require('gulp-gzip'),
+    marked = require('marked'),
+    jadeBin = require('jade'),
     jade = require('gulp-jade'),
     closureCompiler = require('gulp-closure-compiler');
 
@@ -173,23 +175,29 @@ gulp.task('html-head', ['check-root', 'list-opts'], function() {
 });
 
 gulp.task('docs', function() {
+    jadeBin.filters.marked = marked;
     gulp.src('./docs/**/*.jade')
         .pipe(jade({
+            jade: jadeBin,
             doctype: 'html',
             pretty: true,
             locals: { 'title': 'Test' }
         }))
-        .pipe(gulp.dest('./docs/compiled/'))
+        .pipe(gulp.dest('./docs/compiled/'));
+    console.log('Compiled docs to ./docs/compiled');
 });
 
 gulp.task('docs-watch', function() {
+    jadeBin.filters.marked = marked;
     watch('./docs/**/*.jade')
         .pipe(jade({
+            jade: jadeBin,
             doctype: 'html',
             pretty: true,
             locals: { 'title': 'Test' }
         }))
-        .pipe(gulp.dest('./docs/compiled/'))
+        .pipe(gulp.dest('./docs/compiled/'));
+    console.log('Will watch for docs updates...');
 });
 
 // Helpers =====================================================================
