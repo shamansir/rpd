@@ -177,49 +177,43 @@ gulp.task('html-head', ['check-root', 'list-opts'], function() {
 });
 
 gulp.task('docs', function() {
+    var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
     return gulp.src('./docs/**/*.md')
+               .pipe(frontMatter())
+               .pipe(markdown())
+               .pipe(utils.injectFiddles())
+               .pipe(layout(function(file) {
+                   return {
+                       doctype: 'html',
+                       pretty: true,
+                       'config': config,
+                       front: file.frontMatter,
+                       layout: './docs/layout.jade'
+                   };
+               }))
+               .pipe(gulp.dest('./docs/compiled/'));
+    console.log('Compiled docs to ./docs/compiled');
+});
+
+gulp.task('docs-watch', function() {
+    var utils = require('./docs/utils.js');
+    var config = require('./docs/config.json');
+    return watch('./docs/**/*.md')
                .pipe(frontMatter())
                .pipe(markdown())
                .pipe(layout(function(file) {
                    return {
                        doctype: 'html',
                        pretty: true,
-                       //locals: { 'config': config,
-                        //         'front': file.frontMatter },
                        'config': config,
                        front: file.frontMatter,
                        layout: './docs/layout.jade'
                    };
-                   //return file.frontMatter;
                }))
                .pipe(gulp.dest('./docs/compiled/'));
-
-
-    // jadeBin.filters.marked = marked;
-    // gulp.src('./docs/**/*.jade')
-    //     .pipe(jade({
-    //         jade: jadeBin,
-    //         doctype: 'html',
-    //         pretty: true,
-    //         locals: require('./docs/config.json')
-    //     }))
-    //     .pipe(gulp.dest('./docs/compiled/'));
-    console.log('Compiled docs to ./docs/compiled');
+    console.log('Will watch for docs updates...');
 });
-
-// gulp.task('docs-watch', function() {
-//     jadeBin.filters.marked = marked;
-//     watch('./docs/**/*.jade')
-//         .pipe(jade({
-//             jade: jadeBin,
-//             doctype: 'html',
-//             pretty: true,
-//             locals: require('./docs/config.json')
-//         }))
-//         .pipe(gulp.dest('./docs/compiled/'));
-//     console.log('Will watch for docs updates...');
-// });
 
 // Helpers =====================================================================
 

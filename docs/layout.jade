@@ -5,6 +5,6 @@ html
     h1 The Title #{front.title} 
     each desc, id in config.contents
         span= desc.title + ' (' + id + ')'
-        != contents
+    != contents        
     #footer
       p some footer content
