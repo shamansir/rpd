@@ -11,6 +11,8 @@ var gulp = require('gulp'),
     // to get vendor files
     download = require('gulp-download'),
     // to build documentation
+    parser = require('gulp-file-parser'),
+    highlight = require('gulp-highlight'),
     watch = require('gulp-watch'),
     markdown = require('gulp-markdown'),
     frontMatter = require('gulp-front-matter'),
@@ -176,13 +178,28 @@ gulp.task('html-head', ['check-root', 'list-opts'], function() {
     getHtmlHead(argv);
 });
 
-gulp.task('docs', function() {
+var injectFiddles = parser({
+    name: 'inject-fiddles',
+    func: function(data) {
+        console.log(data);
+        return data;
+    }
+});
+
+gulp.task('copy-highlight-css', function() {
+    return gulp.src('./docs/highlight-tomorrow.css')
+               .pipe(gulp.dest('./docs/compiled/'));
+});
+
+gulp.task('docs', ['copy-highlight-css'], function() {
     var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
     return gulp.src('./docs/**/*.md')
                .pipe(frontMatter())
                .pipe(markdown())
-               .pipe(utils.injectFiddles())
+               .pipe(highlight())
+               .pipe(injectFiddles())
+               //.pipe(utils.injectFiddles())
                .pipe(layout(function(file) {
                    return {
                        doctype: 'html',
@@ -196,7 +213,7 @@ gulp.task('docs', function() {
     console.log('Compiled docs to ./docs/compiled');
 });
 
-gulp.task('docs-watch', function() {
+gulp.task('docs-watch', ['copy-highlight-css'], function() {
     var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
     return watch('./docs/**/*.md')

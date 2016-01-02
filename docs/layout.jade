@@ -1,6 +1,7 @@
 html
   head
     title RPD - #{front.title}
+    link(href='./highlight-tomorrow.css',rel='stylesheet',type='text/css')
   body
     h1 The Title #{front.title} 
     each desc, id in config.contents
