@@ -1,7 +1,12 @@
 html
   head
     title RPD - #{front.title}
-    link(href='./highlight-js.min.css',rel='stylesheet',type='text/css')
+    - var pathPrefix = '.';
+    - for (var i = 0; i < (front.level || 0); i++) {
+    -     pathPrefix += '/..';
+    - }
+    link(href='#{pathPrefix}/style.css',rel='stylesheet',type='text/css')
+    link(href='#{pathPrefix}/highlight-js.min.css',rel='stylesheet',type='text/css')
   body
     h1 The Title #{front.title} 
     each desc, id in config.contents

@@ -44,6 +44,7 @@ var argv = require('yargs')
            .string('root').string('target-name').string('compilation').boolean('pretty')
            .array('renderer').array('style').array('toolkit').array('io').boolean('d3')
            .array('user-style').array('user-toolkit')
+           .boolean('docs-local')
            .default({
                root: '.',
                'target-name': 'rpd', // forms dist/rpd.js and dist/rpd.css
@@ -54,6 +55,7 @@ var argv = require('yargs')
                toolkit: [ 'core' ],
                io: [],
                d3: false,
+               'docs-local': false,
                'user-style': [ ],
                'user-toolkit': [ ]
            })
@@ -69,7 +71,7 @@ var CLOSURE_COMPILER_PATH = 'node_modules/google-closure-compiler/compiler.jar';
 
 var DEPENDENCIES = [ 'https://cdn.jsdelivr.net/kefir/3.0.0/kefir.min.js' ];
 
-var DOC_HIGHLIGHT_STYLE = 'docco', // default, tomorrow
+var DOC_HIGHLIGHT_STYLE = 'docco', // default, tomorrow, foundation, github-gist, xcode
     DOC_HIGHLIGHT_STYLE_FILENAME = DOC_HIGHLIGHT_STYLE + '.min.css';
 
 var DEV_DEPENDENCIES = [
@@ -183,58 +185,76 @@ gulp.task('html-head', ['check-root', 'list-opts'], function() {
     getHtmlHead(argv);
 });
 
-var injectFiddles = parser({
-    name: 'inject-fiddles',
-    func: function(data) {
-        console.log(data);
-        return data;
-    }
-});
-
-gulp.task('copy-highlight-css', function() {
+gulp.task('docs-copy-highlight-css', function() {
     return gulp.src('./vendor/' + DOC_HIGHLIGHT_STYLE_FILENAME)
                .pipe(rename('highlight-js.min.css'))
                .pipe(gulp.dest('./docs/compiled/'));
 });
 
-gulp.task('docs', ['copy-highlight-css'], function() {
-    var utils = require('./docs/utils.js');
-    var config = require('./docs/config.json');
-    return gulp.src('./docs/**/*.md')
-               .pipe(frontMatter())
-               .pipe(markdown())
-               .pipe(highlight())
-               .pipe(injectFiddles())
-               //.pipe(utils.injectFiddles())
-               .pipe(layout(function(file) {
-                   return {
-                       doctype: 'html',
-                       pretty: true,
-                       'config': config,
-                       front: file.frontMatter,
-                       layout: './docs/layout.jade'
-                   };
-               }))
+gulp.task('docs-copy-style-css', function() {
+    return gulp.src('./docs/style.css')
                .pipe(gulp.dest('./docs/compiled/'));
-    console.log('Compiled docs to ./docs/compiled');
 });
 
-gulp.task('docs-watch', ['copy-highlight-css'], function() {
-    var utils = require('./docs/utils.js');
+var docsLocal = argv['docs-local'],
+    protocol = docsLocal ? 'http://' : '//';
+
+var fiddleRe = new RegExp('<!-- fiddle: ([a-zA-Z0-9]+)( ([a-z,]+)/)? -->', 'g');
+var fiddleTemplate = '<script async src="' + protocol + 'jsfiddle.net/shaman_sir/\$1/embed/\$3/"></script>';
+var injectFiddles = parser({
+    name: 'inject-fiddles',
+    func: function(data) {
+        return data.replace(fiddleRe, fiddleTemplate);
+    }
+});
+
+var codepenRe = new RegExp('<!-- codepen: ([a-zA-Z0-9]+) -->', 'g');
+var codepenTemplate = '<p data-height="266" data-theme-id="21572" data-slug-hash="\$1" data-default-tab="result" ' +
+                      'data-user="shamansir" class="codepen">See the Pen <a href="http://codepen.io/shamansir/pen/\$1/">\$1</a> ' +
+                      'by Ulric Wilfred (<a href="http://codepen.io/shamansir">@shamansir</a>) on ' +
+                      '<a href="http://codepen.io">CodePen</a>.</p>' +
+                      '<script async src="' + protocol + 'assets.codepen.io/assets/embed/ei.js"></script>';
+var injectCodepens = parser({
+    name: 'inject-codepens',
+    func: function(data) {
+        return data.replace(codepenRe, codepenTemplate);
+    }
+});
+
+function makeDocs(config, f) {
+    var result = gulp.src('./docs/**/*.md');
+    if (f) result = f(result);
+    return result.pipe(frontMatter())
+                 .pipe(markdown())
+                 .pipe(highlight())
+                 .pipe(injectFiddles())
+                 .pipe(injectCodepens())
+                 .pipe(layout(function(file) {
+                      return {
+                          doctype: 'html',
+                          pretty: true,
+                          'config': config,
+                          front: file.frontMatter,
+                          layout: './docs/layout.jade'
+                      };
+                  }))
+                 .pipe(gulp.dest('./docs/compiled/'));
+}
+
+gulp.task('docs', ['docs-copy-style-css', 'docs-copy-highlight-css'], function() {
+    //var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
-    return watch('./docs/**/*.md')
-               .pipe(frontMatter())
-               .pipe(markdown())
-               .pipe(layout(function(file) {
-                   return {
-                       doctype: 'html',
-                       pretty: true,
-                       'config': config,
-                       front: file.frontMatter,
-                       layout: './docs/layout.jade'
-                   };
-               }))
-               .pipe(gulp.dest('./docs/compiled/'));
+    var result = makeDocs(config);
+    console.log('Compiled docs to ./docs/compiled');
+    return result;
+});
+
+gulp.task('docs-watch', ['docs-copy-style-css', 'docs-copy-highlight-css'], function() {
+    //var utils = require('./docs/utils.js');
+    var config = require('./docs/config.json');
+    return makeDocs(config, function(result) {
+        return result.pipe(watch(['./docs/**/*.md', 'docs/style.css']));
+    });
     console.log('Will watch for docs updates...');
 });
 
