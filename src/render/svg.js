@@ -230,7 +230,7 @@ return function(networkRoot, userConfig) {
             // remove node when remove button was clicked
             var removeButton = nodeElm.select('.rpd-remove-button');
             if (!removeButton.empty()) {
-                Kefir.fromEvents(nodeElm.select('.rpd-remove-button path').node(), 'click')
+                Kefir.fromEvents(nodeElm.select('.rpd-remove-button-handle').node(), 'click')
                      .map(stopPropagation)
                      .onValue(function() {
                          patch.removeNode(node);

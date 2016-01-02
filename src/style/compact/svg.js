@@ -104,7 +104,8 @@ return {
         nodeElm.append('g').attr('class', 'rpd-remove-button')
                            .attr('transform', 'translate(' + (width-12) + ',1)')
                .call(function(button) {
-                   button.append('path').attr('d', roundedRect(0, 0, 11, 11, 2, 2, 2, 3));
+                   button.append('path').attr('d', roundedRect(0, 0, 11, 11, 2, 2, 2, 3))
+                                        .attr('class', 'rpd-remove-button-handle');
                    button.append('text').text('x').attr('x', 3).attr('y', 2)
                                         .style('pointer-events', 'none');
                });

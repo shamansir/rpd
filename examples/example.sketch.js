@@ -10,8 +10,10 @@ var sketchConfig = {
 
 var SHAPE_FUNC = { circle: function(x, y) { ellipse(x, y, 14, 14); },
                    rect: function(x, y) { rect(x, y, 14, 14); },
-                   cross: function(x, y) { line(x-7, y-7, x+7, y+7);
-                                           line(x+7, y-7, x-7, y+7); },
+                   cross: function(x, y) { strokeWeight(2);
+                                           line(x-7, y-7, x+7, y+7);
+                                           line(x+7, y-7, x-7, y+7);
+                                           strokeWeight(1); },
                    diamond: function(x, y) {
                       quad(x, y-7, x+7, y, x, y+7, x-7, y);
                    } };

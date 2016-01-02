@@ -6,6 +6,7 @@ Rpd.channelrenderer('core/number', 'svg', {
         foElm.setAttributeNS(null, 'height', 30);
         var valInput = document.createElementNS('http://www.w3.org/1999/xhtml', 'input');
         valInput.type = 'number';
+        //valInput.style.position = 'absolute';
         valueIn.onValue(function(val) {
             valInput.value = val;
         });
@@ -15,5 +16,11 @@ Rpd.channelrenderer('core/number', 'svg', {
                     .map(function() {
                         return valInput.value;
                     });
+    }
+});
+
+Rpd.noderenderer('core/random', 'svg', function() {
+    return {
+        size: { width: 40 }
     }
 });
