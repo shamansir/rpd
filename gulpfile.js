@@ -11,6 +11,7 @@ var gulp = require('gulp'),
     // to get vendor files
     download = require('gulp-download'),
     // to build documentation
+    rename = require('gulp-rename'),
     parser = require('gulp-file-parser'),
     highlight = require('gulp-highlight'),
     watch = require('gulp-watch'),
@@ -68,8 +69,12 @@ var CLOSURE_COMPILER_PATH = 'node_modules/google-closure-compiler/compiler.jar';
 
 var DEPENDENCIES = [ 'https://cdn.jsdelivr.net/kefir/3.0.0/kefir.min.js' ];
 
+var DOC_HIGHLIGHT_STYLE = 'docco', // default, tomorrow
+    DOC_HIGHLIGHT_STYLE_FILENAME = DOC_HIGHLIGHT_STYLE + '.min.css';
+
 var DEV_DEPENDENCIES = [
                'https://cdn.jsdelivr.net/kefir/3.0.0/kefir.min.js', // Kefir
+               'http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/styles/' + DOC_HIGHLIGHT_STYLE_FILENAME, // highlight.js style for documentation
                'http://mohayonao.github.io/timbre.js/timbre.js', // timbre
                'http://player-dev.animatron.com/latest/bundle/animatron.min.js', // animatron
                'https://raw.githubusercontent.com/sebpiq/WebPd/master/dist/webpd-latest.min.js', // WebPd
@@ -187,7 +192,8 @@ var injectFiddles = parser({
 });
 
 gulp.task('copy-highlight-css', function() {
-    return gulp.src('./docs/highlight-tomorrow.css')
+    return gulp.src('./vendor/' + DOC_HIGHLIGHT_STYLE_FILENAME)
+               .pipe(rename('highlight-js.min.css'))
                .pipe(gulp.dest('./docs/compiled/'));
 });
 

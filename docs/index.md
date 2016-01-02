@@ -5,7 +5,7 @@ title: Introduction
 Introduction
 
 ```javascript
-function() {
+function myFunc() {
     console.log(arguments);
 }
 ```
