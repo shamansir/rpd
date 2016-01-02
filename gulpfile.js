@@ -2,17 +2,19 @@
 // npm install --save-dev gulp gulp-util gulp-size gulp-header gulp-concat gulp-download gulp-closure-compiler
 
 var gulp = require('gulp'),
-    watch = require('gulp-watch'),
     gutil = require('gulp-util'),
+    closureCompiler = require('gulp-closure-compiler'),
     header = require('gulp-header'),
     size = require('gulp-size'),
     concat = require('gulp-concat'),
-    download = require('gulp-download'),
     gzip = require('gulp-gzip'),
-    marked = require('marked'),
-    jadeBin = require('jade'),
-    jade = require('gulp-jade'),
-    closureCompiler = require('gulp-closure-compiler');
+    // to get vendor files
+    download = require('gulp-download'),
+    // to build documentation
+    watch = require('gulp-watch'),
+    markdown = require('gulp-markdown'),
+    frontMatter = require('gulp-front-matter'),
+    layout = require('gulp-layout');
 
 var Paths = {
     Root: '.',
@@ -175,30 +177,49 @@ gulp.task('html-head', ['check-root', 'list-opts'], function() {
 });
 
 gulp.task('docs', function() {
-    jadeBin.filters.marked = marked;
-    gulp.src('./docs/**/*.jade')
-        .pipe(jade({
-            jade: jadeBin,
-            doctype: 'html',
-            pretty: true,
-            locals: require('./docs/config.json')
-        }))
-        .pipe(gulp.dest('./docs/compiled/'));
+    var config = require('./docs/config.json');
+    return gulp.src('./docs/**/*.md')
+               .pipe(frontMatter())
+               .pipe(markdown())
+               .pipe(layout(function(file) {
+                   return {
+                       doctype: 'html',
+                       pretty: true,
+                       //locals: { 'config': config,
+                        //         'front': file.frontMatter },
+                       'config': config,
+                       front: file.frontMatter,
+                       layout: './docs/layout.jade'
+                   };
+                   //return file.frontMatter;
+               }))
+               .pipe(gulp.dest('./docs/compiled/'));
+
+
+    // jadeBin.filters.marked = marked;
+    // gulp.src('./docs/**/*.jade')
+    //     .pipe(jade({
+    //         jade: jadeBin,
+    //         doctype: 'html',
+    //         pretty: true,
+    //         locals: require('./docs/config.json')
+    //     }))
+    //     .pipe(gulp.dest('./docs/compiled/'));
     console.log('Compiled docs to ./docs/compiled');
 });
 
-gulp.task('docs-watch', function() {
-    jadeBin.filters.marked = marked;
-    watch('./docs/**/*.jade')
-        .pipe(jade({
-            jade: jadeBin,
-            doctype: 'html',
-            pretty: true,
-            locals: require('./docs/config.json')
-        }))
-        .pipe(gulp.dest('./docs/compiled/'));
-    console.log('Will watch for docs updates...');
-});
+// gulp.task('docs-watch', function() {
+//     jadeBin.filters.marked = marked;
+//     watch('./docs/**/*.jade')
+//         .pipe(jade({
+//             jade: jadeBin,
+//             doctype: 'html',
+//             pretty: true,
+//             locals: require('./docs/config.json')
+//         }))
+//         .pipe(gulp.dest('./docs/compiled/'));
+//     console.log('Will watch for docs updates...');
+// });
 
 // Helpers =====================================================================
 

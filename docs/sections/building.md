@@ -1,3 +1,8 @@
+---
+title: Building
+layout: ./docs/layout.jade
+---
+
 # Building
 
 <script async src="//jsfiddle.net/shaman_sir/e4fp9u8m/embed/"></script>

@@ -1,8 +1,12 @@
 {
     "contents": {
+        "introduction": {
+            "title": "Introduction",
+            "file": "index.md"
+        },
         "building": {
             "title": "Building",
-            "file": "building.md"
+            "file": "sections/building.md"
         }
     }
 }

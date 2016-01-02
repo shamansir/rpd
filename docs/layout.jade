@@ -1,0 +1,10 @@
+html
+  head
+    title RPD - #{front.title}
+  body
+    h1 The Title #{front.title} 
+    each desc, id in config.contents
+        span= desc.title + ' (' + id + ')'
+        != contents
+    #footer
+      p some footer content
