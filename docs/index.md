@@ -2,7 +2,7 @@
 title: Introduction
 ---
 
-Introduction AAA
+Introduction
 
 ```javascript
 function myFunc() {

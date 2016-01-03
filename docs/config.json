@@ -4,9 +4,59 @@
             "title": "Introduction",
             "file": "index.md"
         },
-        "building": {
-            "title": "Building",
-            "file": "sections/building.md"
+        "examples": {
+            "title": "Examples",
+            "file": "examples.md"
+        },
+        "compilation": {
+            "title": "Compiling your version of RPD",
+            "file": "sections/compilation.md",
+            "subsections": {
+                "toolkits": "Selecting Toolkits",
+                "renderers": "Selecting Rendeder",
+                "styles": "Selecting Style",
+                "io": "Selecting Input/Output Module"
+            }
+        },
+        "network": {
+            "title": "Building a Patch Network",
+            "file": "sections/network.md",
+            "subsections": {
+                "patch": "Creating a Patch",
+                "nodes": "Adding Nodes",
+                "connections": "Connecting Nodes",
+                "subpatches": "Adding subpatches"
+            }
+        },
+        "types": {
+            "title": "Defining Your Own Types",
+            "file": "sections/types.md",
+            "subsections": {
+                "toolkits": "Creating Toolkits",
+                "nodes": "Defining Node Types",
+                "channels": "Defining Channel Types",
+                "io": "Writing Your Own I/O Module"
+            }
+        },
+        "styling": {
+            "title": "Styling RPD",
+            "file": "sections/style.md",
+            "subsections": {
+                "css": "Using CSS Classes",
+                "renderers": "Writing Your Own Renderers",
+                "styles": "Writing Your Own Styles",
+            }
+        },
+        "events": {
+            "title": "Subscribing to Events",
+            "file": "sections/events.md",
+            "subsections": {
+                "network": "Network Events",
+                "patch": "Patch Events",
+                "node": "Node Events",
+                "channel": "Channel Events",
+                "link": "Link events"
+            }
         }
     }
 }

@@ -253,7 +253,7 @@ gulp.task('docs-watch', ['docs-copy-style-css', 'docs-copy-highlight-css'], func
     //var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
     return makeDocs(config, function(result) {
-        return result.pipe(watch(['./docs/**/*.md', 'docs/style.css']));
+        return result.pipe(watch('./docs/**/*.md'));
     });
     console.log('Will watch for docs updates...');
 });
