@@ -1,16 +1,22 @@
 html
   head
-    title RPD - #{front.title}
+    title RPD &mdash; #{front.title}
     - var pathPrefix = '.';
     - for (var i = 0; i < (front.level || 0); i++) {
     -     pathPrefix += '/..';
     - }
     link(href='#{pathPrefix}/style.css',rel='stylesheet',type='text/css')
     link(href='#{pathPrefix}/highlight-js.min.css',rel='stylesheet',type='text/css')
-  body
-    h1 The Title #{front.title} 
-    each desc, id in config.contents
-        span= desc.title + ' (' + id + ')'
+  body(class='rpd-#{front.id}')
+    h1 RPD &mdash; Reactive Patch Development
+    ul#contents
+        each desc, id in config.contents
+            li: a(href='#{desc.path}') #{desc.title}
+            if desc.subsections
+                ul
+                    each subtitle, id in desc.subsections
+                        li: a(href='#{desc.path}\##{id}') #{subtitle}    
+    h2 #{front.title} 
     != contents        
     #footer
-      p some footer content
+      span &copy; shaman.sir, 2016

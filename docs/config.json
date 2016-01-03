@@ -2,35 +2,36 @@
     "contents": {
         "introduction": {
             "title": "Introduction",
-            "file": "index.md"
+            "path": "index.html"
         },
         "examples": {
             "title": "Examples",
-            "file": "examples.md"
+            "path": "examples.html"
         },
         "compilation": {
-            "title": "Compiling your version of RPD",
-            "file": "sections/compilation.md",
+            "title": "Compiling Your Version of RPD",
+            "path": "sections/compilation.html",
             "subsections": {
                 "toolkits": "Selecting Toolkits",
                 "renderers": "Selecting Rendeder",
                 "styles": "Selecting Style",
-                "io": "Selecting Input/Output Module"
+                "io": "Selecting Input/Output Modules"
             }
         },
         "network": {
             "title": "Building a Patch Network",
-            "file": "sections/network.md",
+            "path": "sections/network.html",
             "subsections": {
+                "prepare": "Preparation Process",
                 "patch": "Creating a Patch",
                 "nodes": "Adding Nodes",
                 "connections": "Connecting Nodes",
-                "subpatches": "Adding subpatches"
+                "subpatches": "Adding Subpatches"
             }
         },
         "types": {
             "title": "Defining Your Own Types",
-            "file": "sections/types.md",
+            "path": "sections/types.html",
             "subsections": {
                 "toolkits": "Creating Toolkits",
                 "nodes": "Defining Node Types",
@@ -39,17 +40,17 @@
             }
         },
         "styling": {
-            "title": "Styling RPD",
-            "file": "sections/style.md",
+            "title": "Custom Styling RPD",
+            "path": "sections/style.html",
             "subsections": {
                 "css": "Using CSS Classes",
                 "renderers": "Writing Your Own Renderers",
-                "styles": "Writing Your Own Styles",
+                "styles": "Writing Your Own Styles"
             }
         },
         "events": {
             "title": "Subscribing to Events",
-            "file": "sections/events.md",
+            "path": "sections/events.html",
             "subsections": {
                 "network": "Network Events",
                 "patch": "Patch Events",

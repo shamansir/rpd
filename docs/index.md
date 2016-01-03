@@ -1,5 +1,6 @@
 ---
 title: Introduction
+id: index
 ---
 
 Introduction
