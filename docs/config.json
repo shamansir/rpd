@@ -2,10 +2,15 @@
     "contents": {
         "introduction": {
             "title": "Introduction",
-            "path": "index.html"
+            "path": "index.html",
+            "subsections": {
+                "what-is": "What is RPD?",
+                "code-examples": "Code Examples",
+                "terminology": "Terminology"
+            }
         },
         "examples": {
-            "title": "Examples",
+            "title": "Examples of RPD in Action",
             "path": "examples.html"
         },
         "compilation": {
@@ -22,11 +27,12 @@
             "title": "Building a Patch Network",
             "path": "sections/network.html",
             "subsections": {
-                "prepare": "Preparation Process",
+                "rendering": "Setup Rendering",
                 "patch": "Creating a Patch",
                 "nodes": "Adding Nodes",
                 "connections": "Connecting Nodes",
-                "subpatches": "Adding Subpatches"
+                "subpatches": "Adding Subpatches",
+                "io": "Adding Import/Export"
             }
         },
         "types": {
@@ -58,6 +64,10 @@
                 "channel": "Channel Events",
                 "link": "Link events"
             }
+        },
+        "participation": {
+            "title": "Participating in Development",
+            "path": "sections/participate.html"
         }
     }
 }
