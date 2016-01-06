@@ -1,9 +1,9 @@
 body {
-    font-family: "Geneva", "Avenir Light", "Input Sans Cond Ex Lt", "Georgia", serif;
+    /*font-family: "Geneva", "Avenir", "Lucida Grande", "Input Sans Cond Ex Lt", sans-serif;*/
+    font-family: "Geneva", "Avenir", "Lucida Grande", sans-serif;
     margin: 30px 50px;
     color: black;
     /*-webkit-font-smoothing: antialiased;*/
-    text-rendering: optimizeLegibility;
 }
 
 header {
@@ -24,8 +24,12 @@ header > img {
     left: -1px;
 }
 
+h1, h2, h3, h4, h5, h6, nav {
+    font-family: "Avenir", "Lucida Grande", "Geneva", sans-serif;
+}
+
 h1 {
-    font-family: "Input Sans Cond Ex Lt", "Geneva", "Avenir Light", "Georgia", serif;
+    /* font-family: "Input Sans Cond Ex Lt", "Geneva", "Lucida Grande", "Avenir", sans-serif; */
     margin: 0;
     position: relative;
     margin-left: 6px;
@@ -94,7 +98,7 @@ nav ul li a:hover {
 }
 
 nav li.active a {
-    /*color: darkcyan;*/ /* brown, darkred, firebrick, maroon, orangered, red, tomato */
+    /*color: darkblue;*/ /* brown, darkred, firebrick, maroon, orangered, red, tomato */
     font-weight: bold;
 }
 
