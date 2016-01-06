@@ -1,7 +1,9 @@
 body {
-    font-family: "Geneva", "Input Sans Cond Ex Lt", "Georgia", serif;
+    font-family: "Geneva", "Avenir Light", "Input Sans Cond Ex Lt", "Georgia", serif;
     margin: 30px 50px;
     color: black;
+    /*-webkit-font-smoothing: antialiased;*/
+    text-rendering: optimizeLegibility;
 }
 
 header {
@@ -23,7 +25,7 @@ header > img {
 }
 
 h1 {
-    font-family: "Input Sans Cond Ex Lt", "Geneva", "Georgia", serif;
+    font-family: "Input Sans Cond Ex Lt", "Geneva", "Avenir Light", "Georgia", serif;
     margin: 0;
     position: relative;
     margin-left: 6px;
@@ -91,6 +93,11 @@ nav ul li a:hover {
     text-decoration: underline;
 }
 
+nav li.active a {
+    /*color: darkcyan;*/ /* brown, darkred, firebrick, maroon, orangered, red, tomato */
+    font-weight: bold;
+}
+
 main {
     display: block;
     max-width: 80%;
@@ -109,4 +116,5 @@ footer {
     padding: 3px 0 0 1px;
     /* text-decoration: overline; */
     border-top: 2px solid black;
+    width: 65%;
 }

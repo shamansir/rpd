@@ -18,52 +18,55 @@
             "title": "Compiling Your Version of RPD",
             "path": "sections/compilation.html",
             "subsections": {
-                "toolkits": "Selecting Toolkits",
-                "renderers": "Selecting Rendeder",
-                "styles": "Selecting Style",
-                "io": "Selecting Input/Output Modules"
+                "selecting-toolkits": "Selecting Toolkits",
+                "selecting-renderers": "Selecting Rendeder",
+                "selecting-style": "Selecting Style",
+                "selecting-import-export-modules": "Selecting Import/Export Modules"
             }
         },
         "network": {
             "title": "Building a Patch Network",
             "path": "sections/network.html",
             "subsections": {
-                "rendering": "Setup Rendering",
-                "patch": "Creating a Patch",
-                "nodes": "Adding Nodes",
-                "connections": "Connecting Nodes",
-                "subpatches": "Adding Subpatches",
-                "io": "Adding Import/Export"
+                "setup-rendering": "Setup Rendering",
+                "creating-a-patch": "Creating a Patch",
+                "adding-nodes": "Adding Nodes",
+                "connecting-nodes": "Connecting Nodes",
+                "sending-data": "Sending Data",
+                "adding-subpatches": "Adding Subpatches",
+                "adding-import-export": "Adding Import/Export"
             }
         },
         "types": {
             "title": "Defining Your Own Types",
             "path": "sections/types.html",
             "subsections": {
-                "toolkits": "Creating Toolkits",
-                "nodes": "Defining Node Types",
-                "channels": "Defining Channel Types",
-                "io": "Writing Your Own I/O Module"
+                "creating-toolkits": "Creating Toolkits",
+                "defining-node-types": "Defining Node Types",
+                "defining-channel-types": "Defining Channel Types",
+                "writing-your-own-i-o-module": "Writing Your Own I/O Module"
             }
         },
         "styling": {
             "title": "Custom Styling RPD",
             "path": "sections/style.html",
             "subsections": {
-                "css": "Using CSS Classes",
-                "renderers": "Writing Your Own Renderers",
-                "styles": "Writing Your Own Styles"
+                "using-css-classes": "Using CSS Classes",
+                "writing-your-own-renderer": "Writing Your Own Renderer",
+                "writing-your-own-style": "Writing Your Own Style"
             }
         },
         "events": {
             "title": "Subscribing to Events",
             "path": "sections/events.html",
             "subsections": {
-                "network": "Network Events",
-                "patch": "Patch Events",
-                "node": "Node Events",
-                "channel": "Channel Events",
-                "link": "Link events"
+                "global-events": "Global Events",
+                "network-events": "Network Events",
+                "patch-events": "Patch Events",
+                "node-events": "Node Events",
+                "outlet-events": "Outlet Events",
+                "inlet-events": "Inlet Events",
+                "link-events": "Link events"
             }
         },
         "participation": {

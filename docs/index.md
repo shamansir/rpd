@@ -1,6 +1,6 @@
 ---
 title: Introduction
-id: index
+id: introduction
 ---
 
 <!-- SVG icon patch: -->
@@ -27,6 +27,8 @@ is kept as minimal as possible, so your customer may load the interface you crea
 The default configuration with [SVG renderer][renderer-comp-section] and [Quartz style][style-comp-section] included takes _11KB_ when compiled, minimized and gzipped! (30KB not gzipped). Though you also need [latest Kefir.js](roman-pominov), the only required dependency to make it work, which adds just ~10KB more, since [Kefir.js author][roman-pominov] also likes minimalism in code.
 
 If you feel you that's you know everything and this library is definitely what you need (and it is!), you may either download the [version with default configuration][download-default] or go straight to [Building Section](./sections/building) to discover how easy it is to grab a code and configure a custom one. If you still feel unsafe, stay with me for a bit.
+
+### Code Examples
 
 ### Terminology
 
