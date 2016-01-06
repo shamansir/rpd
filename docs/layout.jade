@@ -1,22 +1,29 @@
 html
+  - var pathPrefix = '.';
+  - for (var i = 0; i < (front.level || 0); i++) {
+  -     pathPrefix += '/..';
+  - }
+  - var homeLink = pathPrefix + '/index.html';    
   head
+    meta(charset='utf-8')
     title RPD &mdash; #{front.title}
-    - var pathPrefix = '.';
-    - for (var i = 0; i < (front.level || 0); i++) {
-    -     pathPrefix += '/..';
-    - }
     link(href='#{pathPrefix}/style.css',rel='stylesheet',type='text/css')
     link(href='#{pathPrefix}/highlight-js.min.css',rel='stylesheet',type='text/css')
   body(class='rpd-#{front.id}')
-    h1 RPD &mdash; Reactive Patch Development
-    ul#contents
-        each desc, id in config.contents
-            li: a(href='#{desc.path}') #{desc.title}
-            if desc.subsections
-                ul
-                    each subtitle, id in desc.subsections
-                        li: a(href='#{desc.path}\##{id}') #{subtitle}    
-    h2 #{front.title} 
-    != contents        
-    #footer
+    header
+      img(src='./rpd.svg',width='30px',height='30px')  
+      h1: a(href='#{homeLink}') RPD &mdash; Reactive Patch Development
+      div#version: span #{config.version}
+    nav: ul
+      each desc, id in config.contents
+        li: a(href='#{desc.path}') #{desc.title}
+        if desc.subsections
+          ul
+            each subtitle, id in desc.subsections
+              li: a(href='#{desc.path}\##{id}') #{subtitle}
+    main
+      h2 #{front.title} 
+      article
+        != contents
+    footer
       span &copy; shaman.sir, 2016

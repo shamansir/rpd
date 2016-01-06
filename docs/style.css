@@ -1,7 +1,112 @@
 body {
     font-family: "Geneva", "Input Sans Cond Ex Lt", "Georgia", serif;
+    margin: 30px 50px;
+    color: black;
 }
 
-#contents {
+header {
+    /* margin-bottom: 54px; */
+    /* margin-bottom: 36px; */
+    /* margin-bottom: 2.35em; */
+    margin-bottom: 0.5em;
+    border-bottom: 2px solid black;
+    padding-bottom: 15px;
+}
+
+header > img {
+    width: 2em;
+    height: 2em;
+    /*vertical-align: text-bottom;*/
+    position: relative;
+    top: 4px;
+    left: -1px;
+}
+
+h1 {
+    font-family: "Input Sans Cond Ex Lt", "Geneva", "Georgia", serif;
+    margin: 0;
+    position: relative;
+    margin-left: 6px;
+    display: inline;
+}
+
+h1 a {
+    text-decoration: none;
+    color: black;
+}
+
+h1 a:hover {
+    background-color: #eee;
+}
+
+#version {
+    display: inline;
+    color: lightslategray;
+}
+
+h2 {
+    margin-bottom: 1.5em;
+}
+
+h2:before {
+    content: '§';
     font-size: 0.8em;
+    vertical-align: top;
+    /* opacity: 0.5; */
+    position: relative;
+    margin-right: 0.26em;
+    top: 2px;
+    color: crimson;
+}
+
+a {
+    color: crimson;
+}
+
+a:active, a.active {
+    color: darkcyan;
+}
+
+nav {
+    font-size: 0.8em;
+    display: block;
+    float: right;
+    /* border-left: 1px solid crimson; */
+}
+
+nav > ul {
+    margin: 13px 5px 40px 40px;
+    padding: 0 0 5px 48px;
+}
+
+nav > ul ul {
+    padding-left: 30px;
+}
+
+nav ul li a {
+    text-decoration: none;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+main {
+    display: block;
+    max-width: 80%;
+}
+
+/* footer {
+    position: absolute;
+    right: 0;
+    margin: 10px;
+    font-szie: 0.8em;
+} */
+
+footer {
+    font-size: 0.8em;
+    margin: 5em 0 1.5em 0;
+    padding: 3px 0 0 1px;
+    /* text-decoration: overline; */
+    border-top: 2px solid black;
 }

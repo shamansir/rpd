@@ -185,16 +185,7 @@ gulp.task('html-head', ['check-root', 'list-opts'], function() {
     getHtmlHead(argv);
 });
 
-gulp.task('docs-copy-highlight-css', function() {
-    return gulp.src('./vendor/' + DOC_HIGHLIGHT_STYLE_FILENAME)
-               .pipe(rename('highlight-js.min.css'))
-               .pipe(gulp.dest('./docs/compiled/'));
-});
-
-gulp.task('docs-copy-style-css', function() {
-    return gulp.src('./docs/style.css')
-               .pipe(gulp.dest('./docs/compiled/'));
-});
+// ========================== docs, docs-watch =================================
 
 var docsLocal = argv['docs-local'],
     protocol = docsLocal ? 'http://' : '//';
@@ -241,7 +232,18 @@ function makeDocs(config, f) {
                  .pipe(gulp.dest('./docs/compiled/'));
 }
 
-gulp.task('docs', ['docs-copy-style-css', 'docs-copy-highlight-css'], function() {
+gulp.task('docs-copy-assets', function() {
+    return gulp.src(['./docs/*.css', './docs/*.svg', './docs/*.ico'])
+               .pipe(gulp.dest('./docs/compiled/'));
+});
+
+gulp.task('docs-copy-highlight-css', function() {
+    return gulp.src('./vendor/' + DOC_HIGHLIGHT_STYLE_FILENAME)
+               .pipe(rename('highlight-js.min.css'))
+               .pipe(gulp.dest('./docs/compiled/'));
+});
+
+gulp.task('docs', ['docs-copy-assets', 'docs-copy-highlight-css'], function() {
     //var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
     var result = makeDocs(config);
@@ -249,7 +251,7 @@ gulp.task('docs', ['docs-copy-style-css', 'docs-copy-highlight-css'], function()
     return result;
 });
 
-gulp.task('docs-watch', ['docs-copy-style-css', 'docs-copy-highlight-css'], function() {
+gulp.task('docs-watch', ['docs-copy-assets', 'docs-copy-highlight-css'], function() {
     //var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
     return makeDocs(config, function(result) {
