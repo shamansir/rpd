@@ -100,16 +100,18 @@ nav ul li a:hover {
 }
 
 nav > ul > li {
-    border-left: 5px solid transparent;
+    /* border-left: 5px solid transparent; */
     padding-left: 5px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid crimson;
     /*text-indent: -3px;*/
 }
 
 nav li.active {
     /*color: darkblue;*/ /* brown, darkred, firebrick, maroon, orangered, red, tomato */
     /* font-weight: bold; */
-    border-left: 5px solid crimson;
-    /* background-color: #f6f6f6; */
+    /* border-left: 5px solid crimson; */
+    background-color: #f6f6f6;
 }
 
 /* nav li.active > a {
