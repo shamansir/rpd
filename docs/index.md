@@ -3,6 +3,11 @@ title: Introduction
 id: introduction
 ---
 
+<div id="logo-patch-target">
+    <img id="large-logo" src="./rpd.svg" width="140" height="140" />
+    <div id="rpd-logo-patch"></div>
+</div>
+
 <!-- SVG icon patch: -->
 <!-- sun and moon -->
 <!-- circle particles -->
@@ -50,3 +55,5 @@ If you feel you that's you know everything and this library is definitely what y
 [building-section]: ./sections/building.html
 [renderer-comp-section]: ./sections/compilation.html#renderers
 [style-comp-section]: ./sections/compilation.html#styles
+
+<script defer src="./index-patches.js"></script>

@@ -9,6 +9,11 @@ html
     title RPD &mdash; #{front.title}
     link(href='#{pathPrefix}/style.css',rel='stylesheet',type='text/css')
     link(href='#{pathPrefix}/highlight-js.min.css',rel='stylesheet',type='text/css')
+    // load RPD library and requirements when document will be ready
+    link(href='#{pathPrefix}/rpd-docs.css',rel='stylesheet',type='text/css')  
+    script(defer,src='#{pathPrefix}/kefir.min.js')
+    // compiled with: gulp --style quartz --renderer svg --toolkit core --target-name rpd-docs
+    script(defer,src='#{pathPrefix}/rpd-docs.min.js')        
   body(class='rpd-#{front.id}')
     header
       img(src='#{pathPrefix}/rpd.svg',width='30px',height='30px')  

@@ -11,6 +11,7 @@ var gulp = require('gulp'),
     // to get vendor files
     download = require('gulp-download'),
     // to build documentation
+    fs = require('fs'),
     rename = require('gulp-rename'),
     parser = require('gulp-file-parser'),
     highlight = require('gulp-highlight'),
@@ -232,8 +233,32 @@ function makeDocs(config, f) {
                  .pipe(gulp.dest('./docs/compiled/'));
 }
 
+gulp.task('docs-copy-dependencies', function() {
+    var dependencies = ['./vendor/kefir.min.js', './dist/rpd-docs.css', './dist/rpd-docs.min.js'];
+
+    var lastChecked;
+    try {
+        dependencies.forEach(function(dependency) {
+            lastChecked = dependency;
+            fs.accessSync(dependency, fs.F_OK);
+        });
+    } catch(e) {
+        var failedDependency = (lastChecked || 'Unknown');
+        console.error(failedDependency + ' dependency wasn\'t met');
+        gutil.log('First time before building docs (not every time)');
+        gutil.log('Please call', gutil.colors.red('`gulp get-dev-deps`'), 'to get latest Kefir.js','(if you haven\'t yet)');
+        gutil.log('and then, to generate RPD version for docs, call:');
+        gutil.log(gutil.colors.red(`gulp --style quartz --renderer svg --toolkit core --target-name rpd-docs`));
+        gutil.log('so then you will be safe to call', gutil.colors.yellow('`gulp docs`'), 'again');
+        throw new Error('Dependency wasn\'t met: ' + failedDependency);
+    }
+
+    return gulp.src(dependencies)
+               .pipe(gulp.dest('./docs/compiled/'));
+});
+
 gulp.task('docs-copy-assets', function() {
-    return gulp.src(['./docs/*.css', './docs/*.svg', './docs/*.ico'])
+    return gulp.src(['./docs/*.js', './docs/*.css', './docs/*.svg', './docs/*.ico'])
                .pipe(gulp.dest('./docs/compiled/'));
 });
 
@@ -243,7 +268,7 @@ gulp.task('docs-copy-highlight-css', function() {
                .pipe(gulp.dest('./docs/compiled/'));
 });
 
-gulp.task('docs', ['docs-copy-assets', 'docs-copy-highlight-css'], function() {
+gulp.task('docs', ['docs-copy-dependencies', 'docs-copy-assets', 'docs-copy-highlight-css'], function() {
     //var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
     var result = makeDocs(config);
@@ -251,7 +276,7 @@ gulp.task('docs', ['docs-copy-assets', 'docs-copy-highlight-css'], function() {
     return result;
 });
 
-gulp.task('docs-watch', ['docs-copy-assets', 'docs-copy-highlight-css'], function() {
+gulp.task('docs-watch', ['docs-copy-dependencies', 'docs-copy-assets', 'docs-copy-highlight-css'], function() {
     //var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
     return makeDocs(config, function(result) {

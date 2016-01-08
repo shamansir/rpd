@@ -145,3 +145,18 @@ footer {
     border-top: 2px solid black;
     width: 65%;
 }
+
+#logo-patch-target {
+    text-align: center;
+    margin: 4em 0;
+    width: 100%;
+}
+
+#logo-patch-target > img {
+    width: 140px;
+    height: 140px;
+}
+
+#logo-patch-target > #rpd-patch {
+    width: 100%;
+}
