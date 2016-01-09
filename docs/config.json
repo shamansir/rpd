@@ -37,14 +37,16 @@
                 "adding-import-export": "Adding Import/Export"
             }
         },
-        "types": {
-            "title": "Defining Your Own Types",
-            "path": "sections/types.html",
+        "toolkits": {
+            "title": "Creating Your Own Toolkits",
+            "path": "sections/toolkits.html",
             "subsections": {
-                "creating-toolkits": "Creating Toolkits",
-                "defining-node-types": "Defining Node Types",
-                "defining-channel-types": "Defining Channel Types",
-                "writing-your-own-i-o-module": "Writing Your Own I/O Module"
+                "creating-toolkits": "Organizational Moments",
+                "defining-node-type": "Defining Node Type",
+                "defining-channel-type": "Defining Channel Type",
+                "writing-a-node-renderer": "Writing a Node Renderer",
+                "writing-a-channel-renderer": "Writing a Channel Renderer",
+                "writing-custom-i-o-module": "Writing Custom I/O Module"
             }
         },
         "styling": {
