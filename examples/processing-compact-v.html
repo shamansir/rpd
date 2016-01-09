@@ -3,14 +3,14 @@
     <head>
         <meta charset="utf-8" />
 
-        <!-- gulp html-head ==style plain ==renderer svg ==toolkit core ==root .. -->
+        <!-- gulp html-head ==style compact-v ==renderer svg ==toolkit core ==root .. -->
 
         <!-- Built with RPD v0.2.0a <http://shamansir.github.io/rpd> -->
 
         <!-- RPD Renderer: svg -->
         <link rel="stylesheet" href="../src/render/html.css"></style>
-        <!-- RPD Style: plain (svg) -->
-        <link rel="stylesheet" href="../src/style/plain/svg.css"></style>
+        <!-- RPD Style: compact-v (svg) -->
+        <link rel="stylesheet" href="../src/style/compact-v/svg.css"></style>
         <!-- RPD Toolkit: core (svg) -->
         <link rel="stylesheet" href="../src/toolkit/core/svg.css"></style>
 
@@ -23,8 +23,8 @@
         <script src="../src/d3_tiny.js"></script>
         <!-- RPD Rendering Engine: -->
         <script src="../src/render/shared.js"></script>
-        <!-- RPD Style: plain (svg) -->
-        <script src="../src/style/plain/svg.js"></script>
+        <!-- RPD Style: compact-v (svg) -->
+        <script src="../src/style/compact-v/svg.js"></script>
         <!-- RPD Renderer: svg -->
         <script src="../src/render/svg.js"></script>
         <!-- RPD Toolkit: core -->
@@ -284,7 +284,6 @@
                     textElm = document.createElementNS(SVG_XMLNS, 'text');
                     textElm.innerText = textElm.textContent = '?';
                     textElm.setAttributeNS(null, 'x', 5);
-                    textElm.setAttributeNS(null, 'y', 2);
                     bodyElm.appendChild(textElm);
                 };
                 returnObj.always = function(bodyElm, inlets, outlets) {
@@ -298,7 +297,7 @@
 
             var patch = Rpd.addPatch('processing');
 
-            patch.render('svg', document.body, { style: 'plain',
+            patch.render('svg', document.body, { style: 'compact-v',
                                                  renderNodeList: false }).enter();
             var sketch = patch.addNode('p5/sketch').move(300, 50);
 

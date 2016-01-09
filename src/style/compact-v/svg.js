@@ -1,4 +1,4 @@
-Rpd.style('compact', 'svg', (function() {
+Rpd.style('compact-v', 'svg', (function() {
 
 var d3 = d3 || d3_tiny;
 
@@ -9,7 +9,7 @@ var globalLastRoot;
 
 var socketPadding = 25, // distance between inlets/outlets in SVG units
     socketsMargin = 20; // distance between first/last inlet/outlet and body edge
-var headerWidth = 10; // width of a node header in SVG units
+var headerHeight = 10; // height of a node header in SVG units
 
 function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
@@ -46,8 +46,8 @@ return {
 
         function findBestNodeSize(numInlets, numOutlets, minContentSize) {
            var requiredContentWidth = (2 * socketsMargin) + ((Math.max(numInlets, numOutlets) - 1) * socketPadding);
-           return { width: headerWidth + Math.max(requiredContentWidth, minContentSize.width),
-                    height: minContentSize.height };
+           return { width: Math.max(requiredContentWidth, minContentSize.width),
+                    height: headerHeight + minContentSize.height };
         }
 
         var initialSize = findBestNodeSize(node.def.inlets  ? Object.keys(node.def.inlets).length  : 0,
@@ -55,8 +55,8 @@ return {
                                            minContentSize);
 
         var width = initialSize.width, height = initialSize.height;
-        var bodyWidth = width - headerWidth,
-            bodyHeight = height;
+        var bodyWidth = width,
+            bodyHeight = height - headerHeight;
 
         var nodeElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-node');
 
@@ -68,16 +68,16 @@ return {
         // append node header
         nodeElm.append('rect').attr('class', 'rpd-header').classed('rpd-drag-handle', true)
                               .attr('x', 0).attr('y', 0)
-                              .attr('width', headerWidth).attr('height', height);
+                              .attr('width', width).attr('height', headerHeight);
         nodeElm.append('g').attr('class', 'rpd-name-holder')
-               .attr('transform', 'translate(3, ' + (height + 2) + ') rotate(-90)')
+               .attr('transform', 'translate(0, 3)')
                .append('text').attr('class', 'rpd-name').text(node.name)
-                              .attr('x', 5).attr('y', 5)
+                              .attr('x', 3).attr('y', 2)
                               .style('pointer-events', 'none');
         // append node body
         nodeElm.append('rect').attr('class', 'rpd-content')
-                              .attr('x', headerWidth).attr('y', 0)
-                              .attr('width', width - headerWidth).attr('height', height);
+                              .attr('x', 0).attr('y', headerHeight)
+                              .attr('width', width).attr('height', height - headerHeight);
         nodeElm.append('rect').attr('class', 'rpd-body')
                               .attr('width', width).attr('height', height)
                               .style('pointer-events', 'none');
@@ -99,7 +99,7 @@ return {
 
         // append placeholders for inlets, outlets and a target element to render body into
         nodeElm.append('g').attr('class', 'rpd-inlets').data({ position: { x: 0, y: 0 } });
-        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + headerWidth + ',' + (height / 2) + ')');
+        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(0,' + (headerHeight + ((height - headerHeight) / 2)) + ')');
         nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + 0 + ',' + height + ')')
                                                         .data({ position: { x: 0, y: height } });
 
@@ -111,7 +111,7 @@ return {
         var lastSize = initialSize;
 
         function checkNodeSize() {
-            var curSize = lastSize;
+            /*var curSize = lastSize;
             var newSize = findBestNodeSize(numInlets, numOutlets, minContentSize);
             if ((newSize.width === curSize.width) && (newSize.height === curSize.height)) return;
             nodeElm.select('rect.rpd-shadow').attr('height', newSize.height).attr('width', newSize.width);
@@ -120,7 +120,7 @@ return {
             nodeElm.select('g.rpd-process').attr('transform',
                 'translate(' + (headerWidth + ((newSize.width - headerWidth) / 2)) + ',' + (newSize.height / 2) + ')');
             nodeElm.select('.rpd-remove-button').attr('transform', 'translate(' + (newSize.width-12) + ',1)');
-            lastSize = newSize;
+            lastSize = newSize;*/
         }
 
         function recalculateSockets() {
