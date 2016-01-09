@@ -84,6 +84,7 @@
     fill: white;
     stroke-width: 1px;
     stroke: black;
+    cursor: pointer;
 }
 
 .rpd-node .rpd-inlet text.rpd-value,
