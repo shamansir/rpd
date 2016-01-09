@@ -275,15 +275,15 @@
             var newSvgRandomRendererFunc = function(node) {
                 var returnObj = curSvgRandomRendererFunc.apply(this, arguments);
                 if (returnObj.size) {
-                    returnObj.size.width = 110;
+                    returnObj.size.width = 120;
                 } else {
-                    returnObj.size = { width: 110 };
+                    returnObj.size = { width: 120 };
                 }
                 var textElm;
                 returnObj.first = function(bodyElm) {
                     textElm = document.createElementNS(SVG_XMLNS, 'text');
                     textElm.innerText = textElm.textContent = '?';
-                    textElm.setAttributeNS(null, 'x', 5);
+                    textElm.setAttributeNS(null, 'x', 10);
                     bodyElm.appendChild(textElm);
                 };
                 returnObj.always = function(bodyElm, inlets, outlets) {

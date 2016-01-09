@@ -8,7 +8,7 @@ var d3 = d3 || d3_tiny;
 var globalLastRoot;
 
 var socketPadding = 20, // distance between inlets/outlets in SVG units
-    socketsMargin = 6; // distance between first/last inlet/outlet and body edge
+    socketsMargin = 8; // distance between first/last inlet/outlet and body edge
 var headerHeight = 10; // height of a node header in SVG units
 
 function _createSvgElement(name) {
@@ -89,11 +89,11 @@ return {
 
         // append remove button
         nodeElm.append('g').attr('class', 'rpd-remove-button')
-                           .attr('transform', 'translate(' + (width-11) + ',1)')
+                           .attr('transform', 'translate(' + (width-10.5) + ',0.5)')
                .call(function(button) {
-                   button.append('rect').attr('width', 10).attr('height', 11)
+                   button.append('rect').attr('width', 10).attr('height', headerHeight - 0.5)
                                         .attr('class', 'rpd-remove-button-handle');
-                   button.append('text').text('x').attr('x', 3).attr('y', 2)
+                   button.append('text').text('x').attr('x', 3).attr('y', 1.5)
                                         .style('pointer-events', 'none');
                });
 
@@ -150,7 +150,7 @@ return {
         }
 
         function findOutletPos(idx) { // index from top to bottom
-            return { x: 1, y: socketsMargin + (socketPadding * idx) };
+            return { x: 0, y: socketsMargin + (socketPadding * idx) };
         }
 
         listeners[node.id] = {
