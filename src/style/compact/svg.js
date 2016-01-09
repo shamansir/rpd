@@ -84,8 +84,9 @@ return {
                               .attr('x', 0).attr('y', 0)
                               .attr('width', headerWidth).attr('height', height);
         nodeElm.append('g').attr('class', 'rpd-name-holder')
+               .attr('transform', 'translate(3, ' + height + ') rotate(-90)')
                .append('text').attr('class', 'rpd-name').text(node.name)
-                              .attr('x', 5).attr('y', height / 2)
+                              .attr('x', 5).attr('y', 5)
                               .style('pointer-events', 'none');
         // append node body
         nodeElm.append('rect').attr('class', 'rpd-content')
@@ -112,7 +113,7 @@ return {
 
         // append placeholders for inlets, outlets and a target element to render body into
         nodeElm.append('g').attr('class', 'rpd-inlets').data({ position: { x: 0, y: 0 } });
-        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (headerWidth + ((width - headerWidth) / 2)) + ',' + (height / 2) + ')');
+        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + headerWidth + ',' + (height / 2) + ')');
         nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + 0 + ',' + height + ')')
                                                         .data({ position: { x: 0, y: height } });
 

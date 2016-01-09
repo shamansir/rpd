@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+
+        <!-- gulp html-head ==style compact ==renderer svg ==toolkit core ==root .. -->
+
+        <!-- Built with RPD v0.2.0a <http://shamansir.github.io/rpd> -->
+
+        <!-- RPD Renderer: svg -->
+        <link rel="stylesheet" href="../src/render/html.css"></style>
+        <!-- RPD Style: compact (svg) -->
+        <link rel="stylesheet" href="../src/style/compact/svg.css"></style>
+        <!-- RPD Toolkit: core (svg) -->
+        <link rel="stylesheet" href="../src/toolkit/core/svg.css"></style>
+
+        <!-- Kefir -->
+        <script src="../vendor/kefir.min.js"></script>
+        <!-- RPD -->
+        <script src="../src/rpd.js"></script>
+
+        <!-- RPD's d3_tiny.js -->
+        <script src="../src/d3_tiny.js"></script>
+        <!-- RPD Rendering Engine: -->
+        <script src="../src/render/shared.js"></script>
+        <!-- RPD Style: compact (svg) -->
+        <script src="../src/style/compact/svg.js"></script>
+        <!-- RPD Renderer: svg -->
+        <script src="../src/render/svg.js"></script>
+        <!-- RPD Toolkit: core -->
+        <script src="../src/toolkit/core/shared.js"></script>
+        <script src="../src/toolkit/core/toolkit.js"></script>
+        <!-- RPD Toolkit: core (svg) -->
+        <script src="../src/toolkit/core/svg.js"></script>
+
+        <style>
+            #p5-canvas {
+                position: fixed;
+            }
+
+            .rpd-node .rpd-process * {
+                pointer-events: none;
+            }
+
+            .rpd-node.rpd-p5-shape .rpd-process .rpd-p5-shape-variant * {
+                pointer-events: all;
+                cursor: pointer;
+            }
+
+            .rpd-p5-shape-variant {
+                fill: black;
+                stroke: black;
+                stroke-width: 0;
+            }
+
+            .rpd-p5-shape-variant line {
+                stroke-width: 2;
+            }
+
+            .rpd-p5-shape-variant:hover {
+                fill: deepskyblue;
+                stroke: deepskyblue;
+            }
+
+            .rpd-p5-shape-variant.rpd-p5-active-variant {
+                fill: crimson;
+                stroke: crimson;
+            }
+
+            .rpd-core-random .rpd-process text {
+                font-size: 0.8em;
+            }
+
+            /* text.rpd-value {
+                display: none;
+            }
+
+            .rpd-inlet:hover text.rpd-value,
+            .rpd-outlet:hover text.rpd-value {
+                display: inline;
+            } */
+        </style>
+
+    </head>
+
+    <body>
+
+        <script>
+            window.sketchUpdate = function(config) {
+                window.missedSketchConfig = config;
+            }; // we'll replace it later
+
+            var SHAPES = [ 'circle', 'rect', 'cross', 'diamond' ];
+
+            var DEFAULT_COLOR = { r: 0xED, g: 0x22, b: 0x5D };
+
+            var SVG_XMLNS = "http://www.w3.org/2000/svg";
+
+            // ============= Register p5/color channel type =============
+
+            function numberToHex(num) { return (num > 15) ? num.toString(16) : '0' + num.toString(16); }
+
+            function toHexColor(color) {
+                return '#' + numberToHex(color.r || 0)
+                           + numberToHex(color.g || 0)
+                           + numberToHex(color.b || 0);
+            }
+
+            Rpd.channeltype('p5/color', { show: toHexColor });
+
+            // ============= Register p5/color node type and renderer =============
+
+            Rpd.nodetype('p5/color', {
+                inlets: {
+                    'r': { type: 'core/number', default: DEFAULT_COLOR.r, name: 'red' },
+                    'g': { type: 'core/number', default: DEFAULT_COLOR.g, name: 'green' },
+                    'b': { type: 'core/number', default: DEFAULT_COLOR.b, name: 'blue' }
+                },
+                outlets: {
+                    'color': { type: 'p5/color' }
+                },
+                process: function(inlets) { return { color: inlets }; }
+            });
+
+            Rpd.noderenderer('p5/color', 'svg', function() {
+                var colorElm, textElm;
+                return {
+                    size: { width: 90, height: 40 },
+                    first: function(bodyElm) {
+                        var group = document.createElementNS(SVG_XMLNS, 'g');
+                        group.setAttributeNS(null, 'transform', 'translate(10, 0)');
+                        colorElm = document.createElementNS(SVG_XMLNS, 'rect');
+                        colorElm.setAttributeNS(null, 'y', -10);
+                        colorElm.setAttributeNS(null, 'width', 20);
+                        colorElm.setAttributeNS(null, 'height', 20);
+                        colorElm.setAttributeNS(null, 'rx', 2);
+                        colorElm.setAttributeNS(null, 'ry', 2);
+                        group.appendChild(colorElm);
+                        textElm = document.createElementNS(SVG_XMLNS, 'text');
+                        textElm.style.alignmentBaseline = 'middle';
+                        textElm.setAttributeNS(null, 'x', 25);
+                        textElm.setAttributeNS(null, 'y', 1);
+                        textElm.innerText = textElm.textContent = '<None>';
+                        group.appendChild(textElm);
+                        bodyElm.appendChild(group);
+                    },
+                    always: function(bodyElm, inlets, outlets) {
+                        var color = outlets.color;
+                        colorElm.style.fill = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+                        textElm.innerText = textElm.textContent = toHexColor(color);
+                    }
+                };
+            });
+
+            // ============= Register p5/shape channel type =============
+
+            Rpd.channeltype('p5/shape', {});
+
+            // ============= Register p5/shape node type and renderer =============
+
+            Rpd.nodetype('p5/shape', {
+                inlets: { 'shape': { type: 'p5/shape', default: 'circle', hidden: true } },
+                outlets: { 'shape': { type: 'p5/shape' } },
+                process: function(inlets) { return { shape: inlets.shape } }
+            });
+
+            Rpd.noderenderer('p5/shape', 'svg', function() {
+                var curShape = 'circle';
+                var variants = {};
+                var symbolSide = 10;
+                var symbols = {
+                    'circle': function() {
+                        var circle = document.createElementNS(SVG_XMLNS, 'circle');
+                        circle.setAttributeNS(null, 'r', Math.floor(symbolSide / 2));
+                        return circle;
+                    },
+                    'rect': function() {
+                        var rect = document.createElementNS(SVG_XMLNS, 'rect');
+                        rect.setAttributeNS(null, 'width', symbolSide);
+                        rect.setAttributeNS(null, 'height', symbolSide);
+                        rect.setAttributeNS(null, 'x', -1 * Math.floor(symbolSide / 2));
+                        rect.setAttributeNS(null, 'y', -1 * Math.floor(symbolSide / 2));
+                        return rect;
+                    },
+                    'cross': function() {
+                        var group = document.createElementNS(SVG_XMLNS, 'g');
+                        group.setAttributeNS(null, 'transform', 'translate(' + (-1 * Math.floor(symbolSide / 2)) + ', '
+                                                                             + (-1 * Math.floor(symbolSide / 2)) + ')');
+                        var line1 = document.createElementNS(SVG_XMLNS, 'line');
+                        line1.setAttributeNS(null, 'x1', 0);
+                        line1.setAttributeNS(null, 'y1', 0);
+                        line1.setAttributeNS(null, 'x2', Math.floor(symbolSide));
+                        line1.setAttributeNS(null, 'y2', Math.floor(symbolSide));
+                        group.appendChild(line1);
+                        var line2 = document.createElementNS(SVG_XMLNS, 'line');
+                        line2.setAttributeNS(null, 'x1', Math.floor(symbolSide));
+                        line2.setAttributeNS(null, 'y1', 0);
+                        line2.setAttributeNS(null, 'x2', 0);
+                        line2.setAttributeNS(null, 'y2', Math.floor(symbolSide));
+                        group.appendChild(line2);
+                        return group;
+                    },
+                    'diamond': function() {
+                        var rect = document.createElementNS(SVG_XMLNS, 'rect');
+                        rect.setAttributeNS(null, 'transform', 'rotate(45)');
+                        rect.setAttributeNS(null, 'width', symbolSide);
+                        rect.setAttributeNS(null, 'height', symbolSide);
+                        rect.setAttributeNS(null, 'x', -1 * Math.floor(symbolSide / 2));
+                        rect.setAttributeNS(null, 'y', -1 * Math.floor(symbolSide / 2));
+                        return rect;
+                    } };
+                return {
+                    size: { width: 80, height: 40 },
+                    first: function(bodyElm) {
+                        var shapeChange = Kefir.emitter();
+                        var allShapesGroup = document.createElementNS(SVG_XMLNS, 'g');
+                        SHAPES.forEach(function(shape, i) {
+                            var shapeGroup = document.createElementNS(SVG_XMLNS, 'g');
+                            shapeGroup.appendChild(symbols[SHAPES[i]]());
+                            shapeGroup.setAttributeNS(null, 'transform', 'translate(' + ((i * symbolSide * 2) + 10) + ', 0)');
+                            shapeGroup.setAttributeNS(null, 'class', 'rpd-p5-shape-variant');
+                            shapeGroup.addEventListener('click',
+                                (function(shape) {
+                                    return function() {
+                                        variants[curShape].setAttributeNS(null, 'class', 'rpd-p5-shape-variant');
+                                        curShape = shape;
+                                        variants[curShape].setAttributeNS(null, 'class', 'rpd-p5-shape-variant rpd-p5-active-variant');
+                                        shapeChange.emit(curShape);
+                                    }
+                                })(shape));
+                            variants[shape] = shapeGroup;
+                            allShapesGroup.appendChild(shapeGroup);
+                        });
+                        variants[curShape].setAttributeNS(null, 'class', 'rpd-p5-shape-variant rpd-p5-active-variant');
+                        bodyElm.appendChild(allShapesGroup);
+                        return { 'shape': { valueOut: shapeChange } };
+                    }
+                }
+            });
+
+            // ============= Register p5/sketch node type and renderer =============
+
+            Rpd.nodetype('p5/sketch', {
+                inlets: {
+                    'shape': { type: 'p5/shape', default: 'circle', name: 'shape' },
+                    'wavescount': { type: 'core/number', default: 5, name: 'waves' },
+                    'startcolor': { type: 'p5/color', name: 'from' },
+                    'endcolor': { type: 'p5/color', name: 'to' },
+                    'xspacing': { type: 'core/number', default: 16, name: 'xspan' },
+                    'amplitude': { type: 'core/number', default: 75, name: 'ampl.' },
+                    'period': { type: 'core/number', default: 500, name: 'period' }
+                },
+                process: function(inlets) {
+                    window.sketchUpdate(inlets);
+                }
+            });
+
+            Rpd.noderenderer('p5/sketch', 'svg', {
+                size: { width: 420, height: 320 },
+                first: function(bodyElm) {
+                    var group = document.createElementNS(SVG_XMLNS, 'g');
+                    group.setAttributeNS(null, 'transform', 'translate(10, -150)');
+                    var foreign = document.createElementNS(SVG_XMLNS, 'foreignObject');
+                    var p5Target = document.createElement('div');
+                    p5Target.id = 'p5-canvas';
+                    foreign.appendChild(p5Target);
+                    group.appendChild(foreign);
+                    bodyElm.appendChild(group);
+                }
+            });
+
+            // ============= Monkey-patch core/random renderer =============
+
+            var curSvgRandomRendererFunc = Rpd.allNodeRenderers['core/random'].svg;
+            var newSvgRandomRendererFunc = function(node) {
+                var returnObj = curSvgRandomRendererFunc.apply(this, arguments);
+                if (returnObj.size) {
+                    returnObj.size.width = 110;
+                } else {
+                    returnObj.size = { width: 110 };
+                }
+                var textElm;
+                returnObj.first = function(bodyElm) {
+                    textElm = document.createElementNS(SVG_XMLNS, 'text');
+                    textElm.innerText = textElm.textContent = '?';
+                    textElm.setAttributeNS(null, 'x', 3);
+                    textElm.setAttributeNS(null, 'y', 2);
+                    bodyElm.appendChild(textElm);
+                };
+                returnObj.always = function(bodyElm, inlets, outlets) {
+                    textElm.innerText = textElm.textContent = 'from ' + inlets.min + ' to ' + inlets.max + ' every ' + (inlets.period / 1000) + 's';
+                };
+                return returnObj;
+            };
+            Rpd.allNodeRenderers['core/random'].svg = newSvgRandomRendererFunc;
+
+            // ============= Build and render patch =============
+
+            var patch = Rpd.addPatch('processing');
+
+            patch.render('svg', document.body, { style: 'compact',
+                                                 renderNodeList: false }).enter();
+            var sketch = patch.addNode('p5/sketch').move(300, 50);
+
+            var random1 = patch.addNode('core/random').move(20, 50);
+            random1.inlets['min'].receive(50); random1.inlets['max'].receive(255);
+
+            var color1 = patch.addNode('p5/color').move(20, 150);
+            var color2 = patch.addNode('p5/color').move(160, 50);
+
+            random1.outlets['out'].connect(color1.inlets['r']);
+
+            color2.outlets['color'].connect(sketch.inlets['endcolor']);
+            color2.inlets['r'].receive(20); color2.inlets['g'].receive(0); color2.inlets['b'].receive(0);
+
+            var random2 = patch.addNode('core/random').move(160, 150);
+            random2.inlets['min'].receive(5); random2.inlets['max'].receive(25);
+
+            var shape = patch.addNode('p5/shape').move(160, 250);
+            shape.outlets['shape'].connect(sketch.inlets['shape']);
+        </script>
+
+        <!-- p5.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.19/p5.min.js"></script>
+        <!-- p5 Sketch -->
+        <script src="./example.sketch.js"></script>
+
+        <script>
+            window.addEventListener('load', function() {
+                window.sketchUpdate = function(inlets) {
+                    sketchConfig = inlets;
+                    // uses a global function from the sketch
+                    updateWithConfig(sketchConfig);
+                };
+
+                if (window.missedSketchConfig) window.sketchUpdate(window.missedSketchConfig);
+            });
+        </script>
+
+    </body>
+</html>
