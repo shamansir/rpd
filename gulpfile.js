@@ -248,7 +248,7 @@ gulp.task('docs-copy-dependencies', function() {
         gutil.log('First time before building docs (not every time)');
         gutil.log('Please call', gutil.colors.red('`gulp get-dev-deps`'), 'to get latest Kefir.js','(if you haven\'t yet)');
         gutil.log('and then, to generate RPD version for docs, call:');
-        gutil.log(gutil.colors.red('`gulp --style quartz --renderer svg --toolkit core --target-name rpd-docs`'));
+        gutil.log(gutil.colors.red('`gulp --style compact-v --renderer svg --toolkit core --target-name rpd-docs`'));
         gutil.log('so then you will be safe to call', gutil.colors.yellow('`gulp docs`'), 'again');
         throw new Error('Dependency wasn\'t met: ' + failedDependency);
     }
