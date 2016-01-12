@@ -15,13 +15,12 @@
             "path": "examples.html"
         },
         "compilation": {
-            "title": "Compiling Your Version of RPD",
+            "title": "Getting Your Version of RPD",
             "path": "sections/compilation.html",
             "subsections": {
-                "selecting-toolkits": "Selecting Toolkits",
-                "selecting-renderers": "Selecting Rendeder",
-                "selecting-style": "Selecting Style",
-                "selecting-import-export-modules": "Selecting Import/Export Modules"
+                "download": "Download",
+                "setup": "Setup",
+                "compilation": "Compilation"
             }
         },
         "network": {
