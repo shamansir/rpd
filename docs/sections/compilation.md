@@ -13,7 +13,7 @@ RPD with default options can be downloaded here:
 
 You'll also need Kefir.js, since RPD code is based on Reactive Streams, which it provides.
 
-But default options restrict your choice, while RPD provides truly a lot more. See [Compilation][#Compilation] section below for details.
+But default options restrict your choice, while RPD provides truly a lot more. See [Compilation][#Compilation] section below for details. And you are safe to transfer your network code to use it with other options, if you already have one.
 
 ### Setup
 
@@ -24,7 +24,7 @@ To use either downloaded or compiled version of RPD, you need to include three f
 <html>
     <head>
         <meta charset="utf-8" />
-
+        <!-- .min.js, .css, kefir -->
     </head>
     <body>
       <!-- ... -->
@@ -41,6 +41,8 @@ To test if it works, add the target `div` to `body` and some code to the bottom 
 ```
 
 ### Compilation
+
+To compile RPD, you need to get the
 
 #### Selecting Toolkits
 
