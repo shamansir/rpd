@@ -50,6 +50,7 @@ var yargs = require('yargs')
             .command('list-options [options]', 'get the information for given options, may be used to be sure if you specified all the options correctly without compiling the library; all the options listed below are supported')
             .command('html-head [options]', 'get the full list of all the required files with given options to include into HTML file head if you use not the compiled version, but the files from `./src` directly; all the options listed below are supported')
             .command('docs [--docs-local]', 'compile the documentation from `./docs` sources into corresponding HTML files and place the resulting structure into `./docs/compiled`')
+            .command('version', 'get the version of the RPD library you currently have')
             .array('renderer').array('style').array('toolkit').array('io')
             /*.choices('compilation', ['simple', 'whitespace', 'advanced'])*/
             .string('from').string('to').string('target-name').string('compilation').boolean('pretty').boolean('d3')
@@ -226,6 +227,14 @@ gulp.task('list-opts', function() {
 
 gulp.task('html-head', ['check-paths', 'list-opts'], function() {
     getHtmlHead(argv);
+});
+
+gulp.task('version', function() {
+    if (argv.silent) {
+        console.log('v'+pkg.version);
+    } else {
+        gutil.log(gutil.colors.blue('v'+pkg.version));
+    }
 });
 
 // ========================== docs, docs-watch =================================
