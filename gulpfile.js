@@ -1,6 +1,3 @@
-// npm install --save-dev google-closure-compiler yargs
-// npm install --save-dev gulp gulp-util gulp-size gulp-header gulp-concat gulp-download gulp-closure-compiler
-
 var gulp = require('gulp'),
     gutil = require('gulp-util'),
     closureCompiler = require('gulp-closure-compiler'),
@@ -22,6 +19,7 @@ var gulp = require('gulp'),
 
 var Paths = {
     Root: '.',
+    Destination: './dist',
     Src: function() { return Paths.Root + '/src'; },
     Vendor: function() { return Paths.Root + '/vendor'; },
     Rpd: function() { return Paths.Src() + '/rpd.js'; },
@@ -41,26 +39,66 @@ var Paths = {
     Io: function(io) { return Paths.Src() + '/io/' + io; }
 }
 
-var argv = require('yargs')
-           .string('root').string('target-name').string('compilation').boolean('pretty')
-           .array('renderer').array('style').array('toolkit').array('io').boolean('d3')
-           .array('user-style').array('user-toolkit')
-           .boolean('docs-local')
-           .default({
-               root: '.',
-               'target-name': 'rpd', // forms dist/rpd.js and dist/rpd.css
-               'compilation': 'simple',
-               pretty: false,
-               renderer: [ 'svg' ],
-               style: [ 'quartz' ],
-               toolkit: [ 'core' ],
-               io: [],
-               d3: false,
-               'docs-local': false,
-               'user-style': [ ],
-               'user-toolkit': [ ]
-           })
-           .argv;
+var yargs = require('yargs')
+            .usage('Usage: gulp [command] [options]')
+            .command('help', 'show this message')
+            .command('build [options]', '(default) compile the RPD library with given options, if specified; all the options listed below are supported')
+            .command('build-with-gzip [options]', 'additionally to what `build` performs, compile the gzipped version of the library; all the options listed below are supported')
+            .command('get-deps', 'download the dependencies (currently only Kefir.js) required for using RPD to `./vendor` directory; may be called only once to get the most recent version of the dependencies')
+            .command('get-dev-deps', 'download the development dependencies required for developing with RPD or running the examples to `./vendor` directory;  may be called only once to get the most recent version of the dependencies')
+            .command('test', 'run the Jasmine tests to check if API is consistent (the same command runs on Travis CI)')
+            .command('list-options [options]', 'get the information for given options, may be used to be sure if you specified all the options correctly without compiling the library; all the options listed below are supported')
+            .command('html-head [options]', 'get the full list of all the required files with given options to include into HTML file head if you use not the compiled version, but the files from `./src` directly; all the options listed below are supported')
+            .command('docs [--docs-local]', 'compile the documentation from `./docs` sources into corresponding HTML files and place the resulting structure into `./docs/compiled`')
+            .array('renderer').array('style').array('toolkit').array('io')
+            /*.choices('compilation', ['simple', 'whitespace', 'advanced'])*/
+            .string('from').string('to').string('target-name').string('compilation').boolean('pretty').boolean('d3')
+            .array('user-style').array('user-toolkit')
+            .boolean('docs-local')
+            .default({
+                from: '.',
+                to: './dist',
+                'target-name': 'rpd', // forms dist/rpd.js and dist/rpd.css
+                'compilation': 'simple',
+                pretty: false,
+                renderer: [ 'html' ],
+                style: [ 'quartz' ],
+                toolkit: [ 'core' ],
+                io: [],
+                d3: false,
+                'user-style': [ ],
+                'user-toolkit': [ ],
+                'docs-local': false
+            })
+            .alias({
+                'renderer': 'r', 'style': 's', 'toolkit': 't', 'io': 'x',
+                'from': ['i', 'root'], 'to': ['o', 'dest'/*, 'destination'*/],
+                'target-name': 'n', 'compilation': 'c', 'pretty': 'p',
+                'user-style': 'z', 'user-toolkit': 'd'
+            })
+            .describe({
+                'renderer': 'this renderer will be included in the compiled version, choises are: `html`, `svg`, ...',
+                'style': 'this style will be included in compiled version, choises are: `compact`, `compact-v`, `pd`, `plain`, `quartz`, ...',
+                'toolkit': 'this node toolkit will be included in the compiled version, choises are: `core`, `anm`, `pd`, `timbre`, ...',
+                'io': 'this I/O module will be included in compiled version, choises are: `json`, `pd`, ...',
+                'from': 'use the distibution located at given path, also works for `gulp html-head`',
+                'to': 'write the compiled files to the given path, instead of default one',
+                'target-name': 'change the name of the target file, i.e. `-n rpd-svg-quartz` will create `./dist/rpd-svg-quartz.css` and `./dist/rpd-svg-quartz.min.js`',
+                'compilation': 'change the compilation of the Closure compiler, choices are: `whitespace`, `simple`, `advanced`',
+                'pretty': 'use pretty-print option of the Closure compiler',
+                'd3': 'do not include tiny_d3 in the compiled file with the intention that external d3 library will be used (RPD can handle that)',
+                'user-style': 'use the user style located at the given path, instead of searching for it at `./src/style/<style-name>`',
+                'user-toolkit': 'use the user style toolkit at the given path, instead of searching for it at `./src/toolkit/<toolkit-name>`',
+                'docs-local': 'used for building documentation to open and test it locally'
+            })
+            .example('gulp -r svg -t anm -t timbre', 'add SVG renderer to the compilation instead of default HTML, also include `anm` and `timbre` toolkits there, instead of default `core`')
+            .example('gulp html-head -r svg -t anm -t timbre', 'get the HTML header for the version described above, which will provide paths inside ./src instead of compiled `rpd.min.js`')
+            .example('gulp -o /Users/hitchcock -n my-custom-rpd', 'write the files to `/Users/hitchcock/my-custom-rpd.css` and ' +
+                          '`/Users/hitchcock/my-custom-rpd.min.js`')
+            .example('gulp -z /Users/hitchcock/my-style -r svg -x json -n my-rpd', 'include user style located at `/Users/hitchcock/my-style`, add SVG renderer, add JSON I/O module and place the files at `./dist/my-rpd.min.js` and `./dist/my-rpd.css`')
+            .epilogue('See http://shamansir.github.io/rpd for detailed documentation. © shaman.sir, 2016');
+
+var argv = yargs.argv;
 
 var targetName = argv['target-name']; // forms dist/<targetName>.js and dist/<targetName>.css
 
@@ -103,7 +141,7 @@ gulp.task('get-dev-deps', function() {
     download(DEV_DEPENDENCIES).pipe(gulp.dest('./vendor'));
 });
 
-gulp.task('build', ['check-root', 'list-opts', 'concat-css'], function() {
+gulp.task('build', ['check-paths', 'list-opts', 'concat-css'], function() {
     var resultName = targetName + ((argv.compilation !== 'whitespace') ? '.min.js' : '.js');
 
     var compilerFlags = {
@@ -121,33 +159,33 @@ gulp.task('build', ['check-root', 'list-opts', 'concat-css'], function() {
                    compilerFlags: compilerFlags
                }))
                .pipe(distJsHeader(pkg, argv, new Date()))
-               .pipe(gulp.dest('dist'))
+               .pipe(gulp.dest(Paths.Destination))
                .pipe(size({ showFiles: true, title: 'Result:' }))
                .on('end', function() {
-                   gutil.log(infoColor('Your dist/' + resultName + ' is ready!'));
+                   gutil.log(infoColor('Your ' + Paths.Destination + '/' + resultName + ' is ready!'));
                });
 });
 
 gulp.task('build-with-gzip', ['build'], function() {
     var sourceName = targetName + ((argv.compilation !== 'whitespace') ? '.min.js' : '.js');
-    return gulp.src('./dist/' + sourceName)
+    return gulp.src(Paths.Destination + sourceName)
                .pipe(gzip())
-               .pipe(gulp.dest('dist'))
+               .pipe(gulp.dest(Paths.Destination))
                .pipe(size({ showFiles: true, title: 'Result:' }))
                .on('end', function() {
-                   gutil.log(infoColor('Your dist/' + sourceName + '.gz is ready!'));
+                   gutil.log(infoColor('Your ' + Paths.Destination + '/' + sourceName + '.gz is ready!'));
                });
 });
 
-gulp.task('concat-css', ['check-root'], function() {
+gulp.task('concat-css', ['check-paths'], function() {
     gutil.log(infoColor('Concatenating ' + targetName + '.css'));
     return gulp.src(logFiles(getCssFiles(argv)))
                .pipe(concat(targetName + '.css'))
                .pipe(distCssHeader(pkg, argv, new Date()))
-               .pipe(gulp.dest('dist'))
+               .pipe(gulp.dest(Paths.Destination))
                .pipe(size({ showFiles: true, title: 'Result:' }))
                .on('end', function() {
-                   gutil.log(infoColor('Your dist/' + targetName + '.css is ready!'));
+                   gutil.log(infoColor('Your ' + Paths.Destination + '/' + targetName + '.css is ready!'));
                });
 });
 
@@ -158,13 +196,17 @@ gulp.task('test', function(done) {
     }, done).start();
 });
 
-gulp.task('check-root', function() {
-    checkRootPath(argv);
+gulp.task('help', function() { console.log(yargs.help()); });
+
+gulp.task('check-paths', function() {
+    checkPaths(argv);
 });
 
 gulp.task('list-opts', function() {
     gutil.log(infoColor('Root Path (--root):'),
-              argv.root ? valueColor(argv.root) : '.');
+              argv.from ? valueColor(argv.from) : '.');
+    gutil.log(infoColor('Destination Path (--dest):'),
+              argv.to ? valueColor(argv.to) : './dist');
     gutil.log(infoColor('Selected Renderers (--renderer):'),
               argv.renderer.length ? valueColor(argv.renderer.join(', ')) : '[None]');
     gutil.log(infoColor('Selected Styles (--style):'),
@@ -182,7 +224,7 @@ gulp.task('list-opts', function() {
     gutil.log(infoColor('Selected Target Name (--target-name):'), argv['target-name']);
 });
 
-gulp.task('html-head', ['check-root', 'list-opts'], function() {
+gulp.task('html-head', ['check-paths', 'list-opts'], function() {
     getHtmlHead(argv);
 });
 
@@ -287,13 +329,14 @@ gulp.task('docs-watch', ['docs-copy-dependencies', 'docs-copy-assets', 'docs-cop
 
 // Helpers =====================================================================
 
-function checkRootPath(argv) {
-    if (argv.root) { Paths.Root = argv.root; }
+function checkPaths(argv) {
+    if (argv.from) { Paths.Root = argv.from; }
+    if (argv.to) { Paths.Destination = argv.to; }
 }
 
 function getCommandString(options) {
     var command = 'gulp';
-    if (options.root) command += ' --root ' + options.root;
+    //if (options.from) command += ' --root ' + options.from;
     options.renderer.forEach(function(renderer) { command += ' --renderer ' + renderer; });
     options.style.forEach(function(style) { command += ' --style ' + style; });
     options.toolkit.forEach(function(toolkit) { command += ' --toolkit ' + toolkit; });
