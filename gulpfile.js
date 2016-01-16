@@ -132,7 +132,7 @@ var COMPILATION_LEVELS = {
 var valueColor = gutil.colors.yellow,
     infoColor = gutil.colors.black;
 
-gulp.task('default', ['build'], function() { });
+gulp.task('default', ['build']);
 
 gulp.task('get-deps', function() {
     download(DEPENDENCIES).pipe(gulp.dest('./vendor'));
@@ -167,9 +167,9 @@ gulp.task('build', ['check-paths', 'list-opts', 'concat-css'], function() {
                });
 });
 
-gulp.task('build-with-gzip', ['build'], function() {
+gulp.task('gzip-min-js', ['build'], function() {
     var sourceName = targetName + ((argv.compilation !== 'whitespace') ? '.min.js' : '.js');
-    return gulp.src(Paths.Destination + sourceName)
+    return gulp.src(Paths.Destination + '/' + sourceName)
                .pipe(gzip())
                .pipe(gulp.dest(Paths.Destination))
                .pipe(size({ showFiles: true, title: 'Result:' }))
@@ -177,6 +177,19 @@ gulp.task('build-with-gzip', ['build'], function() {
                    gutil.log(infoColor('Your ' + Paths.Destination + '/' + sourceName + '.gz is ready!'));
                });
 });
+
+gulp.task('gzip-css', ['build'], function() {
+    var sourceName = targetName + '.css';
+    return gulp.src(Paths.Destination + '/' + sourceName)
+               .pipe(gzip())
+               .pipe(gulp.dest(Paths.Destination))
+               .pipe(size({ showFiles: true, title: 'Result:' }))
+               .on('end', function() {
+                   gutil.log(infoColor('Your ' + Paths.Destination + '/' + sourceName + '.gz is ready!'));
+               });
+});
+
+gulp.task('build-with-gzip', ['build', 'gzip-min-js', 'gzip-css']);
 
 gulp.task('concat-css', ['check-paths'], function() {
     gutil.log(infoColor('Concatenating ' + targetName + '.css'));
