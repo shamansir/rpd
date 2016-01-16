@@ -82,10 +82,23 @@ There are a lot more options and commands than we describe here, but in contrast
 Now it's time to use all the powers and chose some options:
 
 * *Renderers* (`-r` or `--renderer`): defines which technique (_HTML_, _SVG_, though there's no _HTML5 Canvas_ renderer yet) will be used to render your Patch;
-    * _HTML_:
-* *Styles* (`-s` or `--style`): determines the look of your nodes and backgrounds, see [examples below](#selecting-styles);
+    * _`html`_: renders your Patch using plain HTML tags, i.e. using `<span>`s for links between nodes;
+    * _`svg`_: renders your Patch using SVG tags;
+* *Styles* (`-s` or `--style`): determines the look of your nodes and backgrounds, see [examples below](#renderers-and-styles-examples);
+    * _`quartz`_ (HTML & SVG): intended to be used on a full page; default style, normal-sized font, rounded borders for the nodes, connectors are circles, inlets are placed in a vertical column on the left side of the node and distributed over this side, outlets are placed in a vertical column on the right side of the node and distributed over this side;
+    * _`pd`_ (HTML & SVG): intended to be used on a full page; normal-sized font, rectangular nodes, header takes the left connectors are circles, inlets are placed in a horizontal row on the top side of the node, outlets are placed in a horizontal row on the bottom side of the node;   
+    * _`plain`_ (HTML & SVG): intended to be used on a small areas, most minimal style, majorly in black and white; font size is small, nodes are rectangular, titles do not belong to the nodes, inlets are placed in a horizontal row above the node, outlets are placed in a horizontal row below the node;
+    * _`compact`_ (HTML & SVG): intended to be used on a small areas; font size is small, nodes are rectangular, node headers are tiny on the left side or absent, inlets are placed in a horizontal row above the node, outlets are placed in a horizontal row below the node;
+    * _`compact-v`_ (SVG only): intended to be used on a small areas; font size is small, nodes are rectangular, node headers are tiny or absent, on the top side, inlets are placed in a vertical column on the right side of the node, outlets are placed in a vertical column on the left side the node;
+    * _`webpd`_ (SVG only): used to render [WebPd][webpd] toolkit, nodes have no titles, normal-sized font, inlets are placed in a horizontal row above the node, outlets are placed in a horizontal row below the node;
 * *Toolkits* (`-t` or `--toolkit`): there are some predefined toolkits (sets of nodes) in the repository, but except the WebPD, for now they only demonstrate some special aspect of the possibilities you have (i.e. configuring the example sketch for Processing.js toolkit), rather than provide all-sufficient toolboxes;
+   * _`core`_ (HTML & SVG): optional `core` toolkit with channels to transfer numbers, node with random generator, nodes with spinner to select numbers and some other primitive examples;
+   * _`anm`_ (only HTML): the toolkit to demonstrate connection with [Animatron Player][animatron-player] to create generative graphics;
+   * _`webpd`_ (only SVG): the toolkit in development, intended to be able to load and run [PureData][puredata] patches using [WebPd][webpd], PureData is mostly used to procedurally generate audio with the help of Node-driven interface;
+   * _`timbre`_ (only HTML): the toolkit to demonstrate connection with [timbre.js][timbre] which is an JavaScript API to procedurally generate audio;
 * *Import/Export* (`-x`, `--io`): provides the ways to save and restore your Patch, nit necessarily from file, but it could be the most used option;
+    * _`json`_: Stores all the performed actions in JSON format and could restore them in order, may be used to add Undo/Redo to the interface or store patches in JSON files;
+    * _`pd`_: Used by `webpd` toolkit and uses [WebPd][webpd] library to get required logical information about nodes in the files;
 ​
 Every of the listed options may be specified several times, but for Renderers and Styles it has less sense, unless you have several differently-rendered and differently-styled patches on the same page.
 
@@ -103,23 +116,23 @@ gulp -r svg -t anm -t timbre -s plain -x json
 
 The order in which options were specified is completely not important.
 
+**NB:** Please be aware that, as noted above, some _styles_ or _toolkits_ work only with _particular renderers_.
+
 Both `gulp build` (defaults to `gulp`) and `gulp build-with-gzip` report the resulting file size, since options may affect it in different directions and it could be meaningful for you.
 
 Also, you may select the name of the output file with `--target-name` or `-o` option.
 
-Below there are some examples of different combinations used to compile the same patch:
+<!-- If you plan to use [d3.js](http://d3js.org/), you may want to exclude the super-tiny version of d3 from compilation using `--no-d3-tiny` flag (though actually it adds not a lot, since it's tiny) -->
 
+Below there are some examples of different combinations of styles and renderers used to compile the same patch:
 
-#### Selecting Renderer
-​
-#### Selecting Style
-​
-#### Selecting Toolkits
-​
-#### Selecting Import/Export Modules
+#### Renderers and Styles Examples
 
 [kefir]: http://github.com/rpominov/kefir
 [default-svg-js]: http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.min.js
 [default-svg-css]: http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.css
 [default-html-js]: http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.min.js
 [default-html-css]: http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css
+[animatron-player]: http://animatron.com/player/
+[puredata]: https://puredata.info/
+[webpd]: https://github.com/sebpiq/WebPd

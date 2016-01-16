@@ -75,7 +75,8 @@ var yargs = require('yargs')
                 'renderer': 'r', 'style': 's', 'toolkit': 't', 'io': 'x',
                 'from': ['i', 'root'], 'to': ['o', 'dest'/*, 'destination'*/],
                 'target-name': 'n', 'compilation': 'c', 'pretty': 'p',
-                'user-style': 'z', 'user-toolkit': 'd'
+                'user-style': 'z', 'user-toolkit': 'd',
+                'd3': 'no-d3-tiny'
             })
             .describe({
                 'renderer': 'this renderer will be included in the compiled version, choises are: `html`, `svg`, ...',
