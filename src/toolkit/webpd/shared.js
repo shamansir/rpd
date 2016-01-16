@@ -29,7 +29,7 @@ var PdView = (function() {
                                         .toProperty(ƒ(false));
         editorNode = d3.select(document.createElement('input'))
                            .attr('type', 'text')
-                           .attr('class', 'rpd-pd-text-editor')
+                           .attr('class', 'rpd-wpd-text-editor')
                            .style('width', '300px')
                            .style('height', (defaultSize.height + 1) + 'px')
                            .node();
@@ -74,14 +74,14 @@ var PdView = (function() {
              .onValue(function() {
 
                  startSelection.emit();
-                 if (selection) d3.select(selection.element).classed('rpd-pd-selected', false);
+                 if (selection) d3.select(selection.element).classed('rpd-wpd-selected', false);
                  selection = { element: selectNode, node : node };
-                 d3.select(selectNode).classed('rpd-pd-selected', true);
+                 d3.select(selectNode).classed('rpd-wpd-selected', true);
 
                  Kefir.fromEvents(root, 'click').take(1)
                       .onValue(function() {
 
-                          d3.select(selectNode).classed('rpd-pd-selected', false);
+                          d3.select(selectNode).classed('rpd-wpd-selected', false);
                           selection = null;
                           finishSelection.emit();
 
@@ -101,7 +101,7 @@ var PdView = (function() {
                  startEditing.emit();
 
                  var brect = textNode.getBoundingClientRect();
-                 editor.classed('rpd-pd-selected', true)
+                 editor.classed('rpd-wpd-selected', true)
                        .style('top', (brect.top - 5) + 'px')
                        .style('left', (brect.left - 1) + 'px');
                  editor.node().value = textValue || '';
@@ -123,7 +123,7 @@ var PdView = (function() {
                           text.text(value);
                           editor.node().value = '';
                           editor.style('display', 'none')
-                                .classed('rpd-pd-selected', false);
+                                .classed('rpd-wpd-selected', false);
                           text.style('display', 'block');
 
                           finishEditing.emit();
@@ -139,7 +139,7 @@ var PdView = (function() {
              .onValue(function() { switchEditMode.emit(); });
 
         this.inEditMode.onValue(function(val) {
-            d3.select(targetNode).classed('rpd-pd-enabled', val);
+            d3.select(targetNode).classed('rpd-wpd-enabled', val);
         });
     }
 
@@ -159,9 +159,9 @@ var PdView = (function() {
              .map(stopPropagation)
              .onValue(function() {
                  if (styleTimeout) clearTimeout(styleTimeout);
-                 d3.select(sourceNode).classed('rpd-pd-send-value', true);
+                 d3.select(sourceNode).classed('rpd-wpd-send-value', true);
                  styleTimeout = setTimeout(function() {
-                     d3.select(sourceNode).classed('rpd-pd-send-value', false);
+                     d3.select(sourceNode).classed('rpd-wpd-send-value', false);
                  }, 300);
                  //node.inlets[inlet].receive(getValue());
                  model.sendPdMessageValue(node, getValue());
@@ -179,13 +179,13 @@ var PdView = (function() {
 
     PdView.EDIT_MODE_KEY_LABEL = '⌥E';
     PdView.NODE_TYPE_TO_KEY_LABEL = {
-        'pd/object':  '⌥1',
-        'pd/message': '⌥2',
-        'pd/number':  '⌥3',
-        'pd/symbol':  '⌥4',
-        'pd/comment': '⌥5',
-        'pd/bang': '⌥⇧B',
-        'pd/toggle': '⌥⇧T'
+        'wpd/object':  '⌥1',
+        'wpd/message': '⌥2',
+        'wpd/number':  '⌥3',
+        'wpd/symbol':  '⌥4',
+        'wpd/comment': '⌥5',
+        'wpd/bang': '⌥⇧B',
+        'wpd/toggle': '⌥⇧T'
     };
 
     // ================================ Spinner ====================================
@@ -237,6 +237,9 @@ var PdModel = (function() {
         this.patch = patch;
         this.webPdPatch = webPdPatch || WebPd.createPatch();
 
+        //patch.model = this;
+        //patch.webPdPatch = this.webPdPatch;
+
         this.nodeToInlets = {};
         this.nodeToOutlets = {};
         //this.nodeToCommand = {};
@@ -250,16 +253,16 @@ var PdModel = (function() {
         this._sendMessage = Kefir.emitter();
 
         var events = {
-            'pd/request-resolve': this._requestResolve,
-            'pd/is-resolved': null,
-            'pd/request-apply': this._requestApply,
-            'pd/is-applied': null,
-            'pd/send-message': null
+            'wpd/request-resolve': this._requestResolve,
+            'wpd/is-resolved': null,
+            'wpd/request-apply': this._requestApply,
+            'wpd/is-applied': null,
+            'wpd/send-message': null
         };
 
         var model = this;
 
-        events['pd/is-resolved'] = this._requestResolve.map(function(value) {
+        events['wpd/is-resolved'] = this._requestResolve.map(function(value) {
             var node = value.node, patch = node.patch,
                 command = value.command, _arguments = value['arguments'];
             var webPdObject;
@@ -276,22 +279,22 @@ var PdModel = (function() {
             }
         }).merge(this._alreadyResolved);
 
-        var allResolved = events['pd/is-resolved'].scan(function(all, current) {
+        var allResolved = events['wpd/is-resolved'].scan(function(all, current) {
                                                       all[current.node.id] = current;
                                                       return all;
                                                   }, {});
 
-        events['pd/is-applied'] = allResolved.sampledBy(this._requestApply.map(function(value) { return value.node; }),
+        events['wpd/is-applied'] = allResolved.sampledBy(this._requestApply.map(function(value) { return value.node; }),
                                                         function(all, requested) {
                                                             return all[requested.id];
                                                         })
                                              .map(function(value) {
                                                  var node = value.node;
                                                  var webPdObject = value.webPdObject;
-                                                 if (node.type === 'pd/object') {
+                                                 if (node.type === 'wpd/object') {
                                                      model.updatePdObject(node, value.command, value['arguments'], webPdObject);
                                                      // model.connectToWebPd is called from inside of updatePdObject
-                                                 } else if (node.type !== 'pd/comment') {
+                                                 } else if (node.type !== 'wpd/comment') {
                                                     try {
                                                         model.connectToWebPd([ PdModel.getReceivingInlet(node) ], [ PdModel.getSendingOutlet(node) ],
                                                                              webPdObject.inlets, webPdObject.outlets, '<'+node.id+'> ' + node.type);
@@ -299,12 +302,12 @@ var PdModel = (function() {
                                                         console.error(err); // FIXME: use Kefir error stream
                                                     }
                                                 }
-                                                if (node.type === 'pd/message') {
+                                                if (node.type === 'wpd/message') {
                                                     model.initPdMessage(node, value['arguments']);
                                                 }
                                             }).onValue(function() {});
 
-        events['pd/send-message'] =  allResolved.sampledBy(this._sendMessage,
+        events['wpd/send-message'] =  allResolved.sampledBy(this._sendMessage,
                                                            function(all, messagePair) {
                                                                return { node: messagePair.node,
                                                                         data: all[messagePair.node.id],
@@ -328,7 +331,7 @@ var PdModel = (function() {
             patch = this.patch;
         patch.event['patch/add-node'].onValue(function(node) {
             node.event['node/is-ready'].onValue(function() {
-                if ((node.type !== 'pd/object') && typeToCmd[node.type]) {
+                if ((node.type !== 'wpd/object') && typeToCmd[node.type]) {
                     model.requestResolve(node, typeToCmd[node.type], []);
                     model.requestApply(node);
                 }
@@ -362,7 +365,7 @@ var PdModel = (function() {
 
     PdModel.prototype.whenResolved = function(node, callback) {
         var model = this;
-        this.events['pd/is-resolved'].filter(function(value) {
+        this.events['wpd/is-resolved'].filter(function(value) {
             return value.node.id === node.id;
         }).onValue(function(value) {
             if (callback(value)) model._requestApply.emit({ node: value.node });
@@ -383,10 +386,10 @@ var PdModel = (function() {
         DspOutlet = Pd.core.portlets.DspOutlet;
 
     function getInletType(pdInlet) {
-        return (pdInlet instanceof DspInlet) ? 'pd/dsp' : 'pd/value';
+        return (pdInlet instanceof DspInlet) ? 'wpd/dsp' : 'wpd/value';
     }
     function getOutletType(pdOutlet) {
-        return (pdOutlet instanceof DspOutlet) ? 'pd/dsp' : 'pd/value';
+        return (pdOutlet instanceof DspOutlet) ? 'wpd/dsp' : 'wpd/value';
     }
 
     // add required inlets and outlets to the node using the properties from resolve-event
@@ -432,7 +435,7 @@ var PdModel = (function() {
             (outlets && (outlets.length !== webPdOutlets.length))) throw new Error('outlets number not matches to WebPd outlets number');
         if (inlets && webPdInlets) {
             inlets.forEach(function(inlet, idx) {
-                if (inlet.type === 'pd/dsp') return;
+                if (inlet.type === 'wpd/dsp') return;
                 // TODO: disconnect/unsubscribe previously connected links
                 var webPdInlet = webPdInlets[idx];
                 if (!webPdInlet) throw new Error('Failed to find WebPd inlet corresponding to inlet ' + idx);
@@ -444,7 +447,7 @@ var PdModel = (function() {
         if (outlets && webPdOutlets) {
             var dummy = this.webPdDummy;
             outlets.forEach(function(outlet, idx) {
-                if (outlet.type === 'pd/dsp') return;
+                if (outlet.type === 'wpd/dsp') return;
                 var receiver = new WebPd.core.portlets.Inlet(dummy);
                 receiver.message = function(args) {
                     outlet.send(PdValue.from(args));
@@ -477,22 +480,22 @@ var PdModel = (function() {
     };
 
     PdModel.COMMAND_TO_TYPE = {
-        'obj':        'pd/object',
-        'msg':        'pd/message',
-        'floatatom':  'pd/number',
-        'symbolatom': 'pd/symbol',
-        'text':       'pd/comment',
-        'bng':        'pd/bang',
-        'tgl':        'pd/toggle',
-        'nbx':        null, // 'pd/number-2'
-        'vsl':        null, // 'pd/vslider'
-        'hsl':        null, // 'pd/hslider'
-        'vradio':     null, // 'pd/vradio'
-        'hradio':     null, // 'pd/hradio'
-        'vu':         null, // 'pd/vumeter'
-        'cnv':        null, // 'pd/canvas'
-        'graph':      null, // 'pd/graph'
-        'array':      null  // 'pd/array'
+        'obj':        'wpd/object',
+        'msg':        'wpd/message',
+        'floatatom':  'wpd/number',
+        'symbolatom': 'wpd/symbol',
+        'text':       'wpd/comment',
+        'bng':        'wpd/bang',
+        'tgl':        'wpd/toggle',
+        'nbx':        null, // 'wpd/number-2'
+        'vsl':        null, // 'wpd/vslider'
+        'hsl':        null, // 'wpd/hslider'
+        'vradio':     null, // 'wpd/vradio'
+        'hradio':     null, // 'wpd/hradio'
+        'vu':         null, // 'wpd/vumeter'
+        'cnv':        null, // 'wpd/canvas'
+        'graph':      null, // 'wpd/graph'
+        'array':      null  // 'wpd/array'
     };
     PdModel.TYPE_TO_COMMAND = {};
     Object.keys(PdModel.COMMAND_TO_TYPE).forEach(function(cmd) {
@@ -502,13 +505,13 @@ var PdModel = (function() {
 
     PdModel.getNodeTypeByKey = function(evt) {
         if (!evt.altKey) return;
-        if (isAltAnd(evt, 49/*1*/)) return 'pd/object';
-        if (isAltAnd(evt, 50/*2*/)) return 'pd/message';
-        if (isAltAnd(evt, 51/*3*/)) return 'pd/number';
-        if (isAltAnd(evt, 52/*4*/)) return 'pd/symbol';
-        if (isAltAnd(evt, 53/*5*/)) return 'pd/comment';
-        if (isAltShiftAnd(evt, 66/*B*/)) return 'pd/bang';
-        if (isAltShiftAnd(evt, 84/*T*/)) return 'pd/toggle';
+        if (isAltAnd(evt, 49/*1*/)) return 'wpd/object';
+        if (isAltAnd(evt, 50/*2*/)) return 'wpd/message';
+        if (isAltAnd(evt, 51/*3*/)) return 'wpd/number';
+        if (isAltAnd(evt, 52/*4*/)) return 'wpd/symbol';
+        if (isAltAnd(evt, 53/*5*/)) return 'wpd/comment';
+        if (isAltShiftAnd(evt, 66/*B*/)) return 'wpd/bang';
+        if (isAltShiftAnd(evt, 84/*T*/)) return 'wpd/toggle';
     };
 
     return PdModel;

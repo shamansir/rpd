@@ -14,10 +14,10 @@
 
         <!-- RPD Renderer: svg -->
         <link rel="stylesheet" href="../src/render/svg.css"></style>
-        <!-- RPD Style: realpd (svg) -->
-        <link rel="stylesheet" href="../src/style/realpd/svg.css"></style>
-        <!-- RPD Toolkit: pd (svg) -->
-        <link rel="stylesheet" href="../src/toolkit/pd/svg.css"></style>
+        <!-- RPD Style: webpd (svg) -->
+        <link rel="stylesheet" href="../src/style/webpd/svg.css"></style>
+        <!-- RPD Toolkit: webpd (svg) -->
+        <link rel="stylesheet" href="../src/toolkit/webpd/svg.css"></style>
 
         <!-- WebPd -->
         <!-- <script src="http://rawgit.com/sebpiq/WebPd/master/dist/webpd-latest.min.js"></script> -->
@@ -32,42 +32,43 @@
         <script src="../src/d3_tiny.js"></script>
         <!-- RPD Render Core: -->
         <script src="../src/render/shared.js"></script>
-        <!-- RPD Style: realpd (svg) -->
-        <script src="../src/style/realpd/svg.js"></script>
+        <!-- RPD Style: webpd (svg) -->
+        <script src="../src/style/webpd/svg.js"></script>
         <!-- RPD Renderer: svg -->
         <script src="../src/render/svg.js"></script>
-        <!-- RPD Toolkit: pd -->
-        <script src="../src/toolkit/pd/shared.js"></script>
-        <script src="../src/toolkit/pd/toolkit.js"></script>
-        <!-- RPD Toolkit: pd (svg) -->
-        <script src="../src/toolkit/pd/svg.js"></script>
+        <!-- RPD Toolkit: webpd -->
+        <script src="../src/toolkit/webpd/shared.js"></script>
+        <script src="../src/toolkit/webpd/toolkit.js"></script>
+        <!-- RPD Toolkit: webpd (svg) -->
+        <script src="../src/toolkit/webpd/svg.js"></script>
       </head>
 
     </head>
 
     <body>
         <script>
-            Rpd.render('svg', document.body, { style: 'realpd',
+            Rpd.render('svg', document.body, { style: 'webpd',
                                                inletAcceptsMultipleLinks: true });
 
             var root = Rpd.addPatch('root');
 
             var model = new PdModel(root);
+            root.model = model;
             model.listenForNewNodes();
 
             root.enter();
 
-            var toolbar = root.addNode('pd/toolbar');
+            var toolbar = root.addNode('wpd/toolbar');
 
-            var obj = root.addNode('pd/object');
-            var text = root.addNode('pd/comment');
-            var num = root.addNode('pd/number');
-            var num = root.addNode('pd/symbol');
-            var msg = root.addNode('pd/message');
-            var bang = root.addNode('pd/bang');
-            var toggle1 = root.addNode('pd/toggle');
-            var toggle2 = root.addNode('pd/toggle');
-            var toggle3 = root.addNode('pd/toggle');
+            var obj = root.addNode('wpd/object');
+            var text = root.addNode('wpd/comment');
+            var num = root.addNode('wpd/number');
+            var num = root.addNode('wpd/symbol');
+            var msg = root.addNode('wpd/message');
+            var bang = root.addNode('wpd/bang');
+            var toggle1 = root.addNode('wpd/toggle');
+            var toggle2 = root.addNode('wpd/toggle');
+            var toggle3 = root.addNode('wpd/toggle');
 
         </script>
     </body>
