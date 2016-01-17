@@ -12,11 +12,15 @@
         },
         "examples": {
             "title": "Examples of RPD in Action",
-            "path": "examples.html"
+            "path": "examples.html",
+            "subsections": {
+                "styles-and-renderers": "Styles and Renderers",
+                "different-toolkits": "Different Toolkits"
+            }
         },
         "compilation": {
             "title": "Getting Your Version of RPD",
-            "path": "sections/compilation.html",
+            "path": "sections/setup.html",
             "subsections": {
                 "download": "Download",
                 "setup": "Setup",

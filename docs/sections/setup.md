@@ -1,6 +1,6 @@
 ---
 title: Getting Your Version of RPD
-id: compilation
+id: setup
 level: 1
 ---
 ​
@@ -77,7 +77,7 @@ Foremost, it should be noted that you may get the complete list of possible comm
 gulp help
 ```
 
-There are a lot more options and commands than we describe here, but in contrast with this literary text, `gulp help` provides you with far more bureaucratic style.
+There are a lot more options and commands than I describe here, but in contrast with this literary text, `gulp help` provides you with far more bureaucratic style.
 ​
 Now it's time to use all the powers and chose some options:
 
@@ -124,9 +124,7 @@ Also, you may select the name of the output file with `--target-name` or `-o` op
 
 <!-- If you plan to use [d3.js](http://d3js.org/), you may want to exclude the super-tiny version of d3 from compilation using `--no-d3-tiny` flag (though actually it adds not a lot, since it's tiny) -->
 
-Below there are some examples of different combinations of styles and renderers used to compile the same patch:
-
-#### Renderers and Styles Examples
+I recommend you to visit the [examples page](../examples.html#styles-and-renderers), there you may find several examples for different combinations of styles and renderers used to compile the same patch.
 
 [kefir]: http://github.com/rpominov/kefir
 [default-svg-js]: http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.min.js
