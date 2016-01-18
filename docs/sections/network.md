@@ -106,13 +106,13 @@ At least, you need to specify a type of the Node you want to create. Type determ
 
 For example, all the Nodes with type `core/random` always have two inlets, `min` and `max` (both accept only numbers), and one outlet named `out`. You are free to add other inlets or outlets to any instance of any type, though. When one of the inlets gets new value, Node with `core/random` type generates new random number laying between the requested bounds and immediately sends it to the `out` outlet. Renderer of the `core/random` type ensures that last four generated numbers are also shown in the body of every such Node.
 
-But nodes also could have options you may find useful. These options are passed as an object:
+<!-- But nodes also could have options you may find useful. These options are passed as an object:
 
 ```javascript
 
 ```
 
-*
+* -->
 
 Actually, you may define a new type for a Node just before creating one. Having a Renderer for a Node type is completely optional:
 
