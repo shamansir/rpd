@@ -106,6 +106,14 @@ At least, you need to specify a type of the Node you want to create. Type determ
 
 For example, all the Nodes with type `core/random` always have two inlets, `min` and `max` (both accept only numbers), and one outlet named `out`. You are free to add other inlets or outlets to any instance of any type, though. When one of the inlets gets new value, Node with `core/random` type generates new random number laying between the requested bounds and immediately sends it to the `out` outlet. Renderer of the `core/random` type ensures that last four generated numbers are also shown in the body of every such Node.
 
+New nodes are positioned in the free space automatically, though the placing algorithm is intentionally not perfect, to keep it simple, so you have the ability to force-move the created node to the desired place if don't like what machine suggested for you:
+
+```javascript
+patch.addNode('my-toolkit/my-node-type')
+     .move(100 /* x */, 150 /* y */); // in pixels for HTML, or SVG units
+```
+
+
 <!-- But nodes also could have options you may find useful. These options are passed as an object:
 
 ```javascript
@@ -114,14 +122,47 @@ For example, all the Nodes with type `core/random` always have two inlets, `min`
 
 * -->
 
-Actually, you may define a new type for a Node just before creating one. Having a Renderer for a Node type is completely optional:
+Actually, you may define a new type for a Node anywhere above the place it is created. Having a Renderer for a Node type is absolutely optional:
 
 ```javascript
+var patch = Rpd.addPatch('My Patch');
+Rpd.nodetype('custom/type', {
+    inlets: { 'in': { type: 'core/any' } },
+    outlets: { 'out': { type: 'core/any' } }
+});
+patch.addNode('custom/type').move(20, 20);
 ```
+
+<!-- TODO: embedded example -->
 
 Node Types definition is [covered in details](./toolkits.html#defining-node-type) at the Toolkits page. As well as [writing a Renderer for a Node](./toolkits.html#writing-node-renderer).
 
 ### Connecting Nodes
+
+Nodes process data that came inside through Inlets and then send processed data through Outlets to Inlets of the other nodes. The connection between Outlet of one node and Inlet of another node is called Link. User may connect one Outlet to several Inlets, and also, if it's allowed by configuration (usually not), connect several Outlets to one Inlet.
+
+<!-- TODO: some picture about how the process goes -->
+
+Some nodes have no Inlets, and that's ok, since they probably have some initial state and/or default values for Inlets and/or hidden inlets (a bit later about it). Some nodes may have no outlets if they send nothing, and that's also completely ok!
+
+Nodes may have any number of Inlets and any number of Outlets defined in their type and also may have any number of Inlets and any number of Outlets attached by you to the instance of the Node.
+
+Type-defined Inlets and Outlets are accessible through `node.inlets` and `node.outlets` properties:
+
+```javascript
+```
+
+User-defined Inlets and Outlets are _not_ stored this way, <!-- (since it's not allowed to mutate Node state from the code) --> but you may receive an instance of such just when you use `addInlet` or `addOutlet` method:
+
+```javascript
+```
+
+In UI, user commonly starts creating a Link from the Inlet and finished it on the Outlet. That's same for your code. You get the Outlet instance (defined by type or added by you) and connect it to the Inlet instance (defined by type or added by you):
+
+```javascript
+```
+
+That's important to say that Inlets could have a lot of options:
 
 ### Sending Data
 
