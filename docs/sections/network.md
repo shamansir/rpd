@@ -139,7 +139,7 @@ Node Types definition is [covered in details](./toolkits.html#defining-node-type
 
 ### Connecting Nodes
 
-Nodes process data that came inside through Inlets and then send processed data through Outlets to Inlets of the other nodes. The connection between Outlet of one node and Inlet of another node is called Link. User may connect one Outlet to several Inlets, and also, if it's allowed by configuration (usually not), connect several Outlets to one Inlet.
+Nodes process data that came inside through Inlets and then send processed data through their Outlets to Inlets of the other nodes. The connection between Outlet of one node and Inlet of another node is called Link. User may connect one Outlet to several Inlets, and also, if it's allowed by configuration (usually not), connect several Outlets to one Inlet.
 
 <!-- TODO: some picture about how the process goes -->
 
@@ -157,14 +157,52 @@ User-defined Inlets and Outlets are _not_ stored this way, <!-- (since it's not 
 ```javascript
 ```
 
-In UI, user commonly starts creating a Link from the Inlet and finished it on the Outlet. That's same for your code. You get the Outlet instance (defined by type or added by you) and connect it to the Inlet instance (defined by type or added by you):
+You may notice that Inlets and Outlets also have their own types. Their type determines which data they may accept, connections of which type they allow, how they present the data to the user or how they transform it before sending it to the Node.
+
+Same way as for the nodes, Channel (Inlets and Outlets together are called Channels in RPD) type may be defined just before Channel usage.
+
+```javascript
+```
+
+Channel Types definition is [covered in details](./toolkits.html#defining-channel-type) at the Toolkits page. As well as [writing a Renderer for a Channel](./toolkits.html#writing-channel-renderer).
+
+In UI, user commonly starts creating a Link from the Inlet and finishes it on the Outlet. That's same for your code. You get the Outlet instance (defined by type or added by you) and connect it to the Inlet instance (defined by type or added by you):
 
 ```javascript
 ```
 
 That's important to say that Inlets could have a lot of options:
 
+```javascript
+```
+
 ### Sending Data
+
+To send your own data to an Inlet, you may use its `receive` method. There's no requirement for this inlet to be connected to anything, if it is indeed connected, you'll just insert your update in it's established data flow.
+
+```javascript
+```
+
+To send some data from an outlet, use it's `send` method. You might want it to be connected to something before. The data then will flow through all the connections until the end of the wire or until some Node on the way will interrupt it.
+
+```javascript
+```
+
+When you send data to some Inlet, it is first transformed according to its type, if there was such transformation requested. So the Node may receive a bit different data than you've sent to the Inlet.
+
+```javascript
+```
+
+Of course you may use `inlet.receive` or `outlet.send` in any moment after the corresponding Inlet or Outlet was created. If you want, use `setTimeout` to postpone the update or `setInterval` to send value each period of time. But I have a better suggestion for you.
+
+You may shedule the updates using the Stream approach. Streams are sequences of data distributed over time, and they are the major part of Reactive Programming, so you may find more details on this topic in any documentation covering FRP. Using Streams provides truly a lot of possibilities and combinations, since data flows may be combined and transformed in a lot of ways independently of time when a data itself was produced.
+
+But let me give just the basic example here, so you may either realise the full potential if you already know something about them, or head to FRP docs if you ever plan to use Streams and need complex workflows.
+
+Out of the box, RPD uses [Kefir][kefir] library for Streams, since it's very tiny and neat <!-- laconic --> at the same time. Both Inlets and Outlets have `stream` method, which plugs given Kefir Stream into the flow:
+
+```javascript
+```
 
 ### Adding Sub-patches
 
