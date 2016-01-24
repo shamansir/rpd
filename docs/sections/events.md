@@ -4,6 +4,8 @@ id: events
 level: 1
 ---
 
+<!-- COMING SOON -->
+
 ### Global Events
 
 ### Network Events
