@@ -21,15 +21,17 @@ Compilation includes `toolkit.js` first, then `shared.js`, if it exists, and the
 
 If you are not planning to compile or share the library, though, you are completely free to break the rules the way you want and, for example, define toolkit nodes directly in HTML source with only RPD core code included somewhere above. RPD is designed the way where there's as minimum restrictions as possible and, thanks to immutability, breaking the rules is not damaging to anything.
 
+### Defining Channel Type
+
 ### Defining Node Type
 
-### Defining Channel Type
+Technically, Node is a collection of data inputs (Inlets), some data processing function and a collection of data outputs (Outlets). Visually, it also may contain some body with controls.
+
+### Writing a Channel Renderer
 
 ### Writing a Node Renderer
 
 <!-- valueOut may have a timestamp passed with every value,
      that helps in determining which update came first -->
-
-### Writing a Channel Renderer
 
 ### Writing Custom I/O Module

@@ -45,10 +45,10 @@
             "path": "sections/toolkits.html",
             "subsections": {
                 "creating-toolkits": "Organizational Moments",
-                "defining-node-type": "Defining Node Type",
                 "defining-channel-type": "Defining Channel Type",
-                "writing-node-renderer": "Writing Node Renderer",
+                "defining-node-type": "Defining Node Type",
                 "writing-channel-renderer": "Writing Channel Renderer",
+                "writing-node-renderer": "Writing Node Renderer",
                 "writing-custom-i-o-module": "Writing Custom I/O Module"
             }
         },
