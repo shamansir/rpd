@@ -48,7 +48,9 @@ describe('building: inlet', function() {
             var node = patch.addNode('spec/empty');
 
             var defaultValue = { 'foo': 'bar' };
-            var inlet = node.addInlet('spec/any', 'foo', 'Foo', defaultValue);
+            var inlet = node.addInlet('spec/any', 'foo', {
+                'default': defaultValue
+            });
 
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'inlet/update',
@@ -184,6 +186,126 @@ describe('building: inlet', function() {
         });
 
 
+    });
+
+    it('sets the label, if it was specified (in contrast to alias)', function() {
+        withNewPatch(function(patch, updateSpy) {
+
+            var node = patch.addNode('spec/empty');
+
+            node.addInlet('spec/any', 'foo', 'Foo');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-inlet',
+                                           inlet: jasmine.objectContaining({ label: 'Foo' }) }));
+
+            updateSpy.calls.reset();
+
+            node.addInlet('spec/any', 'foo', { label: 'Foo' });
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-inlet',
+                                           inlet: jasmine.objectContaining({ label: 'Foo' }) }));
+
+            updateSpy.calls.reset();
+
+            node.addInlet('spec/any', 'foo', 'Foo', { label: 'Bar' });
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-inlet',
+                                           inlet: jasmine.objectContaining({ label: 'Foo' }) }));
+
+            updateSpy.calls.reset();
+
+            node.addInlet('spec/any', 'foo', null, { label: 'Bar' });
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-inlet',
+                                           inlet: jasmine.objectContaining({ label: 'Bar' }) }));
+
+        });
+    });
+
+    it('sets the hidden and readonly flags, if they were specified', function() { // should also be checked for
+        withNewPatch(function(patch, updateSpy) {
+
+            var node = patch.addNode('spec/empty');
+
+            node.addInlet('spec/any', 'foo');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-inlet',
+                                           inlet: jasmine.objectContaining({ hidden: false, readonly: false }) }));
+
+            updateSpy.calls.reset();
+
+            node.addInlet('spec/any', 'foo', {
+                readonly: true,
+                hidden: true
+            });
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-inlet',
+                                           inlet: jasmine.objectContaining({ hidden: true, readonly: true }) }));
+
+        });
+    });
+
+    it('sets the hidden and readonly flags, if they were specified', function() {
+        withNewPatch(function(patch, updateSpy) {
+
+            var node = patch.addNode('spec/empty');
+
+            node.addInlet('spec/any', 'foo');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-inlet',
+                                           inlet: jasmine.objectContaining({ hidden: false, readonly: false }) }));
+
+            updateSpy.calls.reset();
+
+            node.addInlet('spec/any', 'foo', {
+                readonly: true,
+                hidden: true
+            });
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-inlet',
+                                           inlet: jasmine.objectContaining({ hidden: true, readonly: true }) }));
+
+        });
+    });
+
+    it('inlet is hot by default and could be set to be cold', function() { // should also be checked for
+        withNewPatch(function(patch, updateSpy) {
+
+            var processSpy = jasmine.createSpy('process');
+
+            var node = patch.addNode('spec/empty', { process: processSpy });
+
+            var hotInlet = node.addInlet('spec/any', 'hot');
+
+            hotInlet.receive(2);
+
+            //expect(updateSpy).toHaveBeenCalledWith(
+            //    jasmine.objectContaining({ type: 'node/add-inlet', inlet: hotInlet }));
+            expect(processSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ hot: 2 }));
+
+            var coldInlet = node.addInlet('spec/any', 'cold', {
+                cold: true
+            });
+
+            processSpy.calls.reset();
+
+            coldInlet.receive(4);
+
+            //expect(updateSpy).toHaveBeenCalledWith(
+            //    jasmine.objectContaining({ type: 'node/add-inlet', inlet: coldInlet }));
+            expect(processSpy).not.toHaveBeenCalledWith(jasmine.objectContaining({ cold: 4 }));
+            //expect(processSpy).not.toHaveBeenCalled();
+
+        });
     });
 
 });
