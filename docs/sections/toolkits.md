@@ -25,9 +25,9 @@ If you are not planning to compile or share the library, though, you are complet
 ​
 ### Defining Channel Type
 ​
-Channel type defines the way data transformed or visualized (if ever accepted) when it gets to Inlet or Outlet. Not that simple, though — actually it can be accepted or transformed only by Inlet, since what comes from Outlet is decided by and encapsulated in Node and may not be controlled at all, but _incoming_ data, for safety, should pass the border-check before it gets to the Node.
+Channel type defines the way data transformed or visualized (if ever accepted) when it gets to Inlet or Outlet. Not that simple, though — actually it can be accepted or transformed only by Inlet, since what comes from Outlet is decided by (and encapsulated in) Node and may not be controlled at all, as a private code, but _incoming_ data, for safety, should pass the border-check and customs before it gets to the Node.
 ​
-However, all these procedures are defined in one channel type, this way:
+Nonetheless, all these procedures are defined in one channel type, this way:
 ​
 ```javascript
 Rpd.channeltype('my/color', {
@@ -37,9 +37,9 @@ Rpd.channeltype('my/color', {
 ​
 <!--  example with a node having channels of this type-->
 ​
-But `adapt`, `allow` and `accept` will be called only by Inlets and `show` will be called either by Inlet or by Outlet.
+Just keep in mind that `adapt`, `allow` and `accept` will be called only by Inlets and `show` will be called both by Inlet or by Outlet.
 ​
-Channel type could have only some of them of none at all, so these are both valid:
+Channel type could define only some of them of none at all, so these are both valid:
 ​
 ```javascript
 Rpd.channeltype('my/color', {
@@ -48,15 +48,19 @@ Rpd.channeltype('my/color', {
 Rpd.channeltype('my/any', {});
 ```
 ​
-So, point by point, channel type properties could be:
+So, point by point, Channel type properties could be:
+
+#### Channel Properties
 ​
-#### name: String
+##### name: String
 ​
-####  `show`: `function(value: Any) -> String`
+#####  `show`: `function(value: Any) -> String`
+
+<!-- TODO -->
 ​
 <span>show</span>...
 ​
-Please do not forget that all the listed properties could be overriden for a particular instance of a channel, when you pass the object to `node.addInlet` or `node.addOutlet`:
+Please do not forget that all the listed properties could be overriden for a particular instance of a channel, when you pass the description object to `node.addInlet` or `node.addOutlet`:
 ​
 ```javascript
 ```
@@ -64,6 +68,24 @@ Please do not forget that all the listed properties could be overriden for a par
 ### Defining Node Type
 ​
 Technically, Node is a collection of data inputs (Inlets), some data processing function and a collection of data outputs (Outlets). Visually, it also may contain some body with controls.
+
+Same way, as with Channel type, Node type could be just an empty object, so Nodes of this type won't have any Inlets, Outlets, neither will they do anything:
+
+```javascript
+Rpd.nodetype('my/empty', {});
+```
+
+On the other hand, these Nodes may just visualize something using the Node body or serve as controls for global Network settings etc. Rendering and controlling Node body is [covered below](#writing-a-node-renderer).
+
+So, in the node type you may specify any number of Inlets, any number of Outlets and a processing function which triggers on any Inlet update, gets all the latest values of the Inlets and returns new values for the Outlets (or empty object, if no outlets should be updated).
+
+```javascript
+// example only with Outlets
+// example only with Inlets
+// example with both
+```
+
+Definition of the Inlet or Outlet only requires a `type` field, other fields are optional. They are the same as for [Channel type](#channel-properties) and in [`node.addInlet` / `node.addOutlet` methods](./network.md#connecting-nodes).
 ​
 ### Writing a Channel Renderer
 ​

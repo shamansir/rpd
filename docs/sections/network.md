@@ -171,10 +171,14 @@ In UI, user commonly starts creating a Link from the Inlet and finishes it on th
 ```javascript
 ```
 
+#### Inlet properties
+
 That's important to say that Inlets could have a lot of options:
 
 ```javascript
 ```
+
+#### Outlet properties
 
 ### Sending Data
 
@@ -207,3 +211,5 @@ Out of the box, RPD uses [Kefir][kefir] library for Streams, since it's very tin
 ### Adding Sub-patches
 
 ### Adding Import/Export
+
+[kefir]: http://rpominov.github.io/kefir
