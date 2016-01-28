@@ -52,7 +52,11 @@ So, point by point, Channel type properties could be:
 
 #### Channel Properties
 ​
-##### name: String
+##### label: String
+
+##### default: Boolean
+
+Only for Inlets!
 ​
 #####  `show`: `function(value: Any) -> String`
 

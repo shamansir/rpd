@@ -44,19 +44,6 @@ describe('building: outlet', function() {
         });
     });
 
-    it('sends default value on creation, if it was specified', function() {
-        withNewPatch(function(patch, updateSpy) {
-
-            var node = patch.addNode('spec/empty');
-
-            var outlet = node.addOutlet('spec/any', 'foo');
-
-            expect(updateSpy).not.toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'outlet/update' }));
-
-        });
-    });
-
     it('sends single value given explicitly by user', function() {
         withNewPatch(function(patch, updateSpy) {
 
@@ -165,6 +152,69 @@ describe('building: outlet', function() {
 
         });
 
+    });
+
+    it('requires alias to be specified', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty');
+            expect(function() {
+                node.addOutlet('spec/any');
+            }).toThrow();
+        });
+    });
+
+    it('sets label to alias, if it was not specified', function() {
+        withNewPatch(function(patch, updateSpy) {
+
+            var node = patch.addNode('spec/empty');
+
+            node.addOutlet('spec/any', 'foo');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-outlet',
+                                           inlet: jasmine.objectContaining({ label: 'foo' }) }));
+        });
+    });
+
+    it('sets the label, if it was specified (in contrast to alias)', function() {
+        withNewPatch(function(patch, updateSpy) {
+
+            var node = patch.addNode('spec/empty');
+
+            node.addOutlet('spec/any', 'foo', 'Foo');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-outlet',
+                                           inlet: jasmine.objectContaining({ label: 'Foo' }) }));
+
+            updateSpy.calls.reset();
+
+            node.addOutlet('spec/any', 'foo', { label: 'Foo' });
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-outlet',
+                                           inlet: jasmine.objectContaining({ label: 'Foo' }) }));
+
+            updateSpy.calls.reset();
+
+            node.addOutlet('spec/any', 'foo', 'Foo', { label: 'Bar' });
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-outlet',
+                                           inlet: jasmine.objectContaining({ label: 'Foo' }) }));
+
+            updateSpy.calls.reset();
+
+            node.addOutlet('spec/any', 'foo', null, { label: 'Bar' });
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-outlet',
+                                           inlet: jasmine.objectContaining({ label: 'Bar' }) }));
+
+        });
+    });
+
+    it('allows to override channeltype `show` property', function() {
     });
 
     it('connects only to the inlet of the same type', function() {

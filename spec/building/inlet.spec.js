@@ -185,7 +185,28 @@ describe('building: inlet', function() {
 
         });
 
+    });
 
+    it('requires alias to be specified', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty');
+            expect(function() {
+                node.addInlet('spec/any');
+            }).toThrow();
+        });
+    });
+
+    it('sets label to alias, if it was not specified', function() {
+        withNewPatch(function(patch, updateSpy) {
+
+            var node = patch.addNode('spec/empty');
+
+            node.addInlet('spec/any', 'foo');
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-inlet',
+                                           inlet: jasmine.objectContaining({ label: 'foo' }) }));
+        });
     });
 
     it('sets the label, if it was specified (in contrast to alias)', function() {
@@ -276,7 +297,7 @@ describe('building: inlet', function() {
         });
     });
 
-    it('inlet is hot by default and could be set to be cold', function() { // should also be checked for
+    it('makes it hot by default and it could separately be set to be cold', function() {
         withNewPatch(function(patch, updateSpy) {
 
             var processSpy = jasmine.createSpy('process');
@@ -306,6 +327,26 @@ describe('building: inlet', function() {
             //expect(processSpy).not.toHaveBeenCalled();
 
         });
+    });
+
+    describe('allows to override channeltype properties', function() {
+
+        it('allows to override allow property', function() {
+
+        });
+
+        it('allows to override accept property', function() {
+
+        });
+
+        it('allows to override adapt property', function() {
+
+        });
+
+        it('allows to override show property', function() {
+
+        });
+
     });
 
 });

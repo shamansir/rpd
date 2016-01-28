@@ -308,7 +308,7 @@ function Node(type, patch, name, callback) {
         this.outlets = {};
         for (var alias in this.def.outlets) {
             var conf = this.def.outlets[alias];
-            var outlet = this.addOutlet(conf.type, alias, conf.name, conf.default);
+            var outlet = this.addOutlet(conf.type, alias, conf.name);
             this.outlets[alias] = outlet;
         }
     }
@@ -333,8 +333,8 @@ Node.prototype.addInlet = function(type, alias, name, _default, hidden, readonly
     inlet.toDefault();
     return inlet;
 }
-Node.prototype.addOutlet = function(type, alias, name, _default) {
-    var outlet = new Outlet(type, this, alias, name, _default);
+Node.prototype.addOutlet = function(type, alias, name) {
+    var outlet = new Outlet(type, this, alias, name);
     this.events.plug(outlet.events);
     this.event['node/add-outlet'].emit(outlet);
     outlet.toDefault();
