@@ -182,31 +182,24 @@ describe('building: outlet', function() {
             var node = patch.addNode('spec/empty');
 
             node.addOutlet('spec/any', 'foo', 'Foo');
-
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-outlet',
                                            inlet: jasmine.objectContaining({ label: 'Foo' }) }));
 
             updateSpy.calls.reset();
-
             node.addOutlet('spec/any', 'foo', { label: 'Foo' });
-
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-outlet',
                                            inlet: jasmine.objectContaining({ label: 'Foo' }) }));
 
             updateSpy.calls.reset();
-
             node.addOutlet('spec/any', 'foo', 'Foo', { label: 'Bar' });
-
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-outlet',
                                            inlet: jasmine.objectContaining({ label: 'Foo' }) }));
 
             updateSpy.calls.reset();
-
             node.addOutlet('spec/any', 'foo', null, { label: 'Bar' });
-
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-outlet',
                                            inlet: jasmine.objectContaining({ label: 'Bar' }) }));

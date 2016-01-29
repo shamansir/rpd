@@ -215,31 +215,24 @@ describe('building: inlet', function() {
             var node = patch.addNode('spec/empty');
 
             node.addInlet('spec/any', 'foo', 'Foo');
-
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-inlet',
                                            inlet: jasmine.objectContaining({ label: 'Foo' }) }));
 
             updateSpy.calls.reset();
-
             node.addInlet('spec/any', 'foo', { label: 'Foo' });
-
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-inlet',
                                            inlet: jasmine.objectContaining({ label: 'Foo' }) }));
 
             updateSpy.calls.reset();
-
             node.addInlet('spec/any', 'foo', 'Foo', { label: 'Bar' });
-
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-inlet',
                                            inlet: jasmine.objectContaining({ label: 'Foo' }) }));
 
             updateSpy.calls.reset();
-
             node.addInlet('spec/any', 'foo', null, { label: 'Bar' });
-
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-inlet',
                                            inlet: jasmine.objectContaining({ label: 'Bar' }) }));
@@ -344,6 +337,17 @@ describe('building: inlet', function() {
         });
 
         it('allows to override show property', function() {
+
+        });
+
+    });
+
+    it('allows to subscribe to inlet events just from the description', function() {
+
+        withNewPatch(function(patch, updateSpy) {
+
+            var node = patch.addNode('spec/empty');
+
 
         });
 
