@@ -85,7 +85,23 @@ describe('building: node', function() {
         });
     });
 
-    it('allows to subscribe node events', function() {
+    describe('allows to subscribe node events', function() {
+
+        it('node/add-inlet', function() {
+            withNewPatch(function(patch, updateSpy) {
+                var addInletSpy = jasmine.createSpy('add-inlet');
+
+                var node = patch.addNode('spec/empty', {
+                    handle: {
+                        'node/add-inlet': addInletSpy
+                    }
+                });
+
+                var inlet = node.addInlet('spec/any');
+
+                expect(addInletSpy).toHaveBeenCalledWith(inlet);
+            });
+        });
 
     });
 
