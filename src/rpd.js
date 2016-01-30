@@ -14,10 +14,11 @@ injectKefirEmitter();
 
 // Rpd.NOTHING, Rpd.ID_LENGTH, ...
 
-var nodetypes = {};
-var channeltypes = {};
-var noderenderers = {};
-var channelrenderers = {};
+//var PATCH_PROPS = [ 'title', '*handle' ];
+var nodetypes = {}; var NODE_PROPS = [ 'title', '*inlets', '*outlets', 'process', 'tune', '*handle' ];
+var channeltypes = {}; var CHANNEL_PROPS = [ 'label', 'allow', 'accept', 'adapt', 'tune', 'show', '*handle', 'default', 'hidden', 'cold', 'readonly' ];
+var noderenderers = {}; var NODE_RENDERER_PROPS = [ 'size', 'first', 'always' ];
+var channelrenderers = {}; var CHANNEL_RENDERER_PROPS = [ 'show', 'edit' ];
 var nodedescriptions = {};
 var styles = {};
 
