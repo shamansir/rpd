@@ -152,10 +152,14 @@ Patch.prototype.render = function(aliases, targets, config) {
     }
     return this;
 }
-Patch.prototype.addNode = function(type, name) {
+Patch.prototype.addNode = function(type, arg1, arg2) {
     var patch = this;
 
-    var node = new Node(type, this, name, function(node) {
+    var def = arg2 || {};
+    var title = arg2 ? arg1 : null;
+    if (title) def.title = title;
+
+    var node = new Node(type, this, def, function(node) {
         patch.events.plug(node.events);
         patch.event['patch/add-node'].emit(node);
 
@@ -191,7 +195,7 @@ Patch.prototype.project = function(node) {
 // ================================= Node ======================================
 // =============================================================================
 
-function Node(type, patch, name, callback) {
+function Node(type, patch, def, callback) {
     this.type = type || 'core/empty';
     this.id = short_uid();
     this.patch = patch;
@@ -210,11 +214,11 @@ function Node(type, patch, name, callback) {
     this.event = event_map(event_types);
     this.events = events_stream(event_types, this.event, 'node', this);
 
-    var def = adapt_to_obj(nodetypes[this.type], this);
-    if (!def) report_error('Node type ' + this.type + ' is not registered!');
-    this.def = def;
+    var type_def = adapt_to_obj(nodetypes[this.type], this);
+    if (!type_def) report_error('Node type ' + this.type + ' is not registered!');
+    this.def = join_definitions(NODE_PROPS, def, type_def);
 
-    this.name = name || def.name || type;
+    this.name = name || def.name || type; // fix usage in renderer
 
     this.render = prepare_render_obj(noderenderers[this.type], this);
 
@@ -581,9 +585,15 @@ function join_definitions(keys, src1, src2) {
         if (key[0] !== '*') {
             trg[key] = (key in src1) ? src1[key] : src2[key];
         } else {
-            trg[key] = join_definitions(Object.keys(src1[key])
-                                              .concat(Object.keys(src2[key])),
-                                        src1[key], src2[key]);
+            trg[key] = {};
+            var src2_keys = Object.keys(src2[key]);
+            for (var j = 0, jl = src2_keys.length; j < jl; j++) { // FIXME: forEach
+                trg[key][src2_keys[j]] = src[src2_keys[j]];
+            }
+            var src1_keys = Object.keys(src1[key]);
+            for (var j = 0, jl = src2_keys.length; j < jl; j++) { // FIXME: forEach
+                trg[key][src1_keys[j]] = src[src1_keys[j]];
+            }
         }
     }
     return trg;
