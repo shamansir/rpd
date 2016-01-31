@@ -588,13 +588,13 @@ function join_definitions(keys, src1, src2) {
         if (key[0] !== '*') {
             trg[key] = ((key in src1) && is_defined(src1[key])) ? src1[key] : src2[key];
         } else {
-            trg[key] = {};
-            var src2_keys = Object.keys(src2[key]);
-            for (var j = 0, jl = src2_keys.length; j < jl; j++) { // FIXME: forEach
+            key = key.slice(1); trg[key] = {};
+            var src2_keys = src2[key] ? Object.keys(src2[key]) : [];
+            for (var j = 0, jl = src2_keys.length; j < jl; j++) {
                 trg[key][src2_keys[j]] = src[src2_keys[j]];
             }
-            var src1_keys = Object.keys(src1[key]);
-            for (var j = 0, jl = src2_keys.length; j < jl; j++) { // FIXME: forEach
+            var src1_keys = src1[key] ? Object.keys(src1[key]) : [];
+            for (var j = 0, jl = src1_keys.length; j < jl; j++) {
                 trg[key][src1_keys[j]] = src[src1_keys[j]];
             }
         }
