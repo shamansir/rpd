@@ -123,13 +123,13 @@ function Patch(name) {
         var node = value[0], inputs = value[1], outputs = value[2];
         var inlet, outlet, input, output;
         for (var i = 0; i < inputs.length; i++) {
-            inlet = node.addInlet(inputs[i].type, inputs[i].alias);
+            inlet = node.addInlet(inputs[i].type, inputs[i].alias, inputs[i].def);
             inlet.event['inlet/update'].onValue((function(input) {
                 return function(value) { input.receive(value); };
             })(inputs[i]));
         } // use inlet.onUpdate?
         for (i = 0; i < outputs.length; i++) {
-            outlet = node.addOutlet(outputs[i].type, outputs[i].alias);
+            outlet = node.addOutlet(outputs[i].type, outputs[i].alias, outputs[i].def);
             outputs[i].event['outlet/update'].onValue((function(outlet) {
                 return function(value) { outlet.send(value); };
             })(outlet));
@@ -219,8 +219,9 @@ function Node(type, patch, def, callback) {
     var type_def = adapt_to_obj(nodetypes[this.type], this);
     if (!type_def) report_error('Node type ' + this.type + ' is not registered!');
     this.def = join_definitions(NODE_PROPS, def, type_def);
+    this.title = this.def.title;
 
-    this.name = name || def.name || type; // fix usage in renderer
+    //this.title = this.def.title || type; // fix usage in renderer
 
     this.render = prepare_render_obj(noderenderers[this.type], this);
 
@@ -375,19 +376,21 @@ Node.prototype.move = function(x, y) {
 function Inlet(type, node, alias, def/*name, _default, hidden, readonly, cold*/) {
     this.type = type || 'core/any';
     this.id = short_uid();
-    var def = adapt_to_obj(channeltypes[this.type], this);
-    if (!def) report_error('Channel type ' + this.type + ' is not registered!');
-    this.def = def;
 
-    this.alias = alias || def.alias || name;
-    if (!this.alias) report_error('Inlet should have either alias or name');
-    this.name = name || def.name || this.alias || type;
+    var type_def = adapt_to_obj(channeltypes[this.type], this);
+    if (!type_def) report_error('Channel type ' + this.type + ' is not registered!');
+    this.def = join_definitions(INLET_PROPS, def, type_def);
+
+    this.alias = alias || this.def.label;
+    if (!this.alias) report_error('Inlet should have either alias or label');
+
+    /* this.name = name || def.name || this.alias || type;
 
     this.node = node;
     this.hidden = hidden || false;
     this.readonly = is_defined(readonly || def.readonly) ? readonly || def.readonly : true;
     this.cold = cold || false;
-    this.default = is_defined(_default) ? _default : def.default;
+    this.default = is_defined(_default) ? _default : def.default; */
     this.value = Kefir.pool();
 
     this.render = prepare_render_obj(channelrenderers[this.type], this);
@@ -437,19 +440,21 @@ Inlet.prototype.allows = function(outlet) {
 // ================================= Outlet ====================================
 // =============================================================================
 
-function Outlet(type, node, alias, name, _default) {
+function Outlet(type, node, alias, def) {
     this.type = type || 'core/any';
     this.id = short_uid();
-    var def = adapt_to_obj(channeltypes[this.type], this);
-    if (!def) report_error('Channel type ' + this.type + ' is not registered!');
-    this.def = def;
 
-    this.alias = alias || def.alias || name;
-    if (!this.alias) report_error('Outlet should have either alias or name');
-    this.name = name || this.alias || def.name || type;
+    var type_def = adapt_to_obj(channeltypes[this.type], this);
+    if (!type_def) report_error('Channel type ' + this.type + ' is not registered!');
+    this.def = join_definitions(OUTLET_PROPS, def, type_def);
+
+    this.alias = alias || this.def.label;
+    if (!this.alias) report_error('Inlet should have either alias or label');
+
+    //this.name = name || this.alias || def.name || type;
 
     this.node = node;
-    this.default = is_defined(_default) ? _default : def.default;
+    //this.default = is_defined(_default) ? _default : def.default;
     this.value = Kefir.pool();
 
     this.render = prepare_render_obj(channelrenderers[this.type], this);
@@ -593,7 +598,7 @@ function join_definitions(keys, src1, src2) {
     for (var i = 0, il = keys.length; i < il; i++) {
         key = keys[i];
         if (key[0] !== '*') {
-            trg[key] = (key in src1) ? src1[key] : src2[key];
+            trg[key] = ((key in src1) && is_defined(src1[key])) ? src1[key] : src2[key];
         } else {
             trg[key] = {};
             var src2_keys = Object.keys(src2[key]);
