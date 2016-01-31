@@ -573,6 +573,22 @@ function injectKefirEmitter() {
     }
 }
 
+function join_definitions(keys, src1, src2) {
+    var trg = {}; if (!src2) return (src1 || {});
+    var key;
+    for (var i = 0, il = keys.length; i < il; i++) {
+        key = keys[i];
+        if (key[0] !== '*') {
+            trg[key] = (key in src1) ? src1[key] : src2[key];
+        } else {
+            trg[key] = join_definitions(Object.keys(src1[key])
+                                              .concat(Object.keys(src2[key])),
+                                        src1[key], src2[key]);
+        }
+    }
+    return trg;
+}
+
 function clone_obj(src) {
     // this way is not a deep-copy and actually not cloning at all, but that's ok,
     // since we use it few times for events, which are simple objects and the objects they
