@@ -219,9 +219,6 @@ function Node(type, patch, def, callback) {
     var type_def = adapt_to_obj(nodetypes[this.type], this);
     if (!type_def) report_error('Node type ' + this.type + ' is not registered!');
     this.def = join_definitions(NODE_PROPS, def, type_def);
-    this.title = this.def.title;
-
-    //this.title = this.def.title || type; // fix usage in renderer
 
     this.render = prepare_render_obj(noderenderers[this.type], this);
 
@@ -373,24 +370,18 @@ Node.prototype.move = function(x, y) {
 // ================================== Inlet ====================================
 // =============================================================================
 
-function Inlet(type, node, alias, def/*name, _default, hidden, readonly, cold*/) {
+function Inlet(type, node, alias, def) {
     this.type = type || 'core/any';
     this.id = short_uid();
+    this.alias = alias;
+    this.node = node;
 
     var type_def = adapt_to_obj(channeltypes[this.type], this);
     if (!type_def) report_error('Channel type ' + this.type + ' is not registered!');
     this.def = join_definitions(INLET_PROPS, def, type_def);
 
-    this.alias = alias || this.def.label;
-    if (!this.alias) report_error('Inlet should have either alias or label');
+    if (!this.alias && !this.def.label) report_error('Inlet should have either alias or label');
 
-    /* this.name = name || def.name || this.alias || type;
-
-    this.node = node;
-    this.hidden = hidden || false;
-    this.readonly = is_defined(readonly || def.readonly) ? readonly || def.readonly : true;
-    this.cold = cold || false;
-    this.default = is_defined(_default) ? _default : def.default; */
     this.value = Kefir.pool();
 
     this.render = prepare_render_obj(channelrenderers[this.type], this);
@@ -401,11 +392,11 @@ function Inlet(type, node, alias, def/*name, _default, hidden, readonly, cold*/)
     this.event = event_map(event_types);
     var orig_updates = this.event['inlet/update'];
     var updates = orig_updates.merge(this.value);
-    if (def.tune) updates = def.tune(updates)
-    if (def.accept) updates = updates.flatten(function(v) {
-        if (def.accept(v)) { return [v]; } else { orig_updates.error(); return []; }
+    if (this.def.tune) updates = this.def.tune(updates);
+    if (this.def.accept) updates = updates.flatten(function(v) {
+        if (this.def.accept(v)) { return [v]; } else { orig_updates.error(); return []; }
     });
-    if (def.adapt) updates = updates.map(def.adapt);
+    if (this.def.adapt) updates = updates.map(this.def.adapt);
     // rewrite with the modified stream
     this.event['inlet/update'] = updates.onValue(function(){});
     this.events = events_stream(event_types, this.event, 'inlet', this);
@@ -417,10 +408,10 @@ Inlet.prototype.stream = function(stream) {
     this.value.plug(stream);
 }
 Inlet.prototype.toDefault = function() {
-    if (is_defined(this.default)) {
-        if (this.default instanceof Kefir.Stream) {
-            this.stream(this.default);
-        } else this.receive(this.default);
+    if (is_defined(this.def.default)) {
+        if (this.def.default instanceof Kefir.Stream) {
+            this.stream(this.def.default);
+        } else this.receive(this.def.default);
     }
 }
 Inlet.prototype.allows = function(outlet) {
@@ -443,18 +434,15 @@ Inlet.prototype.allows = function(outlet) {
 function Outlet(type, node, alias, def) {
     this.type = type || 'core/any';
     this.id = short_uid();
+    this.alias = alias;
+    this.node = node;
 
     var type_def = adapt_to_obj(channeltypes[this.type], this);
     if (!type_def) report_error('Channel type ' + this.type + ' is not registered!');
     this.def = join_definitions(OUTLET_PROPS, def, type_def);
 
-    this.alias = alias || this.def.label;
-    if (!this.alias) report_error('Inlet should have either alias or label');
+    if (!this.alias || !this.label) report_error('Outlet should have either alias or label');
 
-    //this.name = name || this.alias || def.name || type;
-
-    this.node = node;
-    //this.default = is_defined(_default) ? _default : def.default;
     this.value = Kefir.pool();
 
     this.render = prepare_render_obj(channelrenderers[this.type], this);
@@ -505,10 +493,10 @@ Outlet.prototype.stream = function(stream) {
     this.value.plug(stream);
 }
 Outlet.prototype.toDefault = function() {
-    if (is_defined(this.default)) {
-        if (this.default instanceof Kefir.Stream) {
-            this.stream(this.default);
-        } else this.send(this.default);
+    if (is_defined(this.def.default)) {
+        if (this.def.default instanceof Kefir.Stream) {
+            this.stream(this.def.default);
+        } else this.send(this.def.default);
     }
 }
 
@@ -516,10 +504,10 @@ Outlet.prototype.toDefault = function() {
 // ================================= Link ======================================
 // =============================================================================
 
-function Link(outlet, inlet, name) {
+function Link(outlet, inlet, label) {
     this.id = short_uid();
 
-    this.name = name || '';
+    this.name = label || '';
 
     this.outlet = outlet;
     this.inlet = inlet;
