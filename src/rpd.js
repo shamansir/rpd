@@ -15,8 +15,10 @@ injectKefirEmitter();
 // Rpd.NOTHING, Rpd.ID_LENGTH, ...
 
 //var PATCH_PROPS = [ 'title', '*handle' ];
-var nodetypes = {}; var NODE_PROPS = [ 'title', '*inlets', '*outlets', 'process', 'tune', '*handle' ];
-var channeltypes = {}; var CHANNEL_PROPS = [ 'label', 'allow', 'accept', 'adapt', 'tune', 'show', '*handle', 'default', 'hidden', 'cold', 'readonly' ];
+var nodetypes = {}; var NODE_PROPS = [ 'title', '*inlets', '*outlets', 'prepare', 'process', 'tune', '*handle' ];
+var channeltypes = {}; var INLET_PROPS = [ 'label', 'default', 'hidden', 'cold', 'readonly', 'allow', 'accept', 'adapt', 'tune', 'show', '*handle' ];
+                       var OUTLET_PROPS = [ 'label', 'tune', 'show', '*handle' ];
+                       var CHANNEL_PROPS = INLET_PROPS;
 var noderenderers = {}; var NODE_RENDERER_PROPS = [ 'size', 'first', 'always' ];
 var channelrenderers = {}; var CHANNEL_RENDERER_PROPS = [ 'show', 'edit' ];
 var nodedescriptions = {};
@@ -121,13 +123,13 @@ function Patch(name) {
         var node = value[0], inputs = value[1], outputs = value[2];
         var inlet, outlet, input, output;
         for (var i = 0; i < inputs.length; i++) {
-            inlet = node.addInlet(inputs[i].type, inputs[i].name);
+            inlet = node.addInlet(inputs[i].type, inputs[i].alias);
             inlet.event['inlet/update'].onValue((function(input) {
                 return function(value) { input.receive(value); };
             })(inputs[i]));
         } // use inlet.onUpdate?
         for (i = 0; i < outputs.length; i++) {
-            outlet = node.addOutlet(outputs[i].type, outputs[i].name);
+            outlet = node.addOutlet(outputs[i].type, outputs[i].alias);
             outputs[i].event['outlet/update'].onValue((function(outlet) {
                 return function(value) { outlet.send(value); };
             })(outlet));
@@ -155,7 +157,7 @@ Patch.prototype.render = function(aliases, targets, config) {
 Patch.prototype.addNode = function(type, arg1, arg2) {
     var patch = this;
 
-    var def = arg2 || {};
+    var def = arg2 ? arg2 : (is_object(arg1) ? (arg1 || {}) : {});
     var title = arg2 ? arg1 : null;
     if (title) def.title = title;
 
@@ -304,7 +306,7 @@ function Node(type, patch, def, callback) {
         this.inlets = {};
         for (var alias in this.def.inlets) {
             var conf = this.def.inlets[alias];
-            var inlet = this.addInlet(conf.type, alias, conf.name, conf.default, conf.hidden, conf.readonly, conf.cold);
+            var inlet = this.addInlet(conf.type, alias, conf);
             this.inlets[alias] = inlet;
         }
     }
@@ -313,7 +315,7 @@ function Node(type, patch, def, callback) {
         this.outlets = {};
         for (var alias in this.def.outlets) {
             var conf = this.def.outlets[alias];
-            var outlet = this.addOutlet(conf.type, alias, conf.name);
+            var outlet = this.addOutlet(conf.type, alias, conf);
             this.outlets[alias] = outlet;
         }
     }
@@ -328,8 +330,12 @@ Node.prototype.turnOn = function() {
 Node.prototype.turnOff = function() {
     this.event['node/turn-off'].emit();
 }
-Node.prototype.addInlet = function(type, alias, name, _default, hidden, readonly, cold) {
-    var inlet = new Inlet(type, this, alias, name, _default, hidden, readonly, cold);
+Node.prototype.addInlet = function(type, alias, arg2, arg3) {
+    var def = arg3 ? arg3 : (is_object(arg2) ? (arg2 || {}) : {});
+    var label = arg3 ? arg2 : null;
+    if (label) def.label = label;
+
+    var inlet = new Inlet(type, this, alias, def);
     this.events.plug(inlet.events);
 
     //this.events['outlet/connect'].filter(function(update) { return update.inlet.id === inlet.id; })
@@ -338,8 +344,12 @@ Node.prototype.addInlet = function(type, alias, name, _default, hidden, readonly
     inlet.toDefault();
     return inlet;
 }
-Node.prototype.addOutlet = function(type, alias, name) {
-    var outlet = new Outlet(type, this, alias, name);
+Node.prototype.addOutlet = function(type, alias, arg2, arg3) {
+    var def = arg3 ? arg3 : (is_object(arg2) ? (arg2 || {}) : {});
+    var label = arg3 ? arg2 : null;
+    if (label) def.label = label;
+
+    var outlet = new Outlet(type, this, alias, def);
     this.events.plug(outlet.events);
     this.event['node/add-outlet'].emit(outlet);
     outlet.toDefault();
@@ -362,7 +372,7 @@ Node.prototype.move = function(x, y) {
 // ================================== Inlet ====================================
 // =============================================================================
 
-function Inlet(type, node, alias, name, _default, hidden, readonly, cold) {
+function Inlet(type, node, alias, def/*name, _default, hidden, readonly, cold*/) {
     this.type = type || 'core/any';
     this.id = short_uid();
     var def = adapt_to_obj(channeltypes[this.type], this);
@@ -578,7 +588,7 @@ function injectKefirEmitter() {
 }
 
 function join_definitions(keys, src1, src2) {
-    var trg = {}; if (!src2) return (src1 || {});
+    var trg = {}; src1 = src1 || {}; src2 = src2 || {};
     var key;
     for (var i = 0, il = keys.length; i < il; i++) {
         key = keys[i];
@@ -608,6 +618,10 @@ function clone_obj(src) {
         res[keys[i]] = src[keys[i]];
     }
     return res;
+}
+
+function is_object(val) {
+    return (typeof val === 'object');
 }
 
 function is_defined(val) {
