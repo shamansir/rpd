@@ -158,7 +158,7 @@ Patch.prototype.addNode = function(type, arg1, arg2) {
     var patch = this;
 
     var def = arg2 ? arg2 : (is_object(arg1) ? (arg1 || {}) : {});
-    var title = arg2 ? arg1 : null;
+    var title = is_object(arg1) ? undefined : arg1;
     if (title) def.title = title;
 
     var node = new Node(type, this, def, function(node) {
@@ -330,7 +330,7 @@ Node.prototype.turnOff = function() {
 }
 Node.prototype.addInlet = function(type, alias, arg2, arg3) {
     var def = arg3 ? arg3 : (is_object(arg2) ? (arg2 || {}) : {});
-    var label = arg3 ? arg2 : null;
+    var label = is_object(arg2) ? undefined : arg2;
     if (label) def.label = label;
 
     var inlet = new Inlet(type, this, alias, def);
@@ -344,7 +344,7 @@ Node.prototype.addInlet = function(type, alias, arg2, arg3) {
 }
 Node.prototype.addOutlet = function(type, alias, arg2, arg3) {
     var def = arg3 ? arg3 : (is_object(arg2) ? (arg2 || {}) : {});
-    var label = arg3 ? arg2 : null;
+    var label = is_object(arg2) ? undefined : arg2;
     if (label) def.label = label;
 
     var outlet = new Outlet(type, this, alias, def);
@@ -586,9 +586,12 @@ function join_definitions(keys, src1, src2) {
     for (var i = 0, il = keys.length; i < il; i++) {
         key = keys[i];
         if (key[0] !== '*') {
-            trg[key] = ((key in src1) && is_defined(src1[key])) ? src1[key] : src2[key];
+            if (!(key in src1) && !(key in src2)) continue;
+            trg[key] = is_defined(src1[key]) ? src1[key] : src2[key];
         } else {
-            key = key.slice(1); trg[key] = {};
+            key = key.slice(1);
+            if (!(key in src1) && !(key in src2)) continue;
+            trg[key] = {};
             var src2_keys = src2[key] ? Object.keys(src2[key]) : [];
             for (var j = 0, jl = src2_keys.length; j < jl; j++) {
                 trg[key][src2_keys[j]] = src[src2_keys[j]];

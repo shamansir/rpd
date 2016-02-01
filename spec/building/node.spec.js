@@ -19,34 +19,40 @@ describe('building: node', function() {
 
     it('saves the node title', function() {
         withNewPatch(function(patch, updateSpy) {
+            function nodeWithTitle(value) {
+                return jasmine.objectContaining({
+                    def: jasmine.objectContaining({ title: value })
+                });
+            }
+
             patch.addNode('spec/empty');
-            expect(updateSpy).toHaveBeenCalledWith(
+            expect(updateSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'patch/add-node',
-                                           node: jasmine.objectContaining({ title: 'spec/empty' }) }));
+                                           node: nodeWithTitle(jasmine.any(String)) }));
 
             updateSpy.calls.reset();
             patch.addNode('spec/empty', 'Foo');
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'patch/add-node',
-                                           node: jasmine.objectContaining({ title: 'Foo' }) }));
+                                           node: nodeWithTitle('Foo') }));
 
             updateSpy.calls.reset();
             patch.addNode('spec/empty', { title: 'Bar' });
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'patch/add-node',
-                                           node: jasmine.objectContaining({ title: 'Bar' }) }));
+                                           node: nodeWithTitle('Bar') }));
 
             updateSpy.calls.reset();
             patch.addNode('spec/empty', null, { title: 'Buz' });
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'patch/add-node',
-                                           node: jasmine.objectContaining({ title: 'Buz' }) }));
+                                           node: nodeWithTitle('Buz') }));
 
             updateSpy.calls.reset();
             patch.addNode('spec/empty', 'Foo', { title: 'Buz' });
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'patch/add-node',
-                                           node: jasmine.objectContaining({ title: 'Foo' }) }));
+                                           node: nodeWithTitle('Foo') }));
         });
     });
 

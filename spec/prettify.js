@@ -4,28 +4,30 @@
         if (Rpd.PRETTIFIED) return;
 
         Rpd._.Patch.prototype.jasmineToString = function() {
-            return '[ Patch' + (this.name ? ' ' + this.name : '') + ' ]';
+            return '[ Patch' + (this.name ? (' \'' + this.name + '\'') : ' <Unnamed>') + ' ]';
         }
 
         Rpd._.Node.prototype.jasmineToString = function() {
             return '[ Node (' + this.type + ')' +
-                      ' \'' + this.name + '\'' +
+                      (this.def.title ? (' \'' + this.def.title + '\'') : ' <Untitled>') +
                       ' #' + this.id +
                       ' ]';
         }
 
         Rpd._.Inlet.prototype.jasmineToString = function() {
             return '[ Inlet (' + this.type + ')' +
-                      ' \'' + (this.alias || this.name) + '\'' +
+                      (this.alias ? (' \'' + this.alias + '\'') : ' <Unaliased>') +
+                      (this.def.label ? (' \'' + this.def.label + '\'') : ' <Unlabeled>') +
                       ' #' + this.id +
-                      (this.hidden ? ' (hidden)' : '') +
-                      (this.cold ? ' (cold)' : '') +
+                      (this.def.hidden ? ' (hidden)' : '') +
+                      (this.def.cold ? ' (cold)' : '') +
                       ' ]';
         }
 
         Rpd._.Outlet.prototype.jasmineToString = function() {
             return '[ Outlet (' + this.type + ')' +
-                      ' \'' + (this.alias || this.name) + '\'' +
+                      (this.alias ? (' \'' + this.alias + '\'') : ' <Unaliased>') +
+                      (this.def.label ? (' \'' + this.def.label + '\'') : ' <Unlabeled>') +
                       ' #' + this.id +
                       ' ]';
         }
