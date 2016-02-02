@@ -103,7 +103,7 @@ describe('building: node', function() {
                     }
                 });
 
-                var inlet = node.addInlet('spec/any');
+                var inlet = node.addInlet('spec/any', 'foo');
 
                 expect(addInletSpy).toHaveBeenCalledWith(inlet);
             });

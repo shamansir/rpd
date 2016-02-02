@@ -441,7 +441,7 @@ function Outlet(type, node, alias, def) {
     if (!type_def) report_error('Channel type ' + this.type + ' is not registered!');
     this.def = join_definitions(OUTLET_PROPS, def, type_def);
 
-    if (!this.alias || !this.label) report_error('Outlet should have either alias or label');
+    if (!this.alias && !this.def.label) report_error('Outlet should have either alias or label');
 
     this.value = Kefir.pool();
 
@@ -594,11 +594,11 @@ function join_definitions(keys, src1, src2) {
             trg[key] = {};
             var src2_keys = src2[key] ? Object.keys(src2[key]) : [];
             for (var j = 0, jl = src2_keys.length; j < jl; j++) {
-                trg[key][src2_keys[j]] = src[src2_keys[j]];
+                trg[key][src2_keys[j]] = src2[key][src2_keys[j]];
             }
             var src1_keys = src1[key] ? Object.keys(src1[key]) : [];
             for (var j = 0, jl = src1_keys.length; j < jl; j++) {
-                trg[key][src1_keys[j]] = src[src1_keys[j]];
+                trg[key][src1_keys[j]] = src1[key][src1_keys[j]];
             }
         }
     }

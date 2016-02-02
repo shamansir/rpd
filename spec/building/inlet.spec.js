@@ -196,19 +196,6 @@ describe('building: inlet', function() {
         });
     });
 
-    it('sets label to alias, if it was not specified', function() {
-        withNewPatch(function(patch, updateSpy) {
-
-            var node = patch.addNode('spec/empty');
-
-            node.addInlet('spec/any', 'foo');
-
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'node/add-inlet',
-                                           inlet: jasmine.objectContaining({ label: 'foo' }) }));
-        });
-    });
-
     it('sets the label, if it was specified (in contrast to alias)', function() {
         withNewPatch(function(patch, updateSpy) {
 
