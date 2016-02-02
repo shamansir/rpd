@@ -276,7 +276,7 @@ function Node(type, patch, def, callback) {
         }, { inlets: { prev: {}, cur: {} }, outlets: {} }).changes();
 
         // filter cold inlets, so the update data will be stored, but process event won't fire
-        process = process.filter(function(data) { return !data.source.cold; });
+        process = process.filter(function(data) { return !data.source.def.cold; });
 
         process.onValue(function(data) {
             // call a node/process event using collected inlet values

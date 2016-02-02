@@ -207,7 +207,11 @@ describe('building: outlet', function() {
         });
     });
 
-    it('allows to override channeltype `show` property', function() {
+    it('allows to set up or override channel `show` property', function() {
+    });
+
+    it('allows to set up or override channel `tune` function', function() {
+
     });
 
     it('connects only to the inlet of the same type', function() {

@@ -276,10 +276,8 @@ describe('building: inlet', function() {
 
             hotInlet.receive(2);
 
-            //expect(updateSpy).toHaveBeenCalledWith(
-            //    jasmine.objectContaining({ type: 'node/add-inlet', inlet: hotInlet }));
             expect(processSpy).toHaveBeenCalledWith(
-                jasmine.objectContaining({ hot: 2 }));
+                jasmine.objectContaining({ hot: 2 }), jasmine.any(Object));
 
             var coldInlet = node.addInlet('spec/any', 'cold', {
                 cold: true
@@ -289,15 +287,20 @@ describe('building: inlet', function() {
 
             coldInlet.receive(4);
 
-            //expect(updateSpy).toHaveBeenCalledWith(
-            //    jasmine.objectContaining({ type: 'node/add-inlet', inlet: coldInlet }));
-            expect(processSpy).not.toHaveBeenCalledWith(jasmine.objectContaining({ cold: 4 }));
-            //expect(processSpy).not.toHaveBeenCalled();
+            expect(processSpy).not.toHaveBeenCalledWith(jasmine.objectContaining({ cold: 4 }), jasmine.any(Object));
+            expect(processSpy).not.toHaveBeenCalled();
+
+            processSpy.calls.reset();
+
+            hotInlet.receive(8);
+
+            expect(processSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ hot: 8, cold: 4 }), jasmine.any(Object));
 
         });
     });
 
-    describe('allows to override channeltype properties', function() {
+    describe('allows to set up override channeltype properties', function() {
 
         it('allows to override allow property', function() {
 
@@ -314,6 +317,10 @@ describe('building: inlet', function() {
         it('allows to override show property', function() {
 
         });
+
+    });
+
+    it('allows to set up or override channel `tune` function', function() {
 
     });
 
