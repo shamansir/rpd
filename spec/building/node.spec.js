@@ -105,7 +105,12 @@ describe('building: node', function() {
 
                 var inlet = node.addInlet('spec/any', 'foo');
 
-                expect(addInletSpy).toHaveBeenCalledWith(inlet);
+                expect(addInletSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({
+                        type: 'node/add-inlet',
+                        node: node,
+                        inlet: inlet
+                    }));
             });
         });
 

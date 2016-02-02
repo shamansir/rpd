@@ -201,28 +201,32 @@ describe('building: inlet', function() {
 
             var node = patch.addNode('spec/empty');
 
+            function inletWithLabel(value) {
+                return inletWithDefinition({ label: value });
+            }
+
             node.addInlet('spec/any', 'foo', 'Foo');
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-inlet',
-                                           inlet: jasmine.objectContaining({ label: 'Foo' }) }));
+                                           inlet: inletWithLabel('Foo') }));
 
             updateSpy.calls.reset();
             node.addInlet('spec/any', 'foo', { label: 'Foo' });
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-inlet',
-                                           inlet: jasmine.objectContaining({ label: 'Foo' }) }));
+                                           inlet: inletWithLabel('Foo') }));
 
             updateSpy.calls.reset();
             node.addInlet('spec/any', 'foo', 'Foo', { label: 'Bar' });
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-inlet',
-                                           inlet: jasmine.objectContaining({ label: 'Foo' }) }));
+                                           inlet: inletWithLabel('Foo') }));
 
             updateSpy.calls.reset();
             node.addInlet('spec/any', 'foo', null, { label: 'Bar' });
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-inlet',
-                                           inlet: jasmine.objectContaining({ label: 'Bar' }) }));
+                                           inlet: inletWithLabel('Bar') }));
 
         });
     });
@@ -234,9 +238,16 @@ describe('building: inlet', function() {
 
             node.addInlet('spec/any', 'foo');
 
-            expect(updateSpy).toHaveBeenCalledWith(
+            expect(updateSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-inlet',
-                                           inlet: jasmine.objectContaining({ hidden: false, readonly: false }) }));
+                                           inlet: inletWithDefinition(
+                                               jasmine.objectContaining({ hidden: true })
+                                           ) }));
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-inlet',
+                                           inlet: inletWithDefinition(
+                                               jasmine.objectContaining({ readonly: true })
+                                           ) }));
 
             updateSpy.calls.reset();
 
@@ -247,32 +258,9 @@ describe('building: inlet', function() {
 
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-inlet',
-                                           inlet: jasmine.objectContaining({ hidden: true, readonly: true }) }));
-
-        });
-    });
-
-    it('sets the hidden and readonly flags, if they were specified', function() {
-        withNewPatch(function(patch, updateSpy) {
-
-            var node = patch.addNode('spec/empty');
-
-            node.addInlet('spec/any', 'foo');
-
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'node/add-inlet',
-                                           inlet: jasmine.objectContaining({ hidden: false, readonly: false }) }));
-
-            updateSpy.calls.reset();
-
-            node.addInlet('spec/any', 'foo', {
-                readonly: true,
-                hidden: true
-            });
-
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'node/add-inlet',
-                                           inlet: jasmine.objectContaining({ hidden: true, readonly: true }) }));
+                                           inlet: inletWithDefinition(
+                                               jasmine.objectContaining({ hidden: true, readonly: true })
+                                           ) }));
 
         });
     });
@@ -339,5 +327,9 @@ describe('building: inlet', function() {
         });
 
     });
+
+    function inletWithDefinition(defSample) {
+        return jasmine.objectContaining({ def: defSample });
+    }
 
 });
