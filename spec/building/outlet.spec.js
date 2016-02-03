@@ -163,46 +163,39 @@ describe('building: outlet', function() {
         });
     });
 
-    it('sets label to alias, if it was not specified', function() {
-        withNewPatch(function(patch, updateSpy) {
-
-            var node = patch.addNode('spec/empty');
-
-            node.addOutlet('spec/any', 'foo');
-
-            expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'node/add-outlet',
-                                           inlet: jasmine.objectContaining({ label: 'foo' }) }));
-        });
-    });
-
     it('sets the label, if it was specified (in contrast to alias)', function() {
         withNewPatch(function(patch, updateSpy) {
 
             var node = patch.addNode('spec/empty');
 
+            function outletWithLabel(value) {
+                return jasmine.objectContaining({
+                    def: jasmine.objectContaining({ label: value })
+                });
+            }
+
             node.addOutlet('spec/any', 'foo', 'Foo');
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-outlet',
-                                           inlet: jasmine.objectContaining({ label: 'Foo' }) }));
+                                           outlet: outletWithLabel('Foo') }));
 
             updateSpy.calls.reset();
             node.addOutlet('spec/any', 'foo', { label: 'Foo' });
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-outlet',
-                                           inlet: jasmine.objectContaining({ label: 'Foo' }) }));
+                                           outlet: outletWithLabel('Foo') }));
 
             updateSpy.calls.reset();
             node.addOutlet('spec/any', 'foo', 'Foo', { label: 'Bar' });
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-outlet',
-                                           inlet: jasmine.objectContaining({ label: 'Foo' }) }));
+                                           outlet: outletWithLabel('Foo') }));
 
             updateSpy.calls.reset();
             node.addOutlet('spec/any', 'foo', null, { label: 'Bar' });
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-outlet',
-                                           inlet: jasmine.objectContaining({ label: 'Bar' }) }));
+                                           outlet: outletWithLabel('Bar') }));
 
         });
     });
