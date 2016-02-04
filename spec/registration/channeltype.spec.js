@@ -27,7 +27,7 @@ describe('registration: channel type', function() {
     });
 
     it('could have default value which is used when channel of this type was created', function() {
-        Rpd.channeltype('spec/foo', { default: 5 });
+        Rpd.channeltype('spec/foo', { 'default': 5 });
 
         withNewPatch(function(patch, updateSpy) {
             var node = patch.addNode('spec/empty');
@@ -46,7 +46,7 @@ describe('registration: channel type', function() {
         var values = [ 'a', 7, { 'foo': 'bar' } ];
         var period = 30;
 
-        Rpd.channeltype('spec/foo', { default: Kefir.sequentially(period, values) });
+        Rpd.channeltype('spec/foo', { 'default': Kefir.sequentially(period, values) });
 
         withNewPatch(function(patch, updateSpy) {
 
@@ -67,11 +67,11 @@ describe('registration: channel type', function() {
     });
 
     it('allows overriding its default value in a node type description', function() {
-        Rpd.channeltype('spec/foo', { default: 5 });
+        Rpd.channeltype('spec/foo', { 'default': 5 });
 
         withNewPatch(function(patch, updateSpy) {
             Rpd.nodetype('spec/test', {
-                inlets:  { 'in': { type: 'spec/foo', default: 17 } }
+                inlets:  { 'in': { type: 'spec/foo', 'default': 17 } }
             });
 
             var node = patch.addNode('spec/test');
@@ -130,7 +130,7 @@ describe('registration: channel type', function() {
     });
 
     it('may specify adapting function, which adapts all values going through, streamed or not', function(done) {
-        Rpd.channeltype('spec/foo', { default: 2,
+        Rpd.channeltype('spec/foo', { 'default': 2,
                                       adapt: function(val) { return val * 3 } });
 
         var values = [ 3, 14, 15, 92 ];
@@ -160,7 +160,7 @@ describe('registration: channel type', function() {
     });
 
     it('may specify accepting function, which declines specific values, streamed or not', function(done) {
-        Rpd.channeltype('spec/foo', { default: 2,
+        Rpd.channeltype('spec/foo', { 'default': 2,
                                       accept: function(val) { return (val % 2) == 0; } });
 
         var values = [ 3, 14, 15, 92 ];
@@ -280,7 +280,7 @@ describe('registration: channel type', function() {
     xit('executes checks in order: allow, accept, adapt[, tune]', function() { });
 
     it('may specify tune function, which configures value stream', function() {
-        Rpd.channeltype('spec/foo', { default: 'foo',
+        Rpd.channeltype('spec/foo', { 'default': 'foo',
                                       tune: function(incoming) {
                                                 return incoming.filter(function(val) {
                                                     return (val[0] === 'f');
@@ -318,7 +318,7 @@ describe('registration: channel type', function() {
     it('could be defined as a single function which is executed for every channel and gets channel instance', function() {
         var definitionGenSpy = jasmine.createSpy('definition-generator')
                                 .and.callFake(function(channel) {
-            return { default: 12 };
+            return { 'default': 12 };
         });
 
         Rpd.channeltype('spec/foo', definitionGenSpy);
@@ -332,7 +332,7 @@ describe('registration: channel type', function() {
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'inlet/update',
                                            value: 12 }));
-            expect(updateSpy).toHaveBeenCalledWith(
+            expect(updateSpy).not.toHaveBeenCalledWith( // outlets have no default value
                 jasmine.objectContaining({ type: 'outlet/update',
                                            value: 12 }));
 

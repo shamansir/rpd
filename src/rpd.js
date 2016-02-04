@@ -380,7 +380,7 @@ function Inlet(type, node, alias, def) {
     if (!type_def) report_error('Channel type ' + this.type + ' is not registered!');
     this.def = join_definitions(INLET_PROPS, def, type_def);
 
-    if (!this.alias && !this.def.label) report_error('Inlet should have either alias or label');
+    if (!this.alias) report_error('Inlet should have an alias');
 
     this.value = Kefir.pool();
 
@@ -395,7 +395,7 @@ function Inlet(type, node, alias, def) {
     if (this.def.tune) updates = this.def.tune(updates);
     if (this.def.accept) updates = updates.flatten(function(v) {
         if (this.def.accept(v)) { return [v]; } else { orig_updates.error(); return []; }
-    });
+    }.bind(this));
     if (this.def.adapt) updates = updates.map(this.def.adapt);
     // rewrite with the modified stream
     this.event['inlet/update'] = updates.onValue(function(){});
@@ -441,7 +441,7 @@ function Outlet(type, node, alias, def) {
     if (!type_def) report_error('Channel type ' + this.type + ' is not registered!');
     this.def = join_definitions(OUTLET_PROPS, def, type_def);
 
-    if (!this.alias && !this.def.label) report_error('Outlet should have either alias or label');
+    if (!this.alias) report_error('Outlet should have an alias');
 
     this.value = Kefir.pool();
 

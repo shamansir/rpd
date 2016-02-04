@@ -208,7 +208,7 @@ describe('registration: channel renderer', function() {
 
             var rendererGenSpy = jasmine.createSpy('renderer-generator')
                                         .and.callFake(function(channel) {
-                return (renderers[channel.name] = {
+                return (renderers[channel.id] = {
                     show: function() { },
                     edit: function() { },
                 });
@@ -224,11 +224,11 @@ describe('registration: channel renderer', function() {
 
             expect(addInletSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    render: renderers['inlet-a']
+                    render: renderers[inletA.id]
                 }));
             expect(inletUpdateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    render: renderers['inlet-a']
+                    render: renderers[inletA.id]
                 }));
 
             var inletB = node.addInlet('spec/foo', 'inlet-b');
@@ -239,11 +239,11 @@ describe('registration: channel renderer', function() {
 
             expect(addInletSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    render: renderers['inlet-b']
+                    render: renderers[inletB.id]
                 }));
             expect(inletUpdateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    render: renderers['inlet-b']
+                    render: renderers[inletB.id]
                 }));
 
             var outletA = node.addOutlet('spec/foo', 'outlet-a');
@@ -254,12 +254,12 @@ describe('registration: channel renderer', function() {
 
             expect(addOutletSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    render: renderers['outlet-a']
+                    render: renderers[outletA.id]
                 }));
             expect(outletUpdateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
                     type: 'outlet/update',
-                    render: renderers['outlet-a']
+                    render: renderers[outletA.id]
                 }));
 
         });
