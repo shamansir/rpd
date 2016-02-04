@@ -319,7 +319,7 @@ describe('import and export', function() {
                     [ jasmine.objectContaining({
                           type: 'outlet/connect',
                           inlet: jasmine.objectContaining({ alias: 'Inlet' }),
-                          outlet: jasmine.objectContaining({ alias: 'Outlet' })
+                          outlet: jasmine.objectContaining({ alias: 'Outlet' }),
                           link: jasmine.any(Rpd._.Link)
                       }) ]
                 );
