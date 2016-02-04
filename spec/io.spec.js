@@ -103,7 +103,10 @@ describe('import and export', function() {
                           type: 'patch/project',
                           patch: jasmine.objectContaining({ name: 'Target' }),
                           target: jasmine.objectContaining({ name: 'Source' }),
-                          node: jasmine.objectContaining({ name: 'Projection', type: 'spec/empty' })
+                          node: jasmine.objectContaining({
+                              def: jasmine.objectContaining({ title: 'Projection' }),
+                              type: 'spec/empty'
+                          })
                       }) ]
                 );
             });
@@ -116,10 +119,15 @@ describe('import and export', function() {
                     [ jasmine.objectContaining({
                           type: 'patch/add-node',
                           patch: jasmine.objectContaining({ name: 'AddNode' }),
-                          node: jasmine.objectContaining({ name: 'Foo', type: 'spec/empty' })
+                          node: jasmine.objectContaining({
+                              def: jasmine.objectContaining({ title: 'Foo' }),
+                              type: 'spec/empty'
+                          })
                       }) ]
                 );
             });
+
+            xit('adding completely configured node');
 
             it('removing node', function() {
                 testAction(
@@ -131,7 +139,10 @@ describe('import and export', function() {
                     [ jasmine.objectContaining({
                           type: 'patch/remove-node',
                           patch: jasmine.objectContaining({ name: 'RemoveNode' }),
-                          node: jasmine.objectContaining({ name: 'Foo', type: 'spec/empty' })
+                          node: jasmine.objectContaining({
+                              def: jasmine.objectContaining({ title: 'Foo' }),
+                              type: 'spec/empty'
+                          })
                       }) ]
                 );
             });
@@ -139,11 +150,15 @@ describe('import and export', function() {
             it('turning node on', function() {
                 testAction(
                     function() {
-                        Rpd.addPatch('TurnNodeOn').addNode('spec/empty', 'Foo').turnOn();
+                        Rpd.addPatch('TurnNodeOn').addNode('spec/empty', 'Foo')
+                                                  .turnOn();
                     },
                     [ jasmine.objectContaining({
                           type: 'node/turn-on',
-                          node: jasmine.objectContaining({ name: 'Foo', type: 'spec/empty' })
+                          node: jasmine.objectContaining({
+                              def: jasmine.objectContaining({ title: 'Foo' }),
+                              type: 'spec/empty'
+                          })
                       }) ]
                 );
             });
@@ -151,11 +166,15 @@ describe('import and export', function() {
             it('turning node off', function() {
                 testAction(
                     function() {
-                        Rpd.addPatch('TurnNodeOff').addNode('spec/empty', 'Foo').turnOff();
+                        Rpd.addPatch('TurnNodeOff').addNode('spec/empty', 'Foo')
+                                                  .turnOff();
                     },
                     [ jasmine.objectContaining({
                           type: 'node/turn-off',
-                          node: jasmine.objectContaining({ name: 'Foo', type: 'spec/empty' })
+                          node: jasmine.objectContaining({
+                              def: jasmine.objectContaining({ title: 'Foo' }),
+                              type: 'spec/empty'
+                          })
                       }) ]
                 );
             });
@@ -163,15 +182,23 @@ describe('import and export', function() {
             it('adding inlet', function() {
                 testAction(
                     function() {
-                        Rpd.addPatch('Foo').addNode('spec/empty', 'AddInlet').addInlet('spec/any', 'Foo');
+                        Rpd.addPatch('Foo').addNode('spec/empty', 'AddInlet')
+                                           .addInlet('spec/any', 'Foo');
                     },
                     [ jasmine.objectContaining({
                           type: 'node/add-inlet',
-                          node: jasmine.objectContaining({ name: 'AddInlet' }),
-                          inlet: jasmine.objectContaining({ name: 'Foo', type: 'spec/any' })
+                          node: jasmine.objectContaining({
+                                    def: jasmine.objectContaining({ title: 'AddInlet' })
+                                }),
+                          inlet: jasmine.objectContaining({
+                                    alias: 'Foo',
+                                    type: 'spec/any'
+                                })
                       }) ]
                 );
             });
+
+            xit('adding completely configured inlet');
 
             it('removing inlet', function() {
                 testAction(
@@ -183,8 +210,13 @@ describe('import and export', function() {
                     },
                     [ jasmine.objectContaining({
                           type: 'node/remove-inlet',
-                          node: jasmine.objectContaining({ name: 'RemoveInlet' }),
-                          inlet: jasmine.objectContaining({ name: 'Bar', type: 'spec/any' })
+                          node: jasmine.objectContaining({
+                              def: jasmine.objectContaining({ title: 'RemoveInlet' })
+                          }),
+                          inlet: jasmine.objectContaining({
+                              alias: 'Bar',
+                              type: 'spec/any'
+                          })
                       }) ]
                 );
             });
@@ -196,8 +228,13 @@ describe('import and export', function() {
                     },
                     [ jasmine.objectContaining({
                           type: 'node/add-outlet',
-                          node: jasmine.objectContaining({ name: 'AddOutlet' }),
-                          outlet: jasmine.objectContaining({ name: 'Bar', type: 'spec/any' })
+                          node: jasmine.objectContaining({
+                              def: jasmine.objectContaining({ title: 'AddOutlet' })
+                          }),
+                          outlet: jasmine.objectContaining({
+                              alias: 'Bar',
+                              type: 'spec/any'
+                          })
                       }) ]
                 );
             });
@@ -212,11 +249,18 @@ describe('import and export', function() {
                     },
                     [ jasmine.objectContaining({
                           type: 'node/remove-outlet',
-                          node: jasmine.objectContaining({ name: 'RemoveOutlet' }),
-                          outlet: jasmine.objectContaining({ name: 'Foo', type: 'spec/any' })
+                          node: jasmine.objectContaining({
+                              def: jasmine.objectContaining({ title: 'RemoveOutlet' })
+                          }),
+                          outlet: jasmine.objectContaining({
+                              alias: 'Foo',
+                              type: 'spec/any'
+                          })
                       }) ]
                 );
             });
+
+            xit('adding completely configured outlet');
 
             it('moving node', function() {
                 testAction(
@@ -225,7 +269,9 @@ describe('import and export', function() {
                     },
                     [ jasmine.objectContaining({
                           type: 'node/move',
-                          node: jasmine.objectContaining({ name: 'Move' }),
+                          node: jasmine.objectContaining({
+                                    def: jasmine.objectContaining({ title: 'Move' })
+                                }),
                           position: [ 10, 25 ]
                       }) ]
                 );
@@ -246,12 +292,16 @@ describe('import and export', function() {
 
                 expect(updateSpy).not.toHaveBeenCalledWith(jasmine.objectContaining({
                       type: 'node/move',
-                      node: jasmine.objectContaining({ name: 'Move' }),
+                      node: jasmine.objectContaining({
+                                def: jasmine.objectContaining({ title: 'Move' })
+                            }),
                       position: [ 10, 25 ]
                   }));
                 expect(updateSpy).toHaveBeenCalledWith(jasmine.objectContaining({
                       type: 'node/move',
-                      node: jasmine.objectContaining({ name: 'Move' }),
+                      node: jasmine.objectContaining({
+                                def: jasmine.objectContaining({ title: 'Move' })
+                            }),
                       position: [ 20, 12 ]
                   }));
             });
@@ -268,8 +318,8 @@ describe('import and export', function() {
                     },
                     [ jasmine.objectContaining({
                           type: 'outlet/connect',
-                          inlet: jasmine.objectContaining({ name: 'Inlet' }),
-                          outlet: jasmine.objectContaining({ name: 'Outlet' }),
+                          inlet: jasmine.objectContaining({ alias: 'Inlet' }),
+                          outlet: jasmine.objectContaining({ alias: 'Outlet' })
                           link: jasmine.any(Rpd._.Link)
                       }) ]
                 );
@@ -289,8 +339,8 @@ describe('import and export', function() {
                     [ jasmine.objectContaining({
                           type: 'outlet/disconnect',
                           link: jasmine.objectContaining({
-                              inlet: jasmine.objectContaining({ name: 'Inlet' }),
-                              outlet: jasmine.objectContaining({ name: 'Outlet' })
+                              inlet: jasmine.objectContaining({ alias: 'Inlet' }),
+                              outlet: jasmine.objectContaining({ alias: 'Outlet' })
                           })
                       }) ]
                 );
@@ -309,8 +359,8 @@ describe('import and export', function() {
                     [ jasmine.objectContaining({
                           type: 'link/enable',
                           link: jasmine.objectContaining({
-                              inlet: jasmine.objectContaining({ name: 'Inlet' }),
-                              outlet: jasmine.objectContaining({ name: 'Outlet' })
+                              inlet: jasmine.objectContaining({ alias: 'Inlet' }),
+                              outlet: jasmine.objectContaining({ alias: 'Outlet' })
                           })
                       }) ]
                 );
@@ -331,8 +381,8 @@ describe('import and export', function() {
                     [ jasmine.objectContaining({
                           type: 'link/disable',
                           link: jasmine.objectContaining({
-                              inlet: jasmine.objectContaining({ name: 'Inlet' }),
-                              outlet: jasmine.objectContaining({ name: 'Outlet' })
+                              inlet: jasmine.objectContaining({ alias: 'Inlet' }),
+                              outlet: jasmine.objectContaining({ alias: 'Outlet' })
                           })
                       }) ]
                 );
