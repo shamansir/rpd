@@ -288,7 +288,7 @@ describe('import and export', function() {
                 var updateSpy = jasmine.createSpy('update');
                 Rpd.events.onValue(updateSpy);
 
-                Rpd.import.json(finalize());
+                Rpd.import[alias](finalize());
 
                 expect(updateSpy).not.toHaveBeenCalledWith(jasmine.objectContaining({
                       type: 'node/move',
@@ -388,10 +388,50 @@ describe('import and export', function() {
                 );
             });
 
+            xit('checks if versions of the imported and exported sources match');
+
+            it('handling weird names and titles', function() {
+                testAction(
+                    function() {
+                        Rpd.addPatch('Add @Node_`<!--$#*{%}').addNode('spec/empty', '"_`>!$#*\'');
+                    },
+                    [ jasmine.objectContaining({
+                          type: 'patch/add-node',
+                          patch: jasmine.objectContaining({ name: 'Add @Node_`<!--$#*{%}' }),
+                          node: jasmine.objectContaining({
+                              def: jasmine.objectContaining({ title: '"_`>!$#*\'' }),
+                              type: 'spec/empty'
+                          })
+                      }) ]
+                );
+
+                // TODO
+
+                /* testAction(
+                    function() {
+                        Rpd.addPatch('Add @Node_`<!--$#*{%}').addNode('spec/empty', '"_`>!$#*\'').addInlet('spec/any', 'a', '"_`>!$#*\'');
+                    },
+                    [ jasmine.objectContaining({
+                          type: 'node/add-inlet',
+                          patch: jasmine.objectContaining({ name: 'Add @Node_`<!--$#*{%}' }),
+                          node: jasmine.objectContaining({
+                              def: jasmine.objectContaining({ title: '"_`>!$#*\'' }),
+                              type: 'spec/empty'
+                          }),
+                          inlet: jasmine.objectContaining({
+                              def: jasmine.objectContaining({ label: '"_`>!$#*\'' }),
+                              type: 'spec/any'
+                          })
+                      }) ]
+                ); */
+
+            });
+
         });
 
     }
 
     testImportExport('json');
+    testImportExport('plain');
 
 });
