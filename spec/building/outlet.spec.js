@@ -200,10 +200,10 @@ describe('building: outlet', function() {
         });
     });
 
-    it('allows to set up or override channel `show` property', function() {
+    xit('allows to set up or override channel `show` property', function() {
     });
 
-    it('allows to set up or override channel `tune` function', function() {
+    xit('allows to set up or override channel `tune` function', function() {
 
     });
 
@@ -227,6 +227,9 @@ describe('building: outlet', function() {
             expect(function() { barOutlet.connect(barInlet); }).not.toThrow();
 
         });
+    });
+
+    xit('allows to subscribe to outlet events just from the description', function() {
     });
 
 });

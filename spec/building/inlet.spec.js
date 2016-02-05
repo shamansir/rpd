@@ -302,29 +302,29 @@ describe('building: inlet', function() {
 
     describe('allows to set up override channeltype properties', function() {
 
-        it('allows to override allow property', function() {
+        xit('allows to override allow property', function() {
 
         });
 
-        it('allows to override accept property', function() {
+        xit('allows to override accept property', function() {
 
         });
 
-        it('allows to override adapt property', function() {
+        xit('allows to override adapt property', function() {
 
         });
 
-        it('allows to override show property', function() {
+        xit('allows to override show property', function() {
 
         });
 
     });
 
-    it('allows to set up or override channel `tune` function', function() {
+    xit('allows to set up or override channel `tune` function', function() {
 
     });
 
-    it('allows to subscribe to inlet events just from the description', function() {
+    xit('allows to subscribe to inlet events just from the description', function() {
 
         withNewPatch(function(patch, updateSpy) {
 

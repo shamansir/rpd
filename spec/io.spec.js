@@ -391,39 +391,43 @@ describe('import and export', function() {
             xit('checks if versions of the imported and exported sources match');
 
             it('handling weird names and titles', function() {
+                var WEIRD_SYMBOLS = 'Add"_`>!$#*\'Add @Node_`<!--$`>`#*{%}';
+
                 testAction(
                     function() {
-                        Rpd.addPatch('Add @Node_`<!--$#*{%}').addNode('spec/empty', '"_`>!$#*\'');
+                        var node = Rpd.addPatch(WEIRD_SYMBOLS).addNode('spec/empty', WEIRD_SYMBOLS);
+                        node.addInlet('spec/any', 'a', WEIRD_SYMBOLS)
+                        node.addOutlet('spec/any', 'a', WEIRD_SYMBOLS);
                     },
                     [ jasmine.objectContaining({
                           type: 'patch/add-node',
-                          patch: jasmine.objectContaining({ name: 'Add @Node_`<!--$#*{%}' }),
+                          patch: jasmine.objectContaining({ name: WEIRD_SYMBOLS }),
                           node: jasmine.objectContaining({
-                              def: jasmine.objectContaining({ title: '"_`>!$#*\'' }),
+                              def: jasmine.objectContaining({ title: WEIRD_SYMBOLS }),
                               type: 'spec/empty'
                           })
-                      }) ]
-                );
-
-                // TODO
-
-                /* testAction(
-                    function() {
-                        Rpd.addPatch('Add @Node_`<!--$#*{%}').addNode('spec/empty', '"_`>!$#*\'').addInlet('spec/any', 'a', '"_`>!$#*\'');
-                    },
-                    [ jasmine.objectContaining({
+                      }), jasmine.objectContaining({
                           type: 'node/add-inlet',
-                          patch: jasmine.objectContaining({ name: 'Add @Node_`<!--$#*{%}' }),
                           node: jasmine.objectContaining({
-                              def: jasmine.objectContaining({ title: '"_`>!$#*\'' }),
+                              def: jasmine.objectContaining({ title: WEIRD_SYMBOLS }),
                               type: 'spec/empty'
                           }),
                           inlet: jasmine.objectContaining({
-                              def: jasmine.objectContaining({ label: '"_`>!$#*\'' }),
+                              def: jasmine.objectContaining({ label: WEIRD_SYMBOLS }),
+                              type: 'spec/any'
+                          })
+                      }), jasmine.objectContaining({
+                          type: 'node/add-outlet',
+                          node: jasmine.objectContaining({
+                              def: jasmine.objectContaining({ title: WEIRD_SYMBOLS }),
+                              type: 'spec/empty'
+                          }),
+                          outlet: jasmine.objectContaining({
+                              def: jasmine.objectContaining({ label: WEIRD_SYMBOLS }),
                               type: 'spec/any'
                           })
                       }) ]
-                ); */
+                );
 
             });
 

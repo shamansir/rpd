@@ -41,7 +41,7 @@ describe('building: patch', function() {
         expect(addNodeSpy).toHaveBeenCalled();
     });
 
-    it('allows to subscribe to inner events', function() {
+    xit('allows to subscribe to inner events', function() {
 
     });
 
