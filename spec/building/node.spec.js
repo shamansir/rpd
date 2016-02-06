@@ -116,4 +116,8 @@ describe('building: node', function() {
 
     });
 
+    xit('allows to substitute/extend renderer', function() {
+        // i#311
+    });
+
 });

@@ -41,8 +41,12 @@ describe('building: patch', function() {
         expect(addNodeSpy).toHaveBeenCalled();
     });
 
-    xit('allows to subscribe to inner events', function() {
+    xit('allows to subscribe inner events', function() {
+        // i#107
+    });
 
+    xit('allows to substitute/extend renderer', function() {
+        // i#311
     });
 
 });

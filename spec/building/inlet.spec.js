@@ -324,6 +324,10 @@ describe('building: inlet', function() {
 
     });
 
+    xit('allows to substitute/extend renderer', function() {
+        // i#311
+    });
+
     xit('allows to subscribe to inlet events just from the description', function() {
 
         withNewPatch(function(patch, updateSpy) {

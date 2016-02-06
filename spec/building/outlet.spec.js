@@ -232,4 +232,8 @@ describe('building: outlet', function() {
     xit('allows to subscribe to outlet events just from the description', function() {
     });
 
+    xit('allows to substitute/extend renderer', function() {
+        // i#311
+    });
+
 });

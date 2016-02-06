@@ -19,8 +19,8 @@ var nodetypes = {}; var NODE_PROPS = [ 'title', '*inlets', '*outlets', 'prepare'
 var channeltypes = {}; var INLET_PROPS = [ 'label', 'default', 'hidden', 'cold', 'readonly', 'allow', 'accept', 'adapt', 'tune', 'show', '*handle' ];
                        var OUTLET_PROPS = [ 'label', 'tune', 'show', '*handle' ];
                        var CHANNEL_PROPS = INLET_PROPS;
-var noderenderers = {}; var NODE_RENDERER_PROPS = [ 'prepare', 'size', 'first', 'always' ]; // TODO
-var channelrenderers = {}; var CHANNEL_RENDERER_PROPS = [ 'prepare', 'show', 'edit' ]; // TODO
+var noderenderers = {}; var NODE_RENDERER_PROPS = [ 'prepare', 'size', 'first', 'always' ];
+var channelrenderers = {}; var CHANNEL_RENDERER_PROPS = [ 'prepare', 'show', 'edit' ];
 var nodedescriptions = {};
 var styles = {};
 
@@ -123,13 +123,13 @@ function Patch(name) {
         var node = value[0], inputs = value[1], outputs = value[2];
         var inlet, outlet, input, output;
         for (var i = 0; i < inputs.length; i++) {
-            inlet = node.addInlet(inputs[i].type, inputs[i].alias, inputs[i].def);
+            inlet = node.addInlet(inputs[i].type, inputs[i].alias, inputs[i].def, inputs[i].render);
             inlet.event['inlet/update'].onValue((function(input) {
                 return function(value) { input.receive(value); };
             })(inputs[i]));
         } // use inlet.onUpdate?
         for (i = 0; i < outputs.length; i++) {
-            outlet = node.addOutlet(outputs[i].type, outputs[i].alias, outputs[i].def);
+            outlet = node.addOutlet(outputs[i].type, outputs[i].alias, outputs[i].def, outputs[i].render);
             outputs[i].event['outlet/update'].onValue((function(outlet) {
                 return function(value) { outlet.send(value); };
             })(outlet));
@@ -154,14 +154,15 @@ Patch.prototype.render = function(aliases, targets, config) {
     }
     return this;
 }
-Patch.prototype.addNode = function(type, arg1, arg2) {
+Patch.prototype.addNode = function(type, arg1, arg2, arg3) {
     var patch = this;
 
     var def = arg2 ? arg2 : (is_object(arg1) ? (arg1 || {}) : {});
     var title = is_object(arg1) ? undefined : arg1;
     if (title) def.title = title;
+    var render = (arg1 && is_object(arg1)) ? arg2 : arg3;
 
-    var node = new Node(type, this, def, function(node) {
+    var node = new Node(type, this, def, render, function(node) {
         patch.events.plug(node.events);
         patch.event['patch/add-node'].emit(node);
 
@@ -197,7 +198,7 @@ Patch.prototype.project = function(node) {
 // ================================= Node ======================================
 // =============================================================================
 
-function Node(type, patch, def, callback) {
+function Node(type, patch, def, render, callback) {
     this.type = type || 'core/empty';
     this.id = short_uid();
     this.patch = patch;
@@ -220,7 +221,8 @@ function Node(type, patch, def, callback) {
     if (!type_def) report_error('Node type ' + this.type + ' is not registered!');
     this.def = join_definitions(NODE_PROPS, def, type_def);
 
-    this.render = prepare_render_obj(noderenderers[this.type], this);
+    this.render = join_render_definitions(NODE_RENDERER_PROPS, render,
+                      prepare_render_obj(noderenderers[this.type], this));
 
     if (callback) callback(this);
 
@@ -328,12 +330,13 @@ Node.prototype.turnOn = function() {
 Node.prototype.turnOff = function() {
     this.event['node/turn-off'].emit();
 }
-Node.prototype.addInlet = function(type, alias, arg2, arg3) {
+Node.prototype.addInlet = function(type, alias, arg2, arg3, arg4) {
     var def = arg3 ? arg3 : (is_object(arg2) ? (arg2 || {}) : {});
     var label = is_object(arg2) ? undefined : arg2;
     if (label) def.label = label;
+    var render = (arg2 && is_object(arg2)) ? arg3 : arg4;
 
-    var inlet = new Inlet(type, this, alias, def);
+    var inlet = new Inlet(type, this, alias, def, render);
     this.events.plug(inlet.events);
 
     //this.events['outlet/connect'].filter(function(update) { return update.inlet.id === inlet.id; })
@@ -342,12 +345,13 @@ Node.prototype.addInlet = function(type, alias, arg2, arg3) {
     inlet.toDefault();
     return inlet;
 }
-Node.prototype.addOutlet = function(type, alias, arg2, arg3) {
+Node.prototype.addOutlet = function(type, alias, arg2, arg3, arg4) {
     var def = arg3 ? arg3 : (is_object(arg2) ? (arg2 || {}) : {});
     var label = is_object(arg2) ? undefined : arg2;
     if (label) def.label = label;
+    var render = (arg2 && is_object(arg2)) ? arg3 : arg4;
 
-    var outlet = new Outlet(type, this, alias, def);
+    var outlet = new Outlet(type, this, alias, def, render);
     this.events.plug(outlet.events);
     this.event['node/add-outlet'].emit(outlet);
     outlet.toDefault();
@@ -370,7 +374,7 @@ Node.prototype.move = function(x, y) {
 // ================================== Inlet ====================================
 // =============================================================================
 
-function Inlet(type, node, alias, def) {
+function Inlet(type, node, alias, def, render) {
     this.type = type || 'core/any';
     this.id = short_uid();
     this.alias = alias;
@@ -384,7 +388,8 @@ function Inlet(type, node, alias, def) {
 
     this.value = Kefir.pool();
 
-    this.render = prepare_render_obj(channelrenderers[this.type], this);
+    this.render = join_render_definitions(CHANNEL_RENDERER_PROPS, render,
+                      prepare_render_obj(channelrenderers[this.type], this));
 
     var event_types = {
         'inlet/update': [ 'value' ]
@@ -431,7 +436,7 @@ Inlet.prototype.allows = function(outlet) {
 // ================================= Outlet ====================================
 // =============================================================================
 
-function Outlet(type, node, alias, def) {
+function Outlet(type, node, alias, def, render) {
     this.type = type || 'core/any';
     this.id = short_uid();
     this.alias = alias;
@@ -445,7 +450,8 @@ function Outlet(type, node, alias, def) {
 
     this.value = Kefir.pool();
 
-    this.render = prepare_render_obj(channelrenderers[this.type], this);
+    this.render = join_render_definitions(CHANNEL_RENDERER_PROPS, render,
+                      prepare_render_obj(channelrenderers[this.type], this));
 
     // outlets values are not editable
 
@@ -637,6 +643,18 @@ function prepare_render_obj(template, subj) {
         render_obj[render_type] = adapt_to_obj(template[render_type], subj);
     }
     return render_obj;
+}
+
+function join_render_definitions(keys, user_render, type_render) {
+    if (!user_render) return type_render;
+    var result = {};
+    for (var render_type in type_render) {
+        result[render_type] = join_definitions(keys, user_render[render_type], type_render[render_type]);
+    }
+    for (var render_type in user_render) {
+        if (!result[render_type] && !type_render[render_type]) result[render_type] = user_render[render_type];
+    }
+    return result;
 }
 
 function event_map(conf) {
