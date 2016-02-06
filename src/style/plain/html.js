@@ -25,13 +25,13 @@ return {
         var nodeElm = d3.select(document.createElement('table'))
                         .attr('class', 'rpd-node');
 
-        if (node.name) {
+        if (node.def.title || node.type) {
             nodeElm.append('tr').attr('class', 'rpd-title')
                                 .attr('colspan', 0)
                                 .classed('rpd-header', true)
                    .append('th')
                    .call(function(td) {
-                       td.append('span').attr('class', 'rpd-name').text(node.name);
+                       td.append('span').attr('class', 'rpd-name').text(node.def.title || node.type);
                        if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(node.type);
                        // add description to be shown on hover
                        td.attr('title', description ? (description + ' (' + node.type + ')') : node.type);
@@ -76,7 +76,7 @@ return {
         var inletElm = d3.select(document.createElement('td')).attr('class', 'rpd-inlet')
                          .call(function(td) {
                              td.append('span').attr('class', 'rpd-connector');
-                             td.append('span').attr('class', 'rpd-name').text(inlet.name);
+                             td.append('span').attr('class', 'rpd-name').text(inlet.def.label || inlet.alias);
                              td.append('span').attr('class', 'rpd-value-holder')
                                .append('span').attr('class', 'rpd-value');
                              if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(inlet.type);
@@ -89,7 +89,7 @@ return {
         var outletElm = d3.select(document.createElement('td')).attr('class', 'rpd-outlet')
                           .call(function(td) {
                               td.append('span').attr('class', 'rpd-connector');
-                              td.append('span').attr('class', 'rpd-name').text(outlet.name);
+                              td.append('span').attr('class', 'rpd-name').text(outlet.def.label || outlet.alias);
                               td.append('span').attr('class', 'rpd-value');
                               if (config.showTypes) td.append('span').attr('class', 'rpd-type').text(outlet.type);
                           });

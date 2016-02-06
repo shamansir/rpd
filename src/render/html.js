@@ -290,7 +290,7 @@ return function(networkRoot, userConfig) {
         'node/add-inlet': function(update) {
 
             var inlet = update.inlet;
-            if (inlet.hidden) return;
+            if (inlet.def.hidden) return;
 
             var inletsTarget = tree.nodes[update.node.id].data().inletsTarget;
             var render = update.render;
@@ -299,12 +299,12 @@ return function(networkRoot, userConfig) {
 
             inletElm.classed('rpd-'+inlet.type.replace('/','-'), true);
             inletElm.classed({ 'rpd-stale': true,
-                               'rpd-readonly': inlet.readonly,
-                               'rpd-cold': inlet.cold
+                               'rpd-readonly': inlet.def.readonly,
+                               'rpd-cold': inlet.def.cold
                              });
 
             var editor = null;
-            if (!inlet.readonly && render.edit) {
+            if (!inlet.def.readonly && render.edit) {
                 editor = new ValueEditor(inlet, render, root,
                                          inletElm.select('.rpd-value-holder'),
                                          inletElm.select('.rpd-value'),
@@ -387,7 +387,7 @@ return function(networkRoot, userConfig) {
 
             var inlet = update.inlet;
 
-            if (inlet.hidden) return;
+            if (inlet.def.hidden) return;
 
             var render = update.render;
 

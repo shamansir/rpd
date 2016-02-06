@@ -56,7 +56,7 @@ return {
         // append node header
         nodeElm.append('path').attr('class', 'rpd-header').classed('rpd-drag-handle', true)
                               .attr('d', roundedRect(0, 0, width, headerHeight, 2, 2, 0, 0));
-        nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
+        nodeElm.append('text').attr('class', 'rpd-name').text(node.def.title || node.type)
                               .attr('x', 5).attr('y', 6)
                               .style('pointer-events', 'none');
         // append node body
@@ -171,7 +171,7 @@ return {
             group.append('g').attr('class', 'rpd-value-holder')
                  .attr('transform', 'translate(-15,0)')
                  .append('text').attr('class', 'rpd-value');
-            group.append('text').attr('class', 'rpd-name').text(inlet.name)
+            group.append('text').attr('class', 'rpd-name').text(inlet.def.label || inlet.alias)
                                 .attr('x', 10).attr('y', 0);
         });
         listeners[inlet.node.id].inlet(inletElm);
@@ -189,7 +189,7 @@ return {
                  .append('text').attr('class', 'rpd-value')
                                 .attr('x', 10).attr('y', 0)
                                 .style('pointer-events', 'none');
-            group.append('text').attr('class', 'rpd-name').text(outlet.name)
+            group.append('text').attr('class', 'rpd-name').text(outlet.def.label || outlet.alias)
                                 .attr('x', -10).attr('y', 0);
         });
         listeners[outlet.node.id].outlet(outletElm);

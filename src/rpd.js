@@ -19,8 +19,8 @@ var nodetypes = {}; var NODE_PROPS = [ 'title', '*inlets', '*outlets', 'prepare'
 var channeltypes = {}; var INLET_PROPS = [ 'label', 'default', 'hidden', 'cold', 'readonly', 'allow', 'accept', 'adapt', 'tune', 'show', '*handle' ];
                        var OUTLET_PROPS = [ 'label', 'tune', 'show', '*handle' ];
                        var CHANNEL_PROPS = INLET_PROPS;
-var noderenderers = {}; var NODE_RENDERER_PROPS = [ 'size', 'first', 'always' ];
-var channelrenderers = {}; var CHANNEL_RENDERER_PROPS = [ 'show', 'edit' ];
+var noderenderers = {}; var NODE_RENDERER_PROPS = [ 'prepare', 'size', 'first', 'always' ]; // TODO
+var channelrenderers = {}; var CHANNEL_RENDERER_PROPS = [ 'prepare', 'show', 'edit' ]; // TODO
 var nodedescriptions = {};
 var styles = {};
 

@@ -41,7 +41,7 @@ return {
                          .append('th').attr('colspan', 3)
                          .call(function(th) {
                              if (config.showTypes) th.append('span').attr('class', 'rpd-type').text(node.type);
-                             th.append('span').attr('class', 'rpd-name').text(node.name);
+                             th.append('span').attr('class', 'rpd-name').text(node.def.title || node.type);
                              // add description to be shown on hover
                              th.attr('title', description ? (description + ' (' + node.type + ')') : node.type);
                          });
@@ -90,7 +90,7 @@ return {
                              tr.append('td').attr('class', 'rpd-connector');
                              tr.append('td').attr('class', 'rpd-value-holder')
                                             .append('span').attr('class', 'rpd-value');
-                             tr.append('td').attr('class', 'rpd-name').text(inlet.name);
+                             tr.append('td').attr('class', 'rpd-name').text(inlet.def.label || inlet.alias);
                              if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(inlet.type);
                          });
         inletToConnector[inlet.id] = inletElm.select('.rpd-connector');
@@ -104,7 +104,7 @@ return {
                               tr.append('td').attr('class', 'rpd-connector');
                               tr.append('td').attr('class', 'rpd-value');
                               if (config.showTypes) tr.append('td').attr('class', 'rpd-type').text(outlet.type);
-                              tr.append('td').attr('class', 'rpd-name').text(outlet.name);
+                              tr.append('td').attr('class', 'rpd-name').text(outlet.def.label || outlet.alias);
                           });
         outletToConnector[outlet.id] = outletElm.select('.rpd-connector');
         return { element: outletElm.node() };

@@ -176,7 +176,7 @@ return {
             group.append('g').attr('class', 'rpd-value-holder')
                  .attr('transform', 'translate(0,-20)')
                  .append('text').attr('class', 'rpd-value');
-            group.append('text').attr('class', 'rpd-name').text(inlet.name)
+            group.append('text').attr('class', 'rpd-name').text(inlet.def.label || inlet.alias)
                                 .attr('x', 0).attr('y', -10);
         });
         listeners[inlet.node.id].inlet(inletElm);
@@ -195,7 +195,7 @@ return {
                  .append('text').attr('class', 'rpd-value')
                                 .attr('x', 0).attr('y', 20)
                                 .style('pointer-events', 'none');
-            group.append('text').attr('class', 'rpd-name').text(outlet.name)
+            group.append('text').attr('class', 'rpd-name').text(outlet.def.label || outlet.alias)
                                 .attr('x', 0).attr('y', 10);
         });
         listeners[outlet.node.id].outlet(outletElm);
