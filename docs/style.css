@@ -1,0 +1,162 @@
+body {
+    /*font-family: "Geneva", "Avenir", "Lucida Grande", "Input Sans Cond Ex Lt", sans-serif;*/
+    font-family: "Geneva", "Avenir", "Lucida Grande", sans-serif;
+    margin: 30px 50px;
+    color: black;
+    /*-webkit-font-smoothing: antialiased;*/
+}
+
+header {
+    /* margin-bottom: 54px; */
+    /* margin-bottom: 36px; */
+    /* margin-bottom: 2.35em; */
+    margin-bottom: 1.2em;
+    border-bottom: 2px solid black;
+    padding-bottom: 15px;
+}
+
+header > img {
+    width: 2em;
+    height: 2em;
+    /*vertical-align: text-bottom;*/
+    position: relative;
+    top: 4px;
+    left: -1px;
+}
+
+h1, h2, h3, h4, h5, h6, nav {
+    /*font-family: "Avenir", "Lucida Grande", "Geneva", sans-serif;*/
+}
+
+h1 {
+    /* font-family: "Input Sans Cond Ex Lt", "Geneva", "Lucida Grande", "Avenir", sans-serif; */
+    font-family: "Avenir", "Lucida Grande", "Geneva", sans-serif;
+    margin: 0;
+    position: relative;
+    margin-left: 6px;
+    display: inline;
+}
+
+h1 a {
+    text-decoration: none;
+    color: black;
+}
+
+h1 a:hover {
+    background-color: #eee;
+}
+
+#version {
+    display: inline;
+    color: lightslategray;
+}
+
+h2 {
+    margin-bottom: 1.5em;
+}
+
+h2:before {
+    content: '§';
+    font-size: 0.8em;
+    vertical-align: top;
+    /* opacity: 0.5; */
+    position: relative;
+    margin-right: 0.26em;
+    top: 2px;
+    color: crimson;
+}
+
+a {
+    color: crimson;
+}
+
+a:active, a.active {
+    color: darkcyan;
+}
+
+nav {
+    font-size: 0.8em;
+    display: block;
+    float: right;
+    /* border-left: 1px solid crimson; */
+}
+
+nav > ul {
+    margin: 0px 5px 40px 40px;
+    padding: 5px 0 5px 10px;
+    list-style-position: inside;
+}
+
+nav > ul ul {
+    padding-left: 30px;
+}
+
+nav ul li a {
+    text-decoration: none;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+nav > ul > li {
+    /* border-left: 5px solid transparent; */
+    padding-left: 5px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    /* border-bottom: 1px solid crimson; */
+    border-bottom: 1px solid lightblue; /* bisque, gainsboro, lightblue, darkgray, lightseagreen, beige, coral, darkcyan, crimson, deepskyblue, floralwhite,  */
+    /*text-indent: -3px;*/
+}
+
+nav > ul > li:last-child {
+    border-bottom: none;
+}
+
+nav li.active {
+    /*color: darkblue;*/ /* brown, darkred, firebrick, maroon, orangered, red, tomato */
+    /* font-weight: bold; */
+    /* border-left: 5px solid crimson; */
+    background-color: #fbfbfb;
+}
+
+/* nav li.active > a {
+    position: relative;
+    left: -3px;
+} */
+
+main {
+    display: block;
+    max-width: 80%;
+}
+
+/* footer {
+    position: absolute;
+    right: 0;
+    margin: 10px;
+    font-szie: 0.8em;
+} */
+
+footer {
+    font-size: 0.8em;
+    margin: 5em 0 1.5em 0;
+    padding: 3px 0 0 1px;
+    /* text-decoration: overline; */
+    border-top: 2px solid black;
+    width: 65%;
+}
+
+#logo-patch-target {
+    text-align: center;
+    margin: 4em 0;
+    width: 100%;
+}
+
+#logo-patch-target > img {
+    width: 140px;
+    height: 140px;
+}
+
+#logo-patch-target > #rpd-patch {
+    width: 100%;
+}

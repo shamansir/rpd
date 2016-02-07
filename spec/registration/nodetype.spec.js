@@ -22,7 +22,7 @@ describe('registration: node type', function() {
                 jasmine.objectContaining(
                     { type: 'node/add-inlet',
                       inlet: jasmine.objectContaining({
-                          name: 'a',
+                          alias: 'a',
                           type: 'spec/any'
                       }) })
             );
@@ -31,7 +31,7 @@ describe('registration: node type', function() {
                 jasmine.objectContaining(
                     { type: 'node/add-inlet',
                       inlet: jasmine.objectContaining({
-                          name: 'b',
+                          alias: 'b',
                           type: 'spec/any'
                       }) })
             );
@@ -56,7 +56,7 @@ describe('registration: node type', function() {
                 jasmine.objectContaining(
                     { type: 'node/add-outlet',
                       outlet: jasmine.objectContaining({
-                          name: 'a',
+                          alias: 'a',
                           type: 'spec/any'
                       }) })
             );
@@ -65,7 +65,7 @@ describe('registration: node type', function() {
                 jasmine.objectContaining(
                     { type: 'node/add-outlet',
                       outlet: jasmine.objectContaining({
-                          name: 'b',
+                          alias: 'b',
                           type: 'spec/any'
                       }) })
             );
@@ -190,7 +190,7 @@ describe('registration: node type', function() {
         it('is called once when single inlet has some default value', function() {
 
             Rpd.nodetype('spec/foo', {
-                inlets:  { 'a': { type: 'spec/any', default: 10 },
+                inlets:  { 'a': { type: 'spec/any', 'default': 10 },
                            'b': { type: 'spec/any' } },
                 process: processSpy
             });
@@ -206,8 +206,8 @@ describe('registration: node type', function() {
         it('is called for every inlet which have a default value', function() {
 
             Rpd.nodetype('spec/foo', {
-                inlets: { 'a': { type: 'spec/any', default: 10 },
-                          'b': { type: 'spec/any', default: 5  } },
+                inlets: { 'a': { type: 'spec/any', 'default': 10 },
+                          'b': { type: 'spec/any', 'default': 5  } },
                 process: processSpy
             });
 
@@ -229,8 +229,8 @@ describe('registration: node type', function() {
         it('is not affected with number of outlets', function() {
 
             Rpd.nodetype('spec/foo', {
-                inlets: { 'a': { type: 'spec/any', default: 10 },
-                          'b': { type: 'spec/any', default: 5  } },
+                inlets: { 'a': { type: 'spec/any', 'default': 10 },
+                          'b': { type: 'spec/any', 'default': 5  } },
                 outlets: { 'c': { type: 'spec/any' } },
                 process: processSpy
             });
@@ -263,19 +263,21 @@ describe('registration: node type', function() {
 
         });
 
-        it('sets outlets to their default values', function() {
+        it('does not uses default values for outlets', function() {
+
+            // throw an error if default value passed to outlet?
 
             Rpd.nodetype('spec/foo', {
                 inlets: { 'a': { type: 'spec/any' },
                           'b': { type: 'spec/any' } },
-                outlets: { 'c': { type: 'spec/any', default: 17 } },
+                outlets: { 'c': { type: 'spec/any', 'default': 17 } },
                 process: processSpy
             });
 
             withNewPatch(function(patch, updateSpy) {
                 var node = patch.addNode('spec/foo');
                 var outlet = node.outlets['c'];
-                expect(updateSpy).toHaveBeenCalledWith(
+                expect(updateSpy).not.toHaveBeenCalledWith(
                     jasmine.objectContaining({
                         type: 'outlet/update',
                         outlet: outlet,
@@ -291,12 +293,12 @@ describe('registration: node type', function() {
             var nodeReady = false;
 
             Rpd.nodetype('spec/foo', {
-                inlets: { 'a': { type: 'spec/any', default: 5 },
-                          'b': { type: 'spec/any', default: [ 2, 1 ] },
-                          'c': { type: 'spec/any', default: {} },
-                          'd': { type: 'spec/any', default: '' } },
-                outlets: { 'e': { type: 'spec/any', default: 17 },
-                           'f': { type: 'spec/any', default: [] } },
+                inlets: { 'a': { type: 'spec/any', 'default': 5 },
+                          'b': { type: 'spec/any', 'default': [ 2, 1 ] },
+                          'c': { type: 'spec/any', 'default': {} },
+                          'd': { type: 'spec/any', 'default': '' } },
+                outlets: { 'e': { type: 'spec/any' },
+                           'f': { type: 'spec/any' } },
                 process: processSpy
             });
 
@@ -322,7 +324,7 @@ describe('registration: node type', function() {
             var period = 30;
 
             Rpd.nodetype('spec/foo', {
-                inlets: { 'char': { type: 'spec/any', default: Kefir.sequentially(period, values) } },
+                inlets: { 'char': { type: 'spec/any', 'default': Kefir.sequentially(period, values) } },
                 process: processSpy
             });
 
@@ -375,7 +377,7 @@ describe('registration: node type', function() {
 
         it('passes previous values with a call', function() {
             Rpd.nodetype('spec/foo', {
-                inlets: { 'char': { type: 'spec/any', default: 'a' } },
+                inlets: { 'char': { type: 'spec/any', 'default': 'a' } },
                 process: processSpy
             });
 
@@ -398,7 +400,7 @@ describe('registration: node type', function() {
             Rpd.nodetype('spec/foo', {
                 inlets: { 'char': { type: 'spec/any',
                                     hidden: true,
-                                    default: 'a' } },
+                                    'default': 'a' } },
                 process: processSpy
             });
 
@@ -420,7 +422,7 @@ describe('registration: node type', function() {
             Rpd.nodetype('spec/foo', {
                 inlets: { 'foo': { type: 'spec/any',
                                    cold: true,
-                                   default: 'a' },
+                                   'default': 'a' },
                           'bar': { type: 'spec/any', cold: true },
                           'buz': { type: 'spec/any' } },
                 process: processSpy
@@ -454,8 +456,8 @@ describe('registration: node type', function() {
             });
 
             Rpd.nodetype('spec/foo', {
-                inlets:  { 'a': { type: 'spec/any', default: 7 },
-                           'b': { type: 'spec/any', default: 2 } },
+                inlets:  { 'a': { type: 'spec/any', 'default': 7 },
+                           'b': { type: 'spec/any', 'default': 2 } },
                 outlets: { 'c': { type: 'spec/any' } },
                 process: processSpy
             });
@@ -654,7 +656,7 @@ describe('registration: node type', function() {
             });
 
             Rpd.nodetype('spec/foo', {
-                inlets:  { 'a': { type: 'spec/any', default: 4 },
+                inlets:  { 'a': { type: 'spec/any', 'default': 4 },
                            'b': { type: 'spec/any' } },
                 outlets: { 'c': { type: 'spec/any' },
                            'd': { type: 'spec/any' } },
@@ -680,7 +682,7 @@ describe('registration: node type', function() {
             processSpy.and.callFake(function(inlets) { });
 
             Rpd.nodetype('spec/foo', {
-                inlets:  { 'a': { type: 'spec/any', default: 2 },
+                inlets:  { 'a': { type: 'spec/any', 'default': 2 },
                            'b': { type: 'spec/any' } },
                 outlets: { 'c': { type: 'spec/any' },
                            'd': { type: 'spec/any' } },
@@ -726,7 +728,7 @@ describe('registration: node type', function() {
                 expect(updateSpy).toHaveBeenCalledWith(
                     jasmine.objectContaining({
                         type: 'node/add-inlet',
-                        inlet: jasmine.objectContaining({ 'name': 'bar' })
+                        inlet: jasmine.objectContaining({ alias: 'bar' })
                     })
                 );
 
@@ -738,7 +740,7 @@ describe('registration: node type', function() {
         it('incoming values stream could be tuned', function() {
 
             Rpd.nodetype('spec/foo', {
-                inlets:  { 'a': { type: 'spec/any', default: -1 } },
+                inlets:  { 'a': { type: 'spec/any', 'default': -1 } },
                 process: processSpy,
                 tune: function(incoming) {
                     return incoming

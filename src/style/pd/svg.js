@@ -58,7 +58,7 @@ return {
         // it is required to know the header size before constructing the node itself
         var fakeName = d3.select(_createSvgElement('text'))
                          .attr('class', 'rpd-fake-name')
-                         .text(node.name).attr('x', -1000).attr('y', -1000);
+                         .text(node.def.title || node.type).attr('x', -1000).attr('y', -1000);
         globalLastRoot.append(fakeName.node());
         var headerWidth = fakeName.node().getBBox().width + 12;
         fakeName.remove();
@@ -92,7 +92,7 @@ return {
         nodeElm.append('rect').attr('class', 'rpd-header').classed('rpd-drag-handle', true)
                               .attr('x', 0).attr('y', 0)
                               .attr('width', headerWidth).attr('height', height);
-        nodeElm.append('text').attr('class', 'rpd-name').text(node.name)
+        nodeElm.append('text').attr('class', 'rpd-name').text(node.def.title || node.type)
                               .attr('x', 5).attr('y', height / 2)
                               .style('pointer-events', 'none');
         // append node body
@@ -196,7 +196,7 @@ return {
             group.append('g').attr('class', 'rpd-value-holder')
                  .attr('transform', 'translate(0,-30)')
                  .append('text').attr('class', 'rpd-value');
-            group.append('text').attr('class', 'rpd-name').text(inlet.name)
+            group.append('text').attr('class', 'rpd-name').text(inlet.def.label || inlet.alias)
                                 .attr('x', 0).attr('y', -15);
         });
         listeners[inlet.node.id].inlet(inletElm);
@@ -214,7 +214,7 @@ return {
                  .append('text').attr('class', 'rpd-value')
                                 .attr('x', 0).attr('y', 30)
                                 .style('pointer-events', 'none');
-            group.append('text').attr('class', 'rpd-name').text(outlet.name)
+            group.append('text').attr('class', 'rpd-name').text(outlet.def.label || outlet.alias)
                                 .attr('x', 0).attr('y', 15);
         });
         listeners[outlet.node.id].outlet(outletElm);

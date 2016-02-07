@@ -295,12 +295,12 @@ return function(networkRoot, userConfig) {
 
             inletElm.classed('rpd-'+inlet.type.replace('/','-'), true);
             inletElm.classed({ 'rpd-stale': true,
-                               'rpd-readonly': inlet.readonly,
-                               'rpd-cold': inlet.cold
+                               'rpd-readonly': inlet.def.readonly,
+                               'rpd-cold': inlet.def.cold
                              });
 
             var editor = null;
-            if (!inlet.readonly && render.edit) {
+            if (!inlet.def.readonly && render.edit) {
                 editor = new ValueEditor(inlet, render, svg,
                                          inletElm.select('.rpd-value-holder'),
                                          inletElm.select('.rpd-value'),

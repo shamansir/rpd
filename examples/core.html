@@ -51,7 +51,7 @@
             var outA = genA.addOutlet('core/number', 'A');
 
             var genA = model.addNode('core/custom', 'Generate B');
-            var outB = genA.addOutlet('core/number', 'B', '', 1);
+            var outB = genA.addOutlet('core/number', 'B', { 'default': 1 });
 
             var sumOfThree = model.addNode('demo/sum-of-three', 'Sum1');
             var inA = sumOfThree.inlets['a'];

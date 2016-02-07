@@ -1,4 +1,4 @@
-Rpd.style('realpd', 'svg', (function() {
+Rpd.style('webpd', 'svg', (function() {
 
 var d3 = d3 || d3_tiny;
 
@@ -69,7 +69,7 @@ return {
         nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                .classed('rpd-'+node.type.replace('/','-'), true);
 
-        var isPdNode = (node.type.indexOf('pd/') === 0);
+        var isPdNode = (node.type.indexOf('wpd/') === 0);
         if (!isPdNode) {
             nodeElm.append('rect').classed('rpd-background').classed('rpd-drag-handle', true)
                                   .attr('width', size.width).attr('height', size.height);

@@ -8,6 +8,54 @@ describe('building: node', function() {
         }).toThrow();
     });
 
+
+    it('does not requires a title to be set', function() {
+        withNewPatch(function(patch, updateSpy) {
+            expect(function() {
+                patch.addNode('spec/empty');
+            }).not.toThrow();
+        });
+    });
+
+    it('saves the node title', function() {
+        withNewPatch(function(patch, updateSpy) {
+            function nodeWithTitle(value) {
+                return jasmine.objectContaining({
+                    def: jasmine.objectContaining({ title: value })
+                });
+            }
+
+            patch.addNode('spec/empty');
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'patch/add-node',
+                                           node: nodeWithTitle(jasmine.any(String)) }));
+
+            updateSpy.calls.reset();
+            patch.addNode('spec/empty', 'Foo');
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'patch/add-node',
+                                           node: nodeWithTitle('Foo') }));
+
+            updateSpy.calls.reset();
+            patch.addNode('spec/empty', { title: 'Bar' });
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'patch/add-node',
+                                           node: nodeWithTitle('Bar') }));
+
+            updateSpy.calls.reset();
+            patch.addNode('spec/empty', null, { title: 'Buz' });
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'patch/add-node',
+                                           node: nodeWithTitle('Buz') }));
+
+            updateSpy.calls.reset();
+            patch.addNode('spec/empty', 'Foo', { title: 'Buz' });
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'patch/add-node',
+                                           node: nodeWithTitle('Foo') }));
+        });
+    });
+
     it('informs it was added to a patch with an event', function() {
         withNewPatch(function(patch, updateSpy) {
             var node = patch.addNode('spec/empty');
@@ -41,6 +89,35 @@ describe('building: node', function() {
             expect(updateSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'node/add-inlet' }));
         });
+    });
+
+    describe('allows to subscribe node events', function() {
+
+        it('node/add-inlet', function() {
+            withNewPatch(function(patch, updateSpy) {
+                var addInletSpy = jasmine.createSpy('add-inlet');
+
+                var node = patch.addNode('spec/empty', {
+                    handle: {
+                        'node/add-inlet': addInletSpy
+                    }
+                });
+
+                var inlet = node.addInlet('spec/any', 'foo');
+
+                expect(addInletSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({
+                        type: 'node/add-inlet',
+                        node: node,
+                        inlet: inlet
+                    }));
+            });
+        });
+
+    });
+
+    xit('allows to substitute/extend renderer', function() {
+        // i#311
     });
 
 });

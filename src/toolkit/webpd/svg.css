@@ -1,0 +1,219 @@
+/* lightgray: #f8f8f8
+   lightgray2: #e0e0e0
+   gray: #c0c0c0
+   blue: #0921ec
+   lightblue: #c0e0fe
+*/
+
+.rpd-wpd-toolkit-node.rpd-wpd-object,
+.rpd-wpd-toolkit-node.rpd-wpd-message,
+.rpd-wpd-toolkit-node.rpd-wpd-number,
+.rpd-wpd-toolkit-node.rpd-wpd-symbol,
+.rpd-wpd-toolkit-node.rpd-wpd-toolbar,
+.rpd-wpd-toolkit-node.rpd-wpd-edit-switch {
+    fill: #f8f8f8;
+    stroke-width: 1;
+    stroke: #c0c0c0;
+}
+
+.rpd-wpd-toolkit-node.rpd-wpd-bang,
+.rpd-wpd-toolkit-node.rpd-wpd-toggle {
+    fill: transparent;
+    stroke: black;
+}
+
+.rpd-wpd-toolkit-node.rpd-wpd-comment {
+    fill: none;
+}
+
+.rpd-wpd-toolkit-node text,
+.rpd-wpd-text-editor {
+    font-family: 'PT Mono', Menlo, Monaco, monospace;
+    font-size: 11px;
+}
+
+.rpd-wpd-toolkit-node text {
+    fill: black;
+    stroke-width: 0;
+    dominant-baseline: central;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    /* pointer-events: none; */
+}
+
+.rpd-wpd-number path,
+.rpd-wpd-symbol path {
+    fill: #e0e0e0;
+}
+
+.rpd-wpd-text-editor {
+    background-color: transparent;
+    border: none;
+}
+
+.rpd-wpd-text-editor:focus {
+    outline: none;
+}
+
+.rpd-wpd-text-editor.rpd-wpd-selected {
+    color: #0921ec;
+}
+
+.rpd-wpd-selected,
+.rpd-dragging {
+    stroke: #0921ec;
+}
+
+.rpd-wpd-selected text,
+.rpd-dragging text {
+    stroke-width: 0;
+    fill: #0921ec;
+}
+
+.rpd-wpd-bang.rpd-wpd-selected circle {
+    fill: #0921ec;
+}
+
+.rpd-wpd-comment rect {
+    stroke-width: 0;
+}
+
+.rpd-wpd-object rect.rpd-wpd-erratic {
+    stroke: #c00;
+    stroke-dasharray: 5, 5;
+}
+.rpd-wpd-object .rpd-wpd-selected rect.rpd-wpd-erratic {
+    stroke: #0921ec;
+}
+
+.rpd-inlet .rpd-connector:hover,
+.rpd-outlet .rpd-connector:hover {
+    fill: #0921ec;
+}
+
+.rpd-wpd-bang .rpd-inlet .rpd-connector,
+.rpd-wpd-toggle .rpd-inlet .rpd-connector {
+    fill: black;
+}
+
+.rpd-wpd-bang .rpd-outlet .rpd-connector,
+.rpd-wpd-toggle .rpd-outlet .rpd-connector {
+    fill: black;
+}
+
+.rpd-inlet.rpd-wpd-dsp .rpd-connector,
+.rpd-outlet.rpd-wpd-dsp .rpd-connector {
+    fill: darkblue; /* TODO: mark red only in edit mode */
+}
+
+.rpd-link.rpd-disabled {
+    stroke: red;
+}
+
+.rpd-link.rpd-wpd-dsp {
+    stroke: darkblue;
+    stroke-width: 2;
+}
+
+.rpd-wpd-message .rpd-wpd-send-value path {
+    stroke-width: 2px;
+    stroke: #ccc;
+}
+
+.rpd-wpd-bang .rpd-wpd-send-value circle {
+    fill: black;
+}
+
+.rpd-wpd-audio-control .rpd-wpd-channel {
+    fill: red;
+}
+
+.rpd-wpd-audio-control .rpd-wpd-channel-on {
+    fill: green;
+}
+
+.rpd-wpd-toggle g.rpd-wpd-mark {
+    visibility: hidden;
+}
+
+.rpd-wpd-toggle g.rpd-wpd-mark.rpd-wpd-enabled {
+    visibility: visible;
+}
+
+.rpd-wpd-number rect.rpd-wpd-handle {
+    stroke: none;
+    fill: transparent;
+    cursor: n-resize;
+}
+
+.rpd-wpd-toolbar .rpd-wpd-toolbar-border,
+.rpd-wpd-toolbar rect {
+    stroke: black;
+}
+
+.rpd-wpd-toolbar.rpd-dragging circle,
+.rpd-wpd-toolbar.rpd-dragging rect {
+    stroke: gray;
+}
+
+.rpd-wpd-toolbar.rpd-dragging text,
+.rpd-wpd-toolbar.rpd-dragging .rpd-wpd-buttons .rpd-wpd-accessible text {
+    fill: gray;
+}
+
+.rpd-wpd-toolbar .rpd-wpd-edit-mode circle:nth-child(2),
+.rpd-wpd-edit-switch circle:nth-child(2) {
+    fill: black;
+}
+
+.rpd-wpd-toolbar .rpd-wpd-edit-mode text,
+.rpd-wpd-edit-switch text {
+    fill: gray;
+    font-size: 0.5em;
+    font-weight: bold;
+}
+
+.rpd-wpd-toolbar .rpd-wpd-edit-mode.rpd-wpd-enabled circle:nth-child(2),
+.rpd-wpd-edit-switch .rpd-wpd-enabled circle:nth-child(2) {
+    fill: transparent;
+}
+
+.rpd-wpd-toolbar .rpd-wpd-edit-mode.rpd-wpd-enabled text,
+.rpd-wpd-edit-switch .rpd-wpd-enabled text {
+    fill: gray;
+    font-weight: normal;
+}
+
+.rpd-wpd-toolbar .rpd-wpd-buttons text {
+    fill: gray;
+}
+
+.rpd-wpd-toolbar .rpd-wpd-buttons .rpd-wpd-accessible text {
+    fill: black;
+}
+
+.rpd-wpd-toolbar .rpd-wpd-buttons .rpd-wpd-accessible:hover rect {
+    fill: black;
+}
+
+.rpd-wpd-toolbar .rpd-wpd-buttons .rpd-wpd-accessible:hover text {
+    fill: white;
+}
+
+.rpd-wpd-toolbar .rpd-wpd-edit-mode.rpd-wpd-enabled text.rpd-wpd-key-label,
+.rpd-wpd-edit-switch text.rpd-wpd-key-label,
+.rpd-wpd-edit-switch .rpd-wpd-enabled text.rpd-wpd-key-label,
+.rpd-wpd-toolbar text.rpd-wpd-key-label,
+.rpd-wpd-toolbar .rpd-wpd-buttons .rpd-wpd-accessible text.rpd-wpd-key-label {
+    font-size: 0.4em;
+    font-weight: normal;
+    fill: teal;
+}
+
+.rpd-wpd-toolbar .rpd-wpd-buttons text.rpd-wpd-key-label {
+    text-anchor: end;
+}

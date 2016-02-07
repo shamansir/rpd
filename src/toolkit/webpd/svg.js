@@ -11,7 +11,7 @@ function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
 }
 
-Rpd.noderenderer('pd/number', 'svg', function(node) {
+Rpd.noderenderer('wpd/number', 'svg', function(node) {
     var path, text, handle;
     var size = defaultSize;
     var spinner;
@@ -24,7 +24,7 @@ Rpd.noderenderer('pd/number', 'svg', function(node) {
                                 'v ' + (size.height - 5) + ' ' +
                                 'h ' + (-size.width) + ' v ' + (-size.height) + ' z');
             handle = d3.select(_createSvgElement('rect'))
-                       .classed('rpd-pd-handle', true)
+                       .classed('rpd-wpd-handle', true)
                        .attr('x', 2).attr('y', 2)
                        .attr('width', size.height - 2)
                        .attr('height', Math.floor(size.width * 0.7));
@@ -55,7 +55,7 @@ Rpd.noderenderer('pd/number', 'svg', function(node) {
     }
 });
 
-Rpd.noderenderer('pd/symbol', 'svg', function(node) {
+Rpd.noderenderer('wpd/symbol', 'svg', function(node) {
     var path, editor, text;
     var size = defaultSize;
     return {
@@ -79,7 +79,7 @@ Rpd.noderenderer('pd/symbol', 'svg', function(node) {
     }
 });
 
-Rpd.noderenderer('pd/message', 'svg', function(node) {
+Rpd.noderenderer('wpd/message', 'svg', function(node) {
     var path, text;
     var size = defaultSize;
     var lastValue;
@@ -117,7 +117,7 @@ Rpd.noderenderer('pd/message', 'svg', function(node) {
     }
 });
 
-Rpd.noderenderer('pd/comment', 'svg', function(node) {
+Rpd.noderenderer('wpd/comment', 'svg', function(node) {
     var size = defaultSize;
     return {
         size: size,
@@ -138,14 +138,14 @@ Rpd.noderenderer('pd/comment', 'svg', function(node) {
     }
 });
 
-Rpd.noderenderer('pd/object', 'svg', function(node) {
+Rpd.noderenderer('wpd/object', 'svg', function(node) {
     var size = defaultSize;
     var model = node.patch.model;
     return {
         size: size,
         first: function(bodyElm) {
             var rect = d3.select(_createSvgElement('rect'))
-                         .classed('rpd-pd-erratic', true);
+                         .classed('rpd-wpd-erratic', true);
             rect.attr('width', size.width).attr('height', size.height);
             var text = d3.select(_createSvgElement('text'))
                          .attr('x', 2).attr('y', size.height / 2);
@@ -167,7 +167,7 @@ Rpd.noderenderer('pd/object', 'svg', function(node) {
                 text.text(newCommand || '');
                 var newSize = view.measureText(text);
                 rect.attr('width', (newSize.width > 30) ? (newSize.width + 6) : 30);
-                rect.classed('rpd-pd-erratic', !value.webPdObject || !value.command);
+                rect.classed('rpd-wpd-erratic', !value.webPdObject || !value.command);
                 lastCommand = newCommand;
                 return true;
             });
@@ -184,7 +184,7 @@ function isToggled(val) { return (val.getByIndex(0) > 0); }
 function toggledOff() { return PdValue.from([0]); }
 function toggledOn() { return PdValue.from([1]); }
 function switchToggle(from) { return isToggled(from) ? toggledOff() : toggledOn(); }
-Rpd.noderenderer('pd/toggle', 'svg', function(node) {
+Rpd.noderenderer('wpd/toggle', 'svg', function(node) {
     var rect;
     var mark;
     var size = { width: defaultSize.height,
@@ -198,7 +198,7 @@ Rpd.noderenderer('pd/toggle', 'svg', function(node) {
             rect = d3.select(_createSvgElement('rect'))
                      .attr('width', size.width).attr('height', size.height);
             mark = d3.select(_createSvgElement('g'))
-                     .classed('rpd-pd-mark', true)
+                     .classed('rpd-wpd-mark', true)
                      .call(function(group) {
                          group.append(d3.select(_createSvgElement('line'))
                                         .attr('x1', 0).attr('y1', 0)
@@ -215,7 +215,7 @@ Rpd.noderenderer('pd/toggle', 'svg', function(node) {
                 changes.emit(toggle);
                 return toggle.get();
             });
-            mark.classed('rpd-pd-enabled', isToggled(toggle));
+            mark.classed('rpd-wpd-enabled', isToggled(toggle));
             d3.select(bodyElm).append(mark.node());
             d3.select(bodyElm).append(rect.node());
 
@@ -236,12 +236,12 @@ Rpd.noderenderer('pd/toggle', 'svg', function(node) {
             }
             if (incomingValue.isBang()) incomingValue = switchToggle(toggle);
             toggle = incomingValue;
-            mark.classed('rpd-pd-enabled', isToggled(toggle));
+            mark.classed('rpd-wpd-enabled', isToggled(toggle));
         }
     }
 });
 
-Rpd.noderenderer('pd/bang', 'svg', function(node) {
+Rpd.noderenderer('wpd/bang', 'svg', function(node) {
     var rect, circle;
     var size = { width: defaultSize.height,
                  height: defaultSize.height };
@@ -264,7 +264,7 @@ Rpd.noderenderer('pd/bang', 'svg', function(node) {
     }
 });
 
-Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
+Rpd.noderenderer('wpd/toolbar', 'svg', function(node) {
     var mWidth = 325,
         mHeight = 70;
     var commandToType = PdModel.COMMAND_TO_TYPE;
@@ -293,22 +293,22 @@ Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
                 height: mHeight },
         first: function(bodyElm) {
             var group = d3.select(_createSvgElement('g'))
-                          .classed('rpd-pd-toolbar-group', true);
-            group.append('rect').classed('rpd-pd-toolbar-border', true)
+                          .classed('rpd-wpd-toolbar-group', true);
+            group.append('rect').classed('rpd-wpd-toolbar-border', true)
                                 .attr('height', mHeight).attr('width', mWidth + 100)
                                 .attr('rx', 5).attr('ry', 5);
 
             // edit mode switch
             group.append('g').call(function(editGroup) {
                 editGroup.attr('transform', 'translate(12, ' + (mHeight / 2) + ')')
-                         .classed('rpd-pd-edit-mode', true);
+                         .classed('rpd-wpd-edit-mode', true);
                 var outerCircle = d3.select(_createSvgElement('circle')).attr('r', 7);
                 var innerCircle = d3.select(_createSvgElement('circle')).attr('r', 5);
                 editGroup.append(outerCircle.node());
                 editGroup.append(innerCircle.node()).style('pointer-events', 'none');
                 var text = d3.select(_createSvgElement('text')).text('Edit mode').attr('x', 10);
                 var keyLabel = d3.select(_createSvgElement('text')).text('(' + editModeKeyLabel + ')').attr('x', 55).attr('y', 1)
-                                                                   .classed('rpd-pd-key-label', true);
+                                                                   .classed('rpd-wpd-key-label', true);
                 editGroup.append(text.node());
                 editGroup.append(keyLabel.node());
                 view.addEditModeSwitch(outerCircle.node(), editGroup.node());
@@ -318,7 +318,7 @@ Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
             // node buttons
             group.append('g').call(function(buttons) {
                 buttons.attr('transform', 'translate(95, 0)')
-                       .classed('rpd-pd-buttons', true);
+                       .classed('rpd-wpd-buttons', true);
                 var bWidth = mWidth / 4,
                     bHeight = mHeight / 4;
                 var xPos, yPos;
@@ -330,12 +330,12 @@ Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
                     var keyLabel = nodeType ? nodeTypeToKeyLabel[nodeType] : null;
                     var button = d3.select(_createSvgElement('g'))
                                    .attr('transform', 'translate(' + xPos + ',' + yPos + ')')
-                                   .classed('rpd-pd-accessible', nodeType ? true : false);
+                                   .classed('rpd-wpd-accessible', nodeType ? true : false);
                     button.append('rect').attr('width', bWidth).attr('height', bHeight);
                     button.append('text').attr('x', 10).attr('y', bHeight / 2).text(nodeName);
                     if (keyLabel) { button.append('text').attr('x', bWidth - 3).attr('y', bHeight / 2)
                                                          .text('(' + keyLabel + ')')
-                                                         .classed('rpd-pd-key-label', true); }
+                                                         .classed('rpd-wpd-key-label', true); }
                     if (commandToType[command]) view.addNodeAppender(button.node(), nodeType, node.patch);
                     buttons.append(button.node());
                 });
@@ -346,11 +346,11 @@ Rpd.noderenderer('pd/toolbar', 'svg', function(node) {
     };
 });
 
-Rpd.noderenderer('pd/edit-switch', 'svg', function(node) {
+Rpd.noderenderer('wpd/edit-switch', 'svg', function(node) {
     return {
         first: function(bodyElm) {
             var group = d3.select(_createSvgElement('g'))
-                          .classed('rpd-pd-edit-switch-group', true);
+                          .classed('rpd-wpd-edit-switch-group', true);
 
             var outerCircle = d3.select(_createSvgElement('circle')).attr('r', 7);
             var innerCircle = d3.select(_createSvgElement('circle')).attr('r', 5);
@@ -366,31 +366,31 @@ Rpd.noderenderer('pd/edit-switch', 'svg', function(node) {
     }
 });
 
-Rpd.noderenderer('pd/audio-control', 'svg', function(node) {
+Rpd.noderenderer('wpd/audio-control', 'svg', function(node) {
     var model = node.patch.model;
     return {
         first: function(bodyElm) {
             var ch0switch = d3.select(_createSvgElement('text'))
-                              .classed('rpd-pd-channel', true);
+                              .classed('rpd-wpd-channel', true);
             Kefir.fromEvents(ch0switch.node(), 'click')
                  .toProperty(function() { return model.isAudioChannelOn(0); })
                  .scan(function(prev, next) { return !prev; })
                  .onValue(function(val) {
                      model.switchAudioChannel(0, val);
-                     ch0switch.classed('rpd-pd-channel-on', val)
+                     ch0switch.classed('rpd-wpd-channel-on', val)
                               .text('CH0:' + (val ? '✔' : '✘'));
                  });
             d3.select(bodyElm).append(ch0switch.node());
             d3.select(bodyElm).append(d3.select(_createSvgElement('text'))
                                         .text('/').attr('x', 35).node());
             var ch1switch = d3.select(_createSvgElement('text')).attr('x', 45)
-                              .classed('rpd-pd-channel', true);
+                              .classed('rpd-wpd-channel', true);
             Kefir.fromEvents(ch1switch.node(), 'click')
                  .toProperty(function() { return model.isAudioChannelOn(1); })
                  .scan(function(prev, next) { return !prev; })
                  .onValue(function(val) {
                      model.switchAudioChannel(1, val);
-                     ch1switch.classed('rpd-pd-channel-on', val)
+                     ch1switch.classed('rpd-wpd-channel-on', val)
                               .text('CH1:' + (val ? '✔' : '✘'));
                  });
             d3.select(bodyElm).append(ch1switch.node());

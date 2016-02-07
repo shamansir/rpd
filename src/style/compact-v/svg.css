@@ -33,21 +33,20 @@
 .rpd-node text.rpd-name,
 .rpd-node text.rpd-fake-name {
     fill: rgba(250,250,250,0.9);
-    /* dominant-baseline: central; */
+    dominant-baseline: central;
     /* vertical-align: bottom; */
     /* position: absolute; */
     /* bottom: 0; */
 }
 
 .rpd-node > .rpd-name-holder {
-    /* writing-mode: rb; */
+    writing-mode: rb;
     /* transform: rotate(-90deg); */
     /* transform-origin: 5px 5px; */
 }
 
 .rpd-node .rpd-content {
     fill: #50607e;
-    vertical-align: middle;
 }
 
 .rpd-node .rpd-body {
@@ -106,7 +105,8 @@
 }
 
 .rpd-inlet text.rpd-name,
-.rpd-inlet text.rpd-value,
+.rpd-inlet text.rpd-value {text-anchor: end;}
+
 .rpd-outlet text.rpd-name,
 .rpd-outlet text.rpd-value {
     /* text-anchor: middle; */
@@ -183,7 +183,7 @@
 }
 
 .rpd-node .rpd-process text {
-    dominant-baseline: mathematical;
+    dominant-baseline: central;
     /* text-anchor: middle; */
 }
 

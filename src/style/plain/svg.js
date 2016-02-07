@@ -46,9 +46,9 @@ return {
         nodeElm.append('rect').attr('class', 'rpd-header')
                               .attr('x', 0).attr('y', -20)
                               .attr('width', 50).attr('height', 20);
-        if (node.name) {
+        if (node.def.title || node.type) {
             nodeElm.append('g').attr('class', 'rpd-name-holder')
-                   .append('text').attr('class', 'rpd-name').text(node.name)
+                   .append('text').attr('class', 'rpd-name').text(node.def.title || node.type)
                                   .attr('x', 0).attr('y', -22)
                                   .style('pointer-events', 'none');
         }
@@ -101,7 +101,7 @@ return {
             group.append('g').attr('class', 'rpd-value-holder')
                  .attr('transform', 'translate(-3,-13)')
                  .append('text').attr('class', 'rpd-value');
-            group.append('text').attr('class', 'rpd-name').text(inlet.name)
+            group.append('text').attr('class', 'rpd-name').text(inlet.def.label || inlet.alias)
                                 .attr('x', -3).attr('y', -6);
         });
         inletToConnector[inlet.id] = inletElm.select('.rpd-connector');
@@ -119,7 +119,7 @@ return {
                  .append('text').attr('class', 'rpd-value')
                                 .attr('x', 0).attr('y', 18)
                                 .style('pointer-events', 'none');
-            group.append('text').attr('class', 'rpd-name').text(outlet.name)
+            group.append('text').attr('class', 'rpd-name').text(outlet.def.label || outlet.alias)
                                 .attr('x', 0).attr('y', 10);
         });
         outletToConnector[outlet.id] = outletElm.select('.rpd-connector');

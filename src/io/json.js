@@ -84,7 +84,7 @@ var exportSpec = {
     },
     'patch/add-node': function(update) {
         var node = update.node;
-        return { event: 'patch/add-node', patchId: node.patch.id, nodeType: node.type, nodeName: node.name, nodeId: node.id };
+        return { event: 'patch/add-node', patchId: node.patch.id, nodeType: node.type, nodeTitle: node.def.title, nodeId: node.id };
     },
     'patch/remove-node': function(update) {
         return { event: 'patch/remove-node', patchId: update.patch.id, nodeId: update.node.id };
@@ -98,7 +98,7 @@ var exportSpec = {
     'node/add-inlet': function(update) {
         var inlet = update.inlet;
         return { event: 'node/add-inlet', nodeId: update.node.id, inletId: inlet.id,
-                 inletType: inlet.type, inletAlias: inlet.alias, inletName: inlet.name };
+                 inletType: inlet.type, inletAlias: inlet.alias, inletLabel: inlet.def.label };
     },
     'node/remove-inlet': function(update) {
         return { event: 'node/remove-inlet', nodeId: update.node.id, inletId: update.inlet.id };
@@ -106,7 +106,7 @@ var exportSpec = {
     'node/add-outlet': function(update) {
         var outlet = update.outlet;
         return { event: 'node/add-outlet', nodeId: update.node.id, outletId: outlet.id,
-                 outletType: outlet.type, outletAlias: outlet.alias, outletName: outlet.name };
+                 outletType: outlet.type, outletAlias: outlet.alias, outletLabel: outlet.def.label };
     },
     'node/remove-outlet': function(update) {
         return { event: 'node/remove-outlet', nodeId: update.node.id, outletId: update.outlet.id };
@@ -168,7 +168,7 @@ function makeImportSpec() {
             patches[command.patchId].project(nodes[command.nodeId]);
         },
         'patch/add-node': function(command) {
-            nodes[command.nodeId] = patches[command.patchId].addNode(command.nodeType, command.nodeName);
+            nodes[command.nodeId] = patches[command.patchId].addNode(command.nodeType, command.nodeTitle);
         },
         'patch/remove-node': function(command) {
             patches[command.patchId].removeNode(nodes[command.nodeId]);
@@ -180,13 +180,13 @@ function makeImportSpec() {
             nodes[command.nodeId].turnOff();
         },
         'node/add-inlet': function(command) {
-            inlets[command.inletId] = nodes[command.nodeId].addInlet(command.inletType, command.inletName, command.inletAlias);
+            inlets[command.inletId] = nodes[command.nodeId].addInlet(command.inletType, command.inletAlias, command.inletLabel);
         },
         'node/remove-inlet': function(command) {
             nodes[command.nodeId].removeInlet(inlets[command.inletId]);
         },
         'node/add-outlet': function(command) {
-            outlets[command.outletId] = nodes[command.nodeId].addOutlet(command.outletType, command.outletName, command.outletAlias);
+            outlets[command.outletId] = nodes[command.nodeId].addOutlet(command.outletType, command.outletAlias, command.outletLabel);
         },
         'node/remove-outlet': function(command) {
             nodes[command.nodeId].removeOutlet(outlets[command.outletId]);

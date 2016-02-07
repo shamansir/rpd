@@ -3,14 +3,14 @@
     <head>
         <meta charset="utf-8" />
 
-        <!-- gulp html-head ==style plain ==renderer svg ==toolkit core ==root .. -->
+        <!-- gulp html-head ==style compact-v ==renderer svg ==toolkit core ==root .. -->
 
         <!-- Built with RPD v0.2.0a <http://shamansir.github.io/rpd> -->
 
         <!-- RPD Renderer: svg -->
         <link rel="stylesheet" href="../src/render/html.css"></style>
-        <!-- RPD Style: plain (svg) -->
-        <link rel="stylesheet" href="../src/style/plain/svg.css"></style>
+        <!-- RPD Style: compact-v (svg) -->
+        <link rel="stylesheet" href="../src/style/compact-v/svg.css"></style>
         <!-- RPD Toolkit: core (svg) -->
         <link rel="stylesheet" href="../src/toolkit/core/svg.css"></style>
 
@@ -23,8 +23,8 @@
         <script src="../src/d3_tiny.js"></script>
         <!-- RPD Rendering Engine: -->
         <script src="../src/render/shared.js"></script>
-        <!-- RPD Style: plain (svg) -->
-        <script src="../src/style/plain/svg.js"></script>
+        <!-- RPD Style: compact-v (svg) -->
+        <script src="../src/style/compact-v/svg.js"></script>
         <!-- RPD Renderer: svg -->
         <script src="../src/render/svg.js"></script>
         <!-- RPD Toolkit: core -->
@@ -275,16 +275,15 @@
             var newSvgRandomRendererFunc = function(node) {
                 var returnObj = curSvgRandomRendererFunc.apply(this, arguments);
                 if (returnObj.size) {
-                    returnObj.size.width = 110;
+                    returnObj.size.width = 120;
                 } else {
-                    returnObj.size = { width: 110 };
+                    returnObj.size = { width: 120 };
                 }
                 var textElm;
                 returnObj.first = function(bodyElm) {
                     textElm = document.createElementNS(SVG_XMLNS, 'text');
                     textElm.innerText = textElm.textContent = '?';
-                    textElm.setAttributeNS(null, 'x', 5);
-                    textElm.setAttributeNS(null, 'y', 2);
+                    textElm.setAttributeNS(null, 'x', 10);
                     bodyElm.appendChild(textElm);
                 };
                 returnObj.always = function(bodyElm, inlets, outlets) {
@@ -298,25 +297,25 @@
 
             var patch = Rpd.addPatch('processing');
 
-            patch.render('svg', document.body, { style: 'plain',
+            patch.render('svg', document.body, { style: 'compact-v',
                                                  renderNodeList: false }).enter();
-            var sketch = patch.addNode('p5/sketch').move(300, 50);
+            var sketch = patch.addNode('p5/sketch').move(450, 50);
 
-            var random1 = patch.addNode('core/random').move(20, 50);
+            var random1 = patch.addNode('core/random').move(50, 50);
             random1.inlets['min'].receive(50); random1.inlets['max'].receive(255);
 
-            var color1 = patch.addNode('p5/color').move(20, 150);
-            var color2 = patch.addNode('p5/color').move(160, 50);
+            var color1 = patch.addNode('p5/color').move(50, 150);
+            var color2 = patch.addNode('p5/color').move(240, 50);
 
             random1.outlets['out'].connect(color1.inlets['r']);
 
             color2.outlets['color'].connect(sketch.inlets['endcolor']);
             color2.inlets['r'].receive(20); color2.inlets['g'].receive(0); color2.inlets['b'].receive(0);
 
-            var random2 = patch.addNode('core/random').move(160, 150);
+            var random2 = patch.addNode('core/random').move(240, 150);
             random2.inlets['min'].receive(5); random2.inlets['max'].receive(25);
 
-            var shape = patch.addNode('p5/shape').move(160, 250);
+            var shape = patch.addNode('p5/shape').move(240, 250);
             shape.outlets['shape'].connect(sketch.inlets['shape']);
         </script>
 

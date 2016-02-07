@@ -149,7 +149,7 @@ describe('registration: node renderer', function() {
             var renderers = {};
             var rendererGenSpy = jasmine.createSpy('renderer-generator')
                                         .and.callFake(function(node) {
-                return (renderers[node.name] = {
+                return (renderers[node.id] = {
                     first: function() { },
                     always: function() { },
                 });
@@ -157,7 +157,7 @@ describe('registration: node renderer', function() {
 
             Rpd.noderenderer('spec/foo', 'spec', rendererGenSpy);
 
-            var nodeOne = patch.addNode('spec/foo', 'node-1');
+            var nodeOne = patch.addNode('spec/foo');
             nodeOne.addInlet('spec/any', 'a').receive('a');
 
             expect(rendererGenSpy).toHaveBeenCalledOnce();
@@ -165,14 +165,14 @@ describe('registration: node renderer', function() {
 
             expect(addNodeSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    render: renderers['node-1']
+                    render: renderers[nodeOne.id]
                 }));
             expect(processSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    render: renderers['node-1']
+                    render: renderers[nodeOne.id]
                 }));
 
-            var nodeTwo = patch.addNode('spec/foo', 'node-2');
+            var nodeTwo = patch.addNode('spec/foo');
             nodeTwo.addInlet('spec/any', 'a').receive('b');
 
             expect(rendererGenSpy).toHaveBeenCalledTwice();
@@ -180,11 +180,11 @@ describe('registration: node renderer', function() {
 
             expect(addNodeSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    render: renderers['node-2']
+                    render: renderers[nodeTwo.id]
                 }));
             expect(processSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    render: renderers['node-2']
+                    render: renderers[nodeTwo.id]
                 }));
 
         });
