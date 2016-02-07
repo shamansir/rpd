@@ -41,8 +41,54 @@ describe('building: patch', function() {
         expect(addNodeSpy).toHaveBeenCalled();
     });
 
-    xit('allows to subscribe inner events', function() {
-        // i#107
+    describe('allows to subscribe inner events', function() {
+
+        it('allows to subscribe any event', function() {
+
+            var addNodeSpy = jasmine.createSpy('add-node');
+
+            var patch = Rpd.addPatch({
+                handle: {
+                    'patch/add-node': addNodeSpy
+                }
+            });
+
+            var node = patch.addNode('spec/empty');
+            expect(addNodeSpy).toHaveBeenCalled();
+
+        });
+
+        it('allows to subscribe event when man specifies a name', function() {
+            var addNodeSpy = jasmine.createSpy('add-node');
+
+            var patch = Rpd.addPatch('Foo', {
+                handle: {
+                    'patch/add-node': addNodeSpy
+                }
+            });
+
+            var node = patch.addNode('spec/empty');
+            expect(addNodeSpy).toHaveBeenCalled();
+        });
+
+        it('allows to subscribe nodes and channels events', function() {
+            var addInletSpy = jasmine.createSpy('add-inlet');
+            var inletUpdateSpy = jasmine.createSpy('inlet-update');
+
+            var patch = Rpd.addPatch('Foo', {
+                handle: {
+                    'node/add-inlet': addInletSpy,
+                    'inlet/update': inletUpdateSpy
+                }
+            });
+
+            var node = patch.addNode('spec/empty');
+            var inlet = node.addInlet('spec/any', 'a');
+            inlet.receive(42);
+            expect(addInletSpy).toHaveBeenCalled();
+            expect(inletUpdateSpy).toHaveBeenCalled();
+        });
+
     });
 
     xit('allows to substitute/extend renderer', function() {

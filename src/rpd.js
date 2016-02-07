@@ -36,8 +36,9 @@ var rendering = Kefir.emitter();
 
 function ƒ(v) { return function() { return v; } }
 
-function addPatch(name) {
-    var instance = new Patch(name);
+function addPatch(arg0, arg1) {
+    var name = !is_object(arg0) ? arg0 : undefined; var def = arg1 || arg0;
+    var instance = new Patch(arg0, arg1 || arg0);
     event['network/add-patch'].emit(instance);
     return instance;
 }
@@ -53,9 +54,10 @@ function render(aliases, targets, conf) {
 // ================================== Patch ====================================
 // =============================================================================
 
-function Patch(name) {
+function Patch(name, def) {
     this.id = short_uid();
     this.name = name;
+    this.def = def || {};
 
     var patch = this;
 
@@ -72,6 +74,8 @@ function Patch(name) {
     };
     this.event = event_map(event_types);
     this.events = events_stream(event_types, this.event, 'patch', this);
+
+    if (this.def.handle) subscribe(this.events, this.def.handle);
 
     // this stream controls the way patch events reach the assigned renderer
     this.renderQueue = Kefir.emitter();
@@ -228,13 +232,7 @@ function Node(type, patch, def, render, callback) {
 
     var node = this;
 
-    if (this.def.handle) {
-        this.events.onValue(function(event) {
-            if (node.def.handle[event.type]) {
-                node.def.handle[event.type](event);
-            };
-        });
-    }
+    if (this.def.handle) subscribe(this.events, this.def.handle);
 
     if (this.def.process) {
 
@@ -405,6 +403,8 @@ function Inlet(type, node, alias, def, render) {
     // rewrite with the modified stream
     this.event['inlet/update'] = updates.onValue(function(){});
     this.events = events_stream(event_types, this.event, 'inlet', this);
+
+    if (this.def.handle) subscribe(this.events, this.def.handle);
 }
 Inlet.prototype.receive = function(value) {
     this.value.plug(Kefir.constant(value));
@@ -466,6 +466,8 @@ function Outlet(type, node, alias, def, render) {
     // rewrite with the modified stream
     this.event['outlet/update'] = updates.onValue(function(v){});
     this.events = events_stream(event_types, this.event, 'outlet', this);
+
+    if (this.def.handle) subscribe(this.events, this.def.handle);
 
     // re-send last value on connection
     var outlet = this;
@@ -682,6 +684,13 @@ function events_stream(conf, event_map, subj_as, subj) {
                          }));
     }
     return stream;
+}
+
+function subscribe(events, handlers) {
+    events.filter(function(event) { return handlers[event.type]; })
+          .onValue(function(event) {
+              handlers[event.type](event);
+          });
 }
 
 function report_error(desc, err) {
