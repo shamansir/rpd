@@ -224,7 +224,7 @@ return {
         if (!lastRoot) return pos;
         // calculate once on patch switch?
         var rootPos = getPos(lastRoot.node());
-        return { x: pos.x + rootPos.x, y: pos.y + rootPos.y };
+        return { x: pos.x - rootPos.x, y: pos.y - rootPos.y };
     },
 
     onPatchSwitch: function(patch, root) {

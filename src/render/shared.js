@@ -117,23 +117,27 @@ VLink.prototype.construct = function(width) {
     return this;
 }
 VLink.prototype.rotate = function(x0, y0, x1, y1) {
-    this.styledLink.rotate(x0, y0, x1, y1);
+    var style = this.style;
+    var sourcePos = style.getLocalPos({ x: x0, y: y0 });
+    var targetPos = style.getLocalPos({ x: x1, y: y1 });
+    this.styledLink.rotate(sourcePos.x, sourcePos.y,
+                           targetPos.x, targetPos.y);
     return this;
 }
 VLink.prototype.rotateI = function(x0, y0, inlet) {
     var style = this.style;
-    var inletPos = style.getLocalPos(style.getInletPos(inlet));
+    var inletPos  = style.getInletPos(inlet);
     return this.rotate(x0, y0, inletPos.x, inlet.y);
 }
 VLink.prototype.rotateO = function(outlet, x1, y1) {
     var style = this.style;
-    var outletPos = style.getLocalPos(style.getOutletPos(outlet));
+    var outletPos = style.getOutletPos(outlet);
     return this.rotate(outletPos.x, outletPos.y, x1, y1);
 }
 VLink.prototype.rotateOI = function(outlet, inlet) {
     var style = this.style;
-    var outletPos = style.getLocalPos(style.getOutletPos(outlet)),
-        inletPos  = style.getLocalPos(style.getInletPos(inlet));
+    var outletPos = style.getOutletPos(outlet),
+        inletPos  = style.getInletPos(inlet);
     return this.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
 }
 VLink.prototype.update = function() {

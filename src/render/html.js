@@ -677,7 +677,6 @@ var Connectivity = (function() {
                                             outlet.connect(otherInlet);
                                         }))
                       .map(extractPos)
-                      .map(style.getLocalPos)
                       .onValue(function(pos) {
                           ghost.rotateO(outlet, pos.x, pos.y);
                       }).onEnd(function() {
