@@ -43,7 +43,7 @@ function addPatch(arg0, arg1) {
     return instance;
 }
 
-function render(aliases, targets, conf) {
+function renderNext(aliases, targets, conf) {
     rendering.emit([ aliases, targets, conf ]);
     var handler = function(patch) { patch.render(aliases, targets, conf); };
     event['network/add-patch'].onValue(handler);
@@ -775,7 +775,7 @@ return {
     'events': events,
 
     'addPatch': addPatch,
-    'render': render,
+    'renderNext': renderNext,
 
     'nodetype': nodetype,
     'channeltype': channeltype,

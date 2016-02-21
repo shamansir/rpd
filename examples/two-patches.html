@@ -42,12 +42,14 @@
   <style>
     body {
         height: 700px;
+        background-color: #3c464c;
     }
 
     #target-1, #target-2 {
         position: relative;
         width: 250px;
         height: 250px;
+        border: 2px solid #eee;
     }
 
     #target-1 {
@@ -70,16 +72,16 @@
 
     <script>
 
-        Rpd.render('html', document.getElementById('target-1'), { style: 'quartz',
-                                                                  renderNodeList: false });
+        Rpd.renderNext('html', document.getElementById('target-1'), { style: 'quartz',
+                                                                      renderNodeList: false });
         var root1 = Rpd.addPatch('root-1').enter();
         root1.addNode('core/random');
         root1.addNode('core/random');
 
-        /* Rpd.render('html', document.getElementById('target-2'), { style: 'quartz',
-                                                                  renderNodeList: false });
+        Rpd.renderNext('html', document.getElementById('target-2'), { style: 'quartz',
+                                                                      renderNodeList: false });
         var root2 = Rpd.addPatch('root-2').enter();
-        root2.addNode('core/random'); */
+        root2.addNode('core/random');
 
     </script>
 

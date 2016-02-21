@@ -5,7 +5,7 @@ describe('building: renderer', function() {
 
         Rpd.renderer('foo', fooRendererSpy);
 
-        var turnOff = Rpd.render('foo', {});
+        var turnOff = Rpd.renderNext('foo', {});
 
         var firstPatch = Rpd.addPatch();
         var secondPatch = Rpd.addPatch();
@@ -21,7 +21,7 @@ describe('building: renderer', function() {
         var turnOff;
 
         expect(function() {
-            turnOff = Rpd.render('foo');
+            turnOff = Rpd.renderNext('foo');
             Rpd.addPatch();
         }).not.toThrow();
 
@@ -42,7 +42,7 @@ describe('building: renderer', function() {
         });
 
         var target = { };
-        var turnOff = Rpd.render('foo', target);
+        var turnOff = Rpd.renderNext('foo', target);
 
         Rpd.addPatch();
 
@@ -74,7 +74,7 @@ describe('building: renderer', function() {
         var targetOne = { };
         var targetTwo = { };
         var conf = { };
-        var turnOff = Rpd.render('foo', [ targetOne, targetTwo ], conf);
+        var turnOff = Rpd.renderNext('foo', [ targetOne, targetTwo ], conf);
 
         Rpd.addPatch();
 
@@ -110,7 +110,7 @@ describe('building: renderer', function() {
         var targetOne = { };
         var targetTwo = { };
         var conf = {};
-        var turnOff = Rpd.render([ 'foo', 'bar' ], [ targetOne, targetTwo ], conf);
+        var turnOff = Rpd.renderNext([ 'foo', 'bar' ], [ targetOne, targetTwo ], conf);
 
         Rpd.addPatch();
 
@@ -150,7 +150,7 @@ describe('building: renderer', function() {
             };
         });
 
-        var turnOff = Rpd.render('foo', {});
+        var turnOff = Rpd.renderNext('foo', {});
 
         var patch = Rpd.addPatch();
         var node = patch.addNode('spec/empty');
