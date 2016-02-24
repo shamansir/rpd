@@ -91,6 +91,32 @@ describe('building: renderer', function() {
                 turnOff();
             });
 
+            it('turning off is not required for two renderNext in sequence', function() {
+                var fooTargetsSpy = jasmine.createSpy('foo-target');
+                var barTargetsSpy = jasmine.createSpy('bar-target');
+
+                Rpd.renderer('foo', function(patch) { return fooTargetsSpy; });
+                Rpd.renderer('bar', function(patch) { return barTargetsSpy; });
+
+                var targetOne = { };
+                var targetTwo = { };
+                var conf = {};
+                Rpd.renderNext('foo', targetOne, conf);
+
+                Rpd.addPatch();
+
+                expect(fooTargetsSpy).toHaveBeenCalledOnce();
+
+                var turnOff = Rpd.renderNext('bar', targetTwo, conf);
+
+                Rpd.addPatch();
+
+                expect(fooTargetsSpy).toHaveBeenCalledOnce();
+                expect(barTargetsSpy).toHaveBeenCalledOnce();
+
+                turnOff();
+            });
+
             it('passes the events to the handler object', function() {
                 var addNodeSpy = jasmine.createSpy('add-node');
                 var addInletSpy = jasmine.createSpy('add-inlet');
