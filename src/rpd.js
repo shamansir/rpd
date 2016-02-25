@@ -43,11 +43,17 @@ function addPatch(arg0, arg1) {
     return instance;
 }
 
+rendering.map(function(arr) {
+    return function(patch) { patch.render(arr[0] /* aliases */, arr[1] /* targets */, arr[2] /* conf */) }
+}).scan(function(prev, curr) {
+    if (prev) event['network/add-patch'].offValue(prev);
+    if (curr) event['network/add-patch'].onValue(curr);
+}, null).onValue(function() {});
+
 function renderNext(aliases, targets, conf) {
     rendering.emit([ aliases, targets, conf ]);
-    var handler = function(patch) { patch.render(aliases, targets, conf); };
-    event['network/add-patch'].onValue(handler);
-    return function() { event['network/add-patch'].offValue(handler); };
+    //var handler = function(patch) { patch.render(aliases, targets, conf); };
+    return function() { /*event['network/add-patch'].offValue(handler);*/ };
 }
 
 // =============================================================================
