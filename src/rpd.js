@@ -56,6 +56,10 @@ function renderNext(aliases, targets, conf) {
     return function() { /*event['network/add-patch'].offValue(handler);*/ };
 }
 
+function stopRendering() {
+
+}
+
 // =============================================================================
 // ================================== Patch ====================================
 // =============================================================================
@@ -782,6 +786,7 @@ return {
 
     'addPatch': addPatch,
     'renderNext': renderNext,
+    'stopRendering': stopRendering,
 
     'nodetype': nodetype,
     'channeltype': channeltype,
