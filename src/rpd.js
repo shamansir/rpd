@@ -48,12 +48,11 @@ rendering.map(function(arr) {
 }).scan(function(prev, curr) {
     if (prev) event['network/add-patch'].offValue(prev);
     if (curr) event['network/add-patch'].onValue(curr);
+    return curr;
 }, null).onValue(function() {});
 
 function renderNext(aliases, targets, conf) {
     rendering.emit([ aliases, targets, conf ]);
-    //var handler = function(patch) { patch.render(aliases, targets, conf); };
-    return function() { /*event['network/add-patch'].offValue(handler);*/ };
 }
 
 function stopRendering() {

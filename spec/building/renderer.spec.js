@@ -116,17 +116,19 @@ describe('building: renderer', function() {
                 var targetOne = { };
                 var targetTwo = { };
                 var conf = {};
+
                 Rpd.renderNext('foo', targetOne, conf);
 
                 Rpd.addPatch();
 
                 expect(fooTargetsSpy).toHaveBeenCalledOnce();
+                fooTargetsSpy.calls.reset();
 
                 Rpd.renderNext('bar', targetTwo, conf);
 
                 Rpd.addPatch();
 
-                expect(fooTargetsSpy).toHaveBeenCalledOnce();
+                expect(fooTargetsSpy).not.toHaveBeenCalled();
                 expect(barTargetsSpy).toHaveBeenCalledOnce();
 
                 Rpd.stopRendering();
