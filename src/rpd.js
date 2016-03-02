@@ -57,7 +57,7 @@ function renderNext(aliases, targets, conf) {
 }
 
 function stopRendering() {
-
+    rendering.end();
 }
 
 // =============================================================================

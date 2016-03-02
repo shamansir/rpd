@@ -17,11 +17,11 @@ describe('building: renderer', function() {
 
     describe('object', function() {
 
-        describe('network', function() {
+        describe('network (Rpd.renderNext)', function() {
 
         });
 
-        describe('patch', function() {
+        describe('patch (patch.render)', function() {
 
         });
 
@@ -29,7 +29,7 @@ describe('building: renderer', function() {
 
     describe('function', function() {
 
-        describe('network', function() {
+        describe('network (Rpd.renderNext)', function() {
 
             it('the inner function is called with target element', function() {
                 var fooTargetsSpy = jasmine.createSpy('foo-target');
@@ -158,7 +158,7 @@ describe('building: renderer', function() {
 
         });
 
-        describe('patch', function() {
+        describe('patch (path.render)', function() {
 
             it('called once for every patch', function() {
                 var fooRendererSpy = jasmine.createSpy('foo-renderer');
