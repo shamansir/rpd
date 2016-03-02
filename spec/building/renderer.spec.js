@@ -48,6 +48,23 @@ describe('building: renderer', function() {
                 Rpd.stopRendering();
             });
 
+            it('called once for every patch', function() {
+                var fooRendererSpy = jasmine.createSpy('foo-renderer');
+
+                Rpd.renderer('foo', fooRendererSpy);
+
+                Rpd.renderNext('foo', {});
+
+                var firstPatch = Rpd.addPatch();
+                var secondPatch = Rpd.addPatch();
+
+                expect(fooRendererSpy).toHaveBeenCalledTwice();
+                expect(fooRendererSpy).toHaveBeenCalledWith(firstPatch);
+                expect(fooRendererSpy).toHaveBeenCalledWith(secondPatch);
+
+                Rpd.stopRendering();
+            });
+
             it('the inner function is called for every target element and passes configuration there', function() {
                 var fooTargetsSpy = jasmine.createSpy('foo-target');
 
@@ -148,10 +165,8 @@ describe('building: renderer', function() {
 
                 Rpd.renderer('foo', fooRendererSpy);
 
-                Rpd.renderNext('foo', {});
-
-                var firstPatch = Rpd.addPatch();
-                var secondPatch = Rpd.addPatch();
+                var firstPatch = Rpd.addPatch().render('foo', {});
+                var secondPatch = Rpd.addPatch().render('foo', {});
 
                 expect(fooRendererSpy).toHaveBeenCalledTwice();
                 expect(fooRendererSpy).toHaveBeenCalledWith(firstPatch);
@@ -283,6 +298,55 @@ describe('building: renderer', function() {
                 expect(barEventSpy).toHaveBeenCalledWith(jasmine.objectContaining({ type: 'patch/add-node', node: nodeTwo }));
                 expect(barEventSpy).toHaveBeenCalledWith(jasmine.objectContaining({ type: 'node/add-inlet', inlet: inletTwo }));
                 expect(fooEventSpy).not.toHaveBeenCalledWith(jasmine.objectContaining({ type: 'patch/add-inlet', inlet: inletTwo }));
+            });
+
+            it('continues rendering patches with assigned configurations', function() {
+                var fooAddNodeSpy = jasmine.createSpy('foo-add-node');
+                var fooAddInletSpy = jasmine.createSpy('foo-add-inlet');
+                var barAddNodeSpy = jasmine.createSpy('bar-add-node');
+                var barAddInletSpy = jasmine.createSpy('bar-add-inlet');
+
+                Rpd.renderer('foo', function(patch) {
+                    return function(target, conf) {
+                        return { 'patch/add-node': fooAddNodeSpy,
+                                 'node/add-inlet': fooAddInletSpy }
+                    };
+                });
+
+                Rpd.renderer('bar', function(patch) {
+                    return function(target, conf) {
+                        return { 'patch/add-node': barAddNodeSpy,
+                                 'node/add-inlet': barAddInletSpy }
+                    };
+                });
+
+                var patchOne = Rpd.addPatch().render('foo', {});
+                var nodeOne = patchOne.addNode('spec/empty');
+                patchOne.enter();
+
+                expect(fooAddNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: nodeOne, patch: patchOne }));
+                expect(barAddNodeSpy).not.toHaveBeenCalled();
+                fooAddNodeSpy.calls.reset();
+
+                var patchTwo = Rpd.addPatch().render('bar', {});
+                var nodeTwo = patchTwo.addNode('spec/empty');
+                patchTwo.enter();
+
+                expect(fooAddNodeSpy).not.toHaveBeenCalled();
+                expect(barAddNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: nodeTwo, patch: patchTwo }));
+
+                var inletOne = nodeOne.addInlet('spec/any', 'foo');
+
+                expect(fooAddInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inletOne, node: nodeOne }));
+                expect(barAddInletSpy).not.toHaveBeenCalled();
+                fooAddInletSpy.calls.reset();
+
+                var inletTwo = nodeTwo.addInlet('spec/any', 'bar');
+
+                expect(fooAddInletSpy).not.toHaveBeenCalled();
+                expect(barAddInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inletTwo, node: nodeTwo }));
+
+                Rpd.stopRendering();
             });
 
         });
