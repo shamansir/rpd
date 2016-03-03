@@ -32,31 +32,44 @@ var events = events_stream(event_types, event, 'network', Rpd);
 
 event['network/add-patch'].onValue(function(patch) { events.plug(patch.events); });
 
-var rendering = Kefir.emitter();
+var rendering;
 
 function ƒ(v) { return function() { return v; } }
+
+function createRenderingStream() {
+    var rendering = Kefir.emitter();
+    rendering.map(function(rule) {
+        return {
+            rule: rule,
+            func: function(patch) { patch.render(rule.aliases, rule.targets, rule.config) }
+        }
+    }).scan(function(prev, curr) {
+        if (prev) event['network/add-patch'].offValue(prev.func);
+        event['network/add-patch'].onValue(curr.func);
+        return curr;
+    }, null).last().onValue(function(last) {
+        event['network/add-patch'].offValue(last.func);
+    });
+    return rendering;
+}
+
+function renderNext(aliases, targets, conf) {
+    if (!rendering) rendering = createRenderingStream();
+    rendering.emit({ aliases: aliases, targets: targets, config: conf });
+}
+
+function stopRendering() {
+    if (rendering) {
+        rendering.end();
+        rendering = null;
+    }
+}
 
 function addPatch(arg0, arg1) {
     var name = !is_object(arg0) ? arg0 : undefined; var def = arg1 || arg0;
     var instance = new Patch(arg0, arg1 || arg0);
     event['network/add-patch'].emit(instance);
     return instance;
-}
-
-rendering.map(function(arr) {
-    return function(patch) { patch.render(arr[0] /* aliases */, arr[1] /* targets */, arr[2] /* conf */) }
-}).scan(function(prev, curr) {
-    if (prev) event['network/add-patch'].offValue(prev);
-    if (curr) event['network/add-patch'].onValue(curr);
-    return curr;
-}, null).onValue(function() {});
-
-function renderNext(aliases, targets, conf) {
-    rendering.emit([ aliases, targets, conf ]);
-}
-
-function stopRendering() {
-    rendering.end();
 }
 
 // =============================================================================
@@ -89,8 +102,8 @@ function Patch(name, def) {
     // this stream controls the way patch events reach the assigned renderer
     this.renderQueue = Kefir.emitter();
     var renderStream = Kefir.combine([ this.events ],
-                  [ this.renderQueue.scan(function(storage, event) {
-                        var alias = event.alias, target = event.target, configuration = event.config;
+                  [ this.renderQueue.scan(function(storage, rule) {
+                        var alias = rule.alias, target = rule.target, configuration = rule.config;
                         var renderer = storage[alias];
                         if (!renderer) {
                             renderer = {};

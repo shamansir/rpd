@@ -1,6 +1,8 @@
 describe('building: renderer', function() {
 
     it('target could be empty, network case', function() {
+        Rpd.renderer('foo', function() {});
+
         expect(function() {
             Rpd.renderNext('foo');
             Rpd.addPatch();
@@ -10,6 +12,8 @@ describe('building: renderer', function() {
     });
 
     it('target could be empty, patch case', function() {
+        Rpd.renderer('foo', function() {});
+
         expect(function() {
             Rpd.addPatch().render('foo');
         }).not.toThrow();
@@ -31,6 +35,10 @@ describe('building: renderer', function() {
 
         describe('network (Rpd.renderNext)', function() {
 
+            afterEach(function() {
+                Rpd.stopRendering();
+            });
+
             it('the inner function is called with target element', function() {
                 var fooTargetsSpy = jasmine.createSpy('foo-target');
 
@@ -44,8 +52,6 @@ describe('building: renderer', function() {
                 Rpd.addPatch();
 
                 expect(fooTargetsSpy).toHaveBeenCalledWith(target, undefined);
-
-                Rpd.stopRendering();
             });
 
             it('called once for every patch', function() {
@@ -61,8 +67,6 @@ describe('building: renderer', function() {
                 expect(fooRendererSpy).toHaveBeenCalledTwice();
                 expect(fooRendererSpy).toHaveBeenCalledWith(firstPatch);
                 expect(fooRendererSpy).toHaveBeenCalledWith(secondPatch);
-
-                Rpd.stopRendering();
             });
 
             it('the inner function is called for every target element and passes configuration there', function() {
@@ -81,8 +85,6 @@ describe('building: renderer', function() {
 
                 expect(fooTargetsSpy).toHaveBeenCalledWith(targetOne, conf);
                 expect(fooTargetsSpy).toHaveBeenCalledWith(targetTwo, conf);
-
-                Rpd.stopRendering();
             });
 
             it('the inner function is called for every renderer and target', function() {
@@ -102,8 +104,6 @@ describe('building: renderer', function() {
                 expect(fooTargetsSpy).toHaveBeenCalled();
                 expect(barTargetsSpy).toHaveBeenCalledWith(targetOne, conf);
                 expect(barTargetsSpy).toHaveBeenCalledWith(targetTwo, conf);
-
-                Rpd.stopRendering();
             });
 
             it('turning off is not required for two renderNext in sequence', function() {
@@ -130,8 +130,6 @@ describe('building: renderer', function() {
 
                 expect(fooTargetsSpy).not.toHaveBeenCalled();
                 expect(barTargetsSpy).toHaveBeenCalledOnce();
-
-                Rpd.stopRendering();
             });
 
             it('passes the events to the handler object', function() {
@@ -154,8 +152,6 @@ describe('building: renderer', function() {
 
                 expect(addNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: node }));
                 expect(addInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inlet }));
-
-                Rpd.stopRendering();
             });
 
         });
@@ -347,8 +343,6 @@ describe('building: renderer', function() {
 
                 expect(fooAddInletSpy).not.toHaveBeenCalled();
                 expect(barAddInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inletTwo, node: nodeTwo }));
-
-                Rpd.stopRendering();
             });
 
         });
