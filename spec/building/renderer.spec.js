@@ -19,18 +19,6 @@ describe('building: renderer', function() {
         }).not.toThrow();
     });
 
-    describe('object', function() {
-
-        describe('network (Rpd.renderNext)', function() {
-
-        });
-
-        describe('patch (patch.render)', function() {
-
-        });
-
-    });
-
     describe('function', function() {
 
         describe('network (Rpd.renderNext)', function() {
@@ -349,5 +337,36 @@ describe('building: renderer', function() {
 
     });
 
+    xdescribe('object', function() {
+
+        describe('network (Rpd.renderNext)', function() {
+
+            afterEach(function() {
+                Rpd.stopRendering();
+            });
+
+            it('receives events from the assigned patch', function() {
+                var addNodeSpy = jasmine.createSpy('add-node');
+
+                Rpd.renderer('foo', {
+                    'patch/add-node': addNodeSpy
+                });
+
+                Rpd.renderNext('foo');
+
+                var patch = Rpd.addPatch('Foo');
+                var node = patch.addNode('spec/empty');
+
+                expect(addNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: node, patch: patch }));
+
+            });
+
+        });
+
+        describe('patch (patch.render)', function() {
+
+        });
+
+    });
 
 });
