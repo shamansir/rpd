@@ -335,6 +335,8 @@ describe('building: renderer', function() {
 
         });
 
+        describe('subpatches', function() {});
+
     });
 
     xdescribe('object', function() {
@@ -366,6 +368,8 @@ describe('building: renderer', function() {
         describe('patch (patch.render)', function() {
 
         });
+
+        describe('subpatches', function() {});
 
     });
 
