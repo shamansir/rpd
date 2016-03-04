@@ -45,27 +45,57 @@ describe('building: network', function() {
             });
         });
 
-        it('inner patch could be projected', function() {
-            withNewPatch(function(rootPatch, updateSpy) {
+        xit('inner patch could be projected', function() {
+            withNewPatch(function(rootPatch, rootUpdateSpy) {
                 var rootNode = rootPatch.addNode('spec/empty');
 
-                var innerPatch = Rpd.addPatch();
-                var innerNodeOne = innerPatch.addNode('spec/empty');
-                var inputOne = innerNodeOne.addInlet('spec/any', 'foo');
-                var outputOne = innerNodeOne.addOutlet('spec/any', 'foo');
-                var outputTwo = innerNodeOne.addOutlet('spec/any', 'foo');
-                var innerNodeTwo = innerPatch.addNode('spec/empty');
-                var outputThree = innerNodeTwo.addOutlet('spec/any', 'foo');
+                withNewPatch(function(innerPatch, innerUpdateSpy) {
+                    var innerPatch = Rpd.addPatch();
 
-                innerPatch.inputs([ inputOne ]);
-                innerPatch.outputs([ outputOne, outputTwo, outputThree ]);
+                    innerPatch.project(rootNode);
 
-                innerPatch.project(rootNode);
+                    expect(innerUpdateSpy).toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'patch/project',
+                                                   node: rootNode,
+                                                   target: rootPatch }));
 
-                expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.objectContaining({ type: 'patch/refer',
-                                               node: rootNode,
-                                               target: innerPatch }));
+                    expect(rootUpdateSpy).toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'patch/refer',
+                                                   node: rootNode,
+                                                   target: innerPatch }));
+                });
+            });
+        });
+
+        it('inner patch could be projected when inputs and outputs were specified', function() {
+            withNewPatch(function(rootPatch, rootUpdateSpy) {
+                var rootNode = rootPatch.addNode('spec/empty');
+
+                withNewPatch(function(innerPatch, innerUpdateSpy) {
+                    var innerPatch = Rpd.addPatch();
+                    var innerNodeOne = innerPatch.addNode('spec/empty');
+                    var inputOne = innerNodeOne.addInlet('spec/any', 'foo');
+                    var outputOne = innerNodeOne.addOutlet('spec/any', 'foo');
+                    var outputTwo = innerNodeOne.addOutlet('spec/any', 'foo');
+                    var innerNodeTwo = innerPatch.addNode('spec/empty');
+                    var outputThree = innerNodeTwo.addOutlet('spec/any', 'foo');
+
+                    innerPatch.inputs([ inputOne ]);
+                    innerPatch.outputs([ outputOne, outputTwo, outputThree ]);
+
+                    innerPatch.project(rootNode);
+
+                    /*expect(innerUpdateSpy).toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'patch/project',
+                                                   node: rootNode,
+                                                   target: rootPatch }));*/
+
+                    expect(rootUpdateSpy).toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'patch/refer',
+                                                   node: rootNode,
+                                                   target: innerPatch }));
+                });
+
             });
         });
 
