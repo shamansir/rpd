@@ -3,8 +3,9 @@ prettify(Rpd); // inject pretty-print for Jasmine
 Rpd.nodetype('spec/empty', {});
 Rpd.channeltype('spec/any', {});
 
-function withNewPatch(fn) {
-    var updateSpy = jasmine.createSpy('update');
+function withNewPatch(name, fn) {
+    if (!fn) { fn = name; name = '' };
+    var updateSpy = jasmine.createSpy('update' + (name ? ('-' + name) : ''));
     var patch = Rpd.addPatch();
 
     patch.events.onValue(updateSpy)

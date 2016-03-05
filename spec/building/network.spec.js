@@ -45,11 +45,11 @@ describe('building: network', function() {
             });
         });
 
-        xit('inner patch could be projected', function() {
-            withNewPatch(function(rootPatch, rootUpdateSpy) {
+        it('inner patch could be projected', function() {
+            withNewPatch('root', function(rootPatch, rootUpdateSpy) {
                 var rootNode = rootPatch.addNode('spec/empty');
 
-                withNewPatch(function(innerPatch, innerUpdateSpy) {
+                withNewPatch('inner', function(innerPatch, innerUpdateSpy) {
                     var innerPatch = Rpd.addPatch();
 
                     innerPatch.project(rootNode);
@@ -68,10 +68,10 @@ describe('building: network', function() {
         });
 
         it('inner patch could be projected when inputs and outputs were specified', function() {
-            withNewPatch(function(rootPatch, rootUpdateSpy) {
+            withNewPatch('root', function(rootPatch, rootUpdateSpy) {
                 var rootNode = rootPatch.addNode('spec/empty');
 
-                withNewPatch(function(innerPatch, innerUpdateSpy) {
+                withNewPatch('inner', function(innerPatch, innerUpdateSpy) {
                     var innerPatch = Rpd.addPatch();
                     var innerNodeOne = innerPatch.addNode('spec/empty');
                     var inputOne = innerNodeOne.addInlet('spec/any', 'foo');
@@ -85,10 +85,10 @@ describe('building: network', function() {
 
                     innerPatch.project(rootNode);
 
-                    /*expect(innerUpdateSpy).toHaveBeenCalledWith(
+                    expect(innerUpdateSpy).toHaveBeenCalledWith(
                         jasmine.objectContaining({ type: 'patch/project',
                                                    node: rootNode,
-                                                   target: rootPatch }));*/
+                                                   target: rootPatch }));
 
                     expect(rootUpdateSpy).toHaveBeenCalledWith(
                         jasmine.objectContaining({ type: 'patch/refer',
