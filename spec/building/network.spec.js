@@ -45,12 +45,30 @@ describe('building: network', function() {
             });
         });
 
-        it('inner patch could be projected', function() {
+        it('inner patch could not be projected when no inputs or outputs were specified', function() {
             withNewPatch('root', function(rootPatch, rootUpdateSpy) {
                 var rootNode = rootPatch.addNode('spec/empty');
 
                 withNewPatch('inner', function(innerPatch, innerUpdateSpy) {
-                    var innerPatch = Rpd.addPatch();
+
+                    innerPatch.project(rootNode);
+
+                    expect(innerUpdateSpy).not.toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'patch/project' }));
+
+                    expect(rootUpdateSpy).not.toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'patch/refer' }));
+                });
+            });
+        });
+
+        it('inner patch could be projected when empty inputs and outputs sets were specified', function() {
+            withNewPatch('root', function(rootPatch, rootUpdateSpy) {
+                var rootNode = rootPatch.addNode('spec/empty');
+
+                withNewPatch('inner', function(innerPatch, innerUpdateSpy) {
+                    innerPatch.inputs([ ]);
+                    innerPatch.outputs([ ]);
 
                     innerPatch.project(rootNode);
 
@@ -64,15 +82,15 @@ describe('building: network', function() {
                                                    node: rootNode,
                                                    target: innerPatch }));
                 });
+
             });
         });
 
-        it('inner patch could be projected when inputs and outputs were specified', function() {
+        it('inner patch could be projected when both inputs and outputs were specified', function() {
             withNewPatch('root', function(rootPatch, rootUpdateSpy) {
                 var rootNode = rootPatch.addNode('spec/empty');
 
                 withNewPatch('inner', function(innerPatch, innerUpdateSpy) {
-                    var innerPatch = Rpd.addPatch();
                     var innerNodeOne = innerPatch.addNode('spec/empty');
                     var inputOne = innerNodeOne.addInlet('spec/any', 'foo');
                     var outputOne = innerNodeOne.addOutlet('spec/any', 'foo');
