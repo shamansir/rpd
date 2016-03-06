@@ -142,6 +142,33 @@ describe('building: renderer', function() {
                 expect(addInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inlet }));
             });
 
+            it('do not caches the events happened before setting up a renderer', function() {
+
+                var addNodeSpy  = jasmine.createSpy('add-node'),
+                    addInletSpy = jasmine.createSpy('add-inlet');
+
+                var patch = Rpd.addPatch();
+                var node = patch.addNode('spec/empty');
+                var inlet = node.addInlet('spec/any', 'foo');
+
+                Rpd.renderer('foo', function(patch) {
+                    return function(target, conf) {
+                        return { 'patch/add-node': addNodeSpy,
+                                 'node/add-inlet': addInletSpy }
+                    };
+                });
+
+                Rpd.renderNext('foo', {});
+
+                expect(addNodeSpy).not.toHaveBeenCalled();
+                expect(addInletSpy).not.toHaveBeenCalled();
+
+            });
+
+            describe('subpatches', function() {
+
+            });
+
         });
 
         describe('patch (path.render)', function() {
@@ -333,9 +360,60 @@ describe('building: renderer', function() {
                 expect(barAddInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inletTwo, node: nodeTwo }));
             });
 
+            it('caches the events happened before setting up a renderer and passses them later', function() {
+
+                var addNodeSpy  = jasmine.createSpy('add-node'),
+                    addInletSpy = jasmine.createSpy('add-inlet');
+
+                var patch = Rpd.addPatch();
+                var node = patch.addNode('spec/empty');
+                var inlet = node.addInlet('spec/any', 'foo');
+
+                Rpd.renderer('foo', function(patch) {
+                    return function(target, conf) {
+                        return { 'patch/add-node': addNodeSpy,
+                                 'node/add-inlet': addInletSpy }
+                    };
+                });
+
+                expect(addNodeSpy).not.toHaveBeenCalled();
+                expect(addInletSpy).not.toHaveBeenCalled();
+
+                patch.render('foo', {});
+
+                expect(addNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ patch: patch, node: node }));
+                expect(addInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: node, inlet: inlet }));
+
+            });
+
+            describe('subpatches', function() {
+
+                xit('properly reports entering and exiting the patch', function() {
+
+                    var rendererSpy = jasmine.createSpy();
+
+                    Rpd.renderer('foo', rendererSpy);
+
+                    var rootPatch = Rpd.addPatch().render('foo', {});
+                    var innerPatch = Rpd.addPatch().render('foo', {});
+
+                    var nodeForProjection = rootPatch.addNode('spec/empty');
+
+                    var innerNode = innerPatch.addNode('spec/empty');
+                    var input = innerNode.addInlet('spec/any', 'foo');
+                    var output = innerNode.addOutlet('spec/any', 'foo');
+
+                    innerPatch.inputs([ input ]);
+                    innerPatch.outputs([ output ]);
+
+                    expect(rendererSpy).toHaveBeenCalledWith(rootPatch);
+                    expect(rendererSpy).not.toHaveBeenCalledWith(innerPatch);
+                });
+
+            });
+
         });
 
-        describe('subpatches', function() {});
 
     });
 
