@@ -85,8 +85,7 @@ function Patch(name, def) {
 
     var event_types = {
         'patch/is-ready':    [ ],
-        'patch/enter':       [ ],
-        'patch/exit':        [ ],
+        'patch/select':      [ ],
         'patch/set-inputs':  [ 'inputs' ],
         'patch/set-outputs': [ 'outputs' ],
         'patch/project':     [ 'node', 'target' ],
@@ -202,12 +201,8 @@ Patch.prototype.removeNode = function(node) {
     this.event['patch/remove-node'].emit(node);
     this.events.unplug(node.events);
 }
-Patch.prototype.enter = function() {
-    this.event['patch/enter'].emit();
-    return this;
-}
-Patch.prototype.exit = function() {
-    this.event['patch/exit'].emit();
+Patch.prototype.select = function() {
+    this.event['patch/select'].emit();
     return this;
 }
 Patch.prototype.inputs = function(list) {

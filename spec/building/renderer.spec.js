@@ -136,7 +136,6 @@ describe('building: renderer', function() {
                 var patch = Rpd.addPatch();
                 var node = patch.addNode('spec/empty');
                 var inlet = node.addInlet('spec/any', 'foo');
-                patch.enter();
 
                 expect(addNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: node }));
                 expect(addInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inlet }));
@@ -249,7 +248,6 @@ describe('building: renderer', function() {
                 var patch = Rpd.addPatch().render('foo', {});
                 var node = patch.addNode('spec/empty');
                 var inlet = node.addInlet('spec/any', 'foo');
-                patch.enter();
 
                 expect(addNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: node }));
                 expect(addInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inlet }));
@@ -273,11 +271,10 @@ describe('building: renderer', function() {
                 var patchOne = Rpd.addPatch().render(['foo', 'bar'], {});
                 var nodeOne = patchOne.addNode('spec/empty');
                 var inletOne = nodeOne.addInlet('spec/any', 'foo');
-                patchOne.enter();
+
                 var patchTwo = Rpd.addPatch().render('bar', {});
                 var nodeTwo = patchTwo.addNode('spec/empty');
                 var inletTwo = nodeTwo.addInlet('spec/any', 'foo');
-                patchTwo.enter();
 
                 expect(addNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: nodeOne }));
                 expect(addInletSpy).toHaveBeenCalledWith(jasmine.objectContaining({ inlet: inletOne }));
@@ -301,11 +298,10 @@ describe('building: renderer', function() {
 
                 var patchOne = Rpd.addPatch().render(['foo', 'bar'], {});
                 var nodeOne = patchOne.addNode('spec/empty');
-                patchOne.enter();
+
                 var patchTwo = Rpd.addPatch().render('bar', {});
                 var nodeTwo = patchTwo.addNode('spec/empty');
                 var inletTwo = nodeTwo.addInlet('spec/any', 'foo');
-                patchTwo.enter();
 
                 expect(fooEventSpy).toHaveBeenCalledWith(jasmine.objectContaining({ type: 'patch/add-node', node: nodeOne }));
                 expect(barEventSpy).toHaveBeenCalledWith(jasmine.objectContaining({ type: 'patch/add-node', node: nodeTwo }));
@@ -335,7 +331,6 @@ describe('building: renderer', function() {
 
                 var patchOne = Rpd.addPatch().render('foo', {});
                 var nodeOne = patchOne.addNode('spec/empty');
-                patchOne.enter();
 
                 expect(fooAddNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: nodeOne, patch: patchOne }));
                 expect(barAddNodeSpy).not.toHaveBeenCalled();
@@ -343,7 +338,6 @@ describe('building: renderer', function() {
 
                 var patchTwo = Rpd.addPatch().render('bar', {});
                 var nodeTwo = patchTwo.addNode('spec/empty');
-                patchTwo.enter();
 
                 expect(fooAddNodeSpy).not.toHaveBeenCalled();
                 expect(barAddNodeSpy).toHaveBeenCalledWith(jasmine.objectContaining({ node: nodeTwo, patch: patchTwo }));
@@ -388,27 +382,53 @@ describe('building: renderer', function() {
 
             describe('subpatches', function() {
 
-                xit('properly reports entering and exiting the patch', function() {
+                it('properly reports selecting the patch', function() {
 
-                    var rendererSpy = jasmine.createSpy();
+                    var selectPatchSpy = jasmine.createSpy('select-patch');
+                    var rendererSpy = jasmine.createSpy('foo-renderer').andCallFake(function(patch) {
+                        return function(target, conf) {
+                            return { 'patch/select': selectPatchSpy };
+                        }
+                    });
 
                     Rpd.renderer('foo', rendererSpy);
 
                     var rootPatch = Rpd.addPatch().render('foo', {});
                     var innerPatch = Rpd.addPatch().render('foo', {});
 
-                    var nodeForProjection = rootPatch.addNode('spec/empty');
-
-                    var innerNode = innerPatch.addNode('spec/empty');
-                    var input = innerNode.addInlet('spec/any', 'foo');
-                    var output = innerNode.addOutlet('spec/any', 'foo');
-
-                    innerPatch.inputs([ input ]);
-                    innerPatch.outputs([ output ]);
-
                     expect(rendererSpy).toHaveBeenCalledWith(rootPatch);
-                    expect(rendererSpy).not.toHaveBeenCalledWith(innerPatch);
+                    expect(rendererSpy).toHaveBeenCalledWith(innerPatch);
+
+                    innerPatch.select();
+
+                    expect(selectPatchSpy).toHaveBeenCalled();
+
                 });
+
+                it('renderer could easily handle selecting patches', function() {
+
+                    var currentPatch;
+
+                    var rendererWithSelect = function(patch) {
+                        currentPatch = patch;
+                        return function(target, conf) {
+                            return {
+                                'patch/select': function(update) {
+                                    currentPatch = update.patch;
+                                }
+                            }
+                        }
+                    };
+
+                    Rpd.renderer('select', rendererWithSelect);
+
+                    var rootPatch = Rpd.addPatch().render('foo', {});
+
+                    expect(currentPatch).toBe(rootPatch);
+
+                });
+
+                // selecting several patches rendered to different targets with one rendererer
 
             });
 

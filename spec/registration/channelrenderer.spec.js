@@ -33,7 +33,7 @@ describe('registration: channel renderer', function() {
                 }
             });
 
-            patch = Rpd.addPatch().render('spec', {}).enter();
+            patch = Rpd.addPatch().render('spec', {});
 
             node = patch.addNode('spec/empty');
         });
