@@ -385,7 +385,7 @@ describe('building: renderer', function() {
                 it('properly reports selecting the patch', function() {
 
                     var selectPatchSpy = jasmine.createSpy('select-patch');
-                    var rendererSpy = jasmine.createSpy('foo-renderer').andCallFake(function(patch) {
+                    var rendererSpy = jasmine.createSpy('foo-renderer').and.callFake(function(patch) {
                         return function(target, conf) {
                             return { 'patch/select': selectPatchSpy };
                         }
@@ -407,24 +407,62 @@ describe('building: renderer', function() {
 
                 it('renderer could easily handle selecting patches', function() {
 
-                    var currentPatch;
+                    var fooCurrentPatch;
+                    var barCurrentPatch;
 
-                    var rendererWithSelect = function(patch) {
-                        currentPatch = patch;
+                    var fooRenderer = function(patch) {
+                        fooCurrentPatch = patch;
                         return function(target, conf) {
                             return {
-                                'patch/select': function(update) {
-                                    currentPatch = update.patch;
-                                }
+                                'patch/select': function(update) { fooCurrentPatch = update.patch; }
                             }
                         }
                     };
 
-                    Rpd.renderer('select', rendererWithSelect);
+                    var barRenderer = function(patch) {
+                        barCurrentPatch = patch;
+                        return function(target, conf) {
+                            return {
+                                'patch/select': function(update) { barCurrentPatch = update.patch; }
+                            }
+                        }
+                    };
 
-                    var rootPatch = Rpd.addPatch().render('foo', {});
+                    Rpd.renderer('foo', fooRenderer);
+                    Rpd.renderer('bar', barRenderer);
 
-                    expect(currentPatch).toBe(rootPatch);
+                    var firstPatch  = Rpd.addPatch().render('foo', {});
+                    var secondPatch = Rpd.addPatch().render('bar', {});
+                    var thirdPatch  = Rpd.addPatch().render('foo', {});
+                    var fourthPatch = Rpd.addPatch().render('bar', {});
+
+                    expect(fooCurrentPatch).toBe(firstPatch);
+                    expect(barCurrentPatch).toBe(secondPatch);
+
+                    secondPatch.select(); // 'bar' renderer
+
+                    expect(fooCurrentPatch).toBe(firstPatch);
+                    expect(barCurrentPatch).toBe(secondPatch);
+
+                    thirdPatch.select(); // 'foo' renderer
+
+                    expect(fooCurrentPatch).toBe(thirdPatch);
+                    expect(barCurrentPatch).toBe(secondPatch);
+
+                    fourthPatch.select(); // 'bar' renderer
+
+                    expect(fooCurrentPatch).toBe(thirdPatch);
+                    expect(barCurrentPatch).toBe(fourthPatch);
+
+                    firstPatch.select(); // 'foo' renderer
+
+                    expect(fooCurrentPatch).toBe(firstPatch);
+                    expect(barCurrentPatch).toBe(fourthPatch);
+
+                    secondPatch.select(); // 'bar' renderer
+
+                    expect(fooCurrentPatch).toBe(firstPatch);
+                    expect(barCurrentPatch).toBe(secondPatch);
 
                 });
 
