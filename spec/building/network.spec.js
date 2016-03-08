@@ -117,43 +117,6 @@ describe('building: network', function() {
             });
         });
 
-        it('informs when other patch was selected', function() {
-            withNewPatch('root', function(rootPatch, rootUpdateSpy) {
-                withNewPatch('inner', function(innerPatch, innerUpdateSpy) {
-
-                    innerPatch.select();
-
-                    expect(innerUpdateSpy).toHaveBeenCalledWith(
-                        jasmine.objectContaining({ type: 'patch/select',
-                                                   patch: innerPatch,
-                                                   previousPatch: rootPatch }));
-
-                    expect(rootUpdateSpy).not.toHaveBeenCalledWith(
-                        jasmine.objectContaining({ type: 'patch/select' }));
-                });
-
-            });
-        });
-
-        it('informs when first patch was selected back', function() {
-            withNewPatch('root', function(rootPatch, rootUpdateSpy) {
-                withNewPatch('inner', function(innerPatch, innerUpdateSpy) {
-
-                    innerPatch.select();
-
-                    innerUpdateSpy.calls.reset();
-
-                    rootPatch.select();
-
-                    expect(innerUpdateSpy).toHaveBeenCalledWith(
-                        jasmine.objectContaining({ type: 'patch/select',
-                                                   patch: rootPatch,
-                                                   previousPatch: innerPatch }));
-                });
-
-            });
-        });
-
     });
 
 });

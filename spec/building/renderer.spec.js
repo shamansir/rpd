@@ -380,14 +380,19 @@ describe('building: renderer', function() {
 
             });
 
-            describe('subpatches', function() {
+            xdescribe('subpatches', function() {
 
-                it('properly reports selecting the patch', function() {
+                xit('passes the render confi reports selecting the patch', function() {
 
                     var selectPatchSpy = jasmine.createSpy('select-patch');
-                    var rendererSpy = jasmine.createSpy('foo-renderer').and.callFake(function(patch) {
-                        return function(target, conf) {
-                            return { 'patch/select': selectPatchSpy };
+                    var rendererSpy = jasmine.createSpy('foo-renderer').and.callFake(function(patch, conf, path) {
+
+                        return {
+                            root: root,
+                            //append:
+                            handle: {
+
+                            }
                         }
                     });
 
@@ -420,7 +425,6 @@ describe('building: renderer', function() {
                     };
 
                     var barRenderer = function(patch) {
-                        barCurrentPatch = patch;
                         return function(target, conf) {
                             return {
                                 'patch/select': function(update) { barCurrentPatch = update.patch; }

@@ -85,7 +85,6 @@ function Patch(name, def) {
 
     var event_types = {
         'patch/is-ready':    [ ],
-        'patch/select':      [ ],
         'patch/set-inputs':  [ 'inputs' ],
         'patch/set-outputs': [ 'outputs' ],
         'patch/project':     [ 'node', 'target' ],
