@@ -145,6 +145,54 @@ describe('registration: renderer', function() {
 
         describe('subpatches and canvases', function() {
 
+            describe('single root', function() {
+
+                it('allows to add all the patches canvases to this root', function() {
+
+                });
+
+                it('by default, replaces corresponding canvas content when user selects subpatches', function() {
+                    var root1 = {};
+                    var root2 = {};
+
+                    var canvas1 = {},
+                        canvas2 = {};
+                });
+
+                it('with option `subpatchesInRoot` set to `true`, adds subpatch canvas content to the root', function() {
+                    var root1 = {};
+                    var root2 = {};
+
+                    var canvas1 = {},
+                        canvas2 = {};
+                });
+
+            });
+
+            describe('several roots', function() {
+
+                it('allows to add patches to a separate roots', function() {
+
+                });
+
+                it('by default, even with different roots, replaces corresponding canvas content when user selects subpatches', function() {
+                    var root1 = {};
+                    var root2 = {};
+
+                    var canvas1 = {},
+                        canvas2 = {};
+                });
+
+                it('with option `subpatchesInRoot` set to `true`, even with different roots, adds subpatch canvas content to the root', function() {
+                    var root1 = {};
+                    var root2 = {};
+
+                    var canvas1 = {},
+                        canvas2 = {};
+                });
+
+            });
+
         });
 
     });
@@ -361,95 +409,73 @@ describe('registration: renderer', function() {
 
         describe('subpatches and canvases', function() {
 
-            it('passes the render confi reports selecting the patch', function() {
+            describe('single root', function() {
 
-                var selectPatchSpy = jasmine.createSpy('select-patch');
-                var rendererSpy = jasmine.createSpy('foo-renderer').and.callFake(function(patch, conf, path) {
+                it('allows to add all the patches canvases to this root', function() {
 
-                    return {
-                        root: root,
-                        //append:
-                        handle: {
-
-                        }
-                    }
                 });
 
-                Rpd.renderer('foo', rendererSpy);
+                it('by default, replaces corresponding canvas content when user selects subpatches', function() {
+                    var root1 = {};
+                    var root2 = {};
 
-                var rootPatch = Rpd.addPatch().render('foo', {});
-                var innerPatch = Rpd.addPatch().render('foo', {});
+                    var canvas1 = {},
+                        canvas2 = {};
+                });
 
-                expect(rendererSpy).toHaveBeenCalledWith(rootPatch);
-                expect(rendererSpy).toHaveBeenCalledWith(innerPatch);
+                it('with option `subpatchesInRoot` set to `true`, adds subpatch canvas content to the root', function() {
+                    var root1 = {};
+                    var root2 = {};
 
-                innerPatch.select();
+                    var canvas1 = {},
+                        canvas2 = {};
+                });
 
-                expect(selectPatchSpy).toHaveBeenCalled();
+                it('respects option `subpatchesInRoot` set for paticular patch and its subpatches', function() {
+                    var root1 = {};
+                    var root2 = {};
 
-            });
-
-            it('renderer could easily handle selecting patches', function() {
-
-                var fooCurrentPatch;
-                var barCurrentPatch;
-
-                var fooRenderer = function(patch) {
-                    fooCurrentPatch = patch;
-                    return function(target, conf) {
-                        return {
-                            'patch/select': function(update) { fooCurrentPatch = update.patch; }
-                        }
-                    }
-                };
-
-                var barRenderer = function(patch) {
-                    return function(target, conf) {
-                        return {
-                            'patch/select': function(update) { barCurrentPatch = update.patch; }
-                        }
-                    }
-                };
-
-                Rpd.renderer('foo', fooRenderer);
-                Rpd.renderer('bar', barRenderer);
-
-                var firstPatch  = Rpd.addPatch().render('foo', {});
-                var secondPatch = Rpd.addPatch().render('bar', {});
-                var thirdPatch  = Rpd.addPatch().render('foo', {});
-                var fourthPatch = Rpd.addPatch().render('bar', {});
-
-                expect(fooCurrentPatch).toBe(firstPatch);
-                expect(barCurrentPatch).toBe(secondPatch);
-
-                secondPatch.select(); // 'bar' renderer
-
-                expect(fooCurrentPatch).toBe(firstPatch);
-                expect(barCurrentPatch).toBe(secondPatch);
-
-                thirdPatch.select(); // 'foo' renderer
-
-                expect(fooCurrentPatch).toBe(thirdPatch);
-                expect(barCurrentPatch).toBe(secondPatch);
-
-                fourthPatch.select(); // 'bar' renderer
-
-                expect(fooCurrentPatch).toBe(thirdPatch);
-                expect(barCurrentPatch).toBe(fourthPatch);
-
-                firstPatch.select(); // 'foo' renderer
-
-                expect(fooCurrentPatch).toBe(firstPatch);
-                expect(barCurrentPatch).toBe(fourthPatch);
-
-                secondPatch.select(); // 'bar' renderer
-
-                expect(fooCurrentPatch).toBe(firstPatch);
-                expect(barCurrentPatch).toBe(secondPatch);
+                    var canvas1 = {},
+                        canvas2 = {};
+                });
 
             });
 
-            // selecting several patches rendered to different targets with one rendererer
+            describe('several roots', function() {
+
+                it('allows to add patches to a separate roots', function() {
+
+                });
+
+                it('by default, even with different roots, replaces corresponding canvas content when user selects subpatches', function() {
+                    var root1 = {};
+                    var root2 = {};
+
+                    var canvas1 = {},
+                        canvas2 = {};
+                });
+
+                it('with option `subpatchesInRoot` set to `true`, even with different roots, adds subpatch canvas content to the root', function() {
+                    var root1 = {};
+                    var root2 = {};
+
+                    var canvas1 = {},
+                        canvas2 = {};
+                });
+
+                it('subpatches inherit their parents\' root configiration', function() {
+
+                });
+
+                it('respects option `subpatchesInRoot` set for paticular patch and its subpatches', function() {
+                    var root1 = {};
+                    var root2 = {};
+
+                    var canvas1 = {},
+                        canvas2 = {};
+                });
+
+            });
 
         });
 
