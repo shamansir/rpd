@@ -31,8 +31,7 @@ module.exports = function(config) {
       './spec/building/inlet.spec.js',
       './spec/building/outlet.spec.js',
       './spec/building/link.spec.js',
-
-      './spec/building/renderer.spec.js',
+      './spec/building/render.spec.js',
 
       './spec/registration/general.spec.js',
 
