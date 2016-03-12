@@ -412,7 +412,32 @@ describe('registration: renderer', function() {
             describe('single root', function() {
 
                 it('allows to add all the patches canvases to this root', function() {
+                    var patchRenderSpy = jasmine.createSpy('patch-render');
 
+                    var root = {};
+
+                    var canvas1 = {},
+                        canvas2 = {};
+
+                    Rpd.renderer('foo', {
+                        addTo: function(root, patch) {
+                            if (patch.name == 'one') root['canvas-1'] = canvas1;
+                            if (patch.name == 'two') root['canvas-2'] = canvas2;
+                        },
+                        render: patchRenderSpy.and.callFake(function(patch, conf) {
+
+                        })
+                    });
+
+                    var patchOne = Rpd.addPatch().render(root);
+
+                    expect(patchRenderSpy.toHaveBeenCalledWith(patchOne));
+
+                    var patchTwo = Rpd.addPatch().render(root);
+
+                    expect(patchRenderSpy.toHaveBeenCalledWith(patchTwo));
+                    expect(root['canvas-1']).toBe(canvas1);
+                    expect(root['canvas-2']).toBe(canvas2);
                 });
 
                 it('by default, replaces corresponding canvas content when user selects subpatches', function() {
@@ -453,6 +478,8 @@ describe('registration: renderer', function() {
 
                     var canvas1 = {},
                         canvas2 = {};
+
+
                 });
 
                 it('with option `subpatchesInRoot` set to `true`, even with different roots, adds subpatch canvas content to the root', function() {
