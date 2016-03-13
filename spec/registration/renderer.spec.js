@@ -161,10 +161,15 @@ describe('registration: renderer', function() {
 
                             patchToRoot[patch.id] = root;
                             var canvas = createCanvasMock(conf.name);
+                            // TODO: patch.canvasSize
 
                             return {
                                 'patch/select': function(update) {
-                                    //patchToRoot[update.previousPatch].;
+                                    var previousPatch = update.previousPatch;
+                                    if (previousPatch.root == root && update.replace) {
+                                        delete root[conf.name];
+                                    };
+                                    root[conf.name] = patch;
                                 }
                             }
                         }
