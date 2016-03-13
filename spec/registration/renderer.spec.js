@@ -145,6 +145,51 @@ describe('registration: renderer', function() {
 
         describe('subpatches and canvases', function() {
 
+            function createCanvasMock(name) {
+                return { name: name; }
+            }
+
+            function createRendererMock = function() {
+
+                return (function() {
+
+                    var patchToRoot = {};
+                    var patchToCanvas = {};
+
+                    return function(patch) {
+                        return function(root, conf) {
+
+                            patchToRoot[patch.id] = root;
+                            var canvas = createCanvasMock(conf.name);
+
+                            return {
+                                'patch/select': function(update) {
+                                    //patchToRoot[update.previousPatch].;
+                                }
+                            }
+                        }
+                    }
+
+                })();
+
+            };
+
+            var rendererMock;
+
+            var root1, root2;
+            var canvas1, canvas2, canvas3;
+
+            beforeEach(function() {
+                var root1 = {};
+                var root2 = {};
+
+                var canvas1 = {},
+                    canvas2 = {},
+                    canvas3 = {};
+
+                rendererMock = createRendererMock();
+            });
+
             describe('single root', function() {
 
                 it('allows to add all the patches canvases to this root', function() {
@@ -428,6 +473,8 @@ describe('registration: renderer', function() {
 
                         })
                     });
+
+                    Rpd.
 
                     var patchOne = Rpd.addPatch().render(root);
 
