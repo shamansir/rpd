@@ -29,22 +29,56 @@ describe('import and export', function() {
                 );
             });
 
-            it('entering patch', function() {
+            it('opening patch as a default action', function() {
                 testAction(
-                    function() { Rpd.addPatch('Enter').enter(); },
+                    function() { Rpd.addPatch('Open'); },
                     [ jasmine.objectContaining({
-                          type: 'patch/enter',
+                          type: 'patch/open',
+                          patch: jasmine.objectContaining({ name: 'Open' })
+                      }) ]
+                );
+            });
+
+            it('opening patch as a default action, but with parent', function() {
+                testAction(
+                    function() { var parent = Rpd.addClosedPatch('Parent');
+                                 Rpd.addPatch('OpenWithParent', parent); },
+                    [ jasmine.objectContaining({
+                          type: 'patch/open',
+                          patch: jasmine.objectContaining({ name: 'OpenWithParent',
+                                                            patch: jasmine.objectContaining({ name: 'Parent' }) })
+                      }) ]
+                );
+            });
+
+            it('opening patch', function() {
+                testAction(
+                    function() { Rpd.addClosedPatch('Enter').open(); },
+                    [ jasmine.objectContaining({
+                          type: 'patch/open',
                           patch: jasmine.objectContaining({ name: 'Enter' })
                       }) ]
                 );
             });
 
-            it('exiting patch', function() {
+            it('opening patch with a parent', function() {
                 testAction(
-                    function() { Rpd.addPatch('Exit').exit(); },
+                    function() { var parent = Rpd.addClosedPatch('Parent');
+                                 Rpd.addClosedPatch('OpenWithParent').open(parent); },
                     [ jasmine.objectContaining({
-                          type: 'patch/exit',
-                          patch: jasmine.objectContaining({ name: 'Exit' })
+                          type: 'patch/open',
+                          patch: jasmine.objectContaining({ name: 'Enter',
+                                                            patch: jasmine.objectContaining({ name: 'Parent' }) })
+                      }) ]
+                );
+            });
+
+            it('closing patch', function() {
+                testAction(
+                    function() { Rpd.addPatch('Close').close(); },
+                    [ jasmine.objectContaining({
+                          type: 'patch/close',
+                          patch: jasmine.objectContaining({ name: 'Close' })
                       }) ]
                 );
             });

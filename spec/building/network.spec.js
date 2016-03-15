@@ -117,39 +117,119 @@ describe('building: network', function() {
             });
         });
 
-        it('informs when other patch was selected', function() {
+        it('patches are opened by default', function() {
+            var networkUpdateSpy = jasmine.createSpy('network-update');
+            Rpd.events.onValue(networkUpdateSpy);
+
+            var patch = Rpd.addPatch();
+            expect(networkUpdateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'patch/open',
+                                           patch: patch }));
+
+            Rpd.events.offValue(networkUpdateSpy);
+        });
+
+        it('may pass parent patch to an opened one', function() {
+            var networkUpdateSpy = jasmine.createSpy('network-update');
+            Rpd.events.onValue(networkUpdateSpy);
+
+            var parent = Rpd.addPatch('parent');
+            var patch = Rpd.addPatch('child', parent);
+            expect(networkUpdateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'patch/open',
+                                           patch: patch,
+                                           parent: parent }));
+
+            Rpd.events.offValue(networkUpdateSpy);
+        });
+
+        it('patch can be already closed when added', function() {
+            var networkUpdateSpy = jasmine.createSpy('network-update');
+            Rpd.events.onValue(networkUpdateSpy);
+
+            var patch = Rpd.addClosedPatch('patch');
+            expect(networkUpdateSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'patch/open' }));
+            /* expect(networkUpdateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'patch/close',
+                                           patch: patch })); */
+
+            Rpd.events.offValue(networkUpdateSpy);
+        });
+
+
+        it('closing a patch fires corresponding event', function() {
+            var networkUpdateSpy = jasmine.createSpy('network-update');
+            Rpd.events.onValue(networkUpdateSpy);
+
+            var patch = Rpd.addPatch('patch').close();
+            expect(networkUpdateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'patch/close',
+                                           patch: patch }));
+
+            Rpd.events.offValue(networkUpdateSpy);
+        });
+
+        it('properly passes events between several patches', function() {
             withNewPatch('root', function(rootPatch, rootUpdateSpy) {
                 withNewPatch('inner', function(innerPatch, innerUpdateSpy) {
 
-                    innerPatch.select();
+                    innerNode = innerPatch.addNode('spec/empty');
 
                     expect(innerUpdateSpy).toHaveBeenCalledWith(
-                        jasmine.objectContaining({ type: 'patch/select',
+                        jasmine.objectContaining({ type: 'patch/add-node',
                                                    patch: innerPatch,
-                                                   previousPatch: rootPatch }));
+                                                   node: innerNode }));
 
-                    expect(rootUpdateSpy).not.toHaveBeenCalledWith(
-                        jasmine.objectContaining({ type: 'patch/select' }));
+                    var rootNode = rootPatch.addNode('spec/empty');
+                    expect(rootUpdateSpy).toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'patch/add-node',
+                                                   patch: rootPatch,
+                                                   node: rootNode }));
+
                 });
 
             });
         });
 
-        it('informs when first patch was selected back', function() {
+        it('informs when patch was opened', function() {
+            withNewPatch('root', function(rootPatch, rootUpdateSpy) {
+                expect(rootUpdateSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'patch/open' }));
+
+                rootPatch.open();
+
+                expect(rootUpdateSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'patch/open',
+                                               patch: rootPatch }));
+
+            });
+        });
+
+        it('parent patch could be passed to the opening event', function() {
             withNewPatch('root', function(rootPatch, rootUpdateSpy) {
                 withNewPatch('inner', function(innerPatch, innerUpdateSpy) {
-
-                    innerPatch.select();
-
-                    innerUpdateSpy.calls.reset();
-
-                    rootPatch.select();
+                    innerPatch.open(rootPatch);
 
                     expect(innerUpdateSpy).toHaveBeenCalledWith(
-                        jasmine.objectContaining({ type: 'patch/select',
-                                                   patch: rootPatch,
-                                                   previousPatch: innerPatch }));
+                        jasmine.objectContaining({ type: 'patch/open',
+                                                   patch: innerPatch,
+                                                   parent: rootPatch }));
                 });
+
+            });
+        });
+
+        it('informs when patch was closed', function() {
+            withNewPatch('root', function(rootPatch, rootUpdateSpy) {
+                expect(rootUpdateSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'patch/close' }));
+
+                rootPatch.close();
+
+                expect(rootUpdateSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'patch/close',
+                                               patch: rootPatch }));
 
             });
         });
