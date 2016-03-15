@@ -154,22 +154,27 @@ describe('registration: renderer', function() {
                 return (function() {
 
                     var patchToRoot = {};
-                    var patchToCanvas = {};
+                    var patchToCanvasName = {};
+                    var numOfCanvases = 0;
 
                     return function(patch) {
                         return function(root, conf) {
 
                             patchToRoot[patch.id] = root;
-                            var canvas = createCanvasMock(conf.name);
+                            var canvasName = conf.prefix + '-' + numOfCanvases + '-' + patch.name;
+                            var canvas = createCanvasMock(canvasName);
+                            patchToCanvasName[patch.id] = canvasName;
+                            numOfCanvases++;
                             // TODO: patch.canvasSize
 
                             return {
                                 'patch/select': function(update) {
                                     var previousPatch = update.previousPatch;
-                                    if (previousPatch.root == root && update.replace) {
-                                        delete root[conf.name];
+                                    var previousPatchRoot = patchToRoot[previousPatch.id];
+                                    if ((previousPatchRoot == root) && update.doReplace) {
+                                        delete root[canvasName];
                                     };
-                                    root[conf.name] = patch;
+                                    root[canvasName] = canvas;
                                 }
                             }
                         }
@@ -181,24 +186,27 @@ describe('registration: renderer', function() {
 
             var rendererMock;
 
-            var root1, root2;
-            var canvas1, canvas2, canvas3;
-
             beforeEach(function() {
-                var root1 = {};
-                var root2 = {};
-
-                var canvas1 = {},
-                    canvas2 = {},
-                    canvas3 = {};
-
                 rendererMock = createRendererMock();
             });
 
             describe('single root', function() {
 
                 it('allows to add all the patches canvases to this root', function() {
+                    var root = {};
 
+                    Rpd.renderer('mock', rendererMock);
+
+                    Rpd.renderNext('mock', root, { prefix: 'all' });
+
+                    Rpd.addPatch('first');
+
+                    expect(root['all-0-first']).toBeDefined();
+
+                    Rpd.addPatch('second');
+
+                    expect(root['all-0-first']).toBeDefined();
+                    expect(root['all-1-second']).toBeDefined();
                 });
 
                 it('by default, replaces corresponding canvas content when user selects subpatches', function() {
