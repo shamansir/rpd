@@ -143,44 +143,58 @@ describe('registration: renderer', function() {
 
         });
 
-        describe('subpatches and canvases', function() {
+        it('if patch is closed, renderer gets no events, but they are pushed to it later', function() {
+            var addNodeSpy  = jasmine.createSpy('add-node'),
+                addInletSpy = jasmine.createSpy('add-inlet');
 
-            function createCanvasMock(name) {
-                return { name: name; }
+            Rpd.renderer('foo', function(patch) {
+                return function(target, conf) {
+                    return { 'patch/add-node': addNodeSpy,
+                             'node/add-inlet': addInletSpy }
+                };
+            });
+
+            Rpd.renderNext('foo', {});
+
+            var patch = Rpd.addPatchClosed();
+            var node = patch.addNode('spec/empty');
+            var inlet = node.addInlet('spec/any', 'foo');
+
+            expect(addNodeSpy).not.toHaveBeenCalled();
+            expect(addInletSpy).not.toHaveBeenCalled();
+
+            patch.open();
+
+            expect(addNodeSpy).toHaveBeenCalled();
+            expect(addInletSpy).toHaveBeenCalled();
+        });
+
+        describe('canvases and subpatches', function() {
+
+            function createCanvasMock(patch) {
+                return { patch: patch };
             }
 
             function createRendererMock = function() {
 
-                return (function() {
+                return function(patch) {
+                    return function(root, conf) {
 
-                    var patchToRoot = {};
-                    var patchToCanvasName = {};
-                    var numOfCanvases = 0;
+                        var canvas = createCanvasMock(patch);
 
-                    return function(patch) {
-                        return function(root, conf) {
-
-                            patchToRoot[patch.id] = root;
-                            var canvasName = conf.prefix + '-' + numOfCanvases + '-' + patch.name;
-                            var canvas = createCanvasMock(canvasName);
-                            patchToCanvasName[patch.id] = canvasName;
-                            numOfCanvases++;
-                            // TODO: patch.canvasSize
-
-                            return {
-                                'patch/select': function(update) {
-                                    var previousPatch = update.previousPatch;
-                                    var previousPatchRoot = patchToRoot[previousPatch.id];
-                                    if ((previousPatchRoot == root) && update.doReplace) {
-                                        delete root[canvasName];
-                                    };
-                                    root[canvasName] = canvas;
-                                }
+                        return {
+                            'patch/open': function(update) {
+                                if (patchToCanvas[patch.id]) return;
+                                root.push(canvas);
+                            },
+                            'patch/close': function(update) {
+                                if (!patchToCanvas[patch.id]) return;
+                                var position = root.indexOf(canvas/*patchToCanvas[patch.id]*/);
+                                root.splice(position, 1);
                             }
                         }
                     }
-
-                })();
+                }
 
             };
 
@@ -192,61 +206,226 @@ describe('registration: renderer', function() {
 
             describe('single root', function() {
 
-                it('allows to add all the patches canvases to this root', function() {
+                it('initially adds all the canvases to this root', function() {
                     var root = {};
 
                     Rpd.renderer('mock', rendererMock);
 
-                    Rpd.renderNext('mock', root, { prefix: 'all' });
+                    Rpd.renderNext('mock', root);
 
-                    Rpd.addPatch('first');
+                    expect(root.length).toBe(0);
 
-                    expect(root['all-0-first']).toBeDefined();
+                    var firstPatch = Rpd.addPatch('first');
 
-                    Rpd.addPatch('second');
+                    expect(root.length).toBe(1);
+                    expect(root[0]).toEqual(jasmine.objectContaining({
+                        patch: firstPatch
+                    }));
 
-                    expect(root['all-0-first']).toBeDefined();
-                    expect(root['all-1-second']).toBeDefined();
+                    var secondPatch = Rpd.addPatch('second');
+
+                    expect(root.length).toBe(2);
+                    expect(root[1]).toEqual(jasmine.objectContaining({
+                        patch: secondPatch
+                    }));
                 });
 
-                it('by default, replaces corresponding canvas content when user selects subpatches', function() {
-                    var root1 = {};
-                    var root2 = {};
+                it('when patch was added as closed, do not appends its canvas to the root', function() {
+                    var root = {};
 
-                    var canvas1 = {},
-                        canvas2 = {};
+                    Rpd.renderer('mock', rendererMock);
+
+                    Rpd.renderNext('mock', root);
+
+                    var firstPatch = Rpd.addPatchClosed('first');
+
+                    expect(root.length).toBe(0);
+
+                    var secondPatch = Rpd.addPatch('second');
+
+                    expect(root.length).toBe(1);
+                    expect(root[0]).toEqual(jasmine.objectContaining({
+                        patch: secondPatch
+                    }));
                 });
 
-                it('with option `subpatchesInRoot` set to `true`, adds subpatch canvas content to the root', function() {
-                    var root1 = {};
-                    var root2 = {};
+                it('when patch was added as closed (with `patch.close` method), do not appends its canvas to the root', function() {
+                    var root = {};
 
-                    var canvas1 = {},
-                        canvas2 = {};
+                    Rpd.renderer('mock', rendererMock);
+
+                    Rpd.renderNext('mock', root);
+
+                    var firstPatch = Rpd.addPatch('first').close();
+
+                    expect(root.length).toBe(0);
+
+                    var secondPatch = Rpd.addPatch('second');
+
+                    expect(root.length).toBe(1);
+                    expect(root[0]).toEqual(jasmine.objectContaining({
+                        patch: secondPatch
+                    }));
+                });
+
+                it('when patch was closed later, also removes its canvas from the root', function() {
+                    var root = {};
+
+                    Rpd.renderer('mock', rendererMock);
+
+                    Rpd.renderNext('mock', root);
+
+                    expect(root.length).toBe(0);
+
+                    var firstPatch = Rpd.addPatch('first');
+
+                    expect(root.length).toBe(1);
+                    firstPatch.addNode('spec/empty', 'Foo');
+
+                    firstPatch.close();
+
+                    expect(root.length).toBe(0);
+
+                    var secondPatch = Rpd.addPatch('second');
+                    expect(root.length).toBe(1);
+                    expect(root[0]).toEqual(jasmine.objectContaining({
+                        patch: secondPatch
+                    }));
+
+                    secondPatch.close();
+                    expect(root.length).toBe(0);
+                });
+
+                it('opening and closing properly works in sequences', function() {
+
+                    var root = {};
+
+                    Rpd.renderer('mock', rendererMock);
+
+                    Rpd.renderNext('mock', root);
+
+                    var firstPatch = Rpd.addPatch('first');
+
+                    expect(root.length).toBe(1);
+
+                    var secondPatch = Rpd.addPatchClosed('second');
+
+                    expect(root.length).toBe(1);
+                    expect(root[0]).toEqual(jasmine.objectContaining({
+                        patch: firstPatch
+                    }));
+
+                    var thirdPatch = Rpd.addPatchClosed('third');
+
+                    expect(root.length).toBe(1);
+                    expect(root[0]).toEqual(jasmine.objectContaining({
+                        patch: firstPatch
+                    }));
+
+                    secondPatch.open();
+
+                    expect(root.length).toBe(2);
+                    expect(root[1]).toEqual(jasmine.objectContaining({
+                        patch: secondPatch
+                    }));
+
+                    firstPatch.close();
+                    thirdPatch.open();
+                    expect(root.length).toBe(2);
+                    expect(root[0]).toEqual(jasmine.objectContaining({
+                        patch: secondPatch
+                    }));
+                    expect(root[1]).toEqual(jasmine.objectContaining({
+                        patch: thirdPatch
+                    }));
+
                 });
 
             });
 
             describe('several roots', function() {
 
-                it('allows to add patches to a separate roots', function() {
+                it('properly adds patches to a separate roots', function() {
+                    var firstRoot = {},
+                        secondRoot = {},
+                        thirdRoot = {};
+
+                    Rpd.renderer('mock', rendererMock);
+
+                    Rpd.renderNext('mock', firstRoot);
+
+                    expect(firstRoot.length).toBe(0);
+
+                    Rpd.addPatch('root-1-patch-1');
+                    expect(firstRoot.length).toBe(1);
+                    Rpd.addPatch('root-1-patch-2');
+                    expect(firstRoot.length).toBe(2);
+                    Rpd.addPatch('root-1-patch-3');
+                    expect(firstRoot.length).toBe(3);
+
+                    Rpd.renderNext('mock', secondRoot);
+
+                    Rpd.addPatch('root-2-patch-1');
+                    expect(secondRoot.length).toBe(1);
+                    Rpd.addPatch('root-2-patch-2');
+                    expect(secondRoot.length).toBe(2);
+                    Rpd.addPatch('root-2-patch-3');
+                    expect(secondRoot.length).toBe(3);
+
+                    expect(firstRoot.length).toBe(3);
+
+                    Rpd.renderer('mock-2', createRendererMock());
+                    Rpd.renderNext('mock-2', thirdRoot);
+                    Rpd.addPatch('root-3-patch-1');
+                    expect(thirdRoot.length).toBe(1);
+                    expect(secondRoot.length).toBe(3);
 
                 });
 
-                it('by default, even with different roots, replaces corresponding canvas content when user selects subpatches', function() {
-                    var root1 = {};
-                    var root2 = {};
+                it('properly opens and closes patches', function() {
+                    var firstRoot = {},
+                        secondRoot = {};
 
-                    var canvas1 = {},
-                        canvas2 = {};
-                });
+                    Rpd.renderer('mock', rendererMock);
 
-                it('with option `subpatchesInRoot` set to `true`, even with different roots, adds subpatch canvas content to the root', function() {
-                    var root1 = {};
-                    var root2 = {};
+                    Rpd.renderNext('mock', firstRoot);
 
-                    var canvas1 = {},
-                        canvas2 = {};
+                    expect(firstRoot.length).toBe(0);
+
+                    Rpd.addPatch('root-1-patch-1');
+                    var rootOnePatchTwo = Rpd.addPatch('root-1-patch-2');
+                    var rootOnePatchThree = Rpd.addClosedPatch('root-1-patch-3');
+                    expect(firstRoot.length).toBe(2);
+
+                    Rpd.renderNext('mock', secondRoot);
+
+                    Rpd.addPatch('root-2-patch-1');
+                    expect(secondRoot.length).toBe(1);
+                    var rootTwoPatchTwo = Rpd.addPatch('root-2-patch-2');
+                    expect(secondRoot.length).toBe(2);
+                    Rpd.addPatch('root-2-patch-3');
+                    expect(secondRoot.length).toBe(3);
+                    expect(secondRoot[1]).toEqual(jasmine.objectContaining({
+                        patch: rootTwoPatchTwo
+                    }));
+
+                    rootOnePatchTwo.close();
+                    expect(firstRoot.length).toBe(1);
+                    expect(secondRoot.length).toBe(3);
+
+                    rootTwoPatchTwo.close();
+                    expect(firstRoot.length).toBe(1);
+                    expect(secondRoot.length).toBe(2);
+                    expect(firstRoot[0]).toEqual(jasmine.objectContaining({
+                        patch: rootTwoPatchTwo
+                    }));
+
+                    rootOnePatchThree.open();
+                    expect(firstRoot.length).toBe(2);
+                    expect(secondRoot.length).toBe(2);
+                    expect(firstRoot[1]).toEqual(jasmine.objectContaining({
+                        patch: rootOnePatchThree
+                    }));
                 });
 
             });
@@ -465,101 +644,271 @@ describe('registration: renderer', function() {
 
         });
 
-        describe('subpatches and canvases', function() {
+        it('if patch is closed, renderer gets no events, but they are pushed to it later', function() {
+            var addNodeSpy  = jasmine.createSpy('add-node'),
+                addInletSpy = jasmine.createSpy('add-inlet');
+
+            Rpd.renderer('foo', function(patch) {
+                return function(target, conf) {
+                    return { 'patch/add-node': addNodeSpy,
+                             'node/add-inlet': addInletSpy }
+                };
+            });
+
+            var patch = Rpd.addPatchClosed().render('foo', {});
+            var node = patch.addNode('spec/empty');
+            var inlet = node.addInlet('spec/any', 'foo');
+
+            expect(addNodeSpy).not.toHaveBeenCalled();
+            expect(addInletSpy).not.toHaveBeenCalled();
+
+            patch.open();
+
+            expect(addNodeSpy).toHaveBeenCalled();
+            expect(addInletSpy).toHaveBeenCalled();
+        });
+
+        describe('canvases and subpatches', function() {
+
+            function createCanvasMock(patch) {
+                return { patch: patch };
+            }
+
+            function createRendererMock = function() {
+
+                return function(patch) {
+                    return function(root, conf) {
+
+                        var canvas = createCanvasMock(patch);
+
+                        return {
+                            'patch/open': function(update) {
+                                if (patchToCanvas[patch.id]) return;
+                                root.push(canvas);
+                            },
+                            'patch/close': function(update) {
+                                if (!patchToCanvas[patch.id]) return;
+                                var position = root.indexOf(canvas/*patchToCanvas[patch.id]*/);
+                                root.splice(position, 1);
+                            }
+                        }
+                    }
+                }
+
+            };
+
+            var rendererMock;
+
+            beforeEach(function() {
+                rendererMock = createRendererMock();
+            });
 
             describe('single root', function() {
 
-                it('allows to add all the patches canvases to this root', function() {
-                    var patchRenderSpy = jasmine.createSpy('patch-render');
+                it('properly adds all the canvases to the given root', function() {
+                    var root = {};
+
+                    Rpd.renderer('mock', rendererMock);
+
+                    expect(root.length).toBe(0);
+
+                    var firstPatch = Rpd.addPatch('first').render(mock, root);
+
+                    expect(root.length).toBe(1);
+                    expect(root[0]).toEqual(jasmine.objectContaining({
+                        patch: firstPatch
+                    }));
+
+                    var secondPatch = Rpd.addPatch('second').render(mock, root);
+
+                    expect(root.length).toBe(2);
+                    expect(root[1]).toEqual(jasmine.objectContaining({
+                        patch: secondPatch
+                    }));
+                });
+
+                it('when patch was added as closed, do not appends its canvas to the root', function() {
+                    var root = {};
+
+                    Rpd.renderer('mock', rendererMock);
+
+                    var firstPatch = Rpd.addPatchClosed('first').render(mock, root);
+
+                    expect(root.length).toBe(0);
+
+                    var secondPatch = Rpd.addPatch('second').render(mock, root);
+
+                    expect(root.length).toBe(1);
+                    expect(root[0]).toEqual(jasmine.objectContaining({
+                        patch: secondPatch
+                    }));
+                });
+
+                it('when patch was added as closed (with `patch.close` method), do not appends its canvas to the root', function() {
+                    var root = {};
+
+                    Rpd.renderer('mock', rendererMock);
+
+                    var firstPatch = Rpd.addPatch('first').render(mock, root).close();
+
+                    expect(root.length).toBe(0);
+
+                    var secondPatch = Rpd.addPatch('second').render(mock, root);
+
+                    expect(root.length).toBe(1);
+                    expect(root[0]).toEqual(jasmine.objectContaining({
+                        patch: secondPatch
+                    }));
+                });
+
+                it('when patch was closed later, also removes its canvas from the root', function() {
+                    var root = {};
+
+                    Rpd.renderer('mock', rendererMock);
+
+                    expect(root.length).toBe(0);
+
+                    var firstPatch = Rpd.addPatch('first').render(mock, root);
+
+                    expect(root.length).toBe(1);
+                    firstPatch.addNode('spec/empty', 'Foo');
+
+                    firstPatch.close();
+
+                    expect(root.length).toBe(0);
+
+                    var secondPatch = Rpd.addPatch('second').render(mock, root);
+                    expect(root.length).toBe(1);
+                    expect(root[0]).toEqual(jasmine.objectContaining({
+                        patch: secondPatch
+                    }));
+
+                    secondPatch.close();
+                    expect(root.length).toBe(0);
+                });
+
+                it('opening and closing properly works in sequences', function() {
 
                     var root = {};
 
-                    var canvas1 = {},
-                        canvas2 = {};
+                    Rpd.renderer('mock', rendererMock);
 
-                    Rpd.renderer('foo', {
-                        addTo: function(root, patch) {
-                            if (patch.name == 'one') root['canvas-1'] = canvas1;
-                            if (patch.name == 'two') root['canvas-2'] = canvas2;
-                        },
-                        render: patchRenderSpy.and.callFake(function(patch, conf) {
+                    var firstPatch = Rpd.addPatch('first').render(mock, root);
 
-                        })
-                    });
+                    expect(root.length).toBe(1);
 
-                    Rpd.
+                    var secondPatch = Rpd.addPatchClosed('second').render(mock, root);
 
-                    var patchOne = Rpd.addPatch().render(root);
+                    expect(root.length).toBe(1);
+                    expect(root[0]).toEqual(jasmine.objectContaining({
+                        patch: firstPatch
+                    }));
 
-                    expect(patchRenderSpy.toHaveBeenCalledWith(patchOne));
+                    var thirdPatch = Rpd.addPatchClosed('third').render(mock, root);
 
-                    var patchTwo = Rpd.addPatch().render(root);
+                    expect(root.length).toBe(1);
+                    expect(root[0]).toEqual(jasmine.objectContaining({
+                        patch: firstPatch
+                    }));
 
-                    expect(patchRenderSpy.toHaveBeenCalledWith(patchTwo));
-                    expect(root['canvas-1']).toBe(canvas1);
-                    expect(root['canvas-2']).toBe(canvas2);
-                });
+                    secondPatch.open();
 
-                it('by default, replaces corresponding canvas content when user selects subpatches', function() {
-                    var root1 = {};
-                    var root2 = {};
+                    expect(root.length).toBe(2);
+                    expect(root[1]).toEqual(jasmine.objectContaining({
+                        patch: secondPatch
+                    }));
 
-                    var canvas1 = {},
-                        canvas2 = {};
-                });
+                    firstPatch.close();
+                    thirdPatch.open();
+                    expect(root.length).toBe(2);
+                    expect(root[0]).toEqual(jasmine.objectContaining({
+                        patch: secondPatch
+                    }));
+                    expect(root[1]).toEqual(jasmine.objectContaining({
+                        patch: thirdPatch
+                    }));
 
-                it('with option `subpatchesInRoot` set to `true`, adds subpatch canvas content to the root', function() {
-                    var root1 = {};
-                    var root2 = {};
-
-                    var canvas1 = {},
-                        canvas2 = {};
-                });
-
-                it('respects option `subpatchesInRoot` set for paticular patch and its subpatches', function() {
-                    var root1 = {};
-                    var root2 = {};
-
-                    var canvas1 = {},
-                        canvas2 = {};
                 });
 
             });
 
             describe('several roots', function() {
 
-                it('allows to add patches to a separate roots', function() {
+                it('properly adds patches to a separate roots', function() {
+                    var firstRoot = {},
+                        secondRoot = {},
+                        thirdRoot = {};
+
+                    Rpd.renderer('mock', rendererMock);
+
+                    expect(firstRoot.length).toBe(0);
+
+                    Rpd.addPatch('root-1-patch-1').render('mock', firstRoot);
+                    expect(firstRoot.length).toBe(1);
+                    Rpd.addPatch('root-1-patch-2').render('mock', firstRoot);
+                    expect(firstRoot.length).toBe(2);
+                    Rpd.addPatch('root-1-patch-3').render('mock', firstRoot);
+                    expect(firstRoot.length).toBe(3);
+
+                    Rpd.renderNext('mock', secondRoot);
+
+                    Rpd.addPatch('root-2-patch-1').render('mock', secondRoot);
+                    expect(secondRoot.length).toBe(1);
+                    Rpd.addPatch('root-2-patch-2').render('mock', secondRoot);
+                    expect(secondRoot.length).toBe(2);
+                    Rpd.addPatch('root-2-patch-3').render('mock', secondRoot);
+                    expect(secondRoot.length).toBe(3);
+
+                    expect(firstRoot.length).toBe(3);
+
+                    Rpd.renderer('mock-2', createRendererMock());
+                    Rpd.addPatch('root-3-patch-1').render('mock-2', thirdRoot);
+                    expect(thirdRoot.length).toBe(1);
+                    expect(secondRoot.length).toBe(3);
 
                 });
 
-                it('by default, even with different roots, replaces corresponding canvas content when user selects subpatches', function() {
-                    var root1 = {};
-                    var root2 = {};
+                it('properly opens and closes patches', function() {
+                    var firstRoot = {},
+                        secondRoot = {};
 
-                    var canvas1 = {},
-                        canvas2 = {};
+                    Rpd.renderer('mock', rendererMock);
 
+                    expect(firstRoot.length).toBe(0);
 
-                });
+                    Rpd.addPatch('root-1-patch-1').render('mock', firstRoot);
+                    var rootOnePatchTwo = Rpd.addPatch('root-1-patch-2').render('mock', firstRoot);
+                    expect(firstRoot.length).toBe(2);
 
-                it('with option `subpatchesInRoot` set to `true`, even with different roots, adds subpatch canvas content to the root', function() {
-                    var root1 = {};
-                    var root2 = {};
+                    Rpd.addPatch('root-2-patch-1').render('mock', secondRoot);
+                    expect(secondRoot.length).toBe(1);
+                    var rootTwoPatchTwo = Rpd.addPatch('root-2-patch-2').render('mock', secondRoot);;
+                    expect(secondRoot.length).toBe(2);
+                    Rpd.addPatch('root-2-patch-3').render('mock', secondRoot);;
+                    expect(secondRoot.length).toBe(3);
+                    expect(secondRoot[1]).toEqual(jasmine.objectContaining({
+                        patch: rootTwoPatchTwo
+                    }));
 
-                    var canvas1 = {},
-                        canvas2 = {};
-                });
+                    rootOnePatchTwo.close();
+                    expect(firstRoot.length).toBe(1);
+                    expect(secondRoot.length).toBe(3);
 
-                it('subpatches inherit their parents\' root configiration', function() {
+                    var rootOnePatchThree = Rpd.addClosedPatch('root-1-patch-3').render('mock', firstRoot);
 
-                });
+                    rootTwoPatchTwo.close();
+                    expect(firstRoot.length).toBe(1);
+                    expect(secondRoot.length).toBe(2);
+                    expect(firstRoot[0]).toEqual(jasmine.objectContaining({
+                        patch: rootTwoPatchTwo
+                    }));
 
-                it('respects option `subpatchesInRoot` set for paticular patch and its subpatches', function() {
-                    var root1 = {};
-                    var root2 = {};
-
-                    var canvas1 = {},
-                        canvas2 = {};
+                    rootOnePatchThree.open();
+                    expect(firstRoot.length).toBe(2);
+                    expect(secondRoot.length).toBe(2);
+                    expect(firstRoot[1]).toEqual(jasmine.objectContaining({
+                        patch: rootOnePatchThree
+                    }));
                 });
 
             });
