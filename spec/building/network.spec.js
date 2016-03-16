@@ -157,7 +157,6 @@ describe('building: network', function() {
             Rpd.events.offValue(networkUpdateSpy);
         });
 
-
         it('closing a patch fires corresponding event', function() {
             var networkUpdateSpy = jasmine.createSpy('network-update');
             Rpd.events.onValue(networkUpdateSpy);

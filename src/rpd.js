@@ -66,6 +66,10 @@ function stopRendering() {
 }
 
 function addPatch(arg0, arg1) {
+    return addClosedPatch(arg0, arg1).open();
+}
+
+function addClosedPatch(arg0, arg1) {
     var name = !is_object(arg0) ? arg0 : undefined; var def = arg1 || arg0;
     var instance = new Patch(arg0, arg1 || arg0);
     event['network/add-patch'].emit(instance);
@@ -85,6 +89,8 @@ function Patch(name, def) {
 
     var event_types = {
         'patch/is-ready':    [ ],
+        'patch/open':        [ 'parent' ],
+        'patch/close':       [ ],
         'patch/set-inputs':  [ 'inputs' ],
         'patch/set-outputs': [ 'outputs' ],
         'patch/project':     [ 'node', 'target' ],
@@ -200,8 +206,12 @@ Patch.prototype.removeNode = function(node) {
     this.event['patch/remove-node'].emit(node);
     this.events.unplug(node.events);
 }
-Patch.prototype.select = function() {
-    this.event['patch/select'].emit();
+Patch.prototype.open = function(parent) {
+    this.event['patch/open'].emit(parent);
+    return this;
+}
+Patch.prototype.close = function() {
+    this.event['patch/close'].emit();
     return this;
 }
 Patch.prototype.inputs = function(list) {
@@ -791,6 +801,7 @@ return {
     'events': events,
 
     'addPatch': addPatch,
+    'addClosedPatch': addClosedPatch,
     'renderNext': renderNext,
     'stopRendering': stopRendering,
 
