@@ -224,5 +224,12 @@ xdescribe('navigation', function() {
 
     });
 
+    xdescribe('when path contains several patch IDs', function() {
+
+    });
+
+    xdescribe('reaction on patches opened by user', function() {
+
+    });
 
 });
