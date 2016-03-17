@@ -358,84 +358,84 @@ describe('registration: renderer', function() {
             describe('several roots', function() {
 
                 it('properly adds patches to a separate roots', function() {
-                    var firstroot = [],
-                        secondroot = [],
-                        thirdroot = [];
+                    var firstRoot = createRoot(),
+                        secondRoot = createRoot(),
+                        thirdRoot = createRoot();
 
                     Rpd.renderer('mock', rendererMock);
 
                     Rpd.renderNext('mock', firstRoot);
 
-                    expect(firstroot.canvases.length).toBe(0);
+                    expect(firstRoot.canvases.length).toBe(0);
 
                     Rpd.addPatch('root-1-patch-1');
-                    expect(firstroot.canvases.length).toBe(1);
+                    expect(firstRoot.canvases.length).toBe(1);
                     Rpd.addPatch('root-1-patch-2');
-                    expect(firstroot.canvases.length).toBe(2);
+                    expect(firstRoot.canvases.length).toBe(2);
                     Rpd.addPatch('root-1-patch-3');
-                    expect(firstroot.canvases.length).toBe(3);
+                    expect(firstRoot.canvases.length).toBe(3);
 
                     Rpd.renderNext('mock', secondRoot);
 
                     Rpd.addPatch('root-2-patch-1');
-                    expect(secondroot.canvases.length).toBe(1);
+                    expect(secondRoot.canvases.length).toBe(1);
                     Rpd.addPatch('root-2-patch-2');
-                    expect(secondroot.canvases.length).toBe(2);
+                    expect(secondRoot.canvases.length).toBe(2);
                     Rpd.addPatch('root-2-patch-3');
-                    expect(secondroot.canvases.length).toBe(3);
+                    expect(secondRoot.canvases.length).toBe(3);
 
-                    expect(firstroot.canvases.length).toBe(3);
+                    expect(firstRoot.canvases.length).toBe(3);
 
                     Rpd.renderer('mock-2', createRendererMock());
                     Rpd.renderNext('mock-2', thirdRoot);
                     Rpd.addPatch('root-3-patch-1');
-                    expect(thirdroot.canvases.length).toBe(1);
-                    expect(secondroot.canvases.length).toBe(3);
+                    expect(thirdRoot.canvases.length).toBe(1);
+                    expect(secondRoot.canvases.length).toBe(3);
 
                 });
 
                 it('properly opens and closes patches', function() {
-                    var firstroot = [],
-                        secondroot = [];
+                    var firstRoot = createRoot(),
+                        secondRoot = createRoot();
 
                     Rpd.renderer('mock', rendererMock);
 
                     Rpd.renderNext('mock', firstRoot);
 
-                    expect(firstroot.canvases.length).toBe(0);
+                    expect(firstRoot.canvases.length).toBe(0);
 
                     Rpd.addPatch('root-1-patch-1');
                     var rootOnePatchTwo = Rpd.addPatch('root-1-patch-2');
                     var rootOnePatchThree = Rpd.addClosedPatch('root-1-patch-3');
-                    expect(firstroot.canvases.length).toBe(2);
+                    expect(firstRoot.canvases.length).toBe(2);
 
                     Rpd.renderNext('mock', secondRoot);
 
                     Rpd.addPatch('root-2-patch-1');
-                    expect(secondroot.canvases.length).toBe(1);
+                    expect(secondRoot.canvases.length).toBe(1);
                     var rootTwoPatchTwo = Rpd.addPatch('root-2-patch-2');
-                    expect(secondroot.canvases.length).toBe(2);
+                    expect(secondRoot.canvases.length).toBe(2);
                     Rpd.addPatch('root-2-patch-3');
-                    expect(secondroot.canvases.length).toBe(3);
-                    expect(secondroot.canvases[1]).toEqual(jasmine.objectContaining({
+                    expect(secondRoot.canvases.length).toBe(3);
+                    expect(secondRoot.canvases[1]).toEqual(jasmine.objectContaining({
                         patch: rootTwoPatchTwo
                     }));
 
                     rootOnePatchTwo.close();
-                    expect(firstroot.canvases.length).toBe(1);
-                    expect(secondroot.canvases.length).toBe(3);
+                    expect(firstRoot.canvases.length).toBe(1);
+                    expect(secondRoot.canvases.length).toBe(3);
 
                     rootTwoPatchTwo.close();
-                    expect(firstroot.canvases.length).toBe(1);
-                    expect(secondroot.canvases.length).toBe(2);
-                    expect(firstroot.canvases[0]).toEqual(jasmine.objectContaining({
+                    expect(firstRoot.canvases.length).toBe(1);
+                    expect(secondRoot.canvases.length).toBe(2);
+                    expect(firstRoot.canvases[0]).toEqual(jasmine.objectContaining({
                         patch: rootTwoPatchTwo
                     }));
 
                     rootOnePatchThree.open();
-                    expect(firstroot.canvases.length).toBe(2);
-                    expect(secondroot.canvases.length).toBe(2);
-                    expect(firstroot.canvases[1]).toEqual(jasmine.objectContaining({
+                    expect(firstRoot.canvases.length).toBe(2);
+                    expect(secondRoot.canvases.length).toBe(2);
+                    expect(firstRoot.canvases[1]).toEqual(jasmine.objectContaining({
                         patch: rootOnePatchThree
                     }));
                 });
@@ -859,78 +859,78 @@ describe('registration: renderer', function() {
             describe('several roots', function() {
 
                 it('properly adds patches to a separate roots', function() {
-                    var firstroot = [],
-                        secondroot = [],
-                        thirdroot = [];
+                    var firstRoot = createRoot(),
+                        secondRoot = createRoot(),
+                        thirdRoot = createRoot();
 
                     Rpd.renderer('mock', rendererMock);
 
-                    expect(firstroot.canvases.length).toBe(0);
+                    expect(firstRoot.canvases.length).toBe(0);
 
                     Rpd.addPatch('root-1-patch-1').render('mock', firstRoot);
-                    expect(firstroot.canvases.length).toBe(1);
+                    expect(firstRoot.canvases.length).toBe(1);
                     Rpd.addPatch('root-1-patch-2').render('mock', firstRoot);
-                    expect(firstroot.canvases.length).toBe(2);
+                    expect(firstRoot.canvases.length).toBe(2);
                     Rpd.addPatch('root-1-patch-3').render('mock', firstRoot);
-                    expect(firstroot.canvases.length).toBe(3);
+                    expect(firstRoot.canvases.length).toBe(3);
 
                     Rpd.renderNext('mock', secondRoot);
 
                     Rpd.addPatch('root-2-patch-1').render('mock', secondRoot);
-                    expect(secondroot.canvases.length).toBe(1);
+                    expect(secondRoot.canvases.length).toBe(1);
                     Rpd.addPatch('root-2-patch-2').render('mock', secondRoot);
-                    expect(secondroot.canvases.length).toBe(2);
+                    expect(secondRoot.canvases.length).toBe(2);
                     Rpd.addPatch('root-2-patch-3').render('mock', secondRoot);
-                    expect(secondroot.canvases.length).toBe(3);
+                    expect(secondRoot.canvases.length).toBe(3);
 
-                    expect(firstroot.canvases.length).toBe(3);
+                    expect(firstRoot.canvases.length).toBe(3);
 
                     Rpd.renderer('mock-2', createRendererMock());
                     Rpd.addPatch('root-3-patch-1').render('mock-2', thirdRoot);
-                    expect(thirdroot.canvases.length).toBe(1);
-                    expect(secondroot.canvases.length).toBe(3);
+                    expect(thirdRoot.canvases.length).toBe(1);
+                    expect(secondRoot.canvases.length).toBe(3);
 
                 });
 
                 it('properly opens and closes patches', function() {
-                    var firstroot = [],
-                        secondroot = [];
+                    var firstRoot = createRoot(),
+                        secondRoot = createRoot();
 
                     Rpd.renderer('mock', rendererMock);
 
-                    expect(firstroot.canvases.length).toBe(0);
+                    expect(firstRoot.canvases.length).toBe(0);
 
                     Rpd.addPatch('root-1-patch-1').render('mock', firstRoot);
                     var rootOnePatchTwo = Rpd.addPatch('root-1-patch-2').render('mock', firstRoot);
-                    expect(firstroot.canvases.length).toBe(2);
+                    expect(firstRoot.canvases.length).toBe(2);
 
                     Rpd.addPatch('root-2-patch-1').render('mock', secondRoot);
-                    expect(secondroot.canvases.length).toBe(1);
+                    expect(secondRoot.canvases.length).toBe(1);
                     var rootTwoPatchTwo = Rpd.addPatch('root-2-patch-2').render('mock', secondRoot);;
-                    expect(secondroot.canvases.length).toBe(2);
+                    expect(secondRoot.canvases.length).toBe(2);
                     Rpd.addPatch('root-2-patch-3').render('mock', secondRoot);;
-                    expect(secondroot.canvases.length).toBe(3);
-                    expect(secondroot.canvases[1]).toEqual(jasmine.objectContaining({
+                    expect(secondRoot.canvases.length).toBe(3);
+                    expect(secondRoot.canvases[1]).toEqual(jasmine.objectContaining({
                         patch: rootTwoPatchTwo
                     }));
 
                     rootOnePatchTwo.close();
-                    expect(firstroot.canvases.length).toBe(1);
-                    expect(secondroot.canvases.length).toBe(3);
+                    expect(firstRoot.canvases.length).toBe(1);
+                    expect(secondRoot.canvases.length).toBe(3);
 
                     var rootOnePatchThree = Rpd.addClosedPatch('root-1-patch-3').render('mock', firstRoot);
 
                     rootTwoPatchTwo.close();
-                    expect(firstroot.canvases.length).toBe(1);
-                    expect(secondroot.canvases.length).toBe(2);
-                    expect(firstroot.canvases[0]).toEqual(jasmine.objectContaining({
+                    expect(firstRoot.canvases.length).toBe(1);
+                    expect(secondRoot.canvases.length).toBe(2);
+                    expect(firstRoot.canvases[0]).toEqual(jasmine.objectContaining({
                         patch: rootTwoPatchTwo
                     }));
 
                     rootOnePatchThree.open();
-                    expect(firstroot.canvases.length).toBe(2);
-                    expect(secondroot.canvases.length).toBe(2);
-                    expect(firstroot.canvases[1]).toEqual(jasmine.objectContaining({
+                    expect(firstRoot.canvases.length).toBe(2);
+                    expect(secondRoot.canvases.length).toBe(2);
+                    expect(firstRoot.canvases[1]).toEqual(jasmine.objectContaining({
                         patch: rootOnePatchThree
                     }));
                 });
