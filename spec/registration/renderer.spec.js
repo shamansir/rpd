@@ -175,7 +175,7 @@ describe('registration: renderer', function() {
                 return { patch: patch };
             }
 
-            function createRendererMock = function() {
+            function createRendererMock() {
 
                 return function(patch) {
                     return function(root, conf) {

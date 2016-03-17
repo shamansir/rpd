@@ -42,11 +42,11 @@ describe('import and export', function() {
             it('opening patch as a default action, but with parent', function() {
                 testAction(
                     function() { var parent = Rpd.addClosedPatch('Parent');
-                                 Rpd.addPatch('OpenWithParent', parent); },
+                                 Rpd.addPatch('OpenWithParent', null, parent); },
                     [ jasmine.objectContaining({
                           type: 'patch/open',
-                          patch: jasmine.objectContaining({ name: 'OpenWithParent',
-                                                            patch: jasmine.objectContaining({ name: 'Parent' }) })
+                          patch: jasmine.objectContaining({ name: 'OpenWithParent' }),
+                          parent: jasmine.objectContaining({ name: 'Parent' })
                       }) ]
                 );
             });
@@ -67,8 +67,8 @@ describe('import and export', function() {
                                  Rpd.addClosedPatch('OpenWithParent').open(parent); },
                     [ jasmine.objectContaining({
                           type: 'patch/open',
-                          patch: jasmine.objectContaining({ name: 'Enter',
-                                                            patch: jasmine.objectContaining({ name: 'Parent' }) })
+                          patch: jasmine.objectContaining({ name: 'OpenWithParent' }),
+                          parent: jasmine.objectContaining({ name: 'Parent' })
                       }) ]
                 );
             });

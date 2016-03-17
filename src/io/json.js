@@ -59,11 +59,11 @@ var exportSpec = {
         var patch = update.patch;
         return { event: 'network/add-patch', patchName: patch.name, patchId: patch.id };
     },
-    'patch/enter': function(update) {
-        return { event: 'patch/enter', patchId: update.patch.id };
+    'patch/open': function(update) {
+        return { event: 'patch/open', patchId: update.patch.id, parentPatchId: update.parent ? update.parent.id : null };
     },
-    'patch/exit': function(update) {
-        return { event: 'patch/exit', patchId: update.patch.id };
+    'patch/close': function(update) {
+        return { event: 'patch/close', patchId: update.patch.id };
     },
     'patch/set-inputs': function(update) {
         var patch = update.patch;
@@ -140,13 +140,13 @@ function makeImportSpec() {
 
     return {
         'network/add-patch': function(command) {
-            patches[command.patchId] = Rpd.addPatch(command.patchName);
+            patches[command.patchId] = Rpd.addClosedPatch(command.patchName);
         },
-        'patch/enter': function(command) {
-            patches[command.patchId].enter();
+        'patch/open': function(command) {
+            patches[command.patchId].open(command.parentPatchId ? patches[command.parentPatchId] : null);
         },
-        'patch/exit': function(command) {
-            patches[command.patchId].exit();
+        'patch/close': function(command) {
+            patches[command.patchId].close();
         },
         'patch/set-inputs': function(command) {
             var inputs = command.inputs,

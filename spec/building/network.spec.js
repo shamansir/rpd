@@ -134,7 +134,7 @@ describe('building: network', function() {
             Rpd.events.onValue(networkUpdateSpy);
 
             var parent = Rpd.addPatch('parent');
-            var patch = Rpd.addPatch('child', parent);
+            var patch = Rpd.addPatch('child', null, parent);
             expect(networkUpdateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'patch/open',
                                            patch: patch,

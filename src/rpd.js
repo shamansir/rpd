@@ -65,8 +65,8 @@ function stopRendering() {
     }
 }
 
-function addPatch(arg0, arg1) {
-    return addClosedPatch(arg0, arg1).open();
+function addPatch(arg0, arg1, arg2) {
+    return addClosedPatch(arg0, arg1).open(arg2);
 }
 
 function addClosedPatch(arg0, arg1) {
