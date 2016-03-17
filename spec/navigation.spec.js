@@ -1,4 +1,4 @@
-xdefine('navigation', function() {
+xdescribe('navigation', function() {
 
     var networkUpdatesSpy;
     var pathChangeSpy;
