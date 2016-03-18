@@ -4,6 +4,8 @@ xdescribe('navigation', function() {
     var pathChangeSpy;
     var networkErrorSpy;
 
+    var SEPARATOR = ';';
+
     beforeEach(function() {
         networkUpdatesSpy = jasmine.createSpy('network-updates');
         Rpd.events.onValue(networkUpdatesSpy);
@@ -157,6 +159,16 @@ xdescribe('navigation', function() {
             expect(changePathSpy).toHaveBeenCalledWith('');
         });
 
+        it('fires an error when path contains only separators', function() {
+
+            Rpd.navigation.handlePath(SEPARATOR + SEPARATOR);
+
+            expect(networkErrorSpy).toHaveBeenCalled();
+
+            expect(changePathSpy).toHaveBeenCalledWith('');
+
+        });
+
     });
 
     describe('when path contains single patch ID', function() {
@@ -224,11 +236,120 @@ xdescribe('navigation', function() {
 
     });
 
-    xdescribe('when path contains several patch IDs', function() {
+    describe('when path contains several patch IDs', function() {
+
+        it('opens all patches specified in the list while they exist', function() {
+            var firstPatch = Rpd.addClosedPatch('first');
+            var secondPatch = Rpd.addPatch('second');
+            var thirdPatch = Rpd.addClosedPatch('third');
+
+            networkUpdatesSpy.calls.reset();
+
+            Rpd.navigation.handlePath(thirdPatch.id + SEPARATOR + firstPatch.id + SEPARATOR + secondPatch.id);
+
+            expect(networkUpdatesSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    type: 'patch/open',
+                    patch: firstPatch
+                }));
+            expect(networkUpdatesSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    type: 'patch/open',
+                    patch: thirdPatch
+                }));
+            expect(networkUpdatesSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    type: 'patch/close',
+                    patch: secondPatch
+                }));
+
+            expect(changePathSpy).not.toHaveBeenCalled();
+        });
+
+        it('opens all patches specified in the list while they exist, even if there\'s a separator in the end', function() {
+            var firstPatch = Rpd.addClosedPatch('first');
+            var secondPatch = Rpd.addPatch('second');
+            var thirdPatch = Rpd.addClosedPatch('third');
+
+            networkUpdatesSpy.calls.reset();
+
+            Rpd.navigation.handlePath(thirdPatch.id + SEPARATOR + firstPatch.id + SEPARATOR + secondPatch.id + SEPARATOR);
+
+            expect(networkUpdatesSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    type: 'patch/open',
+                    patch: firstPatch
+                }));
+            expect(networkUpdatesSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    type: 'patch/open',
+                    patch: thirdPatch
+                }));
+            expect(networkUpdatesSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    type: 'patch/close',
+                    patch: secondPatch
+                }));
+
+            expect(changePathSpy).toHaveBeenCalledWith(thirdPatch.id + SEPARATOR + firstPatch.id + SEPARATOR + secondPatch.id);
+        });
+
+        it('closed patches stay closed if they were not specified in the list', function() {
+            var firstPatch = Rpd.addClosedPatch('first');
+            var secondPatch = Rpd.addPatch('second');
+            var thirdPatch = Rpd.addClosedPatch('third');
+
+            networkUpdatesSpy.calls.reset();
+
+            Rpd.navigation.handlePath(thirdPatch.id + SEPARATOR + secondPatch.id);
+
+            expect(networkUpdatesSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    type: 'patch/open',
+                    patch: firstPatch
+                }));
+            expect(networkUpdatesSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    type: 'patch/open',
+                    patch: thirdPatch
+                }));
+
+            expect(changePathSpy).not.toHaveBeenCalled();
+        })
+
+        it('do not opens patches which don\'t exist, fires an error for them, but fixes path', function() {
+            var firstPatch = Rpd.addClosedPatch('first');
+            var secondPatch = Rpd.addClosedPatch('second');
+            var thirdPatch = Rpd.addClosedPatch('third');
+
+            networkUpdatesSpy.calls.reset();
+
+            Rpd.navigation.handlePath(thirdPatch.id + SEPARATOR + firstPatch.id + SEPARATOR + /*!*/GIBBER/*!*/ + secondPatch.id + SEPARATOR);
+
+            expect(networkErrorSpy).toHaveBeenCalled();
+
+            expect(networkUpdatesSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    type: 'patch/open',
+                    patch: firstPatch
+                }));
+            expect(networkUpdatesSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    type: 'patch/open',
+                    patch: thirdPatch
+                }));
+            expect(networkUpdatesSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    type: 'patch/open',
+                    patch: secondPatch
+                }));
+
+            expect(changePathSpy).toHaveBeenCalledWith(thirdPatch.id + SEPARATOR + firstPatch.id);
+        });
 
     });
 
-    xdescribe('reaction on patches opened by user', function() {
+    describe('reaction on patches opened by user', function() {
 
     });
 
