@@ -28,6 +28,7 @@ xdescribe('navigation', function() {
             var secondPatch = Rpd.addPatch('second');
 
             networkUpdatesSpy.calls.reset();
+            changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath('');
 
@@ -47,6 +48,7 @@ xdescribe('navigation', function() {
             var secondPatch = Rpd.addPatch('second');
 
             networkUpdatesSpy.calls.reset();
+            changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath('');
 
@@ -67,6 +69,7 @@ xdescribe('navigation', function() {
             thirdPatch.open();
 
             networkUpdatesSpy.calls.reset();
+            changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath('');
 
@@ -97,6 +100,7 @@ xdescribe('navigation', function() {
             var secondPatch = Rpd.addPatch('second');
 
             networkUpdatesSpy.calls.reset();
+            changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath(GIBBER);
 
@@ -118,6 +122,7 @@ xdescribe('navigation', function() {
             var secondPatch = Rpd.addPatch('second');
 
             networkUpdatesSpy.calls.reset();
+            changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath(GIBBER);
 
@@ -140,6 +145,7 @@ xdescribe('navigation', function() {
             thirdPatch.open();
 
             networkUpdatesSpy.calls.reset();
+            changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath(GIBBER);
 
@@ -179,6 +185,7 @@ xdescribe('navigation', function() {
             var secondPatch = Rpd.addPatch('second');
 
             networkUpdatesSpy.calls.reset();
+            changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath(secondPatch.id);
 
@@ -197,6 +204,7 @@ xdescribe('navigation', function() {
             var secondPatch = Rpd.addClosedPatch('second');
 
             networkUpdatesSpy.calls.reset();
+            changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath(secondPatch.id);
 
@@ -216,6 +224,7 @@ xdescribe('navigation', function() {
             thirdPatch.open();
 
             networkUpdatesSpy.calls.reset();
+            changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath(secondPatch.id);
 
@@ -244,6 +253,7 @@ xdescribe('navigation', function() {
             var thirdPatch = Rpd.addClosedPatch('third');
 
             networkUpdatesSpy.calls.reset();
+            changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath(thirdPatch.id + SEPARATOR + firstPatch.id + SEPARATOR + secondPatch.id);
 
@@ -272,6 +282,7 @@ xdescribe('navigation', function() {
             var thirdPatch = Rpd.addClosedPatch('third');
 
             networkUpdatesSpy.calls.reset();
+            changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath(thirdPatch.id + SEPARATOR + firstPatch.id + SEPARATOR + secondPatch.id + SEPARATOR);
 
@@ -299,7 +310,10 @@ xdescribe('navigation', function() {
             var secondPatch = Rpd.addPatch('second');
             var thirdPatch = Rpd.addClosedPatch('third');
 
+            expect(changePathSpy).toHaveBeenCalledWith(secondPatch.id);
+
             networkUpdatesSpy.calls.reset();
+            changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath(thirdPatch.id + SEPARATOR + secondPatch.id);
 
@@ -323,6 +337,7 @@ xdescribe('navigation', function() {
             var thirdPatch = Rpd.addClosedPatch('third');
 
             networkUpdatesSpy.calls.reset();
+            changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath(thirdPatch.id + SEPARATOR + firstPatch.id + SEPARATOR + /*!*/GIBBER/*!*/ + secondPatch.id + SEPARATOR);
 
@@ -350,6 +365,37 @@ xdescribe('navigation', function() {
     });
 
     describe('reaction on patches opened by user', function() {
+
+        it('writes every opened patch to a path', function() {
+            var firstPatch = Rpd.addPatch('first');
+            expect(changePathSpy).toHaveBeenCalledWith(firstPatch.id);
+            var secondPatch = Rpd.addPatch('second');
+            expect(changePathSpy).toHaveBeenCalledWith(firstPatch.id + SEPARATOR + secondPatch.id);
+            var thirdPatch = Rpd.addPatch('third');
+            expect(changePathSpy).toHaveBeenCalledWith(firstPatch.id + SEPARATOR + secondPatch.id + SEPARATOR + thirdPatch.id);
+        });
+
+        it('if one of the patches is closed, do not writes it to the path', function() {
+            var firstPatch = Rpd.addPatch('first');
+            changePathSpy.calls.reset();
+            var secondPatch = Rpd.addClosedPatch('second');
+            expect(changePathSpy).not.toHaveBeenCalled();
+            var thirdPatch = Rpd.addPatch('third');
+            expect(changePathSpy).toHaveBeenCalledWith(firstPatch.id + SEPARATOR + thirdPatch.id);
+        });
+
+        it('follows opening and closing patches', function() {
+            var firstPatch = Rpd.addPatch('first');
+            var secondPatch = Rpd.addClosedPatch('second');
+            var thirdPatch = Rpd.addPatch('third');
+            changePathSpy.calls.reset();
+            secondPatch.open();
+            expect(changePathSpy).toHaveBeenCalledWith(firstPatch.id + SEPARATOR + thirdPatch.id + SEPARATOR + secondPatch.id);
+            thirdPatch.close();
+            expect(changePathSpy).toHaveBeenCalledWith(firstPatch.id + SEPARATOR + secondPatch.id);
+        });
+
+        xit('when parent patch was passed to open method, stores it in the path');
 
     });
 
