@@ -3,7 +3,7 @@ describe('registration: renderer', function() {
     describe('network (Rpd.renderNext)', function() {
 
         afterEach(function() {
-            Rpd.stopRendering();
+            Rpd.stopRendering(); // TODO: test stopRendering itself
         });
 
         it('the inner function is called with target element', function() {
@@ -71,6 +71,23 @@ describe('registration: renderer', function() {
             expect(fooTargetsSpy).toHaveBeenCalled();
             expect(barTargetsSpy).toHaveBeenCalledWith(targetOne, conf);
             expect(barTargetsSpy).toHaveBeenCalledWith(targetTwo, conf);
+        });
+
+        it('outer function is called once for patch and inner is called once for target', function() {
+            var fooPatchRenderSpy = jasmine.createSpy('foo-patch');
+            var fooTargetRenderSpy = jasmine.createSpy('foo-target');
+
+            Rpd.renderer('foo', fooPatchRenderSpy.and.callFake(function(patch) { return fooTargetRenderSpy; }));
+
+            var targetOne = { };
+            var targetTwo = { };
+            Rpd.renderNext('foo', [ targetOne, targetTwo ]);
+
+            Rpd.addPatch();
+            Rpd.addPatch();
+
+            expect(fooPatchRenderSpy).toHaveBeenCalledTwice();
+            expect(fooTargetRenderSpy.calls.count()).toBe(4);
         });
 
         it('turning off is not required for two renderNext in sequence', function() {
@@ -529,6 +546,22 @@ describe('registration: renderer', function() {
             expect(fooTargetsSpy).toHaveBeenCalled();
             expect(barTargetsSpy).toHaveBeenCalledWith(targetOne, conf);
             expect(barTargetsSpy).toHaveBeenCalledWith(targetTwo, conf);
+        });
+
+        it('outer function is called once for patch and inner is called once for target', function() {
+            var fooPatchRenderSpy = jasmine.createSpy('foo-patch');
+            var fooTargetRenderSpy = jasmine.createSpy('foo-target');
+
+            Rpd.renderer('foo', fooPatchRenderSpy.and.callFake(function(patch) { return fooTargetRenderSpy; }));
+
+            var targetOne = { };
+            var targetTwo = { };
+
+            Rpd.addPatch().render('foo', [ targetOne, targetTwo ]);
+            Rpd.addPatch().render('foo', [ targetOne, targetTwo ]);
+
+            expect(fooPatchRenderSpy).toHaveBeenCalledTwice();
+            expect(fooTargetRenderSpy.calls.count()).toBe(4);
         });
 
         it('passes the events to the handler object', function() {

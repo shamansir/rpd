@@ -121,6 +121,10 @@ _NB: For the moment, value editors are only supported in HTML Renderer_
 
 _Style_ determines the look of the Patch, Node, Channel or a Link. While Renderer builds the outer structure, controls drag-n-drop and other logic, Style only determines the inner visual appearance of these elements.
 
+#### Canvas
+
+_Canvas_ is a place where Patch is rendered and operated. It has size and could have background color, for example. When several Patches share same target DOM element, they still have different canvases. Canvas could be an HTML5 Canvas by accident, but for sure not obligatory — this term came from [Pure Data](pure-data), the thing existed long before HTML5 and appeared just few years after first ever HTML specification.
+
 #### I/O Module
 
 _I/O Module_ records every action (or only some of the actions) performed to build the Network in some specific format, so it can optionally “replay” these actions in order, using this data.
@@ -131,6 +135,7 @@ _I/O Module_ records every action (or only some of the actions) performed to bui
 [kefir]: http://rpominov.github.io/kefir/
 [roman-pominov]: http://rpominov.github.io
 [processing-js]: http://p5js.org
+[pure-data]: http://puredata.info/
 
 [download-default]: TODO
 [building-section]: ./sections/building.html

@@ -67,13 +67,13 @@ GridPlacing.prototype.nextPosition = function(node, size, limits) {
 // ============================= DragAndDrop ===================================
 // =============================================================================
 
-function DragAndDrop(root, style) {
-    this.root = root;
+function DragAndDrop(canvas, style) {
+    this.canvas = canvas;
     this.style = style;
 }
 
 DragAndDrop.prototype.add = function(handle, spec) {
-    var root = this.root; var style = this.style;
+    var canvas = this.canvas; var style = this.style;
     var start = spec.start, end = spec.end, drag = spec.drag;
     Kefir.fromEvents(handle.node(), 'mousedown').map(extractPos)
                                                 .map(style.getLocalPos)
@@ -81,10 +81,10 @@ DragAndDrop.prototype.add = function(handle, spec) {
         var initPos = start(),
             diffPos = { x: pos.x - initPos.x,
                         y: pos.y - initPos.y };
-        var moveStream = Kefir.fromEvents(root.node(), 'mousemove')
+        var moveStream = Kefir.fromEvents(canvas.node(), 'mousemove')
                               .map(stopPropagation)
                               .takeUntilBy(Kefir.merge([
-                                  Kefir.fromEvents(root.node(), 'mouseup'),
+                                  Kefir.fromEvents(canvas.node(), 'mouseup'),
                                   Kefir.fromEvents(handle.node(), 'mouseup')
                               ]))
                               .map(extractPos)

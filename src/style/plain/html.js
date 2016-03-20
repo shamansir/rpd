@@ -2,7 +2,7 @@ Rpd.style('plain', 'html', function(config) {
 
 var d3 = d3 || d3_tiny;
 
-var lastRoot;
+var lastCanvas;
 
 var inletToConnector = {},
     outletToConnector = {};
@@ -15,7 +15,7 @@ return {
     edgePadding: { horizontal: 20, vertical: 40 },
     boxPadding:  { horizontal: 20, vertical: 80 },
 
-    createRoot: function(patch, parent) {
+    createCanvas: function(patch, parent) {
         return { element: d3.select(document.createElement('div'))
                             .classed('rpd-patch', true).node() };
     },
@@ -129,14 +129,14 @@ return {
     },
 
     getLocalPos: function(pos) {
-        if (!lastRoot) return pos;
+        if (!lastCanvas) return pos;
         // calculate once on patch switch?
-        var rootPos = getPos(lastRoot.node());
-        return { x: pos.x - rootPos.x, y: pos.y - rootPos.y };
+        var canvasPos = getPos(lastCanvas.node());
+        return { x: pos.x - canvasPos.x, y: pos.y - canvasPos.y };
     },
 
-    onPatchSwitch: function(patch, root) {
-        lastRoot = d3.select(root);
+    onPatchSwitch: function(patch, canvas) {
+        lastCanvas = d3.select(canvas);
     }
 
 };
