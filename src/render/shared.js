@@ -20,8 +20,8 @@ function Navigation(getPatchByHash) {
          .map(me.getPatchByHash)
          .filter(function(targetPatch) { return targetPatch != null; })
          .onValue(function(targetPatch) {
-             if (me.currentPatch) me.currentPatch.exit(); // TODO: pass this value through a stream
-             targetPatch.enter();
+             if (me.currentPatch) me.currentPatch.close(); // TODO: pass this value through a stream
+             targetPatch.open();
          });
 }
 Navigation.prototype.switch = function(targetPatch) {

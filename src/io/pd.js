@@ -33,7 +33,7 @@ Rpd.import.pd = function(lines) {
 
     var nodes = [];
 
-    var rootPatch = Rpd.addPatch('PD').enter(); // why entering the patch required here?
+    var rootPatch = Rpd.addPatch('PD');
     var model = new PdModel(rootPatch, webPdPatch); // it is wrong to do it here as well
                                                     // since PdModel is defined for toolkit, not the import
 

@@ -142,8 +142,8 @@ return function(networkRoot, userConfig) {
             Kefir.fromEvents(nodeBox.data().processTarget.node(), 'click')
                  .onValue((function(current, target) {
                     return function() {
-                        current.exit();
-                        target.enter();
+                        current.close();
+                        target.open(patch);
                     }
                  })(patch, update.target));
         },
@@ -301,8 +301,8 @@ return function(networkRoot, userConfig) {
 
             inletElm.classed('rpd-'+inlet.type.replace('/','-'), true);
             inletElm.classed({ 'rpd-stale': true,
-                               'rpd-readonly': inlet.def.readonly,
-                               'rpd-cold': inlet.def.cold
+                               'rpd-readonly': inlet.def.readonly || false,
+                               'rpd-cold': inlet.def.cold || false
                              });
 
             var editor = null;

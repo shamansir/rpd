@@ -66,7 +66,7 @@ return {
                               .attr('width', headerWidth).attr('height', height);
         nodeElm.append('g').attr('class', 'rpd-name-holder')
                .attr('transform', 'translate(3, ' + (height + 2) + ') rotate(-90)')
-               .append('text').attr('class', 'rpd-name').text(node.name)
+               .append('text').attr('class', 'rpd-name').text(node.def.name || '')
                               .attr('x', 5).attr('y', 5)
                               .style('pointer-events', 'none');
         // append node body
