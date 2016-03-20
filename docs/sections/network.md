@@ -57,6 +57,7 @@ Anywhere below (or when `body.onload` or `document.onDocumentReady` event was fi
 Renderer options could belong to one particular options, but Renderers supplied with RPD tend to use a generalized set of options:
 
 * `style` — the only required option, sets the [style](../examples.html#styles-and-renderers) used to visualize nodes; you need to ensure to [include this Style code](./setup.html#compilation-options) in your RPD version or else this option will fail;
+* `fullPage` — (`false`) if `true`, network takes the full page, so the target element will be resized to match browser window size when it was resized by user and so on;
 * `valuesOnHover` — (`false`) show inlet/outlet value only when user hovers over its connector (values are always shown, by default);
 * `nodeMovingAllowed` — (`true`) are nodes allowed to be dragged or should they be immovable;
 * `renderNodeList` — (`true`) show the list of available node types, where the click on the type item add the node of this type to current patch;

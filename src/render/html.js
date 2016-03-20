@@ -4,6 +4,9 @@ var ƒ = Rpd.unit;
 
 var defaultConfig = {
     style: 'quartz',
+    // network takes the full page, so the target element will be resized
+    // to match browser window size when it was resized by user and so on
+    fullPage: false,
     // show inlet/outlet value only when user hovers over its connector
     // (always showing, by default)
     valuesOnHover: false,
@@ -61,6 +64,11 @@ return function(networkRoot, userConfig) {
 
     var style = Rpd.getStyle(config.style, 'html')(config);
 
+    // resize network root on window resize
+    if (config.fullPage) {
+        updateNetworkHeightOnResize(window, document, networkRoot);
+    }
+
     networkRoot = d3.select(networkRoot)
                     .classed('rpd-network', true);
 
@@ -80,8 +88,9 @@ return function(networkRoot, userConfig) {
 
             // build root element as a target for all further patch modifications
             canvas = d3.select(style.createCanvas(patch, networkRoot).element)
-                       .style('height', docElm.property('clientHeight') + 'px')
                        .classed('rpd-canvas', true);
+
+            if (config.fullPage) canvas.style('height', docElm.property('clientHeight') + 'px');
 
             canvas.classed('rpd-style-' + config.style, true)
                   .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
@@ -102,17 +111,7 @@ return function(networkRoot, userConfig) {
 
             if (config.renderNodeList) buildNodeList(canvas, nodeTypes, nodeDescriptions);
 
-            // resize canvas element on window resize
-            Kefir.fromEvents(window, 'resize')
-                 .map(function() { return window.innerHeight ||
-                                          document.documentElement.clientHeight ||
-                                          document.body.clientHeight; })
-                 .onValue(function(value) {
-                     canvas.style('height', value + 'px');
-                 });
-
             Kefir.fromEvents(canvas.node(), 'selectstart').onValue(preventDefault);
-
         },
 
         'patch/open': function(update) {
@@ -142,7 +141,7 @@ return function(networkRoot, userConfig) {
             Kefir.fromEvents(nodeBox.data().processTarget.node(), 'click')
                  .onValue((function(current, target) {
                     return function() {
-                        current.close();
+                        if (config.fullPage) current.close();
                         target.open(patch);
                     }
                  })(patch, update.target));
@@ -528,6 +527,22 @@ function patchByHash(tree) {
     return function(hash) {
         return tree.patches[hash].data().patch;
     }
+}
+
+// resize network root on window resize
+function updateNetworkHeightOnResize(_window, _document, networkRoot) {
+    networkRoot = d3.select(networkRoot);
+    //console.log(networkRoot.data());
+    Kefir.fromEvents(_window, 'resize')
+         .map(function() { return _window.innerHeight ||
+                                  _document.documentElement.clientHeight ||
+                                  +document.body.clientHeight; })
+         .onValue(function(value) {
+             networkRoot.style('height', value + 'px');
+         });
+    networkRoot.data({
+        subscribedToResize: true
+    });
 }
 
 // =============================================================================

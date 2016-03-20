@@ -46,6 +46,8 @@ To test if it works, add the target `div` to the `body` and some code to the bot
 ​
 </body>
 ```
+
+More details on building your own Patch Network you may find on [the corresponding page](./sections/network.html).
 ​
 ### Compilation
 ​
@@ -125,6 +127,8 @@ Also, you may select the name of the output file with `--target-name` or `-o` op
 <!-- If you plan to use [d3.js](http://d3js.org/), you may want to exclude the super-tiny version of d3 from compilation using `--no-d3-tiny` flag (though actually it adds not a lot, since it's tiny) -->
 
 I recommend you to visit the [examples page](../examples.html#styles-and-renderers), there you may find several examples for different combinations of styles and renderers used to compile the same patch.
+
+More details on building Patch Networks by yourself, you may find on [the corresponding page](./sections/network.html).
 
 [kefir]: http://github.com/rpominov/kefir
 [default-svg-js]: http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.min.js

@@ -80,9 +80,14 @@ return function(networkRoot, userConfig) {
                     .attr('height', docElm.property('clientHeight'))
                     .classed('rpd-canvas', true);
 
-            svg.append('rect').attr('class', 'rpd-background')
-               .attr('width', docElm.property('clientWidth'))
-               .attr('height', docElm.property('clientHeight'));
+            svg.append('rect').attr('class', 'rpd-background');
+
+            if (config.fullPage) {
+                svg.attr('width', docElm.property('clientWidth'))
+                   .attr('height', docElm.property('clientHeight'));
+                svg.select('.rpd-background').attr('width', docElm.property('clientWidth'))
+                                             .attr('height', docElm.property('clientHeight'));
+            }
 
             var patchCanvas = svg.append(style.createCanvas(patch, networkRoot).element)
                                .classed('rpd-style-' + config.style, true)
@@ -110,16 +115,6 @@ return function(networkRoot, userConfig) {
             //if (config.renderNodeList) buildNodeList(patchCanvas, nodeTypes, nodeDescriptions);
 
             Kefir.fromEvents(svg.node(), 'selectstart').onValue(preventDefault);
-
-            // resize canvas element on window resize
-            Kefir.fromEvents(window, 'resize')
-                 .map(function() { return window.innerHeight ||
-                                          document.documentElement.clientHeight ||
-                                          document.body.clientHeight; })
-                 .onValue(function(value) {
-                     svg.attr('height', value);
-                     svg.data().height = value;
-                 });
 
         },
 
@@ -151,7 +146,7 @@ return function(networkRoot, userConfig) {
             Kefir.fromEvents(nodeBox.data().processTarget.node(), 'click')
                  .onValue((function(current, target) {
                     return function() {
-                        current.close();
+                        if (config.fullPage) current.close();
                         target.open();
                     }
                  })(patch, update.target));
@@ -527,6 +522,18 @@ function patchByHash(tree) {
     return function(hash) {
         return tree.patches[hash].data().patch;
     }
+}
+
+function updateNetworkHeightOnResize(_window, _document, svg) {
+    // resize canvas element on window resize
+    Kefir.fromEvents(_window, 'resize')
+         .map(function() { return _window.innerHeight ||
+                                  _document.documentElement.clientHeight ||
+                                  _document.body.clientHeight; })
+         .onValue(function(value) {
+             svg.attr('height', value);
+             svg.data().height = value;
+         });
 }
 
 // =============================================================================
