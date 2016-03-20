@@ -74,14 +74,19 @@
 
         Rpd.renderNext('html', document.getElementById('target-1'), { style: 'quartz',
                                                                       renderNodeList: false });
-        var root1 = Rpd.addPatch('root-1').enter();
-        root1.addNode('core/random');
-        root1.addNode('core/random');
+        var firstTargetOne = Rpd.addPatch('target-1-1');
+        firstTargetOne.addNode('core/random');
+        firstTargetOne.addNode('core/random');
+        var firstTargetTwo = Rpd.addPatch('target-1-2');
+        firstTargetTwo.addNode('core/random');
+        firstTargetTwo.addNode('core/random');
 
         Rpd.renderNext('html', document.getElementById('target-2'), { style: 'quartz',
                                                                       renderNodeList: false });
-        var root2 = Rpd.addPatch('root-2').enter();
-        root2.addNode('core/random');
+        var secondTargetOne = Rpd.addPatch('target-2-1');
+        secondTargetOne.addNode('core/random');
+        var secondTargetTwo = Rpd.addClosedPatch('target-2-2');
+        secondTargetTwo.addNode('core/random');
 
     </script>
 

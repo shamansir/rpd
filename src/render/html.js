@@ -113,7 +113,7 @@ return function(networkRoot, userConfig) {
 
         },
 
-        'patch/enter': function(update) {
+        'patch/open': function(update) {
             currentPatch = update.patch;
             navigation.switch(update.patch);
             var newRoot = tree.patches[update.patch.id];
@@ -123,7 +123,7 @@ return function(networkRoot, userConfig) {
             if (style.onPatchSwitch) style.onPatchSwitch(currentPatch, newRoot.node());
         },
 
-        'patch/exit': function(update) {
+        'patch/close': function(update) {
             currentPatch = null;
             root.remove();
         },
