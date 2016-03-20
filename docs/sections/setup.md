@@ -13,7 +13,7 @@ RPD with default options can be downloaded here:
 
 You'll also need [Kefir.js][kefir], since RPD code is based on Reactive Streams, which it provides.
 ​
-But default options restrict your choice, while RPD provides truly a lot more. See [Compilation](#Compilation) section below for details. And you are safe to transfer your network code to use it with other options, if you already have one.
+But default options restrict your choice, while RPD provides truly a lot more. See [Compilation](#Compilation) section below for details. And you are surely safe to transfer your network code to use it with other options, if you already have one, the only requirement is to change few string values.
 ​
 ### Setup
 ​
@@ -28,7 +28,7 @@ To use either downloaded or compiled version of RPD, you need to include three f
         <link rel="stylesheet" href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css"></style>
         <!-- Kefir.js library -->
         <script src="http://rawgit.com/rpominov/kefir/gh-pages/dist/kefir.min.js"></script>
-        <!-- RPD Library, compiled with the options you specified (they are listed in the first lines of this file so you may to distinguish files compiled with different options even if they have the same name) -->
+        <!-- RPD Library, compiled with the options you specified (they are listed in the first lines of this file so you may distinguish files compiled with different options even if they have the same name) -->
         <link rel="stylesheet" href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.min.js"></style>
     </head>
     <body>
@@ -37,17 +37,17 @@ To use either downloaded or compiled version of RPD, you need to include three f
 </html>
 ```
 
-For the local version, paths would be `./dist/rpd.css`, `./vendor/kefir.min.js` and `./dist/rpd.min.js` accordingly.
+For the local version, paths would be `./dist/rpd.css`, `./vendor/kefir.min.js` and `./dist/rpd.min.js` respectively.
 ​
-To test if it works, add the target `div` to the `body` and some code to the bottom of the page:
+To test if it works and see it in action, add the target `div` to the `body` and some code to the bottom of the page:
 ​
 ```html
 <body>
-​
+​   
 </body>
 ```
 
-More details on building your own Patch Network you may find on [the corresponding page](./sections/network.html).
+Detailed instructions on constructing your own Patch Network you may find [in the Network section](./network.html).
 ​
 ### Compilation
 ​
@@ -63,7 +63,7 @@ $ gulp get-deps
 $ gulp
 ```
 ​
-If every command, and especially the last one, was successful, you'll see it created `dist/rpd.min.js` and `dist/rpd.css`. So you've built a version with default options and now you are on the right way. Then, you'll only need to run `gulp` with specific flags listed below.
+If every command, and especially the last one, was successful, you'll see it created `dist/rpd.min.js` and `dist/rpd.css`. So you've built a version with default options and now you are on the right way. Then, you'll only need to run `gulp` (with specific flags listed below, if you are not satisfied with default options).
 
 To be able to view examples from `./examples` directory, you also need to call this command once:
 
@@ -81,12 +81,12 @@ gulp help
 
 There are a lot more options and commands than I describe here, but in contrast with this literary text, `gulp help` provides you with far more bureaucratic style.
 ​
-Now it's time to use all the powers and chose some options:
+Now it's time to use all the powers and to configure your preferences:
 
 * *Renderers* (`-r` or `--renderer`): defines which technique (_HTML_, _SVG_, though there's no _HTML5 Canvas_ renderer yet) will be used to render your Patch;
     * _`html`_: renders your Patch using plain HTML tags, i.e. using `<span>`s for links between nodes;
     * _`svg`_: renders your Patch using SVG tags;
-* *Styles* (`-s` or `--style`): determines the look of your nodes and backgrounds, see [examples below](#renderers-and-styles-examples);
+* *Styles* (`-s` or `--style`): determines the look of your nodes and backgrounds, see [examples below](../examples.html#styles-and-renderers);
     * _`quartz`_ (HTML & SVG): intended to be used on a full page; default style, normal-sized font, rounded borders for the nodes, connectors are circles, inlets are placed in a vertical column on the left side of the node and distributed over this side, outlets are placed in a vertical column on the right side of the node and distributed over this side;
     * _`pd`_ (HTML & SVG): intended to be used on a full page; normal-sized font, rectangular nodes, header takes the left connectors are circles, inlets are placed in a horizontal row on the top side of the node, outlets are placed in a horizontal row on the bottom side of the node;   
     * _`plain`_ (HTML & SVG): intended to be used on a small areas, most minimal style, majorly in black and white; font size is small, nodes are rectangular, titles do not belong to the nodes, inlets are placed in a horizontal row above the node, outlets are placed in a horizontal row below the node;

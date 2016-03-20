@@ -4,7 +4,7 @@ id: network
 level: 1
 ---
 
-No matter if you [compiled](./setup.html#Compilation) your own version of RPD or [downloaded](./setup.html#Download) the version with default options, now you are ready to build a Patch network.
+No matter, have you [compiled](./setup.html#Compilation) your own customized version of RPD, or have you [downloaded](./setup.html#Download) the version with default options, you are ready to build a Patch network.
 
 <!-- Here's an example of a very simple patch, just to give you an idea on how easy it is to build one:
 
@@ -43,18 +43,20 @@ Anywhere below (or when `body.onload` or `document.onDocumentReady` event was fi
     <div id="patch-target"></div>
     <script>
         var targetElement = document.getElementById('patch-target');
-        // use SVG Renderer and Quartz Style to render into div#patch-target,
+        // use SVG Renderer with Quartz Style to render into div#patch-target,
         // also configure Renderer to allow multiple connections to inlets
         // (only single connection is allowed by default)
-        Rpd.render('svg', targetElement, { style: 'quartz',
-                                           inletAcceptsMultipleLinks: true });
+        Rpd.renderNext('svg', targetElement, { style: 'quartz',
+                                               inletAcceptsMultipleLinks: true });
 
         // Network creation code
     </script>
 </body>
 ```
 
-Renderer options could belong to one particular options, but Renderers supplied with RPD tend to use a generalized set of options:
+The `renderNext` method assumes that everything later on, unless it meets another `renderNext` definition, will be rendered to the specified target and following specified options. You also may want to render a particular patch to a particular target with particular renderer, there`s a `patch.render` method existing specially for that, and it accepts exactly the same arguments, but you need to create a Patch to use it, and we haven't covered it yet.
+
+Options passed to `renderNext` or `patch.render` could belong to one particular Renderer, but Renderers supplied with RPD tend to use a generalized set of options:
 
 * `style` — the only required option, sets the [style](../examples.html#styles-and-renderers) used to visualize nodes; you need to ensure to [include this Style code](./setup.html#compilation-options) in your RPD version or else this option will fail;
 * `fullPage` — (`false`) if `true`, network takes the full page, so the target element will be resized to match browser window size when it was resized by user and so on;
@@ -71,8 +73,8 @@ Further on let's assume that you write subsequent code below those two lines:
 
 ```javascript
 var targetElement = document.getElementById('patch-target');
-Rpd.render('svg', targetElement, { style: 'quartz',
-                                   inletAcceptsMultipleLinks: true });
+Rpd.renderNext('svg', targetElement, { style: 'quartz',
+                                       inletAcceptsMultipleLinks: true });
 
 // Creating a Patch, Adding Nodes, ...
 ```
@@ -107,7 +109,7 @@ At least, you need to specify a type of the Node you want to create. Type determ
 
 For example, all the Nodes with type `core/random` always have two inlets, `min` and `max` (both accept only numbers), and one outlet named `out`. You are free to add other inlets or outlets to any instance of any type, though. When one of the inlets gets new value, Node with `core/random` type generates new random number laying between the requested bounds and immediately sends it to the `out` outlet. Renderer of the `core/random` type ensures that last four generated numbers are also shown in the body of every such Node.
 
-New nodes are positioned in the free space automatically, though the placing algorithm is intentionally not perfect, to keep it simple, so you have the ability to force-move the created node to the desired place if don't like what machine suggested for you:
+New nodes are positioned in the free space automatically, though the placing algorithm is intentionally not perfect, to keep it simple, so you have the ability to force-move the created node to the desired place if you don't like what machine suggested for you:
 
 ```javascript
 patch.addNode('my-toolkit/my-node-type')
@@ -137,6 +139,8 @@ patch.addNode('custom/type').move(20, 20);
 <!-- TODO: embedded example -->
 
 Node Types definition is [covered in details](./toolkits.html#defining-node-type) at the Toolkits page. As well as [writing a Renderer for a Node](./toolkits.html#writing-node-renderer).
+
+#### Node properties
 
 ### Connecting Nodes
 
@@ -183,7 +187,7 @@ That's important to say that Inlets could have a lot of options:
 
 ### Sending Data
 
-To send your own data to an Inlet, you may use its `receive` method. There's no requirement for this inlet to be connected to anything, if it is indeed connected, you'll just insert your update in it's established data flow.
+To send your own data to an Inlet, you may use its `receive` method. There's no requirement for this inlet to be connected to anything, but if it is indeed connected, you'll just insert your update in it's established data flow.
 
 ```javascript
 ```
@@ -193,7 +197,7 @@ To send some data from an outlet, use it's `send` method. You might want it to b
 ```javascript
 ```
 
-When you send data to some Inlet, it is first transformed according to its type, if there was such transformation requested. So the Node may receive a bit different data than you've sent to the Inlet.
+When you send data to some Inlet, data is first transformed according to Inlet type, if there was such transformation requested. So the Node may receive a bit different data than you've sent to the Inlet.
 
 ```javascript
 ```
