@@ -116,6 +116,26 @@ describe('building: node', function() {
 
     });
 
+    xdescribe('overriding channel type definition', function() {
+
+        xit('overriding inlet allow function', function() {});
+
+        xit('overriding inlet accept function', function() {});
+
+        xit('overriding inlet adapt function', function() {});
+
+        xit('overriding inlet show function', function() {});
+
+        xit('overriding inlet tune function', function() {});
+
+        xit('overriding outlet tune function', function() {});
+
+        xit('subscribing to inlet events', function() {});
+
+        xit('subscribing to outlet events', function() {});
+
+    });
+
     xit('allows to substitute/extend renderer', function() {
         // i#311
     });

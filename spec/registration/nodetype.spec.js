@@ -735,6 +735,26 @@ describe('registration: node type', function() {
             });
         });
 
+        xdescribe('overriding channel type definition', function() {
+
+            xit('overriding inlet adapt function', function() {});
+
+            xit('overriding inlet allow function', function() {});
+
+            xit('overriding inlet accept function', function() {});
+
+            xit('overriding inlet show function', function() {});
+
+            xit('overriding inlet tune function', function() {});
+
+            xit('overriding outlet tune function', function() {});
+
+            xit('subscribing to inlet events', function() {});
+
+            xit('subscribing to outlet events', function() {});
+
+        });
+
         it('one could add inlets or outlets from the inside', function() {
             Rpd.nodetype('spec/foo', {
                 inlets: { 'a': { type: 'spec/any' } }, // force call to process function

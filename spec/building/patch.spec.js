@@ -91,6 +91,8 @@ describe('building: patch', function() {
 
     });
 
+    xit('subscribing to events', function() {});
+
     xit('allows to substitute/extend renderer', function() {
         // i#311
     });

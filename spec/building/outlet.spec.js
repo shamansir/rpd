@@ -200,13 +200,6 @@ describe('building: outlet', function() {
         });
     });
 
-    xit('allows to set up or override channel `show` property', function() {
-    });
-
-    xit('allows to set up or override channel `tune` function', function() {
-
-    });
-
     it('connects only to the inlet of the same type', function() {
         Rpd.channeltype('spec/foo', {});
         Rpd.channeltype('spec/bar', {});
@@ -229,8 +222,16 @@ describe('building: outlet', function() {
         });
     });
 
-    xit('allows to subscribe to outlet events just from the description', function() {
-    });
+
+        xdescribe('overriding channel type definition', function() {
+
+            xit('overriding outlet tune function', function() {});
+
+            xit('overriding outlet show function', function() {});
+
+            xit('subscribing to outlet events', function() {});
+
+        });
 
     xit('allows to substitute/extend renderer', function() {
         // i#311
