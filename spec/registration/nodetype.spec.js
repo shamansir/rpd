@@ -418,6 +418,29 @@ describe('registration: node type', function() {
             });
         });
 
+        it('still gets values from hidden inlets', function() {
+            Rpd.nodetype('spec/foo', {
+                inlets: { 'char': { type: 'spec/any',
+                                    hidden: true,
+                                    'default': 'a' } },
+                process: processSpy
+            });
+
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/foo');
+                expect(node.inlets['char'].def.hidden).toBeTruthy();
+                expect(processSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ char: 'a' }),
+                    jasmine.anything()
+                );
+                node.inlets['char'].receive('b');
+                expect(processSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ char: 'b' }),
+                    jasmine.anything()
+                );
+            });
+        });
+
         it('does not react if updated inlet was cold, but keeps its value for next update', function() {
             Rpd.nodetype('spec/foo', {
                 inlets: { 'foo': { type: 'spec/any',
@@ -714,7 +737,7 @@ describe('registration: node type', function() {
 
         it('one could add inlets or outlets from the inside', function() {
             Rpd.nodetype('spec/foo', {
-                inlets: { 'a': { type: 'spec/any', hidden: true } }, // force call to process function
+                inlets: { 'a': { type: 'spec/any' } }, // force call to process function
                 process: processSpy.and.callFake(function(inlets) {
                             if (!inlets.bar) this.addInlet('spec/any', 'bar');
                         })

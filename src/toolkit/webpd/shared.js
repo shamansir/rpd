@@ -22,7 +22,8 @@ var PdView = (function() {
 
     var switchEditMode = Kefir.emitter();
 
-    function PdView(defaultSize, root) { // FIXME: create view only when document is ready
+    function PdView(defaultSize, root) { // FIXME: a) create view only when document is ready;
+                                         //        b) 'root' should be a canvas of the patch... probably;
         this.root = root;
         this.inEditMode = switchEditMode.map(ƒ(true))
                                         .scan(Rpd.not, false) // will switch between `true` and `false`
@@ -67,7 +68,7 @@ var PdView = (function() {
     }
 
     PdView.prototype.addSelection = function(selectNode, node) {
-        var root = this.root;
+        var view = this;
         Kefir.fromEvents(selectNode, 'click')
              .filterBy(this.inEditMode.map(not))
              .map(stopPropagation)
@@ -78,7 +79,7 @@ var PdView = (function() {
                  selection = { element: selectNode, node : node };
                  d3.select(selectNode).classed('rpd-wpd-selected', true);
 
-                 Kefir.fromEvents(root, 'click').take(1)
+                 Kefir.fromEvents(view.root, 'click').take(1)
                       .onValue(function() {
 
                           d3.select(selectNode).classed('rpd-wpd-selected', false);
@@ -90,7 +91,7 @@ var PdView = (function() {
     }
 
     PdView.prototype.addEditor = function(selectNode, textNode, onSubmit) {
-        var root = this.root;
+        var view = this;
         var text = d3.select(textNode);
         var editor = d3.select(editorNode);
         Kefir.fromEvents(selectNode, 'click')
@@ -110,7 +111,7 @@ var PdView = (function() {
                  editor.style('display', 'block')
                        .node().focus();
 
-                 Kefir.merge([ Kefir.fromEvents(root, 'click'),
+                 Kefir.merge([ Kefir.fromEvents(view.root, 'click'),
                                Kefir.fromEvents(editorNode, 'keydown')
                                     .filter(function(evt) { return isKey(evt, 13/*Enter*/); }),
                                startSelection
@@ -234,11 +235,10 @@ var PdModel = (function() {
     if (!WebPd) throw new Error('Building PD Model requires WebPd present');
 
     function PdModel(patch, webPdPatch) {
-        this.patch = patch;
-        this.webPdPatch = webPdPatch || WebPd.createPatch();
+        webPdPatch = webPdPatch || WebPd.createPatch()
 
-        //patch.model = this;
-        //patch.webPdPatch = this.webPdPatch;
+        this.patch = patch;
+        this.webPdPatch = webPdPatch;
 
         this.nodeToInlets = {};
         this.nodeToOutlets = {};
@@ -267,7 +267,7 @@ var PdModel = (function() {
                 command = value.command, _arguments = value['arguments'];
             var webPdObject;
             try {
-                webPdObject = patch.webPdPatch.createObject(command, _arguments);
+                webPdObject = webPdPatch.createObject(command, _arguments);
             } catch (e) {
                 if (!(e instanceof WebPd.core.errors.UnkownObjectError)) {
                     console.error(e, command, _arguments); // FIXME: should be a stream error (#13)

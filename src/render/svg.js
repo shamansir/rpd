@@ -279,7 +279,8 @@ return function(networkRoot, userConfig) {
         'node/add-inlet': function(update) {
 
             var inlet = update.inlet;
-            if (inlet.hidden) return;
+
+            if (inlet.def.hidden) return;
 
             var nodeData = tree.nodes[update.node.id].data();
 
@@ -384,7 +385,7 @@ return function(networkRoot, userConfig) {
 
             var inlet = update.inlet;
 
-            if (inlet.hidden) return;
+            if (inlet.def.hidden) return;
 
             var render = update.render;
 
