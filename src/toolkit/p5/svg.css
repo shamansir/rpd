@@ -1,0 +1,41 @@
+#p5-canvas {
+    position: fixed;
+}
+
+.rpd-node .rpd-process * {
+    pointer-events: none;
+}
+
+.rpd-node.rpd-p5-shape .rpd-process .rpd-p5-shape-variant * {
+    pointer-events: all;
+    cursor: pointer;
+}
+
+.rpd-p5-shape-variant {
+    fill: black;
+    stroke: black;
+    stroke-width: 0;
+}
+
+.rpd-p5-shape-variant line {
+    stroke-width: 2;
+}
+
+.rpd-p5-shape-variant:hover {
+    fill: deepskyblue;
+    stroke: deepskyblue;
+}
+
+.rpd-p5-shape-variant.rpd-p5-active-variant {
+    fill: crimson;
+    stroke: crimson;
+}
+
+/* text.rpd-value {
+    display: none;
+}
+
+.rpd-inlet:hover text.rpd-value,
+.rpd-outlet:hover text.rpd-value {
+    display: inline;
+} */
