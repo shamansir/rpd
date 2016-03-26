@@ -21,6 +21,7 @@ module.exports = function(config) {
       './src/rpd.js',
       './src/io/json.js',
       './src/io/plain.js',
+      './src/navigation/browser.js',
 
       './spec/matchers.js',
       './spec/prettify.js',

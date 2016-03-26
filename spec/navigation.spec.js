@@ -1,7 +1,7 @@
-xdescribe('navigation', function() {
+describe('navigation', function() {
 
     var networkUpdatesSpy;
-    var pathChangeSpy;
+    var changePathSpy;
     var networkErrorSpy;
 
     var SEPARATOR = ';';
@@ -9,9 +9,9 @@ xdescribe('navigation', function() {
     beforeEach(function() {
         networkUpdatesSpy = jasmine.createSpy('network-updates');
         Rpd.events.onValue(networkUpdatesSpy);
-        changePathSpy = jasmine.spyOn(Rpd.navigation, 'changePath');
+        changePathSpy = spyOn(Rpd.navigation, 'changePath').and.callThrough();
         networkErrorSpy = jasmine.createSpy('network-errors');
-        Rpd.events.onErrors(networkErrorSpy);
+        Rpd.events.onError(networkErrorSpy);
         Rpd.navigation.enable();
     });
 
