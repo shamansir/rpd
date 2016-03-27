@@ -336,8 +336,9 @@ describe('navigation', function() {
             var secondPatch = Rpd.addClosedPatch('second');
             var thirdPatch = Rpd.addClosedPatch('third');
 
+            expect(changePathSpy).not.toHaveBeenCalled();
+
             networkUpdatesSpy.calls.reset();
-            changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath(thirdPatch.id + SEPARATOR + firstPatch.id + SEPARATOR + /*!*/GIBBER/*!*/ + secondPatch.id + SEPARATOR);
 
@@ -360,6 +361,20 @@ describe('navigation', function() {
                 }));
 
             expect(changePathSpy).toHaveBeenCalledWith(thirdPatch.id + SEPARATOR + firstPatch.id);
+        });
+
+        xit('when parent patch was closed, also closes the child patch', function() {
+            var firstPatch = Rpd.addClosedPatch('first');
+            var secondPatch = Rpd.addPatch('second');
+            var thirdPatch = Rpd.addPatch('third');
+            secondPatch.open(thirdPatch);
+            networkUpdatesSpy.calls.reset();
+            thirdPatch.close();
+            expect(networkUpdatesSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    type: 'patch/close',
+                    patch: secondPatch
+                }));
         });
 
     });
@@ -395,7 +410,14 @@ describe('navigation', function() {
             expect(changePathSpy).toHaveBeenCalledWith(firstPatch.id + SEPARATOR + secondPatch.id);
         });
 
-        xit('when parent patch was passed to open method, stores it in the path');
+        it('when parent patch was passed to open method, stores it in the path in first position', function() {
+            var firstPatch = Rpd.addClosedPatch('first');
+            var secondPatch = Rpd.addPatch('second');
+            var thirdPatch = Rpd.addPatch('third');
+            changePathSpy.calls.reset();
+            secondPatch.open(thirdPatch);
+            expect(changePathSpy).toHaveBeenCalledWith(thirdPatch.id + SEPARATOR + secondPath.id);
+        });
 
     });
 
