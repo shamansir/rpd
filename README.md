@@ -4,7 +4,7 @@
 
 [![Build Status](https://travis-ci.org/shamansir/rpd.svg?branch=master)](https://travis-ci.org/shamansir/rpd)
 
-<!-- [![Code Climate](https://codeclimate.com/github/shamansir/rpd.png)](https://codeclimate.com/github/shamansir/rpd) -->
+<!-- [![Code Climate](https://codeclimate.com/github/shamansir/rpd/badges/gpa.svg)](https://codeclimate.com/github/shamansir/rpd) -->
 
 [![logo][]](http://shamansir.github.io/rpd)
 

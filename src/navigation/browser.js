@@ -3,32 +3,34 @@ Rpd.navigation = (function() {
     var firstAddedPatch;
     var idToPatch = {};
 
-    Rpd.event['network/add-patch'].onValue(function(patch) {
+    function onNewPatch(patch) {
         if (!firstAddedPatch) firstAddedPatch = patch;
         idToPatch[patch.id] = patch;
-    });
-
-    function enable() {
-
     }
 
-    function disable() {
-
+    function Navigation() {
     }
 
-    function changePath(id) {
+    Navigation.prototype.enable = function() {
+        Rpd.event['network/add-patch'].onValue(onNewPatch);
+    }
+
+    Navigation.prototype.disable = function() {
+        Rpd.event['network/add-patch'].offValue(onNewPatch);
+        firstAddedPatch = undefined;
+    }
+
+    Navigation.prototype.changePath = function(id) {
+        console.log('changePath was called with ' + id);
         if (id) idToPatch[id].open();
     }
 
-    function handlePath(path) {
-        if (!path && firstAddedPatch) changePath(firstAddedPatch.id);
+    Navigation.prototype.handlePath = function(path) {
+        if (!path && firstAddedPatch) this.changePath(firstAddedPatch.id);
     }
 
-    return {
-        enable: enable,
-        disable: disable,
-        changePath: changePath,
-        handlePath: handlePath
-    }
+    console.log('created changePath and returned it');
+
+    return new Navigation();
 
 })();
