@@ -63,7 +63,7 @@ describe('navigation', function() {
         });
 
         it('closes all other patches', function() {
-            Rpd.addPatch('first');
+            var firstPatch = Rpd.addPatch('first');
 
             var secondPatch = Rpd.addPatch('second');
             var thirdPatch = Rpd.addClosedPatch('third');
