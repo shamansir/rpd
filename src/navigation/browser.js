@@ -2,59 +2,50 @@ Rpd.navigation = (function() {
 
     var SEPARATOR = ':';
 
-    var firstAddedPatch;
-    var idToPatch;
-
-    var openedPatches;
-
-    var lockOpenedPatches;
-
-    var openedPatchesStream,
-        closedPatchesStream;
-
-    function onNewPatch(patch) {
-        if (!firstAddedPatch) firstAddedPatch = patch;
-        idToPatch[patch.id] = patch;
-    }
-
-    function onOpenedPatch(patch) {
-        if (openedPatches.indexOf(patch.id) < 0) {
-            openedPatches.push(patch.id);
-        }
-    }
-
-    function onClosedPatch(patch) {
-        if (lockOpenedPatches) return;
-        var pos = openedPatches.indexOf(patch.id);
-        if (pos >= 0) openedPatches.splice(pos, 1);
-    }
-
     function Navigation() {
+        this.onNewPatch = function(patch) {
+            if (!this.firstAddedPatch) this.firstAddedPatch = patch;
+            this.idToPatch[patch.id] = patch;
+        }.bind(this);
+
+        this.onOpenedPatch = function(patch) {
+            if (this.lockOpenedPatches) return;
+            if (this.openedPatches.indexOf(patch.id) < 0) {
+                this.openedPatches.push(patch.id);
+            }
+        }.bind(this);
+
+        this.onClosedPatch = function(patch) {
+            if (this.lockOpenedPatches) return;
+            var pos = this.openedPatches.indexOf(patch.id);
+            if (pos >= 0) this.openedPatches.splice(pos, 1);
+        }.bind(this);
+    }
+
+    Navigation.prototype.reset = function() {
+        this.idToPatch = {};
+
+        this.firstAddedPatch = undefined;
+        this.lockOpenedPatches = false;
+
+        this.openedPatches = [];
     }
 
     Navigation.prototype.enable = function() {
-        Rpd.event['network/add-patch'].onValue(onNewPatch);
-        openedPatchesStream = Rpd.events.filter(function(event) { return event.type === 'patch/open'; })
-                                        .map(function(event) { return event.patch; });
-        openedPatchesStream.onValue(onOpenedPatch);
-        closedPatchesStream = Rpd.events.filter(function(event) { return event.type === 'patch/close'; })
-                                        .map(function(event) { return event.patch; });
-        closedPatchesStream.onValue(onClosedPatch);
-
-        idToPatch = {};
-
-        firstAddedPatch = undefined;
-        lockOpenedPatches = false;
-
-        opened = [];
-        closed = [];
-        openedPatches = [];
+        this.reset();
+        Rpd.event['network/add-patch'].onValue(this.onNewPatch);
+        this.openedPatchesStream = Rpd.events.filter(function(event) { return event.type === 'patch/open'; })
+                                             .map(function(event) { return event.patch; });
+        this.openedPatchesStream.onValue(this.onOpenedPatch);
+        this.closedPatchesStream = Rpd.events.filter(function(event) { return event.type === 'patch/close'; })
+                                             .map(function(event) { return event.patch; });
+        this.closedPatchesStream.onValue(this.onClosedPatch);
     }
 
     Navigation.prototype.disable = function() {
-        Rpd.event['network/add-patch'].offValue(onNewPatch);
-        openedPatchesStream.offValue(onOpenedPatch);
-        closedPatchesStream.offValue(onClosedPatch);
+        Rpd.event['network/add-patch'].offValue(this.onNewPatch);
+        this.openedPatchesStream.offValue(this.onOpenedPatch);
+        this.closedPatchesStream.offValue(this.onClosedPatch);
     }
 
     Navigation.prototype.changePath = function(path) {
@@ -62,20 +53,21 @@ Rpd.navigation = (function() {
     }
 
     Navigation.prototype.handlePath = function(path) {
-        if (!path && firstAddedPatch) {
-            path = firstAddedPatch.id;
+        if (!path && this.firstAddedPatch) {
+            path = this.firstAddedPatch.id;
             this.changePath(path);
         }
-        lockOpenedPatches = true;
+        this.lockOpenedPatches = true;
         var id = path;
-        for (var i = 0; i < openedPatches.length; i++) {
-            if (openedPatches[i] !== id) {
-                idToPatch[openedPatches[i]].close();
+        for (var i = 0; i < this.openedPatches.length; i++) {
+            if (this.openedPatches[i] !== id) {
+                this.idToPatch[this.openedPatches[i]].close();
             }
         }
-        openedPatches = [ id ];
-        lockOpenedPatches = false;
-        idToPatch[id].open();
+        this.openedPatches = [ id ];
+        this.lockOpenedPatches = false;
+        this.idToPatch[id].open();
+        // FIXME: move here lockOpenedPatches = false;
     }
 
     return new Navigation();
