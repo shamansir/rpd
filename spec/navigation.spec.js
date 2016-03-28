@@ -23,19 +23,17 @@ describe('navigation', function() {
 
     describe('handling empty path', function() {
 
-        it('opens first added patch', function() {
+        it('leaves first added patch opened and updates path with it', function() {
             var firstPatch = Rpd.addPatch('first');
-
             var secondPatch = Rpd.addPatch('second');
 
-            networkUpdatesSpy.calls.reset();
             changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath('');
 
-            expect(networkUpdatesSpy).toHaveBeenCalledWith(
+            expect(networkUpdatesSpy).not.toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'patch/open',
+                    type: 'patch/close',
                     patch: firstPatch
                 }));
 
@@ -43,7 +41,7 @@ describe('navigation', function() {
             expect(changePathSpy).toHaveBeenCalledOnce();
         });
 
-        it('opens first added patch even if it was closed before', function() {
+        it('opens first added patch if it was closed before', function() {
             var firstPatch = Rpd.addPatch('first');
             firstPatch.close();
 
@@ -61,6 +59,21 @@ describe('navigation', function() {
                 }));
 
             expect(changePathSpy).toHaveBeenCalledWith(firstPatch.id);
+        });
+
+        it('closes other patches except the first one', function() {
+            var firstPatch = Rpd.addPatch('first');
+            var secondPatch = Rpd.addPatch('second');
+
+            changePathSpy.calls.reset();
+
+            Rpd.navigation.handlePath('');
+
+            expect(networkUpdatesSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    type: 'patch/close',
+                    patch: secondPatch
+                }));
         });
 
         it('closes all other patches', function() {
@@ -181,10 +194,28 @@ describe('navigation', function() {
 
     describe('when path contains single patch ID', function() {
 
-        it('opens specified patch', function() {
+        it('leaves specified patch opened', function() {
             var firstPatch = Rpd.addPatch('first');
 
             var secondPatch = Rpd.addPatch('second');
+
+            changePathSpy.calls.reset();
+
+            Rpd.navigation.handlePath(secondPatch.id);
+
+            expect(networkUpdatesSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    type: 'patch/close',
+                    patch: secondPatch
+                }));
+
+            expect(changePathSpy).not.toHaveBeenCalled();
+        });
+
+        it('opens specified patch if it was closed before', function() {
+            var firstPatch = Rpd.addPatch('first');
+
+            var secondPatch = Rpd.addClosedPatch('second');
 
             networkUpdatesSpy.calls.reset();
             changePathSpy.calls.reset();
@@ -200,20 +231,19 @@ describe('navigation', function() {
             expect(changePathSpy).not.toHaveBeenCalled();
         });
 
-        it('opens specified patch even if it was closed before', function() {
+        it('closes other patches except the specified one', function() {
             var firstPatch = Rpd.addPatch('first');
 
-            var secondPatch = Rpd.addClosedPatch('second');
+            var secondPatch = Rpd.addPatch('second');
 
-            networkUpdatesSpy.calls.reset();
             changePathSpy.calls.reset();
 
             Rpd.navigation.handlePath(secondPatch.id);
 
             expect(networkUpdatesSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'patch/open',
-                    patch: secondPatch
+                    type: 'patch/close',
+                    patch: firstPatch
                 }));
 
             expect(changePathSpy).not.toHaveBeenCalled();
