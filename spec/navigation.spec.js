@@ -417,7 +417,7 @@ describe('navigation', function() {
             var thirdPatch = Rpd.addPatch('third');
             changePathSpy.calls.reset();
             secondPatch.open(thirdPatch);
-            expect(changePathSpy).toHaveBeenCalledWith(thirdPatch.id + SEPARATOR + secondPath.id);
+            expect(changePathSpy).toHaveBeenCalledWith(thirdPatch.id + SEPARATOR + secondPatch.id);
         });
 
     });

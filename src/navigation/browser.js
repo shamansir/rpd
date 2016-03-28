@@ -3,11 +3,11 @@ Rpd.navigation = (function() {
     var SEPARATOR = ':';
 
     var firstAddedPatch;
-    var idToPatch = {};
+    var idToPatch;
 
-    var openedPatches = [];
+    var openedPatches;
 
-    var lockOpenedPatches = false;
+    var lockOpenedPatches;
 
     var openedPatchesStream,
         closedPatchesStream;
@@ -40,9 +40,15 @@ Rpd.navigation = (function() {
         closedPatchesStream = Rpd.events.filter(function(event) { return event.type === 'patch/close'; })
                                         .map(function(event) { return event.patch; });
         closedPatchesStream.onValue(onClosedPatch);
+
+        idToPatch = {};
+
         firstAddedPatch = undefined;
+        lockOpenedPatches = false;
+
         opened = [];
         closed = [];
+        openedPatches = [];
     }
 
     Navigation.prototype.disable = function() {
@@ -51,9 +57,17 @@ Rpd.navigation = (function() {
         closedPatchesStream.offValue(onClosedPatch);
     }
 
-    Navigation.prototype.changePath = function(id) {
-        if (!id) return;
+    Navigation.prototype.changePath = function(path) {
+        //window.location.hash = path;
+    }
+
+    Navigation.prototype.handlePath = function(path) {
+        if (!path && firstAddedPatch) {
+            path = firstAddedPatch.id;
+            this.changePath(path);
+        }
         lockOpenedPatches = true;
+        var id = path;
         for (var i = 0; i < openedPatches.length; i++) {
             if (openedPatches[i] !== id) {
                 idToPatch[openedPatches[i]].close();
@@ -62,14 +76,6 @@ Rpd.navigation = (function() {
         openedPatches = [ id ];
         lockOpenedPatches = false;
         idToPatch[id].open();
-    }
-
-    Navigation.prototype.handlePath = function(path) {
-        if (!path && firstAddedPatch) {
-            this.changePath(firstAddedPatch.id);
-        } else {
-            idToPatch[path].open();
-        }
     }
 
     return new Navigation();
