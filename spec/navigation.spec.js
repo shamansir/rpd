@@ -40,6 +40,7 @@ describe('navigation', function() {
                 }));
 
             expect(changePathSpy).toHaveBeenCalledWith(firstPatch.id);
+            expect(changePathSpy).toHaveBeenCalledOnce();
         });
 
         it('opens first added patch even if it was closed before', function() {
@@ -244,6 +245,15 @@ describe('navigation', function() {
             expect(changePathSpy).not.toHaveBeenCalled();
         });
 
+        it('handling same path is not causing changePath to be called next time', function() {
+            var firstPatch = Rpd.addPatch('first');
+            //Rpd.navigation.handlePath(firstPatch.id);
+            changePathSpy.calls.reset();
+            Rpd.navigation.handlePath(firstPatch.id);
+            Rpd.navigation.handlePath(firstPatch.id);
+            expect(changePathSpy).not.toHaveBeenCalled();
+        });
+
     });
 
     describe('when path contains several patch IDs', function() {
@@ -376,6 +386,28 @@ describe('navigation', function() {
                     type: 'patch/close',
                     patch: secondPatch
                 }));
+        });
+
+        it('handling same path is not causing changePath to be called next time', function() {
+            var firstPatch = Rpd.addPatch('first');
+            var secondPatch = Rpd.addPatch('second');
+            var bothPatchesPath = firstPatch.id + SEPARATOR + secondPatch.id;
+            //Rpd.navigation.handlePath(bothPatchesPath);
+            changePathSpy.calls.reset();
+            Rpd.navigation.handlePath(bothPatchesPath);
+            Rpd.navigation.handlePath(bothPatchesPath);
+            expect(changePathSpy).not.toHaveBeenCalled();
+        });
+
+        it('changePath is not causing second handlePath call', function() {
+            var firstPatch = Rpd.addClosedPatch('first');
+            var secondPatch = Rpd.addPatch('second');
+            expect(changePathSpy).toHaveBeenCalledOnce();
+            changePathSpy.calls.reset();
+            var handlePathSpy = spyOn(Rpd.navigation, 'handlePath').and.callThrough();
+            Rpd.navigation.handlePath(firstPatch.id);
+            expect(changePathSpy).toHaveBeenCalledOnce();
+            expect(handlePathSpy).toHaveBeenCalledOnce();
         });
 
     });
