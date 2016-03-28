@@ -4,7 +4,7 @@ describe('navigation', function() {
     var networkErrorSpy;
     var changePathSpy;
 
-    var SEPARATOR = ';';
+    var SEPARATOR = ':';
 
     beforeEach(function() {
         networkUpdatesSpy = jasmine.createSpy('network-updates');
@@ -351,7 +351,9 @@ describe('navigation', function() {
 
             networkUpdatesSpy.calls.reset();
 
-            Rpd.navigation.handlePath(thirdPatch.id + SEPARATOR + firstPatch.id + SEPARATOR + /*!*/GIBBER/*!*/ + secondPatch.id + SEPARATOR);
+            var GIBBER = 'gibber';
+
+            Rpd.navigation.handlePath(thirdPatch.id + SEPARATOR + firstPatch.id + SEPARATOR + /*!*/GIBBER/*!*/ + SEPARATOR + secondPatch.id + SEPARATOR);
 
             expect(networkErrorSpy).toHaveBeenCalled();
 

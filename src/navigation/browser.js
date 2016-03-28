@@ -6,6 +6,7 @@ Rpd.navigation = (function() {
         this.onNewPatch = function(patch) {
             if (!this.firstAddedPatch) this.firstAddedPatch = patch;
             this.idToPatch[patch.id] = patch;
+            this.idToOpeness[patch.id] = false;
         }.bind(this);
 
         this.onOpenedPatch = function(patch) {
@@ -13,17 +14,20 @@ Rpd.navigation = (function() {
             if (this.openedPatches.indexOf(patch.id) < 0) {
                 this.openedPatches.push(patch.id);
             }
+            this.idToOpeness[patch.id] = true;
         }.bind(this);
 
         this.onClosedPatch = function(patch) {
             if (this.lockOpenedPatches) return;
             var pos = this.openedPatches.indexOf(patch.id);
             if (pos >= 0) this.openedPatches.splice(pos, 1);
+            this.idToOpeness[patch.id] = false;
         }.bind(this);
     }
 
     Navigation.prototype.reset = function() {
         this.idToPatch = {};
+        this.idToOpeness = {};
 
         this.firstAddedPatch = undefined;
         this.lockOpenedPatches = false;
@@ -58,16 +62,26 @@ Rpd.navigation = (function() {
             this.changePath(path);
         }
         this.lockOpenedPatches = true;
-        var id = path;
-        for (var i = 0; i < this.openedPatches.length; i++) {
-            if (this.openedPatches[i] !== id) {
-                this.idToPatch[this.openedPatches[i]].close();
+        var idList = path.split(SEPARATOR);
+        var openedPatchId;
+        for (var i = 0; i < idList.length; i++) {
+            for (var j = 0; j < this.openedPatches.length; j++) {
+                var openedPatchId = this.openedPatches[j];
+                if ((openedPatchId !== idList[i]) &&
+                    this.idToOpeness[openedPatchId]) {
+                    this.idToPatch[openedPatchId].close();
+                    this.idToOpeness[openedPatchId] = false;
+                }
             }
         }
-        this.openedPatches = [ id ];
+        for (var i = 0; i < idList.length; i++) {
+            if (!this.idToOpeness[idList[i]]) {
+                this.idToPatch[idList[i]].open();
+                this.idToOpeness[idList[i]] = true;
+            }
+        }
+        this.openedPatches = idList;
         this.lockOpenedPatches = false;
-        this.idToPatch[id].open();
-        // FIXME: move here lockOpenedPatches = false;
     }
 
     return new Navigation();
