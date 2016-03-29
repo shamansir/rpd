@@ -64,22 +64,18 @@ Rpd.navigation = (function() {
         this.lockOpenedPatches = true;
         var idList = path.split(SEPARATOR);
         var openedPatchId;
-        for (var i = 0; i < idList.length; i++) {
-            for (var j = 0; j < this.openedPatches.length; j++) {
-                var openedPatchId = this.openedPatches[j];
-                if ((openedPatchId !== idList[i]) &&
-                    this.idToOpenness[openedPatchId]) {
-                    this.idToPatch[openedPatchId].close();
-                    this.idToOpenness[openedPatchId] = false;
-                }
+        this.openedPatches.forEach(function(patchId) {
+            if ((idList.indexOf(patchId) < 0) && this.idToOpenness[patchId]) {
+                this.idToPatch[patchId].close();
+                this.idToOpenness[patchId] = false;
             }
-        }
-        for (var i = 0; i < idList.length; i++) {
-            if (!this.idToOpenness[idList[i]]) {
-                this.idToPatch[idList[i]].open();
-                this.idToOpenness[idList[i]] = true;
+        }.bind(this));
+        idList.forEach(function(patchId) {
+            if (!this.idToOpenness[patchId]) {
+                this.idToPatch[patchId].open();
+                this.idToOpenness[patchId] = true;
             }
-        }
+        }.bind(this));
         this.openedPatches = idList;
         this.lockOpenedPatches = false;
     }
