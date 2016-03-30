@@ -351,8 +351,6 @@ describe('navigation', function() {
             var secondPatch = Rpd.addPatch('second');
             var thirdPatch = Rpd.addClosedPatch('third');
 
-            expect(changePathSpy).toHaveBeenCalledWith(secondPatch.id);
-
             networkUpdatesSpy.calls.reset();
             changePathSpy.calls.reset();
 
@@ -383,7 +381,7 @@ describe('navigation', function() {
 
             var GIBBER = 'gibber';
 
-            Rpd.navigation.handlePath(thirdPatch.id + SEPARATOR + firstPatch.id + SEPARATOR + /*!*/GIBBER/*!*/ + SEPARATOR + secondPatch.id + SEPARATOR);
+            Rpd.navigation.handlePath(thirdPatch.id + SEPARATOR + firstPatch.id + SEPARATOR + /*!*/GIBBER/*!*/ + SEPARATOR);
 
             expect(networkErrorSpy).toHaveBeenCalled();
 
@@ -462,6 +460,15 @@ describe('navigation', function() {
             expect(changePathSpy).not.toHaveBeenCalled();
             var thirdPatch = Rpd.addPatch('third');
             expect(changePathSpy).toHaveBeenCalledWith(firstPatch.id + SEPARATOR + thirdPatch.id);
+        });
+
+        it('leaves single opened patch in a path and do not updates it if no patches were opened later', function() {
+            var firstPatch = Rpd.addClosedPatch('first');
+            var secondPatch = Rpd.addPatch('second');
+            expect(changePathSpy).toHaveBeenCalledWith(secondPatch.id);
+            changePathSpy.calls.reset();
+            var thirdPatch = Rpd.addClosedPatch('third');
+            expect(changePathSpy).not.toHaveBeenCalled();
         });
 
         it('follows opening and closing patches', function() {
