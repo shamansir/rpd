@@ -26,6 +26,8 @@ Rpd.navigation = (function() {
     }
 
     Navigation.prototype.reset = function() {
+        this.lastPath = '';
+
         this.idToPatch = {};
         this.idToOpenness = {};
 
@@ -53,6 +55,7 @@ Rpd.navigation = (function() {
     }
 
     Navigation.prototype.changePath = function(path) {
+        this.lastPath = path;
         //window.location.hash = path;
     }
 
@@ -63,6 +66,11 @@ Rpd.navigation = (function() {
         }
         this.lockOpenedPatches = true;
         var idList = path.split(SEPARATOR);
+        var lenBefore = idList.length;
+        idList = idList.filter(function(patchId) {
+            return patchId && this.idToPatch[patchId];
+        }.bind(this));
+        //var newPath = idList.join(SEPARATOR);
         var openedPatchId;
         this.openedPatches.forEach(function(patchId) {
             if ((idList.indexOf(patchId) < 0) && this.idToOpenness[patchId]) {
@@ -78,6 +86,9 @@ Rpd.navigation = (function() {
         }.bind(this));
         this.openedPatches = idList;
         this.lockOpenedPatches = false;
+        if (lenBefore !== idList.length) {
+            this.changePath(idList.join(SEPARATOR));
+        }
     }
 
     return new Navigation();
