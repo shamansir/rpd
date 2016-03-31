@@ -471,7 +471,7 @@ describe('navigation', function() {
             expect(changePathSpy).toHaveBeenCalledWith(firstPatch.id + SEPARATOR + secondPatch.id);
         });
 
-        it('when parent patch was passed to open method, stores it in the path in first position', function() {
+        xit('when parent patch was passed to open method, stores it in the path in first position', function() {
             var firstPatch = Rpd.addClosedPatch('first');
             var secondPatch = Rpd.addPatch('second');
             var thirdPatch = Rpd.addPatch('third');

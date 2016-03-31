@@ -78,6 +78,25 @@
                     return result;
                 }
             }
+        },
+        toReportError: function(util, customEqualityTesters) {
+            return {
+                compare: function(actual, expected) {
+                    var result = { pass: false };
+                    var gotError;
+                    Rpd.events.onError(function(firedError) {
+                        gotError = firedError;
+                    });
+                    actual();
+                    if (!util.equals(gotError, expected, customEqualityTesters)) {
+                        result.message = 'Expected error ' + expected.and.identity() +
+                          ' to be fired, but ' + (gotError || 'nothing') + ' was received';
+                        return result;
+                    }
+                    result.pass = true;
+                    return result;
+                }
+            }
         }
     };
 
