@@ -27,10 +27,10 @@ var styles = {};
 var renderer_registry = {};
 
 var event_types = { 'network/add-patch': [ 'patch' ] };
-var event = event_map(event_types);
-var events = events_stream(event_types, event, 'network', Rpd);
+var rpdEvent = event_map(event_types);
+var rpdEvents = events_stream(event_types, rpdEvent, 'network', Rpd);
 
-event['network/add-patch'].onValue(function(patch) { events.plug(patch.events); });
+rpdEvent['network/add-patch'].onValue(function(patch) { rpdEvents.plug(patch.events); });
 
 var rendering;
 
@@ -44,11 +44,11 @@ function createRenderingStream() {
             func: function(patch) { patch.render(rule.aliases, rule.targets, rule.config) }
         }
     }).scan(function(prev, curr) {
-        if (prev) event['network/add-patch'].offValue(prev.func);
-        event['network/add-patch'].onValue(curr.func);
+        if (prev) rpdEvent['network/add-patch'].offValue(prev.func);
+        rpdEvent['network/add-patch'].onValue(curr.func);
         return curr;
     }, null).last().onValue(function(last) {
-        event['network/add-patch'].offValue(last.func);
+        rpdEvent['network/add-patch'].offValue(last.func);
     });
     return rendering;
 }
@@ -72,7 +72,7 @@ function addPatch(arg0, arg1, arg2) {
 function addClosedPatch(arg0, arg1) {
     var name = !is_object(arg0) ? arg0 : undefined; var def = arg1 || arg0;
     var instance = new Patch(arg0, arg1 || arg0);
-    event['network/add-patch'].emit(instance);
+    rpdEvent['network/add-patch'].emit(instance);
     return instance;
 }
 
@@ -178,7 +178,7 @@ Patch.prototype.render = function(aliases, targets, config) {
     for (var i = 0, il = aliases.length, alias; i < il; i++) {
         for (var j = 0, jl = targets.length, target; j < jl; j++) {
             alias = aliases[i]; target = targets[j];
-            if (!renderer_registry[alias]) throw new Error('Renderer ' + alias + ' is not registered');
+            if (!renderer_registry[alias]) report_error('patch', 'Renderer ' + alias + ' is not registered');
             this.renderQueue.emit({ alias: alias, target: target, config: config });
         }
     }
@@ -248,7 +248,7 @@ function Node(type, patch, def, render, callback) {
     this.events = events_stream(event_types, this.event, 'node', this);
 
     var type_def = adapt_to_obj(nodetypes[this.type], this);
-    if (!type_def) report_error('Node type ' + this.type + ' is not registered!');
+    if (!type_def) report_error('node', 'Node type ' + this.type + ' is not registered!');
     this.def = join_definitions(NODE_PROPS, def, type_def);
 
     this.render = join_render_definitions(NODE_RENDERER_PROPS, render,
@@ -405,10 +405,10 @@ function Inlet(type, node, alias, def, render) {
     this.node = node;
 
     var type_def = adapt_to_obj(channeltypes[this.type], this);
-    if (!type_def) report_error('Channel type ' + this.type + ' is not registered!');
+    if (!type_def) report_error('inlet', 'Channel type ' + this.type + ' is not registered!');
     this.def = join_definitions(INLET_PROPS, def, type_def);
 
-    if (!this.alias) report_error('Inlet should have an alias');
+    if (!this.alias) report_error('inlet', 'Inlet should have an alias');
 
     this.value = Kefir.pool();
 
@@ -469,10 +469,10 @@ function Outlet(type, node, alias, def, render) {
     this.node = node;
 
     var type_def = adapt_to_obj(channeltypes[this.type], this);
-    if (!type_def) report_error('Channel type ' + this.type + ' is not registered!');
+    if (!type_def) report_error('outlet', 'Channel type ' + this.type + ' is not registered!');
     this.def = join_definitions(OUTLET_PROPS, def, type_def);
 
-    if (!this.alias) report_error('Outlet should have an alias');
+    if (!this.alias) report_error('outlet', 'Outlet should have an alias');
 
     this.value = Kefir.pool();
 
@@ -506,7 +506,7 @@ function Outlet(type, node, alias, def, render) {
 }
 Outlet.prototype.connect = function(inlet) {
     if (!inlet.allows(this)) {
-        throw new Error('Outlet of type ' + this.type + ' is not allowed to connect to inlet of type ' + inlet.type);
+        report_error('outlet', 'Outlet of type ' + this.type + ' is not allowed to connect to inlet of type ' + inlet.type);
     }
     var link = new Link(this, inlet);
     this.events.plug(link.events);
@@ -719,8 +719,10 @@ function subscribe(events, handlers) {
           });
 }
 
-function report_error(desc, err) {
-    throw err || new Error(desc);
+
+function report_error(subject, message) {
+    rpdEvents.plug(Kefir.constantError({ type: subject + '/error', message: message }));
+    //throw new Error(subject + '/error: ' + message);
 }
 
 function short_uid() {
@@ -740,10 +742,10 @@ function inject_render(update, alias) {
 }
 
 function getStyle(name, renderer) {
-    if (!name) throw new Error('Unknown style requested: ' + name);
-    if (!styles[name]) throw new Error('Style \'' + name + '\' is not registered');
+    if (!name) report_error('network', 'Unknown style requested: ' + name);
+    if (!styles[name]) report_error('network', 'Style \'' + name + '\' is not registered');
     var style = styles[name][renderer];
-    if (!style) throw new Error('Style \'' + name + '\' has no definition for \'' + renderer + '\' renderer');
+    if (!style) report_error('network', 'Style \'' + name + '\' has no definition for \'' + renderer + '\' renderer');
     return style;
 }
 
@@ -764,13 +766,13 @@ function renderer(alias, f) {
 }
 
 function noderenderer(type, alias, data) {
-    if (!nodetypes[type]) throw new Error('Node type ' + type + ' is not registered');
+    if (!nodetypes[type]) report_error('network', 'Node type ' + type + ' is not registered');
     if (!noderenderers[type]) noderenderers[type] = {};
     noderenderers[type][alias] = data;
 }
 
 function channelrenderer(type, alias, data) {
-    if (!channeltypes[type]) throw new Error('Channel type ' + type + ' is not registered');
+    if (!channeltypes[type]) report_error('network', 'Channel type ' + type + ' is not registered');
     if (!channelrenderers[type]) channelrenderers[type] = {};
     channelrenderers[type][alias] = data;
 }
@@ -797,8 +799,8 @@ return {
     'unit': ƒ,
     'not': function(value) { return !value; },
 
-    'event': event,
-    'events': events,
+    'event': rpdEvent,
+    'events': rpdEvents,
 
     'addPatch': addPatch,
     'addClosedPatch': addClosedPatch,

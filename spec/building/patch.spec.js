@@ -17,10 +17,12 @@ describe('building: patch', function() {
     it('is not allowed to start from constructor', function() {
         expect(function() {
             new Rpd.Patch();
+        //}).toReportError('patch/error');
         }).toThrow();
 
         expect(function() {
             new Rpd.Patch('foo');
+        //}).toReportError('patch/error');
         }).toThrow();
     });
 
@@ -28,7 +30,7 @@ describe('building: patch', function() {
         expect(function() {
             Rpd.addPatch();
             Rpd.addPatch();
-        }).not.toThrow();
+        }).not.toReportError();
     });
 
     it('provides access to inner events', function() {

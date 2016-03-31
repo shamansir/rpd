@@ -159,7 +159,7 @@ describe('building: outlet', function() {
             var node = patch.addNode('spec/empty');
             expect(function() {
                 node.addOutlet('spec/any');
-            }).toThrow();
+            }).toReportError('outlet/error');
         });
     });
 
@@ -214,10 +214,10 @@ describe('building: outlet', function() {
             var fooInlet  = secondNode.addInlet('spec/foo', 'foo');
             var barInlet  = secondNode.addInlet('spec/bar', 'bar');
 
-            expect(function() { fooOutlet.connect(barInlet); }).toThrow();
-            expect(function() { barOutlet.connect(fooInlet); }).toThrow();
-            expect(function() { fooOutlet.connect(fooInlet); }).not.toThrow();
-            expect(function() { barOutlet.connect(barInlet); }).not.toThrow();
+            expect(function() { fooOutlet.connect(barInlet); }).toReportError('outlet/error');
+            expect(function() { barOutlet.connect(fooInlet); }).toReportError('outlet/error');
+            expect(function() { fooOutlet.connect(fooInlet); }).not.toReportError();
+            expect(function() { barOutlet.connect(barInlet); }).not.toReportError();
 
         });
     });

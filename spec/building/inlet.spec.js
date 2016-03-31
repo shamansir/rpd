@@ -192,7 +192,7 @@ describe('building: inlet', function() {
             var node = patch.addNode('spec/empty');
             expect(function() {
                 node.addInlet('spec/any');
-            }).toThrow();
+            }).toReportError('inlet/error');
         });
     });
 

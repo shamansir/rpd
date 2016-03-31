@@ -5,7 +5,7 @@ describe('building: node', function() {
         var patch = Rpd.addPatch();
         expect(function() {
             patch.addNode('foo/bar');
-        }).toThrow();
+        }).toReportError('node/error');
     });
 
 
@@ -13,7 +13,7 @@ describe('building: node', function() {
         withNewPatch(function(patch, updateSpy) {
             expect(function() {
                 patch.addNode('spec/empty');
-            }).not.toThrow();
+            }).not.toReportError();
         });
     });
 

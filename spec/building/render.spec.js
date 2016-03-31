@@ -6,7 +6,7 @@ describe('building: renderer', function() {
         expect(function() {
             Rpd.renderNext('foo');
             Rpd.addPatch();
-        }).not.toThrow();
+        }).not.toReportError();
 
         Rpd.stopRendering();
     });
@@ -16,7 +16,7 @@ describe('building: renderer', function() {
 
         expect(function() {
             Rpd.addPatch().render('foo');
-        }).not.toThrow();
+        }).not.toReportError();
 
         Rpd.stopRendering();
     });

@@ -3,7 +3,7 @@ describe('registration: channel renderer', function() {
     it('could be defined as an empty object', function() {
         expect(function() {
             Rpd.channelrenderer('spec/foo', 'spec', {});
-        }).not.toThrow();
+        }).not.toReportError();
     });
 
     describe('transferring with the events', function() {

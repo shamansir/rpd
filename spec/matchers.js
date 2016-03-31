@@ -88,8 +88,8 @@
                         gotError = firedError;
                     });
                     actual();
-                    if (!util.equals(gotError, expected, customEqualityTesters)) {
-                        result.message = 'Expected error ' + expected.and.identity() +
+                    if (!util.equals(gotError, jasmine.objectContaining({ type: expected }), customEqualityTesters)) {
+                        result.message = 'Expected error ' + expected +
                           ' to be fired, but ' + (gotError || 'nothing') + ' was received';
                         return result;
                     }
