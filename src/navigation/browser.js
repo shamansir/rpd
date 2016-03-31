@@ -10,18 +10,20 @@ Rpd.navigation = (function() {
         }.bind(this);
 
         this.onOpenedPatch = function(patch) {
-            if (this.lockOpenedPatches) return;
+            if (this.handlingPathLock) return;
             if (this.openedPatches.indexOf(patch.id) < 0) {
                 this.openedPatches.push(patch.id);
             }
             this.idToOpenness[patch.id] = true;
+            this.changePath(this.openedPatches.join(SEPARATOR));
         }.bind(this);
 
         this.onClosedPatch = function(patch) {
-            if (this.lockOpenedPatches) return;
+            if (this.handlingPathLock) return;
             var pos = this.openedPatches.indexOf(patch.id);
             if (pos >= 0) this.openedPatches.splice(pos, 1);
             this.idToOpenness[patch.id] = false;
+            this.changePath(this.openedPatches.join(SEPARATOR));
         }.bind(this);
     }
 
@@ -32,7 +34,7 @@ Rpd.navigation = (function() {
         this.idToOpenness = {};
 
         this.firstAddedPatch = undefined;
-        this.lockOpenedPatches = false;
+        this.handlingPathLock = false;
 
         this.openedPatches = [];
     }
@@ -60,11 +62,11 @@ Rpd.navigation = (function() {
     }
 
     Navigation.prototype.handlePath = function(path) {
+        this.handlingPathLock = true;
         if (!path && this.firstAddedPatch) {
             path = this.firstAddedPatch.id;
             this.changePath(path);
         }
-        this.lockOpenedPatches = true;
         var idList = path.split(SEPARATOR);
         var lenBefore = idList.length;
         idList = idList.filter(function(patchId) {
@@ -85,10 +87,10 @@ Rpd.navigation = (function() {
             }
         }.bind(this));
         this.openedPatches = idList;
-        this.lockOpenedPatches = false;
         if (lenBefore !== idList.length) {
             this.changePath(idList.join(SEPARATOR));
         }
+        this.handlingPathLock = false;
     }
 
     return new Navigation();

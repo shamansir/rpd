@@ -429,17 +429,6 @@ describe('navigation', function() {
             expect(changePathSpy).not.toHaveBeenCalled();
         });
 
-        it('changePath is not causing second handlePath call', function() {
-            var firstPatch = Rpd.addClosedPatch('first');
-            var secondPatch = Rpd.addPatch('second');
-            expect(changePathSpy).toHaveBeenCalledOnce();
-            changePathSpy.calls.reset();
-            var handlePathSpy = spyOn(Rpd.navigation, 'handlePath').and.callThrough();
-            Rpd.navigation.handlePath(firstPatch.id);
-            expect(changePathSpy).toHaveBeenCalledOnce();
-            expect(handlePathSpy).toHaveBeenCalledOnce();
-        });
-
     });
 
     describe('reaction on patches opened by user', function() {
