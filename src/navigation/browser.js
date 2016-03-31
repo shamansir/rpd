@@ -70,10 +70,20 @@ Rpd.navigation = (function() {
         var idList = path.split(SEPARATOR);
         var lenBefore = idList.length;
         idList = idList.filter(function(patchId) {
+            if (patchId && !this.idToPatch[patchId]) {
+                Rpd.reportError('network', 'unknown patch ID ' + patchId);
+            }
             return patchId && this.idToPatch[patchId];
         }.bind(this));
+        if (idList.length == 0) {
+            if (this.firstAddedPatch) {
+                idList = [ this.firstAddedPatch.id ];
+                this.changePath(this.firstAddedPatch.id);
+            } else {
+                Rpd.reportError('network', 'unknown path requested: ' + path);
+            }
+        }
         //var newPath = idList.join(SEPARATOR);
-        var openedPatchId;
         this.openedPatches.forEach(function(patchId) {
             if ((idList.indexOf(patchId) < 0) && this.idToOpenness[patchId]) {
                 this.idToPatch[patchId].close();

@@ -741,7 +741,7 @@ function inject_render(update, alias) {
     return update;
 }
 
-function getStyle(name, renderer) {
+function get_style(name, renderer) {
     if (!name) report_error('network', 'Unknown style requested: ' + name);
     if (!styles[name]) report_error('network', 'Style \'' + name + '\' is not registered');
     var style = styles[name][renderer];
@@ -823,7 +823,8 @@ return {
     'allChannelRenderers': channelrenderers,
     'allNodeDescriptions': nodedescriptions,
 
-    'getStyle': getStyle,
+    'getStyle': get_style,
+    'reportError': report_error,
 
     'short_uid': short_uid
 }

@@ -123,11 +123,16 @@ describe('navigation', function() {
 
             expect(networkUpdatesSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({
-                    type: 'patch/open',
+                    type: 'patch/close',
+                    patch: secondPatch
+                }));
+            expect(networkUpdatesSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    type: 'patch/close',
                     patch: firstPatch
                 }));
 
-            expect(changePathSpy).toHaveBeenCalledWith('');
+            expect(changePathSpy).toHaveBeenCalledWith(firstPatch.id);
         });
 
         it('fires an error, opens first added patch even if it was closed before', function() {
@@ -149,11 +154,11 @@ describe('navigation', function() {
                     patch: firstPatch
                 }));
 
-            expect(changePathSpy).toHaveBeenCalledWith('');
+            expect(changePathSpy).toHaveBeenCalledWith(firstPatch.id);
         });
 
         it('fires an error, but yet closes all other patches', function() {
-            Rpd.addPatch('first');
+            var firstPatch = Rpd.addPatch('first');
 
             var secondPatch = Rpd.addPatch('second');
             var thirdPatch = Rpd.addClosedPatch('third');
@@ -177,17 +182,16 @@ describe('navigation', function() {
                     patch: thirdPatch
                 }));
 
-            expect(changePathSpy).toHaveBeenCalledWith('');
+            expect(changePathSpy).toHaveBeenCalledWith(firstPatch.id);
         });
 
-        it('fires an error when path contains only separators', function() {
+        it('fires an error when no patches were opened', function() {
 
             Rpd.navigation.handlePath(SEPARATOR + SEPARATOR);
 
             expect(networkErrorSpy).toHaveBeenCalled();
 
             expect(changePathSpy).toHaveBeenCalledWith('');
-
         });
 
     });
