@@ -1,6 +1,6 @@
 Rpd.navigation = (function() {
 
-    var SEPARATOR = ':';
+    var SEPARATOR = '+';
 
     function Navigation() {
         this.onNewPatch = function(patch) {
@@ -25,6 +25,10 @@ Rpd.navigation = (function() {
             this.idToOpenness[patch.id] = false;
             this.changePath(this.openedPatches.join(SEPARATOR));
         }.bind(this);
+
+        this.onHashChange = function(hash) {
+            this.handlePath(hash || '');
+        }.bind(this);
     }
 
     Navigation.prototype.reset = function() {
@@ -48,17 +52,21 @@ Rpd.navigation = (function() {
         this.closedPatchesStream = Rpd.events.filter(function(event) { return event.type === 'patch/close'; })
                                              .map(function(event) { return event.patch; });
         this.closedPatchesStream.onValue(this.onClosedPatch);
+        this.hashChangeStream = Kefir.fromEvents(window, 'hashchange')
+             .map(function() { return (window.location.hash ? window.location.hash.slice(1) : null); });
+        this.hashChangeStream.onValue(this.onHashChange);
     }
 
     Navigation.prototype.disable = function() {
         Rpd.event['network/add-patch'].offValue(this.onNewPatch);
         this.openedPatchesStream.offValue(this.onOpenedPatch);
         this.closedPatchesStream.offValue(this.onClosedPatch);
+        this.hashChangeStream.offValue(this.onHashChange);
     }
 
     Navigation.prototype.changePath = function(path) {
         this.lastPath = path;
-        //window.location.hash = path;
+        window.location.hash = path;
     }
 
     Navigation.prototype.handlePath = function(path) {

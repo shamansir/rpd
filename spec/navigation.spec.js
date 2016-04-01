@@ -4,7 +4,7 @@ describe('navigation', function() {
     var networkErrorSpy;
     var changePathSpy;
 
-    var SEPARATOR = ':';
+    var SEPARATOR = '+';
 
     beforeEach(function() {
         networkUpdatesSpy = jasmine.createSpy('network-updates');
