@@ -178,7 +178,7 @@ Patch.prototype.render = function(aliases, targets, config) {
     for (var i = 0, il = aliases.length, alias; i < il; i++) {
         for (var j = 0, jl = targets.length, target; j < jl; j++) {
             alias = aliases[i]; target = targets[j];
-            if (!renderer_registry[alias]) report_error('patch', 'Renderer ' + alias + ' is not registered');
+            if (!renderer_registry[alias]) report_error(this, 'patch', 'Renderer ' + alias + ' is not registered');
             this.renderQueue.emit({ alias: alias, target: target, config: config });
         }
     }
@@ -248,7 +248,7 @@ function Node(type, patch, def, render, callback) {
     this.events = events_stream(event_types, this.event, 'node', this);
 
     var type_def = adapt_to_obj(nodetypes[this.type], this);
-    if (!type_def) report_error('node', 'Node type ' + this.type + ' is not registered!');
+    if (!type_def) report_error(this, 'node', 'Node type ' + this.type + ' is not registered!');
     this.def = join_definitions(NODE_PROPS, def, type_def);
 
     this.render = join_render_definitions(NODE_RENDERER_PROPS, render,
@@ -405,10 +405,10 @@ function Inlet(type, node, alias, def, render) {
     this.node = node;
 
     var type_def = adapt_to_obj(channeltypes[this.type], this);
-    if (!type_def) report_error('inlet', 'Channel type ' + this.type + ' is not registered!');
+    if (!type_def) report_error(this, 'inlet', 'Channel type ' + this.type + ' is not registered!');
     this.def = join_definitions(INLET_PROPS, def, type_def);
 
-    if (!this.alias) report_error('inlet', 'Inlet should have an alias');
+    if (!this.alias) report_error(this, 'inlet', 'Inlet should have an alias');
 
     this.value = Kefir.pool();
 
@@ -469,10 +469,10 @@ function Outlet(type, node, alias, def, render) {
     this.node = node;
 
     var type_def = adapt_to_obj(channeltypes[this.type], this);
-    if (!type_def) report_error('outlet', 'Channel type ' + this.type + ' is not registered!');
+    if (!type_def) report_error(this, 'outlet', 'Channel type ' + this.type + ' is not registered!');
     this.def = join_definitions(OUTLET_PROPS, def, type_def);
 
-    if (!this.alias) report_error('outlet', 'Outlet should have an alias');
+    if (!this.alias) report_error(this, 'outlet', 'Outlet should have an alias');
 
     this.value = Kefir.pool();
 
@@ -506,7 +506,7 @@ function Outlet(type, node, alias, def, render) {
 }
 Outlet.prototype.connect = function(inlet) {
     if (!inlet.allows(this)) {
-        report_error('outlet', 'Outlet of type ' + this.type + ' is not allowed to connect to inlet of type ' + inlet.type);
+        report_error(this, 'outlet', 'Outlet of type ' + this.type + ' is not allowed to connect to inlet of type ' + inlet.type);
     }
     var link = new Link(this, inlet);
     this.events.plug(link.events);
@@ -720,9 +720,9 @@ function subscribe(events, handlers) {
 }
 
 
-function report_error(subject, message) {
-    rpdEvents.plug(Kefir.constantError({ type: subject + '/error', message: message }));
-    //throw new Error(subject + '/error: ' + message);
+function report_error(subject, subject_name, message) {
+    rpdEvents.plug(Kefir.constantError({ type: subject_name + '/error',
+                                            subject: subject, message: message }));
 }
 
 function short_uid() {
@@ -742,10 +742,10 @@ function inject_render(update, alias) {
 }
 
 function get_style(name, renderer) {
-    if (!name) report_error('network', 'Unknown style requested: ' + name);
-    if (!styles[name]) report_error('network', 'Style \'' + name + '\' is not registered');
+    if (!name) report_error(null, 'network', 'Unknown style requested: ' + name);
+    if (!styles[name]) report_error(null, 'network', 'Style \'' + name + '\' is not registered');
     var style = styles[name][renderer];
-    if (!style) report_error('network', 'Style \'' + name + '\' has no definition for \'' + renderer + '\' renderer');
+    if (!style) report_error(null, 'network', 'Style \'' + name + '\' has no definition for \'' + renderer + '\' renderer');
     return style;
 }
 
@@ -766,13 +766,13 @@ function renderer(alias, f) {
 }
 
 function noderenderer(type, alias, data) {
-    if (!nodetypes[type]) report_error('network', 'Node type ' + type + ' is not registered');
+    if (!nodetypes[type]) report_error(null, 'network', 'Node type ' + type + ' is not registered');
     if (!noderenderers[type]) noderenderers[type] = {};
     noderenderers[type][alias] = data;
 }
 
 function channelrenderer(type, alias, data) {
-    if (!channeltypes[type]) report_error('network', 'Channel type ' + type + ' is not registered');
+    if (!channeltypes[type]) report_error(null, 'network', 'Channel type ' + type + ' is not registered');
     if (!channelrenderers[type]) channelrenderers[type] = {};
     channelrenderers[type][alias] = data;
 }
