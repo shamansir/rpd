@@ -1100,4 +1100,12 @@ describe('registration: renderer', function() {
 
     });
 
+    xit('moving canvas', function() {
+        // see #320
+    });
+
+    xit('resizing canvas', function() {
+        // see #320
+    });
+
 });

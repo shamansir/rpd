@@ -154,6 +154,15 @@ return function(networkRoot, userConfig) {
                  })(patch, update.target));
         },
 
+        'patch/move-canvas': function(update) {
+            svg.attr('transform', 'translate(' + Math.floor(update.position[0]) + ',' + Math.floor(update.position[1]) + ')');
+        },
+
+        'patch/resize-canvas': function(update) {
+            svg.attr('width', Math.floor(update.size[0]));
+            svg.attr('height', Math.floor(update.size[1]));
+        },
+
         'patch/add-node': function(update) {
 
             var node = update.node;

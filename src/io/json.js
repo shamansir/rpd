@@ -82,6 +82,12 @@ var exportSpec = {
     'patch/project': function(update) {
         return { event: 'patch/project', patchId: update.patch.id, targetPatchId: update.target.id, nodeId: update.node.id };
     },
+    'patch/move-canvas': function(update) {
+        return { event: 'patch/move-canvas', patchId: update.patch.id, position: update.position };
+    },
+    'patch/resize-canvas': function(update) {
+        return { event: 'patch/resize-canvas', patchId: update.patch.id, size: update.size };
+    },
     'patch/add-node': function(update) {
         var node = update.node;
         return { event: 'patch/add-node', patchId: node.patch.id, nodeType: node.type, nodeTitle: node.def.title, nodeId: node.id };
@@ -166,6 +172,12 @@ function makeImportSpec() {
         },
         'patch/project': function(command) {
             patches[command.patchId].project(nodes[command.nodeId]);
+        },
+        'patch/move-canvas': function(command) {
+            patches[command.patchId].moveCanvas(command.position[0], command.position[1]);
+        },
+        'patch/resize-canvas': function(command) {
+            patches[command.patchId].resizeCanvas(command.size[0], command.size[1]);
         },
         'patch/add-node': function(command) {
             nodes[command.nodeId] = patches[command.patchId].addNode(command.nodeType, command.nodeTitle);

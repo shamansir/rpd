@@ -145,6 +145,32 @@ describe('import and export', function() {
                 );
             });
 
+            it('moving patch canvas', function() {
+                testAction(
+                    function() {
+                        Rpd.addPatch('MoveCanvas').moveCanvas(100, 110);
+                    },
+                    [ jasmine.objectContaining({
+                          type: 'patch/move-canvas',
+                          patch: jasmine.objectContaining({ name: 'MoveCanvas' }),
+                          position: [ 100, 110 ]
+                      }) ]
+                );
+            });
+
+            it('resizing patch canvas', function() {
+                testAction(
+                    function() {
+                        Rpd.addPatch('ResizeCanvas').resizeCanvas(200, 420);
+                    },
+                    [ jasmine.objectContaining({
+                          type: 'patch/resize-canvas',
+                          patch: jasmine.objectContaining({ name: 'ResizeCanvas' }),
+                          size: [ 200, 420 ]
+                      }) ]
+                );
+            });
+
             it('adding node', function() {
                 testAction(
                     function() {

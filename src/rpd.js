@@ -88,15 +88,17 @@ function Patch(name, def) {
     var patch = this;
 
     var event_types = {
-        'patch/is-ready':    [ ],
-        'patch/open':        [ 'parent' ],
-        'patch/close':       [ ],
-        'patch/set-inputs':  [ 'inputs' ],
-        'patch/set-outputs': [ 'outputs' ],
-        'patch/project':     [ 'node', 'target' ],
-        'patch/refer':       [ 'node', 'target' ],
-        'patch/add-node':    [ 'node' ],
-        'patch/remove-node': [ 'node' ]
+        'patch/is-ready':      [ ],
+        'patch/open':          [ 'parent' ],
+        'patch/close':         [ ],
+        'patch/move-canvas':   [ 'position' ],
+        'patch/resize-canvas': [ 'size' ],
+        'patch/set-inputs':    [ 'inputs' ],
+        'patch/set-outputs':   [ 'outputs' ],
+        'patch/project':       [ 'node', 'target' ],
+        'patch/refer':         [ 'node', 'target' ],
+        'patch/add-node':      [ 'node' ],
+        'patch/remove-node':   [ 'node' ]
     };
     this.event = event_map(event_types);
     this.events = events_stream(event_types, this.event, 'patch', this);
@@ -216,12 +218,23 @@ Patch.prototype.close = function() {
 }
 Patch.prototype.inputs = function(list) {
     this.event['patch/set-inputs'].emit(list);
+    return this;
 }
 Patch.prototype.outputs = function(list) {
     this.event['patch/set-outputs'].emit(list);
+    return this;
 }
 Patch.prototype.project = function(node) {
     this.projections.emit(node);
+    return this;
+}
+Patch.prototype.moveCanvas = function(x, y) {
+    this.event['patch/move-canvas'].emit([x, y]);
+    return this;
+}
+Patch.prototype.resizeCanvas = function(width, height) {
+    this.event['patch/resize-canvas'].emit([width, height]);
+    return this;
 }
 
 // =============================================================================
@@ -350,9 +363,11 @@ function Node(type, patch, def, render, callback) {
 }
 Node.prototype.turnOn = function() {
     this.event['node/turn-on'].emit();
+    return this;
 }
 Node.prototype.turnOff = function() {
     this.event['node/turn-off'].emit();
+    return this;
 }
 Node.prototype.addInlet = function(type, alias, arg2, arg3, arg4) {
     var def = arg3 ? arg3 : (is_object(arg2) ? (arg2 || {}) : {});
@@ -384,10 +399,12 @@ Node.prototype.addOutlet = function(type, alias, arg2, arg3, arg4) {
 Node.prototype.removeInlet = function(inlet) {
     this.event['node/remove-inlet'].emit(inlet);
     this.events.unplug(inlet.events);
+    return this;
 }
 Node.prototype.removeOutlet = function(outlet) {
     this.event['node/remove-outlet'].emit(outlet);
     this.events.unplug(outlet.events);
+    return this;
 }
 Node.prototype.move = function(x, y) {
     this.event['node/move'].emit([ x, y ]);
@@ -434,9 +451,11 @@ function Inlet(type, node, alias, def, render) {
 }
 Inlet.prototype.receive = function(value) {
     this.value.plug(Kefir.constant(value));
+    return this;
 }
 Inlet.prototype.stream = function(stream) {
     this.value.plug(stream);
+    return this;
 }
 Inlet.prototype.toDefault = function() {
     if (is_defined(this.def.default)) {
@@ -444,6 +463,7 @@ Inlet.prototype.toDefault = function() {
             this.stream(this.def.default);
         } else this.receive(this.def.default);
     }
+    return this;
 }
 Inlet.prototype.allows = function(outlet) {
     if (outlet.type === this.type) return true;
@@ -522,9 +542,11 @@ Outlet.prototype.disconnect = function(link) {
 }
 Outlet.prototype.send = function(value) {
     this.value.plug(Kefir.constant(value));
+    return this;
 }
 Outlet.prototype.stream = function(stream) {
     this.value.plug(stream);
+    return this;
 }
 Outlet.prototype.toDefault = function() {
     if (is_defined(this.def.default)) {
@@ -532,6 +554,7 @@ Outlet.prototype.toDefault = function() {
             this.stream(this.def.default);
         } else this.send(this.def.default);
     }
+    return this;
 }
 
 // =============================================================================
@@ -586,15 +609,19 @@ function Link(outlet, inlet, label) {
 }
 Link.prototype.pass = function(value) {
     this.value.emit(value);
+    return this;
 }
 Link.prototype.enable = function() {
     this.event['link/enable'].emit();
+    return this;
 }
 Link.prototype.disable = function() {
     this.event['link/disable'].emit();
+    return this;
 }
 Link.prototype.disconnect = function() {
     this.outlet.disconnect(this);
+    return this;
 }
 
 // =============================================================================
@@ -722,7 +749,7 @@ function subscribe(events, handlers) {
 
 function report_error(subject, subject_name, message) {
     rpdEvents.plug(Kefir.constantError({ type: subject_name + '/error',
-                                            subject: subject, message: message }));
+                                         subject: subject, message: message }));
 }
 
 function short_uid() {

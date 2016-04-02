@@ -146,6 +146,16 @@ return function(networkRoot, userConfig) {
                  })(patch, update.target));
         },
 
+        'patch/move-canvas': function(update) {
+            canvas.style('left', update.position[0] + 'px');
+            canvas.style('top', update.position[1] + 'px');
+        },
+
+        'patch/resize-canvas': function(update) {
+            canvas.style('width', update.size[0] + 'px');
+            canvas.style('height', update.size[1] + 'px');
+        },
+
         'patch/add-node': function(update) {
 
             var node = update.node;
