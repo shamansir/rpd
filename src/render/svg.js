@@ -4,6 +4,9 @@ var ƒ = Rpd.unit;
 
 var defaultConfig = {
     style: 'quartz',
+    // network takes the full page, so the target element will be resized
+    // to match browser window size when it was resized by user and so on
+    fullPage: false,
     // show inlet/outlet value only when user hovers over its connector
     // (always showing, by default)
     valuesOnHover: false,
@@ -17,6 +20,8 @@ var defaultConfig = {
     nodeListCollapsed: true,
     // only one connection is allowed to inlet by default
     inletAcceptsMultipleLinks: false,
+    // when user opens a projected sub-patch, automatically close its parent patch
+    closeParent: false,
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
 };
@@ -37,8 +42,6 @@ var tree = {
     patchToLinks: {},
     nodeToLinks: {}
 };
-
-var navigation = new Render.Navigation(patchByHash(tree));
 
 var currentPatch;
 
@@ -119,8 +122,8 @@ return function(networkRoot, userConfig) {
         },
 
         'patch/open': function(update) {
+            if (config.closeParent && update.parent) update.parent.close();
             currentPatch = update.patch;
-            navigation.switch(update.patch);
             var newCanvas = tree.patches[update.patch.id];
             networkRoot.append(newCanvas.node());
 
@@ -146,8 +149,7 @@ return function(networkRoot, userConfig) {
             Kefir.fromEvents(nodeBox.data().processTarget.node(), 'click')
                  .onValue((function(current, target) {
                     return function() {
-                        if (config.fullPage) current.close();
-                        target.open();
+                        target.open(current);
                     }
                  })(patch, update.target));
         },

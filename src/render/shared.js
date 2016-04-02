@@ -5,37 +5,6 @@ var ƒ = Rpd.unit;
 var d3 = d3_tiny || d3;
 
 // =============================================================================
-// ============================ Navigation =====================================
-// =============================================================================
-
-function Navigation(getPatchByHash) {
-    this.currentPatch = null;
-    this.getPatchByHash = getPatchByHash;
-
-    var me = this;
-
-    Kefir.fromEvents(window, 'hashchange')
-         .map(function() { return (window.location.hash ? window.location.hash.slice(1) : null); })
-         .filter(function(newHash) { return !(me.currentPatch && (newHash === me.currentPatch.id)); })
-         .map(me.getPatchByHash)
-         .filter(function(targetPatch) { return targetPatch != null; })
-         .onValue(function(targetPatch) {
-             if (me.currentPatch) me.currentPatch.close(); // TODO: pass this value through a stream
-             targetPatch.open();
-         });
-}
-Navigation.prototype.switch = function(targetPatch) {
-    if (!targetPatch) return;
-    this.currentPatch = targetPatch;
-    if (document.title.indexOf('—') >= 0) {
-        document.title = document.title.replace(/—.+$/, '— ' + targetPatch.name || '[Unnamed]');
-    } else {
-        document.title += ' — ' + targetPatch.name || '[Unnamed]';
-    }
-    window.location.hash = targetPatch.id;
-}
-
-// =============================================================================
 // ============================= Placing =======================================
 // =============================================================================
 

@@ -36,7 +36,8 @@ var Paths = {
     UserToolkitRenderer: function(toolkit, renderer) { return toolkit + '/' + renderer; },
     StyleRenderer: function(style, renderer) { return Paths.Src() + '/style/' + style + '/' + renderer; },
     UserStyleRenderer: function(style, renderer) { return style + '/' + renderer; },
-    Io: function(io) { return Paths.Src() + '/io/' + io; }
+    Io: function(io) { return Paths.Src() + '/io/' + io; },
+    Navigation: function(type) { return Paths.Src() + '/navigation/' + type; },
 }
 
 var yargs = require('yargs')
@@ -51,7 +52,7 @@ var yargs = require('yargs')
             .command('html-head [options]', 'get the full list of all the required files with given options to include into HTML file head if you use not the compiled version, but the files from `./src` directly; all the options listed below are supported')
             .command('docs [--docs-local]', 'compile the documentation from `./docs` sources into corresponding HTML files and place the resulting structure into `./docs/compiled`')
             .command('version', 'get the version of the RPD library you currently have')
-            .array('renderer').array('style').array('toolkit').array('io')
+            .array('renderer').array('style').array('toolkit').array('io').array('navigation')
             /*.choices('compilation', ['simple', 'whitespace', 'advanced'])*/
             .string('from').string('to').string('target-name').string('compilation').boolean('pretty').boolean('d3')
             .array('user-style').array('user-toolkit')
@@ -66,13 +67,14 @@ var yargs = require('yargs')
                 style: [ 'quartz' ],
                 toolkit: [ 'core' ],
                 io: [],
+                navigation: [],
                 d3: false,
                 'user-style': [ ],
                 'user-toolkit': [ ],
                 'docs-local': false
             })
             .alias({
-                'renderer': 'r', 'style': 's', 'toolkit': 't', 'io': 'x',
+                'renderer': 'r', 'style': 's', 'toolkit': 't', 'io': 'x', 'navigation': ['h', 'nav'],
                 'from': ['i', 'root'], 'to': ['o', 'dest'/*, 'destination'*/],
                 'target-name': 'n', 'compilation': 'c', 'pretty': 'p',
                 'user-style': 'z', 'user-toolkit': 'd',
@@ -83,6 +85,7 @@ var yargs = require('yargs')
                 'style': 'this style will be included in compiled version, choises are: `compact`, `compact-v`, `pd`, `plain`, `quartz`, ...',
                 'toolkit': 'this node toolkit will be included in the compiled version, choises are: `core`, `anm`, `pd`, `timbre`, ...',
                 'io': 'this I/O module will be included in compiled version, choises are: `json`, `pd`, ...',
+                'navigation': 'this navigation module will be included in compiled version, choises are: `browser`, ...',
                 'from': 'use the distibution located at given path, also works for `gulp html-head`',
                 'to': 'write the compiled files to the given path, instead of default one',
                 'target-name': 'change the name of the target file, i.e. `-n rpd-svg-quartz` will create `./dist/rpd-svg-quartz.css` and `./dist/rpd-svg-quartz.min.js`',
@@ -230,6 +233,8 @@ gulp.task('list-opts', function() {
               argv.toolkit.length ? valueColor(argv.toolkit.join(', ')) : '[None]');
     gutil.log(infoColor('Selected I/O Modules (--io):'),
               argv.io.length ? valueColor(argv.io.join(', ')) : '[None]');
+    gutil.log(infoColor('Selected Navigation Modules (--io):'),
+              argv.navigation.length ? valueColor(argv.navigation.join(', ')) : '[None]');
     gutil.log(infoColor('d3.js or d3_tiny.js (--d3):'),
               valueColor(argv.d3 ? 'd3.js (external)' : 'd3_tiny.js'));
     gutil.log(infoColor('Selected User Styles (--user-style):'),
@@ -364,6 +369,7 @@ function getCommandString(options) {
     options.style.forEach(function(style) { command += ' --style ' + style; });
     options.toolkit.forEach(function(toolkit) { command += ' --toolkit ' + toolkit; });
     options.io.forEach(function(io) { command += ' --io ' + io; });
+    options.navigation.forEach(function(type) { command += ' --navigation ' + type; });
     if (options.d3) command += ' --d3';
     options['user-style'].forEach(function(userStyle) {
         command += ' --user-style ' + userStyle;
@@ -391,6 +397,7 @@ function distJsHeader(pkg, options, time) {
     ' * Selected Styles: ' + (options.style.length ? options.style.join(', ') : '[None]'),
     ' * Selected Toolkits: ' + (options.toolkit.length ? options.toolkit.join(', ') : '[None]'),
     ' * Selected I/O Modules: ' + (options.io.length ? options.io.join(', ') : '[None]'),
+    ' * Selected Navigation Modules: ' + (options.navigation.length ? options.navigation.join(', ') : '[None]'),
     ' * d3.js or d3_tiny.js: ' + (options.d3 ? 'd3.js (external)' : 'd3_tiny.js'),
     ' *',
     ' * User Styles: ' + (options['user-style'].length ? options['user-style'].join(', ') : '[None]'),
@@ -493,6 +500,9 @@ function getJsFiles(options) {
     options.io.forEach(function(io) {
         list.push(Paths.Io(io) + '.js');
     });
+    options.navigation.forEach(function(type) {
+        list.push(Paths.Navigation(type) + '.js');
+    });
     return list;
 }
 
@@ -589,6 +599,10 @@ function getHtmlHead(options) {
     options.io.forEach(function(io) {
         comment('RPD I/O: ' + io);
         jsFile(Paths.Io(io) + '.js');
+    });
+    options.navigation.forEach(function(type) {
+        comment('RPD Navigation: ' + type);
+        jsFile(Paths.Navigation(type) + '.js');
     });
     console.log('</head>');
     console.log('===========');

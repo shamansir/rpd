@@ -210,6 +210,7 @@ describe('registration: renderer', function() {
 
                 return function(patch) {
                     return function(root, conf) {
+                        var conf = conf || {};
 
                         var canvasAttached = false;
 
@@ -218,6 +219,7 @@ describe('registration: renderer', function() {
                         return {
                             'patch/open': function(update) {
                                 if (canvasAttached) return;
+                                if (conf.closeParent && update.parent) update.parent.close();
                                 root.canvases.push(canvas);
                                 canvasAttached = true;
                             },
@@ -376,6 +378,28 @@ describe('registration: renderer', function() {
 
                 });
 
+                it('always closes parent patch with `conf.closeParent` option', function() {
+                    var root = createRoot();
+
+                    Rpd.renderer('mock', rendererMock);
+
+                    Rpd.renderNext('mock', root, { closeParent: true });
+
+                    var firstPatch = Rpd.addPatch('first');
+
+                    expect(root.canvases.length).toBe(1);
+                    expect(root.canvases[0]).toEqual(jasmine.objectContaining({
+                        patch: firstPatch
+                    }));
+
+                    var secondPatch = Rpd.addPatch('second', null, firstPatch); // set firstPatch as a parent
+                    expect(root.canvases.length).toBe(1);
+                    expect(root.canvases[0]).toEqual(jasmine.objectContaining({
+                        patch: secondPatch
+                    }));
+
+                });
+
             });
 
             describe('several roots', function() {
@@ -476,6 +500,44 @@ describe('registration: renderer', function() {
                     expect(firstRoot.canvases[1]).toEqual(jasmine.objectContaining({
                         patch: rootOnePatchThree
                     }));
+                });
+
+                it('always closes parent patch with `conf.closeParent` option', function() {
+                    var firstRoot = createRoot(),
+                        secondRoot = createRoot();
+
+                    Rpd.renderer('mock', rendererMock);
+
+                    Rpd.renderNext('mock', firstRoot, { closeParent: true });
+
+                    var rootOnePatchOne = Rpd.addPatch('root-1-patch-1');
+
+                    expect(firstRoot.canvases.length).toBe(1);
+                    expect(firstRoot.canvases[0]).toEqual(jasmine.objectContaining({
+                        patch: rootOnePatchOne
+                    }));
+
+                    var rootOnePatchTwo = Rpd.addPatch('root-1-patch-2', null, rootOnePatchOne); // set rootOnePatchOne as a parent
+                    expect(firstRoot.canvases.length).toBe(1);
+                    expect(firstRoot.canvases[0]).toEqual(jasmine.objectContaining({
+                        patch: rootOnePatchTwo
+                    }));
+
+                    Rpd.renderNext('mock', secondRoot, { closeParent: true });
+
+                    var rootTwoPatchOne = Rpd.addPatch('root-2-patch-1');
+
+                    expect(secondRoot.canvases.length).toBe(1);
+                    expect(secondRoot.canvases[0]).toEqual(jasmine.objectContaining({
+                        patch: rootTwoPatchOne
+                    }));
+
+                    var rootTwoPatchTwo = Rpd.addClosedPatch('root-2-patch-2').open(rootTwoPatchOne); // set rootTwoPatchOne as a parent
+                    expect(secondRoot.canvases.length).toBe(1);
+                    expect(secondRoot.canvases[0]).toEqual(jasmine.objectContaining({
+                        patch: rootTwoPatchTwo
+                    }));
+
                 });
 
             });
@@ -757,6 +819,7 @@ describe('registration: renderer', function() {
 
                 return function(patch) {
                     return function(root, conf) {
+                        var conf = conf || {};
 
                         var canvasAttached = false;
 
@@ -765,6 +828,7 @@ describe('registration: renderer', function() {
                         return {
                             'patch/open': function(update) {
                                 if (canvasAttached) return;
+                                if (conf.closeParent && update.parent)  update.parent.close();
                                 root.canvases.push(canvas);
                                 canvasAttached = true;
                             },
@@ -909,6 +973,27 @@ describe('registration: renderer', function() {
                     }));
                     expect(root.canvases[1]).toEqual(jasmine.objectContaining({
                         patch: thirdPatch
+                    }));
+
+                });
+
+                it('always closes previous patch with `conf.closeParent` option', function() {
+                    var root = createRoot();
+
+                    Rpd.renderer('mock', rendererMock);
+
+                    var firstPatch = Rpd.addPatch('first').render('mock', root);
+
+                    expect(root.canvases.length).toBe(1);
+                    expect(root.canvases[0]).toEqual(jasmine.objectContaining({
+                        patch: firstPatch
+                    }));
+
+                    var secondPatch = Rpd.addPatch('second', null, firstPatch) // set firstPatch as a parent
+                                         .render('mock', root, { closeParent: true });
+                    expect(root.canvases.length).toBe(1);
+                    expect(root.canvases[0]).toEqual(jasmine.objectContaining({
+                        patch: secondPatch
                     }));
 
                 });
