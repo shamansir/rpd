@@ -158,6 +158,10 @@ describe('import and export', function() {
                 );
             });
 
+            xit('moving patch canvas several times', function() {
+                // should save only last move
+            });
+
             it('resizing patch canvas', function() {
                 testAction(
                     function() {
@@ -169,6 +173,10 @@ describe('import and export', function() {
                           size: [ 200, 420 ]
                       }) ]
                 );
+            });
+
+            xit('resizing patch canvas several times', function() {
+                // should save only last resize
             });
 
             it('adding node', function() {
@@ -490,6 +498,8 @@ describe('import and export', function() {
                 );
 
             });
+
+            xit('several things in order', function() {});
 
         });
 

@@ -46,7 +46,7 @@ module.exports = function(config) {
       './spec/registration/renderer.spec.js',
       //'./spec/registration/subrenderer.spec.js',
 
-      // './spec/history.spec.js',
+      './spec/history.spec.js',
       './spec/io.spec.js',
       './spec/navigation.spec.js'
 
