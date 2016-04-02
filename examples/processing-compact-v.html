@@ -298,7 +298,8 @@
             var patch = Rpd.addPatch('processing');
 
             patch.render('svg', document.body, { style: 'compact-v',
-                                                 renderNodeList: false }).enter();
+                                                 fullPage: true,
+                                                 renderNodeList: false });
             var sketch = patch.addNode('p5/sketch').move(450, 50);
 
             var random1 = patch.addNode('core/random').move(50, 50);

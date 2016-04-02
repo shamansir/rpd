@@ -64,11 +64,12 @@ var exportSpec = {
         var patch = update.patch;
         return [ 'network/add-patch', patch.id, encodeURIComponent(patch.name) ];
     },
-    'patch/enter': function(update) {
-        return [ 'patch/enter', update.patch.id ];
+    'patch/open': function(update) {
+        return update.parent ? [ 'patch/open', update.patch.id, update.parent.id ]
+                             : [ 'patch/open', update.patch.id ];
     },
-    'patch/exit': function(update) {
-        return [ 'patch/exit', update.patch.id ];
+    'patch/close': function(update) {
+        return [ 'patch/close', update.patch.id ];
     },
     'patch/set-inputs': function(update) {
         var patch = update.patch;
@@ -86,6 +87,12 @@ var exportSpec = {
     },
     'patch/project': function(update) {
         return [ 'patch/project', update.patch.id, update.target.id, update.node.id ];
+    },
+    'patch/move-canvas': function(update) {
+        return [ 'patch/move-canvas', update.patch.id, update.position[0], update.position[1] ];
+    },
+    'patch/resize-canvas': function(update) {
+        return [ 'patch/resize-canvas', update.patch.id, update.size[0], update.size[1] ];
     },
     'patch/add-node': function(update) {
         var node = update.node;
@@ -144,13 +151,13 @@ function makeImportSpec() {
 
     return {
         'network/add-patch': function(command) {
-            patches[command[0]] = Rpd.addPatch(decodeURIComponent(command[1]));
+            patches[command[0]] = Rpd.addClosedPatch(decodeURIComponent(command[1]));
         },
-        'patch/enter': function(command) {
-            patches[command[0]].enter();
+        'patch/open': function(command) {
+            patches[command[0]].open(command.length > 1 ? patches[command[1]] : null);
         },
-        'patch/exit': function(command) {
-            patches[command[0]].exit();
+        'patch/close': function(command) {
+            patches[command[0]].close();
         },
         'patch/set-inputs': function(command) {
             var inputs = command.slice(1),
@@ -170,6 +177,12 @@ function makeImportSpec() {
         },
         'patch/project': function(command) {
             patches[command[0]].project(nodes[command[2]]);
+        },
+        'patch/move-canvas': function(command) {
+            patches[command[0]].moveCanvas(parseFloat(command[1]), parseFloat(command[2]));
+        },
+        'patch/resize-canvas': function(command) {
+            patches[command[0]].resizeCanvas(parseFloat(command[1]), parseFloat(command[2]));
         },
         'patch/add-node': function(command) {
             nodes[command[1]] = patches[command[0]].addNode(command[2], decodeURIComponent(command[3]));

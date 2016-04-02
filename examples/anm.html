@@ -50,9 +50,9 @@
 
         <script>
             function buildNetwork() {
-                Rpd.render('html', document.body, { style: 'pd' });
+                Rpd.renderNext('html', document.body, { style: 'pd', fullPage: true });
 
-                var root = Rpd.addPatch('root').enter();
+                var root = Rpd.addPatch('root');
 
                 var positionValues = root.addNode('anm/spread').move(30, 40);
                 positionValues.inlets['min'].receive(-150);

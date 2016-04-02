@@ -28,7 +28,7 @@ describe('registration: node renderer', function() {
                 }
             });
 
-            patch = Rpd.addPatch().render('spec', {}).enter();
+            patch = Rpd.addPatch().render('spec', {});
         });
 
         it('even if it\'s an empty object, passed with node adding and processing event', function() {

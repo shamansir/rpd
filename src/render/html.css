@@ -2,6 +2,14 @@
     margin: 0;
 }
 
+.rpd-network > .rpd-canvas {
+    position: relative;
+}
+
+.rpd-network > .rpd-canvas > .rpd-node-box {
+    /* position: relative; */
+}
+
 /* NODE LIST */
 
 .rpd-nodelist {

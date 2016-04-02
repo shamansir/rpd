@@ -44,8 +44,7 @@
 
     <body>
         <script>
-            var model = Rpd.addPatch().render('html', document.body/*,  { style: 'pd' }*/)
-                                      .enter();
+            var model = Rpd.addPatch().render('html', document.body, { fullPage: true });
 
             var genA = model.addNode('core/custom', 'Generate A');
             var outA = genA.addOutlet('core/number', 'A');

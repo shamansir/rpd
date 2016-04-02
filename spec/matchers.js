@@ -78,6 +78,22 @@
                     return result;
                 }
             }
+        },
+        toReportError: function(util, customEqualityTesters) {
+            return {
+                compare: function(actual, expected) {
+                    var result = { pass: false };
+                    var gotError;
+                    Rpd.events.onError(function(firedError) {
+                        gotError = firedError;
+                    });
+                    actual();
+                    result.pass = expected && util.equals(gotError, jasmine.objectContaining({ type: expected }), customEqualityTesters);
+                    result.message = 'Expected error ' + expected + (result.pass ? ' not' : '')
+                          ' to be fired, but ' + (gotError || 'nothing') + ' was received';
+                    return result;
+                }
+            }
         }
     };
 

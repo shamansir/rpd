@@ -5,37 +5,6 @@ var ƒ = Rpd.unit;
 var d3 = d3_tiny || d3;
 
 // =============================================================================
-// ============================ Navigation =====================================
-// =============================================================================
-
-function Navigation(getPatchByHash) {
-    this.currentPatch = null;
-    this.getPatchByHash = getPatchByHash;
-
-    var me = this;
-
-    Kefir.fromEvents(window, 'hashchange')
-         .map(function() { return (window.location.hash ? window.location.hash.slice(1) : null); })
-         .filter(function(newHash) { return !(me.currentPatch && (newHash === me.currentPatch.id)); })
-         .map(me.getPatchByHash)
-         .filter(function(targetPatch) { return targetPatch != null; })
-         .onValue(function(targetPatch) {
-             if (me.currentPatch) me.currentPatch.exit(); // TODO: pass this value through a stream
-             targetPatch.enter();
-         });
-}
-Navigation.prototype.switch = function(targetPatch) {
-    if (!targetPatch) return;
-    this.currentPatch = targetPatch;
-    if (document.title.indexOf('—') >= 0) {
-        document.title = document.title.replace(/—.+$/, '— ' + targetPatch.name || '[Unnamed]');
-    } else {
-        document.title += ' — ' + targetPatch.name || '[Unnamed]';
-    }
-    window.location.hash = targetPatch.id;
-}
-
-// =============================================================================
 // ============================= Placing =======================================
 // =============================================================================
 
@@ -67,13 +36,13 @@ GridPlacing.prototype.nextPosition = function(node, size, limits) {
 // ============================= DragAndDrop ===================================
 // =============================================================================
 
-function DragAndDrop(root, style) {
-    this.root = root;
+function DragAndDrop(canvas, style) {
+    this.canvas = canvas;
     this.style = style;
 }
 
 DragAndDrop.prototype.add = function(handle, spec) {
-    var root = this.root; var style = this.style;
+    var canvas = this.canvas; var style = this.style;
     var start = spec.start, end = spec.end, drag = spec.drag;
     Kefir.fromEvents(handle.node(), 'mousedown').map(extractPos)
                                                 .map(style.getLocalPos)
@@ -81,10 +50,10 @@ DragAndDrop.prototype.add = function(handle, spec) {
         var initPos = start(),
             diffPos = { x: pos.x - initPos.x,
                         y: pos.y - initPos.y };
-        var moveStream = Kefir.fromEvents(root.node(), 'mousemove')
+        var moveStream = Kefir.fromEvents(canvas.node(), 'mousemove')
                               .map(stopPropagation)
                               .takeUntilBy(Kefir.merge([
-                                  Kefir.fromEvents(root.node(), 'mouseup'),
+                                  Kefir.fromEvents(canvas.node(), 'mouseup'),
                                   Kefir.fromEvents(handle.node(), 'mouseup')
                               ]))
                               .map(extractPos)
@@ -117,23 +86,27 @@ VLink.prototype.construct = function(width) {
     return this;
 }
 VLink.prototype.rotate = function(x0, y0, x1, y1) {
-    this.styledLink.rotate(x0, y0, x1, y1);
+    var style = this.style;
+    var sourcePos = style.getLocalPos({ x: x0, y: y0 });
+    var targetPos = style.getLocalPos({ x: x1, y: y1 });
+    this.styledLink.rotate(sourcePos.x, sourcePos.y,
+                           targetPos.x, targetPos.y);
     return this;
 }
 VLink.prototype.rotateI = function(x0, y0, inlet) {
     var style = this.style;
-    var inletPos = style.getLocalPos(style.getInletPos(inlet));
+    var inletPos  = style.getInletPos(inlet);
     return this.rotate(x0, y0, inletPos.x, inlet.y);
 }
 VLink.prototype.rotateO = function(outlet, x1, y1) {
     var style = this.style;
-    var outletPos = style.getLocalPos(style.getOutletPos(outlet));
+    var outletPos = style.getOutletPos(outlet);
     return this.rotate(outletPos.x, outletPos.y, x1, y1);
 }
 VLink.prototype.rotateOI = function(outlet, inlet) {
     var style = this.style;
-    var outletPos = style.getLocalPos(style.getOutletPos(outlet)),
-        inletPos  = style.getLocalPos(style.getInletPos(inlet));
+    var outletPos = style.getOutletPos(outlet),
+        inletPos  = style.getInletPos(inlet);
     return this.rotate(outletPos.x, outletPos.y, inletPos.x, inletPos.y);
 }
 VLink.prototype.update = function() {

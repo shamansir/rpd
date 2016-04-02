@@ -4,6 +4,9 @@ var ƒ = Rpd.unit;
 
 var defaultConfig = {
     style: 'quartz',
+    // network takes the full page, so the target element will be resized
+    // to match browser window size when it was resized by user and so on
+    fullPage: false,
     // show inlet/outlet value only when user hovers over its connector
     // (always showing, by default)
     valuesOnHover: false,
@@ -17,6 +20,8 @@ var defaultConfig = {
     nodeListCollapsed: true,
     // only one connection is allowed to inlet by default
     inletAcceptsMultipleLinks: false,
+    // when user opens a projected sub-patch, automatically close its parent patch
+    closeParent: false,
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
 };
@@ -37,8 +42,6 @@ var tree = {
     patchToLinks: {},
     nodeToLinks: {}
 };
-
-var navigation = new Render.Navigation(patchByHash(tree));
 
 var currentPatch;
 
@@ -61,6 +64,7 @@ return function(networkRoot, userConfig) {
                     .classed('rpd-network', true);
 
     var svg;
+    /* a.k.a. patch canvas, but not obligatory HTML5 canvas */
 
     var connectivity, dnd;
 
@@ -73,22 +77,28 @@ return function(networkRoot, userConfig) {
 
             var docElm = d3.select(document.documentElement);
 
-            // build root element as a target for all further patch modifications
+            // build canvas element as a target for all further patch modifications
             svg = d3.select(_createSvgElement('svg'))
                     .attr('width', docElm.property('clientWidth'))
-                    .attr('height', docElm.property('clientHeight'));
+                    .attr('height', docElm.property('clientHeight'))
+                    .classed('rpd-canvas', true);
 
-            svg.append('rect').attr('class', 'rpd-background')
-               .attr('width', docElm.property('clientWidth'))
-               .attr('height', docElm.property('clientHeight'));
+            svg.append('rect').attr('class', 'rpd-background');
 
-            var patchRoot = svg.append(style.createRoot(patch, networkRoot).element)
+            if (config.fullPage) {
+                svg.attr('width', docElm.property('clientWidth'))
+                   .attr('height', docElm.property('clientHeight'));
+                svg.select('.rpd-background').attr('width', docElm.property('clientWidth'))
+                                             .attr('height', docElm.property('clientHeight'));
+            }
+
+            var patchCanvas = svg.append(style.createCanvas(patch, networkRoot).element)
                                .classed('rpd-style-' + config.style, true)
                                .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
                                .classed('rpd-show-boxes', config.showBoxes)
                                .data(update.patch);
 
-            tree.patches[patch.id] = svg.data({ root: patchRoot,
+            tree.patches[patch.id] = svg.data({ canvas: patchCanvas,
                                                 width: docElm.property('clientWidth'),
                                                 height: docElm.property('clientHeight'),
                                                 patch: update.patch
@@ -105,33 +115,23 @@ return function(networkRoot, userConfig) {
             // initialized drag-n-drop support (used to allow user drag nodes)
             if (config.nodeMovingAllowed) dnd = new Render.DragAndDrop(svg, style);
 
-            //if (config.renderNodeList) buildNodeList(root, nodeTypes, nodeDescriptions);
+            //if (config.renderNodeList) buildNodeList(patchCanvas, nodeTypes, nodeDescriptions);
 
             Kefir.fromEvents(svg.node(), 'selectstart').onValue(preventDefault);
 
-            // resize root element on window resize
-            Kefir.fromEvents(window, 'resize')
-                 .map(function() { return window.innerHeight ||
-                                          document.documentElement.clientHeight ||
-                                          document.body.clientHeight; })
-                 .onValue(function(value) {
-                     svg.attr('height', value);
-                     svg.data().height = value;
-                 });
-
         },
 
-        'patch/enter': function(update) {
+        'patch/open': function(update) {
+            if (config.closeParent && update.parent) update.parent.close();
             currentPatch = update.patch;
-            navigation.switch(update.patch);
-            var newRoot = tree.patches[update.patch.id];
-            networkRoot.append(newRoot.node());
+            var newCanvas = tree.patches[update.patch.id];
+            networkRoot.append(newCanvas.node());
 
             tree.patchToLinks[update.patch.id].updateAll();
-            if (style.onPatchSwitch) style.onPatchSwitch(currentPatch, newRoot.node());
+            if (style.onPatchSwitch) style.onPatchSwitch(currentPatch, newCanvas.node());
         },
 
-        'patch/exit': function(update) {
+        'patch/close': function(update) {
             currentPatch = null;
             svg.remove();
         },
@@ -149,10 +149,18 @@ return function(networkRoot, userConfig) {
             Kefir.fromEvents(nodeBox.data().processTarget.node(), 'click')
                  .onValue((function(current, target) {
                     return function() {
-                        current.exit();
-                        target.enter();
+                        target.open(current);
                     }
                  })(patch, update.target));
+        },
+
+        'patch/move-canvas': function(update) {
+            svg.attr('transform', 'translate(' + Math.floor(update.position[0]) + ',' + Math.floor(update.position[1]) + ')');
+        },
+
+        'patch/resize-canvas': function(update) {
+            svg.attr('width', Math.floor(update.size[0]));
+            svg.attr('height', Math.floor(update.size[1]));
         },
 
         'patch/add-node': function(update) {
@@ -163,15 +171,15 @@ return function(networkRoot, userConfig) {
 
             // find a rectange to place the new node
             var placing = tree.patchToPlacing[update.patch.id],
-                // current patch root should be used as a limit source, even if we add to another patch
-                // or else other root may have no dimensions yet
+                // current patch canvas should be used as a limit source, even if we add to another patch
+                // or else other canvas may have no dimensions yet
                 limitSrc = tree.patches[currentPatch.id].data();
 
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var styledNode = style.createNode(node, render, nodeDescriptions[node.type]);
             var nodeElm = nodeBox.append(styledNode.element);
 
-            // store targets information and node root element itself
+            // store targets information and node canvas element itself
             tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets'),
                                                  outletsTarget: nodeElm.select('.rpd-outlets'),
                                                  processTarget: nodeElm.select('.rpd-process'),
@@ -208,7 +216,7 @@ return function(networkRoot, userConfig) {
                 }
             }
 
-            // node could require some preparation using patch root
+            // node could require some preparation using patch cavas
             if (render.prepare) render.prepare.bind(node)
                                               (tree.patches[patch.id].node(),
                                                tree.patches[currentPatch.id].node());
@@ -237,9 +245,9 @@ return function(networkRoot, userConfig) {
                      });
             }
 
-            // append to the the patch root node
-            var patchRoot = tree.patches[node.patch.id].data().root;
-            patchRoot.append(nodeBox.node());
+            // append to the the patch canvas node
+            var patchCanvas = tree.patches[node.patch.id].data().canvas;
+            patchCanvas.append(nodeBox.node());
 
         },
 
@@ -282,7 +290,8 @@ return function(networkRoot, userConfig) {
         'node/add-inlet': function(update) {
 
             var inlet = update.inlet;
-            if (inlet.hidden) return;
+
+            if (inlet.def.hidden) return;
 
             var nodeData = tree.nodes[update.node.id].data();
 
@@ -295,8 +304,8 @@ return function(networkRoot, userConfig) {
 
             inletElm.classed('rpd-'+inlet.type.replace('/','-'), true);
             inletElm.classed({ 'rpd-stale': true,
-                               'rpd-readonly': inlet.def.readonly,
-                               'rpd-cold': inlet.def.cold
+                               'rpd-readonly': inlet.def.readonly || false,
+                               'rpd-cold': inlet.def.cold || false
                              });
 
             var editor = null;
@@ -387,7 +396,7 @@ return function(networkRoot, userConfig) {
 
             var inlet = update.inlet;
 
-            if (inlet.hidden) return;
+            if (inlet.def.hidden) return;
 
             var render = update.render;
 
@@ -527,6 +536,18 @@ function patchByHash(tree) {
     }
 }
 
+function updateNetworkHeightOnResize(_window, _document, svg) {
+    // resize canvas element on window resize
+    Kefir.fromEvents(_window, 'resize')
+         .map(function() { return _window.innerHeight ||
+                                  _document.documentElement.clientHeight ||
+                                  _document.body.clientHeight; })
+         .onValue(function(value) {
+             svg.attr('height', value);
+             svg.data().height = value;
+         });
+}
+
 // =============================================================================
 // ============================= Connectivity ==================================
 // =============================================================================
@@ -567,12 +588,12 @@ var Connectivity = (function() {
         });
     }
 
-    function Connectivity(root, style, config) {
-        this.root = root;
+    function Connectivity(canvas, style, config) {
+        this.canvas = canvas;
         this.style = style;
         this.config = config;
 
-        this.rootClicks = Kefir.fromEvents(this.root.node(), 'click');
+        this.canvasClicks = Kefir.fromEvents(this.canvas.node(), 'click');
         this.inletClicks = Kefir.pool(),
         this.outletClicks = Kefir.pool();
 
@@ -582,13 +603,13 @@ var Connectivity = (function() {
     }
     Connectivity.prototype.subscribeOutlet = function(outlet, connector) {
 
-        var root = this.root; var style = this.style; var config = this.config;
-        var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
+        var canvas = this.canvas; var style = this.style; var config = this.config;
+        var canvasClicks = this.canvasClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
         var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
 
         // - Every time user clicks an outlet, a new link is created which user can drag, then:
         // - If user clicks other outlet after that, linking process is cancelled;
-        // - If user clicks root element (like document.body), linking process is cancelled;
+        // - If user clicks canvas element, linking process is cancelled;
         // - If user clicks an inlet, linking process is considered successful and finished, but also...
         // - If this inlet had a link there connected, this previous link is removed and disconnected;
 
@@ -604,13 +625,13 @@ var Connectivity = (function() {
                  startLink.emit();
                  var ghost = new VLink(null, style).construct(config.linkWidth)
                                                    .rotateO(outlet, pos.x, pos.y)
-                                                   .noPointerEvents().appendTo(root);
+                                                   .noPointerEvents().appendTo(canvas);
                  d3.select(ghost.getElement())
                    .classed('rpd-'+outlet.type.replace('/','-'), true);
-                 Kefir.fromEvents(root.node(), 'mousemove')
+                 Kefir.fromEvents(canvas.node(), 'mousemove')
                       .takeUntilBy(Kefir.merge([ inletClicks,
                                                  outletClicks.map(ƒ(false)),
-                                                 rootClicks.map(ƒ(false)) ])
+                                                 canvasClicks.map(ƒ(false)) ])
                                         .take(1)
                                         .onValue(function(success) {
                                             if (!success) return;
@@ -622,11 +643,10 @@ var Connectivity = (function() {
                                             outlet.connect(inlet);
                                         }))
                       .map(extractPos)
-                      .map(style.getLocalPos)
                       .onValue(function(pos) {
                           ghost.rotateO(outlet, pos.x, pos.y);
                       }).onEnd(function() {
-                          ghost.removeFrom(root);
+                          ghost.removeFrom(canvas);
                           finishLink.emit();
                       });
              });
@@ -634,14 +654,14 @@ var Connectivity = (function() {
     };
     Connectivity.prototype.subscribeInlet = function(inlet, connector) {
 
-        var root = this.root; var style = this.style; var config = this.config;
-        var rootClicks = this.rootClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
+        var canvas = this.canvas; var style = this.style; var config = this.config;
+        var canvasClicks = this.canvasClicks, outletClicks = this.outletClicks, inletClicks = this.inletClicks;
         var startLink = this.startLink, finishLink = this.finishLink, doingLink = this.doingLink;
 
         // - Every time user clicks an inlet which has a link there connected:
         // - This link becomes editable and so can be dragged by user,
         // - If user clicks outlet after that, linking process is cancelled and this link is removed;
-        // - If user clicks root element (like document.body) after that, linking process is cancelled,
+        // - If user clicks canvas element after that, linking process is cancelled,
         //   and this link is removed;
         // - If user clicks other inlet, the link user drags/edits now is moved to be connected
         //   to this other inlet, instead of first-clicked one;
@@ -661,14 +681,14 @@ var Connectivity = (function() {
                  startLink.emit();
                  var ghost = new VLink(null, style).construct(config.linkWidth)
                                                    .rotateO(outlet, pos.x, pos.y)
-                                                   .noPointerEvents().appendTo(root);
+                                                   .noPointerEvents().appendTo(canvas);
                  d3.select(ghost.getElement())
                    .classed('rpd-'+inlet.type.replace('/','-'), true)
                    .classed('rpd-'+outlet.type.replace('/','-'), true);
-                 Kefir.fromEvents(root.node(), 'mousemove')
+                 Kefir.fromEvents(canvas.node(), 'mousemove')
                       .takeUntilBy(Kefir.merge([ inletClicks,
                                                  outletClicks.map(ƒ(false)),
-                                                 rootClicks.map(ƒ(false)) ])
+                                                 canvasClicks.map(ƒ(false)) ])
                                         .take(1)
                                         .onValue(function(success) {
                                             if (!success) return;
@@ -684,7 +704,7 @@ var Connectivity = (function() {
                       .onValue(function(pos) {
                           ghost.rotateO(outlet, pos.x, pos.y);
                       }).onEnd(function() {
-                          ghost.removeFrom(root);
+                          ghost.removeFrom(canvas);
                           finishLink.emit();
                       });
              });
@@ -704,7 +724,7 @@ var Connectivity = (function() {
 // ============================== NodeList =====================================
 // =============================================================================
 
-/* function buildNodeList(root, nodeTypes, nodeDescriptions) {
+/* function buildNodeList(canvas, nodeTypes, nodeDescriptions) {
 
 } */
 
@@ -712,7 +732,7 @@ var Connectivity = (function() {
 // =============================== Values ======================================
 // =============================================================================
 
-function ValueEditor(inlet, render, root, valueHolder, valueElm, editorElm) {
+function ValueEditor(inlet, render, canvas, valueHolder, valueElm, editorElm) {
     var valueIn = Kefir.emitter(),
         disableEditor = Kefir.emitter();
     this.disableEditor = disableEditor;
@@ -725,7 +745,7 @@ function ValueEditor(inlet, render, root, valueHolder, valueElm, editorElm) {
                               Kefir.fromEvents(valueHolder.node(), 'click')
                                    .map(stopPropagation)
                                    .map(ƒ(true)),
-                              Kefir.fromEvents(root.node(), 'click')
+                              Kefir.fromEvents(canvas.node(), 'click')
                                    .merge(disableEditor)
                                    .map(ƒ(false)) ])
                          .toProperty(ƒ(false))

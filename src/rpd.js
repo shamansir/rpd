@@ -27,27 +27,53 @@ var styles = {};
 var renderer_registry = {};
 
 var event_types = { 'network/add-patch': [ 'patch' ] };
-var event = event_map(event_types);
-var events = events_stream(event_types, event, 'network', Rpd);
+var rpdEvent = event_map(event_types);
+var rpdEvents = events_stream(event_types, rpdEvent, 'network', Rpd);
 
-event['network/add-patch'].onValue(function(patch) { events.plug(patch.events); });
+rpdEvent['network/add-patch'].onValue(function(patch) { rpdEvents.plug(patch.events); });
 
-var rendering = Kefir.emitter();
+var rendering;
 
 function ƒ(v) { return function() { return v; } }
 
-function addPatch(arg0, arg1) {
-    var name = !is_object(arg0) ? arg0 : undefined; var def = arg1 || arg0;
-    var instance = new Patch(arg0, arg1 || arg0);
-    event['network/add-patch'].emit(instance);
-    return instance;
+function createRenderingStream() {
+    var rendering = Kefir.emitter();
+    rendering.map(function(rule) {
+        return {
+            rule: rule,
+            func: function(patch) { patch.render(rule.aliases, rule.targets, rule.config) }
+        }
+    }).scan(function(prev, curr) {
+        if (prev) rpdEvent['network/add-patch'].offValue(prev.func);
+        rpdEvent['network/add-patch'].onValue(curr.func);
+        return curr;
+    }, null).last().onValue(function(last) {
+        rpdEvent['network/add-patch'].offValue(last.func);
+    });
+    return rendering;
 }
 
-function render(aliases, targets, conf) {
-    rendering.emit([ aliases, targets, conf ]);
-    var handler = function(patch) { patch.render(aliases, targets, conf); };
-    event['network/add-patch'].onValue(handler);
-    return function() { event['network/add-patch'].offValue(handler); };
+function renderNext(aliases, targets, conf) {
+    if (!rendering) rendering = createRenderingStream();
+    rendering.emit({ aliases: aliases, targets: targets, config: conf });
+}
+
+function stopRendering() {
+    if (rendering) {
+        rendering.end();
+        rendering = null;
+    }
+}
+
+function addPatch(arg0, arg1, arg2) {
+    return addClosedPatch(arg0, arg1).open(arg2);
+}
+
+function addClosedPatch(arg0, arg1) {
+    var name = !is_object(arg0) ? arg0 : undefined; var def = arg1 || arg0;
+    var instance = new Patch(arg0, arg1 || arg0);
+    rpdEvent['network/add-patch'].emit(instance);
+    return instance;
 }
 
 // =============================================================================
@@ -62,15 +88,17 @@ function Patch(name, def) {
     var patch = this;
 
     var event_types = {
-        'patch/is-ready':    [ ],
-        'patch/enter':       [ ],
-        'patch/exit':        [ ],
-        'patch/set-inputs':  [ 'inputs' ],
-        'patch/set-outputs': [ 'outputs' ],
-        'patch/project':     [ 'node', 'target' ],
-        'patch/refer':       [ 'node', 'target' ],
-        'patch/add-node':    [ 'node' ],
-        'patch/remove-node': [ 'node' ]
+        'patch/is-ready':      [ ],
+        'patch/open':          [ 'parent' ],
+        'patch/close':         [ ],
+        'patch/move-canvas':   [ 'position' ],
+        'patch/resize-canvas': [ 'size' ],
+        'patch/set-inputs':    [ 'inputs' ],
+        'patch/set-outputs':   [ 'outputs' ],
+        'patch/project':       [ 'node', 'target' ],
+        'patch/refer':         [ 'node', 'target' ],
+        'patch/add-node':      [ 'node' ],
+        'patch/remove-node':   [ 'node' ]
     };
     this.event = event_map(event_types);
     this.events = events_stream(event_types, this.event, 'patch', this);
@@ -80,8 +108,8 @@ function Patch(name, def) {
     // this stream controls the way patch events reach the assigned renderer
     this.renderQueue = Kefir.emitter();
     var renderStream = Kefir.combine([ this.events ],
-                  [ this.renderQueue.scan(function(storage, event) {
-                        var alias = event.alias, target = event.target, configuration = event.config;
+                  [ this.renderQueue.scan(function(storage, rule) {
+                        var alias = rule.alias, target = rule.target, configuration = rule.config;
                         var renderer = storage[alias];
                         if (!renderer) {
                             renderer = {};
@@ -152,7 +180,7 @@ Patch.prototype.render = function(aliases, targets, config) {
     for (var i = 0, il = aliases.length, alias; i < il; i++) {
         for (var j = 0, jl = targets.length, target; j < jl; j++) {
             alias = aliases[i]; target = targets[j];
-            if (!renderer_registry[alias]) throw new Error('Renderer ' + alias + ' is not registered');
+            if (!renderer_registry[alias]) report_error(this, 'patch', 'Renderer ' + alias + ' is not registered');
             this.renderQueue.emit({ alias: alias, target: target, config: config });
         }
     }
@@ -180,22 +208,33 @@ Patch.prototype.removeNode = function(node) {
     this.event['patch/remove-node'].emit(node);
     this.events.unplug(node.events);
 }
-Patch.prototype.enter = function() {
-    this.event['patch/enter'].emit();
+Patch.prototype.open = function(parent) {
+    this.event['patch/open'].emit(parent);
     return this;
 }
-Patch.prototype.exit = function() {
-    this.event['patch/exit'].emit();
+Patch.prototype.close = function() {
+    this.event['patch/close'].emit();
     return this;
 }
 Patch.prototype.inputs = function(list) {
     this.event['patch/set-inputs'].emit(list);
+    return this;
 }
 Patch.prototype.outputs = function(list) {
     this.event['patch/set-outputs'].emit(list);
+    return this;
 }
 Patch.prototype.project = function(node) {
     this.projections.emit(node);
+    return this;
+}
+Patch.prototype.moveCanvas = function(x, y) {
+    this.event['patch/move-canvas'].emit([x, y]);
+    return this;
+}
+Patch.prototype.resizeCanvas = function(width, height) {
+    this.event['patch/resize-canvas'].emit([width, height]);
+    return this;
 }
 
 // =============================================================================
@@ -222,7 +261,7 @@ function Node(type, patch, def, render, callback) {
     this.events = events_stream(event_types, this.event, 'node', this);
 
     var type_def = adapt_to_obj(nodetypes[this.type], this);
-    if (!type_def) report_error('Node type ' + this.type + ' is not registered!');
+    if (!type_def) report_error(this, 'node', 'Node type ' + this.type + ' is not registered!');
     this.def = join_definitions(NODE_PROPS, def, type_def);
 
     this.render = join_render_definitions(NODE_RENDERER_PROPS, render,
@@ -324,9 +363,11 @@ function Node(type, patch, def, render, callback) {
 }
 Node.prototype.turnOn = function() {
     this.event['node/turn-on'].emit();
+    return this;
 }
 Node.prototype.turnOff = function() {
     this.event['node/turn-off'].emit();
+    return this;
 }
 Node.prototype.addInlet = function(type, alias, arg2, arg3, arg4) {
     var def = arg3 ? arg3 : (is_object(arg2) ? (arg2 || {}) : {});
@@ -358,10 +399,12 @@ Node.prototype.addOutlet = function(type, alias, arg2, arg3, arg4) {
 Node.prototype.removeInlet = function(inlet) {
     this.event['node/remove-inlet'].emit(inlet);
     this.events.unplug(inlet.events);
+    return this;
 }
 Node.prototype.removeOutlet = function(outlet) {
     this.event['node/remove-outlet'].emit(outlet);
     this.events.unplug(outlet.events);
+    return this;
 }
 Node.prototype.move = function(x, y) {
     this.event['node/move'].emit([ x, y ]);
@@ -379,10 +422,10 @@ function Inlet(type, node, alias, def, render) {
     this.node = node;
 
     var type_def = adapt_to_obj(channeltypes[this.type], this);
-    if (!type_def) report_error('Channel type ' + this.type + ' is not registered!');
+    if (!type_def) report_error(this, 'inlet', 'Channel type ' + this.type + ' is not registered!');
     this.def = join_definitions(INLET_PROPS, def, type_def);
 
-    if (!this.alias) report_error('Inlet should have an alias');
+    if (!this.alias) report_error(this, 'inlet', 'Inlet should have an alias');
 
     this.value = Kefir.pool();
 
@@ -408,9 +451,11 @@ function Inlet(type, node, alias, def, render) {
 }
 Inlet.prototype.receive = function(value) {
     this.value.plug(Kefir.constant(value));
+    return this;
 }
 Inlet.prototype.stream = function(stream) {
     this.value.plug(stream);
+    return this;
 }
 Inlet.prototype.toDefault = function() {
     if (is_defined(this.def.default)) {
@@ -418,6 +463,7 @@ Inlet.prototype.toDefault = function() {
             this.stream(this.def.default);
         } else this.receive(this.def.default);
     }
+    return this;
 }
 Inlet.prototype.allows = function(outlet) {
     if (outlet.type === this.type) return true;
@@ -443,10 +489,10 @@ function Outlet(type, node, alias, def, render) {
     this.node = node;
 
     var type_def = adapt_to_obj(channeltypes[this.type], this);
-    if (!type_def) report_error('Channel type ' + this.type + ' is not registered!');
+    if (!type_def) report_error(this, 'outlet', 'Channel type ' + this.type + ' is not registered!');
     this.def = join_definitions(OUTLET_PROPS, def, type_def);
 
-    if (!this.alias) report_error('Outlet should have an alias');
+    if (!this.alias) report_error(this, 'outlet', 'Outlet should have an alias');
 
     this.value = Kefir.pool();
 
@@ -480,7 +526,7 @@ function Outlet(type, node, alias, def, render) {
 }
 Outlet.prototype.connect = function(inlet) {
     if (!inlet.allows(this)) {
-        throw new Error('Outlet of type ' + this.type + ' is not allowed to connect to inlet of type ' + inlet.type);
+        report_error(this, 'outlet', 'Outlet of type ' + this.type + ' is not allowed to connect to inlet of type ' + inlet.type);
     }
     var link = new Link(this, inlet);
     this.events.plug(link.events);
@@ -496,9 +542,11 @@ Outlet.prototype.disconnect = function(link) {
 }
 Outlet.prototype.send = function(value) {
     this.value.plug(Kefir.constant(value));
+    return this;
 }
 Outlet.prototype.stream = function(stream) {
     this.value.plug(stream);
+    return this;
 }
 Outlet.prototype.toDefault = function() {
     if (is_defined(this.def.default)) {
@@ -506,6 +554,7 @@ Outlet.prototype.toDefault = function() {
             this.stream(this.def.default);
         } else this.send(this.def.default);
     }
+    return this;
 }
 
 // =============================================================================
@@ -560,15 +609,19 @@ function Link(outlet, inlet, label) {
 }
 Link.prototype.pass = function(value) {
     this.value.emit(value);
+    return this;
 }
 Link.prototype.enable = function() {
     this.event['link/enable'].emit();
+    return this;
 }
 Link.prototype.disable = function() {
     this.event['link/disable'].emit();
+    return this;
 }
 Link.prototype.disconnect = function() {
     this.outlet.disconnect(this);
+    return this;
 }
 
 // =============================================================================
@@ -693,8 +746,10 @@ function subscribe(events, handlers) {
           });
 }
 
-function report_error(desc, err) {
-    throw err || new Error(desc);
+
+function report_error(subject, subject_name, message) {
+    rpdEvents.plug(Kefir.constantError({ type: subject_name + '/error',
+                                         subject: subject, message: message }));
 }
 
 function short_uid() {
@@ -713,11 +768,11 @@ function inject_render(update, alias) {
     return update;
 }
 
-function getStyle(name, renderer) {
-    if (!name) throw new Error('Unknown style requested: ' + name);
-    if (!styles[name]) throw new Error('Style \'' + name + '\' is not registered');
+function get_style(name, renderer) {
+    if (!name) report_error(null, 'network', 'Unknown style requested: ' + name);
+    if (!styles[name]) report_error(null, 'network', 'Style \'' + name + '\' is not registered');
     var style = styles[name][renderer];
-    if (!style) throw new Error('Style \'' + name + '\' has no definition for \'' + renderer + '\' renderer');
+    if (!style) report_error(null, 'network', 'Style \'' + name + '\' has no definition for \'' + renderer + '\' renderer');
     return style;
 }
 
@@ -738,13 +793,13 @@ function renderer(alias, f) {
 }
 
 function noderenderer(type, alias, data) {
-    if (!nodetypes[type]) throw new Error('Node type ' + type + ' is not registered');
+    if (!nodetypes[type]) report_error(null, 'network', 'Node type ' + type + ' is not registered');
     if (!noderenderers[type]) noderenderers[type] = {};
     noderenderers[type][alias] = data;
 }
 
 function channelrenderer(type, alias, data) {
-    if (!channeltypes[type]) throw new Error('Channel type ' + type + ' is not registered');
+    if (!channeltypes[type]) report_error(null, 'network', 'Channel type ' + type + ' is not registered');
     if (!channelrenderers[type]) channelrenderers[type] = {};
     channelrenderers[type][alias] = data;
 }
@@ -771,11 +826,13 @@ return {
     'unit': ƒ,
     'not': function(value) { return !value; },
 
-    'event': event,
-    'events': events,
+    'event': rpdEvent,
+    'events': rpdEvents,
 
     'addPatch': addPatch,
-    'render': render,
+    'addClosedPatch': addClosedPatch,
+    'renderNext': renderNext,
+    'stopRendering': stopRendering,
 
     'nodetype': nodetype,
     'channeltype': channeltype,
@@ -793,7 +850,8 @@ return {
     'allChannelRenderers': channelrenderers,
     'allNodeDescriptions': nodedescriptions,
 
-    'getStyle': getStyle,
+    'getStyle': get_style,
+    'reportError': report_error,
 
     'short_uid': short_uid
 }

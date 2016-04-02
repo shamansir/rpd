@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Built with RPD v0.2.0-alpha <http://shamansir.github.io/rpd> -->
+
+  <meta charset='utf-8' />
+  <!-- gulp ==renderer html ==style quartz ==toolkit core ==toolkit demo ==target-name rpd ==compilation simple -->
+
+  <!-- RPD Renderer: html -->
+  <link rel="stylesheet" href="../src/render/html.css"></style>
+  <!-- RPD Style: quartz (html) -->
+  <link rel="stylesheet" href="../src/style/quartz/html.css"></style>
+  <!-- RPD Toolkit: core (html) -->
+  <link rel="stylesheet" href="../src/toolkit/core/html.css"></style>
+  <!-- RPD Toolkit: demo (html) -->
+  <link rel="stylesheet" href="../src/toolkit/demo/html.css"></style>
+
+  <!-- Kefir -->
+  <script src="../vendor/kefir.min.js"></script>
+  <!-- RPD -->
+  <script src="../src/rpd.js"></script>
+
+  <!-- RPD's d3_tiny.js -->
+  <script src="../src/d3_tiny.js"></script>
+  <!-- RPD Rendering Engine: -->
+  <script src="../src/render/shared.js"></script>
+  <!-- RPD Style: quartz (html) -->
+  <script src="../src/style/quartz/html.js"></script>
+  <!-- RPD Renderer: html -->
+  <script src="../src/render/html.js"></script>
+  <!-- RPD Toolkit: core -->
+  <script src="../src/toolkit/core/shared.js"></script>
+  <script src="../src/toolkit/core/toolkit.js"></script>
+  <!-- RPD Toolkit: core (html) -->
+  <script src="../src/toolkit/core/html.js"></script>
+  <!-- RPD Toolkit: demo -->
+  <script src="../src/toolkit/demo/shared.js"></script>
+  <script src="../src/toolkit/demo/toolkit.js"></script>
+  <!-- RPD Toolkit: demo (html) -->
+  <script src="../src/toolkit/demo/html.js"></script>
+
+  <style>
+    body {
+        height: 700px;
+        background-color: #3c464c;
+    }
+
+    #target-1, #target-2 {
+        position: relative;
+        float: left;
+        border: 2px solid #9a0;
+        width: 360px;
+    }
+
+    #target-1 .rpd-canvas, #target-2 .rpd-canvas {
+        width: 350px;
+        height: 350px;
+        border: 1px dotted #9a0;
+    }
+
+    #target-1 {
+        top: 40px;
+        left: 40px;
+    }
+
+    #target-2 {
+        top: 40px;
+        left: 440px;
+    }
+  </style>
+
+</head>
+<body>
+
+    <div id="target-1"></div>
+
+    <div id="target-2"></div>
+
+    <script>
+
+        Rpd.renderNext('html', document.getElementById('target-1'), { style: 'quartz',
+                                                                      renderNodeList: false });
+        var firstTargetOne = Rpd.addPatch('target-1-1');
+        firstTargetOne.addNode('core/random');
+        firstTargetOne.addNode('core/random');
+        var firstTargetTwo = Rpd.addPatch('target-1-2');
+        firstTargetTwo.addNode('core/random');
+        firstTargetTwo.addNode('core/random');
+
+        Rpd.renderNext('html', document.getElementById('target-2'), { style: 'quartz',
+                                                                      renderNodeList: false });
+        var secondTargetOne = Rpd.addPatch('target-2-1');
+        secondTargetOne.addNode('core/random');
+        var secondTargetTwo = Rpd.addClosedPatch('target-2-2');
+        secondTargetTwo.addNode('core/random');
+
+    </script>
+
+
+</body>
+</html>

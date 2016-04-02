@@ -2,11 +2,6 @@ Rpd.style('compact', 'svg', (function() {
 
 var d3 = d3 || d3_tiny;
 
-// we need this root to be shared between all instances of a function below,
-// it is used to measure node header width, since it contains text, we need
-// some hidden element to measure string width in pixels
-var globalLastRoot;
-
 var socketPadding = 25, // distance between inlets/outlets in SVG units
     socketsMargin = 20; // distance between first/last inlet/outlet and body edge
 var headerWidth = 10; // width of a node header in SVG units
@@ -20,7 +15,7 @@ function getPos(elm) { var bounds = elm.getBoundingClientRect();
 
 return function(config) {
 
-var lastRoot;
+var lastCanvas;
 
 var listeners = {};
 
@@ -32,7 +27,7 @@ return {
     edgePadding: { horizontal: 20, vertical: 40 },
     boxPadding:  { horizontal: 20, vertical: 80 },
 
-    createRoot: function(patch, parent) {
+    createCanvas: function(patch, parent) {
         return {
             element: d3.select(_createSvgElement('g'))
                        .classed('rpd-patch', true).node()
@@ -71,7 +66,7 @@ return {
                               .attr('width', headerWidth).attr('height', height);
         nodeElm.append('g').attr('class', 'rpd-name-holder')
                .attr('transform', 'translate(3, ' + (height + 2) + ') rotate(-90)')
-               .append('text').attr('class', 'rpd-name').text(node.name)
+               .append('text').attr('class', 'rpd-name').text(node.def.name || '')
                               .attr('x', 5).attr('y', 5)
                               .style('pointer-events', 'none');
         // append node body
@@ -227,15 +222,14 @@ return {
     },
 
     getLocalPos: function(pos) {
-        if (!lastRoot) return pos;
+        if (!lastCanvas) return pos;
         // calculate once on patch switch?
-        var rootPos = getPos(lastRoot.node());
-        return { x: pos.x + rootPos.x, y: pos.y + rootPos.y };
+        var canvasPos = getPos(lastCanvas.node());
+        return { x: pos.x - canvasPos.x, y: pos.y - canvasPos.y };
     },
 
-    onPatchSwitch: function(patch, root) {
-        lastRoot = d3.select(root);
-        globalLastRoot = lastRoot;
+    onPatchSwitch: function(patch, canvas) {
+        lastCanvas = d3.select(canvas);
     },
 
     onNodeRemove: function(node) {

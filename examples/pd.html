@@ -47,16 +47,14 @@
 
     <body>
         <script>
-            Rpd.render('svg', document.body, { style: 'webpd',
-                                               inletAcceptsMultipleLinks: true });
+            Rpd.renderNext('svg', document.body, { style: 'webpd', fullPage: true,
+                                                   inletAcceptsMultipleLinks: true });
 
             var root = Rpd.addPatch('root');
 
             var model = new PdModel(root);
             root.model = model;
             model.listenForNewNodes();
-
-            root.enter();
 
             var toolbar = root.addNode('wpd/toolbar');
 

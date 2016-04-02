@@ -59,11 +59,11 @@ var exportSpec = {
         var patch = update.patch;
         return { event: 'network/add-patch', patchName: patch.name, patchId: patch.id };
     },
-    'patch/enter': function(update) {
-        return { event: 'patch/enter', patchId: update.patch.id };
+    'patch/open': function(update) {
+        return { event: 'patch/open', patchId: update.patch.id, parentPatchId: update.parent ? update.parent.id : null };
     },
-    'patch/exit': function(update) {
-        return { event: 'patch/exit', patchId: update.patch.id };
+    'patch/close': function(update) {
+        return { event: 'patch/close', patchId: update.patch.id };
     },
     'patch/set-inputs': function(update) {
         var patch = update.patch;
@@ -81,6 +81,12 @@ var exportSpec = {
     },
     'patch/project': function(update) {
         return { event: 'patch/project', patchId: update.patch.id, targetPatchId: update.target.id, nodeId: update.node.id };
+    },
+    'patch/move-canvas': function(update) {
+        return { event: 'patch/move-canvas', patchId: update.patch.id, position: update.position };
+    },
+    'patch/resize-canvas': function(update) {
+        return { event: 'patch/resize-canvas', patchId: update.patch.id, size: update.size };
     },
     'patch/add-node': function(update) {
         var node = update.node;
@@ -140,13 +146,13 @@ function makeImportSpec() {
 
     return {
         'network/add-patch': function(command) {
-            patches[command.patchId] = Rpd.addPatch(command.patchName);
+            patches[command.patchId] = Rpd.addClosedPatch(command.patchName);
         },
-        'patch/enter': function(command) {
-            patches[command.patchId].enter();
+        'patch/open': function(command) {
+            patches[command.patchId].open(command.parentPatchId ? patches[command.parentPatchId] : null);
         },
-        'patch/exit': function(command) {
-            patches[command.patchId].exit();
+        'patch/close': function(command) {
+            patches[command.patchId].close();
         },
         'patch/set-inputs': function(command) {
             var inputs = command.inputs,
@@ -166,6 +172,12 @@ function makeImportSpec() {
         },
         'patch/project': function(command) {
             patches[command.patchId].project(nodes[command.nodeId]);
+        },
+        'patch/move-canvas': function(command) {
+            patches[command.patchId].moveCanvas(command.position[0], command.position[1]);
+        },
+        'patch/resize-canvas': function(command) {
+            patches[command.patchId].resizeCanvas(command.size[0], command.size[1]);
         },
         'patch/add-node': function(command) {
             nodes[command.nodeId] = patches[command.patchId].addNode(command.nodeType, command.nodeTitle);

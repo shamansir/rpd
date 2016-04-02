@@ -51,9 +51,10 @@
 
     <body>
         <script>
-            Rpd.render('html', document.body, { style: 'quartz'/*, valuesOnHover: true*/ });
+            Rpd.renderNext('html', document.body, { style: 'quartz', fullPage: true,
+                                                    /*, valuesOnHover: true*/ });
 
-            var root = Rpd.addPatch('root').enter();
+            var root = Rpd.addPatch('root');
 
             var wave = root.addNode('timbre/wave').move(30, 30);
 

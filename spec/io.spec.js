@@ -29,22 +29,56 @@ describe('import and export', function() {
                 );
             });
 
-            it('entering patch', function() {
+            it('opening patch as a default action', function() {
                 testAction(
-                    function() { Rpd.addPatch('Enter').enter(); },
+                    function() { Rpd.addPatch('Open'); },
                     [ jasmine.objectContaining({
-                          type: 'patch/enter',
+                          type: 'patch/open',
+                          patch: jasmine.objectContaining({ name: 'Open' })
+                      }) ]
+                );
+            });
+
+            it('opening patch as a default action, but with parent', function() {
+                testAction(
+                    function() { var parent = Rpd.addClosedPatch('Parent');
+                                 Rpd.addPatch('OpenWithParent', null, parent); },
+                    [ jasmine.objectContaining({
+                          type: 'patch/open',
+                          patch: jasmine.objectContaining({ name: 'OpenWithParent' }),
+                          parent: jasmine.objectContaining({ name: 'Parent' })
+                      }) ]
+                );
+            });
+
+            it('opening patch', function() {
+                testAction(
+                    function() { Rpd.addClosedPatch('Enter').open(); },
+                    [ jasmine.objectContaining({
+                          type: 'patch/open',
                           patch: jasmine.objectContaining({ name: 'Enter' })
                       }) ]
                 );
             });
 
-            it('exiting patch', function() {
+            it('opening patch with a parent', function() {
                 testAction(
-                    function() { Rpd.addPatch('Exit').exit(); },
+                    function() { var parent = Rpd.addClosedPatch('Parent');
+                                 Rpd.addClosedPatch('OpenWithParent').open(parent); },
                     [ jasmine.objectContaining({
-                          type: 'patch/exit',
-                          patch: jasmine.objectContaining({ name: 'Exit' })
+                          type: 'patch/open',
+                          patch: jasmine.objectContaining({ name: 'OpenWithParent' }),
+                          parent: jasmine.objectContaining({ name: 'Parent' })
+                      }) ]
+                );
+            });
+
+            it('closing patch', function() {
+                testAction(
+                    function() { Rpd.addPatch('Close').close(); },
+                    [ jasmine.objectContaining({
+                          type: 'patch/close',
+                          patch: jasmine.objectContaining({ name: 'Close' })
                       }) ]
                 );
             });
@@ -107,6 +141,32 @@ describe('import and export', function() {
                               def: jasmine.objectContaining({ title: 'Projection' }),
                               type: 'spec/empty'
                           })
+                      }) ]
+                );
+            });
+
+            it('moving patch canvas', function() {
+                testAction(
+                    function() {
+                        Rpd.addPatch('MoveCanvas').moveCanvas(100, 110);
+                    },
+                    [ jasmine.objectContaining({
+                          type: 'patch/move-canvas',
+                          patch: jasmine.objectContaining({ name: 'MoveCanvas' }),
+                          position: [ 100, 110 ]
+                      }) ]
+                );
+            });
+
+            it('resizing patch canvas', function() {
+                testAction(
+                    function() {
+                        Rpd.addPatch('ResizeCanvas').resizeCanvas(200, 420);
+                    },
+                    [ jasmine.objectContaining({
+                          type: 'patch/resize-canvas',
+                          patch: jasmine.objectContaining({ name: 'ResizeCanvas' }),
+                          size: [ 200, 420 ]
                       }) ]
                 );
             });

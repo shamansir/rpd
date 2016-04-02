@@ -6,7 +6,7 @@ function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
 }
 
-var lastRoot = null;
+var lastCanvas = null;
 
 var socketPadding = 25, // distance between inlets/outlets in SVG units
     socketsMargin = 15; // distance between first/last inlet/outlet and body edge
@@ -21,7 +21,7 @@ return {
     edgePadding: { horizontal: 30, vertical: 20 },
     boxPadding:  { horizontal: 20, vertical: 30 },
 
-    createRoot: function(patch, parent) {
+    createCanvas: function(patch, parent) {
         return { element: d3.select(_createSvgElement('g'))
                             .classed('rpd-patch', true).node() };
     },
@@ -221,14 +221,14 @@ return {
     },
 
     getLocalPos: function(pos) {
-        if (!lastRoot) return pos;
+        if (!lastCanvas) return pos;
         // calculate once on patch switch?
-        var rootPos = getPos(lastRoot.node());
-        return { x: pos.x + rootPos.x, y: pos.y + rootPos.y };
+        var canvasPos = getPos(lastCanvas.node());
+        return { x: pos.x - canvasPos.x, y: pos.y - canvasPos.y };
     },
 
-    onPatchSwitch: function(patch, root) {
-        lastRoot = d3.select(root);
+    onPatchSwitch: function(patch, canvas) {
+        lastCanvas = d3.select(canvas);
     },
 
     onNodeRemove: function(node) {

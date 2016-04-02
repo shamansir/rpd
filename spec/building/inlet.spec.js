@@ -192,7 +192,7 @@ describe('building: inlet', function() {
             var node = patch.addNode('spec/empty');
             expect(function() {
                 node.addInlet('spec/any');
-            }).toThrow();
+            }).toReportError('inlet/error');
         });
     });
 
@@ -300,43 +300,34 @@ describe('building: inlet', function() {
         });
     });
 
-    describe('allows to set up override channeltype properties', function() {
+    xdescribe('overriding channel type definition', function() {
 
-        xit('allows to override allow property', function() {
+        xit('overriding inlet allow function', function() {});
+
+        xit('overriding inlet accept function', function() {});
+
+        xit('overriding inlet adapt function', function() {});
+
+        xit('overriding inlet show function', function() {});
+
+        xit('overriding inlet tune function', function() {});
+
+        xit('subscribing to inlet events', function() {
+
+            withNewPatch(function(patch, updateSpy) {
+
+                var node = patch.addNode('spec/empty');
+
+
+            });
+
 
         });
-
-        xit('allows to override accept property', function() {
-
-        });
-
-        xit('allows to override adapt property', function() {
-
-        });
-
-        xit('allows to override show property', function() {
-
-        });
-
-    });
-
-    xit('allows to set up or override channel `tune` function', function() {
 
     });
 
     xit('allows to substitute/extend renderer', function() {
         // i#311
-    });
-
-    xit('allows to subscribe to inlet events just from the description', function() {
-
-        withNewPatch(function(patch, updateSpy) {
-
-            var node = patch.addNode('spec/empty');
-
-
-        });
-
     });
 
     function inletWithDefinition(defSample) {

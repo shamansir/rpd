@@ -21,18 +21,19 @@ module.exports = function(config) {
       './src/rpd.js',
       './src/io/json.js',
       './src/io/plain.js',
+      './src/navigation/browser.js',
 
       './spec/matchers.js',
       './spec/prettify.js',
       './spec/prepare.js',
 
+      './spec/building/network.spec.js',
       './spec/building/patch.spec.js',
       './spec/building/node.spec.js',
       './spec/building/inlet.spec.js',
       './spec/building/outlet.spec.js',
       './spec/building/link.spec.js',
-
-      './spec/building/renderer.spec.js',
+      './spec/building/render.spec.js',
 
       './spec/registration/general.spec.js',
 
@@ -45,8 +46,9 @@ module.exports = function(config) {
       './spec/registration/renderer.spec.js',
       //'./spec/registration/subrenderer.spec.js',
 
-      // './spec/history/history.spec.js',
-      './spec/io.spec.js'
+      // './spec/history.spec.js',
+      './spec/io.spec.js',
+      './spec/navigation.spec.js'
 
     ],
 
