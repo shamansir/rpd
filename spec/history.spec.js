@@ -1,7 +1,7 @@
 describe('history', function() {
 
     function testUndoRedo(execute, undoExpectations, redoExpectations) {
-        if (undoExpectations.length !== redoExpectations.length) throw new Error('Undo expectations are unequal in number to redo expectations');
+        //if (undoExpectations.length !== redoExpectations.length) throw new Error('Undo expectations are unequal in number to redo expectations');
 
         execute();
 
@@ -25,13 +25,14 @@ describe('history', function() {
         //expect(updateSpy.calls.count()).toEqual(redoExpectations.length);
     }
 
-    function testMakesNoUndoRedoRecord(execute) {
+    function testMakesNoUndoRedoRecord(prepare, execute) {
+        prepare();
+
+        var recordsBefore = Rpd.history.getRecordCount();
+
         execute();
 
-        var updateSpy = jasmine.createSpy('update');
-        Rpd.events.onValue(updateSpy);
-
-        // TODO
+        expect(Rpd.history.getRecordCount()).toEqual(recordsBefore);
     }
 
     beforeEach(function() {
@@ -41,6 +42,7 @@ describe('history', function() {
     it('adding patch', function() {
         // no ability to remove patch for the moment
         testMakesNoUndoRedoRecord(
+            function() {},
             function() { Rpd.addPatch('Add'); }
         );
     });
@@ -127,6 +129,8 @@ describe('history', function() {
                 var node = patch.addNode('spec/empty');
                 var inputOne = node.addInlet('spec/any', 'a');
                 var inputTwo = node.addInlet('spec/any', 'b');
+            },
+            function() {
                 patch.inputs([ inputOne, inputTwo ]);
             }
         );
@@ -140,6 +144,8 @@ describe('history', function() {
                 var node = patch.addNode('spec/empty');
                 var outputOne = node.addOutlet('spec/any', 'c');
                 var outputTwo = node.addOutlet('spec/any', 'd');
+            },
+            function() {
                 patch.outputs([ outputOne, outputTwo ]);
             }
         );
@@ -153,6 +159,8 @@ describe('history', function() {
                 var projection = srcPatch.addNode('spec/empty', 'Projection');
                 trgPatch.inputs([]);
                 trgPatch.outputs([]);
+            },
+            function() {
                 trgPatch.project(projection);
             }
         );
@@ -164,11 +172,10 @@ describe('history', function() {
                 Rpd.addPatch('MoveCanvas').moveCanvas(100, 110);
             },
             [ jasmine.objectContaining({
-                  type: 'patch/move-canvas',
-                  patch: jasmine.objectContaining({ name: 'MoveCanvas' }),
-                  position: [ 0, 0 ]
-              }) ],
+                  type: 'patch/remove-patch' }) ], // not undoable, so undoes adding a patch
             [ jasmine.objectContaining({
+                  type: 'patch/add-patch' }),
+              jasmine.objectContaining({
                   type: 'patch/move-canvas',
                   patch: jasmine.objectContaining({ name: 'MoveCanvas' }),
                   position: [ 100, 110 ]
@@ -180,7 +187,7 @@ describe('history', function() {
         testUndoRedo(
             function() {
                 Rpd.addPatch('MoveCanvas').moveCanvas(100, 110);
-                Rpd.addPatch('MoveCanvas').moveCanvas(200, 210);
+                                          .moveCanvas(200, 210);
             },
             [ jasmine.objectContaining({
                   type: 'patch/move-canvas',
@@ -188,11 +195,10 @@ describe('history', function() {
                   position: [ 100, 110 ]
               }),
               jasmine.objectContaining({
-                    type: 'patch/move-canvas',
-                    patch: jasmine.objectContaining({ name: 'MoveCanvas' }),
-                    position: [ 0, 0 ]
-              }) ],
+                    type: 'patch/remove-patch' }) ], // not undoable anymore, so undoes adding a patch
             [ jasmine.objectContaining({
+                  type: 'patch/add-patch' }),
+              jasmine.objectContaining({
                   type: 'patch/move-canvas',
                   patch: jasmine.objectContaining({ name: 'MoveCanvas' }),
                   position: [ 100, 110 ]
@@ -211,11 +217,10 @@ describe('history', function() {
                 Rpd.addPatch('ResizeCanvas').resizeCanvas(200, 420);
             },
             [ jasmine.objectContaining({
-                  type: 'patch/resize-canvas',
-                  patch: jasmine.objectContaining({ name: 'ResizeCanvas' }),
-                  size: [ -1, -1 ]
-              }) ]
+                  type: 'patch/remove-patch' }) ], // not undoable anymore, so undoes adding a patch
             [ jasmine.objectContaining({
+                  type: 'patch/add-patch' }),
+              jasmine.objectContaining({
                   type: 'patch/resize-canvas',
                   patch: jasmine.objectContaining({ name: 'ResizeCanvas' }),
                   size: [ 200, 420 ]
@@ -235,11 +240,10 @@ describe('history', function() {
                   size: [ 100, 120 ]
               }),
               jasmine.objectContaining({
-                  type: 'patch/resize-canvas',
-                  patch: jasmine.objectContaining({ name: 'ResizeCanvas' }),
-                  size: [ -1, -1 ]
-              }) ]
+                   type: 'patch/remove-patch' }) ], // not undoable anymore, so undoes adding a patch
             [ jasmine.objectContaining({
+                  type: 'patch/add-patch' }),
+              jasmine.objectContaining({
                   type: 'patch/resize-canvas',
                   patch: jasmine.objectContaining({ name: 'ResizeCanvas' }),
                   size: [ 100, 120 ]
