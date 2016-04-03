@@ -53,10 +53,10 @@ describe('import and export', function() {
 
             it('opening patch', function() {
                 testAction(
-                    function() { Rpd.addClosedPatch('Enter').open(); },
+                    function() { Rpd.addClosedPatch('OpenClosed').open(); },
                     [ jasmine.objectContaining({
                           type: 'patch/open',
-                          patch: jasmine.objectContaining({ name: 'Enter' })
+                          patch: jasmine.objectContaining({ name: 'OpenClosed' })
                       }) ]
                 );
             });

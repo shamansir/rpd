@@ -8,26 +8,29 @@ describe('history', function() {
         var updateSpy = jasmine.createSpy('update');
         Rpd.events.onValue(updateSpy);
 
+        //updateSpy.calls.reset();
         for (var i = 0; i < undoExpectations.length; i++) {
-            Rpd.undo();
             updateSpy.calls.reset();
+            Rpd.undo();
             expect(updateSpy).toHaveBeenCalledWith(undoExpectations[i]);
         }
+        //expect(updateSpy.calls.count()).toEqual(undoExpectations.length);
 
+        //updateSpy.calls.reset();
         for (i = 0; i < redoExpectations.length; i++) {
-            Rpd.redo();
             updateSpy.calls.reset();
+            Rpd.redo();
             expect(updateSpy).toHaveBeenCalledWith(redoExpectations[i]);
         }
+        //expect(updateSpy.calls.count()).toEqual(redoExpectations.length);
     }
 
     it('adding patch', function() {
+        // no ability to remove patch for the moment
         testUndoRedo(
             function() { Rpd.addPatch('Add'); },
-            [ jasmine.objectContaining({
-                  type: 'network/add-patch',
-                  patch: jasmine.objectContaining({ name: 'Add' })
-              }) ]
+            [ ],
+            [ ]
         );
     });
 
@@ -35,9 +38,13 @@ describe('history', function() {
         testUndoRedo(
             function() { Rpd.addPatch('Open'); },
             [ jasmine.objectContaining({
+                  type: 'patch/close',
+                  patch: jasmine.objectContaining({ name: 'Open' })
+              }) ],
+            [ jasmine.objectContaining({
                   type: 'patch/open',
                   patch: jasmine.objectContaining({ name: 'Open' })
-              }) ]
+            }) ]
         );
     });
 
@@ -45,6 +52,10 @@ describe('history', function() {
         testUndoRedo(
             function() { var parent = Rpd.addClosedPatch('Parent');
                          Rpd.addPatch('OpenWithParent', null, parent); },
+            [ jasmine.objectContaining({
+                  type: 'patch/close',
+                  patch: jasmine.objectContaining({ name: 'Parent' })
+              }) ],
             [ jasmine.objectContaining({
                   type: 'patch/open',
                   patch: jasmine.objectContaining({ name: 'OpenWithParent' }),
@@ -55,10 +66,14 @@ describe('history', function() {
 
     it('opening patch', function() {
         testUndoRedo(
-            function() { Rpd.addClosedPatch('Enter').open(); },
+            function() { Rpd.addClosedPatch('OpenClosed').open(); },
+            [ jasmine.objectContaining({
+                  type: 'patch/close',
+                  patch: jasmine.objectContaining({ name: 'OpenClosed' })
+              }) ],
             [ jasmine.objectContaining({
                   type: 'patch/open',
-                  patch: jasmine.objectContaining({ name: 'Enter' })
+                  patch: jasmine.objectContaining({ name: 'OpenClosed' })
               }) ]
         );
     });
@@ -67,6 +82,10 @@ describe('history', function() {
         testUndoRedo(
             function() { var parent = Rpd.addClosedPatch('Parent');
                          Rpd.addClosedPatch('OpenWithParent').open(parent); },
+            [ jasmine.objectContaining({
+                  type: 'patch/close',
+                  patch: jasmine.objectContaining({ name: 'OpenWithParent' })
+              }) ],
             [ jasmine.objectContaining({
                   type: 'patch/open',
                   patch: jasmine.objectContaining({ name: 'OpenWithParent' }),
@@ -78,6 +97,10 @@ describe('history', function() {
     it('closing patch', function() {
         testUndoRedo(
             function() { Rpd.addPatch('Close').close(); },
+            [ jasmine.objectContaining({
+                  type: 'patch/open',
+                  patch: jasmine.objectContaining({ name: 'Close' })
+              }) ],
             [ jasmine.objectContaining({
                   type: 'patch/close',
                   patch: jasmine.objectContaining({ name: 'Close' })
