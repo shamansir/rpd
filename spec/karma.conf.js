@@ -22,6 +22,7 @@ module.exports = function(config) {
       './src/io/json.js',
       './src/io/plain.js',
       './src/navigation/browser.js',
+      './src/history.js',
 
       './spec/matchers.js',
       './spec/prettify.js',

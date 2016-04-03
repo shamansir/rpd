@@ -186,7 +186,7 @@ describe('history', function() {
     it('moving patch canvas several times', function() {
         testUndoRedo(
             function() {
-                Rpd.addPatch('MoveCanvas').moveCanvas(100, 110);
+                Rpd.addPatch('MoveCanvas').moveCanvas(100, 110)
                                           .moveCanvas(200, 210);
             },
             [ jasmine.objectContaining({
@@ -502,7 +502,7 @@ describe('history', function() {
     it('moving node several times', function() {
         testUndoRedo(
             function() {
-                Rpd.addPatch('Foo').addNode('spec/empty', 'Move').move(100, 220);
+                Rpd.addPatch('Foo').addNode('spec/empty', 'Move').move(100, 220)
                                                                  .move(10, 25);
             },
             [ jasmine.objectContaining({
