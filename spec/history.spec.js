@@ -28,11 +28,13 @@ describe('history', function() {
     function testMakesNoUndoRedoRecord(prepare, execute) {
         prepare();
 
-        var recordsBefore = Rpd.history.getRecordCount();
+        var undoRecordsBefore = Rpd.history.getUndoRecordCount();
+        var redoRecordsBefore = Rpd.history.getRedoRecordCount();
 
         execute();
 
-        expect(Rpd.history.getRecordCount()).toEqual(recordsBefore);
+        expect(Rpd.history.getUndoRecordCount()).toEqual(undoRecordsBefore);
+        expect(Rpd.history.getRedoRecordCount()).toEqual(redoRecordsBefore);
     }
 
     beforeEach(function() {
