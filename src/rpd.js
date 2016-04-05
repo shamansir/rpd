@@ -27,8 +27,8 @@ var styles = {};
 var renderer_registry = {};
 
 var event_types = { 'network/add-patch': [ 'patch' ] };
-var rpdEvent = event_map(event_types);
-var rpdEvents = events_stream(event_types, rpdEvent, 'network', Rpd);
+var rpdEvent = create_event_map(event_types);
+var rpdEvents = create_events_stream(event_types, rpdEvent, 'network', Rpd);
 
 rpdEvent['network/add-patch'].onValue(function(patch) { rpdEvents.plug(patch.events); });
 
@@ -36,7 +36,7 @@ var rendering;
 
 function ƒ(v) { return function() { return v; } }
 
-function createRenderingStream() {
+function create_rendering_stream() {
     var rendering = Kefir.emitter();
     rendering.map(function(rule) {
         return {
@@ -53,23 +53,23 @@ function createRenderingStream() {
     return rendering;
 }
 
-function renderNext(aliases, targets, conf) {
-    if (!rendering) rendering = createRenderingStream();
+function /*Rpd.*/renderNext(aliases, targets, conf) {
+    if (!rendering) rendering = create_rendering_stream();
     rendering.emit({ aliases: aliases, targets: targets, config: conf });
 }
 
-function stopRendering() {
+function /*Rpd.*/stopRendering() {
     if (rendering) {
         rendering.end();
         rendering = null;
     }
 }
 
-function addPatch(arg0, arg1, arg2) {
+function /*Rpd.*/addPatch(arg0, arg1, arg2) {
     return addClosedPatch(arg0, arg1).open(arg2);
 }
 
-function addClosedPatch(arg0, arg1) {
+function /*Rpd.*/addClosedPatch(arg0, arg1) {
     var name = !is_object(arg0) ? arg0 : undefined; var def = arg1 || arg0;
     var instance = new Patch(arg0, arg1 || arg0);
     rpdEvent['network/add-patch'].emit(instance);
@@ -100,8 +100,8 @@ function Patch(name, def) {
         'patch/add-node':      [ 'node' ],
         'patch/remove-node':   [ 'node' ]
     };
-    this.event = event_map(event_types);
-    this.events = events_stream(event_types, this.event, 'patch', this);
+    this.event = create_event_map(event_types);
+    this.events = create_events_stream(event_types, this.event, 'patch', this);
 
     if (this.def.handle) subscribe(this.events, this.def.handle);
 
@@ -257,8 +257,8 @@ function Node(type, patch, def, render, callback) {
         'node/remove-outlet': [ 'outlet' ],
         'node/move':          [ 'position' ]
     };
-    this.event = event_map(event_types);
-    this.events = events_stream(event_types, this.event, 'node', this);
+    this.event = create_event_map(event_types);
+    this.events = create_events_stream(event_types, this.event, 'node', this);
 
     var type_def = adapt_to_obj(nodetypes[this.type], this);
     if (!type_def) report_error(this, 'node', 'Node type ' + this.type + ' is not registered!');
@@ -435,7 +435,7 @@ function Inlet(type, node, alias, def, render) {
     var event_types = {
         'inlet/update': [ 'value' ]
     };
-    this.event = event_map(event_types);
+    this.event = create_event_map(event_types);
     var orig_updates = this.event['inlet/update'];
     var updates = orig_updates.merge(this.value);
     if (this.def.tune) updates = this.def.tune(updates);
@@ -445,7 +445,7 @@ function Inlet(type, node, alias, def, render) {
     if (this.def.adapt) updates = updates.map(this.def.adapt);
     // rewrite with the modified stream
     this.event['inlet/update'] = updates.onValue(function(){});
-    this.events = events_stream(event_types, this.event, 'inlet', this);
+    this.events = create_events_stream(event_types, this.event, 'inlet', this);
 
     if (this.def.handle) subscribe(this.events, this.def.handle);
 }
@@ -506,12 +506,12 @@ function Outlet(type, node, alias, def, render) {
         'outlet/connect':    [ 'link', 'inlet' ],
         'outlet/disconnect': [ 'link' ]
     };
-    this.event = event_map(event_types);
+    this.event = create_event_map(event_types);
     var orig_updates = this.event['outlet/update'];
     var updates = orig_updates.merge(this.value);
     // rewrite with the modified stream
     this.event['outlet/update'] = updates.onValue(function(v){});
-    this.events = events_stream(event_types, this.event, 'outlet', this);
+    this.events = create_events_stream(event_types, this.event, 'outlet', this);
 
     if (this.def.handle) subscribe(this.events, this.def.handle);
 
@@ -586,12 +586,12 @@ function Link(outlet, inlet, label) {
         'link/pass':    [ 'value' ]
     };
 
-    this.event = event_map(event_types);
+    this.event = create_event_map(event_types);
     var orig_updates = this.event['link/pass'];
     var updates = orig_updates.merge(this.value);
     // rewrite with the modified stream
     this.event['link/pass'] = updates.onValue(function(v){});
-    this.events = events_stream(event_types, this.event, 'link', this);
+    this.events = create_events_stream(event_types, this.event, 'link', this);
 
     this.enabled = Kefir.merge([ this.event['link/disable'].map(ƒ(false)),
                                  this.event['link/enable'].map(ƒ(true)) ]).toProperty(ƒ(true));
@@ -712,7 +712,7 @@ function join_render_definitions(keys, user_render, type_render) {
     return result;
 }
 
-function event_map(conf) {
+function create_event_map(conf) {
     var map = {}; var types = Object.keys(conf);
     for (var i = 0, type; i < types.length; i++) {
         type = types[i];
@@ -721,18 +721,19 @@ function event_map(conf) {
     return map;
 }
 
-function map_events(type, spec) {
+function adapt_events(type, spec) {
     if (spec.length === 0) return function() { return { type: type } };
     if (spec.length === 1) return function(value) { var evt = {}; evt.type = type; evt[spec[0]] = value; return evt; };
     if (spec.length > 1)   return function(event) { event = clone_obj(event); event.type = type; return event; };
 }
-function events_stream(conf, event_map, subj_as, subj) {
+function create_events_stream(conf, event_map, subj_as, subj) {
     var stream = Kefir.pool(); var types = Object.keys(conf);
     for (var i = 0; i < types.length; i++) {
         stream.plug(event_map[types[i]]
-                         .map(map_events(types[i], conf[types[i]]))
+                         .map(adapt_events(types[i], conf[types[i]]))
                          .map(function(evt) {
                              evt[subj_as] = subj;
+                             evt.source = subj;
                              return evt;
                          }));
     }
