@@ -378,8 +378,6 @@ Node.prototype.addInlet = function(type, alias, arg2, arg3, arg4) {
     var inlet = new Inlet(type, this, alias, def, render);
     this.events.plug(inlet.events);
 
-    //this.events['outlet/connect'].filter(function(update) { return update.inlet.id === inlet.id; })
-
     this.event['node/add-inlet'].emit(inlet);
     inlet.toDefault();
     return inlet;

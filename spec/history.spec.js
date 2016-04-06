@@ -59,7 +59,7 @@ describe('history', function() {
             [ jasmine.objectContaining({
                   type: 'patch/open',
                   patch: jasmine.objectContaining({ name: 'Open' })
-            }) ]
+              }) ]
         );
     });
 
