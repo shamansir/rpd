@@ -125,12 +125,13 @@ describe('history', function() {
 
     it('setting patch inputs', function() {
         // setting inputs should not be recorded as an action
+        var patch, node, inputOne, inputTwo;
         testMakesNoUndoRedoRecord(
             function() {
-                var patch = Rpd.addPatch('Inputs');
-                var node = patch.addNode('spec/empty');
-                var inputOne = node.addInlet('spec/any', 'a');
-                var inputTwo = node.addInlet('spec/any', 'b');
+                patch = Rpd.addPatch('Inputs');
+                node = patch.addNode('spec/empty');
+                inputOne = node.addInlet('spec/any', 'a');
+                inputTwo = node.addInlet('spec/any', 'b');
             },
             function() {
                 patch.inputs([ inputOne, inputTwo ]);
@@ -140,12 +141,13 @@ describe('history', function() {
 
     it('setting patch outputs', function() {
         // setting inputs should not be recorded as an action
+        var patch, node, outputOne, outputTwo;
         testMakesNoUndoRedoRecord(
             function() {
-                var patch = Rpd.addPatch('Outputs');
-                var node = patch.addNode('spec/empty');
-                var outputOne = node.addOutlet('spec/any', 'c');
-                var outputTwo = node.addOutlet('spec/any', 'd');
+                patch = Rpd.addPatch('Outputs');
+                node = patch.addNode('spec/empty');
+                outputOne = node.addOutlet('spec/any', 'c');
+                outputTwo = node.addOutlet('spec/any', 'd');
             },
             function() {
                 patch.outputs([ outputOne, outputTwo ]);
@@ -154,11 +156,12 @@ describe('history', function() {
     });
 
     it('projecting patch', function() {
+        var srcPatch, trgPatch, projection;
         testMakesNoUndoRedoRecord(
             function() {
-                var srcPatch = Rpd.addPatch('Source');
-                var trgPatch = Rpd.addPatch('Target');
-                var projection = srcPatch.addNode('spec/empty', 'Projection');
+                srcPatch = Rpd.addPatch('Source');
+                trgPatch = Rpd.addPatch('Target');
+                projection = srcPatch.addNode('spec/empty', 'Projection');
                 trgPatch.inputs([]);
                 trgPatch.outputs([]);
             },
@@ -311,49 +314,23 @@ describe('history', function() {
     });
 
     it('turning node on', function() {
-        testUndoRedo(
-            function() {
-                Rpd.addPatch('TurnNodeOn').addNode('spec/empty', 'Foo')
-                                          .turnOn();
-            },
-            [ jasmine.objectContaining({
-                  type: 'node/turn-off',
-                  node: jasmine.objectContaining({
-                      def: jasmine.objectContaining({ title: 'Foo' }),
-                      type: 'spec/empty'
-                  })
-              }) ],
-            [ jasmine.objectContaining({
-                  type: 'node/turn-on',
-                  node: jasmine.objectContaining({
-                      def: jasmine.objectContaining({ title: 'Foo' }),
-                      type: 'spec/empty'
-                  })
-              }) ]
-        );
+        var node;
+        testMakesNoUndoRedoRecord(function() {
+            node = Rpd.addPatch('TurnNodeOn').addNode('spec/empty', 'Foo');
+        },
+        function() {
+            node.turnOn();
+        });
     });
 
     it('turning node off', function() {
-        testUndoRedo(
-            function() {
-                Rpd.addPatch('TurnNodeOff').addNode('spec/empty', 'Foo')
-                                          .turnOff();
-            },
-            [ jasmine.objectContaining({
-                  type: 'node/turn-on',
-                  node: jasmine.objectContaining({
-                      def: jasmine.objectContaining({ title: 'Foo' }),
-                      type: 'spec/empty'
-                  })
-              }) ],
-            [ jasmine.objectContaining({
-                  type: 'node/turn-off',
-                  node: jasmine.objectContaining({
-                      def: jasmine.objectContaining({ title: 'Foo' }),
-                      type: 'spec/empty'
-                  })
-              }) ]
-        );
+        var node;
+        testMakesNoUndoRedoRecord(function() {
+            node = Rpd.addPatch('TurnNodeOn').addNode('spec/empty', 'Foo');
+        },
+        function() {
+            node.turnOff();
+        });
     });
 
     it('adding inlet', function() {
