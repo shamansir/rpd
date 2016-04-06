@@ -256,7 +256,6 @@ function subscribeUpdates(node, subscriptions) {
 }
 
 return {
-    Navigation: Navigation,
     Placing: GridPlacing,
     DragAndDrop: DragAndDrop,
     //Connectivity: Connectivity,
