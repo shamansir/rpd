@@ -733,7 +733,6 @@ function create_events_stream(conf, event_map, subj_as, subj) {
                          .map(adapt_events(types[i], conf[types[i]]))
                          .map(function(evt) {
                              evt[subj_as] = subj;
-                             evt.source = subj;
                              return evt;
                          }));
     }

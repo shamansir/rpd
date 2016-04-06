@@ -2,10 +2,15 @@ Rpd.history = (function() {
 
     var limit = 3;
 
-    var undoRedoMap = {
-        'network/add-patch': function(update, stack) {
-            return { type: 'network/remove-patch',
-                     patch: update.patch };
+    var undoMap = {
+        'patch/add-node': function(update) {
+            update.patch.removeNode(update.node);
+        }
+    };
+
+    var redoMap = {
+        'patch/add-node': function(update) {
+            update.patch.addNode(update.node.type, update.node.def.title, update.node.def);
         }
     };
 
@@ -16,7 +21,7 @@ Rpd.history = (function() {
     function History() {
         this.reset();
         Rpd.events.filter(function(update) {
-            return undoRedoMap[update.type];
+            return undoMap[update.type] || redoMap[update.type];
         }).onValue(function(update) {
             checkStackLimit(this.undoStack);
             this.undoStack.push(update);
@@ -32,15 +37,20 @@ Rpd.history = (function() {
     History.prototype.undo = function() {
         var lastAction = this.undoStack.pop();
         if (!lastAction) return;
-        var reversedAction = undoRedoMap[lastAction.type](lastAction, this.undoStack);
-        Rpd.events[reversedAction.type].emit(reversedAction);
-        checkStackLimit(this.redoStack);
-        this.redoStack.push(lastAction);
+        var reversedAction = undoMap[lastAction.type];
+        if (reversedAction) {
+            reversedAction(lastAction);
+            checkStackLimit(this.redoStack);
+            this.redoStack.push(lastAction);
+        }
     }
 
     History.prototype.redo = function() {
         var lastAction = this.redoStack.pop();
-        Rpd.events[lastAction.type].emit(lastAction);
+        var repeatingAction = redoMap[lastAction.type];
+        if (repeatingAction) {
+            repeatingAction(lastAction);
+        }
     }
 
     History.prototype.getUndoRecordCount = function() {
