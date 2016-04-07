@@ -31,7 +31,7 @@ Rpd.history = (function() {
             update.outlet.disconnect(update.link);
         },
         'outlet/disconnect': function(update) {
-            update.outlet.connect(update.inlet);
+            update.outlet.connect(update.link.inlet);
         },
         'link/enable': function(update) {
             update.link.disable();

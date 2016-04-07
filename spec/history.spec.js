@@ -527,15 +527,18 @@ describe('history', function() {
             },
             [ jasmine.objectContaining({
                   type: 'outlet/disconnect',
-                  inlet: jasmine.objectContaining({ alias: 'Inlet' }),
-                  outlet: jasmine.objectContaining({ alias: 'Outlet' }),
-                  link: jasmine.any(Rpd._.Link)
+                  link: jasmine.objectContaining({
+                      inlet: jasmine.objectContaining({ alias: 'Inlet' }),
+                      outlet: jasmine.objectContaining({ alias: 'Outlet' })
+                  })
               }) ],
             [ jasmine.objectContaining({
                   type: 'outlet/connect',
                   inlet: jasmine.objectContaining({ alias: 'Inlet' }),
-                  outlet: jasmine.objectContaining({ alias: 'Outlet' }),
-                  link: jasmine.any(Rpd._.Link)
+                  link: jasmine.objectContaining({
+                      inlet: jasmine.objectContaining({ alias: 'Inlet' }),
+                      outlet: jasmine.objectContaining({ alias: 'Outlet' })
+                  })
               }) ]
         );
     });
