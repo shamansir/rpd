@@ -883,10 +883,10 @@ describe('history', function() {
                 var patch = Rpd.addPatch('Patch');
                 var outNode = patch.addNode('spec/empty', 'Out');
                 var inNode = patch.addNode('spec/empty', 'In');
-                var firstOutlet = outNode.addOutlet('spec/any', 'First');
-                var secondOutlet = outNode.addOutlet('spec/any', 'Second');
-                var firstInlet = inNode.addInlet('spec/any', 'First');
-                var secondInlet = inNode.addInlet('spec/any', 'Second');
+                var firstOutlet = outNode.addOutlet('spec/any', 'first', 'First');
+                var secondOutlet = outNode.addOutlet('spec/any', 'second', 'Second');
+                var firstInlet = inNode.addInlet('spec/any', 'first', 'First');
+                var secondInlet = inNode.addInlet('spec/any', 'second', 'Second');
                 firstOutlet.connect(firstInlet);
 
             }, // ------ Undo ------
@@ -910,44 +910,44 @@ describe('history', function() {
               jasmine.objectContaining({
                 type: 'patch/remove-inlet',
                 inlet: jasmine.objectContaining({
-                    def: jasmine.objectContaining({ title: 'First' })
+                    def: jasmine.objectContaining({ label: 'First' })
                 })
               }),
               jasmine.objectContaining({
                 type: 'patch/remove-outlet',
                 outlet: jasmine.objectContaining({
-                    def: jasmine.objectContaining({ title: 'Second' })
+                    def: jasmine.objectContaining({ label: 'Second' })
                 })
               }),
               jasmine.objectContaining({
                 type: 'patch/remove-outlet',
                 outlet: jasmine.objectContaining({
-                    def: jasmine.objectContaining({ title: 'First' })
+                    def: jasmine.objectContaining({ label: 'First' })
                 })
               })
             ], // ------ Redo ------
             [ jasmine.objectContaining({
                 type: 'node/add-outlet',
                 outlet: jasmine.objectContaining({
-                    def: jasmine.objectContaining({ title: 'First' })
+                    def: jasmine.objectContaining({ label: 'First' })
                 })
               }),
               jasmine.objectContaining({
                 type: 'node/add-outlet',
                 outlet: jasmine.objectContaining({
-                    def: jasmine.objectContaining({ title: 'Second' })
+                    def: jasmine.objectContaining({ label: 'Second' })
                 })
               }),
               jasmine.objectContaining({
                 type: 'node/add-inlet',
                 inlet: jasmine.objectContaining({
-                    def: jasmine.objectContaining({ title: 'First' })
+                    def: jasmine.objectContaining({ label: 'First' })
                 })
               }),
               jasmine.objectContaining({
                 type: 'node/add-inlet',
                 inlet: jasmine.objectContaining({
-                   def: jasmine.objectContaining({ title: 'Second' })
+                   def: jasmine.objectContaining({ label: 'Second' })
                 })
               }),
               jasmine.objectContaining({
