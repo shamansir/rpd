@@ -1,79 +1,80 @@
 Rpd.history = (function() {
 
     var undoMap = {
-        'patch/add-node': function(update) {
+        'patch/add-node': function(history, update) {
+            //history.nodeMap[update.node.id] =
             update.patch.removeNode(update.node);
         },
-        'patch/remove-node': function(update) {
+        'patch/remove-node': function(history, update) {
             update.patch.addNode(update.node.type, update.node.def.title, update.node.def);
         },
-        'patch/open': function(update) {
+        'patch/open': function(history, update) {
             update.patch.close();
         },
-        'patch/close': function(update) {
+        'patch/close': function(history, update) {
             update.patch.open(update.parent);
         },
-        'node/add-inlet': function(update) {
+        'node/add-inlet': function(history, update) {
             update.node.removeInlet(update.inlet);
         },
-        'node/add-outlet': function(update) {
+        'node/add-outlet': function(history, update) {
             update.node.removeOutlet(update.outlet);
         },
-        'node/remove-inlet': function(update) {
+        'node/remove-inlet': function(history, update) {
             update.node.addInlet(update.inlet.type, update.inlet.alias, update.inlet.def);
         },
-        'node/remove-outlet': function(update) {
+        'node/remove-outlet': function(history, update) {
             update.node.addOutlet(update.outlet.type, update.outlet.alias, update.outlet.def);
         },
-        'outlet/connect': function(update) {
+        'outlet/connect': function(history, update) {
             update.outlet.disconnect(update.link);
         },
-        'outlet/disconnect': function(update) {
+        'outlet/disconnect': function(history, update) {
             update.outlet.connect(update.link.inlet);
         },
-        'link/enable': function(update) {
+        'link/enable': function(history, update) {
             update.link.disable();
         },
-        'link/disable': function(update) {
+        'link/disable': function(history, update) {
             update.link.enable();
         }
     };
 
     var redoMap = {
-        'patch/add-node': function(update) {
+        'patch/add-node': function(history, update) {
             update.patch.addNode(update.node.type, update.node.def.title, update.node.def);
         },
-        'patch/remove-node': function(update) {
+        'patch/remove-node': function(history, update) {
             update.patch.removeNode(update.node);
         },
-        'patch/open': function(update) {
+        'patch/open': function(history, update) {
             update.patch.open(update.parent);
         },
-        'patch/close': function(update) {
+        'patch/close': function(history, update) {
             update.patch.close();
         },
-        'node/add-inlet': function(update) {
+        'node/add-inlet': function(history, update) {
             update.node.addInlet(update.inlet.type, update.inlet.alias, update.inlet.def);
         },
-        'node/add-outlet': function(update) {
+        'node/add-outlet': function(history, update) {
             update.node.addOutlet(update.outlet.type, update.outlet.alias, update.outlet.def);
         },
-        'node/remove-inlet': function(update) {
+        'node/remove-inlet': function(history, update) {
             update.node.removeInlet(update.inlet);
         },
-        'node/remove-outlet': function(update) {
+        'node/remove-outlet': function(history, update) {
             update.node.removeOutlet(update.outlet);
         },
-        'outlet/connect': function(update) {
+        'outlet/connect': function(history, update) {
             update.outlet.connect(update.inlet);
         },
-        'outlet/disconnect': function(update) {
+        'outlet/disconnect': function(history, update) {
             update.outlet.disconnect(update.link);
         },
-        'link/enable': function(update) {
+        'link/enable': function(history, update) {
             update.link.enable();
         },
-        'link/disable': function(update) {
+        'link/disable': function(history, update) {
             update.link.disable();
         }
     };
@@ -107,6 +108,11 @@ Rpd.history = (function() {
         this.undoStack = [];
         this.redoStack = [];
         this.lockUndoStack = false;
+
+        this.patchMap = {};
+        this.nodeMap = {};
+        this.channelMap = {};
+        this.linkMap = {};
     }
 
     History.prototype.undo = function() {
@@ -117,7 +123,7 @@ Rpd.history = (function() {
         var reversedAction = undoMap[lastAction.type];
         if (reversedAction) {
             this.lockUndoStack = true;
-            reversedAction(lastAction);
+            reversedAction(this, lastAction);
             this.lockUndoStack = false;
             checkStackLimit(this.redoStack, this.limit);
             this.redoStack.push(lastAction);
@@ -131,7 +137,7 @@ Rpd.history = (function() {
         console.log('last action', lastAction.type);
         var repeatingAction = redoMap[lastAction.type];
         if (repeatingAction) {
-            repeatingAction(lastAction);
+            repeatingAction(this, lastAction);
         }
     }
 
