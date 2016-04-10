@@ -44,7 +44,8 @@ Rpd.history = (function() {
             history.nodes[update.node.id] = update.patch.addNode(update.node.type, update.node.def.title, update.node.def);
         },
         'patch/remove-node': function(history, update) {
-            update.patch.removeNode(history.nodes[update.node.id]);
+            var node = history.nodes[update.node.id] || update.node;
+            update.patch.removeNode(node);
         },
         'patch/open': function(history, update) {
             update.patch.open(update.parent);
@@ -53,31 +54,40 @@ Rpd.history = (function() {
             update.patch.close();
         },
         'node/add-inlet': function(history, update) {
+            var node = history.nodes[update.node.id] || update.node;
             history.inlets[update.inlet.id] =
-                history.nodes[update.node.id].addInlet(update.inlet.type, update.inlet.alias, update.inlet.def);
+                node.addInlet(update.inlet.type, update.inlet.alias, update.inlet.def);
         },
         'node/add-outlet': function(history, update) {
+            var node = history.nodes[update.node.id] || update.node;
             history.outlets[update.outlet.id] =
-                history.nodes[update.node.id].addOutlet(update.outlet.type, update.outlet.alias, update.outlet.def);
+                node.addOutlet(update.outlet.type, update.outlet.alias, update.outlet.def);
         },
         'node/remove-inlet': function(history, update) {
-            history.nodes[update.node.id].removeInlet(history.inlets[update.inlet.id]);
+            var node  = history.nodes[update.node.id]   || update.node;
+            var inlet = history.inlets[update.inlet.id] || update.inlet;
+            node.removeInlet(inlet);
         },
         'node/remove-outlet': function(history, update) {
-            history.nodes[update.node.id].removeOutlet(history.outlets[update.outlet.id]);
+            var node   = history.nodes[update.node.id]     || update.node;
+            var outlet = history.outlets[update.outlet.id] || update.outlet;
+            node.removeOutlet(outlet);
         },
         'outlet/connect': function(history, update) {
-            history.links[update.link.id] =
-                history.outlets[update.outlet.id].connect(history.inlets[update.inlet.id]);
+            var inlet  = history.inlets[update.inlet.id]   || update.inlet;
+            var outlet = history.outlets[update.outlet.id] || update.outlet;
+            history.links[update.link.id] = outlet.connect(inlet);
         },
         'outlet/disconnect': function(history, update) {
-            history.outlets[update.outlet.id].disconnect(history.links[update.link.id]);
+            var outlet = history.nodes[update.outlet.id] || update.outlet;
+            var link   = history.links[update.link.id]   || update.link;
+            outlet.disconnect(link);
         },
         'link/enable': function(history, update) {
-            history.links[update.link.id].enable();
+            (history.links[update.link.id] || update.link).enable();
         },
         'link/disable': function(history, update) {
-            history.links[update.link.id].disable();
+            (history.links[update.link.id] || update.link).disable();
         }
     };
 
