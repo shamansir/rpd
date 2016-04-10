@@ -2,7 +2,6 @@ Rpd.history = (function() {
 
     var undoMap = {
         'patch/add-node': function(history, update) {
-            //history.nodeMap[update.node.id] =
             update.patch.removeNode(update.node);
         },
         'patch/remove-node': function(history, update) {
@@ -42,10 +41,10 @@ Rpd.history = (function() {
 
     var redoMap = {
         'patch/add-node': function(history, update) {
-            update.patch.addNode(update.node.type, update.node.def.title, update.node.def);
+            history.nodes[update.node.id] = update.patch.addNode(update.node.type, update.node.def.title, update.node.def);
         },
         'patch/remove-node': function(history, update) {
-            update.patch.removeNode(update.node);
+            update.patch.removeNode(history.nodes[update.node.id]);
         },
         'patch/open': function(history, update) {
             update.patch.open(update.parent);
@@ -54,28 +53,31 @@ Rpd.history = (function() {
             update.patch.close();
         },
         'node/add-inlet': function(history, update) {
-            update.node.addInlet(update.inlet.type, update.inlet.alias, update.inlet.def);
+            history.inlets[update.inlet.id] =
+                history.nodes[update.node.id].addInlet(update.inlet.type, update.inlet.alias, update.inlet.def);
         },
         'node/add-outlet': function(history, update) {
-            update.node.addOutlet(update.outlet.type, update.outlet.alias, update.outlet.def);
+            history.outlets[update.outlet.id] =
+                history.nodes[update.node.id].addOutlet(update.outlet.type, update.outlet.alias, update.outlet.def);
         },
         'node/remove-inlet': function(history, update) {
-            update.node.removeInlet(update.inlet);
+            history.nodes[update.node.id].removeInlet(history.inlets[update.inlet.id]);
         },
         'node/remove-outlet': function(history, update) {
-            update.node.removeOutlet(update.outlet);
+            history.nodes[update.node.id].removeOutlet(history.outlets[update.outlet.id]);
         },
         'outlet/connect': function(history, update) {
-            update.outlet.connect(update.inlet);
+            history.links[update.link.id] =
+                history.outlets[update.outlet.id].connect(history.inlets[update.inlet.id]);
         },
         'outlet/disconnect': function(history, update) {
-            update.outlet.disconnect(update.link);
+            history.outlets[update.outlet.id].disconnect(history.links[update.link.id]);
         },
         'link/enable': function(history, update) {
-            update.link.enable();
+            history.links[update.link.id].enable();
         },
         'link/disable': function(history, update) {
-            update.link.disable();
+            history.links[update.link.id].disable();
         }
     };
 
@@ -109,10 +111,10 @@ Rpd.history = (function() {
         this.redoStack = [];
         this.lockUndoStack = false;
 
-        this.patchMap = {};
-        this.nodeMap = {};
-        this.channelMap = {};
-        this.linkMap = {};
+        this.nodes = {};
+        this.inlets = {};
+        this.outlets = {};
+        this.links = {};
     }
 
     History.prototype.undo = function() {

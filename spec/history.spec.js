@@ -818,7 +818,7 @@ describe('history', function() {
                 })
               }),
               jasmine.objectContaining({
-                type: 'patch/add-inlet',
+                type: 'node/add-inlet',
                 node: jasmine.objectContaining({
                     def: jasmine.objectContaining({ title: 'First' })
                 })
@@ -868,7 +868,7 @@ describe('history', function() {
                 })
               }),
               jasmine.objectContaining({
-                type: 'patch/add-outlet',
+                type: 'node/add-outlet',
                 node: jasmine.objectContaining({
                     def: jasmine.objectContaining({ title: 'First' })
                 })
@@ -908,19 +908,19 @@ describe('history', function() {
                 })
               }),
               jasmine.objectContaining({
-                type: 'patch/remove-inlet',
+                type: 'node/remove-inlet',
                 inlet: jasmine.objectContaining({
                     def: jasmine.objectContaining({ label: 'First' })
                 })
               }),
               jasmine.objectContaining({
-                type: 'patch/remove-outlet',
+                type: 'node/remove-outlet',
                 outlet: jasmine.objectContaining({
                     def: jasmine.objectContaining({ label: 'Second' })
                 })
               }),
               jasmine.objectContaining({
-                type: 'patch/remove-outlet',
+                type: 'node/remove-outlet',
                 outlet: jasmine.objectContaining({
                     def: jasmine.objectContaining({ label: 'First' })
                 })
