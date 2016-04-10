@@ -7,7 +7,6 @@ describe('history', function() {
 
         var updateSpy = jasmine.createSpy('update');
         Rpd.events.onValue(updateSpy);
-        Rpd.events.log();
 
         //updateSpy.calls.reset();
         undoExpectations.forEach(function(undoExpectation) {
@@ -24,6 +23,8 @@ describe('history', function() {
             expect(updateSpy).toHaveBeenCalledWith(redoExpectation);
         });
         //expect(updateSpy.calls.count()).toEqual(redoExpectations.length);
+
+        Rpd.events.offValue(updateSpy);
     }
 
     function testMakesNoUndoRedoRecord(prepare, execute) {
@@ -175,12 +176,14 @@ describe('history', function() {
     it('moving patch canvas', function() {
         testUndoRedo(
             function() {
-                Rpd.addPatch('MoveCanvas').moveCanvas(100, 110);
+                var patch = Rpd.addPatch('MoveCanvas');
+                patch.addNode('spec/empty', 'Node');
+                patch.moveCanvas(100, 110);
             },
             [ jasmine.objectContaining({
-                  type: 'patch/remove-patch' }) ], // not undoable, so undoes adding a patch
+                  type: 'patch/remove-node' }) ], // not undoable, so undoes adding a node
             [ jasmine.objectContaining({
-                  type: 'patch/add-patch' }),
+                  type: 'patch/add-node' }),
               jasmine.objectContaining({
                   type: 'patch/move-canvas',
                   patch: jasmine.objectContaining({ name: 'MoveCanvas' }),
@@ -192,8 +195,10 @@ describe('history', function() {
     it('moving patch canvas several times', function() {
         testUndoRedo(
             function() {
-                Rpd.addPatch('MoveCanvas').moveCanvas(100, 110)
-                                          .moveCanvas(200, 210);
+                var patch = Rpd.addPatch('MoveCanvas');
+                patch.addNode('spec/empty', 'Node');
+                patch.moveCanvas(100, 110)
+                patch.moveCanvas(200, 210);
             }, // ------ Undo ------
             [ jasmine.objectContaining({
                   type: 'patch/move-canvas',
@@ -201,10 +206,10 @@ describe('history', function() {
                   position: [ 100, 110 ]
               }),
               jasmine.objectContaining({
-                    type: 'patch/remove-patch' }) ], // not undoable anymore, so undoes adding a patch
+                    type: 'patch/remove-node' }) ], // not undoable anymore, so undoes adding a node
                // ------ Redo ------
             [ jasmine.objectContaining({
-                  type: 'patch/add-patch' }),
+                  type: 'patch/add-node' }),
               jasmine.objectContaining({
                   type: 'patch/move-canvas',
                   patch: jasmine.objectContaining({ name: 'MoveCanvas' }),
@@ -219,14 +224,17 @@ describe('history', function() {
     });
 
     it('resizing patch canvas', function() {
+
         testUndoRedo(
             function() {
-                Rpd.addPatch('ResizeCanvas').resizeCanvas(200, 420);
+                var patch = Rpd.addPatch('ResizeCanvas');
+                patch.addNode('spec/empty', 'Node');
+                patch.resizeCanvas(200, 420);
             },
             [ jasmine.objectContaining({
-                  type: 'patch/remove-patch' }) ], // not undoable anymore, so undoes adding a patch
+                  type: 'patch/remove-node' }) ], // not undoable anymore, so undoes adding a node
             [ jasmine.objectContaining({
-                  type: 'patch/add-patch' }),
+                  type: 'patch/add-node' }),
               jasmine.objectContaining({
                   type: 'patch/resize-canvas',
                   patch: jasmine.objectContaining({ name: 'ResizeCanvas' }),
@@ -238,8 +246,10 @@ describe('history', function() {
     it('resizing patch canvas several times', function() {
         testUndoRedo(
             function() {
-                Rpd.addPatch('ResizeCanvas').resizeCanvas(100, 120);
-                Rpd.addPatch('ResizeCanvas').resizeCanvas(200, 420);
+                var patch = Rpd.addPatch('ResizeCanvas');
+                patch.addNode('spec/empty', 'Node');
+                patch.resizeCanvas(100, 120);
+                patch.resizeCanvas(200, 420);
             }, // ------ Undo ------
             [ jasmine.objectContaining({
                   type: 'patch/resize-canvas',
@@ -247,10 +257,10 @@ describe('history', function() {
                   size: [ 100, 120 ]
               }),
               jasmine.objectContaining({
-                   type: 'patch/remove-patch' }) ], // not undoable anymore, so undoes adding a patch
+                   type: 'patch/remove-node' }) ], // not undoable anymore, so undoes adding a node
                // ------ Redo ------
             [ jasmine.objectContaining({
-                  type: 'patch/add-patch' }),
+                  type: 'patch/add-node' }),
               jasmine.objectContaining({
                   type: 'patch/resize-canvas',
                   patch: jasmine.objectContaining({ name: 'ResizeCanvas' }),
@@ -460,62 +470,160 @@ describe('history', function() {
     xit('adding completely configured outlet');
 
     it('moving node', function() {
-        testUndoRedo(
-            function() {
-                Rpd.addPatch('Foo').addNode('spec/empty', 'Move').move(10, 25);
-            },
-            [ jasmine.objectContaining({
-                  type: 'node/move',
-                  node: jasmine.objectContaining({
-                            def: jasmine.objectContaining({ title: 'Move' })
-                        }),
-                  position: [ -1, -1 ]
-              }) ],
-            [ jasmine.objectContaining({
-                  type: 'node/move',
-                  node: jasmine.objectContaining({
-                            def: jasmine.objectContaining({ title: 'Move' })
-                        }),
-                  position: [ 10, 25 ]
-              }) ]
-        );
+
+        Rpd.addPatch('Foo').addNode('spec/empty', 'Move').move(10, 25);
+
+        var updateSpy = jasmine.createSpy('update');
+        Rpd.events.onValue(updateSpy);
+
+        Rpd.history.undo();
+
+        // undoes only adding the node
+
+        expect(updateSpy).toHaveBeenCalledWith(jasmine.objectContaining({
+                type: 'patch/remove-node',
+                node: jasmine.objectContaining({
+                    def: jasmine.objectContaining({ title: 'Move' })
+                })
+            }));
+
+        updateSpy.calls.reset();
+
+        Rpd.history.redo();
+
+        // redoes both adding and moving node at one step
+
+        expect(updateSpy).toHaveBeenCalledWith(jasmine.objectContaining({
+                type: 'patch/add-node',
+                node: jasmine.objectContaining({
+                    def: jasmine.objectContaining({ title: 'Move' })
+                })
+            }));
+        expect(updateSpy).toHaveBeenCalledWith(jasmine.objectContaining({
+                type: 'node/move',
+                node: jasmine.objectContaining({
+                    def: jasmine.objectContaining({ title: 'Move' })
+                }),
+                position: [ 10, 25 ]
+            }));
+
+        Rpd.events.offValue(updateSpy);
+
+    });
+
+    it('moving node after adding an inlet', function() {
+
+        var node = Rpd.addPatch('Foo').addNode('spec/empty', 'Move');
+        node.addInlet('spec/any', 'i');
+        node.move(10, 25);
+
+        var updateSpy = jasmine.createSpy('update');
+        Rpd.events.onValue(updateSpy);
+
+        Rpd.history.undo();
+
+        // undoes adding the inlet
+
+        expect(updateSpy).toHaveBeenCalledWith(jasmine.objectContaining({
+                type: 'node/add-inlet',
+                node: jasmine.objectContaining({
+                    def: jasmine.objectContaining({ title: 'Move' })
+                })
+            }));
+
+        updateSpy.calls.reset();
+
+        Rpd.history.redo();
+
+        // redoes both adding an inlet and moving node at one step
+
+        expect(updateSpy).toHaveBeenCalledWith(jasmine.objectContaining({
+                type: 'patch/add-inlet',
+                node: jasmine.objectContaining({
+                    def: jasmine.objectContaining({ title: 'Move' })
+                })
+            }));
+        expect(updateSpy).toHaveBeenCalledWith(jasmine.objectContaining({
+                type: 'node/move',
+                node: jasmine.objectContaining({
+                    def: jasmine.objectContaining({ title: 'Move' })
+                }),
+                position: [ 10, 25 ]
+            }));
+
+        Rpd.events.offValue(updateSpy);
+
     });
 
     it('moving node several times', function() {
-        testUndoRedo(
-            function() {
-                Rpd.addPatch('Foo').addNode('spec/empty', 'Move').move(100, 220)
-                                                                 .move(10, 25);
-            }, // ------ Undo ------
-            [ jasmine.objectContaining({
-                  type: 'node/move',
-                  node: jasmine.objectContaining({
-                            def: jasmine.objectContaining({ title: 'Move' })
-                        }),
-                  position: [ 10, 25 ]
-              }),
-              jasmine.objectContaining({
-                  type: 'node/move',
-                  node: jasmine.objectContaining({
-                            def: jasmine.objectContaining({ title: 'Move' })
-                        }),
-                  position: [ -1, -1 ]
-              }) ], // ------ Redo ------
-            [ jasmine.objectContaining({
-                  type: 'node/move',
-                  node: jasmine.objectContaining({
-                            def: jasmine.objectContaining({ title: 'Move' })
-                        }),
-                  position: [ 110, 220 ]
-              }),
-              jasmine.objectContaining({
-                  type: 'node/move',
-                  node: jasmine.objectContaining({
-                            def: jasmine.objectContaining({ title: 'Move' })
-                        }),
-                  position: [ 10, 25 ]
-                }) ]
-        );
+
+        Rpd.addPatch('Foo').addNode('spec/empty', 'Move').move(100, 220)
+                                                         .move(10, 25);
+
+        var updateSpy = jasmine.createSpy('update');
+        Rpd.events.onValue(updateSpy);
+
+        Rpd.history.undo();
+
+        // should undo last move first
+
+        expect(updateSpy).toHaveBeenCalledWith(jasmine.objectContaining({
+                type: 'node/move',
+                node: jasmine.objectContaining({
+                    def: jasmine.objectContaining({ title: 'Move' })
+                }),
+                position: [ 100, 220 ]
+            }));
+
+        updateSpy.calls.reset();
+
+        Rpd.history.undo();
+
+        // should remove the node with second undo call
+
+        expect(updateSpy).toHaveBeenCalledWith(jasmine.objectContaining({
+                type: 'patch/remove-node',
+                node: jasmine.objectContaining({
+                    def: jasmine.objectContaining({ title: 'Move' })
+                })
+            }));
+
+        updateSpy.calls.reset();
+
+        Rpd.history.redo();
+
+        // should redo both adding a node and first move together at one step
+
+        expect(updateSpy).toHaveBeenCalledWith(jasmine.objectContaining({
+                type: 'patch/add-node',
+                node: jasmine.objectContaining({
+                    def: jasmine.objectContaining({ title: 'Move' })
+                })
+            }));
+        expect(updateSpy).toHaveBeenCalledWith(jasmine.objectContaining({
+                type: 'node/move',
+                node: jasmine.objectContaining({
+                    def: jasmine.objectContaining({ title: 'Move' })
+                }),
+                position: [ 100, 220 ]
+            }));
+
+        updateSpy.calls.reset();
+
+        Rpd.history.redo();
+
+        // then should redo second move
+
+        expect(updateSpy).toHaveBeenCalledWith(jasmine.objectContaining({
+                type: 'node/move',
+                node: jasmine.objectContaining({
+                    def: jasmine.objectContaining({ title: 'Move' })
+                }),
+                position: [ 10, 25 ]
+            }));
+
+        Rpd.events.offValue(updateSpy);
+
     });
 
     it('connecting outlet to inlet', function() {
