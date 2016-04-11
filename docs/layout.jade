@@ -14,7 +14,7 @@ html
     script(defer,src='#{pathPrefix}/kefir.min.js')
     // compiled with: gulp --style quartz --renderer svg --toolkit core --target-name rpd-docs
     script(defer,src='#{pathPrefix}/rpd-docs.min.js')        
-  body(class='rpd-#{front.id}')
+  body(class='rpd-docs-#{front.id}')
     header
       img(src='#{pathPrefix}/rpd.svg',width='30px',height='30px')  
       h1: a(href='#{homeLink}') RPD &mdash; Reactive Patch Development
