@@ -22,6 +22,7 @@ module.exports = function(config) {
       './src/io/json.js',
       './src/io/plain.js',
       './src/navigation/browser.js',
+      './src/history.js',
 
       './spec/matchers.js',
       './spec/prettify.js',
@@ -46,7 +47,7 @@ module.exports = function(config) {
       './spec/registration/renderer.spec.js',
       //'./spec/registration/subrenderer.spec.js',
 
-      // './spec/history.spec.js',
+      './spec/history.spec.js',
       './spec/io.spec.js',
       './spec/navigation.spec.js'
 
