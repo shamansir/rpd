@@ -38,6 +38,7 @@
     "gulp-size": "^2.0.0",
     "gulp-util": "^3.0.6",
     "gulp-watch": "^4.3.5",
+    "highlight.js": "^9.3.0",
     "jasmine": "latest",
     "jasmine-core": "^2.3.4",
     "karma": "^0.13.9",
@@ -45,7 +46,6 @@
     "karma-jasmine": "^0.3.5",
     "karma-mocha-reporter": "^1.1.1",
     "karma-nyan-reporter": "^0.0.60",
-    "pygmentize-bundled": "^2.3.0",
     "through2": "^2.0.0",
     "yargs": "^3.25.0"
   },

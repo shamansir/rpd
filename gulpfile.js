@@ -13,6 +13,7 @@ var gulp = require('gulp'),
     parser = require('gulp-file-parser'),
     watch = require('gulp-watch'),
     markdown = require('gulp-markdown'),
+    highlightJs = require('highlight.js'),
     frontMatter = require('gulp-front-matter'),
     layout = require('gulp-layout');
 
@@ -114,16 +115,16 @@ var CLOSURE_COMPILER_PATH = 'node_modules/google-closure-compiler/compiler.jar';
 
 var DEPENDENCIES = [ 'https://cdn.jsdelivr.net/kefir/3.0.0/kefir.min.js' ];
 
-var DOC_HIGHLIGHT_STYLE = 'trac',
-    DOC_HIGHLIGHT_STYLE_FILENAME = DOC_HIGHLIGHT_STYLE + '.css';
+var DOC_HIGHLIGHT_STYLE = 'docco', // default, tomorrow, foundation, github-gist, xcode
+    DOC_HIGHLIGHT_STYLE_FILENAME = DOC_HIGHLIGHT_STYLE + '.min.css';
 
 var DEV_DEPENDENCIES = [
                'https://cdn.jsdelivr.net/kefir/3.0.0/kefir.min.js', // Kefir
-               'https://cdn.rawgit.com/jwarby/jekyll-pygments-themes/master/' + DOC_HIGHLIGHT_STYLE_FILENAME, // pygmentize style for documentation
                'http://mohayonao.github.io/timbre.js/timbre.js', // timbre
                'http://player-dev.animatron.com/latest/bundle/animatron.min.js', // animatron
                'https://raw.githubusercontent.com/sebpiq/WebPd/master/dist/webpd-latest.min.js', // WebPd
-               'https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.19/p5.min.js' // p5
+               'https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.19/p5.min.js', // p5
+               'http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/styles/' + DOC_HIGHLIGHT_STYLE_FILENAME // highlight.js style for documentation
              ];
 
 var COMPILATION_LEVELS = {
@@ -288,8 +289,6 @@ renderer.paragraph = function(text) {
     return prevParagraphRender(checkNewLines(text));
 }
 
-var pygmentize = require('pygmentize-bundled');
-
 function makeDocs(config, f) {
     var result = gulp.src('./docs/**/*.md');
     if (f) result = f(result);
@@ -297,14 +296,17 @@ function makeDocs(config, f) {
                  .pipe(markdown({
                      renderer: renderer,
                      highlight: function (code, lang, callback) {
-                         pygmentize({ lang: lang, format: 'html' }, code,
-                             function (err, result) { callback(err, result.toString()); });
+                         var highlighted = highlightJs.highlightAuto(code);
+                         console.log(highlighted ? highlighted.value : '???');
+                         callback(null, highlighted.value);
+                         //return highlighted ? highlighted.value : '';
                      }
                  }))
                  //.pipe(highlight())
                  //.pipe(injectFiddles())
                  //.pipe(injectCodepens())
                  .pipe(layout(function(file) {
+                     console.log(file.frontMatter);
                       return {
                           doctype: 'html',
                           pretty: true,
@@ -347,7 +349,7 @@ gulp.task('docs-copy-assets', function() {
 
 gulp.task('docs-copy-highlight-css', function() {
     return gulp.src('./vendor/' + DOC_HIGHLIGHT_STYLE_FILENAME)
-               .pipe(rename('pygmentize.css'))
+               .pipe(rename('highlight-js.min.css'))
                .pipe(gulp.dest('./docs/compiled/'));
 });
 

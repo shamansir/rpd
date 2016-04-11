@@ -160,3 +160,11 @@ footer {
 #logo-patch-target > #rpd-patch {
     width: 100%;
 }
+
+pre {
+    padding: 1.2em 0 1.2em;
+    margin: 2em 0em;
+    border-style: solid;
+    border-width: 2px 0;
+    border-color: black;
+}
