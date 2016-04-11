@@ -63,13 +63,6 @@ Rpd.history = (function() {
         if (stack.length > limit) stack.shift();
     }
 
-    function stackInfo(alias, stack) {
-        console.log(alias);
-        stack.forEach(function(item) {
-            console.log(item.type, item);
-        })
-    }
-
     var DEFAULT_LIMIT = 50;
 
     function History() {
@@ -96,9 +89,7 @@ Rpd.history = (function() {
     }
 
     History.prototype.undo = function() {
-        console.log('UNDO');
         var lastAction = this.undoStack.pop();
-        console.log('last action', lastAction.type);
         if (!lastAction) return;
         var reversedAction = undoMap[lastAction.type];
         if (reversedAction) {
@@ -111,10 +102,8 @@ Rpd.history = (function() {
     }
 
     History.prototype.redo = function() {
-        console.log('REDO');
         var lastAction = this.redoStack.pop();
         if (!lastAction) return;
-        console.log('last action', lastAction.type);
         var repeatingAction = redoMap[lastAction.type];
         if (repeatingAction) {
             repeatingAction(this, lastAction);
