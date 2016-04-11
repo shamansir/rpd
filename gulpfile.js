@@ -286,11 +286,16 @@ var injectCodepens = parser({
 function makeDocs(config, f) {
     var result = gulp.src('./docs/**/*.md');
     if (f) result = f(result);
+    var renderer = new markdown.marked.Renderer();
+    var prevParagraphRender = renderer.paragraph;
+    renderer.paragraph = function(text) {
+        return prevParagraphRender(checkNewLines(text));
+    }
     return result.pipe(frontMatter())
-                 .pipe(markdown())
-                 .pipe(highlight())
-                 .pipe(injectFiddles())
-                 .pipe(injectCodepens())
+                 .pipe(markdown({ renderer: renderer }))
+                 //.pipe(highlight())
+                 //.pipe(injectFiddles())
+                 //.pipe(injectCodepens())
                  .pipe(layout(function(file) {
                       return {
                           doctype: 'html',
@@ -606,4 +611,14 @@ function getHtmlHead(options) {
     });
     console.log('</head>');
     console.log('===========');
+}
+
+function checkNewLines(text) {
+    if ((text.charCodeAt(0) == 8203) && (text.charCodeAt(1) == 10)) {
+        text = text.slice(2);
+    }
+    if ((text.charCodeAt(text.length - 1) == 8203) && (text.charCodeAt(text.length - 2) == 10)) {
+        text = text.slice(0, text.length - 2);
+    }
+    return text;
 }
