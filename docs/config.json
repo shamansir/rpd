@@ -40,6 +40,19 @@
                 "adding-import-export": "Adding Import/Export"
             }
         },
+        "api": {
+            "title": "API",
+            "path": "sections/api.html",
+            "subsections": {
+                "-rpd-": "Rpd",
+                "-patch-": "Patch",
+                "-node-": "Node",
+                "-inlet-": "Inlet",
+                "-outlet-": "Outlet",
+                "-link-": "Link",
+                "modules": "Modules"
+            }
+        },
         "toolkits": {
             "title": "Creating Your Own Toolkits",
             "path": "sections/toolkits.html",
