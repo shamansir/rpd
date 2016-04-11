@@ -1,4 +1,4 @@
-describe('history', function() {
+xdescribe('history', function() {
 
     function testUndoRedo(execute, undoExpectations, redoExpectations) {
         //if (undoExpectations.length !== redoExpectations.length) throw new Error('Undo expectations are unequal in number to redo expectations');

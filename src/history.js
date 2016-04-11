@@ -13,18 +13,6 @@ Rpd.history = (function() {
         'patch/close': function(history, update) {
             update.patch.open(update.parent);
         },
-        'node/add-inlet': function(history, update) {
-            update.node.removeInlet(update.inlet);
-        },
-        'node/add-outlet': function(history, update) {
-            update.node.removeOutlet(update.outlet);
-        },
-        'node/remove-inlet': function(history, update) {
-            update.node.addInlet(update.inlet.type, update.inlet.alias, update.inlet.def);
-        },
-        'node/remove-outlet': function(history, update) {
-            update.node.addOutlet(update.outlet.type, update.outlet.alias, update.outlet.def);
-        },
         'outlet/connect': function(history, update) {
             update.outlet.disconnect(update.link);
         },
@@ -52,26 +40,6 @@ Rpd.history = (function() {
         },
         'patch/close': function(history, update) {
             update.patch.close();
-        },
-        'node/add-inlet': function(history, update) {
-            var node = history.nodes[update.node.id] || update.node;
-            history.inlets[update.inlet.id] =
-                node.addInlet(update.inlet.type, update.inlet.alias, update.inlet.def);
-        },
-        'node/add-outlet': function(history, update) {
-            var node = history.nodes[update.node.id] || update.node;
-            history.outlets[update.outlet.id] =
-                node.addOutlet(update.outlet.type, update.outlet.alias, update.outlet.def);
-        },
-        'node/remove-inlet': function(history, update) {
-            var node  = history.nodes[update.node.id]   || update.node;
-            var inlet = history.inlets[update.inlet.id] || update.inlet;
-            node.removeInlet(inlet);
-        },
-        'node/remove-outlet': function(history, update) {
-            var node   = history.nodes[update.node.id]     || update.node;
-            var outlet = history.outlets[update.outlet.id] || update.outlet;
-            node.removeOutlet(outlet);
         },
         'outlet/connect': function(history, update) {
             var inlet  = history.inlets[update.inlet.id]   || update.inlet;
