@@ -11,7 +11,6 @@ var gulp = require('gulp'),
     fs = require('fs'),
     rename = require('gulp-rename'),
     parser = require('gulp-file-parser'),
-    highlight = require('gulp-highlight'),
     watch = require('gulp-watch'),
     markdown = require('gulp-markdown'),
     frontMatter = require('gulp-front-matter'),
@@ -115,12 +114,12 @@ var CLOSURE_COMPILER_PATH = 'node_modules/google-closure-compiler/compiler.jar';
 
 var DEPENDENCIES = [ 'https://cdn.jsdelivr.net/kefir/3.0.0/kefir.min.js' ];
 
-var DOC_HIGHLIGHT_STYLE = 'docco', // default, tomorrow, foundation, github-gist, xcode
-    DOC_HIGHLIGHT_STYLE_FILENAME = DOC_HIGHLIGHT_STYLE + '.min.css';
+var DOC_HIGHLIGHT_STYLE = 'trac',
+    DOC_HIGHLIGHT_STYLE_FILENAME = DOC_HIGHLIGHT_STYLE + '.css';
 
 var DEV_DEPENDENCIES = [
                'https://cdn.jsdelivr.net/kefir/3.0.0/kefir.min.js', // Kefir
-               'http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/styles/' + DOC_HIGHLIGHT_STYLE_FILENAME, // highlight.js style for documentation
+               'https://cdn.rawgit.com/jwarby/jekyll-pygments-themes/master/' + DOC_HIGHLIGHT_STYLE_FILENAME, // pygmentize style for documentation
                'http://mohayonao.github.io/timbre.js/timbre.js', // timbre
                'http://player-dev.animatron.com/latest/bundle/animatron.min.js', // animatron
                'https://raw.githubusercontent.com/sebpiq/WebPd/master/dist/webpd-latest.min.js', // WebPd
@@ -283,16 +282,25 @@ var injectCodepens = parser({
     }
 });
 
+var renderer = new markdown.marked.Renderer();
+var prevParagraphRender = renderer.paragraph;
+renderer.paragraph = function(text) {
+    return prevParagraphRender(checkNewLines(text));
+}
+
+var pygmentize = require('pygmentize-bundled');
+
 function makeDocs(config, f) {
     var result = gulp.src('./docs/**/*.md');
     if (f) result = f(result);
-    var renderer = new markdown.marked.Renderer();
-    var prevParagraphRender = renderer.paragraph;
-    renderer.paragraph = function(text) {
-        return prevParagraphRender(checkNewLines(text));
-    }
     return result.pipe(frontMatter())
-                 .pipe(markdown({ renderer: renderer }))
+                 .pipe(markdown({
+                     renderer: renderer,
+                     highlight: function (code, lang, callback) {
+                         pygmentize({ lang: lang, format: 'html' }, code,
+                             function (err, result) { callback(err, result.toString()); });
+                     }
+                 }))
                  //.pipe(highlight())
                  //.pipe(injectFiddles())
                  //.pipe(injectCodepens())
@@ -339,7 +347,7 @@ gulp.task('docs-copy-assets', function() {
 
 gulp.task('docs-copy-highlight-css', function() {
     return gulp.src('./vendor/' + DOC_HIGHLIGHT_STYLE_FILENAME)
-               .pipe(rename('highlight-js.min.css'))
+               .pipe(rename('pygmentize.css'))
                .pipe(gulp.dest('./docs/compiled/'));
 });
 
@@ -614,6 +622,7 @@ function getHtmlHead(options) {
 }
 
 function checkNewLines(text) {
+    if ((text.length == 1) && (text.charCodeAt(0) == 8203)) return '';
     if ((text.charCodeAt(0) == 8203) && (text.charCodeAt(1) == 10)) {
         text = text.slice(2);
     }
