@@ -6,6 +6,10 @@ body {
     /*-webkit-font-smoothing: antialiased;*/
 }
 
+article code {
+    font-family: Menlo, Consolas, Monaco, Inconsolata, "DejaVu Sans Mono", "Ubuntu Mono", "Lucida Console", monospace;
+}
+
 header {
     /* margin-bottom: 54px; */
     /* margin-bottom: 36px; */
@@ -167,4 +171,12 @@ pre {
     border-style: solid;
     border-width: 2px 0;
     border-color: black;
+}
+
+p code, ul code {
+    color: #368; /* #368; */ /* #863 */ /* #933 */
+}
+
+article code, article pre {
+    font-style: normal;
 }

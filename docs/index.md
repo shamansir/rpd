@@ -18,7 +18,7 @@ id: introduction
 
 RPD is the abbreviation for _Reactive Patch Development_...
 
-...or, actually, whatever you decide. It is the library which brings node-based user interfaces to the modern web, in full their power (if you know how to use it) and in a very elegant and minimalistic way. _Node-based_ is something like the thing you (probably) see above, (almost) nothing to do with [node.js][node-js]. If you are wondering yet, what that means, _Node-based_ interface is the one where man may visually connect different low-level components using their inputs and outputs and observe the result in real time, take PureData, QuartzComposer, VVVV, NodeBox, Reaktor etc. for example.
+...or, actually, whatever you decide. It is the library which brings node-based user interfaces to the modern web, in full their power (if you know how to use it) and in a very elegant and minimalistic way. _Node-based_ is something like the thing you (probably) see above, (almost) nothing to do with [node.js][node-js]. If you are wondering yet, what that means, _Node-based_ interface is the one where man may visually connect different low-level components using their inputs and outputs and observe the result in real time, take <!-- consider? --> PureData, QuartzComposer, VVVV, NodeBox, Reaktor etc. for example.
 
 <!-- TODO: video or some example patch, processing patch from vimeo? -->
 

@@ -17,6 +17,7 @@ Particularly:
 * If you want to have some Model shared between both toolkit and renderers code, feel free to include it into `toolkit.js`;
 * If you want to have some code shared only between renderers, place it into an optional file named `shared.js`;
 ​
+
 Compilation includes `toolkit.js` first, then `shared.js`, if it exists, and then the requested renderer `.js` file.
 ​
 *NB*: There's an agreement to name all nodes and channel types starting with `<toolkit-name>/...`, i.e. `acme/color`, `acme/canvas`.
@@ -32,7 +33,7 @@ Nonetheless, all these procedures are defined in one channel type, this way:
 ```javascript
 Rpd.channeltype('my/color', {
 	...
-})
+});
 ```
 ​
 <!--  example with a node having channels of this type-->

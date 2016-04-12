@@ -13,7 +13,7 @@ var gulp = require('gulp'),
     parser = require('gulp-file-parser'),
     watch = require('gulp-watch'),
     markdown = require('gulp-markdown'),
-    highlightJs = require('highlight.js'),
+    hljs = require('highlight.js'),
     frontMatter = require('gulp-front-matter'),
     layout = require('gulp-layout');
 
@@ -296,17 +296,23 @@ function makeDocs(config, f) {
                  .pipe(markdown({
                      renderer: renderer,
                      highlight: function (code, lang, callback) {
-                         var highlighted = highlightJs.highlightAuto(code);
-                         console.log(highlighted ? highlighted.value : '???');
-                         callback(null, highlighted.value);
+                         //var highlighted = hljs.highlightAuto(code, lang ? [ (lang !== 'sh') ? lang : 'bash' ] : []);
+                         var highlighted = hljs.highlight((lang === 'sh') ? 'gams' : lang, code);
+                         //console.log('-------------');
+                         //console.log(lang, highlighted.language);
+                         //console.log('->');
+                         //console.log(code);
+                         //console.log('-------------');
+                         callback(null, highlighted ? highlighted.value : '');
                          //return highlighted ? highlighted.value : '';
                      }
                  }))
-                 //.pipe(highlight())
                  //.pipe(injectFiddles())
                  //.pipe(injectCodepens())
                  .pipe(layout(function(file) {
-                     console.log(file.frontMatter);
+                      gutil.log(gutil.colors.red(file.frontMatter.id) + ': ' +
+                                gutil.colors.yellow(file.frontMatter.title) + ' ' +
+                                gutil.colors.green('(' + (file.frontMatter.level || 0) + ')'));
                       return {
                           doctype: 'html',
                           pretty: true,

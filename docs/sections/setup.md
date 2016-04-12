@@ -24,15 +24,26 @@ To use either downloaded or compiled version of RPD, you need to include three f
 <html>
     <head>
         <meta charset="utf-8" />
-        <!-- RPD compiled CSS file, it includes rendering and style-dependent rules (selected Renderer and Style are listed in the top lines of the file) -->
-        <link rel="stylesheet" href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css"></style>
+
+        <!-- RPD compiled CSS file, it includes rendering and style-dependent
+             rules (selected Renderer and Style are both listed in the top
+             lines of this file, in the first comment section) -->
+        <link rel="stylesheet"
+              href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css">
+        </link>
+
         <!-- Kefir.js library -->
         <script src="http://rawgit.com/rpominov/kefir/gh-pages/dist/kefir.min.js"></script>
-        <!-- RPD Library, compiled with the options you specified (they are listed in the first lines of this file so you may distinguish files compiled with different options even if they have the same name) -->
-        <link rel="stylesheet" href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.min.js"></style>
+
+        <!-- RPD Library, compiled with the options you specified (all these
+             options are listed in the first lines of this file, so you may
+             distinguish `rpd.js` compiled with different options even while it
+             has the same name for all the versions) -->
+        <script src="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.min.js"></script>
+
     </head>
     <body>
-      <!-- ... -->
+        <!-- ... -->
     </body>
 </html>
 ```
@@ -53,7 +64,7 @@ Detailed instructions on constructing your own Patch Network you may find [in th
 ​
 To compile RPD with custom options, you need to get the latest clone of RPD github repository and have `npm` installed. When compiled, RPD only uses `Kefir.js`, but for building you need few tools installed, however it should be quite easy to get them all:
 ​
-```
+```sh
 $ cd ~/Workspace
 $ git clone ...
 $ cd ./rpd
@@ -67,16 +78,16 @@ If every command, and especially the last one, was successful, you'll see it cre
 
 To be able to view examples from `./examples` directory, you also need to call this command once:
 
-```
-gulp get-dev-deps
+```sh
+$ gulp get-dev-deps
 ```
 
 #### Compilation Options
 
 Foremost, it should be noted that you may get the complete list of possible commands and options with calling:
 
-```
-gulp help
+```sh
+$ gulp help
 ```
 
 There are a lot more options and commands than I describe here, but in contrast with this literary text, `gulp help` provides you with far more bureaucratic style.
@@ -106,14 +117,14 @@ Every of the listed options may be specified several times, but for Renderers an
 
 For example, to compile RPD with SVG renderer (instead of default HTML), `plain` style (instead of default `quartz` style), include `timbre` and `anm` toolkits (instead of default `core` toolkit), plus add JSON Import/Export, you need to call:
 
-```
-gulp --renderer svg --toolkit anm --toolkit timbre --style plain --io json
+```sh
+$ gulp --renderer svg --toolkit anm --toolkit timbre --style plain --io json
 ```
 
 Or, in short format:
 
-```
-gulp -r svg -t anm -t timbre -s plain -x json
+```sh
+$ gulp -r svg -t anm -t timbre -s plain -x json
 ```
 
 The order in which options were specified is completely not important.
