@@ -6,7 +6,7 @@ level: 1
 
 Actually, to help in RPD development you just need to create a fork of the repository, and be able to compile and test it. So, please follow the instructions in the [Setup page](./setup.html) first and then run:
 
-```javascript
+```sh
 $ npm install
 $ gulp get-deps
 $ gulp get-dev-deps
@@ -16,7 +16,7 @@ $ gulp test
 
 If everything above succeeded, you may look through examples located in `/examples` folder locally, then jump through the code and actually change things, ensuring that `gulp test` passses and writing tests for new features.
 
-Currently there`s no `watch` mode in RPD development flow, but all the examples in `/examples` folder use plain source code, so you may use an existing example page or add your own and just change-and-refresh. Same applies for tests.
+Currently there's no `watch` mode in RPD development flow, but all the examples in `/examples` folder use plain source code, so you may use an existing example page or add your own and just change-and-refresh. Same applies for tests.
 
 Of course, you are free to create [Issues]() and submit [Pull Requests]().
 
