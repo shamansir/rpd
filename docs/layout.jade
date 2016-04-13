@@ -15,7 +15,7 @@ html
     // compiled with: gulp --style quartz --renderer svg --toolkit core --target-name rpd-docs
     script(defer,src='#{pathPrefix}/rpd-docs.min.js')        
   body(class='rpd-docs-#{front.id}')
-    header
+    header(id='_top')
       img(src='#{pathPrefix}/rpd.svg',width='30px',height='30px')  
       h1: a(href='#{homeLink}') RPD &mdash; Reactive Patch Development
       div#version: span #{config.version}
@@ -31,5 +31,6 @@ html
       h2 #{front.title} 
       article
         != contents
+      div(id='jump-to-top'): a(href='#_top') ↑
     footer
       span &copy; shaman.sir, 2016

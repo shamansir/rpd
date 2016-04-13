@@ -12,7 +12,6 @@ id: introduction
 <!-- sun and moon -->
 <!-- circle particles -->
 <!-- logo color shift -->
-<!-- https://www.instagram.com/p/BAH_8hJsCZ4/ ? -->
 
 ### What is RPD?
 
