@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+
+        <!-- Built with RPD v0.2.0-alpha <http://shamansir.github.io/rpd> -->
+
+        <!-- gulp ==renderer svg ==style compact-v ==toolkit core ==target-name rpd ==compilation simple -->
+
+        <!-- RPD Renderer: svg -->
+        <link rel="stylesheet" href="../src/render/svg.css"></style>
+        <!-- RPD Style: compact-v (svg) -->
+        <link rel="stylesheet" href="../src/style/compact-v/svg.css"></style>
+        <!-- RPD Toolkit: core (svg) -->
+        <link rel="stylesheet" href="../src/toolkit/core/svg.css"></style>
+
+        <!-- Kefir -->
+        <script src="../vendor/kefir.min.js"></script>
+        <!-- RPD -->
+        <script src="../src/rpd.js"></script>
+
+        <!-- RPD's d3_tiny.js -->
+        <script src="../src/d3_tiny.js"></script>
+        <!-- RPD Rendering Engine: -->
+        <script src="../src/render/shared.js"></script>
+        <!-- RPD Style: compact-v (svg) -->
+        <script src="../src/style/compact-v/svg.js"></script>
+        <!-- RPD Renderer: svg -->
+        <script src="../src/render/svg.js"></script>
+        <!-- RPD Toolkit: core -->
+        <script src="../src/toolkit/core/shared.js"></script>
+        <script src="../src/toolkit/core/toolkit.js"></script>
+        <!-- RPD Toolkit: core (svg) -->
+        <script src="../src/toolkit/core/svg.js"></script>
+
+    </head>
+
+    <body>
+        <script>
+            Rpd.renderNext('svg', document.body, { style: 'compact-v' });
+
+            var patch = Rpd.addPatch('Docs Patch');
+
+
+        </script>
+    </body>
+</html>

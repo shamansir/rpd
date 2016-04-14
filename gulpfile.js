@@ -539,9 +539,10 @@ function getHtmlHead(options) {
     function jsFile(path) {
         console.log('  <script src="' + path + '"></script>');
     }
+    console.log('  <meta charset=\'utf-8\' />');
+    console.log();
     comment('Built with RPD v' + pkg.version + ' <http://shamansir.github.io/rpd>');
     console.log();
-    console.log('  <meta charset=\'utf-8\' />');
     comment(getCommandString(options).replace(/--/g, '=='));
     console.log();
     options.renderer.forEach(function(renderer) {

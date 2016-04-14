@@ -1,10 +1,10 @@
 function applyRpdLogoPatch(logoElm, patchElm) {
 
-    Rpd.renderNext('svg', patchElm, { style: 'quartz' });
+    //Rpd.renderNext('svg', patchElm, { style: 'quartz' });
 
-    Rpd.addPatch('test');
+    //Rpd.addPatch('test');
 
-    Rpd.addNode('core/empty', 'Foo');
+    //Rpd.addNode('core/empty', 'Foo');
 
     //alert('Rpd: ' + Rpd);
     //alert('applyRpdLogoPatch ' + logoElm + ' ' + patchElm);
