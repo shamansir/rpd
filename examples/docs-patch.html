@@ -33,6 +33,29 @@
         <!-- RPD Toolkit: core (svg) -->
         <script src="../src/toolkit/core/svg.js"></script>
 
+        <style>
+            .rpd-node .rpd-header {
+                fill: rgba(160,107,154,0.95);
+            }
+
+            .rpd-node .rpd-content {
+                fill: rgba(141,158,198,0.9);
+            }
+
+            /* 203, 118, 158 */
+            /* 224, 152, 145 */
+            /* 232, 185, 171 */
+            /* 215, 192, 208 */
+            /* 124, 132, 131 */
+            /* 172, 221, 231 */
+            /* 154, 213, 202 */
+
+            .rpd-node .rpd-shadow {
+                opacity: 0.3;
+                fill: rgb(172, 221, 231);
+            }
+        </style>
+
     </head>
 
     <body>
@@ -41,6 +64,53 @@
 
             var patch = Rpd.addPatch('Docs Patch');
 
+            patch.addNode('core/empty', 'Empty');
+
+            function initPlanets() {
+                var duration = 3;
+                var firstRender = new Date().getTime();
+
+                var width = 500;
+                var height = 100;
+
+                var planets = [
+                    { name: "Sun", size: 109.3 },
+                    { name: "Mercury", size: 0.3829 },
+                    { name: "Venus", size: 0.9499 },
+                    { name: "Earth", size: 1.0 },
+                    { name: "Mars", size: 0.5320 },
+                    { name: "Jupiter", size: 10.97 },
+                    { name: "Saturn", size: 9.140 },
+                    { name: "Uranus", size: 3.981 },
+                    { name: "Neptune", size: 3.865 },
+                    { name: "Pluto", size: 0.186 }
+                ];
+
+                var BASE_SIZE = height / planets[0].size * 1.2;
+
+                return function(ctx) {
+                    ctx.clearRect(0, 0, width, height);
+                    ctx.strokeRect(0, 0, width, height);
+                    var passed = (new Date().getTime() - firstRender) / 1000;
+                    if (passed > duration) passed = duration;
+
+                    planets.forEach(function(planet, i) {
+                        var targetPos = (width / planets.length) * (i + 1);
+                        ctx.beginPath();
+                        ctx.arc(targetPos * (passed / duration), height / 2, (planet.size * BASE_SIZE), 0, 2 * Math.PI, false);
+                        ctx.fillStyle = 'green';
+                        ctx.fill();
+                        //ctx.lineWidth = 5;
+                        //ctx.strokeStyle = '#003300';
+                        ctx.stroke();
+                    });
+
+                    ctx.font = "bold italic 10px Verdana";
+                    ctx.fillStyle = 'rgba(0,0,0,1.0)';
+                    ctx.fillText(BASE_SIZE + " " + passed,0,10);
+
+                };
+            }
 
         </script>
     </body>
