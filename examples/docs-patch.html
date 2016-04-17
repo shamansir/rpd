@@ -86,69 +86,36 @@
 
             patch.addNode('core/empty', 'Empty');
 
-            function start(ctx) {
-                var duration = 3;
-                var firstRender;
+            var planets = [
+                { name: "Sun", size: 109.3, opacity: 0, position: 0.3 },
+                { name: "Mercury", size: 0.3829, opacity: 0, position: 0.15 }, /*1*/
+                { name: "Venus", size: 0.9499, opacity: 0, position: 0.15 },   /*2*/
+                { name: "Earth", size: 1.0, opacity: 1, position: 0.15 },      /*3*/
+                { name: "Mars", size: 0.5320, opacity: 0, position: 0.15 },    /*4*/
+                { name: "Jupiter", size: 10.97, opacity: 1, position: 0.15 },  /*5*/
+                { name: "Saturn", size: 9.140, opacity: 0, position: 0.15 },   /*6*/
+                { name: "Uranus", size: 3.981, opacity: 0, position: 0.1 },   /*7*/
+                { name: "Neptune", size: 3.865, opacity: 0, position: 0.15 }   /*8*/
+                //{ name: "Pluto", size: 0.186 }     /*9*/
+            ];
 
-                var width = 500;
-                var height = 100;
-
-                var planets = [
-                    { name: "Sun", size: 109.3, opacity: 0, position: 0.3 },
-                    { name: "Mercury", size: 0.3829, opacity: 0, position: 0.15 }, /*1*/
-                    { name: "Venus", size: 0.9499, opacity: 0, position: 0.15 },   /*2*/
-                    { name: "Earth", size: 1.0, opacity: 1, position: 0.15 },      /*3*/
-                    { name: "Mars", size: 0.5320, opacity: 0, position: 0.15 },    /*4*/
-                    { name: "Jupiter", size: 10.97, opacity: 1, position: 0.15 },  /*5*/
-                    { name: "Saturn", size: 9.140, opacity: 0, position: 0.15 },   /*6*/
-                    { name: "Uranus", size: 3.981, opacity: 0, position: 0.1 },   /*7*/
-                    { name: "Neptune", size: 3.865, opacity: 0, position: 0.15 }   /*8*/
-                    //{ name: "Pluto", size: 0.186 }     /*9*/
-                ];
+            function addPlanets(root, width, height) {
 
                 var BASE_SIZE = height / planets[0].size * 6.2;
-            //var BASE_SIZE = height / planets[5].size * 0.9;
 
-                function draw() {
-                    if (!firstRender) firstRender = new Date().getTime();
-                    ctx.save();
-                    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-                    ctx.clearRect(0, 0, width, height);
-                	var passed = (new Date().getTime() - firstRender) / 1000;
-                	if (passed > duration) passed = duration;
-
-                    planets.forEach(function(planet, i) {
-                		var targetPos = (width - (width / (planets.length - 1)) * i);
-                        var initialPos = planet.position;
-            		    var opacity = planet.opacity || (passed / duration);
-            		    ctx.beginPath();
-                  	    ctx.arc(targetPos * (passed / duration), height / 2, (planet.size * BASE_SIZE) / 2, 0, 2 * Math.PI, false);
-                  	    ctx.fillStyle = 'rgba(0,128,0,' + opacity + ')';
-                  	    ctx.fill();
-            	        //ctx.lineWidth = 5;
-                  	    //ctx.strokeStyle = '#003300';
-                  	    ctx.stroke();
-            	    });
-
-            	    ctx.font = "bold italic 10px Verdana";
-            	    ctx.fillStyle = 'rgba(0,0,0,1.0)';
-            	    ctx.fillText(BASE_SIZE + " " + passed,0,10);
-
-            	    ctx.strokeRect(0, 0, width, height);
-
-                    ctx.restore();
-                    requestAnimationFrame(draw);
-
-                };
-
-                return draw;
+                d3.select(root)
+                  .append('g')
+                  .call(function(group) {
+                      planets.forEach(function(planet, i) {
+                         group.append('circle')
+                              .attr('cx', 0).attr('cy', 0.5 * height)
+                              .attr('r', (planet.size * BASE_SIZE) / 2)
+                              .attr('fill', 'rgba(' + (20 * (planets.length - i)) + ', 0, 0, 1)');
+                      });
+                  });
             }
 
-            function runAnimation() {
-                var ctx = document.getElementById('target').getContext('2d');
-                var draw = start(ctx);
-                requestAnimationFrame(draw);
-            }
+            addPlanets(document.getElementById('planets'), 500, 140);
         </script>
     </body>
 </html>
