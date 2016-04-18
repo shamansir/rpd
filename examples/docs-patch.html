@@ -60,24 +60,7 @@
 
     <body>
 
-        <svg width="500px" height="140px">
-            <svg id="planets" width="500px" height="140px">
-                <rect x="0" y="0" width="500" height="140" fill="transparent" stroke="black" />
-                <g transform="scale(140, 140)">
-                    <circle id="sun" cx="0" cy="0.5" r="0.5" fill="transparent" stroke="yellow" />
-                </g>
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"  width="140px" height="140px" viewBox="0 0 387 343" version="1.1" id="rpd-logo">
-                <title>rpd</title>
-                <description>Created with Sketch (http://www.bohemiancoding.com/sketch)</description>
-                <defs/>
-                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
-                    <circle id="Oval-1" fill="#000000" sketch:type="MSShapeGroup" cx="207" cy="172" r="165"/>
-                    <circle id="Oval-2" stroke="#FFFFFF" stroke-width="17" fill="#000000" sketch:type="MSShapeGroup" cx="26.5" cy="172.5" r="28.5"/>
-                    <!-- <path d="M91.7418182,223 L80.8763636,223 L80.8763636,118.272727 L116.745455,118.272727 C126.694595,118.272727 134.134521,120.519978 139.065455,125.014545 C143.996388,129.509113 146.461818,136.338136 146.461818,145.501818 L146.461818,153.356364 C146.461818,161.996407 144.454566,168.629068 140.44,173.254545 C136.425434,177.880023 130.316405,180.585451 122.112727,181.370909 L147.378182,223 L134.810909,223 L109.676364,181.501818 L91.7418182,181.501818 L91.7418182,223 Z M91.7418182,171.945455 L116.876364,171.945455 C123.596397,171.945455 128.396349,170.505469 131.276364,167.625455 C134.156378,164.74544 135.596364,160.03276 135.596364,153.487273 L135.596364,145.24 C135.596364,139.218152 134.156378,134.854559 131.276364,132.149091 C128.396349,129.443623 123.596397,128.090909 116.876364,128.090909 L91.7418182,128.090909 L91.7418182,171.945455 Z M167.538182,223 L167.538182,118.272727 L200.92,118.272727 C211.043687,118.272727 218.483613,120.49816 223.24,124.949091 C227.996387,129.400022 230.374545,136.294499 230.374545,145.632727 L230.374545,157.414545 C230.374545,166.752774 227.974569,173.712704 223.174545,178.294545 C218.374521,182.876387 210.912778,185.167273 200.789091,185.167273 L178.403636,185.167273 L178.403636,223 L167.538182,223 Z M178.403636,175.610909 L200.789091,175.610909 C207.596398,175.610909 212.439986,174.214559 215.32,171.421818 C218.200014,168.629077 219.64,164.090941 219.64,157.807273 L219.64,145.632727 C219.64,139.436333 218.200014,134.96365 215.32,132.214545 C212.439986,129.465441 207.596398,128.090909 200.789091,128.090909 L178.403636,128.090909 L178.403636,175.610909 Z M249.2,223 L249.2,118.272727 L274.727273,118.272727 C285.898238,118.272727 294.690877,121.632694 301.105455,128.352727 C307.520032,135.072761 310.727273,144.061762 310.727273,155.32 L310.727273,186.476364 C310.727273,197.560055 307.520032,206.418149 301.105455,213.050909 C294.690877,219.68367 285.898238,223 274.727273,223 L249.2,223 Z M260.065455,213.181818 L274.989091,213.181818 C283.280041,213.181818 289.498161,210.738206 293.643636,205.850909 C297.789112,200.963612 299.861818,194.723674 299.861818,187.130909 L299.861818,154.665455 C299.861818,147.072689 297.789112,140.74548 293.643636,135.683636 C289.498161,130.621793 283.280041,128.090909 274.989091,128.090909 L260.065455,128.090909 L260.065455,213.181818 Z M370.447273,171.421818 C366.51998,171.421818 363.334558,170.614554 360.890909,169 C358.447261,167.385446 357.225455,164.701837 357.225455,160.949091 L357.225455,155.450909 C357.225455,151.61089 358.447261,148.840009 360.890909,147.138182 C363.334558,145.436355 366.51998,144.585455 370.447273,144.585455 C374.374565,144.585455 377.53817,145.436355 379.938182,147.138182 C382.338194,148.840009 383.538182,151.61089 383.538182,155.450909 L383.538182,160.949091 C383.538182,164.701837 382.294558,167.385446 379.807273,169 C377.319988,170.614554 374.200019,171.421818 370.447273,171.421818 Z M352.381818,251.538182 L363.509091,199.305455 L386.810909,199.305455 L362.069091,251.538182 L352.381818,251.538182 Z" id="RPD;" fill="#FFFFFF" sketch:type="MSShapeGroup"/> -->
-                </g>
-            </svg>
-        </svg>
+        <canvas id="target"></canvas>
 
         <script>
             Rpd.renderNext('svg', document.body, { style: 'compact-v' });
@@ -86,36 +69,70 @@
 
             patch.addNode('core/empty', 'Empty');
 
-            var planets = [
-                { name: "Sun", size: 109.3, opacity: 0, position: 0.3 },
-                { name: "Mercury", size: 0.3829, opacity: 0, position: 0.15 }, /*1*/
-                { name: "Venus", size: 0.9499, opacity: 0, position: 0.15 },   /*2*/
-                { name: "Earth", size: 1.0, opacity: 1, position: 0.15 },      /*3*/
-                { name: "Mars", size: 0.5320, opacity: 0, position: 0.15 },    /*4*/
-                { name: "Jupiter", size: 10.97, opacity: 1, position: 0.15 },  /*5*/
-                { name: "Saturn", size: 9.140, opacity: 0, position: 0.15 },   /*6*/
-                { name: "Uranus", size: 3.981, opacity: 0, position: 0.1 },   /*7*/
-                { name: "Neptune", size: 3.865, opacity: 0, position: 0.15 }   /*8*/
-                //{ name: "Pluto", size: 0.186 }     /*9*/
-            ];
+            function start(ctx) {
+                var duration = 3;
+                var firstRender;
 
-            function addPlanets(root, width, height) {
+                var width = 500;
+                var height = 100;
+
+                var planets = [
+                    { name: "Sun", size: 109.3, opacity: 0 },
+                    { name: "Mercury", size: 0.3829, opacity: 0 }, /*1*/
+                    { name: "Venus", size: 0.9499, opacity: 0 },   /*2*/
+                    { name: "Earth", size: 1.0, opacity: 1 },      /*3*/
+                    { name: "Mars", size: 0.5320, opacity: 0 },    /*4*/
+                    { name: "Jupiter", size: 10.97, opacity: 1 },  /*5*/
+                    { name: "Saturn", size: 9.140, opacity: 0 },   /*6*/
+                    { name: "Uranus", size: 3.981, opacity: 0 },   /*7*/
+                    { name: "Neptune", size: 3.865, opacity: 0 }   /*8*/
+                    //{ name: "Pluto", size: 0.186 }     /*9*/
+                ];
 
                 var BASE_SIZE = height / planets[0].size * 6.2;
+            //var BASE_SIZE = height / planets[5].size * 0.9;
 
-                d3.select(root)
-                  .append('g')
-                  .call(function(group) {
-                      planets.forEach(function(planet, i) {
-                         group.append('circle')
-                              .attr('cx', 0).attr('cy', 0.5 * height)
-                              .attr('r', (planet.size * BASE_SIZE) / 2)
-                              .attr('fill', 'rgba(' + (20 * (planets.length - i)) + ', 0, 0, 1)');
-                      });
-                  });
+                function draw() {
+                    if (!firstRender) firstRender = new Date().getTime();
+                    ctx.save();
+                    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+                    ctx.clearRect(0, 0, width, height);
+                	var passed = (new Date().getTime() - firstRender) / 1000;
+                	if (passed > duration) passed = duration;
+
+                    planets.forEach(function(planet, i) {
+                		var targetPos = (width / (planets.length - 1)) * i;
+            		    var opacity = planet.opacity || (passed / duration);
+            		    ctx.beginPath();
+                  	    ctx.arc(targetPos * (passed / duration), height / 2, (planet.size * BASE_SIZE) / 2, 0, 2 * Math.PI, false);
+                  	    ctx.fillStyle = 'rgba(0,128,0,' + opacity + ')';
+                  	    ctx.fill();
+            	        //ctx.lineWidth = 5;
+                  	    //ctx.strokeStyle = '#003300';
+                  	    ctx.stroke();
+            	    });
+
+            	    ctx.font = "bold italic 10px Verdana";
+            	    ctx.fillStyle = 'rgba(0,0,0,1.0)';
+            	    ctx.fillText(BASE_SIZE + " " + passed,0,10);
+
+            	    ctx.strokeRect(0, 0, width, height);
+
+                    ctx.restore();
+                    requestAnimationFrame(draw);
+
+                };
+
+                return draw;
             }
 
-            addPlanets(document.getElementById('planets'), 500, 140);
+            function runAnimation() {
+                var ctx = document.getElementById('target').getContext('2d');
+                var draw = start(ctx);
+                requestAnimationFrame(draw);
+            }
+
+            //runAnimation();
         </script>
     </body>
 </html>
