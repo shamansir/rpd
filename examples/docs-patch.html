@@ -76,15 +76,15 @@
                 height = 140;
 
             var planets = [
-                    { name: "Sun", size: 109.3, opacity: 0, position: 0.3 },
-                    { name: "Mercury", size: 0.3829, opacity: 0, position: 0.15 }, /*1*/
-                    { name: "Venus", size: 0.9499, opacity: 0, position: 0.15 },   /*2*/
-                    { name: "Earth", size: 1.0, opacity: 1, position: 0.15 },      /*3*/
-                    { name: "Mars", size: 0.5320, opacity: 0, position: 0.15 },    /*4*/
-                    { name: "Jupiter", size: 10.97, opacity: 1, position: 0.15 },  /*5*/
-                    { name: "Saturn", size: 9.140, opacity: 0, position: 0.15 },   /*6*/
-                    { name: "Uranus", size: 3.981, opacity: 0, position: 0.1 },   /*7*/
-                    { name: "Neptune", size: 3.865, opacity: 0, position: 0.15 }   /*8*/
+                    { name: "Sun", size: 109.3 },      /*0*/
+                    { name: "Mercury", size: 0.3829 }, /*1*/
+                    { name: "Venus", size: 0.9499 },   /*2*/
+                    { name: "Earth", size: 1.0 },      /*3*/
+                    { name: "Mars", size: 0.5320 },    /*4*/
+                    { name: "Jupiter", size: 10.97 },  /*5*/
+                    { name: "Saturn", size: 9.140 },   /*6*/
+                    { name: "Uranus", size: 3.981 },   /*7*/
+                    { name: "Neptune", size: 3.865 }   /*8*/
                     //{ name: "Pluto", size: 0.186 }     /*9*/
                 ];
 
@@ -119,6 +119,8 @@
                                .attr('r', sunInitial.attr('r') / logoViewBoxWidth * logoWidth)
                                //.attr('fill', 'rgba(' + (20 * (planets.length - i)) + ', 0, 0, 1)')
                                .attr('fill', 'rgba(255, 0, 0, 1)')
+                               .attr('stroke-width', 1)
+                               .attr('stroke', 'black')
                                .data(planet);
                       });
 
@@ -138,8 +140,14 @@
                   });
 
                 return function() {
+                    var step = width / planets.length;
+                    var proportion = logoHeight / planets[5].size * 0.85;
+
                     d3.select(root).selectAll('circle')
-                      .transition().duration(5000).attr('cx', 0);
+                      .transition().duration(5000)
+                      .attr('r', function(_, i) { console.log(i, planets[i].name, planets[i].size, planets[i].size * proportion); return (planets[i].size * proportion) / 2; })
+                      .attr('cx', function(_, i) { return i * step; });
+
                 };
             }
 
