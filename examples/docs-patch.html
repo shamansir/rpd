@@ -129,12 +129,14 @@
                                .attr('cy', neptuneInitial.attr('cy') / logoViewBoxHeight * logoHeight)
                                .attr('r', neptuneInitial.attr('r') / logoViewBoxWidth * logoWidth)
                                //.attr('fill', 'rgba(' + (20 * (planets.length - i)) + ', 0, 0, 1)')
-                               .attr('fill', 'rgba(255, 0, 0, 1)');
+                               .attr('fill', 'rgba(255, 0, 0, 1)')
+                               .attr('stroke', 'white')
+                               .attr('stroke-width', neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth);
                       });
                   });
 
                 return function() {
-
+                    //planets.
                 };
             }
 
