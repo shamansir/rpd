@@ -118,7 +118,8 @@
                                .attr('cy', sunInitial.attr('cy') / logoViewBoxHeight * logoHeight)
                                .attr('r', sunInitial.attr('r') / logoViewBoxWidth * logoWidth)
                                //.attr('fill', 'rgba(' + (20 * (planets.length - i)) + ', 0, 0, 1)')
-                               .attr('fill', 'rgba(255, 0, 0, 1)');
+                               .attr('fill', 'rgba(255, 0, 0, 1)')
+                               .data(planet);
                       });
 
                       planets.filter(function(planet) {
@@ -131,17 +132,19 @@
                                //.attr('fill', 'rgba(' + (20 * (planets.length - i)) + ', 0, 0, 1)')
                                .attr('fill', 'rgba(255, 0, 0, 1)')
                                .attr('stroke', 'white')
-                               .attr('stroke-width', neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth);
+                               .attr('stroke-width', neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth)
+                               .data(planet);
                       });
                   });
 
                 return function() {
-                    //planets.
+                    d3.select(root).selectAll('circle')
+                      .transition().duration(5000).attr('cx', 0);
                 };
             }
 
             var animate = addPlanets(document.getElementById('planets'), document.getElementById('rpd-logo'), {}, 500, 140);
-            //animate();
+            animate();
         </script>
     </body>
 </html>
