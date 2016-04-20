@@ -141,12 +141,12 @@
 
                 return function() {
                     var step = width / planets.length;
-                    var proportion = logoHeight / planets[5].size * 0.85;
+                    var proportion = logoHeight / planets[5].size * 0.4; //* 0.85;
 
                     d3.select(root).selectAll('circle')
                       .transition().duration(5000)
                       .attr('r', function(_, i) { console.log(i, planets[i].name, planets[i].size, planets[i].size * proportion); return (planets[i].size * proportion) / 2; })
-                      .attr('cx', function(_, i) { return i * step; });
+                      .attr('cx', function(_, i) { return (planets.length - (i/* + 1*/)) * step; });
 
                 };
             }
