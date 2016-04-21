@@ -88,6 +88,27 @@
                     //{ name: "Pluto", size: 0.186 }     /*9*/
                 ];
 
+                var gradient = d3.select(root).append("svg:defs")
+                  .append("svg:linearGradient")
+                    .attr("id", "gradient")
+                    .attr("x1", "0%")
+                    .attr("y1", "0%")
+                    .attr("x2", "100%")
+                    .attr("y2", "0%")
+                    .attr("spreadMethod", "pad");
+                gradient.append("svg:stop")
+                    .attr("offset", "0%")
+                    .attr("stop-color", "yellow")
+                    .attr("stop-opacity", 0.6);
+                gradient.append("svg:stop")
+                    .attr("offset", "100%")
+                    .attr("stop-color", "red")
+                    .attr("stop-opacity", 0.6);
+                /* svg.append("svg:rect")
+                    .attr("width", width)
+                    .attr("height", 8)
+                    .style("fill", "url(#gradient)"); */
+
             function addPlanets(root, logoRef, config, width, height) {
 
                 var sunInitial, neptuneInitial;
@@ -133,6 +154,7 @@
                                .attr('r', neptuneInitial.attr('r') / logoViewBoxWidth * logoWidth)
                                //.attr('fill', 'rgba(' + (20 * (planets.length - i)) + ', 0, 0, 1)')
                                .attr('fill', 'rgba(255, 0, 0, 1)')
+                               //.attr('fill', 'url(#gradient)')
                                .attr('stroke', 'white')
                                .attr('stroke-width', neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth)
                                .data(planet);
