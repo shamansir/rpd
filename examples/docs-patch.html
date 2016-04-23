@@ -108,40 +108,28 @@
                 });
 
                 var defs = d3.select(root).append("svg:defs");
-                var yellowToRedGrad = defs.append("svg:radialGradient")
-                    .attr("id", "yellowToRedGrad")
-                    .attr("gradientUnits", "objectBoundingBox")
-                    .attr("cx", "0")
-                    .attr("cy", "0")
-                    .attr("r", "100%");
-                yellowToRedGrad.append("svg:stop")
-                    .attr("offset", "0%")
-                    .attr("stop-color", "yellow")
-                    .attr("stop-opacity", 1);
-                yellowToRedGrad.append("svg:stop")
-                    .attr("offset", "100%")
-                    .attr("stop-color", "red")
-                    .attr("stop-opacity", 1);
-                /* svg.append("svg:rect")
-                    .attr("width", width)
-                    .attr("height", 8)
-                    .style("fill", "url(#gradient)"); */
 
-                var blackGrad =
-                  defs.append("svg:radialGradient")
-                    .attr("id", "blackGrad")
-                    .attr("gradientUnits", "objectBoundingBox")
-                    .attr("cx", "0")
-                    .attr("cy", "0")
-                    .attr("r", "100%");
-                blackGrad.append("svg:stop")
-                    .attr("offset", "0%")
-                    .attr("stop-color", "black")
-                    .attr("stop-opacity", 1);
-                blackGrad.append("svg:stop")
-                    .attr("offset", "100%")
-                    .attr("stop-color", "black")
-                    .attr("stop-opacity", 1);
+                var gradients = [];
+
+                planets.forEach(function(planet, i) {
+                    defs.append("svg:radialGradient")
+                        .attr("id", "gradient-" + i)
+                        .attr("gradientUnits", "objectBoundingBox")
+                        .attr("cx", "0")
+                        .attr("cy", "0")
+                        .attr("r", "100%")
+                        .call(function(grad) {
+                            grad.append("svg:stop")
+                                .attr("offset", "0%")
+                                .attr("stop-color", "yellow")
+                                .attr("stop-opacity", 1);
+                            grad.append("svg:stop")
+                                .attr("offset", "100%")
+                                .attr("stop-color", "red")
+                                .attr("stop-opacity", 1);
+                        });
+
+                });
 
                 d3.select(root)
                   .append('g')
@@ -184,7 +172,7 @@
                       .transition().duration(5000)
                       .attr('r', function(_, i) { console.log(i, planets[i].name, planets[i].size, planets[i].size * proportion); return (planets[i].size * proportion) / 2; })
                       .attr('cx', function(_, i) { return (planets.length - (i/* + 1*/)) * step; })
-                      .attr('fill', function(_, i) { return 'url(#yellowToRedGrad)'; });
+                      .attr('fill', function(_, i) { return 'url(#gradient-' + i + ')'; });
 
                 };
             }
