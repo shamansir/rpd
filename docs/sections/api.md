@@ -22,7 +22,7 @@ From this point and below, let's consider some example to illustrate the practic
 
 #### `Rpd.stopRendering()`
 
-#### `Rpd.addPatch([title], [def]) -> Patch`
+#### `Rpd.addPatch([title], [def]) → Patch`
 
 Adds new patch to the network. Patch is a container for a set of nodes and connections between them. Every patch added this way is _opened_ by default, which means that it is rendered right away, and reacts immediately to every following change. You may set a patch title here and, also optionally, define handlers for the [events happening inside](./events.md#Patch), this way:
 
@@ -44,7 +44,7 @@ Nodes are connected with links going from outputs of one node to inputs of anoth
 
 #### `patch.render(renderers, targets, config)`
 
-#### `patch.addNode(type, title, [def])`
+#### `patch.addNode(type, title, [def]) → Node`
 
 Add a node, which represents any process over some inputs (inlets) and sends result of the process to its outputs (outlets). A node can have no inputs or no outputs at all, or even both, so in the latter case this node is called self-sufficient.
 
@@ -78,7 +78,7 @@ Closing the patch means that the canvas of this patch is hidden and moved to the
 
 #### `patch.moveCanvas(x, y)`
 
-Move the canvas of the patch to the given position, relatively to the root element's top left corner.
+Move the canvas of the patch to given position, treated relatively to the root element's top left corner.
 
 #### `patch.resizeCanvas(width, height)`
 
@@ -88,19 +88,40 @@ Resize the canvas of the patch. This means all the visuals belonging to this pat
 
 Node represents the thing we call procedure in programming: it receives data through its inputs (inlets), does something using that data and returns either the same data, modified or not, or completely different data in response using outputs (outlets). But from this point, it goes beyond, since it may visualize the process inside its body or add some complex visual controls for additional inputs. On the other hand, it may stay in a boring state and have no inputs, no outputs and even no content at all. Everything depends only on yours decision.
 
-#### `node.addInlet(type, alias, [def])`
+#### `node.addInlet(type, alias, [def]) → Inlet`
 
-Add
+Add the input channel to this node, so it will be able to receive data and pass this data inside the node. You need to specify the type of this channel, so the system will know which way to process your data before passing it inside, or even decline connections from other types of channels. `core/any` is the system type which accepts connections from outlets of any type, so probably for start you'd want to use it. Later, though, it could be better to change it to something more specific, i.e. decide that it accepts only numbers or colors values. This will allow you to control the way data in this channel is displayed or even add custom _value editor_ to this channel.
 
-#### `node.addOutlet(type, alias, [def])`
+The second argument, `alias`, is the label of this channel displayed to user and also may be used to access this inlet from inside the node, so it's recommended to make it one-word and start from lowercase letter, like the key names you normally use for JavaScript objects. There is another form of this method, `addInlet(type, alias, label, [def])`, using which you may specify user-friendly name to display in UI with `label` attribute, and still use short programmer-friendly `alias` to access this inlet from the code.
+
+Last argument, `def`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Inlet](#Inlet) section below.
+
+By default, inlets accept connection only from one outlet, so when user connects some other outlet to this inlet, the previous connection, if it existed, is immediately and automatically removed. Though, you can pass an option to the renderer named `inletsAcceptMultipleLinks` and set it to `true`, so multiple connections will be available to user and inlets will receive values from all the outlets connected in order they were fired. <!-- FIXME: check if it works and consider #336 -->
+
+#### `node.addOutlet(type, alias, [def]) → Outlet`
+
+Add the output channel to this node, so it will be able to send data to the inlets of other nodes, when connected to them. Same way as for `addInlet` method described above and following the same reasons, you need to specify the type of the channel, which can be `core/any` while you do experiments and is recommended to be changed to something more specific later, unless this channel was really intended to accept anything.
+
+Also, you need to specify `alias`, to be able to access this outlet from the code using this `alias`. It is recommended to be short, preferably one-word and to start from lowercase letter. If you want to show user something more eye-candy, you may use another form of this method, `addOutlet(type, alias, label, [def])`.
+
+
+Last argument, `def`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Outlet](#Outlet) section below.
 
 #### `node.removeInlet(inlet)`
 
+Remove specified inlet from the node. Node stops receiving any updates sent to this inlet and so removes this inlet from its data flow.
+
 #### `node.removeOutlet(outlet)`
+
+Remove specified outlet from the node. Node stops sending any values passed to this outlet and so removes this outlet from its data flow.
 
 #### `node.move(x, y)`
 
+Move this node to specified position relatively to the top left corner of the canvas of the patch it belongs to.
+
 #### `node.turnOn()`
+
+Turn this node on, so it pr
 
 #### `node.turnOff()`
 
@@ -116,7 +137,7 @@ Add
 
 ### `Outlet`
 
-#### `outlet.connect(inlet)`
+#### `outlet.connect(inlet) → Link`
 
 #### `outlet.disconnect(link)`
 
