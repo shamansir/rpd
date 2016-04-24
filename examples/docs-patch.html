@@ -95,6 +95,7 @@
                 var logoWidth, logoHeight,
                     logoViewBoxWidth, logoViewBoxHeight;
 
+
                 d3.select(logoRef).call(function(logoRef) {
                     sunInitial = logoRef.select(LOGO_SUN_REF);
                     neptuneInitial = logoRef.select(LOGO_NEPTUNE_REF);
@@ -112,23 +113,24 @@
                 var gradients = [];
 
                 planets.forEach(function(planet, i) {
-                    defs.append("svg:radialGradient")
-                        .attr("id", "gradient-" + i)
-                        .attr("gradientUnits", "objectBoundingBox")
-                        .attr("cx", "0")
-                        .attr("cy", "0")
-                        .attr("r", "100%")
-                        .call(function(grad) {
-                            grad.append("svg:stop")
-                                .attr("offset", "0%")
-                                .attr("stop-color", "yellow")
-                                .attr("stop-opacity", 1);
-                            grad.append("svg:stop")
-                                .attr("offset", "100%")
-                                .attr("stop-color", "red")
-                                .attr("stop-opacity", 1);
-                        });
-
+                    gradients.push(
+                        defs.append("radialGradient")
+                            .attr("id", "gradient-" + i)
+                            .attr("gradientUnits", "objectBoundingBox")
+                            .attr("cx", "0")
+                            .attr("cy", "0")
+                            .attr("r", "100%")
+                            .call(function(grad) {
+                                grad.append("stop")
+                                    .attr("offset", "0%")
+                                    .attr("stop-color", "black")
+                                    .attr("stop-opacity", 1);
+                                grad.append("stop")
+                                    .attr("offset", "100%")
+                                    .attr("stop-color", "black")
+                                    .attr("stop-opacity", 1);
+                            })
+                    );
                 });
 
                 d3.select(root)
@@ -142,7 +144,7 @@
                                .attr('cy', sunInitial.attr('cy') / logoViewBoxHeight * logoHeight)
                                .attr('r', sunInitial.attr('r') / logoViewBoxWidth * logoWidth)
                                //.attr('fill', 'rgba(' + (20 * (planets.length - i)) + ', 0, 0, 1)')
-                               .attr('fill', 'url(#blackGrad)')
+                               .attr('fill', 'url(#gradient-' + i + ')')
                                .attr('stroke-width', 1)
                                .attr('stroke', 'black')
                                .data(planet);
@@ -150,13 +152,13 @@
 
                       planets.filter(function(planet) {
                           return planet.name === 'Neptune';
-                      }).forEach(function(planet) {
+                      }).forEach(function(planet, i) {
                           group.append('circle')
                                .attr('cx', neptuneInitial.attr('cx') / logoViewBoxWidth * logoWidth)
                                .attr('cy', neptuneInitial.attr('cy') / logoViewBoxHeight * logoHeight)
                                .attr('r', neptuneInitial.attr('r') / logoViewBoxWidth * logoWidth)
                                //.attr('fill', 'rgba(' + (20 * (planets.length - i)) + ', 0, 0, 1)')
-                               .attr('fill', 'url(#blackGrad)')
+                               .attr('fill', 'url(#gradient-' + i + ')')
                                //.attr('fill', 'url(#gradient)')
                                .attr('stroke', 'white')
                                .attr('stroke-width', neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth)
@@ -170,9 +172,13 @@
 
                     d3.select(root).selectAll('circle')
                       .transition().duration(5000)
-                      .attr('r', function(_, i) { console.log(i, planets[i].name, planets[i].size, planets[i].size * proportion); return (planets[i].size * proportion) / 2; })
-                      .attr('cx', function(_, i) { return (planets.length - (i/* + 1*/)) * step; })
-                      .attr('fill', function(_, i) { return 'url(#gradient-' + i + ')'; });
+                      .attr('r', function(_, i) { return (planets[i].size * proportion) / 2; })
+                      .attr('cx', function(_, i) { return (planets.length - (i/* + 1*/)) * step; });
+
+                    d3.select(defs.node()).selectAll('radialGradient')
+                      .select('stop:last-child')
+                      .transition().duration(5000)
+                      .attr('stop-color', function(_, i) { console.log(i); return 'rgba(' + (i * 30) + ', 60, 60, 1)'; });
 
                 };
             }
