@@ -111,6 +111,7 @@
                 var defs = d3.select(root).append("svg:defs");
 
                 var gradients = [];
+                var stop_distribution = ['0%', '60%', '100%'];
 
                 planets.forEach(function(planet, i) {
                     gradients.push(
@@ -120,16 +121,14 @@
                             .attr("cx", "0")
                             .attr("cy", "0")
                             .attr("r", "100%")
-                            .call(function(grad) {
-                                grad.append("stop")
-                                    .attr("offset", "0%")
-                                    .attr("stop-color", "black")
-                                    .attr("stop-opacity", 1);
-                                grad.append("stop")
-                                    .attr("offset", "100%")
-                                    .attr("stop-color", "black")
-                                    .attr("stop-opacity", 1);
-                            })
+                            .call((function(planet) { return function(grad) {
+                                planet.colors.forEach(function(color, i) {
+                                    grad.append("stop")
+                                        .attr("offset", stop_distribution[i])
+                                        .attr("stop-color", 'black')
+                                        .attr("stop-opacity", 1);
+                                });
+                            } })(planet)) // FIXME: use data()
                     );
                 });
 
@@ -146,8 +145,7 @@
                                //.attr('fill', 'rgba(' + (20 * (planets.length - i)) + ', 0, 0, 1)')
                                .attr('fill', 'url(#gradient-' + i + ')')
                                .attr('stroke-width', 1)
-                               .attr('stroke', 'black')
-                               .data(planet);
+                               .attr('stroke', 'black');
                       });
 
                       planets.filter(function(planet) {
@@ -161,8 +159,7 @@
                                .attr('fill', 'url(#gradient-' + i + ')')
                                //.attr('fill', 'url(#gradient)')
                                .attr('stroke', 'white')
-                               .attr('stroke-width', neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth)
-                               .data(planet);
+                               .attr('stroke-width', neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth);
                       });
                   });
 
@@ -177,9 +174,19 @@
                       .attr('cx', function(_, i) { return (planets.length - (i/* + 1*/)) * step; });
 
                     d3.select(defs.node()).selectAll('radialGradient')
-                      .select('stop:last-child')
-                      .transition().duration(5000)
-                      .attr('stop-color', function(_, i) { console.log(i); return 'rgba(' + (i * 30) + ', 60, 60, 1)'; });
+                      .each(function(_, i) {
+                          var grad = d3.select(this);
+                          var planet = planets[i];
+                          console.log(this, grad, planet);
+                          grad.selectAll('stop').each((function(planet) { return function(_, j) {
+                              d3.select(this)
+                                .transition().duration(5000)
+                                .attr('stop-color', (function(toColor) {
+                                    return function() {
+                                        return toColor;
+                                    } })(planet.colors[j]))
+                          } })(planet));
+                      });
 
                 };
             }
