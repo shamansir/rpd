@@ -76,15 +76,15 @@
                 height = 140;
 
             var planets = [
-                    { name: "Sun", size: 109.3 },      /*0*/
-                    { name: "Mercury", size: 0.3829 }, /*1*/
-                    { name: "Venus", size: 0.9499 },   /*2*/
-                    { name: "Earth", size: 1.0 },      /*3*/
-                    { name: "Mars", size: 0.5320 },    /*4*/
-                    { name: "Jupiter", size: 10.97 },  /*5*/
-                    { name: "Saturn", size: 9.140 },   /*6*/
-                    { name: "Uranus", size: 3.981 },   /*7*/
-                    { name: "Neptune", size: 3.865 }   /*8*/
+                    { name: "Sun", size: 109.3, colors: [ '#fda42b', '#f96e22', '#f00e1a' ] },      /*0*/
+                    { name: "Mercury", size: 0.3829, colors: [ '#b5adaa', '#535355', '#232323' ] }, /*1*/
+                    { name: "Venus", size: 0.9499, colors: [ '#cdc8c2', '#615d41', '#525355' ] },   /*2*/
+                    { name: "Earth", size: 1.0, colors: [ '#314051', '#b79a76', '#e8f1e2' ] },      /*3*/
+                    { name: "Mars", size: 0.5320, colors: [ '#ed955f', '#b3734a', '#163c6a' ] },    /*4*/
+                    { name: "Jupiter", size: 10.97, colors: [ '#f0eff4', '#935f51', '#cbbaa1' ] },  /*5*/
+                    { name: "Saturn", size: 9.140, colors: [ '#dfceb0', '#b99a7d', '#d7c4d2' ] },   /*6*/
+                    { name: "Uranus", size: 3.981, colors: [ '#cef4f5', '#acd3d8', '#49696d' ] },   /*7*/
+                    { name: "Neptune", size: 3.865, colors: [ '#466aff', '#3948bf', '#1e2051' ] }   /*8*/
                     //{ name: "Pluto", size: 0.186 }     /*9*/
                 ];
 
@@ -169,6 +169,7 @@
                 return function() {
                     var step = width / planets.length;
                     var proportion = logoHeight / planets[5].size * 0.4; //* 0.85;
+                    //var proportion = logoHeight;
 
                     d3.select(root).selectAll('circle')
                       .transition().duration(5000)
