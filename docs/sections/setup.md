@@ -13,7 +13,7 @@ RPD with default options can be downloaded here:
 
 You'll also need [Kefir.js][kefir], since RPD code is based on Reactive Streams, which it provides.
 ​
-But default options restrict your choice, while RPD provides truly a lot more. See [Compilation](#Compilation) section below for details. And you are surely safe to transfer your network code to use it with other options, if you already have one, the only requirement is to change few string values.
+But default options restrict your choice, while RPD provides truly a lot more. See [Compilation](#Compilation) section below for details. And you are surely safe to transfer your network code to use it with other options, if you already have one, the only requirement could be is to change few string values.
 ​
 ### Setup
 ​
@@ -25,9 +25,8 @@ To use either downloaded or compiled version of RPD, you need to include three f
     <head>
         <meta charset="utf-8" />
 
-        <!-- RPD compiled CSS file, it includes rendering and style-dependent
-             rules (selected Renderer and Style are both listed in the top
-             lines of this file, in the first comment section) -->
+        <!-- Compiled CSS file, it includes rendering and style-dependent
+             rules (both Renderer and Style selected at compilation stage are  listed in the top lines of this file) -->
         <link rel="stylesheet"
               href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css">
         </link>
@@ -47,6 +46,12 @@ To use either downloaded or compiled version of RPD, you need to include three f
     </body>
 </html>
 ```
+
+> Here, remote files are named `rpd-html`, but in majority of cases I personally
+> use `rpd.css` and `rpd.js` respectively. All the compilation preferences are
+> listed in the comments sections, in both files, including the commands used
+> to build them, so it is always easy to get what is included just by looking
+> inside.
 
 For the local version, paths would be `./dist/rpd.css`, `./vendor/kefir.min.js` and `./dist/rpd.min.js` respectively.
 ​
