@@ -76,15 +76,15 @@
                 height = 140;
 
             var planets = [
-                    { name: "Sun", size: 109.3, colors: [ '#fda42b', '#f96e22', '#f00e1a' ] },      /*0*/
-                    { name: "Mercury", size: 0.3829, colors: [ '#b5adaa', '#535355', '#232323' ] }, /*1*/
-                    { name: "Venus", size: 0.9499, colors: [ '#cdc8c2', '#615d41', '#525355' ] },   /*2*/
-                    { name: "Earth", size: 1.0, colors: [ '#314051', '#b79a76', '#e8f1e2' ] },      /*3*/
-                    { name: "Mars", size: 0.5320, colors: [ '#ed955f', '#b3734a', '#163c6a' ] },    /*4*/
-                    { name: "Jupiter", size: 10.97, colors: [ '#f0eff4', '#935f51', '#cbbaa1' ] },  /*5*/
-                    { name: "Saturn", size: 9.140, colors: [ '#dfceb0', '#b99a7d', '#d7c4d2' ] },   /*6*/
-                    { name: "Uranus", size: 3.981, colors: [ '#cef4f5', '#acd3d8', '#49696d' ] },   /*7*/
-                    { name: "Neptune", size: 3.865, colors: [ '#466aff', '#3948bf', '#1e2051' ] }   /*8*/
+                    { name: 'Sun', size: 109.3, colors: [ '#fda42b', '#f96e22', '#f00e1a' ] },      /*0*/
+                    { name: 'Mercury', size: 0.3829, colors: [ '#b5adaa', '#535355', '#232323' ] }, /*1*/
+                    { name: 'Venus', size: 0.9499, colors: [ '#cdc8c2', '#615d41', '#525355' ] },   /*2*/
+                    { name: 'Earth', size: 1.0, colors: [ '#314051', '#b79a76', '#e8f1e2' ] },      /*3*/
+                    { name: 'Mars', size: 0.5320, colors: [ '#ed955f', '#b3734a', '#163c6a' ] },    /*4*/
+                    { name: 'Jupiter', size: 10.97, colors: [ '#f0eff4', '#935f51', '#cbbaa1' ] },  /*5*/
+                    { name: 'Saturn', size: 9.140, colors: [ '#dfceb0', '#b99a7d', '#d7c4d2' ] },   /*6*/
+                    { name: 'Uranus', size: 3.981, colors: [ '#cef4f5', '#acd3d8', '#49696d' ] },   /*7*/
+                    { name: 'Neptune', size: 3.865, colors: [ '#466aff', '#3948bf', '#1e2051' ] }   /*8*/
                     //{ name: "Pluto", size: 0.186 }     /*9*/
                 ];
 
@@ -94,7 +94,6 @@
 
                 var logoWidth, logoHeight,
                     logoViewBoxWidth, logoViewBoxHeight;
-
 
                 d3.select(logoRef).call(function(logoRef) {
                     sunInitial = logoRef.select(LOGO_SUN_REF);
@@ -108,84 +107,67 @@
                     logoViewBoxHeight = viewBox[3];
                 });
 
-                var defs = d3.select(root).append("svg:defs");
+                var defs = d3.select(root).append('svg:defs');
 
                 var gradients = [];
                 var stop_distribution = ['0%', '60%', '100%'];
 
-                planets.forEach(function(planet, i) {
-                    gradients.push(
-                        defs.append("radialGradient")
-                            .attr("id", "gradient-" + i)
-                            .attr("gradientUnits", "objectBoundingBox")
-                            .attr("cx", "0")
-                            .attr("cy", "0")
-                            .attr("r", "100%")
-                            .call((function(planet) { return function(grad) {
-                                planet.colors.forEach(function(color, i) {
-                                    grad.append("stop")
-                                        .attr("offset", stop_distribution[i])
-                                        .attr("stop-color", 'black')
-                                        .attr("stop-opacity", 1);
-                                });
-                            } })(planet)) // FIXME: use data()
-                    );
-                });
+                defs.selectAll('radialGradient')
+                    .data(planets)
+                    .enter().append('radialGradient')
+                    .attr('id', function(planet) { return 'gradient-' + planet.name; })
+                    .attr('gradientUnits', 'objectBoundingBox')
+                    .attr('cx', '0')
+                    .attr('cy', '0')
+                    .attr('r', '100%')
+                    .each(function() {
+                        d3.select(this).selectAll('stop')
+                          .data(function(planet) { return planet.colors; })
+                          .enter().append('stop')
+                          .attr('offset', function(color, i) { return stop_distribution[i]; })
+                          .attr('stop-color', 'black')
+                          .attr('stop-opacity', 1)
+                    });
 
-                d3.select(root)
-                  .append('g')
-                  .call(function(group) {
-                      planets.filter(function(planet) {
-                         return planet.name !== 'Neptune';
-                      }).forEach(function(planet, i) {
-                          group.append('circle')
-                               .attr('cx', sunInitial.attr('cx') / logoViewBoxWidth * logoWidth)
-                               .attr('cy', sunInitial.attr('cy') / logoViewBoxHeight * logoHeight)
-                               .attr('r', sunInitial.attr('r') / logoViewBoxWidth * logoWidth)
-                               //.attr('fill', 'rgba(' + (20 * (planets.length - i)) + ', 0, 0, 1)')
-                               .attr('fill', 'url(#gradient-' + i + ')')
-                               .attr('stroke-width', 1)
-                               .attr('stroke', 'black');
-                      });
+                d3.select(root).append('g').selectAll('circle')
+                  .data(planets)
+                  .enter().append('circle')
+                  .attr('cx', function(planet) {
+                       return (planet.name !== 'Neptune') ? (sunInitial.attr('cx') / logoViewBoxWidth * logoWidth)
+                                                          : (neptuneInitial.attr('cx') / logoViewBoxWidth * logoWidth);
+                   })
+                  .attr('cy', function(planet) {
+                       return (planet.name !== 'Neptune') ? (sunInitial.attr('cy') / logoViewBoxHeight * logoHeight)
+                                                          : (neptuneInitial.attr('cy') / logoViewBoxHeight * logoHeight);
+                   })
+                  .attr('r', function(planet) {
+                       return (planet.name !== 'Neptune') ? (sunInitial.attr('r') / logoViewBoxWidth * logoWidth)
+                                                          : (neptuneInitial.attr('r') / logoViewBoxWidth * logoWidth);
+                   })
+                  .attr('fill', function(planet) { return 'url(#gradient-' + planet.name + ')'; })
+                  .attr('stroke-width', function(planet) {
+                        return (planet.name !== 'Neptune') ? 1 : (neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth);
+                   })
+                  .attr('stroke', function(planet) { return (planet.name !== 'Neptune') ? 'black' : 'white'; });
 
-                      planets.filter(function(planet) {
-                          return planet.name === 'Neptune';
-                      }).forEach(function(planet, i) {
-                          group.append('circle')
-                               .attr('cx', neptuneInitial.attr('cx') / logoViewBoxWidth * logoWidth)
-                               .attr('cy', neptuneInitial.attr('cy') / logoViewBoxHeight * logoHeight)
-                               .attr('r', neptuneInitial.attr('r') / logoViewBoxWidth * logoWidth)
-                               //.attr('fill', 'rgba(' + (20 * (planets.length - i)) + ', 0, 0, 1)')
-                               .attr('fill', 'url(#gradient-' + i + ')')
-                               //.attr('fill', 'url(#gradient)')
-                               .attr('stroke', 'white')
-                               .attr('stroke-width', neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth);
-                      });
-                  });
+                return function() { /* --- animate --- */
 
-                return function() {
                     var step = width / planets.length;
                     var proportion = logoHeight / planets[5].size * 0.4; //* 0.85;
                     //var proportion = logoHeight;
 
                     d3.select(root).selectAll('circle')
                       .transition().duration(5000)
-                      .attr('r', function(_, i) { return (planets[i].size * proportion) / 2; })
+                      .attr('r', function(planet, i) { return (planet.size * proportion) / 2; })
                       .attr('cx', function(_, i) { return (planets.length - (i/* + 1*/)) * step; });
 
                     d3.select(defs.node()).selectAll('radialGradient')
-                      .each(function(_, i) {
-                          var grad = d3.select(this);
-                          var planet = planets[i];
-                          console.log(this, grad, planet);
-                          grad.selectAll('stop').each((function(planet) { return function(_, j) {
+                      .each(function(planet, i) {
+                          d3.select(this).selectAll('stop').each(function() {
                               d3.select(this)
                                 .transition().duration(5000)
-                                .attr('stop-color', (function(toColor) {
-                                    return function() {
-                                        return toColor;
-                                    } })(planet.colors[j]))
-                          } })(planet));
+                                .attr('stop-color', function(toColor) { return toColor; });
+                          });
                       });
 
                 };
