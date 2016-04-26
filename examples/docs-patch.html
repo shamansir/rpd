@@ -129,9 +129,9 @@
                           .attr('stop-opacity', 1)
                     });
 
-                d3.select(root).append('g').selectAll('circle')
+                d3.select(root).append('g').selectAll('g')
                   .data(planets)
-                  .enter().append('circle')
+                  .enter().append('g').classed('planet', true).append('circle')
                   .attr('cx', function(planet) {
                        return (planet.name !== 'Neptune') ? (sunInitial.attr('cx') / logoViewBoxWidth * logoWidth)
                                                           : (neptuneInitial.attr('cx') / logoViewBoxWidth * logoWidth);
@@ -146,17 +146,16 @@
                    })
                   .attr('fill', function(planet) { return 'url(#gradient-' + planet.name + ')'; })
                   .attr('stroke-width', function(planet) {
-                        return (planet.name !== 'Neptune') ? 1 : (neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth);
+                        return (planet.name !== 'Neptune') ? 0 : (neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth);
                    })
                   .attr('stroke', function(planet) { return (planet.name !== 'Neptune') ? 'black' : 'white'; });
 
-                return function() { /* --- animate --- */
-
+                return function() {
                     var step = width / planets.length;
-                    var proportion = logoHeight / planets[5].size * 0.4; //* 0.85;
+                    var proportion = logoHeight / planets[5].size * 0.47; //* 0.85;
                     //var proportion = logoHeight;
 
-                    d3.select(root).selectAll('circle')
+                    d3.select(root).selectAll('g.planet > circle')
                       .transition().duration(5000)
                       .attr('r', function(planet, i) { return (planet.size * proportion) / 2; })
                       .attr('cx', function(_, i) { return (planets.length - (i/* + 1*/)) * step; });
