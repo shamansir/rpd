@@ -92,6 +92,12 @@
                 shapeShiftEasing = 'cubic-in',
                 colorShiftEasing = 'quad-out';
 
+            var shadowXOffset = 1.5,
+                shadowYOffset = 0.5,
+                shadowSizeFactor = 1.15,
+                shadowColor = 'rgb(50, 80, 80)',
+                shadowOpacity = 0.15;
+
             function addPlanets(root, logoRef, config, width, height) {
 
                 var sunInitial, neptuneInitial;
@@ -133,33 +139,38 @@
                           .attr('stop-opacity', 1)
                     });
 
+                planets.forEach(function(planet) {
+                   planet.attrs = {
+                       x: (planet.name !== 'Neptune') ? (sunInitial.attr('cx') / logoViewBoxWidth * logoWidth)
+                                                      : (neptuneInitial.attr('cx') / logoViewBoxWidth * logoWidth),
+                       y: (planet.name !== 'Neptune') ? (sunInitial.attr('cy') / logoViewBoxHeight * logoHeight)
+                                                      : (neptuneInitial.attr('cy') / logoViewBoxHeight * logoHeight),
+                       r: (planet.name !== 'Neptune') ? (sunInitial.attr('r') / logoViewBoxWidth * logoWidth)
+                                                      : (neptuneInitial.attr('r') / logoViewBoxWidth * logoWidth),
+                       strokeWidth: (planet.name !== 'Neptune') ? 0 : (neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth),
+                       strokeColor: (planet.name !== 'Neptune') ? 'black' : 'white'
+                   }
+                });
+
+                function planetAttr(name) { return function(planet) { return planet.attrs[name]; } };
+                function planetAttrAnd(name, f) { return function(planet) { return f(planet.attrs[name]); } };
+
                 d3.select(root).append('g').selectAll('g')
                   .data(planets)
                   .enter().append('g').classed('planet', true)
                   .call(function(group) {
-                      var frontCircle =
+                      group.append('circle').classed('back', true)
+                           .attr('cx', planetAttrAnd('x', function(x) { return x + shadowXOffset; }))
+                           .attr('cy', planetAttrAnd('y', function(y) { return y + shadowYOffset; }))
+                           .attr('r', planetAttrAnd('r', function(r) { return r * shadowSizeFactor; }))
+                           .attr('fill', 'white');
                       group.append('circle').classed('front', true)
-                           .attr('cx', function(planet) {
-                                return (planet.name !== 'Neptune') ? (sunInitial.attr('cx') / logoViewBoxWidth * logoWidth)
-                                                                   : (neptuneInitial.attr('cx') / logoViewBoxWidth * logoWidth);
-                            })
-                           .attr('cy', function(planet) {
-                                return (planet.name !== 'Neptune') ? (sunInitial.attr('cy') / logoViewBoxHeight * logoHeight)
-                                                                  : (neptuneInitial.attr('cy') / logoViewBoxHeight * logoHeight);
-                            })
-                           .attr('r', function(planet) {
-                                return (planet.name !== 'Neptune') ? (sunInitial.attr('r') / logoViewBoxWidth * logoWidth)
-                                                                  : (neptuneInitial.attr('r') / logoViewBoxWidth * logoWidth);
-                            })
+                           .attr('cx', planetAttr('x'))
+                           .attr('cy', planetAttr('y'))
+                           .attr('r', planetAttr('r'))
                            .attr('fill', function(planet) { return 'url(#gradient-' + planet.name + ')'; })
-                           .attr('stroke-width', function(planet) {
-                                 return (planet.name !== 'Neptune') ? 0 : (neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth);
-                            })
-                           .attr('stroke', function(planet) { return (planet.name !== 'Neptune') ? 'black' : 'white'; });
-                      /* group.append('circle').classed('back', true)
-                           .attr('cx', frontCircle.attr('cx'))
-                           .attr('cy', frontCircle.attr('cy'))
-                           .attr('r', frontCircle.attr('r')); */
+                           .attr('stroke-width', planetAttr('strokeWidth'))
+                           .attr('stroke', planetAttr('strokeColor'));
                   });
 
                 return function() {
@@ -171,6 +182,14 @@
                       .transition().duration(duration).ease(shapeShiftEasing)
                       .attr('r', function(planet, i) { return (planet.size * proportion) / 2; })
                       .attr('cx', function(_, i) { return (planets.length - (i/* + 1*/)) * step; });
+
+                    d3.select(root).selectAll('g.planet > circle.back')
+                      //.transition('foo').duration(duration).ease(shadowColorEasing)
+                      .transition('foo').duration(duration).ease(shapeShiftEasing)
+                      .attr('fill', shadowColor)
+                      .attr('fill-opacity', shadowOpacity)
+                      .attr('r', function(planet, i) { return ((planet.size * proportion) / 2) * shadowSizeFactor; })
+                      .attr('cx', function(_, i) { return ((planets.length - (i/* + 1*/)) * step) + shadowXOffset; });
 
                     d3.select(defs.node()).selectAll('radialGradient')
                       .each(function(planet, i) {
