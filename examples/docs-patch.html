@@ -200,14 +200,17 @@
                 var textInitialScaleHorz = (logoWidth / logoViewBoxWidth),
                     textInitialScaleVert = textInitialScaleHorz;
 
-                var initialTextPosX = 233.84363630000001,
-                    initialTextPosY = 184.90545450000002;
+                var textInitialPosX = 233.84363630000001,
+                    textInitialPosY = 184.90545450000002;
 
                 d3.select(root).select('g.planet#Sun')
                   .append('path').attr('d', textInitial.attr('d'))
-                  .attr('fill', 'blue')
+                  .attr('fill', 'white')
+                  .attr('fill-opacity', 1)
                   .attr('transform', 'scale(' + textInitialScaleHorz + ' ' + textInitialScaleVert + ')' + ' ' +
-                                     'translate(' + initialTextPosX + ' ' + initialTextPosY + ')');
+                                     'translate(' + textInitialPosX + ' ' + textInitialPosY + ')');
+
+                //console.log(d3.select(root).select('g.planet#Sun path').attr('transform'));
 
                 return function() {
                     //var proportion = logoHeight;
@@ -247,15 +250,21 @@
                    d3.select(root).select('g.planet#Sun path')
                      .attr('a', function(p, i) { console.log(p, i); })
                      .transition().delay(delay).duration(duration).ease(shapeShiftEasing)
-                     .attr('fill', 'white')
+                     .attr('fill-opacity', 0)
                      .attr('transform', function(planet, i) {
-                         var factor = endValue('r')(planet, i) / startValue('r')(planet, i);
-                         var cx = endValue('x')(planet, i),
+                         var radiusFactor = endValue('r')(planet, i) / startValue('r')(planet, i);
+                         console.log(startValue('r')(planet, i), endValue('r')(planet, i), radiusFactor);
+                         var scaleByX = textInitialScaleHorz * radiusFactor,
+                             scaleByY = textInitialScaleVert * radiusFactor;
+                         var cx = endValue('x')(planet, i) + planetOffset,
                              cy = endValue('y')(planet, i);
                         // console.log(startValue('r')(planet, i), endValue('r')(planet, i));
                          return 'translate(' + cx + ' ' + cy + ') ' +
-                                'scale(' + (textInitialScaleHorz * factor) + ' ' + (textInitialScaleVert * factor) + ') ' +
-                                'translate(' + (initialTextPosX / factor) + ' ' + (initialTextPosY / factor) + ')';
+                                'scale(' + textInitialScaleHorz + ' ' + textInitialScaleVert + ')';
+                         /* return 'translate(' + cx + ' ' + cy + ') ' +
+                                'scale(' + scaleByX + ' ' + scaleByY + ')'; */
+                         /* return 'scale(' + scaleByX + ' ' + scaleByY + ') ' +
+                                'translate(' + ((cx * textInitialScaleHorz) + textInitialPosX) + ' ' +  ((cy * textInitialScaleVert) + textInitialPosY) + ')'; */
                      });
 
                 };
