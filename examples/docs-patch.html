@@ -71,6 +71,7 @@
 
             var LOGO_SUN_REF = '#Oval-1';
             var LOGO_NEPTUNE_REF = '#Oval-2';
+            var LOGO_TEXT_REF = '#RPD-text';
 
             var width = 500,
                 height = 140;
@@ -88,21 +89,22 @@
                     //{ name: "Pluto", size: 0.186 }     /*9*/
                 ];
 
-            var duration = 5000,
+            var delay = 0,
+                duration = 5000,
                 shapeShiftEasing = 'cubic-in',
                 colorShiftEasing = 'quad-out';
 
-            var hideDuration = 2000;
+            var hideDuration = 5000;
 
             var shadowXOffset = 1.5, //1.5,
                 shadowYOffset = 0.5, //0.5,
                 shadowSizeFactor = 1.15, //1.15,
                 shadowColor = 'rgb(50, 80, 80)',
-                shadowOpacity = 0.15;
+                shadowOpacity = 0.1;
 
             function addPlanets(root, logoRef, config, width, height) {
 
-                var sunInitial, neptuneInitial;
+                var sunInitial, neptuneInitial, textInitial;
 
                 var logoWidth, logoHeight,
                     logoViewBoxWidth, logoViewBoxHeight;
@@ -110,6 +112,7 @@
                 d3.select(logoRef).call(function(logoRef) {
                     sunInitial = logoRef.select(LOGO_SUN_REF);
                     neptuneInitial = logoRef.select(LOGO_NEPTUNE_REF);
+                    textInitial = logoRef.select(LOGO_TEXT_REF);
 
                     logoWidth = parseInt(logoRef.attr('width'));
                     logoHeight = parseInt(logoRef.attr('height'));
@@ -141,8 +144,8 @@
                           .attr('stop-opacity', 1)
                     });
 
-                planets.forEach(function(planet) {
-                   planet.attrs = {
+                var startValues = planets.map(function(planet) {
+                    return {
                        x: (planet.name !== 'Neptune') ? (sunInitial.attr('cx') / logoViewBoxWidth * logoWidth)
                                                       : (neptuneInitial.attr('cx') / logoViewBoxWidth * logoWidth),
                        y: (planet.name !== 'Neptune') ? (sunInitial.attr('cy') / logoViewBoxHeight * logoHeight)
@@ -150,68 +153,110 @@
                        r: (planet.name !== 'Neptune') ? (sunInitial.attr('r') / logoViewBoxWidth * logoWidth)
                                                       : (neptuneInitial.attr('r') / logoViewBoxWidth * logoWidth),
                        strokeWidth: (planet.name !== 'Neptune') ? 0 : (neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth),
-                       strokeColor: (planet.name !== 'Neptune') ? 'black' : 'white'
-                   }
+                       strokeColor: (planet.name !== 'Neptune') ? 'rgba(66, 66, 66, 1)' : 'white'
+                   };
+                });
+
+                var step = width / (planets.length - 1);
+                var proportion = logoHeight / planets[5].size * 0.47; //0.6; //* 0.85;
+
+                var endValues = planets.map(function(planet, i) {
+                    return {
+                        x: (planets.length - i/* + 1*/ - 1) * step,
+                        y: startValues[i].y,
+                        r: (planet.size * proportion) / 2,
+                        strokeWidth: 0.75,
+                        strokeColor: startValues[i].strokeColor
+                    };
                 });
 
                 var planetOffset = (neptuneInitial.attr('cx') / logoViewBoxWidth * logoWidth) + 7;
 
-                function planetAttr(name) { return function(planet) { return planet.attrs[name]; } };
-                function planetAttrAnd(name, f) { return function(planet) { return f(planet.attrs[name]); } };
+                function startValue(name) { return function(planet, i) { return startValues[i][name]; } };
+                function startValueAnd(name, f) { return function(planet, i) { return f(startValues[i][name]); } };
+                function endValue(name) { return function(planet, i) { return endValues[i][name]; } };
+                function endValueAnd(name, f) { return function(planet, i) { return f(endValues[i][name]); } };
 
                 d3.select(root).append('g').selectAll('g')
                   .data(planets)
                   .enter().append('g').classed('planet', true)
+                  .attr('id', function(planet) { return planet.name; })
                   .call(function(group) {
                       group.append('circle').classed('back', true)
-                           .attr('cx', planetAttr('x'))
-                           .attr('cy', planetAttr('y'))
-                           .attr('r', planetAttr('r'))
+                           .attr('cx', startValue('x'))
+                           .attr('cy', startValue('y'))
+                           .attr('r', startValue('r'))
                            .attr('fill', 'white')
                            .attr('fill-opacity', 0);
                       group.append('circle').classed('front', true)
-                           .attr('cx', planetAttr('x'))
-                           .attr('cy', planetAttr('y'))
-                           .attr('r', planetAttr('r'))
+                           .attr('cx', startValue('x'))
+                           .attr('cy', startValue('y'))
+                           .attr('r', startValue('r'))
                            .attr('fill', function(planet) { return 'url(#gradient-' + planet.name + ')'; })
-                           .attr('stroke-width', planetAttr('strokeWidth'))
-                           .attr('stroke', planetAttr('strokeColor'));
+                           .attr('stroke-width', startValue('strokeWidth'))
+                           .attr('stroke', startValue('strokeColor'));
                   });
 
+                var textInitialScaleHorz = (logoWidth / logoViewBoxWidth),
+                    textInitialScaleVert = textInitialScaleHorz;
+
+                var initialTextPosX = 233.84363630000001,
+                    initialTextPosY = 184.90545450000002;
+
+                d3.select(root).select('g.planet#Sun')
+                  .append('path').attr('d', textInitial.attr('d'))
+                  .attr('fill', 'blue')
+                  .attr('transform', 'scale(' + textInitialScaleHorz + ' ' + textInitialScaleVert + ')' + ' ' +
+                                     'translate(' + initialTextPosX + ' ' + initialTextPosY + ')');
+
                 return function() {
-                    var step = width / (planets.length - 1);
-                    var proportion = logoHeight / planets[5].size * 0.47; //0.6; //* 0.85;
                     //var proportion = logoHeight;
 
-                    sunInitial.transition().duration(hideDuration)
+                    sunInitial.transition().delay(delay).duration(hideDuration)
                               .attr('fill-opacity', 0);
-                    neptuneInitial.transition().duration(hideDuration)
+                    neptuneInitial.transition().delay(delay).duration(hideDuration)
                               .attr('fill-opacity', 0)
                               .attr('stroke-opacity', 0);
 
                     d3.select(root).selectAll('g.planet > circle.front')
-                      .transition().duration(duration).ease(shapeShiftEasing)
-                      .attr('r', function(planet, i) { return (planet.size * proportion) / 2; })
-                      .attr('cx', function(_, i) { return ((planets.length - i/* + 1*/ - 1) * step) + planetOffset; })
-                      .attr('stroke-width', 0);
+                      .transition().duration(duration).delay(delay).ease(shapeShiftEasing)
+                      .attr('r', endValue('r'))
+                      .attr('cx', endValueAnd('x', function(x) { return x + planetOffset; }))
+                      .attr('cy', endValue('y'))
+                      .attr('stroke-color', endValue('strokeColor'))
+                      .attr('stroke-width', endValue('strokeWidth'));
 
                     d3.select(root).selectAll('g.planet > circle.back')
                       //.transition('foo').duration(duration).ease(shadowColorEasing)
-                      .transition('foo').duration(duration).ease(shapeShiftEasing)
+                      .transition('foo').delay(delay).duration(duration).ease(shapeShiftEasing)
                       .attr('fill', shadowColor)
                       .attr('fill-opacity', shadowOpacity)
-                      .attr('r', function(planet, i) { return (planet.size * proportion / 2) * shadowSizeFactor; })
-                      .attr('cx', function(_, i) { return ((planets.length - i/* + 1*/ - 1) * step) + planetOffset + shadowXOffset; })
-                      .attr('cy', planetAttrAnd('y', function(y) { return y + shadowYOffset; }));
+                      .attr('r', endValueAnd('r', function(r) { return r * shadowSizeFactor; }))
+                      .attr('cx', endValueAnd('x', function(x) { return x + planetOffset + shadowXOffset; }))
+                      .attr('cy', endValueAnd('y', function(y) { return y + shadowYOffset; }));
 
                     d3.select(defs.node()).selectAll('radialGradient')
                       .each(function(planet, i) {
                           d3.select(this).selectAll('stop').each(function() {
                               d3.select(this)
-                                .transition().duration(duration).ease(colorShiftEasing)
+                                .transition().delay(delay).duration(duration).ease(colorShiftEasing)
                                 .attr('stop-color', function(toColor) { return toColor; });
                           });
                       });
+
+                   d3.select(root).select('g.planet#Sun path')
+                     .attr('a', function(p, i) { console.log(p, i); })
+                     .transition().delay(delay).duration(duration).ease(shapeShiftEasing)
+                     .attr('fill', 'white')
+                     .attr('transform', function(planet, i) {
+                         var factor = endValue('r')(planet, i) / startValue('r')(planet, i);
+                         var cx = endValue('x')(planet, i),
+                             cy = endValue('y')(planet, i);
+                        // console.log(startValue('r')(planet, i), endValue('r')(planet, i));
+                         return 'translate(' + cx + ' ' + cy + ') ' +
+                                'scale(' + (textInitialScaleHorz * factor) + ' ' + (textInitialScaleVert * factor) + ') ' +
+                                'translate(' + (initialTextPosX / factor) + ' ' + (initialTextPosY / factor) + ')';
+                     });
 
                 };
             }
