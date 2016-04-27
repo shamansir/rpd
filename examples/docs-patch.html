@@ -88,6 +88,10 @@
                     //{ name: "Pluto", size: 0.186 }     /*9*/
                 ];
 
+            var duration = 5000,
+                shapeShiftEasing = 'cubic-in',
+                colorShiftEasing = 'quad-out';
+
             function addPlanets(root, logoRef, config, width, height) {
 
                 var sunInitial, neptuneInitial;
@@ -131,32 +135,40 @@
 
                 d3.select(root).append('g').selectAll('g')
                   .data(planets)
-                  .enter().append('g').classed('planet', true).append('circle')
-                  .attr('cx', function(planet) {
-                       return (planet.name !== 'Neptune') ? (sunInitial.attr('cx') / logoViewBoxWidth * logoWidth)
-                                                          : (neptuneInitial.attr('cx') / logoViewBoxWidth * logoWidth);
-                   })
-                  .attr('cy', function(planet) {
-                       return (planet.name !== 'Neptune') ? (sunInitial.attr('cy') / logoViewBoxHeight * logoHeight)
-                                                          : (neptuneInitial.attr('cy') / logoViewBoxHeight * logoHeight);
-                   })
-                  .attr('r', function(planet) {
-                       return (planet.name !== 'Neptune') ? (sunInitial.attr('r') / logoViewBoxWidth * logoWidth)
-                                                          : (neptuneInitial.attr('r') / logoViewBoxWidth * logoWidth);
-                   })
-                  .attr('fill', function(planet) { return 'url(#gradient-' + planet.name + ')'; })
-                  .attr('stroke-width', function(planet) {
-                        return (planet.name !== 'Neptune') ? 0 : (neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth);
-                   })
-                  .attr('stroke', function(planet) { return (planet.name !== 'Neptune') ? 'black' : 'white'; });
+                  .enter().append('g').classed('planet', true)
+                  .call(function(group) {
+                      var frontCircle =
+                      group.append('circle').classed('front', true)
+                           .attr('cx', function(planet) {
+                                return (planet.name !== 'Neptune') ? (sunInitial.attr('cx') / logoViewBoxWidth * logoWidth)
+                                                                   : (neptuneInitial.attr('cx') / logoViewBoxWidth * logoWidth);
+                            })
+                           .attr('cy', function(planet) {
+                                return (planet.name !== 'Neptune') ? (sunInitial.attr('cy') / logoViewBoxHeight * logoHeight)
+                                                                  : (neptuneInitial.attr('cy') / logoViewBoxHeight * logoHeight);
+                            })
+                           .attr('r', function(planet) {
+                                return (planet.name !== 'Neptune') ? (sunInitial.attr('r') / logoViewBoxWidth * logoWidth)
+                                                                  : (neptuneInitial.attr('r') / logoViewBoxWidth * logoWidth);
+                            })
+                           .attr('fill', function(planet) { return 'url(#gradient-' + planet.name + ')'; })
+                           .attr('stroke-width', function(planet) {
+                                 return (planet.name !== 'Neptune') ? 0 : (neptuneInitial.attr('stroke-width') / logoViewBoxWidth * logoWidth);
+                            })
+                           .attr('stroke', function(planet) { return (planet.name !== 'Neptune') ? 'black' : 'white'; });
+                      /* group.append('circle').classed('back', true)
+                           .attr('cx', frontCircle.attr('cx'))
+                           .attr('cy', frontCircle.attr('cy'))
+                           .attr('r', frontCircle.attr('r')); */
+                  });
 
                 return function() {
                     var step = width / planets.length;
                     var proportion = logoHeight / planets[5].size * 0.47; //* 0.85;
                     //var proportion = logoHeight;
 
-                    d3.select(root).selectAll('g.planet > circle')
-                      .transition().duration(5000)
+                    d3.select(root).selectAll('g.planet > circle.front')
+                      .transition().duration(duration).ease(shapeShiftEasing)
                       .attr('r', function(planet, i) { return (planet.size * proportion) / 2; })
                       .attr('cx', function(_, i) { return (planets.length - (i/* + 1*/)) * step; });
 
@@ -164,7 +176,7 @@
                       .each(function(planet, i) {
                           d3.select(this).selectAll('stop').each(function() {
                               d3.select(this)
-                                .transition().duration(5000)
+                                .transition().duration(duration).ease(colorShiftEasing)
                                 .attr('stop-color', function(toColor) { return toColor; });
                           });
                       });
