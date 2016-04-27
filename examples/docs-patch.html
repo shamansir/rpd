@@ -89,10 +89,15 @@
                     //{ name: "Pluto", size: 0.186 }     /*9*/
                 ];
 
+            var spaceColor = '#003c66'; // #09046a
+
             var delay = 0,
                 duration = 5000,
                 shapeShiftEasing = 'cubic-in',
                 colorShiftEasing = 'quad-out';
+
+            var textHideDuration = 100,
+                textHideEasing = 'quad-in';
 
             var hideDuration = 5000;
 
@@ -101,6 +106,9 @@
                 shadowSizeFactor = 1.15, //1.15,
                 shadowColor = 'rgb(50, 80, 80)',
                 shadowOpacity = 0.1;
+
+            var withSunBurn = true,
+                sunBurnSize = 1.22;
 
             function addPlanets(root, logoRef, config, width, height) {
 
@@ -122,7 +130,7 @@
                     logoViewBoxHeight = viewBox[3];
                 });
 
-                var defs = d3.select(root).append('svg:defs');
+                var defs = d3.select(root).append('defs');
 
                 var gradients = [];
                 var stop_distribution = ['0%', '60%', '100%'];
@@ -131,6 +139,7 @@
                     .data(planets)
                     .enter().append('radialGradient')
                     .attr('id', function(planet) { return 'gradient-' + planet.name; })
+                    .classed('planet-gradient', true)
                     .attr('gradientUnits', 'objectBoundingBox')
                     .attr('cx', '0')
                     .attr('cy', '0')
@@ -143,6 +152,42 @@
                           .attr('stop-color', 'black')
                           .attr('stop-opacity', 1)
                     });
+
+                if (withSunBurn) {
+                    defs.append('radialGradient')
+                        .attr('id', 'sun-burn-gradient')
+                        .attr('gradientUnits', 'objectBoundingBox')
+                        .attr('cx', '50%').attr('cy', '50%')
+                        .attr('fx', '50%').attr('fy', '50%')
+                        .attr('r', '50%')
+                        .call(function(gradient) {
+                           gradient.append('stop')
+                              .attr('offset', '0%')
+                              .attr('stop-color', spaceColor)
+                              .attr('stop-opacity', 0);
+                            gradient.append('stop')
+                              .attr('offset', '72%')
+                              .attr('stop-color', '#f00e1a')
+                              .attr('stop-opacity', 0)
+                            gradient.append('stop')
+                              .attr('offset', '85%')
+                              .attr('stop-color', '#f00e1a')
+                            gradient.append('stop')
+                              .attr('offset', '90%')
+                              .attr('stop-color', '#f96e22')
+                            gradient.append('stop')
+                              .attr('offset', '93%')
+                              .attr('stop-color', '#fda42b')
+                            gradient.append('stop')
+                              .attr('offset', '100%')
+                              .attr('stop-color', spaceColor)
+                              .attr('stop-opacity', 0)
+                            gradient.append('stop')
+                              .attr('offset', '100%')
+                              .attr('stop-color', spaceColor)
+                              .attr('stop-opacity', 0);
+                        });
+                }
 
                 var startValues = planets.map(function(planet) {
                     return {
@@ -166,7 +211,7 @@
                         y: startValues[i].y,
                         r: (planet.size * proportion) / 2,
                         strokeWidth: 0.75,
-                        strokeColor: startValues[i].strokeColor
+                        strokeColor: (planet.name !== 'Neptune') ? startValues[i].strokeColor : 'white'
                     };
                 });
 
@@ -177,7 +222,14 @@
                 function endValue(name) { return function(planet, i) { return endValues[i][name]; } };
                 function endValueAnd(name, f) { return function(planet, i) { return f(endValues[i][name]); } };
 
-                d3.select(root).append('g').selectAll('g')
+                var universe = d3.select(root).append('g').attr('id', 'universe');
+
+                d3.select(universe.node()).append('rect')
+                  .attr('width', width).attr('height', height)
+                  .attr('fill', 'white')
+                  .attr('fill-opacity', 0)
+
+                d3.select(universe.node()).selectAll('g')
                   .data(planets)
                   .enter().append('g').classed('planet', true)
                   .attr('id', function(planet) { return planet.name; })
@@ -193,27 +245,28 @@
                            .attr('cy', startValue('y'))
                            .attr('r', startValue('r'))
                            .attr('fill', function(planet) { return 'url(#gradient-' + planet.name + ')'; })
-                           .attr('stroke-width', startValue('strokeWidth'))
-                           .attr('stroke', startValue('strokeColor'));
+                           .attr('stroke', startValue('strokeColor'))
+                           .attr('stroke-width', startValue('strokeWidth'));
                   });
 
-                var textInitialScaleHorz = (logoWidth / logoViewBoxWidth),
-                    textInitialScaleVert = textInitialScaleHorz;
-
-                var textInitialPosX = 233.84363630000001,
-                    textInitialPosY = 184.90545450000002;
-
-                d3.select(root).select('g.planet#Sun')
-                  .append('path').attr('d', textInitial.attr('d'))
-                  .attr('fill', 'white')
-                  .attr('fill-opacity', 1)
-                  .attr('transform', 'scale(' + textInitialScaleHorz + ' ' + textInitialScaleVert + ')' + ' ' +
-                                     'translate(' + textInitialPosX + ' ' + textInitialPosY + ')');
-
-                //console.log(d3.select(root).select('g.planet#Sun path').attr('transform'));
+                if (withSunBurn) {
+                    d3.select(root).select('g.planet#Sun')
+                      .append('circle')
+                      .attr('id', 'sun-burn')
+                      .attr('cx', startValue('x'))
+                      .attr('cy', startValue('y'))
+                      .attr('r', startValueAnd('r', function(r) { return r * sunBurnSize; }))
+                      .attr('fill', 'url(#sun-burn-gradient)')
+                      .attr('fill-opacity', 0);
+                }
 
                 return function() {
                     //var proportion = logoHeight;
+
+                    d3.select(root).select('g#universe > rect')
+                      .transition().delay(delay).duration(duration).ease(shapeShiftEasing)
+                      .attr('fill-opacity', 1)
+                      .attr('fill', spaceColor)
 
                     sunInitial.transition().delay(delay).duration(hideDuration)
                               .attr('fill-opacity', 0);
@@ -226,19 +279,19 @@
                       .attr('r', endValue('r'))
                       .attr('cx', endValueAnd('x', function(x) { return x + planetOffset; }))
                       .attr('cy', endValue('y'))
-                      .attr('stroke-color', endValue('strokeColor'))
+                      .attr('stroke', endValue('strokeColor'))
                       .attr('stroke-width', endValue('strokeWidth'));
 
                     d3.select(root).selectAll('g.planet > circle.back')
                       //.transition('foo').duration(duration).ease(shadowColorEasing)
-                      .transition('foo').delay(delay).duration(duration).ease(shapeShiftEasing)
+                      .transition().delay(delay).duration(duration).ease(shapeShiftEasing)
                       .attr('fill', shadowColor)
                       .attr('fill-opacity', shadowOpacity)
                       .attr('r', endValueAnd('r', function(r) { return r * shadowSizeFactor; }))
                       .attr('cx', endValueAnd('x', function(x) { return x + planetOffset + shadowXOffset; }))
                       .attr('cy', endValueAnd('y', function(y) { return y + shadowYOffset; }));
 
-                    d3.select(defs.node()).selectAll('radialGradient')
+                    d3.select(defs.node()).selectAll('radialGradient.planet-gradient')
                       .each(function(planet, i) {
                           d3.select(this).selectAll('stop').each(function() {
                               d3.select(this)
@@ -247,31 +300,27 @@
                           });
                       });
 
-                   d3.select(root).select('g.planet#Sun path')
-                     .attr('a', function(p, i) { console.log(p, i); })
-                     .transition().delay(delay).duration(duration).ease(shapeShiftEasing)
-                     .attr('fill-opacity', 0)
-                     .attr('transform', function(planet, i) {
-                         var radiusFactor = endValue('r')(planet, i) / startValue('r')(planet, i);
-                         console.log(startValue('r')(planet, i), endValue('r')(planet, i), radiusFactor);
-                         var scaleByX = textInitialScaleHorz * radiusFactor,
-                             scaleByY = textInitialScaleVert * radiusFactor;
-                         var cx = endValue('x')(planet, i) + planetOffset,
-                             cy = endValue('y')(planet, i);
-                        // console.log(startValue('r')(planet, i), endValue('r')(planet, i));
-                         return 'translate(' + cx + ' ' + cy + ') ' +
-                                'scale(' + textInitialScaleHorz + ' ' + textInitialScaleVert + ')';
-                         /* return 'translate(' + cx + ' ' + cy + ') ' +
-                                'scale(' + scaleByX + ' ' + scaleByY + ')'; */
-                         /* return 'scale(' + scaleByX + ' ' + scaleByY + ') ' +
-                                'translate(' + ((cx * textInitialScaleHorz) + textInitialPosX) + ' ' +  ((cy * textInitialScaleVert) + textInitialPosY) + ')'; */
-                     });
+                    if (withSunBurn) {
+                        d3.select(root).select('g.planet#Sun #sun-burn')
+                               .transition().delay(delay).duration(duration).ease(shapeShiftEasing)
+                               .attr('r', endValueAnd('r', function(r) { return r * sunBurnSize; }))
+                               .attr('cx', endValueAnd('x', function(x) { return x + planetOffset; }))
+                               .attr('cy', endValue('y'))
+                               .attr('fill-opacity', 0.8);
+                    }
 
                 };
             }
 
-            var animate = addPlanets(document.getElementById('planets'), document.getElementById('rpd-logo'), {}, 500, 140);
-            animate();
+            d3.select('#rpd-logo path').attr('fill-opacity', 1);
+
+            d3.select('#rpd-logo path')
+              .transition().duration(textHideDuration).ease(textHideEasing)
+              .attr('fill-opacity', 0)
+              .each('end', function() {
+                  var animate = addPlanets(document.getElementById('planets'), document.getElementById('rpd-logo'), {}, 500, 140);
+                  animate();
+              });
         </script>
     </body>
 </html>
