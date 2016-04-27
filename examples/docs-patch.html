@@ -92,9 +92,11 @@
                 shapeShiftEasing = 'cubic-in',
                 colorShiftEasing = 'quad-out';
 
-            var shadowXOffset = 1.5,
-                shadowYOffset = 0.5,
-                shadowSizeFactor = 1.15,
+            var hideDuration = 2000;
+
+            var shadowXOffset = 1.5, //1.5,
+                shadowYOffset = 0.5, //0.5,
+                shadowSizeFactor = 1.15, //1.15,
                 shadowColor = 'rgb(50, 80, 80)',
                 shadowOpacity = 0.15;
 
@@ -152,6 +154,8 @@
                    }
                 });
 
+                var planetOffset = (neptuneInitial.attr('cx') / logoViewBoxWidth * logoWidth) + 7;
+
                 function planetAttr(name) { return function(planet) { return planet.attrs[name]; } };
                 function planetAttrAnd(name, f) { return function(planet) { return f(planet.attrs[name]); } };
 
@@ -160,10 +164,11 @@
                   .enter().append('g').classed('planet', true)
                   .call(function(group) {
                       group.append('circle').classed('back', true)
-                           .attr('cx', planetAttrAnd('x', function(x) { return x + shadowXOffset; }))
-                           .attr('cy', planetAttrAnd('y', function(y) { return y + shadowYOffset; }))
-                           .attr('r', planetAttrAnd('r', function(r) { return r * shadowSizeFactor; }))
-                           .attr('fill', 'white');
+                           .attr('cx', planetAttr('x'))
+                           .attr('cy', planetAttr('y'))
+                           .attr('r', planetAttr('r'))
+                           .attr('fill', 'white')
+                           .attr('fill-opacity', 0);
                       group.append('circle').classed('front', true)
                            .attr('cx', planetAttr('x'))
                            .attr('cy', planetAttr('y'))
@@ -174,22 +179,30 @@
                   });
 
                 return function() {
-                    var step = width / planets.length;
-                    var proportion = logoHeight / planets[5].size * 0.47; //* 0.85;
+                    var step = width / (planets.length - 1);
+                    var proportion = logoHeight / planets[5].size * 0.47; //0.6; //* 0.85;
                     //var proportion = logoHeight;
+
+                    sunInitial.transition().duration(hideDuration)
+                              .attr('fill-opacity', 0);
+                    neptuneInitial.transition().duration(hideDuration)
+                              .attr('fill-opacity', 0)
+                              .attr('stroke-opacity', 0);
 
                     d3.select(root).selectAll('g.planet > circle.front')
                       .transition().duration(duration).ease(shapeShiftEasing)
                       .attr('r', function(planet, i) { return (planet.size * proportion) / 2; })
-                      .attr('cx', function(_, i) { return (planets.length - (i/* + 1*/)) * step; });
+                      .attr('cx', function(_, i) { return ((planets.length - i/* + 1*/ - 1) * step) + planetOffset; })
+                      .attr('stroke-width', 0);
 
                     d3.select(root).selectAll('g.planet > circle.back')
                       //.transition('foo').duration(duration).ease(shadowColorEasing)
                       .transition('foo').duration(duration).ease(shapeShiftEasing)
                       .attr('fill', shadowColor)
                       .attr('fill-opacity', shadowOpacity)
-                      .attr('r', function(planet, i) { return ((planet.size * proportion) / 2) * shadowSizeFactor; })
-                      .attr('cx', function(_, i) { return ((planets.length - (i/* + 1*/)) * step) + shadowXOffset; });
+                      .attr('r', function(planet, i) { return (planet.size * proportion / 2) * shadowSizeFactor; })
+                      .attr('cx', function(_, i) { return ((planets.length - i/* + 1*/ - 1) * step) + planetOffset + shadowXOffset; })
+                      .attr('cy', planetAttrAnd('y', function(y) { return y + shadowYOffset; }));
 
                     d3.select(defs.node()).selectAll('radialGradient')
                       .each(function(planet, i) {
