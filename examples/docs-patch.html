@@ -99,7 +99,7 @@
             var textHideDuration = 100,
                 textHideEasing = 'quad-in';
 
-            var hideDuration = 5000;
+            var hideDuration = 2000;
 
             var shadowXOffset = 1.5, //1.5,
                 shadowYOffset = 0.5, //0.5,
@@ -215,7 +215,7 @@
                     };
                 });
 
-                var planetOffset = (neptuneInitial.attr('cx') / logoViewBoxWidth * logoWidth) + 7;
+                var planetOffset = step / 2/*(neptuneInitial.attr('cx') / logoViewBoxWidth * logoWidth) + 7*/;
 
                 function startValue(name) { return function(planet, i) { return startValues[i][name]; } };
                 function startValueAnd(name, f) { return function(planet, i) { return f(startValues[i][name]); } };
@@ -227,7 +227,7 @@
                 d3.select(universe.node()).append('rect')
                   .attr('width', width).attr('height', height)
                   .attr('fill', 'white')
-                  .attr('fill-opacity', 0)
+                  .attr('fill-opacity', 0);
 
                 d3.select(universe.node()).selectAll('g')
                   .data(planets)
@@ -249,6 +249,14 @@
                            .attr('stroke-width', startValue('strokeWidth'));
                   });
 
+                d3.select(universe.node()).insert('line', 'g.planet#' + planets[1].name)
+                  .attr('id', 'horizon')
+                  .attr('x1', 0).attr('y1', height / 2)
+                  .attr('x2', width).attr('y2', height / 2)
+                  .attr('stroke', 'white')
+                  .attr('stroke-opacity', 0)
+                  .attr('stroke-width', 2.5);
+
                 if (withSunBurn) {
                     d3.select(root).select('g.planet#Sun')
                       .append('circle')
@@ -263,16 +271,24 @@
                 return function() {
                     //var proportion = logoHeight;
 
-                    d3.select(root).select('g#universe > rect')
-                      .transition().delay(delay).duration(duration).ease(shapeShiftEasing)
-                      .attr('fill-opacity', 1)
-                      .attr('fill', spaceColor)
-
                     sunInitial.transition().delay(delay).duration(hideDuration)
                               .attr('fill-opacity', 0);
                     neptuneInitial.transition().delay(delay).duration(hideDuration)
                               .attr('fill-opacity', 0)
                               .attr('stroke-opacity', 0);
+
+                    d3.select(root).select('g#universe line#horizon')
+                      .transition().delay(delay).duration(duration * 0.75).ease(shapeShiftEasing)
+                      .attr('stroke-opacity', 0.3)
+                      .attr('stroke-width', 3)
+                      .transition().duration(duration * 0.25).ease(shapeShiftEasing)
+                      .attr('stroke-opacity', 0.1)
+                      .attr('stroke-width', 1.5);
+
+                    d3.select(root).select('g#universe > rect')
+                      .transition().delay(delay).duration(duration).ease(shapeShiftEasing)
+                      .attr('fill-opacity', 1)
+                      .attr('fill', spaceColor)  ;
 
                     d3.select(root).selectAll('g.planet > circle.front')
                       .transition().duration(duration).delay(delay).ease(shapeShiftEasing)
