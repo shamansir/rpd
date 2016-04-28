@@ -84,6 +84,15 @@
         </svg>
 
         <script>
+            var logoBox = d3.select('#rpd-logo').node().getBoundingClientRect();
+
+            var animationWidth = 500,
+                animationHeight = logoBox.height;
+
+            d3.select('#planets')
+              .style('position', 'absolute')
+              .style('left', logoBox.left).style('top', logoBox.top)
+
             <!-- ****** Building Patch Network ****** -->
 
             Rpd.renderNext('svg', document.getElementById('patch-target'), { style: 'compact-v' });
@@ -396,7 +405,8 @@
 
             }
 
-            attachPlanetsAnimation(document.getElementById('planets'), document.getElementById('rpd-logo'), {}, 500, 140);
+            attachPlanetsAnimation(document.getElementById('planets'), document.getElementById('rpd-logo'),
+                                   {}, animationWidth, animationHeight);
 
         </script>
     </body>
