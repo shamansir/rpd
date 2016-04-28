@@ -116,6 +116,8 @@
                         //{ name: "Pluto", size: 0.186 }     /*9*/
                     ];
 
+                // Configuration
+
                 var spaceColor = '#003c66'; // #09046a
 
                 var delay = 0,
@@ -139,6 +141,8 @@
 
                 function addPlanets(root, logoRef, config, width, height) {
 
+                    // Load required values from the shapes of original logo
+
                     var sunInitial, neptuneInitial, textInitial;
 
                     var logoWidth, logoHeight,
@@ -156,6 +160,8 @@
                         logoViewBoxWidth = viewBox[2];
                         logoViewBoxHeight = viewBox[3];
                     });
+
+                    // Bulding planets' gradients
 
                     var defs = d3.select(root).append('defs');
 
@@ -216,6 +222,8 @@
                             });
                     }
 
+                    // Prepare data for planet's animation
+
                     var startValues = planets.map(function(planet) {
                         return {
                            x: (planet.name !== 'Neptune') ? (sunInitial.attr('cx') / logoViewBoxWidth * logoWidth)
@@ -251,10 +259,14 @@
 
                     var universe = d3.select(root).append('g').attr('id', 'universe');
 
+                    // Add background
+
                     d3.select(universe.node()).append('rect')
                       .attr('width', width).attr('height', height)
                       .attr('fill', 'white')
                       .attr('fill-opacity', 0);
+
+                    // Add planets in their initial state
 
                     d3.select(universe.node()).selectAll('g')
                       .data(planets)
@@ -276,14 +288,6 @@
                                .attr('stroke-width', startValue('strokeWidth'));
                       });
 
-                    d3.select(universe.node()).insert('line', 'g.planet#' + planets[1].name)
-                      .attr('id', 'horizon')
-                      .attr('x1', 0).attr('y1', height / 2)
-                      .attr('x2', width).attr('y2', height / 2)
-                      .attr('stroke', 'white')
-                      .attr('stroke-opacity', 0)
-                      .attr('stroke-width', 2.5);
-
                     if (withSunBurn) {
                         d3.select(root).select('g.planet#Sun')
                           .append('circle')
@@ -295,14 +299,29 @@
                           .attr('fill-opacity', 0);
                     }
 
+                    // Add "Horizon" line
+
+                    d3.select(universe.node()).insert('line', 'g.planet#' + planets[1].name)
+                      .attr('id', 'horizon')
+                      .attr('x1', 0).attr('y1', height / 2)
+                      .attr('x2', width).attr('y2', height / 2)
+                      .attr('stroke', 'white')
+                      .attr('stroke-opacity', 0)
+                      .attr('stroke-width', 2.5);
+
+                    // Return function which makes everything move
+
                     return function() {
-                        //var proportion = logoHeight;
+
+                        // Hide initial shapes
 
                         sunInitial.transition().delay(delay).duration(hideDuration)
                                   .attr('fill-opacity', 0);
                         neptuneInitial.transition().delay(delay).duration(hideDuration)
                                   .attr('fill-opacity', 0)
                                   .attr('stroke-opacity', 0);
+
+                        // Make "horizon" appeared
 
                         d3.select(root).select('g#universe line#horizon')
                           .transition().delay(delay).duration(duration * 0.75).ease(shapeShiftEasing)
@@ -312,10 +331,14 @@
                           .attr('stroke-opacity', 0.1)
                           .attr('stroke-width', 1.5);
 
+                        // Make background change color to something spacey
+
                         d3.select(root).select('g#universe > rect')
                           .transition().delay(delay).duration(duration).ease(shapeShiftEasing)
                           .attr('fill-opacity', 1)
-                          .attr('fill', spaceColor)  ;
+                          .attr('fill', spaceColor);
+
+                        // Move shapes of the planets
 
                         d3.select(root).selectAll('g.planet > circle.front')
                           .transition().duration(duration).delay(delay).ease(shapeShiftEasing)
@@ -324,6 +347,8 @@
                           .attr('cy', endValue('y'))
                           .attr('stroke', endValue('strokeColor'))
                           .attr('stroke-width', endValue('strokeWidth'));
+
+                        // Move shadows of the planets
 
                         d3.select(root).selectAll('g.planet > circle.back')
                           //.transition('foo').duration(duration).ease(shadowColorEasing)
@@ -334,6 +359,8 @@
                           .attr('cx', endValueAnd('x', function(x) { return x + planetOffset + shadowXOffset; }))
                           .attr('cy', endValueAnd('y', function(y) { return y + shadowYOffset; }));
 
+                        // Animate planet's gradients
+
                         d3.select(defs.node()).selectAll('radialGradient.planet-gradient')
                           .each(function(planet, i) {
                               d3.select(this).selectAll('stop').each(function() {
@@ -342,6 +369,8 @@
                                     .attr('stop-color', function(toColor) { return toColor; });
                               });
                           });
+
+                        // ...And burning sun
 
                         if (withSunBurn) {
                             d3.select(root).select('g.planet#Sun #sun-burn')
