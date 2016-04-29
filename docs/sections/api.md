@@ -34,6 +34,20 @@ This method becomes useful when you have some dependent patch you don't want to 
 
 _Example:_
 
+#### `Rpd.nodetype(type, definition)`
+
+#### `Rpd.nodedescription(type, description)`
+
+#### `Rpd.channeltype(type, definition)`
+
+#### `Rpd.noderenderer(type, rendererAlias, definition)`
+
+#### `Rpd.channelrenderer(type, rendererAlias, definition)`
+
+#### `Rpd.renderer(alias, definition)`
+
+#### `Rpd.style(alias, rendererAlias, definition)`
+
 ### `Patch`
 
 Patch contains a set of nodes and could be rendered on its own _canvas_, which is an invisible boundind box where this patch is drawn.
@@ -104,7 +118,6 @@ Add the output channel to this node, so it will be able to send data to the inle
 
 Also, you need to specify `alias`, to be able to access this outlet from the code using this `alias`. It is recommended to be short, preferably one-word and to start from lowercase letter. If you want to show user something more eye-candy, you may use another form of this method, `addOutlet(type, alias, label, [def])`.
 
-
 Last argument, `def`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Outlet](#Outlet) section below.
 
 #### `node.removeInlet(inlet)`
@@ -121,9 +134,14 @@ Move this node to specified position relatively to the top left corner of the ca
 
 #### `node.turnOn()`
 
-Turn this node on, so it pr
+Turn this node on, so it processes all the incoming updates and sends values further, if it has inputs and outputs. By default nodes are always turned on.
 
 #### `node.turnOff()`
+
+Turn this node off, so it stops all the processing. This method is useful when your node has a lot of connections and you don't want to disconnect or disable them one by one, but to quickly turn them off at once and to have the ability to turn them back on, same way, all at once.
+
+Or, could happen, you want to provide user with this nice ability, for example when user clicks somewhere in the body of a node.
+<!-- TODO: Make an issue for this, to be a bulb in the node header -->
 
 ### `Inlet`
 
