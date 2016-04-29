@@ -62,6 +62,10 @@
                 top: 215px;
                 left: 455px;
             }
+
+            body {
+                margin: 0;
+            }
         </style>
 
     </head>
@@ -89,9 +93,15 @@
             var animationWidth = 500,
                 animationHeight = logoBox.height;
 
+            var widthRequiredForNodes = 300;
+
             d3.select('#planets')
               .style('position', 'absolute')
-              .style('left', logoBox.left).style('top', logoBox.top)
+              .style('left', logoBox.left + 'px').style('top', logoBox.top + 'px')
+
+            d3.select('#patch-target')
+              .style('position', 'relative')
+              .style('left', (logoBox.left - widthRequiredForNodes) + 'px').style('top', logoBox.top + 'px')
 
             <!-- ****** Building Patch Network ****** -->
 
@@ -99,7 +109,7 @@
 
             var patch = Rpd.addPatch('Docs Patch');
 
-            patch.moveCanvas(50, 50);
+            //patch.moveCanvas(logoBox.left - 100, logoBox.top);
             patch.resizeCanvas(500, 500);
 
             patch.addNode('core/empty', 'Empty');
