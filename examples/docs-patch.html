@@ -97,24 +97,50 @@
 
             var widthRequiredForNodes = 300;
 
+            var topMargin = 20, bottomMargin = 20;
+
             d3.select('#planets')
               .style('position', 'absolute')
               .style('left', logoBox.left + 'px').style('top', logoBox.top + 'px')
 
             d3.select('#patch-target')
               .style('position', 'relative')
-              .style('left', (logoBox.left - widthRequiredForNodes) + 'px').style('top', logoBox.top + 'px')
+              .style('left', (logoBox.left - widthRequiredForNodes) + 'px').style('top', (logoBox.top - topMargin) + 'px')
+
+            <!-- ****** Register Patch Types ****** -->
+
+            Rpd.nodetype('docs/logo-anim', {
+                inlets: {
+                    'test': { type: 'core/any' }
+                }
+            });
+
+            Rpd.noderenderer('docs/logo-anim', 'svg', {
+                size: { width: animationWidth + 10, height: animationHeight },
+                first: function() {
+
+                },
+                always: function() {
+
+                }
+            });
 
             <!-- ****** Building Patch Network ****** -->
 
-            Rpd.renderNext('svg', document.getElementById('patch-target'), { style: 'compact-v' });
+            Rpd.renderNext('svg', document.getElementById('patch-target'),
+                           { style: 'compact-v', nodeMovingAllowed: false });
 
             var patch = Rpd.addPatch('Docs Patch');
 
-            //patch.moveCanvas(logoBox.left - 100, logoBox.top);
-            patch.resizeCanvas(500, 500);
+            //patch.moveCanvas(logoBox.left - widthRequiredForNodes, logoBox.top);
+            patch.resizeCanvas(widthRequiredForNodes + animationWidth + 10,
+                               animationHeight + topMargin + bottomMargin);
 
             patch.addNode('core/empty', 'Empty');
+
+            var animNode = patch.addNode('docs/logo-anim', 'Animation');
+
+            animNode.move(widthRequiredForNodes - 5, 10);
 
             <!-- ****** Animation with D3 ****** -->
 
