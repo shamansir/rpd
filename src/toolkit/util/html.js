@@ -1,22 +1,5 @@
 (function() {
 
-Rpd.noderenderer('util/number', 'html', {
-    first: function(bodyElm) {
-        var valInput = document.createElement('input');
-        valInput.style.display = 'block';
-        valInput.type = 'number';
-        valInput.min = 0;
-        valInput.max = 1000;
-        bodyElm.appendChild(valInput);
-        return { 'user-value':
-                    { default: function() { valInput.value = 0; return 0; },
-                      valueOut: Kefir.fromEvents(valInput, 'change')
-                                     .map(function() { return valInput.value; })
-                    }
-               };
-    }
-});
-
 Rpd.channelrenderer('util/boolean', 'html', {
     /* show: function(target, value) { }, */
     edit: function(target, inlet, valueIn) {
@@ -44,6 +27,23 @@ Rpd.channelrenderer('util/number', 'html', {
         target.appendChild(valInput);
         return Kefir.fromEvents(valInput, 'change')
                     .map(function() { return valInput.value; });
+    }
+});
+
+Rpd.noderenderer('util/number', 'html', {
+    first: function(bodyElm) {
+        var valInput = document.createElement('input');
+        valInput.style.display = 'block';
+        valInput.type = 'number';
+        valInput.min = 0;
+        valInput.max = 1000;
+        bodyElm.appendChild(valInput);
+        return { 'user-value':
+                    { default: function() { valInput.value = 0; return 0; },
+                      valueOut: Kefir.fromEvents(valInput, 'change')
+                                     .map(function() { return valInput.value; })
+                    }
+               };
     }
 });
 
