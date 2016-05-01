@@ -1,4 +1,4 @@
-Rpd.channelrenderer('core/number', 'svg', {
+Rpd.channelrenderer('util/number', 'svg', {
     /* show: function(target, value) { }, */
     edit: function(target, inlet, valueIn) {
         var foElm = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
@@ -19,8 +19,25 @@ Rpd.channelrenderer('core/number', 'svg', {
     }
 });
 
-Rpd.noderenderer('core/random', 'svg', function() {
+Rpd.noderenderer('util/random', 'svg', function() {
     return {
         size: { width: 40 }
+    }
+});
+
+Rpd.noderenderer('util/sum-of-three', 'svg', function() {
+    var textElement;
+    return {
+        //contentRule: 'replace',
+        size: { width: 150, height: null },
+        first: function(bodyElm) {
+            textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            bodyElm.appendChild(textElement);
+        },
+        always: function(bodyElm, inlets, outlets) {
+            textElement.innerHTML = '∑ (' + (inlets.a || '?') + ', '
+                                          + (inlets.b || '?') + ', '
+                                          + (inlets.c || '?') + ') = ' + (outlets.sum || '?');
+        }
     }
 });

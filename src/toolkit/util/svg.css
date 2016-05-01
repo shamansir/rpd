@@ -1,0 +1,4 @@
+.rpd-inlet.rpd-util-number input[type=number],
+.rpd-outlet.rpd-util-number input[type=number] {
+    width: 30px;
+}

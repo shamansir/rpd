@@ -4,7 +4,7 @@ function applyRpdLogoPatch(logoElm, patchElm) {
 
     //Rpd.addPatch('test');
 
-    //Rpd.addNode('core/empty', 'Foo');
+    //Rpd.addNode('core/basic', 'Foo');
 
     //alert('Rpd: ' + Rpd);
     //alert('applyRpdLogoPatch ' + logoElm + ' ' + patchElm);

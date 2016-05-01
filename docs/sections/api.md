@@ -10,7 +10,7 @@ The `Rpd` namespace is a single entry point for your _patch network_, independen
 
 Every patch lays over its own _canvas_, several canvases may be attached to the same _target element_, this will be covered in details below.
 
-> It's important to notice that the whole API is based on processing event streams, same way as Reactive Programming concepts work. All the created instances are immutable, they only react on user actions, with no modifications to the initial state. It guarantees the safety and reversability for all the operations and also allows you to create streams of data of any complexity, intended to flow between the nodes.
+> It's important to notice that the whole API is based on processing event streams, same way as Reactive Programming concepts work. All the created instances are immutable, they only react on user actions, with no modifications to the initial state. It guarantees the safety and ability to reverse any operation and also allows you to create streams of data of any complexity, intended to flow between the nodes.
 
 <!-- schematic picture of a network -->
 
@@ -62,7 +62,7 @@ Nodes are connected with links going from outputs of one node to inputs of anoth
 
 Add a node, which represents any process over some inputs (inlets) and sends result of the process to its outputs (outlets). A node can have no inputs or no outputs at all, or even both, so in the latter case this node is called self-sufficient.
 
-The type of the node is some previously registered type, for example, `core/empty`. Usually it has the form `toolkit/definition`. You may use a prepared one from the [toolkits](TODO) or easily create your own types for the nodes with [`Rpd.nodetype`](TODO).
+The type of the node is some previously registered type, for example, `core/basic`. Usually it has the form `toolkit/definition`. You may use a prepared one from the [toolkits](TODO) or easily create your own types for the nodes with [`Rpd.nodetype`](TODO).
 
 You may specify a custom title, if you want, or the engine will fall back to the type name.
 

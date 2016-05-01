@@ -7,14 +7,12 @@
 
         <!-- Built with RPD v0.2.0-alpha <http://shamansir.github.io/rpd> -->
 
-        <!-- gulp ==renderer svg ==style compact-v ==toolkit core ==target-name rpd ==compilation simple -->
+        <!-- gulp ==renderer svg ==style compact-v ==target-name rpd ==compilation simple -->
 
         <!-- RPD Renderer: svg -->
         <link rel="stylesheet" href="../src/render/svg.css"></style>
         <!-- RPD Style: compact-v (svg) -->
         <link rel="stylesheet" href="../src/style/compact-v/svg.css"></style>
-        <!-- RPD Toolkit: core (svg) -->
-        <link rel="stylesheet" href="../src/toolkit/core/svg.css"></style>
 
         <!-- Kefir -->
         <script src="../vendor/kefir.min.js"></script>
@@ -29,11 +27,6 @@
         <script src="../src/style/compact-v/svg.js"></script>
         <!-- RPD Renderer: svg -->
         <script src="../src/render/svg.js"></script>
-        <!-- RPD Toolkit: core -->
-        <script src="../src/toolkit/core/shared.js"></script>
-        <script src="../src/toolkit/core/toolkit.js"></script>
-        <!-- RPD Toolkit: core (svg) -->
-        <script src="../src/toolkit/core/svg.js"></script>
 
         <script src="./docs-patch-animation.js"></script>
 
@@ -136,7 +129,7 @@
             patch.resizeCanvas(widthRequiredForNodes + animationWidth + 10,
                                animationHeight + topMargin + bottomMargin);
 
-            patch.addNode('core/empty', 'Empty');
+            patch.addNode('core/basic', 'Basic');
 
             var animNode = patch.addNode('docs/logo-anim', 'Animation');
 

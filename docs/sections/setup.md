@@ -8,8 +8,8 @@ level: 1
 ​
 RPD with default options can be downloaded here:
 
-* SVG renderer, Quartz style, Core Toolkit, no I/O: [`rpd-svg.min.js`][default-svg-js] (_38KB_, _~11KB_ gzipped) + [`rpd-svg.css`][default-svg-css] (_3.7KB_, _~1KB_ gzipped);
-* HTML renderer, Quartz style, Core Toolkit, no I/O: [`rpd-html.min.js`][default-html-js]  (_~40KB_, _~11KB_ gzipped) + [`rpd-html.css`][default-html-css] (_~10KB_, _~2KB_ gzipped);
+* SVG renderer, Quartz style, no I/O: [`rpd-svg.min.js`][default-svg-js] (_38KB_, _~11KB_ gzipped) + [`rpd-svg.css`][default-svg-css] (_3.7KB_, _~1KB_ gzipped);
+* HTML renderer, Quartz style, no I/O: [`rpd-html.min.js`][default-html-js]  (_~40KB_, _~11KB_ gzipped) + [`rpd-html.css`][default-html-css] (_~10KB_, _~2KB_ gzipped);
 
 You'll also need [Kefir.js][kefir], since RPD code is based on Reactive Streams, which it provides.
 ​
@@ -110,7 +110,7 @@ Now it's time to use all the powers and to configure your preferences:
     * _`compact-v`_ (SVG only): intended to be used on a small areas; font size is small, nodes are rectangular, node headers are tiny or absent, on the top side, inlets are placed in a vertical column on the right side of the node, outlets are placed in a vertical column on the left side the node;
     * _`webpd`_ (SVG only): used to render [WebPd][webpd] toolkit, nodes have no titles, normal-sized font, inlets are placed in a horizontal row above the node, outlets are placed in a horizontal row below the node;
 * *Toolkits* (`-t` or `--toolkit`): there are some predefined toolkits (sets of nodes) in the repository, but except the WebPD, for now they only demonstrate some special aspect of the possibilities you have (i.e. configuring the example sketch for Processing.js toolkit), rather than provide all-sufficient toolboxes;
-   * _`core`_ (HTML & SVG): optional `core` toolkit with channels to transfer numbers, node with random generator, nodes with spinner to select numbers and some other primitive examples;
+   * _`util`_ (HTML & SVG): optional `util` toolkit with channels to transfer numbers, node with random generator, nodes with spinner to select numbers and some other primitive examples;
    * _`anm`_ (only HTML): the toolkit to demonstrate connection with [Animatron Player][animatron-player] to create generative graphics;
    * _`webpd`_ (only SVG): the toolkit in development, intended to be able to load and run [PureData][puredata] patches using [WebPd][webpd], PureData is mostly used to procedurally generate audio with the help of Node-driven interface;
    * _`timbre`_ (only HTML): the toolkit to demonstrate connection with [timbre.js][timbre] which is an JavaScript API to procedurally generate audio;
@@ -120,7 +120,7 @@ Now it's time to use all the powers and to configure your preferences:
 ​
 Every of the listed options may be specified several times, but for Renderers and Styles it has less sense, unless you have several differently-rendered and differently-styled patches on the same page.
 
-For example, to compile RPD with SVG renderer (instead of default HTML), `plain` style (instead of default `quartz` style), include `timbre` and `anm` toolkits (instead of default `core` toolkit), plus add JSON Import/Export, you need to call:
+For example, to compile RPD with SVG renderer (instead of default HTML), `plain` style (instead of default `quartz` style), include `timbre` and `anm` toolkits, plus add JSON Import/Export, you need to call:
 
 ```sh
 $ gulp --renderer svg --toolkit anm --toolkit timbre --style plain --io json

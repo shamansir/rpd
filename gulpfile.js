@@ -65,7 +65,7 @@ var yargs = require('yargs')
                 pretty: false,
                 renderer: [ 'html' ],
                 style: [ 'quartz' ],
-                toolkit: [ 'core' ],
+                toolkit: [ ],
                 io: [],
                 navigation: [],
                 d3: false,
@@ -83,7 +83,7 @@ var yargs = require('yargs')
             .describe({
                 'renderer': 'this renderer will be included in the compiled version, choises are: `html`, `svg`, ...',
                 'style': 'this style will be included in compiled version, choises are: `compact`, `compact-v`, `pd`, `plain`, `quartz`, ...',
-                'toolkit': 'this node toolkit will be included in the compiled version, choises are: `core`, `anm`, `pd`, `timbre`, ...',
+                'toolkit': 'this node toolkit will be included in the compiled version, choises are: `util`, `anm`, `webpd`, `timbre`, ...',
                 'io': 'this I/O module will be included in compiled version, choises are: `json`, `pd`, ...',
                 'navigation': 'this navigation module will be included in compiled version, choises are: `browser`, ...',
                 'from': 'use the distibution located at given path, also works for `gulp html-head`',
@@ -96,7 +96,7 @@ var yargs = require('yargs')
                 'user-toolkit': 'use the user style toolkit at the given path, instead of searching for it at `./src/toolkit/<toolkit-name>`',
                 'docs-local': 'used for building documentation to open and test it locally'
             })
-            .example('gulp -r svg -t anm -t timbre', 'add SVG renderer to the compilation instead of default HTML, also include `anm` and `timbre` toolkits there, instead of default `core`')
+            .example('gulp -r svg -t anm -t timbre', 'add SVG renderer to the compilation instead of default HTML, also include `anm` and `timbre` toolkits there')
             .example('gulp html-head -r svg -t anm -t timbre', 'get the HTML header for the version described above, which will provide paths inside ./src instead of compiled `rpd.min.js`')
             .example('gulp -o /Users/hitchcock -n my-custom-rpd', 'write the files to `/Users/hitchcock/my-custom-rpd.css` and ' +
                           '`/Users/hitchcock/my-custom-rpd.min.js`')
@@ -340,7 +340,7 @@ gulp.task('docs-copy-dependencies', function() {
         gutil.log('First time before building docs (not every time)');
         gutil.log('Please call', gutil.colors.red('`gulp get-dev-deps`'), 'to get latest Kefir.js','(if you haven\'t yet)');
         gutil.log('and then, to generate RPD version for docs, call:');
-        gutil.log(gutil.colors.red('`gulp --style compact-v --renderer svg --toolkit core --target-name rpd-docs`'));
+        gutil.log(gutil.colors.red('`gulp --style compact-v --renderer svg --target-name rpd-docs`'));
         gutil.log('so then you will be safe to call', gutil.colors.yellow('`gulp docs`'), 'again');
         throw new Error('Dependency wasn\'t met: ' + failedDependency);
     }

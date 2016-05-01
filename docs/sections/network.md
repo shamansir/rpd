@@ -13,8 +13,8 @@ No matter, have you [compiled](./setup.html#Compilation) your own customized ver
 <script>
     var targetElement = document.getElementById('patch-target');
     var patch = Rpd.render('svg', targetElement, { style: 'quartz' });
-    var randomNode = patch.addNode('core/random', 'Random');    
-    var numberNode = patch.addNode('core/number', 'Number');
+    var randomNode = patch.addNode('util/random', 'Random');    
+    var numberNode = patch.addNode('util/number', 'Number');
     randomNode.outlets['out'].connect(numberNode.inlets['in']);
     randomNode.inlets['min'].receive(10);
     randomNode.inlets['max'].receive(Kefir.repeat(function() {
@@ -101,14 +101,14 @@ var patch = Rpd.addPatch('My Patch');
 Adding nodes is also super-easy in a default form:
 
 ```javascript
-var untitledCoreNode = patch.addNode('core/random');
+var untitledCoreNode = patch.addNode('util/random');
 var untitledCustomNode = patch.addNode('my-toolkit/my-node-type');
 var titledCustomNode = patch.addNode('my-toolkit/my-node-type', 'My Node');
 ```
 
 At least, you need to specify a type of the Node you want to create. Type determines how many inlets/outlets new Node will have, their names and types, and the way (algorithm) it will use to process incoming data before sending it to other nodes. Or, type may determine that this Node won't change the data and just pass it through, but visualize it in some way.
 
-For example, all the Nodes with type `core/random` always have two inlets, `min` and `max` (both accept only numbers), and one outlet named `out`. You are free to add other inlets or outlets to any instance of any type, though. When one of the inlets gets new value, Node with `core/random` type generates new random number laying between the requested bounds and immediately sends it to the `out` outlet. Renderer of the `core/random` type ensures that last four generated numbers are also shown in the body of every such Node.
+For example, all the Nodes with type `util/random` always have two inlets, `min` and `max` (both accept only numbers), and one outlet named `out`. You are free to add other inlets or outlets to any instance of any type, though. When one of the inlets gets new value, Node with `util/random` type generates new random number laying between the requested bounds and immediately sends it to the `out` outlet. Renderer of the `util/random` type ensures that last four generated numbers are also shown in the body of every such Node.
 
 New nodes are positioned in the free space automatically, though the placing algorithm is intentionally not perfect, to keep it simple, so you have the ability to force-move the created node to the desired place if you don't like what machine suggested for you:
 

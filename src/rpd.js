@@ -242,7 +242,7 @@ Patch.prototype.resizeCanvas = function(width, height) {
 // =============================================================================
 
 function Node(type, patch, def, render, callback) {
-    this.type = type || 'core/empty';
+    this.type = type || 'core/basic';
     this.id = short_uid();
     this.patch = patch;
 
@@ -810,6 +810,9 @@ function style(name, renderer, func) {
     if (!styles[name]) styles[name] = {};
     styles[name][renderer] = func;
 }
+
+nodetype('core/basic', {});
+channeltype('core/any', {});
 
 // =============================================================================
 // =============================== export ======================================
