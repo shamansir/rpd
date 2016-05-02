@@ -147,7 +147,17 @@ Or, could happen, you want to provide user with this nice ability, for example w
 
 #### `inlet.receive(value)`
 
+Force this inlet to receive some specific value, overpassing the connections, if there are any.
+
+Channel mechanics are involved only partly in this case, but the value is still checked if it is allowed by channel type, and if it does, then it is adapted following the channel type definition. <!-- TODO: ensure -->
+
 #### `inlet.stream(stream)`
+
+Force this inlet to receive stream of values. RPD uses `Kefir` library to provide streams. Value streams provide practically infinite possibilities, you can send values with time intervals, throttle values by time, combine different streams in unlimited ways, actually everything.
+
+You may find complex examples at [Kefir library page](). Also, usually it is quite easy to convert streams from some another Stream-based library, like RxJS, when you want to use such.
+
+<!-- examples -->
 
 #### `inlet.toDefault()`
 
@@ -156,6 +166,10 @@ Or, could happen, you want to provide user with this nice ability, for example w
 ### `Outlet`
 
 #### `outlet.connect(inlet) → Link`
+
+Establish a connection between this outlet and given inlet. It is exactly the same what user does when connects some outlet to some inlet using interface.
+
+When connection was established, data flows through this wire perfectly, but the receiving end can decline any data on its will, for example when outlet channel type is not matching the inlet channel type or is not in the list if inlet's channel types allowed to connect.
 
 #### `outlet.disconnect(link)`
 
