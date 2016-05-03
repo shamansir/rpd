@@ -4,7 +4,7 @@
         <meta charset="utf-8" />
         <title>Core with Network</title>
 
-        <!-- gulp html-head ==style quartz ==io json ==renderer svg ==toolkit core ==toolkit demo ==root .. -->
+        <!-- gulp html-head ==style quartz ==io json ==renderer svg ==toolkit util ==root .. -->
 
         <!-- Built with RPD v0.2.0 <http://shamansir.github.io/rpd> -->
 
@@ -12,10 +12,8 @@
         <link rel="stylesheet" href="../src/render/svg.css"></style>
         <!-- RPD Style: quartz (svg) -->
         <link rel="stylesheet" href="../src/style/quartz/svg.css"></style>
-        <!-- RPD Toolkit: core (svg) -->
-        <link rel="stylesheet" href="../src/toolkit/core/svg.css"></style>
-        <!-- RPD Toolkit: demo (svg) -->
-        <!-- <link rel="stylesheet" href="../src/toolkit/demo/svg.css"></style> -->
+        <!-- RPD Toolkit: util (svg) -->
+        <link rel="stylesheet" href="../src/toolkit/util/svg.css"></style>
 
         <!-- Kefir -->
         <script src="../vendor/kefir.min.js"></script>
@@ -30,16 +28,11 @@
         <script src="../src/style/quartz/svg.js"></script>
         <!-- RPD Renderer: svg -->
         <script src="../src/render/svg.js"></script>
-        <!-- RPD Toolkit: core -->
-        <script src="../src/toolkit/core/shared.js"></script>
-        <script src="../src/toolkit/core/toolkit.js"></script>
-        <!-- RPD Toolkit: core (svg) -->
-        <script src="../src/toolkit/core/svg.js"></script>
-        <!-- RPD Toolkit: demo -->
-        <script src="../src/toolkit/demo/shared.js"></script>
-        <script src="../src/toolkit/demo/toolkit.js"></script>
-        <!-- RPD Toolkit: demo (svg) -->
-        <script src="../src/toolkit/demo/svg.js"></script>
+        <!-- RPD Toolkit: util -->
+        <script src="../src/toolkit/util/shared.js"></script>
+        <script src="../src/toolkit/util/toolkit.js"></script>
+        <!-- RPD Toolkit: util (svg) -->
+        <script src="../src/toolkit/util/svg.js"></script>
 
         <!-- RPD I/O: json -->
         <script src="../src/io/json.js"></script>
@@ -48,32 +41,32 @@
     <body>
 
         <script>
-            var finalize = Rpd.export.json('Core with Network');
+            var finalize = Rpd.export.json('Network');
 
             Rpd.renderNext('svg', document.body, { style: 'quartz', fullPage: true });
 
             var root = Rpd.addPatch('root');
 
-            var genA = root.addNode('core/custom', 'Generate A');
-            var outA = genA.addOutlet('core/number', 'A');
+            var genA = root.addNode('core/basic', 'Generate A');
+            var outA = genA.addOutlet('util/number', 'A');
             outA.send(3);
 
-            var genA = root.addNode('core/custom', 'Generate B');
-            var outB = genA.addOutlet('core/number', 'B', { 'default': 1 });
+            var genA = root.addNode('core/basic', 'Generate B');
+            var outB = genA.addOutlet('util/number', 'B', { 'default': 1 });
 
-            var test = root.addNode('demo/sum-of-three', 'foo')
-            test.addInlet('core/number', 'D');
-            test.addInlet('core/number', 'E');
-            test.addOutlet('core/number', 'F');
+            var test = root.addNode('util/sum-of-three', 'foo')
+            test.addInlet('util/number', 'D');
+            test.addInlet('util/number', 'E');
+            test.addOutlet('util/number', 'F');
 
             var sum = Rpd.addClosedPatch('sum');
 
-            var sumOfThree1 = sum.addNode('demo/sum-of-three', 'Sum1');
+            var sumOfThree1 = sum.addNode('util/sum-of-three', 'Sum1');
             var in1A = sumOfThree1.inlets['a'];
             var in1B = sumOfThree1.inlets['b'];
             var sum1 = sumOfThree1.outlets['sum'];
 
-            var sumOfThree2 = sum.addNode('demo/sum-of-three', 'Sum2');
+            var sumOfThree2 = sum.addNode('util/sum-of-three', 'Sum2');
             var in2A = sumOfThree2.inlets['a'];
             var sum2 = sumOfThree2.outlets['sum'];
 
@@ -82,7 +75,7 @@
             sum.inputs([ in1A, in1B ]);
             sum.outputs([ sum2, sum1 ]);
 
-            var p = root.addNode('core/custom');
+            var p = root.addNode('util/custom');
             sum.project(p);
 
             //outA.stream(Kefir.repeat(function() { return Kefir.sequentially(100, [1, 2, 3]); }));

@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
 
-        <!-- gulp html-head ==style compact ==renderer svg ==toolkit core ==root .. -->
+        <!-- gulp html-head ==style compact ==renderer svg ==toolkit util ==root .. -->
 
         <!-- Built with RPD v0.2.0a <http://shamansir.github.io/rpd> -->
 
@@ -11,8 +11,8 @@
         <link rel="stylesheet" href="../src/render/html.css"></style>
         <!-- RPD Style: compact (svg) -->
         <link rel="stylesheet" href="../src/style/compact/svg.css"></style>
-        <!-- RPD Toolkit: core (svg) -->
-        <link rel="stylesheet" href="../src/toolkit/core/svg.css"></style>
+        <!-- RPD Toolkit: util (svg) -->
+        <link rel="stylesheet" href="../src/toolkit/util/svg.css"></style>
 
         <!-- Kefir -->
         <script src="../vendor/kefir.min.js"></script>
@@ -27,11 +27,11 @@
         <script src="../src/style/compact/svg.js"></script>
         <!-- RPD Renderer: svg -->
         <script src="../src/render/svg.js"></script>
-        <!-- RPD Toolkit: core -->
-        <script src="../src/toolkit/core/shared.js"></script>
-        <script src="../src/toolkit/core/toolkit.js"></script>
-        <!-- RPD Toolkit: core (svg) -->
-        <script src="../src/toolkit/core/svg.js"></script>
+        <!-- RPD Toolkit: util -->
+        <script src="../src/toolkit/util/shared.js"></script>
+        <script src="../src/toolkit/util/toolkit.js"></script>
+        <!-- RPD Toolkit: util (svg) -->
+        <script src="../src/toolkit/util/svg.js"></script>
 
         <style>
             #p5-canvas {
@@ -67,7 +67,7 @@
                 stroke: crimson;
             }
 
-            .rpd-core-random .rpd-process text {
+            .rpd-util-random .rpd-process text {
                 font-size: 0.8em;
             }
 
@@ -112,9 +112,9 @@
 
             Rpd.nodetype('p5/color', {
                 inlets: {
-                    'r': { type: 'core/number', default: DEFAULT_COLOR.r, name: 'red' },
-                    'g': { type: 'core/number', default: DEFAULT_COLOR.g, name: 'green' },
-                    'b': { type: 'core/number', default: DEFAULT_COLOR.b, name: 'blue' }
+                    'r': { type: 'util/number', default: DEFAULT_COLOR.r, name: 'red' },
+                    'g': { type: 'util/number', default: DEFAULT_COLOR.g, name: 'green' },
+                    'b': { type: 'util/number', default: DEFAULT_COLOR.b, name: 'blue' }
                 },
                 outlets: {
                     'color': { type: 'p5/color' }
@@ -243,12 +243,12 @@
             Rpd.nodetype('p5/sketch', {
                 inlets: {
                     'shape': { type: 'p5/shape', default: 'circle', name: 'shape' },
-                    'wavescount': { type: 'core/number', default: 5, name: 'waves' },
+                    'wavescount': { type: 'util/number', default: 5, name: 'waves' },
                     'startcolor': { type: 'p5/color', name: 'from' },
                     'endcolor': { type: 'p5/color', name: 'to' },
-                    'xspacing': { type: 'core/number', default: 16, name: 'xspan' },
-                    'amplitude': { type: 'core/number', default: 75, name: 'ampl.' },
-                    'period': { type: 'core/number', default: 500, name: 'period' }
+                    'xspacing': { type: 'util/number', default: 16, name: 'xspan' },
+                    'amplitude': { type: 'util/number', default: 75, name: 'ampl.' },
+                    'period': { type: 'util/number', default: 500, name: 'period' }
                 },
                 process: function(inlets) {
                     window.sketchUpdate(inlets);
@@ -269,9 +269,9 @@
                 }
             });
 
-            // ============= Monkey-patch core/random renderer =============
+            // ============= Monkey-patch util/random renderer =============
 
-            var curSvgRandomRendererFunc = Rpd.allNodeRenderers['core/random'].svg;
+            var curSvgRandomRendererFunc = Rpd.allNodeRenderers['util/random'].svg;
             var newSvgRandomRendererFunc = function(node) {
                 var returnObj = curSvgRandomRendererFunc.apply(this, arguments);
                 if (returnObj.size) {
@@ -291,7 +291,7 @@
                 };
                 return returnObj;
             };
-            Rpd.allNodeRenderers['core/random'].svg = newSvgRandomRendererFunc;
+            Rpd.allNodeRenderers['util/random'].svg = newSvgRandomRendererFunc;
 
             // ============= Build and render patch =============
 
@@ -302,7 +302,7 @@
                                                  renderNodeList: false });
             var sketch = patch.addNode('p5/sketch').move(300, 50);
 
-            var random1 = patch.addNode('core/random').move(20, 50);
+            var random1 = patch.addNode('util/random').move(20, 50);
             random1.inlets['min'].receive(50); random1.inlets['max'].receive(255);
 
             var color1 = patch.addNode('p5/color').move(20, 150);
@@ -313,7 +313,7 @@
             color2.outlets['color'].connect(sketch.inlets['endcolor']);
             color2.inlets['r'].receive(20); color2.inlets['g'].receive(0); color2.inlets['b'].receive(0);
 
-            var random2 = patch.addNode('core/random').move(160, 150);
+            var random2 = patch.addNode('util/random').move(160, 150);
             random2.inlets['min'].receive(5); random2.inlets['max'].receive(25);
 
             var shape = patch.addNode('p5/shape').move(160, 250);

@@ -1,3 +1,17 @@
+Rpd.channelrenderer('anm/number', 'html', {
+    /* show: function(target, value) { }, */
+    edit: function(target, inlet, valueIn) {
+        var valInput = document.createElement('input');
+        valInput.type = 'number';
+        valueIn.onValue(function(val) {
+            valInput.value = val;
+        });
+        target.appendChild(valInput);
+        return Kefir.fromEvents(valInput, 'change')
+                    .map(function() { return valInput.value; });
+    }
+});
+
 Rpd.noderenderer('anm/color', 'html',
     renderSpread('color', function(elm, color) {
         elm.style.backgroundColor = color;

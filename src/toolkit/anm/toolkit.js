@@ -12,6 +12,17 @@ var NUMBERS  = Spread.NUMBERS,
     ELEMENTS = Spread.ELEMENTS,
     FORCES   = Spread.FORCES;
 
+Rpd.channeltype('anm/number', {
+    default: 0,
+    readonly: false,
+    accept: function(val) {
+        if (val === Infinity) return true;
+        var parsed = parseFloat(val);
+        return !isNaN(parsed) && isFinite(parsed);
+    },
+    adapt: function(val) { return parseFloat(val); }
+});
+
 Rpd.channeltype('anm/numbers',   { adapt: S(NUMBERS),  show: stringify });
 Rpd.channeltype('anm/vectors',   { adapt: S(VECTORS),  show: stringify, accept: accept(VECTORS)  });
 Rpd.channeltype('anm/colors',    { adapt: S(COLORS),   show: stringify, accept: accept(COLORS)   });
@@ -23,9 +34,9 @@ Rpd.channeltype('anm/shapetype');
 Rpd.nodetype('anm/spread', {
     name: 'spread',
     inlets: {
-        'min':   { type: 'core/number', default: 0 },
-        'max':   { type: 'core/number', default: 1 },
-        'count': { type: 'core/number', default: 5 }
+        'min':   { type: 'anm/number', default: 0 },
+        'max':   { type: 'anm/number', default: 1 },
+        'count': { type: 'anm/number', default: 5 }
     },
     outlets: {
         'spread': { type: 'anm/numbers' }

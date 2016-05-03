@@ -5,10 +5,10 @@
         <title>Timbre Toolkit</title>
 
         <!-- replace double equals signs with double dashes to get html head like below generated -->
-        <!-- gulp html-head ==style quartz ==renderer html ==toolkit core ==toolkit timbre ==root .. -->
+        <!-- gulp html-head ==style quartz ==renderer html ==toolkit util ==toolkit timbre ==root .. -->
 
         <!-- or run this, and get everything combined in two files: rpd.js and rpd.css -->
-        <!-- gulp ==style quartz ==renderer html ==toolkit core ==toolkit timbre -->
+        <!-- gulp ==style quartz ==renderer html ==toolkit util ==toolkit timbre -->
 
         <!-- Built with RPD v0.2.0 <http://shamansir.github.io/rpd> -->
 
@@ -18,8 +18,8 @@
         <link rel="stylesheet" href="../src/style/quartz/html.css"></style>
         <!-- RPD Toolkit: timbre (html) -->
         <link rel="stylesheet" href="../src/toolkit/timbre/html.css"></style>
-        <!-- RPD Toolkit: core (html) -->
-        <link rel="stylesheet" href="../src/toolkit/core/html.css"></style>
+        <!-- RPD Toolkit: util (html) -->
+        <link rel="stylesheet" href="../src/toolkit/util/html.css"></style>
 
         <!-- Timbre -->
         <script src="http://mohayonao.github.io/timbre.js/timbre.js"></script>
@@ -36,11 +36,11 @@
         <script src="../src/style/quartz/html.js"></script>
         <!-- RPD Renderer: html -->
         <script src="../src/render/html.js"></script>
-        <!-- RPD Toolkit: core -->
-        <script src="../src/toolkit/core/shared.js"></script>
-        <script src="../src/toolkit/core/toolkit.js"></script>
-        <!-- RPD Toolkit: core (html) -->
-        <script src="../src/toolkit/core/html.js"></script>
+        <!-- RPD Toolkit: util -->
+        <script src="../src/toolkit/util/shared.js"></script>
+        <script src="../src/toolkit/util/toolkit.js"></script>
+        <!-- RPD Toolkit: util (html) -->
+        <script src="../src/toolkit/util/html.js"></script>
         <!-- RPD Toolkit: timbre -->
         <script src="../src/toolkit/timbre/shared.js"></script>
         <script src="../src/toolkit/timbre/toolkit.js"></script>
@@ -58,7 +58,7 @@
 
             var wave = root.addNode('timbre/wave').move(30, 30);
 
-            var freq = root.addNode('core/bounded-number').move(35, 150);
+            var freq = root.addNode('util/bounded-number').move(35, 150);
             freq.inlets['min'].receive(110);
             freq.inlets['max'].receive(880);
             freq.inlets['spinner'].receive(440);
@@ -72,7 +72,7 @@
 
             var play = root.addNode('timbre/play').move(430, 270);
 
-            var random = root.addNode('core/random').move(45, 275);
+            var random = root.addNode('util/random').move(45, 275);
             random.inlets['min'].receive(110);
             random.inlets['max'].receive(880);
             random.inlets['period'].receive(3000);
