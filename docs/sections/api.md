@@ -151,6 +151,8 @@ Force this inlet to receive some specific value, overpassing the connections, if
 
 Channel mechanics are involved only partly in this case, but the value is still checked if it is allowed by channel type, and if it does, then it is adapted following the channel type definition. <!-- TODO: ensure -->
 
+When inlet is cold, it also can postpone sending the value, till other hot inlet triggers node update.
+
 #### `inlet.stream(stream)`
 
 Force this inlet to receive stream of values. RPD uses `Kefir` library to provide streams. Value streams provide practically infinite possibilities, you can send values with time intervals, throttle values by time, combine different streams in unlimited ways, actually everything.
@@ -169,11 +171,17 @@ You may find complex examples at [Kefir library page](). Also, usually it is qui
 
 Establish a connection between this outlet and given inlet. It is exactly the same what user does when connects some outlet to some inlet using interface.
 
-When connection was established, data flows through this wire perfectly, but the receiving end can decline any data on its will, for example when outlet channel type is not matching the inlet channel type or is not in the list if inlet's channel types allowed to connect.
+When connection was established, data flows through this wire perfectly, however the receiving end can decline any data on its will, for example when outlet channel type is not matching the inlet channel type or is not in the list if inlet's channel types allowed to connect.
+
+It depends on the options, but by default it is allowed to connect one outlet to multiple inlets, but inlet may have only one connection, so when inlet is already connected to an outlet and you connect it to another, the previous one should be disconnected. <!-- TODO: control is permormed only in renderer, that's not so good-->
 
 #### `outlet.disconnect(link)`
 
+Break the existing connection, so all the values from this outlet are no more delivered trough this link to the corresponding inlet.
+
 #### `outlet.send(value)`
+
+Force this outlet to send given value to all the connected inlets in other nodes, when there are any. These inlets can yet decline or modify the value basing on the channel type. (see `inlet.receive` description).
 
 #### `outlet.stream(stream)`
 
@@ -191,10 +199,4 @@ When connection was established, data flows through this wire perfectly, but the
 
 #### `history`
 
-##### `Rpd.history.undo()`
-
-##### `Rpd.history.redo()`
-
-#### `io`
-
-#### `navigation`
+##### `Rpd.history...
