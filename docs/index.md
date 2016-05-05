@@ -35,7 +35,49 @@ If you feel that's you know everything in this field and this library is definit
 
 ### Code Examples
 
-<!-- TODO -->
+<!-- TODO: insert generator example itself -->
+
+Random Generator with the help of [`util`](http://..) toolkit:
+
+```js
+Rpd.renderNext('html', document.body);
+
+var rgPatch = Rpd.addPatch('Generate Random Numbers');
+
+var rgNode = rgPatch.addNode('util/random', 'Random');
+rgNode.inlets['max'].receive(500);
+rgNode.inlets['period'].receive(3000);
+
+var logNode = rgPatch.addNode('util/log', 'Log');
+rgNode.outlets['out'].connect(logNode.inlets['what']);
+
+var multiplyTwo = rgPatch.addNode('core/basic', '* 2', {
+    process: function(inlets) {
+        return {
+            'result': (inlets.result || 0) * 2
+        }
+    }
+});
+var multiplierInlet = multiplyTwo.addInlet('util/number', 'multiplier');
+var resultOutlet = multiplyTwo.addOutlet('util/number', 'result');
+
+rgNode.outlets['out'].connect(multiplierInlet);
+```
+
+<!-- TODO: insert p5.js example itself (its gid, in worst case) -->
+
+Configure [`p5.js`](http://p5.js) patch with the help of [`p5`](http://..) toolkit:
+
+```js
+Rpd.nodetype('my/sketch', function() {
+
+});
+```
+
+When you define your own toolkit in place:
+
+```js
+```
 
 ### Terminology
 

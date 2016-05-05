@@ -223,4 +223,13 @@ Rpd.nodetype('util/hot-and-cold', {
 });
 */
 
+Rpd.nodetype('util/log', function() {
+    inlets: {
+        'what': { type: 'core/any' }
+    },
+    process: function(inlets) {
+        console.log(inlets.what);
+    }
+});
+
 })();
