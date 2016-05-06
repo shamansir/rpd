@@ -35,7 +35,7 @@ If you feel that's you know everything in this field and this library is definit
 
 ### Code Examples
 
-<!-- TODO: insert generator example itself -->
+<!-- TODO: insert generator example itself (its gif, in the worst case) -->
 
 Random Generator with the help of [`util`](http://..) toolkit:
 
@@ -64,7 +64,7 @@ var resultOutlet = multiplyTwo.addOutlet('util/number', 'result');
 rgNode.outlets['out'].connect(multiplierInlet);
 ```
 
-<!-- TODO: insert p5.js example itself (its gid, in worst case) -->
+<!-- TODO: insert p5.js example itself (its gif, in the worst case) -->
 
 Configure [`p5.js`](http://p5.js) patch with the help of [`p5`](http://..) toolkit:
 
