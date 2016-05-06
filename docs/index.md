@@ -39,8 +39,11 @@ If you feel that's you know everything in this field and this library is definit
 
 Random Generator with the help of [`util`](http://..) toolkit:
 
+<div id="example-one"></div>
+
 ```js
-Rpd.renderNext('html', document.body);
+Rpd.renderNext('html', document.getElementById('example-one'),
+               { nodeMovingAllowed: false });
 
 var rgPatch = Rpd.addPatch('Generate Random Numbers');
 

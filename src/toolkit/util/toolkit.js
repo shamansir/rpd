@@ -223,7 +223,7 @@ Rpd.nodetype('util/hot-and-cold', {
 });
 */
 
-Rpd.nodetype('util/log', function() {
+Rpd.nodetype('util/log', {
     inlets: {
         'what': { type: 'core/any' }
     },
