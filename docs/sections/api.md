@@ -10,6 +10,18 @@ The `Rpd` namespace is a single entry point for your _patch network_, independen
 
 Every patch lays over its own _canvas_, several canvases may be attached to the same _target element_, this will be covered in details below.
 
+When you want to give user some existing node network or to load it from file for which there is no `io` module, you may use Network Building API with these methods:
+
+* Rpd
+
+* Patch
+    *
+
+When you want to build your own toolkit, you may want to register your node & channel types and renderers using these methods:
+
+* Rpd
+
+
 > It's important to notice that the whole API is based on processing event streams, same way as Reactive Programming concepts work. All the created instances are immutable, they only react on user actions, with no modifications to the initial state. It guarantees the safety and ability to reverse any operation and also allows you to create streams of data of any complexity, intended to flow between the nodes.
 
 <!-- schematic picture of a network -->
@@ -165,6 +177,8 @@ You may find complex examples at [Kefir library page](). Also, usually it is qui
 
 #### `inlet.allows(outlet)`
 
+Check if this inlet allows connections from given outlet. Usually it us done by the renderer <!-- ? --> on connection, but if you want to ensure connection will pass, you may use this method.
+
 ### `Outlet`
 
 #### `outlet.connect(inlet) → Link`
@@ -185,13 +199,23 @@ Force this outlet to send given value to all the connected inlets in other nodes
 
 #### `outlet.stream(stream)`
 
+Force this outlet to receive the stream of values, any stream constructed with [Kefir API](http://kefir). These values may be distributed over time in any way you want, and last till infinity or till the stream will end.
+
+Yet, same as with `outlet.send`, value may be declined or modified on the receiving ends, when they exist (without interrupting the stream).
+
 #### `outlet.toDefault()`
 
 ### `Link`
 
+Link represents a single connection between inlet and outlet <!-- what happens when the connection was declined? -->. Its instance is returned from `outlet.connect` method.
+
 #### `link.enable()`
 
+Enable this link, so values will flow normally through, as just after the connection.
+
 #### `link.disable()`
+
+Disable the link temporarily, but the connection actually stays.
 
 #### `link.disconnect()`
 
@@ -199,4 +223,10 @@ Force this outlet to send given value to all the connected inlets in other nodes
 
 #### `history`
 
-##### `Rpd.history...
+##### `Rpd.history.undo()`
+
+##### `Rpd.history.redo()`
+
+#### `io`
+
+#### `navigation`
