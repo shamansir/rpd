@@ -1,6 +1,7 @@
 function applyCodeExample1() {
-    Rpd.renderNext('html', document.getElementById('example-one'),
-                   { nodeMovingAllowed: false });
+    Rpd.renderNext('svg', document.getElementById('example-one'),
+                   { style: 'compact-v',
+                     nodeMovingAllowed: false });
 
     var rgPatch = Rpd.addPatch('Generate Random Numbers');
 
