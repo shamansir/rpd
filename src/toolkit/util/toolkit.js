@@ -138,6 +138,7 @@ Rpd.nodetype('util/metro', {
     }
 });
 
+var DEFAULT_COLOR = { r: 0xED, g: 0x22, b: 0x5D };
 Rpd.nodetype('util/color', {
     inlets: {
         'r': { type: 'util/wholenumber', default: DEFAULT_COLOR.r, label: 'red' },
