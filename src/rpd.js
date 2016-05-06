@@ -33,6 +33,7 @@ var rpdEvents = create_events_stream(event_types, rpdEvent, 'network', Rpd);
 rpdEvent['network/add-patch'].onValue(function(patch) { rpdEvents.plug(patch.events); });
 
 rpdEvents.onError(function(error) {
+    if (error.silent) return;
     if (error.system) {
         console.error(new Error(error.type + ': ' + error.message));
     } else {
@@ -448,7 +449,9 @@ function Inlet(type, node, alias, def, render) {
     var updates = orig_updates.merge(this.value);
     if (this.def.tune) updates = this.def.tune(updates);
     if (this.def.accept) updates = updates.flatten(function(v) {
-        if (this.def.accept(v)) { return [v]; } else { orig_updates.error(); return []; }
+        if (this.def.accept(v)) { return [v]; } else {
+            orig_updates.error(make_silent_error(this, 'inlet')); return [];
+        }
     }.bind(this));
     if (this.def.adapt) updates = updates.map(this.def.adapt);
     // rewrite with the modified stream
@@ -534,7 +537,7 @@ function Outlet(type, node, alias, def, render) {
 }
 Outlet.prototype.connect = function(inlet) {
     if (!inlet.allows(this)) {
-        report_error(this, 'outlet', 'Outlet of type \'' + this.type + '\' is not allowed to connect to inlet of type ' + inlet.type);
+        report_error(this, 'outlet', 'Outlet of type \'' + this.type + '\' is not allowed to connect to inlet of type \'' + inlet.type + '\'');
     }
     var link = new Link(this, inlet);
     this.events.plug(link.events);
@@ -754,10 +757,18 @@ function subscribe(events, handlers) {
           });
 }
 
+function make_silent_error(subject, subject_name) {
+    var err = make_error(subject, subject_name);
+    err.silent = true; return err;
+}
 
-function report_error(subject, subject_name, message, isSystem) {
-    rpdEvents.plug(Kefir.constantError({ type: subject_name + '/error', system: isSystem || false,
-                                         subject: subject, message: message }));
+function make_error(subject, subject_name, message, is_system) {
+    return { type: subject_name + '/error', system: is_system || false,
+             subject: subject, message: message }
+}
+
+function report_error(subject, subject_name, message, is_system) {
+    rpdEvents.plug(Kefir.constantError(make_error(subject, subject_name, message, is_system)));
 }
 
 function report_system_error(subject, subject_name, message) {
