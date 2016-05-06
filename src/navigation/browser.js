@@ -79,7 +79,7 @@ Rpd.navigation = (function() {
         var lenBefore = idList.length;
         idList = idList.filter(function(patchId) {
             if (patchId && !this.idToPatch[patchId]) {
-                Rpd.reportError('network', 'unknown patch ID ' + patchId);
+                Rpd.reportError(null, 'network', 'unknown patch ID ' + patchId);
             }
             return patchId && this.idToPatch[patchId];
         }.bind(this));
@@ -88,7 +88,7 @@ Rpd.navigation = (function() {
                 idList = [ this.firstAddedPatch.id ];
                 this.changePath(this.firstAddedPatch.id);
             } else {
-                Rpd.reportError('network', 'unknown path requested: ' + path);
+                Rpd.reportError(null, 'network', 'unknown path requested: ' + path);
             }
         }
         //var newPath = idList.join(SEPARATOR);
