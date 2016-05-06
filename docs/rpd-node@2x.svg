@@ -26,20 +26,20 @@
                 <use stroke="#979797" stroke-width="1" fill="#D8D8D8" sketch:type="MSShapeGroup" xlink:href="#path-3"></use>
                 <use stroke="none" fill="url(#linearGradient-2)" xlink:href="#path-3"></use>
             </g>
-            <text fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Futura" font-size="21.75" font-weight="420" line-spacing="16">
-                <tspan x="67" y="39" fill="#000000">Node 1</tspan>
+            <text fill="#FFFFFF" sketch:type="MSTextLayer" font-family="PT Sans" font-size="21.75" font-weight="normal" line-spacing="16">
+                <tspan x="67" y="36" fill="#000000">Node 1</tspan>
             </text>
             <ellipse id="Oval-2" stroke="#979797" fill="#D8D8D8" sketch:type="MSShapeGroup" cx="57" cy="65.5" rx="9" ry="9.5"></ellipse>
             <ellipse id="Oval-2" stroke="#979797" fill="#D8D8D8" sketch:type="MSShapeGroup" cx="57" cy="100.5" rx="9" ry="9.5"></ellipse>
             <ellipse id="Oval-2" stroke="#979797" fill="#D8D8D8" sketch:type="MSShapeGroup" cx="181" cy="65.5" rx="9" ry="9.5"></ellipse>
-            <text id="in-a" fill="#9B9B9B" sketch:type="MSTextLayer" font-family="Futura" font-size="22.5" font-weight="420" sketch:alignment="right" line-spacing="16">
-                <tspan x="0" y="84" fill="#000000">in-a</tspan>
+            <text id="in-a" fill="#9B9B9B" sketch:type="MSTextLayer" font-family="PT Sans" font-size="22.5" font-weight="normal" sketch:alignment="right" line-spacing="16">
+                <tspan x="0" y="81" fill="#000000">in-a</tspan>
             </text>
-            <text id="in-b" fill="#9B9B9B" sketch:type="MSTextLayer" font-family="Futura" font-size="22.5" font-weight="420" sketch:alignment="right" line-spacing="16">
-                <tspan x="0" y="120" fill="#000000">in-b</tspan>
+            <text id="in-b" fill="#9B9B9B" sketch:type="MSTextLayer" font-family="PT Sans" font-size="22.5" font-weight="normal" sketch:alignment="right" line-spacing="16">
+                <tspan x="0" y="117" fill="#000000">in-b</tspan>
             </text>
-            <text id="out" fill="#9B9B9B" sketch:type="MSTextLayer" font-family="Futura" font-size="21.75" font-weight="420" line-spacing="16">
-                <tspan x="198" y="84" fill="#000000">out</tspan>
+            <text id="out" fill="#9B9B9B" sketch:type="MSTextLayer" font-family="PT Sans" font-size="21.75" font-weight="normal" line-spacing="16">
+                <tspan x="198" y="81" fill="#000000">out</tspan>
             </text>
         </g>
         <rect id="Rectangle-18" stroke="#4990E2" sketch:type="MSShapeGroup" x="130" y="92" width="80" height="80"></rect>
@@ -47,11 +47,11 @@
         <path id="Path-6-decoration-1" d="M220.947942,159.021588 C217.351253,157.45483 214.268377,156.111895 210.671688,154.545138 C212.945022,157.742457 214.893594,160.483017 217.166929,163.680336" stroke="#4990E2" stroke-linecap="round"></path>
         <path d="M278.5,17.5 L218,57" id="Path-6" stroke="#4990E2" stroke-linecap="round" sketch:type="MSShapeGroup"></path>
         <path id="Path-6-decoration-1" d="M225.61502,48.4454155 C223.023917,51.3911052 220.802972,53.915982 218.21187,56.8616717 C221.951021,55.6743858 225.156008,54.6567122 228.895159,53.4694263" stroke="#4990E2" stroke-linecap="round"></path>
-        <text id="node-body" sketch:type="MSTextLayer" font-family="Futura" font-size="13" font-weight="420" line-spacing="16" text-decoration="underline" fill="#000000">
-            <tspan x="283" y="220">node body</tspan>
+        <text id="node-body" sketch:type="MSTextLayer" font-family="PT Sans" font-size="13" font-weight="normal" line-spacing="16" text-decoration="underline" fill="#000000">
+            <tspan x="283" y="218">node body</tspan>
         </text>
-        <text id="node-title" sketch:type="MSTextLayer" font-family="Futura" font-size="13" font-weight="420" line-spacing="16" text-decoration="underline" fill="#000000">
-            <tspan x="283" y="21">node title</tspan>
+        <text id="node-title" sketch:type="MSTextLayer" font-family="PT Sans" font-size="13" font-weight="normal" line-spacing="16" text-decoration="underline" fill="#000000">
+            <tspan x="283" y="19">node title</tspan>
         </text>
         <path d="M34.5,66.5 L112.5,109.5" id="Path-6" stroke="#4990E2" stroke-linecap="round" sketch:type="MSShapeGroup"></path>
         <path id="Path-6-decoration-1" d="M101.534635,106.88066 C105.351857,107.786042 108.623761,108.562083 112.440983,109.467465 C109.6376,106.723026 107.234701,104.37065 104.431318,101.626212" stroke="#4990E2" stroke-linecap="round"></path>
@@ -59,11 +59,11 @@
         <path id="Path-6-decoration-1" d="M238.162063,101.949855 C235.222293,104.547672 232.70249,106.774373 229.762721,109.37219 C233.621168,108.662766 236.928409,108.054689 240.786857,107.345265" stroke="#4990E2" stroke-linecap="round"></path>
         <path d="M18.5,67.5 L112.5,145.5" id="Path-6" stroke="#4990E2" stroke-linecap="round" sketch:type="MSShapeGroup"></path>
         <path id="Path-6-decoration-1" d="M102.159542,140.817943 C105.738986,142.423707 108.807081,143.800076 112.386526,145.40584 C110.148083,142.183997 108.229419,139.422416 105.990977,136.200573" stroke="#4990E2" stroke-linecap="round"></path>
-        <text id="inlet" sketch:type="MSTextLayer" font-family="Futura" font-size="13" font-weight="420" line-spacing="16" text-decoration="underline" fill="#000000">
-            <tspan x="9" y="58">inlet</tspan>
+        <text id="inlet" sketch:type="MSTextLayer" font-family="PT Sans" font-size="13" font-weight="normal" line-spacing="16" text-decoration="underline" fill="#000000">
+            <tspan x="9" y="56">inlet</tspan>
         </text>
-        <text id="outlet" sketch:type="MSTextLayer" font-family="Futura" font-size="13" font-weight="420" line-spacing="16" text-decoration="underline" fill="#000000">
-            <tspan x="309" y="72">outlet</tspan>
+        <text id="outlet" sketch:type="MSTextLayer" font-family="PT Sans" font-size="13" font-weight="normal" line-spacing="16" text-decoration="underline" fill="#000000">
+            <tspan x="309" y="70">outlet</tspan>
         </text>
     </g>
 </svg>
