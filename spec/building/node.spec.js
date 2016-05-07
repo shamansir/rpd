@@ -91,6 +91,28 @@ describe('building: node', function() {
         });
     });
 
+    it('allows to override processing function', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty', {
+                process: function(inlets) {
+                    return {
+                        'out': inlets.in * 2
+                    }
+                }
+            });
+            var inlet = node.addInlet('spec/any', 'in');
+            node.addOutlet('spec/any', 'out');
+
+            updateSpy.calls.reset();
+
+            inlet.receive(2);
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'outlet/update',
+                                           value: 4 }));
+        });
+    });
+
     describe('allows to subscribe node events', function() {
 
         it('node/add-inlet', function() {
