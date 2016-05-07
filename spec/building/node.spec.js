@@ -101,7 +101,7 @@ describe('building: node', function() {
                 }
             });
             var inlet = node.addInlet('spec/any', 'in');
-            node.addOutlet('spec/any', 'out');
+            var outlet = node.addOutlet('spec/any', 'out');
 
             updateSpy.calls.reset();
 
@@ -109,6 +109,7 @@ describe('building: node', function() {
 
             expect(updateSpy).toHaveBeenCalledWith(
                 jasmine.objectContaining({ type: 'outlet/update',
+                                           outlet: outlet,
                                            value: 4 }));
         });
     });

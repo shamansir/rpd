@@ -15,7 +15,7 @@ function applyCodeExample1() {
     var multiplyTwo = rgPatch.addNode('core/basic', '* 2', {
         process: function(inlets) {
             return {
-                'result': (inlets.result || 0) * 2
+                'result': (inlets.multiplier || 0) * 2
             }
         }
     });
