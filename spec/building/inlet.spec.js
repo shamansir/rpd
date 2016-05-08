@@ -300,9 +300,33 @@ describe('building: inlet', function() {
         });
     });
 
-    xdescribe('overriding channel type definition', function() {
+    describe('overriding channel type definition', function() {
 
-        xit('overriding inlet allow function', function() {});
+        it('overriding inlet allow function', function() {
+
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/empty');
+
+                var inlet = node.addInlet('spec/any', {
+                    allow: function(value) {
+                        return value == 'foo';
+                    }
+                });
+
+                inlet.receive('bar');
+
+                expect(updateSpy).not.toHaveBeenCalledWith({
+                    type: 'inlet/update', inlet: inlet
+                });
+
+                inlet.receive('foo');
+
+                expect(updateSpy).toHaveBeenCalledWith({
+                    type: 'inlet/update', inlet: inlet, value: 'foo'
+                });
+            });
+
+        });
 
         xit('overriding inlet accept function', function() {});
 
