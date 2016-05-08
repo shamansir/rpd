@@ -32,15 +32,6 @@ var rpdEvents = create_events_stream(event_types, rpdEvent, 'network', Rpd);
 
 rpdEvent['network/add-patch'].onValue(function(patch) { rpdEvents.plug(patch.events); });
 
-rpdEvents.onError(function(error) {
-    if (error.silent) return;
-    if (error.system) {
-        console.error(new Error(error.type + ': ' + error.message));
-    } else {
-        console.log('Error: ', error.subject, error.type, error.subject);
-    }
-});
-
 var rendering;
 
 function ƒ(v) { return function() { return v; } }

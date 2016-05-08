@@ -69,6 +69,7 @@ Options passed to `renderNext` or `patch.render` could belong to one particular 
 * `effectTime` — (`1000`) milliseconds to show the value update effect on the connector
 * `showTypes` — (`false`) show inlet/outlet types for debugging purposes;
 * `showBoxes` — (`false`) show node bounding for debugging purposes;
+* `logErrors` — (`true`) write all the happening system-wide errors to the console, if it exists;
 
 Further on let's assume that you write subsequent code below those two lines:
 

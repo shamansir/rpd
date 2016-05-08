@@ -24,6 +24,8 @@ var defaultConfig = {
     inletAcceptsMultipleLinks: false,
     // when user opens a projected sub-patch, automatically close its parent patch
     closeParent: false,
+    // write global errors to console, if it exists
+    logErrors: true,
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
 };
@@ -61,6 +63,17 @@ function HtmlRenderer(patch) {
 return function(networkRoot, userConfig) {
 
     var config = mergeConfig(userConfig, defaultConfig);
+
+    // FIXME: move to some external function
+    Rpd.events.onError(function(error) {
+        if (!config.logErrors) return;
+        if (error.silent) return;
+        if (error.system) {
+            console.error(new Error(error.type + ': ' + error.message));
+        } else {
+            console.log('Error: ', error.subject, error.type, error.subject);
+        }
+    });
 
     var style = Rpd.getStyle(config.style, 'html')(config);
 
