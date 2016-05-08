@@ -114,6 +114,23 @@ describe('building: node', function() {
         });
     });
 
+    it('allows to add inlets from node definition', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty', {
+                inlets: {
+                    'in': { type: 'spec/any' }
+                }
+            });
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-inlet',
+                                           inlet: jasmine.objectContaining({
+                                               type: 'spec/any'
+                                           })
+                                        }));
+        });
+    });
+
     describe('allows to subscribe node events', function() {
 
         it('node/add-inlet', function() {
