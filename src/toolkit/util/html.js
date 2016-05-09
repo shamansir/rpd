@@ -84,6 +84,8 @@ Rpd.noderenderer('util/nodelist', 'html', {
     size: {},
     first: function(bodyElm) {
 
+        var patch = this.patch;
+
         var nodeTypes = Rpd.allNodeTypes,
             nodeDescriptions = Rpd.allNodeDescriptions,
             toolkitIcons = Rpd.allToolkitIcons,
@@ -118,27 +120,38 @@ Rpd.noderenderer('util/nodelist', 'html', {
                   dl.append('dt')
                     .call(function(dt) {
                         if (toolkitIcons[toolkit]) dt.append('span') .attr('class', 'rpd-nodelist-toolkit-icon').text(toolkitIcons[toolkit]);
-                     })
-                    .append('span').attr('class', 'rpd-nodelist-toolkit-name').text(toolkit);
+                        dt.append('span').attr('class', 'rpd-nodelist-toolkit-name').text(toolkit)
+                    })
+                    .append('dd')
+                    .append('ul')
+                    .call(function(ul) {
+                        nodeTypesByToolkit[toolkit].types.forEach(function(nodeTypeDef) {
+                            var nodeType = nodeTypeDef.fullName;
+                            ul.append('li')
+                              .call(function(li) {
 
-                  nodeTypesByToolkit[toolkit].types.forEach(function(nodeTypeDef) {
-                      var nodeType = nodeTypeDef.fullName;
-                      dl.append('dd')
-                        .call(function(dd) {
-                            if (nodeTypeIcons[nodeType]) {
-                                dd.append('span').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType]);
-                            }
-                            dd.append('span').attr('class', 'rpd-nodelist-toolkit').text(nodeTypeDef.toolkit);
-                            dd.append('span').attr('class', 'rpd-nodelist-separator').text('/');
-                            dd.append('span').attr('class', 'rpd-nodelist-typename').text(nodeTypeDef.name);
-                            if (nodeDescriptions[nodeType]) {
-                                dd.append('span').attr('class', 'rpd-nodelist-description')
-                                                 .attr('title', nodeDescriptions[nodeType])
-                                                 .text(nodeDescriptions[nodeType]);
-                            }
-                            listElements.push({ nodeType: nodeType, element: dd });
-                        })
-                  });
+                                  li.data(nodeTypeDef);
+
+                                  Kefir.fromEvents(li.node(), 'click')
+                                       .onValue(function() {
+                                           patch.addNode(li.data().fullName);
+                                       });
+
+                                  if (nodeTypeIcons[nodeType]) {
+                                      li.append('span').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType]);
+                                  }
+                                  li.append('span').attr('class', 'rpd-nodelist-toolkit').text(nodeTypeDef.toolkit);
+                                  li.append('span').attr('class', 'rpd-nodelist-separator').text('/');
+                                  li.append('span').attr('class', 'rpd-nodelist-typename').text(nodeTypeDef.name);
+                                  if (nodeDescriptions[nodeType]) {
+                                      li.append('span').attr('class', 'rpd-nodelist-description')
+                                                       .attr('title', nodeDescriptions[nodeType])
+                                                       .text(nodeDescriptions[nodeType]);
+                                  }
+                                  listElements.push({ nodeType: nodeType, element: li });
+                              })
+                        });
+                    });
 
               });
           });
@@ -159,14 +172,7 @@ Rpd.noderenderer('util/nodelist', 'html', {
              .filter(function(evt) {
                  return (evt.which == 32 || evt.keyCode == 32) && (evt.altKey || evt.metaKey || evt.ctrlKey);
              })
-             .scan(function(prev, cur) { return !prev; }, false) // invert boolean on every event
              .flatMap(function(switchedOn) {
-                 console.log('flatMap', switchedOn);
-                 if (!switchedOn) {
-                     search.node().blur();
-                     return Kefir.never();
-                 }
-
                  return Kefir.fromEvents(document.body, 'keyup')
                              .map(function(evt) { return evt.which || evt.keyCode; })
                              .filter(function(key) { return (key === 38) || (key === 40); })
