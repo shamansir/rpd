@@ -32,7 +32,7 @@ Rpd.channeltype('anm/force',     { show: function(v) { return v ? '[Force]' : 'N
 Rpd.channeltype('anm/shapetype');
 
 Rpd.nodetype('anm/spread', {
-    name: 'spread',
+    title: 'spread',
     inlets: {
         'min':   { type: 'anm/number', default: 0 },
         'max':   { type: 'anm/number', default: 1 },
@@ -49,7 +49,7 @@ Rpd.nodetype('anm/spread', {
 });
 
 Rpd.nodetype('anm/color', {
-    name: 'color',
+    title: 'color',
     inlets: {
         'red':   { type: 'anm/numbers', default: 1 },
         'green': { type: 'anm/numbers', default: 1 },
@@ -73,7 +73,7 @@ Rpd.nodetype('anm/color', {
 });
 
 Rpd.nodetype('anm/vector', {
-    name: 'vector',
+    title: 'vector',
     inlets: {
         'x': { type: 'anm/numbers', default: 0 },
         'y': { type: 'anm/numbers', default: 0 }
@@ -92,7 +92,7 @@ Rpd.nodetype('anm/vector', {
 });
 
 Rpd.nodetype('anm/primitive', {
-    name: 'primitive',
+    title: 'primitive',
     inlets: {
         'pos':    { type: 'anm/vectors', default: Spread.of(new Vector(0, 0),    VECTORS) },
         'color':  { type: 'anm/colors',  default: Spread.of('rgba(255,60,60,1)', COLORS)  },
@@ -129,7 +129,7 @@ Rpd.nodetype('anm/primitive', {
 });
 
 /* Rpd.nodetype('anm/down', {
-    name: 'up',
+    title: 'up',
     outlets: {
         'force': { type: 'anm/force' }
     },
@@ -143,7 +143,7 @@ Rpd.nodetype('anm/primitive', {
 }); */
 
 Rpd.nodetype('anm/particles', {
-    name: 'particles',
+    title: 'particles',
     inlets: {
         'particle': { type: 'anm/elements' },
         'force':    { type: 'anm/force',
@@ -182,7 +182,7 @@ Rpd.nodetype('anm/particles', {
 });
 
 /* Rpd.nodetype('anm/cross', {
-    name: 'cross',
+    title: 'cross',
     inlets: {
         'parent': { type: 'anm/elements' },
         'child':  { type: 'anm/elements' }
@@ -205,7 +205,7 @@ Rpd.nodetype('anm/particles', {
 Rpd.nodetype('anm/render', function() {
     var element;
     return {
-        name: 'render',
+        title: 'render',
         inlets: {
             'what': { type: 'anm/elements' },
         },

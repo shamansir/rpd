@@ -27,7 +27,7 @@ To control the rendering queue, you may use these methods:
    * `core/basic`
    * `core/reference`
 
-<!-- core/nodelist -->
+<!-- util/nodelist -->
 
 ### `Rpd`
 

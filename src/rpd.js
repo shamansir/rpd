@@ -23,6 +23,8 @@ var noderenderers = {}; var NODE_RENDERER_PROPS = [ 'prepare', 'size', 'first', 
 var channelrenderers = {}; var CHANNEL_RENDERER_PROPS = [ 'prepare', 'show', 'edit' ];
 var nodedescriptions = {};
 var styles = {};
+var nodetypeicons = {};
+var toolkiticons = {};
 
 var renderer_registry = {};
 
@@ -245,6 +247,7 @@ Patch.prototype.resizeCanvas = function(width, height) {
 
 function Node(type, patch, def, render, callback) {
     this.type = type || 'core/basic';
+    this.toolkit = extract_toolkit(type);
     this.id = short_uid();
     this.patch = patch;
 
@@ -417,6 +420,7 @@ Node.prototype.move = function(x, y) {
 
 function Inlet(type, node, alias, def, render) {
     this.type = type || 'core/any';
+    this.toolkit = extract_toolkit(type);
     this.id = short_uid();
     this.alias = alias;
     this.node = node;
@@ -486,6 +490,7 @@ Inlet.prototype.allows = function(outlet) {
 
 function Outlet(type, node, alias, def, render) {
     this.type = type || 'core/any';
+    this.toolkit = extract_toolkit(type);
     this.id = short_uid();
     this.alias = alias;
     this.node = node;
@@ -790,6 +795,11 @@ function get_style(name, renderer) {
     return style;
 }
 
+function extract_toolkit(type) {
+    var slashPos = type.indexOf('/');
+    return (slashPos >= 0) ? type.substring(0, slashPos) : '';
+}
+
 // =============================================================================
 // =========================== registration ====================================
 // =============================================================================
@@ -827,6 +837,14 @@ function style(name, renderer, func) {
     styles[name][renderer] = func;
 }
 
+function toolkiticon(toolkit, icon) {
+    toolkiticons[toolkit] = icon;
+}
+
+function nodetypeicon(type, icon) {
+    nodetypeicons[type] = icon;
+}
+
 nodetype('core/basic', {});
 channeltype('core/any', {});
 
@@ -859,6 +877,9 @@ return {
     'noderenderer': noderenderer,
     'channelrenderer': channelrenderer,
 
+    'toolkiticon': toolkiticon,
+    'nodetypeicon': nodetypeicon,
+
     'import': {}, 'export': {},
 
     'allNodeTypes': nodetypes,
@@ -866,6 +887,8 @@ return {
     'allNodeRenderers': noderenderers,
     'allChannelRenderers': channelrenderers,
     'allNodeDescriptions': nodedescriptions,
+    'allNodeTypeIcons': nodetypeicons,
+    'allToolkitIcons': toolkiticons,
 
     'getStyle': get_style,
     'reportError': report_error,

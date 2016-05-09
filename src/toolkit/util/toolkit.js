@@ -59,7 +59,7 @@ function toHexColor(color) {
 Rpd.channeltype('util/color', { show: toHexColor });
 
 Rpd.nodetype('util/number', {
-    name: 'number',
+    title: 'number',
     inlets:  { 'user-value': { type: 'util/number', default: 0, hidden: true } },
     outlets: { 'out':     { type: 'util/number' } },
     process: function(inlets) {
@@ -70,7 +70,7 @@ Rpd.nodetype('util/number', {
 Rpd.nodetype('util/random', function() {
     var lastEmitterId = 0;
     return {
-        name: 'random',
+        title: 'random',
         inlets:  { 'min': { type: 'util/number', default: 0 },
                    'max': { type: 'util/number', default: 100 },
                    'period': { type: 'util/time', default: 1000 } },
@@ -89,7 +89,7 @@ Rpd.nodetype('util/random', function() {
 });
 
 Rpd.nodetype('util/bounded-number', {
-    name: 'bounded number',
+    title: 'bounded number',
     inlets:  { 'min': { type: 'util/number', default: 0 },
                'max': { type: 'util/number', default: Infinity },
                'spinner': { type: 'util/number', default: 0, hidden: true } },
@@ -111,7 +111,7 @@ Rpd.channeltype('util/boolean', { default: false,
 Rpd.nodedescription('util/empty',
                     'Does not allow adding any inlets or outlets.');
 Rpd.nodetype('util/empty', {
-    name: 'Empty',
+    title: 'Empty',
     handle: {
         'inlet/add': function() {
             throw new Error('Empty node can not have any inlets');
@@ -152,14 +152,14 @@ Rpd.nodetype('util/color', {
 });
 
 Rpd.nodetype('util/sum-of-three', {
-    name: 'Sum of Three',
+    title: 'Sum of Three',
     inlets: {
-        'a': { type: 'util/number', name: 'A' },
-        'b': { type: 'util/number', name: 'B' },
-        'c': { type: 'util/number', name: 'C' }
+        'a': { type: 'util/number', label: 'A' },
+        'b': { type: 'util/number', label: 'B' },
+        'c': { type: 'util/number', label: 'C' }
     },
     outlets: {
-        'sum': { type: 'util/number', name: '∑' }
+        'sum': { type: 'util/number', label: '∑' }
     },
     process: function(inlets) {
         return { 'sum': (inlets.a || 0) + (inlets.b || 0) + (inlets.c || 0) };
@@ -210,10 +210,10 @@ Rpd.nodetype('util/knobs', {
 /*
 Rpd.nodedescription('util/hot-and-cold', 'An example of cold inlet.');
 Rpd.nodetype('util/hot-and-cold', {
-    name: 'Hot and Cold',
+    title: 'Hot and Cold',
     inlets: {
-        'hot': { type: 'util/number', name: 'A', default: 1 },
-        'cold': { type: 'util/number', name: 'B', default: 1, cold: true },
+        'hot': { type: 'util/number', label: 'A', default: 1 },
+        'cold': { type: 'util/number', label: 'B', default: 1, cold: true },
     },
     outlets: {
         'value': { type: 'util/any' }
@@ -224,6 +224,7 @@ Rpd.nodetype('util/hot-and-cold', {
 });
 */
 
+Rpd.nodedescription('util/log', 'Log everything that goes in to console');
 Rpd.nodetype('util/log', {
     inlets: {
         'what': { type: 'core/any' }
@@ -232,5 +233,21 @@ Rpd.nodetype('util/log', {
         console.log(inlets.what);
     }
 });
+
+Rpd.nodedescription('util/nodelist', 'Add any node to active patch by type');
+Rpd.nodetype('util/nodelist', { title: 'add nodes' });
+
+Rpd.nodetypeicon('util/number',   '🔢'); // 'ℕ'
+Rpd.nodetypeicon('util/log',      '🗒');
+Rpd.nodetypeicon('util/nodelist', '📃');
+Rpd.nodetypeicon('util/knob',     '🎛');
+Rpd.nodetypeicon('util/knobs',    '🎛');
+Rpd.nodetypeicon('util/color',    '🏮');
+Rpd.nodetypeicon('util/bang',     '⊙');
+Rpd.nodetypeicon('util/metro',    '⊚');
+Rpd.nodetypeicon('util/empty',    '∅');
+//Rpd.nodetypeicon('util/random',   '≟');
+//Rpd.nodetypeicon('util/bounded-number', '⩫');
+//Rpd.nodetypeicon('util/sum-of-three', '∑');
 
 })();

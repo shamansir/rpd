@@ -15,7 +15,7 @@ Rpd.channeltype('timbre/t-obj', { show: function(val) { return val ? '[Some]' : 
 
 Rpd.nodedescription('timbre/osc', 'Oscillator. That\'s it.');
 Rpd.nodetype('timbre/osc', {
-    name: 'osc',
+    title: 'osc',
     description: 'Oscillator. That\'s it.',
     inlets: { 'wave': { type: 'timbre/t-wave', default: "sin" },
               'freq': { type: 'timbre/t-num',  default: T(440) } },
@@ -31,7 +31,7 @@ Rpd.nodetype('timbre/osc', {
 
 Rpd.nodedescription('timbre/wave', 'Choose a wave type, like sine or saw.');
 Rpd.nodetype('timbre/wave', {
-    name: 'wave',
+    title: 'wave',
     inlets: { 'wave': { type: 'timbre/t-wave', default: 'sin', hidden: true } },
     outlets: { 'wave': { type: 'timbre/t-wave' } },
     process: function(inlets) { return { 'wave': inlets.wave } }
@@ -41,7 +41,7 @@ Rpd.nodetype('timbre/wave', {
 
 Rpd.nodedescription('timbre/plot', 'Draw your sound wave on a Canvas.');
 Rpd.nodetype('timbre/plot', {
-    name: 'plot',
+    title: 'plot',
     inlets: { 'sound': { type: 'timbre/t-obj', default: null } },
     process: function() {}
 });
@@ -52,7 +52,7 @@ Rpd.nodedescription('timbre/play', 'Play a given sound. Control your volume safe
 Rpd.nodetype('timbre/play', function() {
     var lastSound;
     return {
-        name: 'play',
+        title: 'play',
         inlets: { 'sound': { type: 'timbre/t-obj', default: null } },
         tune: function(updates) { return updates.throttle(50); },
         process: function(inlets, inlets_prev) {
