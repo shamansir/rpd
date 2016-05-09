@@ -4,23 +4,36 @@ id: api
 level: 1
 ---
 
-### `Rpd`
-
-The `Rpd` namespace is a single entry point for your _patch network_, independently on the place where every patch is rendered. It provides you with the ability to append new patches to your own network and <!-- scurpolously --> control the overall rendering process.
-
-Every patch lays over its own _canvas_, several canvases may be attached to the same _target element_, this will be covered in details below.
-
-When you want to give user some existing node network or to load it from file for which there is no `io` module, you may use Network Building API with these methods:
+When you want to provide user with some existing node network or to load and build it from file (for which there is no `io` module), you may use Network Building API with these methods:
 
 * Rpd
 
 * Patch
     *
 
-When you want to build your own toolkit, you may want to register your node & channel types and renderers using these methods:
+When you want to build your own toolkit, you may decide to register your node & channel types and renderers using these methods:
 
 * Rpd
 
+To control the rendering queue, you may use these methods:
+
+* Rpd
+
+### Core types
+
+* Channel
+   * `core/any`
+* Node
+   * `core/basic`
+   * `core/reference`
+
+<!-- core/nodelist -->
+
+### `Rpd`
+
+The `Rpd` namespace is a single entry point for your _patch network_, independently on the place where every patch is rendered. It provides you with the ability to append new patches to your own network and <!-- scurpolously --> control the overall rendering process.
+
+Every patch lays over its own _canvas_, several canvases may be attached to the same _target element_, this will be covered in details below.
 
 > It's important to notice that the whole API is based on processing event streams, same way as Reactive Programming concepts work. All the created instances are immutable, they only react on user actions, with no modifications to the initial state. It guarantees the safety and ability to reverse any operation and also allows you to create streams of data of any complexity, intended to flow between the nodes.
 
@@ -80,6 +93,10 @@ You may specify a custom title, if you want, or the engine will fall back to the
 
 _Definition:_
 
+The third argument, `def` is a bit tricky one, but just a bit. It's optional, so usually you may omit it without any compunction. This argument is the object which actually has exactly the same structure as the object used for `Rpd.nodetype`. It helps you to override the type definition for this particular node instance, when you want. <!-- Test it merges definitions, not overrides everything -->
+
+NB: When you override inlets and outlets this way, you may later access them using `node.inlets[alias]` and `node.outlets[alias]` shortcuts, same way as when you defined them with `Rpd.nodetype`. The inlets and outlets added later with `node.addInlet` and `node.addOutlet` methods are not accessible with this shortcuts, that is, I hope, rather logical.
+
 #### `patch.removeNode(node)`
 
 Remove the previously added node, just pass the one you need no more.
@@ -114,13 +131,15 @@ Resize the canvas of the patch. This means all the visuals belonging to this pat
 
 Node represents the thing we call procedure in programming: it receives data through its inputs (inlets), does something using that data and returns either the same data, modified or not, or completely different data in response using outputs (outlets). But from this point, it goes beyond, since it may visualize the process inside its body or add some complex visual controls for additional inputs. On the other hand, it may stay in a boring state and have no inputs, no outputs and even no content at all. Everything depends only on yours decision.
 
+_Definition:_
+
 #### `node.addInlet(type, alias, [def]) → Inlet`
 
 Add the input channel to this node, so it will be able to receive data and pass this data inside the node. You need to specify the type of this channel, so the system will know which way to process your data before passing it inside, or even decline connections from other types of channels. `core/any` is the system type which accepts connections from outlets of any type, so probably for start you'd want to use it. Later, though, it could be better to change it to something more specific, i.e. decide that it accepts only numbers or colors values. This will allow you to control the way data in this channel is displayed or even add custom _value editor_ to this channel.
 
 The second argument, `alias`, is the label of this channel displayed to user and also may be used to access this inlet from inside the node, so it's recommended to make it one-word and start from lowercase letter, like the key names you normally use for JavaScript objects. There is another form of this method, `addInlet(type, alias, label, [def])`, using which you may specify user-friendly name to display in UI with `label` attribute, and still use short programmer-friendly `alias` to access this inlet from the code.
 
-Last argument, `def`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Inlet](#Inlet) section below.
+Last argument, `def`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Inlet](#Inlet) <!-- or Rpd.channeltype? --> section below.
 
 By default, inlets accept connection only from one outlet, so when user connects some other outlet to this inlet, the previous connection, if it existed, is immediately and automatically removed. Though, you can pass an option to the renderer named `inletsAcceptMultipleLinks` and set it to `true`, so multiple connections will be available to user and inlets will receive values from all the outlets connected in order they were fired. <!-- FIXME: check if it works and consider #336 -->
 
@@ -130,7 +149,7 @@ Add the output channel to this node, so it will be able to send data to the inle
 
 Also, you need to specify `alias`, to be able to access this outlet from the code using this `alias`. It is recommended to be short, preferably one-word and to start from lowercase letter. If you want to show user something more eye-candy, you may use another form of this method, `addOutlet(type, alias, label, [def])`.
 
-Last argument, `def`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Outlet](#Outlet) section below.
+Last argument, `def`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Outlet](#Outlet) <!-- or Rpd.channeltype? --> section below.
 
 #### `node.removeInlet(inlet)`
 
@@ -157,6 +176,10 @@ Or, could happen, you want to provide user with this nice ability, for example w
 
 ### `Inlet`
 
+Inlet is the name for one of the input channels of the node so, when its connected to something, the data may flow through it _into_ the node processing function from all of them. Inlets are differentiated by their alias, that's why aliases of inlets should be unique inside every node, yet they can be same between two nodes. Inlet is the opposite to Outlet, which allows data to flow _out_ of the node and is described next in this section.
+
+_Definition:_
+
 #### `inlet.receive(value)`
 
 Force this inlet to receive some specific value, overpassing the connections, if there are any.
@@ -180,6 +203,10 @@ You may find complex examples at [Kefir library page](). Also, usually it is qui
 Check if this inlet allows connections from given outlet. Usually it us done by the renderer <!-- ? --> on connection, but if you want to ensure connection will pass, you may use this method.
 
 ### `Outlet`
+
+Outlet is the output channel of the node
+
+_Definition:_
 
 #### `outlet.connect(inlet) → Link`
 

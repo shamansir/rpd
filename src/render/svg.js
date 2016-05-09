@@ -60,7 +60,8 @@ return function(networkRoot, userConfig) {
 
     var config = mergeConfig(userConfig, defaultConfig);
 
-    // FIXME: move to some external function
+    // FIXME: move to some external function (should be called once when renderer is
+    // registered and Rpd.events is ready)
     Rpd.events.onError(function(error) {
         if (!config.logErrors) return;
         if (error.silent) return;
