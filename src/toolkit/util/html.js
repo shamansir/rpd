@@ -83,6 +83,7 @@ var d3 = d3 || d3_tiny;
 Rpd.noderenderer('util/nodelist', 'html', {
     size: {},
     first: function(bodyElm) {
+
         var nodeTypes = Rpd.allNodeTypes,
             nodeDescriptions = Rpd.allNodeDescriptions,
             toolkitIcons = Rpd.allToolkitIcons,
@@ -113,11 +114,13 @@ Rpd.noderenderer('util/nodelist', 'html', {
           .append('dl')
           .call(function(dl) {
               Object.keys(nodeTypesByToolkit).forEach(function(toolkit) {
+
                   dl.append('dt')
                     .call(function(dt) {
                         if (toolkitIcons[toolkit]) dt.append('span') .attr('class', 'rpd-nodelist-toolkit-icon').text(toolkitIcons[toolkit]);
                      })
-                    .append('span').attr('class', 'rpd-nodelist-toolkit-name').text(toolkit)
+                    .append('span').attr('class', 'rpd-nodelist-toolkit-name').text(toolkit);
+
                   nodeTypesByToolkit[toolkit].types.forEach(function(nodeTypeDef) {
                       var nodeType = nodeTypeDef.fullName;
                       dl.append('dd')
@@ -136,18 +139,49 @@ Rpd.noderenderer('util/nodelist', 'html', {
                             listElements.push({ nodeType: nodeType, element: dd });
                         })
                   });
+
               });
           });
 
-        Kefir.fromEvents(search.node(), 'input').merge(clearEvents).throttle(500).map(function() {
-            return search.node().value;
-        }).onValue(function(searchString) {
-            listElements.forEach(function(def) {
-                var index = def.nodeType.indexOf(searchString);
-                def.element.style('display', (index >= 0) ? 'block' : 'none');
-                //def.element.classed('rpd-nodelist-hiddenitem', index < 0);
-            });
-        });
+        Kefir.fromEvents(search.node(), 'input')
+             .merge(clearEvents)
+             .throttle(500)
+             .map(function() { return search.node().value; })
+             .onValue(function(searchString) {
+                 listElements.forEach(function(def) {
+                     var index = def.nodeType.indexOf(searchString);
+                     def.element.style('display', (index >= 0) ? 'block' : 'none');
+                     //def.element.classed('rpd-nodelist-hiddenitem', index < 0);
+                 });
+             });
+
+        Kefir.fromEvents(document.body, 'keyup')
+             .filter(function(evt) {
+                 return (evt.which == 32 || evt.keyCode == 32) && (evt.altKey || evt.metaKey || evt.ctrlKey);
+             })
+             .scan(function(prev, cur) { return !prev; }, false) // invert boolean on every event
+             .flatMap(function(switchedOn) {
+                 console.log('flatMap', switchedOn);
+                 if (!switchedOn) {
+                     search.node().blur();
+                     return Kefir.never();
+                 }
+
+                 return Kefir.fromEvents(document.body, 'keyup')
+                             .map(function(evt) { return evt.which || evt.keyCode; })
+                             .filter(function(key) { return (key === 38) || (key === 40); })
+                             .map(function(key) { return (key === 38) ? 'up' : 'down'; })
+                             .takeUntilBy(Kefir.fromEvents(document.body, 'keyup')
+                                                 .filter(function(evt) {
+                                                     return (evt.which == 13 || evt.keyCode == 13);
+                                                 }).map(function() {
+                                                     console.log('enter');
+                                                     return 'enter';
+                                                 }))
+                             .onValue(function(key) {
+                                 console.log(key);
+                             });
+             }).onValue(function() {});
 
     }
 });
