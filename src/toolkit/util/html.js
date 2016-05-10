@@ -132,11 +132,6 @@ Rpd.noderenderer('util/nodelist', 'html', {
 
                                   li.data(nodeTypeDef);
 
-                                  Kefir.fromEvents(li.node(), 'click')
-                                       .onValue(function() {
-                                           patch.addNode(li.data().fullName);
-                                       });
-
                                   if (nodeTypeIcons[nodeType]) {
                                       li.append('span').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType]);
                                   }
@@ -149,6 +144,11 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                                        .text(nodeDescriptions[nodeType]);
                                   }
                                   listElements.push({ nodeType: nodeType, element: li });
+
+                                  Kefir.fromEvents(li.node(), 'click')
+                                       .onValue(function() {
+                                           patch.addNode(li.data().fullName);
+                                       });
                               })
                         });
                     });
@@ -163,7 +163,7 @@ Rpd.noderenderer('util/nodelist', 'html', {
              .onValue(function(searchString) {
                  listElements.forEach(function(def) {
                      var index = def.nodeType.indexOf(searchString);
-                     def.element.style('display', (index >= 0) ? 'block' : 'none');
+                     def.element.style('display', (index >= 0) ? 'list-item' : 'none');
                      //def.element.classed('rpd-nodelist-hiddenitem', index < 0);
                  });
              });
