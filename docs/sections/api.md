@@ -29,9 +29,11 @@ To control the rendering queue, you may use these methods:
 
 <!-- util/nodelist -->
 
+### Naming rules
+
 ### `Rpd`
 
-The `Rpd` namespace is a single entry point for your _patch network_, independently on the place where every patch is rendered. It provides you with the ability to append new patches to your own network and <!-- scurpolously --> control the overall rendering process.
+The `Rpd` namespace is a single entry point for your _patch network_, independently on the place where every patch should be rendered. It provides you with the ability to append new patches to your own network and <!-- scurpolously --> control the overall rendering process.
 
 Every patch lays over its own _canvas_, several canvases may be attached to the same _target element_, this will be covered in details below.
 
@@ -61,13 +63,34 @@ _Example:_
 
 #### `Rpd.nodetype(type, definition)`
 
+Register a new type of the nodes, so you, or the user, may easily create instances of this type with the help of `patch.addNode`.
+So you may define once that all the nodes of your type have two inlets and one outlet, which channel types they have, and how the node processes data, and then create 300 instances of this node type, when you really want.
+
+NB: Please note that user may in any case extend the instance with own definition, add or remove inlets/outles and modify properties. You should not care too much about that or even you need not care at all, but in some rare cases that could be important.
+
+The new `type` name should be in the form `toolkit/typename`. For example, there could be nodes with the types `util/bang`, `util/color`, `blender/render`, `animatron/player`, `processing/color`, `processing/sketch` etc. Prefer one word for the type name when possible, or join several words with dash symbol `-`, when it's really not.
+
+Then goes the definition (`def`) :
+
+* `title`: ...
+
+When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
+
 #### `Rpd.nodedescription(type, description)`
+
+Any node type can have a literary textual description of what this node does in details. Normally renderer shows it in the node list, next to corresponding node type, when available, and also when user hovers over the title of the node.
 
 #### `Rpd.channeltype(type, definition)`
 
+When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
+
 #### `Rpd.noderenderer(type, rendererAlias, definition)`
 
+When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
+
 #### `Rpd.channelrenderer(type, rendererAlias, definition)`
+
+When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
 #### `Rpd.renderer(alias, definition)`
 
@@ -96,6 +119,8 @@ _Definition:_
 The third argument, `def` is a bit tricky one, but just a bit. It's optional, so usually you may omit it without any compunction. This argument is the object which actually has exactly the same structure as the object used for `Rpd.nodetype`. It helps you to override the type definition for this particular node instance, when you want. <!-- Test it merges definitions, not overrides everything -->
 
 NB: When you override inlets and outlets this way, you may later access them using `node.inlets[alias]` and `node.outlets[alias]` shortcuts, same way as when you defined them with `Rpd.nodetype`. The inlets and outlets added later with `node.addInlet` and `node.addOutlet` methods are not accessible with this shortcuts, that is, I hope, rather logical.
+
+You can discover the complete list of the properties which could be used in this definition if you read the [`Rpd.nodetype`](TODO) method description.
 
 #### `patch.removeNode(node)`
 
@@ -131,7 +156,7 @@ Resize the canvas of the patch. This means all the visuals belonging to this pat
 
 Node represents the thing we call procedure in programming: it receives data through its inputs (inlets), does something using that data and returns either the same data, modified or not, or completely different data in response using outputs (outlets). But from this point, it goes beyond, since it may visualize the process inside its body or add some complex visual controls for additional inputs. On the other hand, it may stay in a boring state and have no inputs, no outputs and even no content at all. Everything depends only on yours decision.
 
-_Definition:_
+_Definition:_ You can find the complete node definition at [`Rpd.nodetype`]() method description.
 
 #### `node.addInlet(type, alias, [def]) → Inlet`
 
@@ -143,6 +168,8 @@ Last argument, `def`, is optional, and allows you to override the options inheri
 
 By default, inlets accept connection only from one outlet, so when user connects some other outlet to this inlet, the previous connection, if it existed, is immediately and automatically removed. Though, you can pass an option to the renderer named `inletsAcceptMultipleLinks` and set it to `true`, so multiple connections will be available to user and inlets will receive values from all the outlets connected in order they were fired. <!-- FIXME: check if it works and consider #336 -->
 
+You can discover the complete list of the properties which could be used in this definition if you read the [`Rpd.channeltype`](TODO) method description.
+
 #### `node.addOutlet(type, alias, [def]) → Outlet`
 
 Add the output channel to this node, so it will be able to send data to the inlets of other nodes, when connected to them. Same way as for `addInlet` method described above and following the same reasons, you need to specify the type of the channel, which can be `core/any` while you do experiments and is recommended to be changed to something more specific later, unless this channel was really intended to accept anything.
@@ -150,6 +177,8 @@ Add the output channel to this node, so it will be able to send data to the inle
 Also, you need to specify `alias`, to be able to access this outlet from the code using this `alias`. It is recommended to be short, preferably one-word and to start from lowercase letter. If you want to show user something more eye-candy, you may use another form of this method, `addOutlet(type, alias, label, [def])`.
 
 Last argument, `def`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Outlet](#Outlet) <!-- or Rpd.channeltype? --> section below.
+
+You can discover the complete list of the properties which could be used in this definition if you read the [`Rpd.channeltype`](TODO) method description.
 
 #### `node.removeInlet(inlet)`
 
@@ -178,7 +207,7 @@ Or, could happen, you want to provide user with this nice ability, for example w
 
 Inlet is the name for one of the input channels of the node so, when its connected to something, the data may flow through it _into_ the node processing function from all of them. Inlets are differentiated by their alias, that's why aliases of inlets should be unique inside every node, yet they can be same between two nodes. Inlet is the opposite to Outlet, which allows data to flow _out_ of the node and is described next in this section.
 
-_Definition:_
+_Definition:_ You can find the complete inlet definition at [`Rpd.channeltype`]() method description.
 
 #### `inlet.receive(value)`
 
@@ -204,9 +233,9 @@ Check if this inlet allows connections from given outlet. Usually it us done by 
 
 ### `Outlet`
 
-Outlet is the output channel of the node
+Outlet is the output channel of the node.
 
-_Definition:_
+_Definition:_ You can find the complete outlet definition at [`Rpd.channeltype`]() method description.
 
 #### `outlet.connect(inlet) → Link`
 
