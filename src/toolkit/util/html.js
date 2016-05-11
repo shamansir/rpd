@@ -112,6 +112,11 @@ Rpd.noderenderer('util/nodelist', 'html', {
             search.node().value = '';
         });
 
+        var selected;
+        function updateSelection(to) {
+            selected = to;
+        };
+
         d3.select(bodyElm)
           .append('dl')
           .call(function(dl) {
@@ -149,12 +154,22 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                        .onValue(function() {
                                            patch.addNode(li.data().fullName);
                                        });
+
+                                  Kefir.fromEvents(li.node(), 'mouseover')
+                                       .onValue(function() {
+                                           updateSelection(li.data());
+                                       });
                               })
                         });
                     });
 
               });
           });
+
+        for (var i = 0; i < listElements.length; i++) {
+            listElements.prev = (i > 0) ? listElements[i - 1] : listElements[listElements.length - 1];
+            listElements.next = (i < listElements.length - 1) ? listElements[i + 1] : listElements[0];
+        }
 
         Kefir.fromEvents(search.node(), 'input')
              .merge(clearEvents)
@@ -164,6 +179,7 @@ Rpd.noderenderer('util/nodelist', 'html', {
                  listElements.forEach(function(def) {
                      var index = def.nodeType.indexOf(searchString);
                      def.element.style('display', (index >= 0) ? 'list-item' : 'none');
+                     def.visible = (index >= 0);
                      //def.element.classed('rpd-nodelist-hiddenitem', index < 0);
                  });
              });
@@ -185,6 +201,11 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                                      return 'enter';
                                                  }))
                              .onValue(function(key) {
+                                 if (key === 'up') {
+
+                                 } else if (key === 'down') {
+
+                                 }
                                  console.log(key);
                              });
              }).onValue(function() {});
