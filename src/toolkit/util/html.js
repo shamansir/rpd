@@ -117,6 +117,10 @@ Rpd.noderenderer('util/nodelist', 'html', {
             selected = to;
         };
 
+        function updateVisibility(elm, visible) {
+            elm.style('display', visible ? 'list-item' : 'none');
+        }
+
         d3.select(bodyElm)
           .append('dl')
           .call(function(dl) {
@@ -135,7 +139,10 @@ Rpd.noderenderer('util/nodelist', 'html', {
                             ul.append('li')
                               .call(function(li) {
 
-                                  li.data(nodeTypeDef);
+                                  var elmData = { def: nodeTypeDef,
+                                                  element: li };
+
+                                  li.data(elmData);
 
                                   if (nodeTypeIcons[nodeType]) {
                                       li.append('span').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType]);
@@ -148,11 +155,11 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                                        .attr('title', nodeDescriptions[nodeType])
                                                        .text(nodeDescriptions[nodeType]);
                                   }
-                                  listElements.push({ nodeType: nodeType, element: li });
+                                  listElements.push(elmData);
 
                                   Kefir.fromEvents(li.node(), 'click')
                                        .onValue(function() {
-                                           patch.addNode(li.data().fullName);
+                                           patch.addNode(li.data().nodeType);
                                        });
 
                                   Kefir.fromEvents(li.node(), 'mouseover')
@@ -167,28 +174,36 @@ Rpd.noderenderer('util/nodelist', 'html', {
           });
 
         for (var i = 0; i < listElements.length; i++) {
-            listElements.prev = (i > 0) ? listElements[i - 1] : listElements[listElements.length - 1];
-            listElements.next = (i < listElements.length - 1) ? listElements[i + 1] : listElements[0];
+            listElements[i].visible = true;
+            listElements[i].prev = (i > 0) ? listElements[i - 1] : listElements[listElements.length - 1];
+            listElements[i].next = (i < listElements.length - 1) ? listElements[i + 1] : listElements[0];
         }
 
+        var currentlyVisible = listElements.length;
         Kefir.fromEvents(search.node(), 'input')
              .merge(clearEvents)
              .throttle(500)
              .map(function() { return search.node().value; })
              .onValue(function(searchString) {
-                 listElements.forEach(function(def) {
-                     var index = def.nodeType.indexOf(searchString);
-                     def.element.style('display', (index >= 0) ? 'list-item' : 'none');
-                     def.visible = (index >= 0);
+                 currentlyVisible = 0;
+                 listElements.forEach(function(elmData) {
+                     var index = elmData.def.fullName.indexOf(searchString);
+                     updateVisibility(elmData.element, index >= 0);
+                     elmData.visible = (index >= 0);
+                     if (elmData.visible) currentlyVisible++;
                      //def.element.classed('rpd-nodelist-hiddenitem', index < 0);
                  });
              });
 
-        Kefir.fromEvents(document.body, 'keyup')
-             .filter(function(evt) {
-                 return (evt.which == 32 || evt.keyCode == 32) && (evt.altKey || evt.metaKey || evt.ctrlKey);
-             })
-             .flatMap(function(switchedOn) {
+        Kefir.merge([
+                Kefir.fromEvents(document.body, 'keyup')
+                     .filter(function(evt) {
+                         return (evt.which == 32 || evt.keyCode == 32) && (evt.altKey || evt.metaKey || evt.ctrlKey);
+                     }),
+                Kefir.fromEvents(search.node(), 'click')
+            ]).flatMap(function(switchedOn) {
+                 console.log('start!'); search.node().focus();
+                 if (listElements.length > 0) updateSelection(listElements[0]);
                  return Kefir.fromEvents(document.body, 'keyup')
                              .map(function(evt) { return evt.which || evt.keyCode; })
                              .filter(function(key) { return (key === 38) || (key === 40); })
@@ -197,16 +212,26 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                                  .filter(function(evt) {
                                                      return (evt.which == 13 || evt.keyCode == 13);
                                                  }).map(function() {
-                                                     console.log('enter');
+                                                     console.log('enter', 'add', selected.def.fullName);
+                                                     search.node().blur();
+                                                     updateSelection(null);
                                                      return 'enter';
                                                  }))
                              .onValue(function(key) {
+                                 if (currentlyVisible == 0) return;
                                  if (key === 'up') {
-
+                                     var current = selected ? selected.prev : listElements[listElements.length - 1];
+                                     while (current && !current.visible) {
+                                         current = current.prev;
+                                     }
                                  } else if (key === 'down') {
-
+                                     var current = selected ? selected.next : listElements[0];
+                                     while (current && !current.visible) {
+                                         current = current.next;
+                                     }
                                  }
-                                 console.log(key);
+                                 console.log(current ? current.def.fullName : 'NONE');
+                                 if (current) updateSelection(current);
                              });
              }).onValue(function() {});
 
