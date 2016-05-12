@@ -140,9 +140,17 @@ Closing the patch means that the canvas of this patch is hidden and moved to the
 
 #### `patch.project(node)`
 
+Make given node to visually represent current patch<!-- projectOn, projectTo, referenceWith ?-->. It is expected, but not required, for this node to be located in another patch. <!-- TODO: test -->
+
+It helps a lot when you have some complex network with a single large patch and so you probably want to group some nodes and reference them in another patch, while making invisible what happens inside. By _projecting_ a patch into the node, with the help of `patch.inputs` and `patch.outputs`, you can "pack" any part of the network in one single node, and, optionally, let user to take a look inside or even edit, reconnect or rearrange the internals.
+
 #### `patch.inputs(inlets)`
 
+Specify which inlets, no matter from one or different nodes, are the global inputs of this patch. See description of the `patch.project` for details.
+
 #### `patch.outputs(outlets)`
+
+Specify which outlets, no matter from one or different nodes, are the global outputs of this patch. See description of the `patch.project` for details.
 
 #### `patch.moveCanvas(x, y)`
 
