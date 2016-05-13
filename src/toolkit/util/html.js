@@ -163,6 +163,7 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                   }
                                   listElements.push(elmData);
 
+                                  // add the corresponding node when it's element was clicked with mouse
                                   Kefir.fromEvents(li.node(), 'click')
                                        .onValue(function() {
                                            updateSelection(li.data());
@@ -170,10 +171,11 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                            //patch.addNode(li.data().def.fullName);
                                        });
 
-                                  Kefir.fromEvents(li.node(), 'mouseover')
+                                  // update selection on mouseover
+                                  /* Kefir.fromEvents(li.node(), 'mouseover')
                                        .onValue(function() {
                                            updateSelection(li.data());
-                                       });
+                                       }); */
                               })
                         });
                     });
@@ -202,7 +204,6 @@ Rpd.noderenderer('util/nodelist', 'html', {
                      updateVisibility(elmData.element, index >= 0);
                      elmData.visible = (index >= 0);
                      if (elmData.visible) currentlyVisible++;
-                     //def.element.classed('rpd-nodelist-hiddenitem', index < 0);
                  });
              });
 
@@ -225,7 +226,7 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                               Kefir.fromEvents(document.body, 'keyup')
                                                    .filter(function(evt) {
                                                        return (evt.which == 13 || evt.keyCode == 13);
-                                                   }).onValue(function() {
+                                                   }).take(1).onValue(function() {
                                                        if (selected) console.log('enter', 'add', selected.def.fullName);
                                                    }),
                                               Kefir.fromEvents(document.body, 'keyup').filter(function(evt) {
@@ -262,34 +263,6 @@ Rpd.noderenderer('util/nodelist', 'html', {
 
     }
 });
-
-/* Rpd.noderenderer('util/sum-of-three-with-body', 'html', function() {
-    var sumContent;
-    return {
-        first: function(bodyElm) {
-            var cValInput = document.createElement('input');
-            cValInput.style.display = 'block';
-            cValInput.type = 'number';
-            cValInput.min = 0;
-            cValInput.max = 10;
-            bodyElm.appendChild(cValInput);
-            sumContent = document.createElement('span');
-            bodyElm.appendChild(sumContent);
-            return { c:
-                        { default: function() { cValInput.value = 0; return 0; },
-                          valueOut: Kefir.fromEvents(cValInput, 'change')
-                                         .map(function() { return cValInput.value; })
-                        }
-                   };
-        },
-        always: function(bodyElm, inlets, outlets) {
-            sumContent.innerHTML = sumContent.textContent =
-                    '∑ (' + (inlets.a || '0') + ', '
-                          + (inlets.b || '0') + ', '
-                          + (inlets.c || '0') + ') = ' + (outlets.sum || '?');
-        }
-    };
-}); */
 
 function extractPos(evt) { return { x: evt.clientX,
                                     y: evt.clientY }; };
