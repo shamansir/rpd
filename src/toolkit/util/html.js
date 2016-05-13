@@ -91,6 +91,7 @@ Rpd.noderenderer('util/nodelist', 'html', {
             toolkitIcons = Rpd.allToolkitIcons,
             nodeTypeIcons = Rpd.allNodeTypeIcons;
 
+        // collect all the known node types
         var nodeTypesByToolkit = Object.keys(nodeTypes).reduce(function(byToolkit, nodeType) {
             var slashPos = nodeType.indexOf('/');
             var toolkit = (slashPos < 0) ? toolkit : nodeType.substring(0, slashPos);
@@ -102,25 +103,30 @@ Rpd.noderenderer('util/nodelist', 'html', {
             return byToolkit;
         }, {});
 
-        var search = d3.select(bodyElm).append('input').attr('type', 'text');
-
+        // prepare a storage for elements with corresponding types
         var listElements = [];
 
-        var clearSearch = d3.select(bodyElm).append('a').attr('href', '#').text('x');
+        // attach text input, search field, to let user filter results
+        var search = d3.select(bodyElm).append('input').attr('type', 'text');
 
-        var clearEvents = Kefir.fromEvents(clearSearch.node(), 'click').map(function() {
+        // attach a button which is able to clear this field
+        var clearSearch = d3.select(bodyElm).append('a').attr('href', '#').text('x');
+        var clearingEvents = Kefir.fromEvents(clearSearch.node(), 'click').onValue(function() {
             search.node().value = '';
         });
 
         var selected;
         function updateSelection(to) {
+            if (selected) selected.element.classed('rpd-nodelist-selected', false);
             selected = to;
+            if (selected) selected.element.classed('rpd-nodelist-selected', true);
         };
 
         function updateVisibility(elm, visible) {
             elm.style('display', visible ? 'list-item' : 'none');
         }
 
+        // build the list html structure
         d3.select(bodyElm)
           .append('dl')
           .call(function(dl) {
@@ -175,15 +181,18 @@ Rpd.noderenderer('util/nodelist', 'html', {
               });
           });
 
+        // make the list of elements double-linked and looped,
+        // so easy navigation with up/down arrow keys will be possible
         for (var i = 0; i < listElements.length; i++) {
             listElements[i].visible = true;
             listElements[i].prev = (i > 0) ? listElements[i - 1] : listElements[listElements.length - 1];
             listElements[i].next = (i < listElements.length - 1) ? listElements[i + 1] : listElements[0];
         }
 
+        // make seach field hide filtered results when user changes search request
         var currentlyVisible = listElements.length;
         Kefir.fromEvents(search.node(), 'input')
-             .merge(clearEvents)
+             .merge(clearingEvents)
              .throttle(500)
              .map(function() { return search.node().value; })
              .onValue(function(searchString) {
@@ -197,6 +206,8 @@ Rpd.noderenderer('util/nodelist', 'html', {
                  });
              });
 
+        // ctrl+space should focus on the search field and up/down arrows should
+        // work for selection
         Kefir.merge([
                 Kefir.fromEvents(document.body, 'keyup')
                      .filter(function(evt) {
@@ -215,25 +226,24 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                                    .filter(function(evt) {
                                                        return (evt.which == 13 || evt.keyCode == 13);
                                                    }).onValue(function() {
-                                                       console.log('enter', 'add', selected.def.fullName);
+                                                       if (selected) console.log('enter', 'add', selected.def.fullName);
                                                    }),
                                               Kefir.fromEvents(document.body, 'keyup').filter(function(evt) {
                                                   return (evt.which == 27 || evt.keyCode == 27);
                                               }),
                                               Kefir.fromEvents(document.body, 'click').filter(function(evt) {
-                                                  console.log(evt.target);
                                                   return evt.target !== search.node();
                                               }),
-                                              clearEvents/*,
+                                              clearingEvents/*,
                                               Kefir.fromEvents(search.node(), 'click')*/
                                           ]).take(1).onValue(function() {
                                               console.log('clear selection');
                                               search.node().blur();
                                               updateSelection(null);
-                                              return 'enter';
                                           }))
                              .onValue(function(key) {
                                  if (currentlyVisible == 0) return;
+                                 search.node().blur();
                                  if (key === 'up') {
                                      var current = selected ? selected.prev : listElements[listElements.length - 1];
                                      while (current && !current.visible) {
