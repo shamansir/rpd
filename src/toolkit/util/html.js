@@ -159,7 +159,9 @@ Rpd.noderenderer('util/nodelist', 'html', {
 
                                   Kefir.fromEvents(li.node(), 'click')
                                        .onValue(function() {
-                                           patch.addNode(li.data().nodeType);
+                                           updateSelection(li.data());
+                                           console.log('click', 'add', selected.def.fullName);
+                                           //patch.addNode(li.data().def.fullName);
                                        });
 
                                   Kefir.fromEvents(li.node(), 'mouseover')
@@ -208,15 +210,28 @@ Rpd.noderenderer('util/nodelist', 'html', {
                              .map(function(evt) { return evt.which || evt.keyCode; })
                              .filter(function(key) { return (key === 38) || (key === 40); })
                              .map(function(key) { return (key === 38) ? 'up' : 'down'; })
-                             .takeUntilBy(Kefir.fromEvents(document.body, 'keyup')
-                                                 .filter(function(evt) {
-                                                     return (evt.which == 13 || evt.keyCode == 13);
-                                                 }).map(function() {
-                                                     console.log('enter', 'add', selected.def.fullName);
-                                                     search.node().blur();
-                                                     updateSelection(null);
-                                                     return 'enter';
-                                                 }))
+                             .takeUntilBy(Kefir.merge([
+                                              Kefir.fromEvents(document.body, 'keyup')
+                                                   .filter(function(evt) {
+                                                       return (evt.which == 13 || evt.keyCode == 13);
+                                                   }).onValue(function() {
+                                                       console.log('enter', 'add', selected.def.fullName);
+                                                   }),
+                                              Kefir.fromEvents(document.body, 'keyup').filter(function(evt) {
+                                                  return (evt.which == 27 || evt.keyCode == 27);
+                                              }),
+                                              Kefir.fromEvents(document.body, 'click').filter(function(evt) {
+                                                  console.log(evt.target);
+                                                  return evt.target !== search.node();
+                                              }),
+                                              clearEvents/*,
+                                              Kefir.fromEvents(search.node(), 'click')*/
+                                          ]).take(1).onValue(function() {
+                                              console.log('clear selection');
+                                              search.node().blur();
+                                              updateSelection(null);
+                                              return 'enter';
+                                          }))
                              .onValue(function(key) {
                                  if (currentlyVisible == 0) return;
                                  if (key === 'up') {
@@ -230,7 +245,7 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                          current = current.next;
                                      }
                                  }
-                                 console.log(current ? current.def.fullName : 'NONE');
+                                 console.log('select', current ? current.def.fullName : 'NONE');
                                  if (current) updateSelection(current);
                              });
              }).onValue(function() {});
