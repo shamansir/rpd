@@ -212,9 +212,16 @@ Rpd.noderenderer('util/nodelist', 'html', {
         Kefir.merge([
                 Kefir.fromEvents(document.body, 'keyup')
                      .filter(function(evt) {
+                         // control / alt / cmd + space
                          return (evt.which == 32 || evt.keyCode == 32) && (evt.altKey || evt.metaKey || evt.ctrlKey);
                      }),
-                Kefir.fromEvents(search.node(), 'click')
+                Kefir.fromEvents(search.node(), 'click')/*.filter(function() {
+                        return !document.activeElement || (document.activeElement !== search.node());
+                    })*/.scan(function(prev, cur) {
+                        return !prev;
+                    }, false).filter(function(val) {
+                        return val;
+                    })
             ]).flatMap(function(switchedOn) {
                  console.log('start!'); search.node().focus();
                  if (listElements.length > 0) updateSelection(listElements[0]);
@@ -225,12 +232,12 @@ Rpd.noderenderer('util/nodelist', 'html', {
                              .takeUntilBy(Kefir.merge([
                                               Kefir.fromEvents(document.body, 'keyup')
                                                    .filter(function(evt) {
-                                                       return (evt.which == 13 || evt.keyCode == 13);
+                                                       return (evt.which == 13 || evt.keyCode == 13); // key == enter
                                                    }).take(1).onValue(function() {
                                                        if (selected) console.log('enter', 'add', selected.def.fullName);
                                                    }),
                                               Kefir.fromEvents(document.body, 'keyup').filter(function(evt) {
-                                                  return (evt.which == 27 || evt.keyCode == 27);
+                                                  return (evt.which == 27 || evt.keyCode == 27); // key === escape
                                               }),
                                               Kefir.fromEvents(document.body, 'click').filter(function(evt) {
                                                   return evt.target !== search.node();
