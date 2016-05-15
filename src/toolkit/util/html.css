@@ -2,6 +2,14 @@
     cursor: col-resize;
 }
 
-.rpd-nodelist-selected {
-    background-color: rgba(0, 0, 0, 0.5);
+.rpd-util-nodelist .rpd-nodelist-selected {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.rpd-util-nodelist dl > dd > ul > li {
+    cursor: pointer;
+}
+
+.rpd-util-nodelist dl > dd > ul > li:hover {
+    background-color: rgba(0, 0, 0, 0.15);
 }

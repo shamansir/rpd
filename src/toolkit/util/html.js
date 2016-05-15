@@ -134,10 +134,11 @@ Rpd.noderenderer('util/nodelist', 'html', {
 
                   dl.append('dt')
                     .call(function(dt) {
-                        if (toolkitIcons[toolkit]) dt.append('span') .attr('class', 'rpd-nodelist-toolkit-icon').text(toolkitIcons[toolkit]);
+                        if (toolkitIcons[toolkit]) dt.append('span').attr('class', 'rpd-nodelist-toolkit-icon').text(toolkitIcons[toolkit]);
                         dt.append('span').attr('class', 'rpd-nodelist-toolkit-name').text(toolkit)
-                    })
-                    .append('dd')
+                    });
+
+                  dl.append('dd')
                     .append('ul')
                     .call(function(ul) {
                         nodeTypesByToolkit[toolkit].types.forEach(function(nodeTypeDef) {
@@ -170,12 +171,6 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                            console.log('click', 'add', selected.def.fullName);
                                            //patch.addNode(li.data().def.fullName);
                                        });
-
-                                  // update selection on mouseover
-                                  /* Kefir.fromEvents(li.node(), 'mouseover')
-                                       .onValue(function() {
-                                           updateSelection(li.data());
-                                       }); */
                               })
                         });
                     });
@@ -217,11 +212,7 @@ Rpd.noderenderer('util/nodelist', 'html', {
                      }),
                 Kefir.fromEvents(search.node(), 'click')/*.filter(function() {
                         return !document.activeElement || (document.activeElement !== search.node());
-                    })*/.scan(function(prev, cur) {
-                        return !prev;
-                    }, false).filter(function(val) {
-                        return val;
-                    })
+                    })*/
             ]).flatMap(function(switchedOn) {
                  console.log('start!'); search.node().focus();
                  if (listElements.length > 0) updateSelection(listElements[0]);
@@ -233,18 +224,19 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                               Kefir.fromEvents(document.body, 'keyup')
                                                    .filter(function(evt) {
                                                        return (evt.which == 13 || evt.keyCode == 13); // key == enter
-                                                   }).take(1).onValue(function() {
-                                                       if (selected) console.log('enter', 'add', selected.def.fullName);
-                                                   }),
+                                                   }).map(function() { return true; }),
                                               Kefir.fromEvents(document.body, 'keyup').filter(function(evt) {
                                                   return (evt.which == 27 || evt.keyCode == 27); // key === escape
-                                              }),
+                                              }).map(function() { return false; }),
                                               Kefir.fromEvents(document.body, 'click').filter(function(evt) {
                                                   return evt.target !== search.node();
-                                              }),
-                                              clearingEvents/*,
+                                              }).map(function() { return false; }),
+                                              clearingEvents.map(function() { return false; })/*,
                                               Kefir.fromEvents(search.node(), 'click')*/
-                                          ]).take(1).onValue(function() {
+                                          ]).take(1).onValue(function(doAdd) {
+                                              if (doAdd && selected) {
+                                                  console.log('enter', 'add', selected.def.fullName);
+                                              }
                                               console.log('clear selection');
                                               search.node().blur();
                                               updateSelection(null);
