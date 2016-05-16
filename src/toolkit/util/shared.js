@@ -1,5 +1,10 @@
-function NodeList() {
+function NodeList(conf) {
+    this.listElements = [];
 
+    this.selected = null;
+
+    this.searchInput = conf.createSearchInput();
+    this.clearSearchButton = conf.createClearSearchButton();
 }
 
 NodeList.prototype.addCtrlSpaceAndArrows = function(search, clearingEvents, listElements, updateSelection) {
