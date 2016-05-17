@@ -19,6 +19,9 @@ function NodeList(conf) {
     this.markSelected = conf.markSelected;
     this.markDeselected = conf.markDeselected;
 
+    this.setVisible = conf.setVisible;
+    this.setInvisible = conf.setInvisible;
+
     var listElements = conf.buildList();
 
     // make the list of elements double-linked and looped,
@@ -69,14 +72,15 @@ NodeList.prototype.addSearch = function() {
 
     // make seach field hide filtered results when user changes search request
     Kefir.fromEvents(search.node(), 'input')
-         .merge(clearingEvents)
+         .merge(this.clearingEvents)
          .throttle(500)
          .map(function() { return search.node().value; })
          .onValue(function(searchString) {
              nodeList.currentlyVisible = 0;
              nodeList.listElements.forEach(function(elmData) {
                  var index = elmData.def.fullName.indexOf(searchString);
-                 updateVisibility(elmData.element, index >= 0);
+                 if (index >= 0) { nodeList.setVisible(elmData); }
+                 else { nodeList.setInvisible(elmData); };
                  elmData.visible = (index >= 0);
                  if (elmData.visible) nodeList.currentlyVisible++;
              });
@@ -123,7 +127,7 @@ NodeList.prototype.addCtrlSpaceAndArrows = function() {
                                           nodeList.clearingEvents.map(function() { return false; })/*,
                                           Kefir.fromEvents(search.node(), 'click')*/
                                       ]).take(1).onValue(function(doAdd) {
-                                          if (doAdd && selected) {
+                                          if (doAdd && nodeList.selected) {
                                               console.log('enter', 'add', nodeList.selected.def.fullName);
                                           }
                                           console.log('clear selection');
@@ -131,7 +135,7 @@ NodeList.prototype.addCtrlSpaceAndArrows = function() {
                                           nodeList.selectNothing();
                                       }))
                          .onValue(function(key) {
-                             if (currentlyVisible == 0) return;
+                             if (nodeList.currentlyVisible == 0) return;
                              search.node().blur();
                              if (key === 'up') {
                                  var current = nodeList.selected ? nodeList.selected.prev : listElements[listElements.length - 1];

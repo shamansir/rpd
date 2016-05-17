@@ -103,54 +103,54 @@ Rpd.noderenderer('util/nodelist', 'html', {
             return byToolkit;
         }, {});
 
-        var listElements;
-
-        // build the list html structure
-        d3.select(bodyElm)
-          .append('dl')
-          .call(function(dl) {
-              Object.keys(nodeTypesByToolkit).forEach(function(toolkit) {
-
-                  dl.append('dt')
-                    .call(function(dt) {
-                        if (toolkitIcons[toolkit]) dt.append('span').attr('class', 'rpd-nodelist-toolkit-icon').text(toolkitIcons[toolkit]);
-                        dt.append('span').attr('class', 'rpd-nodelist-toolkit-name').text(toolkit)
-                    });
-
-                  dl.append('dd')
-                    .append('ul')
-                    .call(function(ul) {
-                        nodeTypesByToolkit[toolkit].types.forEach(function(nodeTypeDef) {
-                            var nodeType = nodeTypeDef.fullName;
-                            ul.append('li')
-                              .call(function(li) {
-
-                                  var elmData = { def: nodeTypeDef,
-                                                  element: li };
-
-                                  li.data(elmData);
-
-                                  if (nodeTypeIcons[nodeType]) {
-                                      li.append('span').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType]);
-                                  }
-                                  li.append('span').attr('class', 'rpd-nodelist-toolkit').text(nodeTypeDef.toolkit);
-                                  li.append('span').attr('class', 'rpd-nodelist-separator').text('/');
-                                  li.append('span').attr('class', 'rpd-nodelist-typename').text(nodeTypeDef.name);
-                                  if (nodeDescriptions[nodeType]) {
-                                      li.append('span').attr('class', 'rpd-nodelist-description')
-                                                       .attr('title', nodeDescriptions[nodeType])
-                                                       .text(nodeDescriptions[nodeType]);
-                                  }
-                                  listElements.push(elmData);
-                              })
-                        });
-                    });
-
-              });
-          });
-
         var nodeList = new NodeList({
             buildList: function() {
+                var listElements = [];
+
+                // build the list html structure
+                d3.select(bodyElm)
+                  .append('dl')
+                  .call(function(dl) {
+                      Object.keys(nodeTypesByToolkit).forEach(function(toolkit) {
+
+                          dl.append('dt')
+                            .call(function(dt) {
+                                if (toolkitIcons[toolkit]) dt.append('span').attr('class', 'rpd-nodelist-toolkit-icon').text(toolkitIcons[toolkit]);
+                                dt.append('span').attr('class', 'rpd-nodelist-toolkit-name').text(toolkit)
+                            });
+
+                          dl.append('dd')
+                            .append('ul')
+                            .call(function(ul) {
+                                nodeTypesByToolkit[toolkit].types.forEach(function(nodeTypeDef) {
+                                    var nodeType = nodeTypeDef.fullName;
+                                    ul.append('li')
+                                      .call(function(li) {
+
+                                          var elmData = { def: nodeTypeDef,
+                                                          element: li };
+
+                                          li.data(elmData);
+
+                                          if (nodeTypeIcons[nodeType]) {
+                                              li.append('span').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType]);
+                                          }
+                                          li.append('span').attr('class', 'rpd-nodelist-toolkit').text(nodeTypeDef.toolkit);
+                                          li.append('span').attr('class', 'rpd-nodelist-separator').text('/');
+                                          li.append('span').attr('class', 'rpd-nodelist-typename').text(nodeTypeDef.name);
+                                          if (nodeDescriptions[nodeType]) {
+                                              li.append('span').attr('class', 'rpd-nodelist-description')
+                                                               .attr('title', nodeDescriptions[nodeType])
+                                                               .text(nodeDescriptions[nodeType]);
+                                          }
+                                          listElements.push(elmData);
+                                      })
+                                });
+                            });
+
+                      });
+                  });
+
                 return listElements;
             },
             createSearchInput: function() {
