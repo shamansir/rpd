@@ -103,28 +103,7 @@ Rpd.noderenderer('util/nodelist', 'html', {
             return byToolkit;
         }, {});
 
-        // prepare a storage for elements with corresponding types
-        var listElements = [];
-
-        // attach text input, search field, to let user filter results
-        var search = d3.select(bodyElm).append('input').attr('type', 'text');
-
-        // attach a button which is able to clear this field
-        var clearSearch = d3.select(bodyElm).append('a').attr('href', '#').text('x');
-        var clearingEvents = Kefir.fromEvents(clearSearch.node(), 'click').onValue(function() {
-            search.node().value = '';
-        });
-
-        var selected;
-        function updateSelection(to) {
-            if (selected) selected.element.classed('rpd-nodelist-selected', false);
-            selected = to;
-            if (selected) selected.element.classed('rpd-nodelist-selected', true);
-        };
-
-        function updateVisibility(elm, visible) {
-            elm.style('display', visible ? 'list-item' : 'none');
-        }
+        var listElements;
 
         // build the list html structure
         d3.select(bodyElm)
@@ -163,14 +142,6 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                                        .text(nodeDescriptions[nodeType]);
                                   }
                                   listElements.push(elmData);
-
-                                  // add the corresponding node when it's element was clicked with mouse
-                                  Kefir.fromEvents(li.node(), 'click')
-                                       .onValue(function() {
-                                           updateSelection(li.data());
-                                           console.log('click', 'add', selected.def.fullName);
-                                           //patch.addNode(li.data().def.fullName);
-                                       });
                               })
                         });
                     });
@@ -178,32 +149,26 @@ Rpd.noderenderer('util/nodelist', 'html', {
               });
           });
 
-        var nodeList = new NodeList();
+        var nodeList = new NodeList({
+            buildList: function() {
+                return listElements;
+            },
+            createSearchInput: function() {
+                return d3.select(bodyElm).append('input').attr('type', 'text');
+            },
+            createClearSearchButton: function() {
+                return d3.select(bodyElm).append('a').attr('href', '#').text('x');
+            },
+            clearSearchInput: function(searchInput) { searchInput.node().value = ''; },
+            markSelected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', true); },
+            markDeselected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', false); },
+            setVisible: function(elmData) { elmData.element.style('display', 'list-item'); },
+            setInvisible: function(elmData) { elmData.element.style('display', 'none'); }
+        });
 
-        // make the list of elements double-linked and looped,
-        // so easy navigation with up/down arrow keys will be possible
-        for (var i = 0; i < listElements.length; i++) {
-            listElements[i].visible = true;
-        }
-
-        // make seach field hide filtered results when user changes search request
-        var currentlyVisible = listElements.length;
-        Kefir.fromEvents(search.node(), 'input')
-             .merge(clearingEvents)
-             .throttle(500)
-             .map(function() { return search.node().value; })
-             .onValue(function(searchString) {
-                 currentlyVisible = 0;
-                 listElements.forEach(function(elmData) {
-                     var index = elmData.def.fullName.indexOf(searchString);
-                     updateVisibility(elmData.element, index >= 0);
-                     elmData.visible = (index >= 0);
-                     if (elmData.visible) currentlyVisible++;
-                 });
-             });
-
-
-        nodeList.addCtrlSpaceAndArrows(search, clearingEvents, listElements, updateSelection);
+        nodeList.addOnClick();
+        nodeList.addSearch();
+        nodeList.addCtrlSpaceAndArrows();
     }
 });
 
