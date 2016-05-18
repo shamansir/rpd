@@ -94,6 +94,7 @@ Rpd.noderenderer('util/nodelist', 'html', {
         var nodeTypesByToolkit = getNodeTypesByToolkit(nodeTypes);
 
         var nodeList = new NodeList({
+            getPatch: function() { return patch; },
             buildList: function() {
                 var listElements = [];
 

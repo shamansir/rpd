@@ -37,6 +37,8 @@ function NodeList(conf) {
     this.setVisible = conf.setVisible;
     this.setInvisible = conf.setInvisible;
 
+    this.getPatch = conf.getPatch;
+
     var listElements = conf.buildList();
 
     // make the list of elements double-linked and looped,
@@ -74,7 +76,6 @@ NodeList.prototype.addOnClick = function() {
                  // add the node when corresponding element was clicked with mouse
                  nodeList.select(elmData);
                  nodeList.addNode(elmData);
-                 //patch.addNode(li.data().def.fullName);
              });
     });
 
@@ -85,7 +86,7 @@ NodeList.prototype.addNode = function(elmData) {
     setTimeout(function() {
         this.markAdded(elmData);
     }.bind(this), 1000);
-    console.log('click', 'add', elmData.def.fullName);
+    this.getPatch().addNode(elmData.def.fullName);
 }
 
 NodeList.prototype.addSearch = function() {
@@ -130,7 +131,8 @@ NodeList.prototype.addCtrlSpaceAndArrows = function() {
                  }),
             Kefir.fromEvents(search.node(), 'click')
         ]).flatMap(function(switchedOn) {
-             console.log('start!'); search.node().focus();
+             //console.log('start!');
+             search.node().focus();
              if (listElements.length > 0) nodeList.select(listElements[0]);
              return Kefir.fromEvents(document.body, 'keyup')
                          .map(function(evt) { return evt.which || evt.keyCode; })
@@ -151,9 +153,8 @@ NodeList.prototype.addCtrlSpaceAndArrows = function() {
                                           Kefir.fromEvents(search.node(), 'click')*/
                                       ]).take(1).onValue(function(doAdd) {
                                           if (doAdd && nodeList.selected) {
-                                              console.log('enter', 'add', nodeList.selected.def.fullName);
+                                              nodeList.addNode(nodeList.selected);
                                           }
-                                          console.log('clear selection');
                                           search.node().blur();
                                           nodeList.selectNothing();
                                       }))
@@ -171,7 +172,6 @@ NodeList.prototype.addCtrlSpaceAndArrows = function() {
                                      current = current.next;
                                  }
                              }
-                             console.log('select', current ? current.def.fullName : 'NONE');
                              if (current) nodeList.select(current);
                          });
          }).onValue(function() {});
