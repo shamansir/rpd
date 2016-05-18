@@ -1,3 +1,16 @@
+function getNodeTypesByToolkit(nodeTypes) {
+    return Object.keys(nodeTypes).reduce(function(byToolkit, nodeType) {
+        var slashPos = nodeType.indexOf('/');
+        var toolkit = (slashPos < 0) ? toolkit : nodeType.substring(0, slashPos);
+        var typeName = (slashPos < 0) ? '' : nodeType.substring(slashPos + 1);
+        if (!byToolkit[toolkit]) byToolkit[toolkit] = { icon: '', types: [] };
+        byToolkit[toolkit].types.push({ toolkit: toolkit,
+                                        fullName: nodeType, name: typeName,
+                                        data: nodeTypes[nodeType] });
+        return byToolkit;
+    }, {})
+}
+
 function NodeList(conf) {
     this.listElements = [];
 

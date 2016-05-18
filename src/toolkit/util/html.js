@@ -91,17 +91,7 @@ Rpd.noderenderer('util/nodelist', 'html', {
             toolkitIcons = Rpd.allToolkitIcons,
             nodeTypeIcons = Rpd.allNodeTypeIcons;
 
-        // collect all the known node types
-        var nodeTypesByToolkit = Object.keys(nodeTypes).reduce(function(byToolkit, nodeType) {
-            var slashPos = nodeType.indexOf('/');
-            var toolkit = (slashPos < 0) ? toolkit : nodeType.substring(0, slashPos);
-            var typeName = (slashPos < 0) ? '' : nodeType.substring(slashPos + 1);
-            if (!byToolkit[toolkit]) byToolkit[toolkit] = { icon: '', types: [] };
-            byToolkit[toolkit].types.push({ toolkit: toolkit,
-                                            fullName: nodeType, name: typeName,
-                                            data: nodeTypes[nodeType] });
-            return byToolkit;
-        }, {});
+        var nodeTypesByToolkit = getNodeTypesByToolkit(nodeTypes);
 
         var nodeList = new NodeList({
             buildList: function() {
@@ -132,12 +122,13 @@ Rpd.noderenderer('util/nodelist', 'html', {
 
                                           li.data(elmData);
 
-                                          if (nodeTypeIcons[nodeType]) {
-                                              li.append('span').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType]);
-                                          }
-                                          li.append('span').attr('class', 'rpd-nodelist-toolkit').text(nodeTypeDef.toolkit);
-                                          li.append('span').attr('class', 'rpd-nodelist-separator').text('/');
-                                          li.append('span').attr('class', 'rpd-nodelist-typename').text(nodeTypeDef.name);
+                                          li.append('span').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType] || String.fromCharCode(160));
+                                          li.append('span').attr('class', 'rpd-nodelist-fulltypename')
+                                            .call(function(span) {
+                                                span.append('span').attr('class', 'rpd-nodelist-toolkit').text(nodeTypeDef.toolkit);
+                                                span.append('span').attr('class', 'rpd-nodelist-separator').text('/');
+                                                span.append('span').attr('class', 'rpd-nodelist-typename').text(nodeTypeDef.name);
+                                            })
                                           if (nodeDescriptions[nodeType]) {
                                               li.append('span').attr('class', 'rpd-nodelist-description')
                                                                .attr('title', nodeDescriptions[nodeType])

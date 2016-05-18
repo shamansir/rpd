@@ -8,8 +8,86 @@
 
 .rpd-util-nodelist dl > dd > ul > li {
     cursor: pointer;
+    padding: 1px 0px 1px 0px;
+    /* vertical-align: middle; */
+    margin: 2px 0;
+    background-color: rgba(96,141,104,0.4);
+    border-radius: 5px;
+    /* border-color: white; */
 }
 
 .rpd-util-nodelist dl > dd > ul > li:hover {
     background-color: rgba(0, 0, 0, 0.15);
+}
+
+.rpd-util-nodelist dt {
+    margin: 3px 0;
+}
+
+.rpd-util-nodelist dt .rpd-nodelist-toolkit-name {
+    border: 1px solid black;
+    padding: 2px;
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+.rpd-util-nodelist .rpd-process-target a {
+    text-decoration: none;
+    font-size: 1.2em;
+    color: darkred;
+}
+
+.rpd-util-nodelist .rpd-process-target a:hover {
+    color: red;
+}
+
+.rpd-util-nodelist input {
+    width: 90%;
+}
+
+.rpd-util-nodelist ul {
+    margin: 0;
+    padding: 0;
+    display: block;
+    list-style-type: none;
+}
+
+.rpd-util-nodelist dl {
+    overflow-y: scroll;
+    width: 180px;
+    max-height: 300px;
+    margin: 6px 0px 0 0;
+    padding: 0;
+}
+
+.rpd-util-nodelist dl > dd {
+    margin: 10px 0;
+    padding: 0;
+}
+
+.rpd-util-nodelist li .rpd-nodelist-description {
+    display: block;
+    font-size: 0.7em;
+    opacity: 0.8;
+}
+
+.rpd-util-nodelist li .rpd-nodelist-icon {
+    display: inline-block;
+    width: 1em;
+    /* height: 1em; */
+    padding: 0px 3px 0px 2px;
+    text-align: center;
+    color: darkseagreen;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+    /* left: 0px; */
+    /* border-radius: 3px 0 0 3px; */
+    /* background-color: ghostwhite; */
+    /* text-anchor: initial; */
+}
+
+.rpd-util-nodelist li .rpd-nodelist-fulltypename {
+    margin: 3px 3px;
+    display: inline-block;
 }
