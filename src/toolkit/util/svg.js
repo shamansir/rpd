@@ -52,7 +52,59 @@ Rpd.noderenderer('util/bang', 'svg', {
 });
 
 Rpd.noderenderer('util/metro', 'svg', {
-    size: { width: 30, height: 25 }
+    size: { width: 30, height: 25 },
+    first: function(bodyElm) {
+        var circle = d3.select(svg_node('circle'))
+                       .attr('cx', 15).attr('r', 9)
+                       .attr('fill', 'black')
+                       .style('cursor', 'pointer')
+                       .style('pointer-events', 'all');
+        d3.select(bodyElm).append(circle.node());
+        return { 'trigger':
+            { valueOut: Kefir.fromEvents(circle.node(), 'click')
+                             .map(function() { return {}; })
+            }
+        };
+    }
+});
+
+Rpd.noderenderer('util/palette', 'svg', function() {
+    var cellSide = 12;
+    return {
+        size: { width: 365, height: 60 },
+        first: function(bodyElm) {
+            var paletteChange = Kefir.emitter();
+            var lastSelected, paletteGroups = [];
+            d3.select(bodyElm)
+              .append('g').attr('transform', 'translate(5, 0)')
+              .call(function(target) {
+                /*PALETTES*/[].forEach(function(palette, i) {
+                    target.append('g')
+                          .attr('class', 'rpd-util-palette-variant')
+                          .attr('transform', 'translate(' + (i * 14) + ', ' +
+                                                            (-1 * (palette.length / 2 * cellSide)) + ')')
+                          .call((function(palette) { return function(paletteGroup) {
+                              palette.forEach(function(color, i) {
+                                  paletteGroup.append('rect').attr('rx', 4)
+                                              .attr('x', 0).attr('y', i * cellSide)
+                                              .attr('width', cellSide).attr('height', cellSide)
+                                              .attr('fill', color);
+                              });
+                              Kefir.fromEvents(paletteGroup.node(), 'click').onValue(function() {
+                                  if (lastSelected) lastSelected.attr('class', 'rpd-util-palette-variant')
+                                  paletteGroup.attr('class', 'rpd-util-palette-variant rpd-util-palette-active-variant');
+                                  lastSelected = paletteGroup;
+                                  paletteChange.emit(palette);
+                              });
+                              paletteGroups.push(paletteGroup);
+                          } })(palette));
+                });
+            });
+            lastSelected = paletteGroups[0];
+            paletteGroups[0].attr('class', 'rpd-util-palette-variant rpd-util-palette-active-variant');
+            return { 'selection': { valueOut: paletteChange } };
+        }
+    };
 });
 
 Rpd.noderenderer('util/sum-of-three', 'svg', function() {

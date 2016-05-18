@@ -2,3 +2,12 @@
 .rpd-outlet.rpd-util-number input[type=number] {
     width: 30px;
 }
+
+.rpd-node.rpd-util-palette .rpd-process .rpd-util-palette-variant * {
+    cursor: pointer;
+    pointer-events: all;
+}
+
+.rpd-util-palette-variant.rpd-util-palette-active-variant {
+    stroke: white;
+}
