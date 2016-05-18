@@ -48,7 +48,8 @@ var tree = {
 var currentPatch;
 
 var nodeTypes = Rpd.allNodeTypes,
-    nodeDescriptions = Rpd.allNodeDescriptions;
+    nodeDescriptions = Rpd.allNodeDescriptions,
+    nodeTypeIcons = Rpd.allNodeTypeIcons;
 
 function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
@@ -193,7 +194,7 @@ return function(networkRoot, userConfig) {
                 limitSrc = tree.patches[currentPatch.id].data();
 
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
-            var styledNode = style.createNode(node, render, nodeDescriptions[node.type]);
+            var styledNode = style.createNode(node, render, nodeDescriptions[node.type], nodeTypeIcons[node.type]);
             var nodeElm = nodeBox.append(styledNode.element);
 
             // store targets information and node canvas element itself

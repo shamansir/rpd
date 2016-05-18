@@ -56,7 +56,8 @@ var tree = {
 var currentPatch;
 
 var nodeTypes = Rpd.allNodeTypes,
-    nodeDescriptions = Rpd.allNodeDescriptions;
+    nodeDescriptions = Rpd.allNodeDescriptions,
+    nodeTypeIcons = Rpd.allNodeTypeIcons;
 
 function HtmlRenderer(patch) {
 
@@ -177,7 +178,7 @@ return function(networkRoot, userConfig) {
             var render = update.render;
 
             var nodeBox = d3.select(document.createElement('div')).attr('class', 'rpd-node-box');
-            var styledNode = style.createNode(node, render, nodeDescriptions[node.type]);
+            var styledNode = style.createNode(node, render, nodeDescriptions[node.type], nodeTypeIcons[node.type]);
             var nodeElm = nodeBox.append(styledNode.element);
 
             nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)

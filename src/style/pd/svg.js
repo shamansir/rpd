@@ -53,7 +53,7 @@ return {
         };
     },
 
-    createNode: function(node, render, description) {
+    createNode: function(node, render, description, icon) {
 
         // it is required to know the header size before constructing the node itself
         var fakeName = d3.select(_createSvgElement('text'))

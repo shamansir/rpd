@@ -238,7 +238,7 @@ var howMuchColors = howMuch('color', 'colors');
 Rpd.channeltype('util/palette', { show: function(val) { return howMuchColors(val.colors); } });
 Rpd.channeltype('util/palettes', {});
 
-PALLETES = [
+var PALETTES = [
     [ '#f00', '#0f0', '#00f' ],
     [ '#ff0', '#0ff', '#f0f' ],
     [ '#000', '#666', '#aaa', '#fff' ]

@@ -33,7 +33,7 @@ return {
         };
     },
 
-    createNode: function(node, render, description) {
+    createNode: function(node, render, description, icon) {
         var contentSize = render.size ? { width: render.size.width || 60,
                                           height: render.size.height || 25 }
                                          : { width: 60, height: 25 };

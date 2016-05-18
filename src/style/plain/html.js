@@ -20,7 +20,7 @@ return {
                             .classed('rpd-patch', true).node() };
     },
 
-    createNode: function(node, render, description) {
+    createNode: function(node, render, description, icon) {
 
         var nodeElm = d3.select(document.createElement('table'))
                         .attr('class', 'rpd-node');
