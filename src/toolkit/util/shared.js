@@ -31,6 +31,8 @@ function NodeList(conf) {
 
     this.markSelected = conf.markSelected;
     this.markDeselected = conf.markDeselected;
+    this.markAdding = conf.markAdding;
+    this.markAdded = conf.markAdded;
 
     this.setVisible = conf.setVisible;
     this.setInvisible = conf.setInvisible;
@@ -70,12 +72,20 @@ NodeList.prototype.addOnClick = function() {
         Kefir.fromEvents(li.node(), 'click')
              .onValue(function() {
                  // add the node when corresponding element was clicked with mouse
-                 nodeList.select(li.data());
-                 console.log('click', 'add', nodeList.selected.def.fullName);
+                 nodeList.select(elmData);
+                 nodeList.addNode(elmData);
                  //patch.addNode(li.data().def.fullName);
              });
     });
 
+}
+
+NodeList.prototype.addNode = function(elmData) {
+    this.markAdding(elmData);
+    setTimeout(function() {
+        this.markAdded(elmData);
+    }.bind(this), 1000);
+    console.log('click', 'add', elmData.def.fullName);
 }
 
 NodeList.prototype.addSearch = function() {

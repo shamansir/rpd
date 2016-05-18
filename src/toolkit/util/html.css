@@ -6,17 +6,19 @@
     background-color: rgba(0, 0, 0, 0.3);
 }
 
-.rpd-util-nodelist dl > dd > ul > li {
+.rpd-util-nodelist li {
     cursor: pointer;
     padding: 1px 0px 1px 0px;
     /* vertical-align: middle; */
     margin: 2px 0;
     background-color: rgba(96,141,104,0.4);
     border-radius: 5px;
+    -webkit-transition: background-color 0.2s ease-out;
+    transition: background-color 0.2s ease-out;
     /* border-color: white; */
 }
 
-.rpd-util-nodelist dl > dd > ul > li:hover {
+.rpd-util-nodelist li:hover {
     background-color: rgba(0, 0, 0, 0.15);
 }
 
@@ -90,4 +92,8 @@
 .rpd-util-nodelist li .rpd-nodelist-fulltypename {
     margin: 3px 3px;
     display: inline-block;
+}
+
+.rpd-util-nodelist li.rpd-nodelist-add-effect {
+    background-color: #f00;
 }

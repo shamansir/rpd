@@ -153,6 +153,8 @@ Rpd.noderenderer('util/nodelist', 'html', {
             clearSearchInput: function(searchInput) { searchInput.node().value = ''; },
             markSelected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', true); },
             markDeselected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', false); },
+            markAdding: function(elmData) { elmData.element.classed('rpd-nodelist-add-effect', true); },
+            markAdded: function(elmData) { elmData.element.classed('rpd-nodelist-add-effect', false); },
             setVisible: function(elmData) { elmData.element.style('display', 'list-item'); },
             setInvisible: function(elmData) { elmData.element.style('display', 'none'); }
         });
