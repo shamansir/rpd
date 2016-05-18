@@ -65,7 +65,14 @@
                 return Kefir.sequentially(800, [4, 5, 6]); }));
             // outC.send(5);
 
-            model.addNode('util/nodelist');
+            var nodeList = model.addNode('util/nodelist');
+            nodeList.move(550, 30);
+
+            model.addNode('util/color').move(250, 170);
+
+            var bounded = model.addNode('util/bounded-number');
+            bounded.inlets['max'].receive(255);
+            bounded.move(260, 20);
         </script>
     </body>
 </html>

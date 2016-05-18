@@ -78,7 +78,27 @@ Rpd.noderenderer('util/sum-of-three', 'html', {
     }
 });
 
+var toHexColor = RpdUtils.toHexColor;
+
+Rpd.noderenderer('util/color', 'html', function() {
+    var colorElm;
+    return {
+        size: { width: 30, height: 30 },
+        first: function(bodyElm) {
+            colorElm = document.createElement('span');
+            colorElm.classList.add('rpd-util-color-display');
+            bodyElm.appendChild(colorElm);
+        },
+        always: function(bodyElm, inlets, outlets) {
+            colorElm.style.backgroundColor = toHexColor(outlets.color);
+        }
+    }
+});
+
 var d3 = d3 || d3_tiny;
+
+var NodeList = RpdUtils.NodeList;
+var getNodeTypesByToolkit = RpdUtils.getNodeTypesByToolkit;
 
 Rpd.noderenderer('util/nodelist', 'html', {
     size: {},

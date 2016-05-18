@@ -97,3 +97,10 @@
 .rpd-util-nodelist li.rpd-nodelist-add-effect {
     background-color: #f00;
 }
+
+.rpd-util-color .rpd-util-color-display {
+    display: block;
+    width: 30px;
+    height: 30px;
+    border-radius: 5px;
+}

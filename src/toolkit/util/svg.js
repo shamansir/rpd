@@ -258,6 +258,8 @@ Rpd.noderenderer('util/knobs', 'svg', function() {
     };
 });
 
+Rpd.noderenderer('util/color', 'svg', function() { });
+
 Rpd.noderenderer('util/nodelist', 'svg', function() { });
 
 })();

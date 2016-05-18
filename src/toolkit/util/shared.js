@@ -1,3 +1,13 @@
+var RpdUtils = (function() {
+
+function numberToHex(num) { return (num > 15) ? num.toString(16) : '0' + num.toString(16); }
+
+function toHexColor(color) {
+    return '#' + numberToHex(color.r || 0)
+               + numberToHex(color.g || 0)
+               + numberToHex(color.b || 0);
+}
+
 function getNodeTypesByToolkit(nodeTypes) {
     return Object.keys(nodeTypes).reduce(function(byToolkit, nodeType) {
         var slashPos = nodeType.indexOf('/');
@@ -176,3 +186,12 @@ NodeList.prototype.addCtrlSpaceAndArrows = function() {
                          });
          }).onValue(function() {});
 }
+
+return {
+    'numberToHex': numberToHex,
+    'toHexColor': toHexColor,
+    'getNodeTypesByToolkit': getNodeTypesByToolkit,
+    'NodeList': NodeList
+};
+
+})();

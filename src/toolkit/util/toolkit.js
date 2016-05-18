@@ -1,5 +1,8 @@
 (function() {
 
+var numberToHex = RpdUtils.numberToHex;
+var toHexColor = RpdUtils.toHexColor;
+
 function howMuch(single, plural) {
     return function(list) {
         if (!list) return 'Nothing';
@@ -47,14 +50,6 @@ Rpd.channeltype('util/bang', {
     show: function(v) { return v ? '[Bang]' : '[None]'; },
     adapt: function(v) { return v ? {} : null; }
 });
-
-function numberToHex(num) { return (num > 15) ? num.toString(16) : '0' + num.toString(16); }
-
-function toHexColor(color) {
-    return '#' + numberToHex(color.r || 0)
-               + numberToHex(color.g || 0)
-               + numberToHex(color.b || 0);
-}
 
 Rpd.channeltype('util/color', { show: toHexColor });
 
