@@ -199,12 +199,17 @@ return {
     },
 
     createLink: function(link) {
-        var linkElm = d3.select(_createSvgElement('line'))
-                        .attr('class', 'rpd-link');
+        var linkElm = d3.select(_createSvgElement(
+                            (config.linkForm && (config.linkForm == 'curve')) ? 'path' : 'line'
+                        )).attr('class', 'rpd-link');
         return { element: linkElm.node(),
                  rotate: function(x0, y0, x1, y1) {
-                     linkElm.attr('x1', x0).attr('y1', y0)
-                            .attr('x2', x1).attr('y2', y1);
+                     if (config.linkForm && (config.linkForm == 'curve')) {
+                        linkElm.attr('d', bezierByV(x0, y0, x1, y1));
+                    } else {
+                        linkElm.attr('x1', x0).attr('y1', y0)
+                               .attr('x2', x1).attr('y2', y1);
+                    }
                  },
                  noPointerEvents: function() {
                      linkElm.style('pointer-events', 'none');
@@ -238,5 +243,15 @@ return {
 
 
 };
+
+function bezierByV(x0, y0, x1, y1) {
+    var mx = x0 + (x1 - x0) / 2;
+    var my = y0 + (y1 - y0) / 2;
+
+    return 'M' + x0 + ' ' + y0 + ' '
+         + 'C' + x0 + ' ' + my + ' '
+               + x1 + ' ' + my + ' '
+               + x1 + ' ' + y1;
+}
 
 } })());

@@ -115,6 +115,7 @@
 .rpd-link {
     stroke: rgba(250,250,250,0.8);
     stroke-width: 1;
+    fill: transparent;
 }
 
 .rpd-link.rpd-disabled {
