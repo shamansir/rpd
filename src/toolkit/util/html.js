@@ -50,6 +50,7 @@ Rpd.noderenderer('util/number', 'html', {
 Rpd.noderenderer('util/bounded-number', 'html', function() {
     var spinnerElm, spinner;
     return {
+        size: { width: 25 },
         first: function(bodyElm) {
             spinnerElm = document.createElement('span');
             spinnerElm.classList.add('rpd-util-spinner');
@@ -70,7 +71,7 @@ Rpd.noderenderer('util/bounded-number', 'html', function() {
 });
 
 Rpd.noderenderer('util/sum-of-three', 'html', {
-    size: { width: null, height: 200 },
+    size: { width: null, height: 80 },
     always: function(bodyElm, inlets, outlets) {
         bodyElm.innerHTML = '∑ (' + (inlets.a || '?') + ', '
                                   + (inlets.b || '?') + ', '

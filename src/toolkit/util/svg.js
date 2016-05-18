@@ -258,7 +258,27 @@ Rpd.noderenderer('util/knobs', 'svg', function() {
     };
 });
 
-Rpd.noderenderer('util/color', 'svg', function() { });
+var toHexColor = RpdUtils.toHexColor;
+
+Rpd.noderenderer('util/color', 'svg', function() {
+    var colorElm;
+    return {
+        size: { width: 140, height: 30 },
+        first: function(bodyElm) {
+            colorElm = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            colorElm.setAttributeNS(null, 'width', '30');
+            colorElm.setAttributeNS(null, 'height', '30');
+            colorElm.setAttributeNS(null, 'rx', '5');
+            colorElm.setAttributeNS(null, 'ry', '5');
+            colorElm.setAttributeNS(null, 'transform', 'translate(-15,-15)');
+            colorElm.classList.add('rpd-util-color-display');
+            bodyElm.appendChild(colorElm);
+        },
+        always: function(bodyElm, inlets, outlets) {
+            colorElm.setAttributeNS(null, 'fill', toHexColor(outlets.color));
+        }
+    }
+});
 
 Rpd.noderenderer('util/nodelist', 'svg', function() { });
 

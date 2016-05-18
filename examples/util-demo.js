@@ -8,7 +8,7 @@ function buildUtilDemoPatch(renderer, target, conf) {
     var genA = model.addNode('core/basic', 'Generate B');
     var outB = genA.addOutlet('util/number', 'B', { 'default': 1 });
 
-    var sumOfThree = model.addNode('util/sum-of-three', 'Sum1');
+    var sumOfThree = model.addNode('util/sum-of-three', 'Sum1').move(200, 20);
     var inA = sumOfThree.inlets['a'];
     var inB = sumOfThree.inlets['b'];
 
@@ -31,10 +31,10 @@ function buildUtilDemoPatch(renderer, target, conf) {
     var nodeList = model.addNode('util/nodelist');
     nodeList.move(550, 30);
 
-    model.addNode('util/color').move(250, 170);
+    model.addNode('util/color').move(270, 200);
 
     var bounded = model.addNode('util/bounded-number');
     bounded.inlets['max'].receive(255);
-    bounded.move(260, 20);
+    bounded.move(60, 240);
 
 }
