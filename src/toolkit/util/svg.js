@@ -68,7 +68,7 @@ Rpd.noderenderer('util/metro', 'svg', {
     }
 });
 
-Rpd.noderenderer('util/palette', 'svg', function() {
+/* Rpd.noderenderer('util/palette', 'svg', function() {
     var cellSide = 12;
     return {
         size: { width: 365, height: 60 },
@@ -78,7 +78,7 @@ Rpd.noderenderer('util/palette', 'svg', function() {
             d3.select(bodyElm)
               .append('g').attr('transform', 'translate(5, 0)')
               .call(function(target) {
-                /*PALETTES*/[].forEach(function(palette, i) {
+                PALETTES.forEach(function(palette, i) {
                     target.append('g')
                           .attr('class', 'rpd-util-palette-variant')
                           .attr('transform', 'translate(' + (i * 14) + ', ' +
@@ -105,7 +105,7 @@ Rpd.noderenderer('util/palette', 'svg', function() {
             return { 'selection': { valueOut: paletteChange } };
         }
     };
-});
+}); */
 
 Rpd.noderenderer('util/sum-of-three', 'svg', function() {
     var textElement;
@@ -280,6 +280,109 @@ Rpd.noderenderer('util/color', 'svg', function() {
     }
 });
 
-Rpd.noderenderer('util/nodelist', 'svg', function() { });
+var NodeList = RpdUtils.NodeList;
+var getNodeTypesByToolkit = RpdUtils.getNodeTypesByToolkit;
+
+var nodeListSize = { width: 300, height: 300 };
+
+Rpd.noderenderer('util/nodelist', 'svg', {
+    size: nodeListSize,
+    first: function(bodyElm) {
+
+        var patch = this.patch;
+
+        var nodeTypes = Rpd.allNodeTypes,
+            nodeDescriptions = Rpd.allNodeDescriptions,
+            toolkitIcons = Rpd.allToolkitIcons,
+            nodeTypeIcons = Rpd.allNodeTypeIcons;
+
+        var nodeTypesByToolkit = getNodeTypesByToolkit(nodeTypes);
+
+        var bodyGroup,
+            searchGroup,
+            nodeListSvg;
+
+        var nodeList = new NodeList({
+            getPatch: function() { return patch; },
+            buildList: function() {
+                var listElements = [];
+
+                // build the list html structure
+                bodyGroup = d3.select(bodyElm)
+                                .append('g')
+                                .attr('transform', 'translate(' + (-1 * nodeListSize.width / 2) + ' '
+                                                                + (-1 * nodeListSize.height / 2) + ')');
+
+                searchGroup = bodyGroup.append('g').classed('rpd-nodelist-search', true);
+
+                nodeListSvg = bodyGroup.append('svg').classed('rpd-nodelist-list', true);
+
+                nodeListSvg.append('g')
+                  .call(function(g) {
+                      Object.keys(nodeTypesByToolkit).forEach(function(toolkit) {
+
+                          g.append('g').classed('rpd-nodelist-toolkit', true)
+                           .call(function(g) {
+                                if (toolkitIcons[toolkit]) g.append('text').attr('class', 'rpd-nodelist-toolkit-icon').text(toolkitIcons[toolkit]);
+                                g.append('text').attr('class', 'rpd-nodelist-toolkit-name').text(toolkit)
+                           });
+
+                          g.append('g').classed('rpd-nodelist-nodetypes', true)
+                           .call(function(g) {
+                                nodeTypesByToolkit[toolkit].types.forEach(function(nodeTypeDef) {
+                                    var nodeType = nodeTypeDef.fullName;
+                                    g.append('g')
+                                     .call(function(g) {
+
+                                          var elmData = { def: nodeTypeDef,
+                                                          element: g };
+
+                                          g.data(elmData);
+
+                                          g.append('text').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType] || ' ');
+                                          g.append('g').attr('class', 'rpd-nodelist-fulltypename')
+                                            .call(function(g) {
+                                                g.append('text').attr('class', 'rpd-nodelist-toolkit').text(nodeTypeDef.toolkit);
+                                                g.append('text').attr('class', 'rpd-nodelist-separator').text('/');
+                                                g.append('text').attr('class', 'rpd-nodelist-typename').text(nodeTypeDef.name);
+                                            })
+                                          if (nodeDescriptions[nodeType]) {
+                                              g.append('text').attr('class', 'rpd-nodelist-description')
+                                                              .attr('title', nodeDescriptions[nodeType])
+                                                              .text(nodeDescriptions[nodeType]);
+                                          }
+
+                                          listElements.push(elmData);
+
+                                      })
+                                });
+                           });
+
+                      });
+                  });
+
+                return listElements;
+            },
+            createSearchInput: function() {
+                return d3.select(bodyElm).append('input').attr('type', 'text');
+            },
+            createClearSearchButton: function() {
+                return d3.select(bodyElm).append('text').text('x');
+            },
+            clearSearchInput: function(searchInput) { searchInput.node().value = ''; },
+            markSelected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', true); },
+            markDeselected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', false); },
+            markAdding: function(elmData) { elmData.element.classed('rpd-nodelist-add-effect', true); },
+            markAdded: function(elmData) { elmData.element.classed('rpd-nodelist-add-effect', false); },
+            setVisible: function(elmData) { elmData.element.style('display', 'list-item'); },
+            setInvisible: function(elmData) { elmData.element.style('display', 'none'); }
+        });
+
+        nodeList.addOnClick();
+        nodeList.addSearch();
+        nodeList.addCtrlSpaceAndArrows();
+
+    }
+});
 
 })();

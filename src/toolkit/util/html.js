@@ -156,7 +156,9 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                                                .attr('title', nodeDescriptions[nodeType])
                                                                .text(nodeDescriptions[nodeType]);
                                           }
+
                                           listElements.push(elmData);
+
                                       })
                                 });
                             });
@@ -184,6 +186,7 @@ Rpd.noderenderer('util/nodelist', 'html', {
         nodeList.addOnClick();
         nodeList.addSearch();
         nodeList.addCtrlSpaceAndArrows();
+
     }
 });
 

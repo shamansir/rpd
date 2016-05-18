@@ -229,7 +229,7 @@ Rpd.nodetype('util/log', {
     }
 });
 
-var howMuchColors = howMuch('color', 'colors');
+/* var howMuchColors = howMuch('color', 'colors');
 Rpd.channeltype('util/palette', { show: function(val) { return howMuchColors(val.colors); } });
 Rpd.channeltype('util/palettes', {});
 
@@ -247,7 +247,7 @@ Rpd.nodetype('util/palette', {
         'palette': { type: 'util/palette' }
     },
     process: function(inlets) { return { palette: inlets.selection }; }
-});
+}); */
 
 Rpd.nodedescription('util/nodelist', 'Add any node to active patch by type');
 Rpd.nodetype('util/nodelist', { title: 'add nodes' });
