@@ -26,19 +26,6 @@ function NodeList(conf) {
 
     this.selected = null;
 
-    // create text input, search field, to let user filter results
-    this.searchInput = conf.createSearchInput();
-    // create a button which is able to clear this field
-    this.clearSearchButton = conf.createClearSearchButton();
-
-    var search = this.searchInput,
-        clearSearch = this.clearSearchButton;
-
-    this.clearingEvents = Kefir.fromEvents(clearSearch.node(), 'click').onValue(function() {
-        this.selectNothing();
-        conf.clearSearchInput(search);
-    }.bind(this));
-
     this.markSelected = conf.markSelected;
     this.markDeselected = conf.markDeselected;
     this.markAdding = conf.markAdding;
@@ -49,7 +36,21 @@ function NodeList(conf) {
 
     this.getPatch = conf.getPatch;
 
+    // create text input, search field, to let user filter results
+    this.searchInput = conf.createSearchInput();
+    // create a button which is able to clear this field
+    this.clearSearchButton = conf.createClearSearchButton();
+
     var listElements = conf.buildList();
+
+    var search = this.searchInput,
+        clearSearch = this.clearSearchButton;
+
+    this.clearingEvents = Kefir.fromEvents(this.clearSearchButton.node(), 'click')
+        .onValue(function() {
+            this.selectNothing();
+            conf.clearSearchInput(this.searchInput);
+        }.bind(this));
 
     // make the list of elements double-linked and looped,
     // so easy navigation with up/down arrow keys will be possible

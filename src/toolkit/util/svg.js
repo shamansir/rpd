@@ -5,13 +5,18 @@ function stopPropagation(event) {
     return event;
 }
 
+var d3 = d3 || d3_tiny;
+
+function svgNode(name) { return document.createElementNS(d3.ns.prefix.svg, name); }
+function htmlNode(name) { return document.createElementNS(d3.ns.prefix.html, name); }
+
 Rpd.channelrenderer('util/number', 'svg', {
     /* show: function(target, value) { }, */
     edit: function(target, inlet, valueIn) {
-        var foElm = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+        var foElm = svgNode('foreignObject');
         foElm.setAttributeNS(null, 'width', 20);
         foElm.setAttributeNS(null, 'height', 30);
-        var valInput = document.createElementNS('http://www.w3.org/1999/xhtml', 'input');
+        var valInput = htmlNode('input');
         valInput.type = 'number';
         //valInput.style.position = 'absolute';
         valueIn.onValue(function(val) {
@@ -32,12 +37,10 @@ Rpd.noderenderer('util/random', 'svg', function() {
     }
 });
 
-var d3 = d3 || d3_tiny;
-
 Rpd.noderenderer('util/bang', 'svg', {
     size: { width: 30, height: 25 },
     first: function(bodyElm) {
-        var circle = d3.select(svg_node('circle'))
+        var circle = d3.select(svgNode('circle'))
                        .attr('cx', 15).attr('r', 9)
                        .attr('fill', 'black')
                        .style('cursor', 'pointer')
@@ -54,7 +57,7 @@ Rpd.noderenderer('util/bang', 'svg', {
 Rpd.noderenderer('util/metro', 'svg', {
     size: { width: 30, height: 25 },
     first: function(bodyElm) {
-        var circle = d3.select(svg_node('circle'))
+        var circle = d3.select(svgNode('circle'))
                        .attr('cx', 15).attr('r', 9)
                        .attr('fill', 'black')
                        .style('cursor', 'pointer')
@@ -113,7 +116,7 @@ Rpd.noderenderer('util/sum-of-three', 'svg', function() {
         //contentRule: 'replace',
         size: { width: 150, height: null },
         first: function(bodyElm) {
-            textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            textElement = svgNode('text');
             bodyElm.appendChild(textElement);
         },
         always: function(bodyElm, inlets, outlets) {
@@ -265,7 +268,7 @@ Rpd.noderenderer('util/color', 'svg', function() {
     return {
         size: { width: 140, height: 30 },
         first: function(bodyElm) {
-            colorElm = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            colorElm = svgNode('rect');
             colorElm.setAttributeNS(null, 'width', '30');
             colorElm.setAttributeNS(null, 'height', '30');
             colorElm.setAttributeNS(null, 'rx', '5');
@@ -298,22 +301,18 @@ Rpd.noderenderer('util/nodelist', 'svg', {
 
         var nodeTypesByToolkit = getNodeTypesByToolkit(nodeTypes);
 
-        var bodyGroup,
-            searchGroup,
-            nodeListSvg;
+        var bodyGroup = d3.select(bodyElm)
+                           .append('g')
+                           .attr('transform', 'translate(' + (-1 * nodeListSize.width / 2) + ' '
+                                                           + (-1 * nodeListSize.height / 2) + ')');
+        var searchGroup = bodyGroup.append('g').classed('rpd-nodelist-search', true);
+
+        var nodeListSvg;
 
         var nodeList = new NodeList({
             getPatch: function() { return patch; },
             buildList: function() {
                 var listElements = [];
-
-                // build the list html structure
-                bodyGroup = d3.select(bodyElm)
-                                .append('g')
-                                .attr('transform', 'translate(' + (-1 * nodeListSize.width / 2) + ' '
-                                                                + (-1 * nodeListSize.height / 2) + ')');
-
-                searchGroup = bodyGroup.append('g').classed('rpd-nodelist-search', true);
 
                 nodeListSvg = bodyGroup.append('svg').classed('rpd-nodelist-list', true);
 
@@ -340,12 +339,7 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                                           g.data(elmData);
 
                                           g.append('text').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType] || ' ');
-                                          g.append('g').attr('class', 'rpd-nodelist-fulltypename')
-                                            .call(function(g) {
-                                                g.append('text').attr('class', 'rpd-nodelist-toolkit').text(nodeTypeDef.toolkit);
-                                                g.append('text').attr('class', 'rpd-nodelist-separator').text('/');
-                                                g.append('text').attr('class', 'rpd-nodelist-typename').text(nodeTypeDef.name);
-                                            })
+                                          g.append('text').attr('class', 'rpd-nodelist-fulltypename').text(nodeTypeDef.toolkit + '/' + nodeTypeDef.name)
                                           if (nodeDescriptions[nodeType]) {
                                               g.append('text').attr('class', 'rpd-nodelist-description')
                                                               .attr('title', nodeDescriptions[nodeType])
@@ -364,10 +358,10 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                 return listElements;
             },
             createSearchInput: function() {
-                return d3.select(bodyElm).append('input').attr('type', 'text');
+                return searchGroup.append('input').attr('type', 'text');
             },
             createClearSearchButton: function() {
-                return d3.select(bodyElm).append('text').text('x');
+                return searchGroup.append('text').text('x');
             },
             clearSearchInput: function(searchInput) { searchInput.node().value = ''; },
             markSelected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', true); },
