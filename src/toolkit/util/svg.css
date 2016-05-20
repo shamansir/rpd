@@ -11,3 +11,18 @@
 .rpd-util-palette-variant.rpd-util-palette-active-variant {
     stroke: white;
 }
+
+.rpd-util-nodelist .rpd-nodelist-search text {
+    font-size: 1.5em;
+    fill: darkred;
+    cursor: pointer;
+    pointer-events: all;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search text:hover {
+    fill: red;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list text {
+    text-anchor: start;
+}

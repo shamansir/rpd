@@ -10,6 +10,8 @@ var d3 = d3 || d3_tiny;
 function svgNode(name) { return document.createElementNS(d3.ns.prefix.svg, name); }
 function htmlNode(name) { return document.createElementNS(d3.ns.prefix.html, name); }
 
+/* ========================= util/number ========================= */
+
 Rpd.channelrenderer('util/number', 'svg', {
     /* show: function(target, value) { }, */
     edit: function(target, inlet, valueIn) {
@@ -31,11 +33,15 @@ Rpd.channelrenderer('util/number', 'svg', {
     }
 });
 
+/* ========================= util/random ========================= */
+
 Rpd.noderenderer('util/random', 'svg', function() {
     return {
         size: { width: 40 }
     }
 });
+
+/* ========================= util/bang ========================= */
 
 Rpd.noderenderer('util/bang', 'svg', {
     size: { width: 30, height: 25 },
@@ -54,6 +60,8 @@ Rpd.noderenderer('util/bang', 'svg', {
     }
 });
 
+/* ========================= util/metro ========================= */
+
 Rpd.noderenderer('util/metro', 'svg', {
     size: { width: 30, height: 25 },
     first: function(bodyElm) {
@@ -70,6 +78,8 @@ Rpd.noderenderer('util/metro', 'svg', {
         };
     }
 });
+
+/* ========================= util/palette ========================= */
 
 /* Rpd.noderenderer('util/palette', 'svg', function() {
     var cellSide = 12;
@@ -110,6 +120,8 @@ Rpd.noderenderer('util/metro', 'svg', {
     };
 }); */
 
+/* ========================= util/sum-of-three ========================= */
+
 Rpd.noderenderer('util/sum-of-three', 'svg', function() {
     var textElement;
     return {
@@ -126,6 +138,8 @@ Rpd.noderenderer('util/sum-of-three', 'svg', function() {
         }
     }
 });
+
+/* ========================= util/knob & util/knobs ========================= */
 
 function createKnob(state) {
     var radius = 13;
@@ -261,6 +275,8 @@ Rpd.noderenderer('util/knobs', 'svg', function() {
     };
 });
 
+/* ========================= util/color ========================= */
+
 var toHexColor = RpdUtils.toHexColor;
 
 Rpd.noderenderer('util/color', 'svg', function() {
@@ -283,10 +299,12 @@ Rpd.noderenderer('util/color', 'svg', function() {
     }
 });
 
+/* ========================= util/nodelist ========================= */
+
 var NodeList = RpdUtils.NodeList;
 var getNodeTypesByToolkit = RpdUtils.getNodeTypesByToolkit;
 
-var nodeListSize = { width: 300, height: 300 };
+var nodeListSize = { width: 180, height: 300 };
 
 Rpd.noderenderer('util/nodelist', 'svg', {
     size: nodeListSize,
@@ -305,7 +323,8 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                            .append('g')
                            .attr('transform', 'translate(' + (-1 * nodeListSize.width / 2) + ' '
                                                            + (-1 * nodeListSize.height / 2) + ')');
-        var searchGroup = bodyGroup.append('g').classed('rpd-nodelist-search', true);
+        var searchGroup = bodyGroup.append('g').classed('rpd-nodelist-search', true)
+                                               .attr('transform', 'translate(12, 12)');
 
         var nodeListSvg;
 
@@ -314,23 +333,31 @@ Rpd.noderenderer('util/nodelist', 'svg', {
             buildList: function() {
                 var listElements = [];
 
-                nodeListSvg = bodyGroup.append('svg').classed('rpd-nodelist-list', true);
+                nodeListSvg = bodyGroup.append('svg').classed('rpd-nodelist-list', true)
+                                                     .attr('height', (nodeListSize.height - 50) + 'px')
+                                                     .attr('overflow', 'scroll')
+                                                     .attr('x', '12').attr('y', '45');
+
+                var lastY = 0;
 
                 nodeListSvg.append('g')
                   .call(function(g) {
                       Object.keys(nodeTypesByToolkit).forEach(function(toolkit) {
 
                           g.append('g').classed('rpd-nodelist-toolkit', true)
+                                       .attr('transform', 'translate(0, ' + lastY + ')')
                            .call(function(g) {
                                 if (toolkitIcons[toolkit]) g.append('text').attr('class', 'rpd-nodelist-toolkit-icon').text(toolkitIcons[toolkit]);
                                 g.append('text').attr('class', 'rpd-nodelist-toolkit-name').text(toolkit)
                            });
 
+                          lastY += 20; // find font-size?
+
                           g.append('g').classed('rpd-nodelist-nodetypes', true)
                            .call(function(g) {
                                 nodeTypesByToolkit[toolkit].types.forEach(function(nodeTypeDef) {
                                     var nodeType = nodeTypeDef.fullName;
-                                    g.append('g')
+                                    g.append('g').attr('transform', 'translate(0, ' + lastY + ')')
                                      .call(function(g) {
 
                                           var elmData = { def: nodeTypeDef,
@@ -348,6 +375,8 @@ Rpd.noderenderer('util/nodelist', 'svg', {
 
                                           listElements.push(elmData);
 
+                                          lastY += 20;
+
                                       })
                                 });
                            });
@@ -358,10 +387,19 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                 return listElements;
             },
             createSearchInput: function() {
-                return searchGroup.append('input').attr('type', 'text');
+                var foElm = svgNode('foreignObject');
+                foElm.setAttributeNS(null, 'width', 10);
+                foElm.setAttributeNS(null, 'height', 20);
+                var input = htmlNode('input');
+                input.setAttribute('type', 'text');
+                input.style.width = (nodeListSize.width - 40) + 'px';
+                foElm.appendChild(input);
+                searchGroup.append(foElm);
+                return d3.select(input);
             },
             createClearSearchButton: function() {
-                return searchGroup.append('text').text('x');
+                return searchGroup.append('text').text('x')
+                                  .attr('transform', 'translate(' + (nodeListSize.width - 25) + ', 7)');
             },
             clearSearchInput: function(searchInput) { searchInput.node().value = ''; },
             markSelected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', true); },

@@ -102,7 +102,6 @@ var NodeList = RpdUtils.NodeList;
 var getNodeTypesByToolkit = RpdUtils.getNodeTypesByToolkit;
 
 Rpd.noderenderer('util/nodelist', 'html', {
-    size: {},
     first: function(bodyElm) {
 
         var patch = this.patch;

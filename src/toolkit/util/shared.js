@@ -137,7 +137,7 @@ NodeList.prototype.addCtrlSpaceAndArrows = function() {
     Kefir.merge([
             Kefir.fromEvents(document.body, 'keyup')
                  .filter(function(evt) {
-                     // control / alt / cmd + space
+                     // (control / alt / cmd) + space // TODO: double space (#63)?
                      return (evt.which == 32 || evt.keyCode == 32) && (evt.altKey || evt.metaKey || evt.ctrlKey);
                  }),
             Kefir.fromEvents(search.node(), 'click')
