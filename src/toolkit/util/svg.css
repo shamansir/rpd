@@ -25,4 +25,14 @@
 
 .rpd-util-nodelist .rpd-nodelist-list text {
     text-anchor: start;
+    dominant-baseline: hanging;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list text.rpd-nodelist-icon {
+    text-anchor: middle;
+    dominant-baseline: middle;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-selected .rpd-nodelist-fulltypename {
+    fill: red;
 }

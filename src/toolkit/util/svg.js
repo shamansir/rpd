@@ -307,6 +307,7 @@ var getNodeTypesByToolkit = RpdUtils.getNodeTypesByToolkit;
 var nodeListSize = { width: 180, height: 300 };
 
 var lineHeight = 20;  // find font-size?
+var iconWidth = 11;
 
 Rpd.noderenderer('util/nodelist', 'svg', {
     size: nodeListSize,
@@ -340,7 +341,7 @@ Rpd.noderenderer('util/nodelist', 'svg', {
 
                 nodeListSvg = bodyGroup.append('svg').classed('rpd-nodelist-list', true)
                                                      .attr('height', (nodeListSize.height - 50) + 'px')
-                                                     .attr('overflow', 'scroll')
+                                                     //.attr('overflow', 'scroll')
                                                      .attr('x', '12').attr('y', '45');
 
                 var lastY = 0;
@@ -374,8 +375,11 @@ Rpd.noderenderer('util/nodelist', 'svg', {
 
                                           g.data(elmData);
 
-                                          g.append('text').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType] || ' ');
-                                          g.append('text').attr('class', 'rpd-nodelist-fulltypename').text(nodeTypeDef.toolkit + '/' + nodeTypeDef.name)
+                                          g.append('text').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType] || ' ')
+                                                          .attr('x', (iconWidth / 2)).attr('y', 5);
+                                          g.append('text').attr('class', 'rpd-nodelist-fulltypename')
+                                                          .attr('transform', 'translate(' + (iconWidth + 4) + ',0)')
+                                                          .text(nodeTypeDef.toolkit + '/' + nodeTypeDef.name)
                                           if (nodeDescriptions[nodeType]) {
                                               lastY += lineHeight;
                                               g.append('text').attr('class', 'rpd-nodelist-description')
