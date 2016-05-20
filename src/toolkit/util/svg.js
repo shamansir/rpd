@@ -306,6 +306,8 @@ var getNodeTypesByToolkit = RpdUtils.getNodeTypesByToolkit;
 
 var nodeListSize = { width: 180, height: 300 };
 
+var lineHeight = 20;  // find font-size?
+
 Rpd.noderenderer('util/nodelist', 'svg', {
     size: nodeListSize,
     first: function(bodyElm) {
@@ -321,12 +323,15 @@ Rpd.noderenderer('util/nodelist', 'svg', {
 
         var bodyGroup = d3.select(bodyElm)
                            .append('g')
-                           .attr('transform', 'translate(' + (-1 * nodeListSize.width / 2) + ' '
+                           .attr('transform', 'translate(' + (-1 * nodeListSize.width / 2) + ','
                                                            + (-1 * nodeListSize.height / 2) + ')');
         var searchGroup = bodyGroup.append('g').classed('rpd-nodelist-search', true)
-                                               .attr('transform', 'translate(12, 12)');
+                                               .attr('transform', 'translate(12,12)');
 
         var nodeListSvg;
+
+        var tookitElements = {},
+            listElementsIdxByType = {};
 
         var nodeList = new NodeList({
             getPatch: function() { return patch; },
@@ -344,40 +349,48 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                   .call(function(g) {
                       Object.keys(nodeTypesByToolkit).forEach(function(toolkit) {
 
-                          g.append('g').classed('rpd-nodelist-toolkit', true)
-                                       .attr('transform', 'translate(0, ' + lastY + ')')
+                          var toolkitGroup = g.append('g').classed('rpd-nodelist-toolkit', true)
+                                       .attr('transform', 'translate(0,' + lastY + ')')
                            .call(function(g) {
                                 if (toolkitIcons[toolkit]) g.append('text').attr('class', 'rpd-nodelist-toolkit-icon').text(toolkitIcons[toolkit]);
                                 g.append('text').attr('class', 'rpd-nodelist-toolkit-name').text(toolkit)
                            });
 
-                          lastY += 20; // find font-size?
+                          tookitElements[toolkit] = toolkitGroup;
+
+                          lastY += lineHeight;
 
                           g.append('g').classed('rpd-nodelist-nodetypes', true)
                            .call(function(g) {
                                 nodeTypesByToolkit[toolkit].types.forEach(function(nodeTypeDef) {
                                     var nodeType = nodeTypeDef.fullName;
-                                    g.append('g').attr('transform', 'translate(0, ' + lastY + ')')
+                                    g.append('g').attr('transform', 'translate(0,' + lastY + ')')
                                      .call(function(g) {
 
                                           var elmData = { def: nodeTypeDef,
-                                                          element: g };
+                                                          element: g,
+                                                          hasDescription: nodeDescriptions[nodeType] ? true : false,
+                                                          initialY: lastY };
 
                                           g.data(elmData);
 
                                           g.append('text').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType] || ' ');
                                           g.append('text').attr('class', 'rpd-nodelist-fulltypename').text(nodeTypeDef.toolkit + '/' + nodeTypeDef.name)
                                           if (nodeDescriptions[nodeType]) {
+                                              lastY += lineHeight;
                                               g.append('text').attr('class', 'rpd-nodelist-description')
                                                               .attr('title', nodeDescriptions[nodeType])
+                                                              .attr('transform', 'translate(0,' + lineHeight + ')')
                                                               .text(nodeDescriptions[nodeType]);
                                           }
 
                                           listElements.push(elmData);
 
-                                          lastY += 20;
+                                          listElementsIdxByType[nodeType] = listElements.length - 1;
 
-                                      })
+                                          lastY += lineHeight;
+
+                                      });
                                 });
                            });
 
@@ -385,6 +398,30 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                   });
 
                 return listElements;
+            },
+            recalculateSize: function(listElements) {
+                var lastY = 0;
+
+                Object.keys(nodeTypesByToolkit).forEach(function(toolkit) {
+                    tookitElements[toolkit].attr('transform', 'translate(0,' + lastY + ')');
+
+                    lastY += lineHeight;
+
+                    var elmDataIdx, elmData;
+
+                    nodeTypesByToolkit[toolkit].types.forEach(function(nodeTypeDef) {
+                        elmDataIdx = listElementsIdxByType[nodeTypeDef.fullName];
+                        elmData = listElements[elmDataIdx];
+
+                        if (elmData.visible) {
+                            elmData.element.attr('transform', 'translate(0,' + lastY + ')');
+                            lastY += lineHeight;
+                            if (elmData.hasDescription) lastY += lineHeight;
+                        }
+
+                    });
+
+                });
             },
             createSearchInput: function() {
                 var foElm = svgNode('foreignObject');
@@ -399,7 +436,7 @@ Rpd.noderenderer('util/nodelist', 'svg', {
             },
             createClearSearchButton: function() {
                 return searchGroup.append('text').text('x')
-                                  .attr('transform', 'translate(' + (nodeListSize.width - 25) + ', 7)');
+                                  .attr('transform', 'translate(' + (nodeListSize.width - 25) + ',7)');
             },
             clearSearchInput: function(searchInput) { searchInput.node().value = ''; },
             markSelected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', true); },

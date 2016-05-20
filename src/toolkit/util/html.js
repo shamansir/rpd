@@ -174,6 +174,7 @@ Rpd.noderenderer('util/nodelist', 'html', {
                 return d3.select(bodyElm).append('a').attr('href', '#').text('x');
             },
             clearSearchInput: function(searchInput) { searchInput.node().value = ''; },
+            recalculateSize: function() {},
             markSelected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', true); },
             markDeselected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', false); },
             markAdding: function(elmData) { elmData.element.classed('rpd-nodelist-add-effect', true); },

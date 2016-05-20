@@ -126,8 +126,6 @@ return function(networkRoot, userConfig) {
             // initialized drag-n-drop support (used to allow user drag nodes)
             if (config.nodeMovingAllowed) dnd = new Render.DragAndDrop(svg, style);
 
-            //if (config.renderNodeList) buildNodeList(patchCanvas, nodeTypes, nodeDescriptions);
-
             Kefir.fromEvents(svg.node(), 'selectstart').onValue(preventDefault);
 
         },
@@ -728,19 +726,6 @@ var Connectivity = (function() {
     return Connectivity;
 
 })();
-
-// =============================================================================
-// ============================== NodeMenu =====================================
-// =============================================================================
-
-
-// =============================================================================
-// ============================== NodeList =====================================
-// =============================================================================
-
-/* function buildNodeList(canvas, nodeTypes, nodeDescriptions) {
-
-} */
 
 // =============================================================================
 // =============================== Values ======================================

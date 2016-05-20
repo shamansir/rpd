@@ -30,6 +30,7 @@ function NodeList(conf) {
     this.markDeselected = conf.markDeselected;
     this.markAdding = conf.markAdding;
     this.markAdded = conf.markAdded;
+    this.recalculateSize = conf.recalculateSize;
 
     this.setVisible = conf.setVisible;
     this.setInvisible = conf.setInvisible;
@@ -111,6 +112,7 @@ NodeList.prototype.addSearch = function() {
          .throttle(500)
          .map(function() { return search.node().value; })
          .onValue(function(searchString) {
+             var visibleBefore = nodeList.currentlyVisible;
              nodeList.currentlyVisible = 0;
              nodeList.listElements.forEach(function(elmData) {
                  var index = elmData.def.fullName.indexOf(searchString);
@@ -119,6 +121,8 @@ NodeList.prototype.addSearch = function() {
                  elmData.visible = (index >= 0);
                  if (elmData.visible) nodeList.currentlyVisible++;
              });
+             nodeList.recalculateSize(nodeList.listElements,
+                            visibleBefore, nodeList.currentlyVisible);
          });
 }
 

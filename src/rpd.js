@@ -760,7 +760,7 @@ function make_silent_error(subject, subject_name) {
 
 function make_error(subject, subject_name, message, is_system) {
     return { type: subject_name + '/error', system: is_system || false,
-             subject: subject, message: message }
+             subject: subject, message: message };
 }
 
 function report_error(subject, subject_name, message, is_system) {
