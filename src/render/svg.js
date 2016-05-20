@@ -14,10 +14,6 @@ var defaultConfig = {
     showBoxes: false,
     // are nodes allowed to be dragged
     nodeMovingAllowed: true,
-    // show the list of nodes
-    renderNodeList: true,
-    // is node list collapsed by default, if shown
-    nodeListCollapsed: true,
     // only one connection is allowed to inlet by default
     inletAcceptsMultipleLinks: false,
     // when user opens a projected sub-patch, automatically close its parent patch

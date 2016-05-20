@@ -60,12 +60,10 @@ Options passed to `renderNext` or `patch.render` could belong to one particular 
 
 * `style` — the only required option, sets the [style](../examples.html#styles-and-renderers) used to visualize nodes; you need to ensure to [include this Style code](./setup.html#compilation-options) in your RPD version or else this option will fail;
 * `fullPage` — (`false`) if `true`, network takes the full page, so the target element will be resized to match browser window size when it was resized by user;
-* `linkForm` — (`'line'`) connect inlets to outlets with straight lines or nice curves (set to `'curve'`), curves could not be rendered with HTML renderer, also only certain styles support them (_quartz_, _compact_, _compact-v_);
 * `nodeMovingAllowed` — (`true`) are nodes allowed to be dragged or should they be immovable;
-* `valuesOnHover` — (`false`) show inlet/outlet value only when user hovers over its connector (values are always shown, by default);
-* `renderNodeList` — (`true`) show the list of available node types, where the click on the type item add the node of this type to current patch;
-* `nodeListCollapsed` — (`false`) if showing node list at all, should it be collapsed in the initial state;
 * `inletAcceptsMultipleLinks` — (`false`) could several outlets connect to the same inlet;
+* `linkForm` — (`'line'`) connect inlets to outlets with straight lines or nice curves (set to `'curve'`), curves could not be rendered with HTML renderer, also only certain styles support them (_quartz_, _compact_, _compact-v_);
+* `valuesOnHover` — (`false`) show inlet/outlet value only when user hovers over its connector (values are always shown, by default);
 * `closeParent` — (`false`) when user opens a projected sub-patch, automatically close its parent patch;
 * `effectTime` — (`1000`) milliseconds to show the value update effect on the connector
 * `showTypes` — (`false`) show inlet/outlet types for debugging purposes;
