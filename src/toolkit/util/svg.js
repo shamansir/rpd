@@ -306,7 +306,7 @@ var getNodeTypesByToolkit = RpdUtils.getNodeTypesByToolkit;
 
 var nodeListSize = { width: 180, height: 300 };
 
-var lineHeight = 20;  // find font-size?
+var lineHeight = 22;  // find font-size?
 var iconWidth = 11;
 var inputWidth = nodeListSize.width - 40;
 var inputHeight = 45;
@@ -388,6 +388,9 @@ Rpd.noderenderer('util/nodelist', 'svg', {
 
                                           g.data(elmData);
 
+                                          g.append('rect').attr('class', 'rpd-nodelist-item-bg')
+                                                          .attr('x', 0).attr('y', -5).attr('rx', 5).attr('ry', 5)
+                                                          .attr('width', nodeListSize.width - 20).attr('height', lineHeight - 5)
                                           g.append('text').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType] || ' ')
                                                           .attr('x', (iconWidth / 2)).attr('y', 5);
                                           g.append('text').attr('class', 'rpd-nodelist-fulltypename')
@@ -456,8 +459,10 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                 return d3.select(input);
             },
             createClearSearchButton: function() {
+                searchGroup.append('rect').attr('transform', 'translate(' + (nodeListSize.width - 32) + ',7)')
+                           .attr('width', 12).attr('height', 12).attr('rx', 5);
                 return searchGroup.append('text').text('x')
-                                  .attr('transform', 'translate(' + (nodeListSize.width - 25) + ',7)');
+                                  .attr('transform', 'translate(' + (nodeListSize.width - 26) + ',12)');
             },
             clearSearchInput: function(searchInput) { searchInput.node().value = ''; },
             markSelected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', true); },

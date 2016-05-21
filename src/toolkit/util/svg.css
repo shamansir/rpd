@@ -12,14 +12,28 @@
     stroke: white;
 }
 
-.rpd-util-nodelist .rpd-nodelist-search text {
-    font-size: 1.5em;
-    fill: darkred;
+.rpd-util-nodelist .rpd-nodelist-search {
     cursor: pointer;
-    pointer-events: all;
 }
 
-.rpd-util-nodelist .rpd-nodelist-search text:hover {
+.rpd-util-nodelist .rpd-nodelist-search rect {
+    fill: slategray;
+    transition: fill 0.2s ease-in;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search text {
+    /* font-size: 1.5em; */
+    fill: darkred;
+    pointer-events: all;
+    transition: fill 0.2s ease-in;
+    /* background-color: lightgray; */
+}
+
+.rpd-util-nodelist .rpd-nodelist-search:hover rect {
+    fill: aliceblue;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search:hover text {
     fill: red;
 }
 
@@ -33,16 +47,31 @@
     dominant-baseline: middle;
 }
 
+.rpd-util-nodelist .rpd-nodelist-list text.rpd-nodelist-toolkit-name {
+    font-weight: bold;
+}
+
 .rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-selected .rpd-nodelist-fulltypename {
+    fill: red;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype rect {
+    fill: rgba(96,141,104,0.4);
+    transition: fill 0.2s ease-in;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype:hover rect {
+    fill: rgba(0, 0, 0, 0.15);
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype.rpd-nodelist-selected rect {
+    fill: rgba(0, 0, 0, 0.3);
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype.rpd-nodelist-add-effect rect {
     fill: red;
 }
 
 .rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype:hover {
     cursor: pointer;
-}
-
-.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype:hover .rpd-nodelist-fulltypename,
-.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype:hover .rpd-nodelist-icon,
-.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype:hover .rpd-nodelist-description {
-    fill: darkred;
 }

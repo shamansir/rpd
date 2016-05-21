@@ -35,16 +35,24 @@
 
 .rpd-util-nodelist .rpd-process-target a {
     text-decoration: none;
-    font-size: 1.2em;
+    /* font-size: 1.2em; */
     color: darkred;
+    background-color: slategray;
+    border-radius: 4px;
+    padding: 1px 3px 1px 3px;
+    margin: 0 3px;
+    /* position: relative; */
+    /* top: -1px; */
+    transition: background-color 0.2s ease-in, color 0.2s ease-in;
 }
 
 .rpd-util-nodelist .rpd-process-target a:hover {
     color: red;
+    background-color: aliceblue;
 }
 
 .rpd-util-nodelist input {
-    width: 90%;
+    width: 85%;
 }
 
 .rpd-util-nodelist ul {
@@ -92,6 +100,10 @@
 .rpd-util-nodelist li .rpd-nodelist-fulltypename {
     margin: 3px 3px;
     display: inline-block;
+}
+
+.rpd-util-nodelist li.rpd-nodelist-selected .rpd-nodelist-fulltypename {
+    color: red;
 }
 
 .rpd-util-nodelist li.rpd-nodelist-add-effect {

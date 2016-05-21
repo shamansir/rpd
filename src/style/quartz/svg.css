@@ -170,3 +170,10 @@
     dominant-baseline: central;
     text-anchor: middle;
 }
+
+.rpd-node .rpd-process input, .rpd-node .rpd-value-holder input {
+    border: 1px solid rgba(250,250,250,0.2);
+    color: #111;
+    background-color: rgba(201,201,220,0.6);
+    margin: 4px 4px 9px 0px;
+}
