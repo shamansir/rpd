@@ -51,13 +51,17 @@
     font-weight: bold;
 }
 
+.rpd-util-nodelist .rpd-nodelist-list text.rpd-nodelist-description {
+    font-size: 0.8em;
+}
+
 .rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-selected .rpd-nodelist-fulltypename {
     fill: red;
 }
 
 .rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype rect {
     fill: rgba(96,141,104,0.4);
-    transition: fill 0.2s ease-in;
+    transition: fill 0.1s ease-in;
 }
 
 .rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype:hover rect {

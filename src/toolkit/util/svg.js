@@ -354,8 +354,6 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                 nodeListSvg = foreignDiv.append(svgNode('svg'))
                                         .classed('rpd-nodelist-list', true)
                                         .attr('width', (nodeListSize.width - 12) + 'px');
-                                        //.attr('overflow', 'scroll')
-                                        //.attr('x', '12').attr('y', '45');
                 var lastY = 0;
 
                 nodeListSvg.append('g')
@@ -381,26 +379,29 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                                       .attr('transform', 'translate(0,' + lastY + ')')
                                      .call(function(g) {
 
+                                          var hasDescription = nodeDescriptions[nodeType] ? true : false;
+
                                           var elmData = { def: nodeTypeDef,
                                                           element: g,
-                                                          hasDescription: nodeDescriptions[nodeType] ? true : false,
+                                                          hasDescription: hasDescription,
                                                           initialY: lastY };
 
                                           g.data(elmData);
 
                                           g.append('rect').attr('class', 'rpd-nodelist-item-bg')
                                                           .attr('x', 0).attr('y', -5).attr('rx', 5).attr('ry', 5)
-                                                          .attr('width', nodeListSize.width - 20).attr('height', lineHeight - 5)
+                                                          .attr('width', nodeListSize.width - 20)
+                                                          .attr('height', (hasDescription ? (lineHeight * 1.5) : lineHeight) - 5);
                                           g.append('text').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType] || ' ')
                                                           .attr('x', (iconWidth / 2)).attr('y', 5);
                                           g.append('text').attr('class', 'rpd-nodelist-fulltypename')
                                                           .attr('transform', 'translate(' + (iconWidth + 4) + ',0)')
                                                           .text(nodeTypeDef.toolkit + '/' + nodeTypeDef.name)
-                                          if (nodeDescriptions[nodeType]) {
-                                              lastY += lineHeight;
+                                          if (hasDescription) {
+                                              lastY += (lineHeight * 0.5);
+                                              g.select('rect').attr('title', nodeDescriptions[nodeType]);
                                               g.append('text').attr('class', 'rpd-nodelist-description')
-                                                              .attr('title', nodeDescriptions[nodeType])
-                                                              .attr('transform', 'translate(0,' + lineHeight + ')')
+                                                              .attr('transform', 'translate(3,' + (lineHeight * 0.6) + ')')
                                                               .text(nodeDescriptions[nodeType]);
                                           }
 
@@ -438,7 +439,7 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                         if (elmData.visible) {
                             elmData.element.attr('transform', 'translate(0,' + lastY + ')');
                             lastY += lineHeight;
-                            if (elmData.hasDescription) lastY += lineHeight;
+                            if (elmData.hasDescription) lastY += (lineHeight * 0.5);
                         }
 
                     });
