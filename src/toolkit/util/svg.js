@@ -308,6 +308,7 @@ var nodeListSize = { width: 180, height: 300 };
 
 var lineHeight = 20;  // find font-size?
 var iconWidth = 11;
+var inputHeight = 50;
 
 Rpd.noderenderer('util/nodelist', 'svg', {
     size: nodeListSize,
@@ -339,10 +340,29 @@ Rpd.noderenderer('util/nodelist', 'svg', {
             buildList: function() {
                 var listElements = [];
 
-                nodeListSvg = bodyGroup.append('svg').classed('rpd-nodelist-list', true)
-                                                     .attr('height', (nodeListSize.height - 50) + 'px')
-                                                     //.attr('overflow', 'scroll')
-                                                     .attr('x', '12').attr('y', '45');
+                var bodyRect = bodyGroup.node().getBoundingClientRect();
+
+                var foreignDiv = bodyGroup.append(svgNode('foreignObject'))
+                                       .append(htmlNode('div'))
+                                       .style('width', (nodeListSize.width - 20) + 'px')
+                                       .style('height', (nodeListSize.height - inputHeight) + 'px')
+                                       .style('overflow-y', 'scroll')
+                                       .style('position', 'relative').style('left', bodyRect.left + 'px')
+                                                                     .style('top', (bodyRect.top + inputHeight) + 'px');
+
+                var nodeListSvg = foreignDiv.append(svgNode('svg'))
+                                            .classed('rpd-nodelist-list', true)
+                                            .attr('height', (nodeListSize.width - 12) + 'px')
+                                            .attr('height', (nodeListSize.height - inputHeight) + 'px')
+                                            //.attr('overflow', 'scroll')
+                                            //.attr('x', '12').attr('y', '45');
+
+                setTimeout(function() {
+                    // waits for when the node will be attached to DOM
+                    bodyRect = bodyGroup.node().getBoundingClientRect();
+                    foreignDiv.style('left', (bodyRect.left + 12) + 'px')
+                              .style('top', (bodyRect.top + inputHeight) + 'px')
+                }, 100);
 
                 var lastY = 0;
 
@@ -365,7 +385,8 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                            .call(function(g) {
                                 nodeTypesByToolkit[toolkit].types.forEach(function(nodeTypeDef) {
                                     var nodeType = nodeTypeDef.fullName;
-                                    g.append('g').attr('transform', 'translate(0,' + lastY + ')')
+                                    g.append('g').classed('rpd-nodelist-nodetype', true)
+                                      .attr('transform', 'translate(0,' + lastY + ')')
                                      .call(function(g) {
 
                                           var elmData = { def: nodeTypeDef,
