@@ -308,7 +308,8 @@ var nodeListSize = { width: 180, height: 300 };
 
 var lineHeight = 20;  // find font-size?
 var iconWidth = 11;
-var inputHeight = 50;
+var inputWidth = nodeListSize.width - 40;
+var inputHeight = 45;
 
 Rpd.noderenderer('util/nodelist', 'svg', {
     size: nodeListSize,
@@ -347,22 +348,14 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                                        .style('width', (nodeListSize.width - 20) + 'px')
                                        .style('height', (nodeListSize.height - inputHeight) + 'px')
                                        .style('overflow-y', 'scroll')
-                                       .style('position', 'relative').style('left', bodyRect.left + 'px')
-                                                                     .style('top', (bodyRect.top + inputHeight) + 'px');
+                                       .style('position', 'fixed').style('left', 10 + 'px')
+                                                                  .style('top', inputHeight + 'px');
 
                 nodeListSvg = foreignDiv.append(svgNode('svg'))
                                         .classed('rpd-nodelist-list', true)
                                         .attr('width', (nodeListSize.width - 12) + 'px');
                                         //.attr('overflow', 'scroll')
                                         //.attr('x', '12').attr('y', '45');
-
-                setTimeout(function() {
-                    // waits for when the node will be attached to DOM
-                    bodyRect = bodyGroup.node().getBoundingClientRect();
-                    foreignDiv.style('left', (bodyRect.left + 12) + 'px')
-                              .style('top', (bodyRect.top + inputHeight) + 'px')
-                }, 100);
-
                 var lastY = 0;
 
                 nodeListSvg.append('g')
@@ -370,7 +363,7 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                       Object.keys(nodeTypesByToolkit).forEach(function(toolkit) {
 
                           var toolkitGroup = g.append('g').classed('rpd-nodelist-toolkit', true)
-                                       .attr('transform', 'translate(0,' + lastY + ')')
+                                              .attr('transform', 'translate(0,' + lastY + ')')
                            .call(function(g) {
                                 if (toolkitIcons[toolkit]) g.append('text').attr('class', 'rpd-nodelist-toolkit-icon').text(toolkitIcons[toolkit]);
                                 g.append('text').attr('class', 'rpd-nodelist-toolkit-name').text(toolkit)
@@ -453,11 +446,11 @@ Rpd.noderenderer('util/nodelist', 'svg', {
             },
             createSearchInput: function() {
                 var foElm = svgNode('foreignObject');
-                foElm.setAttributeNS(null, 'width', 10);
+                foElm.setAttributeNS(null, 'width', inputWidth);
                 foElm.setAttributeNS(null, 'height', 20);
                 var input = htmlNode('input');
                 input.setAttribute('type', 'text');
-                input.style.width = (nodeListSize.width - 40) + 'px';
+                input.style.width = inputWidth + 'px';
                 foElm.appendChild(input);
                 searchGroup.append(foElm);
                 return d3.select(input);
