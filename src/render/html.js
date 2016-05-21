@@ -74,13 +74,9 @@ return function(networkRoot, userConfig) {
 
     var style = Rpd.getStyle(config.style, 'html')(config);
 
-    // resize network root on window resize
-    if (config.fullPage) {
-        updateNetworkHeightOnResize(window, document, networkRoot);
-    }
-
     networkRoot = d3.select(networkRoot)
-                    .classed('rpd-network', true);
+                    .classed('rpd-network', true)
+                    .classed('rpd-full-page', config.fullPage);
 
     var canvas;
     /* a.k.a. patch canvas, but not obligatory HTML5 canvas */
@@ -101,6 +97,9 @@ return function(networkRoot, userConfig) {
                        .classed('rpd-canvas', true);
 
             if (config.fullPage) canvas.style('height', docElm.property('clientHeight') + 'px');
+
+            // resize network root on window resize
+            if (config.fullPage) updateCanvasHeightOnResize(window, document, networkRoot, canvas);
 
             canvas.classed('rpd-style-' + config.style, true)
                   .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
@@ -548,15 +547,14 @@ function patchByHash(tree) {
 }
 
 // resize network root on window resize
-function updateNetworkHeightOnResize(_window, _document, networkRoot) {
-    networkRoot = d3.select(networkRoot);
-    //console.log(networkRoot.data());
+function updateCanvasHeightOnResize(_window, _document, networkRoot, canvas) {
     Kefir.fromEvents(_window, 'resize')
          .map(function() { return _window.innerHeight ||
                                   _document.documentElement.clientHeight ||
-                                  +document.body.clientHeight; })
+                                  _document.body.clientHeight; })
          .onValue(function(value) {
              networkRoot.style('height', value + 'px');
+             canvas.style('height', value + 'px');
          });
     networkRoot.data({
         subscribedToResize: true

@@ -72,7 +72,8 @@ return function(networkRoot, userConfig) {
     var style = Rpd.getStyle(config.style, 'svg')(config);
 
     networkRoot = d3.select(networkRoot)
-                    .classed('rpd-network', true);
+                    .classed('rpd-network', true)
+                    .classed('rpd-full-page', config.fullPage);
 
     var svg;
     /* a.k.a. patch canvas, but not obligatory HTML5 canvas */
@@ -90,16 +91,16 @@ return function(networkRoot, userConfig) {
 
             // build canvas element as a target for all further patch modifications
             svg = d3.select(_createSvgElement('svg'))
-                    .attr('width', docElm.property('clientWidth'))
-                    .attr('height', docElm.property('clientHeight'))
+                    .attr('width', networkRoot.property('clientWidth'))
+                    .attr('height', networkRoot.property('clientHeight'))
                     .classed('rpd-canvas', true);
 
             svg.append('rect').attr('class', 'rpd-background');
 
             if (config.fullPage) {
-                svg.attr('width', docElm.property('clientWidth'))
+                svg.attr('width', '100%'/*docElm.property('clientWidth')*/)
                    .attr('height', docElm.property('clientHeight'));
-                svg.select('.rpd-background').attr('width', docElm.property('clientWidth'))
+                svg.select('.rpd-background').attr('width', '100%'/*docElm.property('clientWidth')*/)
                                              .attr('height', docElm.property('clientHeight'));
             }
 
@@ -114,6 +115,9 @@ return function(networkRoot, userConfig) {
                                                 height: docElm.property('clientHeight'),
                                                 patch: update.patch
                                               });
+
+            // resize network root on window resize
+            if (config.fullPage) updateCanvasHeightOnResize(window, document, svg, svg.select('.rpd-background'));
 
             // initialize the node placing (helps in determining the position where new node should be located)
             tree.patchToPlacing[patch.id] = new Render.Placing(style);
@@ -548,7 +552,7 @@ function patchByHash(tree) {
     }
 }
 
-function updateNetworkHeightOnResize(_window, _document, svg) {
+function updateCanvasHeightOnResize(_window, _document, svg, background) {
     // resize canvas element on window resize
     Kefir.fromEvents(_window, 'resize')
          .map(function() { return _window.innerHeight ||
@@ -556,8 +560,10 @@ function updateNetworkHeightOnResize(_window, _document, svg) {
                                   _document.body.clientHeight; })
          .onValue(function(value) {
              svg.attr('height', value);
+             background.attr('height', value);
              svg.data().height = value;
          });
+    svg.data().subscribedToResize = true;
 }
 
 // =============================================================================
