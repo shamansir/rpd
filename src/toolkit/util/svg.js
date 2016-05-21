@@ -350,12 +350,11 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                                        .style('position', 'relative').style('left', bodyRect.left + 'px')
                                                                      .style('top', (bodyRect.top + inputHeight) + 'px');
 
-                var nodeListSvg = foreignDiv.append(svgNode('svg'))
-                                            .classed('rpd-nodelist-list', true)
-                                            .attr('height', (nodeListSize.width - 12) + 'px')
-                                            .attr('height', (nodeListSize.height - inputHeight) + 'px')
-                                            //.attr('overflow', 'scroll')
-                                            //.attr('x', '12').attr('y', '45');
+                nodeListSvg = foreignDiv.append(svgNode('svg'))
+                                        .classed('rpd-nodelist-list', true)
+                                        .attr('width', (nodeListSize.width - 12) + 'px');
+                                        //.attr('overflow', 'scroll')
+                                        //.attr('x', '12').attr('y', '45');
 
                 setTimeout(function() {
                     // waits for when the node will be attached to DOM
@@ -422,6 +421,8 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                       });
                   });
 
+                nodeListSvg.attr('height', lastY + 'px');
+
                 return listElements;
             },
             recalculateSize: function(listElements) {
@@ -447,6 +448,8 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                     });
 
                 });
+
+                nodeListSvg.attr('height', lastY + 'px');
             },
             createSearchInput: function() {
                 var foElm = svgNode('foreignObject');
