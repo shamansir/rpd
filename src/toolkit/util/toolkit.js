@@ -161,9 +161,7 @@ Rpd.nodetype('util/sum-of-three', {
     }
 });
 
-function adaptToState(state, value) {
-    return Math.floor((state.min + ((state.max - state.min) * value)) * 100) / 100;
-}
+var adaptToState = RpdUtils.adaptToState;
 
 Rpd.nodetype('util/knob', {
     inlets: {

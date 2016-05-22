@@ -141,6 +141,8 @@ Rpd.noderenderer('util/sum-of-three', 'svg', function() {
 
 /* ========================= util/knob & util/knobs ========================= */
 
+var adaptToState = RpdUtils.adaptToState;
+
 function createKnob(state) {
     var radius = 13;
     var speed = 1.5;
