@@ -191,3 +191,7 @@
 .rpd-drag-handle, .rpd-remove-button {
     cursor: pointer;
 }
+
+.rpd-util-comment .rpd-process text {
+    fill: lightgray;
+}
