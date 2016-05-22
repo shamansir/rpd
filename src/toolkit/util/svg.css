@@ -2,3 +2,80 @@
 .rpd-outlet.rpd-util-number input[type=number] {
     width: 30px;
 }
+
+.rpd-node.rpd-util-palette .rpd-process .rpd-util-palette-variant * {
+    cursor: pointer;
+    pointer-events: all;
+}
+
+.rpd-util-palette-variant.rpd-util-palette-active-variant {
+    stroke: white;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search {
+    cursor: pointer;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search rect {
+    fill: slategray;
+    transition: fill 0.2s ease-in;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search text {
+    /* font-size: 1.5em; */
+    fill: darkred;
+    pointer-events: all;
+    transition: fill 0.2s ease-in;
+    /* background-color: lightgray; */
+}
+
+.rpd-util-nodelist .rpd-nodelist-search:hover rect {
+    fill: aliceblue;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search:hover text {
+    fill: red;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list text {
+    text-anchor: start;
+    dominant-baseline: hanging;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list text.rpd-nodelist-icon {
+    text-anchor: middle;
+    dominant-baseline: middle;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list text.rpd-nodelist-toolkit-name {
+    font-weight: bold;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list text.rpd-nodelist-description {
+    font-size: 0.8em;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-selected .rpd-nodelist-fulltypename {
+    fill: red;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype rect {
+    fill: rgba(96,141,104,0.4);
+    transition: fill 0.1s ease-in;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype:hover rect {
+    fill: rgba(0, 0, 0, 0.15);
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype.rpd-nodelist-selected rect {
+    fill: rgba(0, 0, 0, 0.3);
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype.rpd-nodelist-add-effect rect {
+    fill: red;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype:hover {
+    cursor: pointer;
+}

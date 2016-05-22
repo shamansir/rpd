@@ -23,6 +23,8 @@ var noderenderers = {}; var NODE_RENDERER_PROPS = [ 'prepare', 'size', 'first', 
 var channelrenderers = {}; var CHANNEL_RENDERER_PROPS = [ 'prepare', 'show', 'edit' ];
 var nodedescriptions = {};
 var styles = {};
+var nodetypeicons = {};
+var toolkiticons = {};
 
 var renderer_registry = {};
 
@@ -41,7 +43,9 @@ function create_rendering_stream() {
     rendering.map(function(rule) {
         return {
             rule: rule,
-            func: function(patch) { patch.render(rule.aliases, rule.targets, rule.config) }
+            func: function(patch) {
+                patch.render(rule.aliases, rule.targets, rule.config)
+            }
         }
     }).scan(function(prev, curr) {
         if (prev) rpdEvent['network/add-patch'].offValue(prev.func);
@@ -180,7 +184,7 @@ Patch.prototype.render = function(aliases, targets, config) {
     for (var i = 0, il = aliases.length, alias; i < il; i++) {
         for (var j = 0, jl = targets.length, target; j < jl; j++) {
             alias = aliases[i]; target = targets[j];
-            if (!renderer_registry[alias]) report_error(this, 'patch', 'Renderer ' + alias + ' is not registered');
+            if (!renderer_registry[alias]) report_system_error(this, 'patch', 'Renderer \'' + alias + '\' is not registered');
             this.renderQueue.emit({ alias: alias, target: target, config: config });
         }
     }
@@ -243,6 +247,7 @@ Patch.prototype.resizeCanvas = function(width, height) {
 
 function Node(type, patch, def, render, callback) {
     this.type = type || 'core/basic';
+    this.toolkit = extract_toolkit(type);
     this.id = short_uid();
     this.patch = patch;
 
@@ -261,7 +266,7 @@ function Node(type, patch, def, render, callback) {
     this.events = create_events_stream(event_types, this.event, 'node', this);
 
     var type_def = adapt_to_obj(nodetypes[this.type], this);
-    if (!type_def) report_error(this, 'node', 'Node type ' + this.type + ' is not registered!');
+    if (!type_def) report_system_error(this, 'node', 'Node type \'' + this.type + '\' is not registered!');
     this.def = join_definitions(NODE_PROPS, def, type_def);
 
     this.render = join_render_definitions(NODE_RENDERER_PROPS, render,
@@ -415,12 +420,13 @@ Node.prototype.move = function(x, y) {
 
 function Inlet(type, node, alias, def, render) {
     this.type = type || 'core/any';
+    this.toolkit = extract_toolkit(type);
     this.id = short_uid();
     this.alias = alias;
     this.node = node;
 
     var type_def = adapt_to_obj(channeltypes[this.type], this);
-    if (!type_def) report_error(this, 'inlet', 'Channel type ' + this.type + ' is not registered!');
+    if (!type_def) report_system_error(this, 'inlet', 'Channel type \'' + this.type + '\' is not registered!');
     this.def = join_definitions(INLET_PROPS, def, type_def);
 
     if (!this.alias) report_error(this, 'inlet', 'Inlet should have an alias');
@@ -438,7 +444,9 @@ function Inlet(type, node, alias, def, render) {
     var updates = orig_updates.merge(this.value);
     if (this.def.tune) updates = this.def.tune(updates);
     if (this.def.accept) updates = updates.flatten(function(v) {
-        if (this.def.accept(v)) { return [v]; } else { orig_updates.error(); return []; }
+        if (this.def.accept(v)) { return [v]; } else {
+            orig_updates.error(make_silent_error(this, 'inlet')); return [];
+        }
     }.bind(this));
     if (this.def.adapt) updates = updates.map(this.def.adapt);
     // rewrite with the modified stream
@@ -482,12 +490,13 @@ Inlet.prototype.allows = function(outlet) {
 
 function Outlet(type, node, alias, def, render) {
     this.type = type || 'core/any';
+    this.toolkit = extract_toolkit(type);
     this.id = short_uid();
     this.alias = alias;
     this.node = node;
 
     var type_def = adapt_to_obj(channeltypes[this.type], this);
-    if (!type_def) report_error(this, 'outlet', 'Channel type ' + this.type + ' is not registered!');
+    if (!type_def) report_system_error(this, 'outlet', 'Channel type \'' + this.type + '\' is not registered!');
     this.def = join_definitions(OUTLET_PROPS, def, type_def);
 
     if (!this.alias) report_error(this, 'outlet', 'Outlet should have an alias');
@@ -524,7 +533,7 @@ function Outlet(type, node, alias, def, render) {
 }
 Outlet.prototype.connect = function(inlet) {
     if (!inlet.allows(this)) {
-        report_error(this, 'outlet', 'Outlet of type ' + this.type + ' is not allowed to connect to inlet of type ' + inlet.type);
+        report_error(this, 'outlet', 'Outlet of type \'' + this.type + '\' is not allowed to connect to inlet of type \'' + inlet.type + '\'');
     }
     var link = new Link(this, inlet);
     this.events.plug(link.events);
@@ -744,10 +753,22 @@ function subscribe(events, handlers) {
           });
 }
 
+function make_silent_error(subject, subject_name) {
+    var err = make_error(subject, subject_name);
+    err.silent = true; return err;
+}
 
-function report_error(subject, subject_name, message) {
-    rpdEvents.plug(Kefir.constantError({ type: subject_name + '/error',
-                                         subject: subject, message: message }));
+function make_error(subject, subject_name, message, is_system) {
+    return { type: subject_name + '/error', system: is_system || false,
+             subject: subject, message: message };
+}
+
+function report_error(subject, subject_name, message, is_system) {
+    rpdEvents.plug(Kefir.constantError(make_error(subject, subject_name, message, is_system)));
+}
+
+function report_system_error(subject, subject_name, message) {
+    report_error(subject, subject_name, message, true);
 }
 
 function short_uid() {
@@ -767,11 +788,16 @@ function inject_render(update, alias) {
 }
 
 function get_style(name, renderer) {
-    if (!name) report_error(null, 'network', 'Unknown style requested: ' + name);
-    if (!styles[name]) report_error(null, 'network', 'Style \'' + name + '\' is not registered');
+    if (!name) report_system_error(null, 'network', 'Unknown style requested: \'' + name + '\'');
+    if (!styles[name]) report_system_error(null, 'network', 'Style \'' + name + '\' is not registered');
     var style = styles[name][renderer];
-    if (!style) report_error(null, 'network', 'Style \'' + name + '\' has no definition for \'' + renderer + '\' renderer');
+    if (!style) report_system_error(null, 'network', 'Style \'' + name + '\' has no definition for \'' + renderer + '\' renderer');
     return style;
+}
+
+function extract_toolkit(type) {
+    var slashPos = type.indexOf('/');
+    return (slashPos >= 0) ? type.substring(0, slashPos) : '';
 }
 
 // =============================================================================
@@ -791,13 +817,13 @@ function renderer(alias, f) {
 }
 
 function noderenderer(type, alias, data) {
-    if (!nodetypes[type]) report_error(null, 'network', 'Node type ' + type + ' is not registered');
+    if (!nodetypes[type]) report_system_error(null, 'network', 'Node type \'' + type + '\' is not registered');
     if (!noderenderers[type]) noderenderers[type] = {};
     noderenderers[type][alias] = data;
 }
 
 function channelrenderer(type, alias, data) {
-    if (!channeltypes[type]) report_error(null, 'network', 'Channel type ' + type + ' is not registered');
+    if (!channeltypes[type]) report_system_error(null, 'network', 'Channel type \'' + type + '\' is not registered');
     if (!channelrenderers[type]) channelrenderers[type] = {};
     channelrenderers[type][alias] = data;
 }
@@ -809,6 +835,14 @@ function nodedescription(type, description) {
 function style(name, renderer, func) {
     if (!styles[name]) styles[name] = {};
     styles[name][renderer] = func;
+}
+
+function toolkiticon(toolkit, icon) {
+    toolkiticons[toolkit] = icon;
+}
+
+function nodetypeicon(type, icon) {
+    nodetypeicons[type] = icon;
 }
 
 nodetype('core/basic', {});
@@ -843,6 +877,9 @@ return {
     'noderenderer': noderenderer,
     'channelrenderer': channelrenderer,
 
+    'toolkiticon': toolkiticon,
+    'nodetypeicon': nodetypeicon,
+
     'import': {}, 'export': {},
 
     'allNodeTypes': nodetypes,
@@ -850,9 +887,12 @@ return {
     'allNodeRenderers': noderenderers,
     'allChannelRenderers': channelrenderers,
     'allNodeDescriptions': nodedescriptions,
+    'allNodeTypeIcons': nodetypeicons,
+    'allToolkitIcons': toolkiticons,
 
     'getStyle': get_style,
     'reportError': report_error,
+    'reportSystemError': report_system_error,
 
     'short_uid': short_uid
 }

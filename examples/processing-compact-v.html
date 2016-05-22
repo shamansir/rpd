@@ -298,8 +298,8 @@
             var patch = Rpd.addPatch('processing');
 
             patch.render('svg', document.body, { style: 'compact-v',
-                                                 fullPage: true,
-                                                 renderNodeList: false });
+                                                 fullPage: true/*,
+                                                 linkForm: 'curve'*/ });
             var sketch = patch.addNode('p5/sketch').move(450, 50);
 
             var random1 = patch.addNode('util/random').move(50, 50);

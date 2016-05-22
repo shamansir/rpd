@@ -3,16 +3,16 @@
     <head>
         <meta charset="utf-8" />
 
-        <!-- gulp html-head ==style quartz ==renderer html ==toolkit util ==root .. -->
+        <!-- gulp html-head ==style quartz ==renderer svg ==toolkit util ==root .. -->
 
         <!-- Built with RPD v0.2.0 <http://shamansir.github.io/rpd> -->
 
         <!-- RPD Renderer: html -->
-        <link rel="stylesheet" href="../src/render/html.css"></style>
-        <!-- RPD Style: quartz (html) -->
-        <link rel="stylesheet" href="../src/style/quartz/html.css"></style>
-        <!-- RPD Toolkit: util (html) -->
-        <link rel="stylesheet" href="../src/toolkit/util/html.css"></style>
+        <link rel="stylesheet" href="../src/render/svg.css"></style>
+        <!-- RPD Style: quartz (svg) -->
+        <link rel="stylesheet" href="../src/style/quartz/svg.css"></style>
+        <!-- RPD Toolkit: util (svg) -->
+        <link rel="stylesheet" href="../src/toolkit/util/svg.css"></style>
 
         <!-- Kefir -->
         <script src="../vendor/kefir.min.js"></script>
@@ -23,22 +23,22 @@
         <script src="../src/d3_tiny.js"></script>
         <!-- RPD Rendering Engine: -->
         <script src="../src/render/shared.js"></script>
-        <!-- RPD Style: quartz (html) -->
-        <script src="../src/style/quartz/html.js"></script>
-        <!-- RPD Renderer: html -->
-        <script src="../src/render/html.js"></script>
+        <!-- RPD Style: quartz (svg) -->
+        <script src="../src/style/quartz/svg.js"></script>
+        <!-- RPD Renderer: svg -->
+        <script src="../src/render/svg.js"></script>
         <!-- RPD Toolkit: util -->
         <script src="../src/toolkit/util/shared.js"></script>
         <script src="../src/toolkit/util/toolkit.js"></script>
-        <!-- RPD Toolkit: util (html) -->
-        <script src="../src/toolkit/util/html.js"></script>
+        <!-- RPD Toolkit: util (svg) -->
+        <script src="../src/toolkit/util/svg.js"></script>
 
     </head>
 
     <body>
         <script src="./util-demo.js"></script>
         <script>
-            buildUtilDemoPatch('html', document.body, { fullPage: true });
+            buildUtilDemoPatch('svg', document.body, { fullPage: true, linkForm: 'curve' });
         </script>
     </body>
 </html>

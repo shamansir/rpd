@@ -1,5 +1,8 @@
 (function() {
 
+var numberToHex = RpdUtils.numberToHex;
+var toHexColor = RpdUtils.toHexColor;
+
 function howMuch(single, plural) {
     return function(list) {
         if (!list) return 'Nothing';
@@ -48,18 +51,10 @@ Rpd.channeltype('util/bang', {
     adapt: function(v) { return v ? {} : null; }
 });
 
-function numberToHex(num) { return (num > 15) ? num.toString(16) : '0' + num.toString(16); }
-
-function toHexColor(color) {
-    return '#' + numberToHex(color.r || 0)
-               + numberToHex(color.g || 0)
-               + numberToHex(color.b || 0);
-}
-
 Rpd.channeltype('util/color', { show: toHexColor });
 
 Rpd.nodetype('util/number', {
-    name: 'number',
+    title: 'number',
     inlets:  { 'user-value': { type: 'util/number', default: 0, hidden: true } },
     outlets: { 'out':     { type: 'util/number' } },
     process: function(inlets) {
@@ -70,7 +65,7 @@ Rpd.nodetype('util/number', {
 Rpd.nodetype('util/random', function() {
     var lastEmitterId = 0;
     return {
-        name: 'random',
+        title: 'random',
         inlets:  { 'min': { type: 'util/number', default: 0 },
                    'max': { type: 'util/number', default: 100 },
                    'period': { type: 'util/time', default: 1000 } },
@@ -89,7 +84,7 @@ Rpd.nodetype('util/random', function() {
 });
 
 Rpd.nodetype('util/bounded-number', {
-    name: 'bounded number',
+    title: 'bounded number',
     inlets:  { 'min': { type: 'util/number', default: 0 },
                'max': { type: 'util/number', default: Infinity },
                'spinner': { type: 'util/number', default: 0, hidden: true } },
@@ -111,7 +106,7 @@ Rpd.channeltype('util/boolean', { default: false,
 Rpd.nodedescription('util/empty',
                     'Does not allow adding any inlets or outlets.');
 Rpd.nodetype('util/empty', {
-    name: 'Empty',
+    title: 'Empty',
     handle: {
         'inlet/add': function() {
             throw new Error('Empty node can not have any inlets');
@@ -138,6 +133,7 @@ Rpd.nodetype('util/metro', {
     }
 });
 
+var DEFAULT_COLOR = { r: 0xED, g: 0x22, b: 0x5D };
 Rpd.nodetype('util/color', {
     inlets: {
         'r': { type: 'util/wholenumber', default: DEFAULT_COLOR.r, label: 'red' },
@@ -151,14 +147,14 @@ Rpd.nodetype('util/color', {
 });
 
 Rpd.nodetype('util/sum-of-three', {
-    name: 'Sum of Three',
+    title: 'Sum of Three',
     inlets: {
-        'a': { type: 'util/number', name: 'A' },
-        'b': { type: 'util/number', name: 'B' },
-        'c': { type: 'util/number', name: 'C' }
+        'a': { type: 'util/number', label: 'A' },
+        'b': { type: 'util/number', label: 'B' },
+        'c': { type: 'util/number', label: 'C' }
     },
     outlets: {
-        'sum': { type: 'util/number', name: '∑' }
+        'sum': { type: 'util/number', label: '∑' }
     },
     process: function(inlets) {
         return { 'sum': (inlets.a || 0) + (inlets.b || 0) + (inlets.c || 0) };
@@ -209,10 +205,10 @@ Rpd.nodetype('util/knobs', {
 /*
 Rpd.nodedescription('util/hot-and-cold', 'An example of cold inlet.');
 Rpd.nodetype('util/hot-and-cold', {
-    name: 'Hot and Cold',
+    title: 'Hot and Cold',
     inlets: {
-        'hot': { type: 'util/number', name: 'A', default: 1 },
-        'cold': { type: 'util/number', name: 'B', default: 1, cold: true },
+        'hot': { type: 'util/number', label: 'A', default: 1 },
+        'cold': { type: 'util/number', label: 'B', default: 1, cold: true },
     },
     outlets: {
         'value': { type: 'util/any' }
@@ -222,5 +218,51 @@ Rpd.nodetype('util/hot-and-cold', {
     }
 });
 */
+
+Rpd.nodedescription('util/log', 'Log everything that goes in to console');
+Rpd.nodetype('util/log', {
+    inlets: {
+        'what': { type: 'core/any' }
+    },
+    process: function(inlets) {
+        console.log(inlets.what);
+    }
+});
+
+/* var howMuchColors = howMuch('color', 'colors');
+Rpd.channeltype('util/palette', { show: function(val) { return howMuchColors(val.colors); } });
+Rpd.channeltype('util/palettes', {});
+
+var PALETTES = [
+    [ '#f00', '#0f0', '#00f' ],
+    [ '#ff0', '#0ff', '#f0f' ],
+    [ '#000', '#666', '#aaa', '#fff' ]
+];
+Rpd.nodetype('util/palette', {
+    inlets: {
+        'selection': { type: 'util/palette', default: { index: 0, colors: PALETTES[0] }, label: 'selection', hidden: true },
+        'palletes': { type: 'util/palettes', default: PALETTES, label: 'palettes', hidden: true }
+    },
+    outlets: {
+        'palette': { type: 'util/palette' }
+    },
+    process: function(inlets) { return { palette: inlets.selection }; }
+}); */
+
+Rpd.nodedescription('util/nodelist', 'Add any node to active patch by type');
+Rpd.nodetype('util/nodelist', { title: 'add nodes' });
+
+Rpd.nodetypeicon('util/number',   '🔢'); // 'ℕ'
+Rpd.nodetypeicon('util/log',      '🗒');
+Rpd.nodetypeicon('util/nodelist', '📃');
+Rpd.nodetypeicon('util/knob',     '🎛');
+Rpd.nodetypeicon('util/knobs',    '🎛');
+Rpd.nodetypeicon('util/color',    '🏮');
+Rpd.nodetypeicon('util/bang',     '⊙');
+Rpd.nodetypeicon('util/metro',    '⊚');
+Rpd.nodetypeicon('util/empty',    '∅');
+//Rpd.nodetypeicon('util/random',   '≟');
+//Rpd.nodetypeicon('util/bounded-number', '⩫');
+//Rpd.nodetypeicon('util/sum-of-three', '∑');
 
 })();

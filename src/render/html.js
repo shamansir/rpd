@@ -16,14 +16,12 @@ var defaultConfig = {
     showBoxes: false,
     // are nodes allowed to be dragged
     nodeMovingAllowed: true,
-    // show the list of nodes
-    renderNodeList: true,
-    // is node list collapsed by default, if shown
-    nodeListCollapsed: true,
     // only one connection is allowed to inlet by default
     inletAcceptsMultipleLinks: false,
     // when user opens a projected sub-patch, automatically close its parent patch
     closeParent: false,
+    // write global errors to console, if it exists
+    logErrors: true,
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
 };
@@ -54,7 +52,8 @@ var tree = {
 var currentPatch;
 
 var nodeTypes = Rpd.allNodeTypes,
-    nodeDescriptions = Rpd.allNodeDescriptions;
+    nodeDescriptions = Rpd.allNodeDescriptions,
+    nodeTypeIcons = Rpd.allNodeTypeIcons;
 
 function HtmlRenderer(patch) {
 
@@ -62,15 +61,22 @@ return function(networkRoot, userConfig) {
 
     var config = mergeConfig(userConfig, defaultConfig);
 
+    // FIXME: move to some external function
+    Rpd.events.onError(function(error) {
+        if (!config.logErrors) return;
+        if (error.silent) return;
+        if (error.system) {
+            console.error(new Error(error.type + ': ' + error.message));
+        } else {
+            console.log('Error: ', error.subject, error.type, error.subject);
+        }
+    });
+
     var style = Rpd.getStyle(config.style, 'html')(config);
 
-    // resize network root on window resize
-    if (config.fullPage) {
-        updateNetworkHeightOnResize(window, document, networkRoot);
-    }
-
     networkRoot = d3.select(networkRoot)
-                    .classed('rpd-network', true);
+                    .classed('rpd-network', true)
+                    .classed('rpd-full-page', config.fullPage);
 
     var canvas;
     /* a.k.a. patch canvas, but not obligatory HTML5 canvas */
@@ -92,6 +98,9 @@ return function(networkRoot, userConfig) {
 
             if (config.fullPage) canvas.style('height', docElm.property('clientHeight') + 'px');
 
+            // resize network root on window resize
+            if (config.fullPage) updateCanvasHeightOnResize(window, document, networkRoot, canvas);
+
             canvas.classed('rpd-style-' + config.style, true)
                   .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
                   .classed('rpd-show-boxes', config.showBoxes);
@@ -108,8 +117,6 @@ return function(networkRoot, userConfig) {
 
             // initialized drag-n-drop support (used to allow user drag nodes)
             if (config.nodeMovingAllowed) dnd = new Render.DragAndDrop(canvas, style);
-
-            if (config.renderNodeList) buildNodeList(canvas, nodeTypes, nodeDescriptions);
 
             Kefir.fromEvents(canvas.node(), 'selectstart').onValue(preventDefault);
         },
@@ -164,7 +171,7 @@ return function(networkRoot, userConfig) {
             var render = update.render;
 
             var nodeBox = d3.select(document.createElement('div')).attr('class', 'rpd-node-box');
-            var styledNode = style.createNode(node, render, nodeDescriptions[node.type]);
+            var styledNode = style.createNode(node, render, nodeDescriptions[node.type], nodeTypeIcons[node.type]);
             var nodeElm = nodeBox.append(styledNode.element);
 
             nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
@@ -540,15 +547,14 @@ function patchByHash(tree) {
 }
 
 // resize network root on window resize
-function updateNetworkHeightOnResize(_window, _document, networkRoot) {
-    networkRoot = d3.select(networkRoot);
-    //console.log(networkRoot.data());
+function updateCanvasHeightOnResize(_window, _document, networkRoot, canvas) {
     Kefir.fromEvents(_window, 'resize')
          .map(function() { return _window.innerHeight ||
                                   _document.documentElement.clientHeight ||
-                                  +document.body.clientHeight; })
+                                  _document.body.clientHeight; })
          .onValue(function(value) {
              networkRoot.style('height', value + 'px');
+             canvas.style('height', value + 'px');
          });
     networkRoot.data({
         subscribedToResize: true
@@ -717,100 +723,6 @@ var Connectivity = (function() {
     return Connectivity;
 
 })();
-
-// =============================================================================
-// ============================== NodeMenu =====================================
-// =============================================================================
-
-
-// =============================================================================
-// ============================== NodeList =====================================
-// =============================================================================
-
-function buildNodeList(canvas, nodeTypes, nodeDescriptions) {
-
-    var toolkits = {};
-
-    var toolkitElements = {},
-        nodeTitleElements = {},
-        nodeDescriptionElements = {};
-
-    Object.keys(nodeTypes).forEach(function(nodeType) { // TODO: use d3.enter() here
-        var typeId = nodeType.split('/');
-        var toolkit = typeId[0]; var typeName = typeId[1];
-        if (!toolkits[toolkit]) toolkits[toolkit] = {};
-        toolkits[toolkit][typeName] = nodeTypes[nodeType];
-    });
-
-    var listRoot = d3.select(document.createElement('dl')).attr('class', 'rpd-nodelist');
-
-    var toolkitNodeTypes, typeDef;
-
-    Object.keys(toolkits).forEach(function(toolkit) { // TODO: use d3.enter() here
-
-        var titleElm = listRoot.append('dd').attr('class', 'rpd-toolkit-name').text(toolkit);
-
-        listRoot.append('dt')
-                .append('dl').attr('class', 'rpd-toolkit').data({ titleElm: titleElm,
-                                                                      nodeTypes: toolkits[toolkit],
-                                                                      toolkit: toolkit })
-                .call(function(toolkitList) {
-                    // toolkit title element, could expand or collapse the types in this toolkit
-                    var titleElm = toolkitList.data().titleElm;
-                    addClickSwitch(titleElm.node(),
-                                   function() { toolkitList.classed('rpd-collapsed', true) },
-                                   function() { toolkitList.classed('rpd-collapsed', false); },
-                                   true);
-                })
-                .call(function(dl) {
-                    var toolkit = dl.data().toolkit,
-                        toolkitNodeTypes = dl.data().nodeTypes;
-                    Object.keys(toolkitNodeTypes).forEach(function(typeName) { // TODO: use d3.enter() here
-                        var nodeType = toolkit + '/' + typeName;
-
-                        // node type title
-                        var titleElm = dl.append('dd').attr('class', 'rpd-node-title').text(typeName);
-
-                        // add node button
-                        titleElm.append('span').attr('class', 'rpd-add-node').text('+ Add').data(nodeType)
-                                .call(function(addButton) {
-                                    Kefir.fromEvents(addButton.node(), 'click')
-                                         .map(stopPropagation)
-                                         .onValue(function() {
-                                             currentPatch.addNode(addButton.data());
-                                         });
-                                });
-
-                        // node type description, could be expanded or collapsed by clicking on node type title
-                        dl.append('dd').attr('class', 'rpd-node-description').data({ titleElm: titleElm })
-                                       .text(nodeDescriptions[nodeType] || '[No Description]')
-                                       .classed('rpd-collapsed', true)
-                                       .call(function(descElm) {
-                                           addClickSwitch(descElm.data().titleElm.node(),
-                                               function() { descElm.classed('rpd-collapsed', true) },
-                                               function() { descElm.classed('rpd-collapsed', false); });
-                                       });
-                    });
-                });
-
-    });
-
-    canvas.append(listRoot.node());
-
-    // the button to collapse this node list
-    canvas.append(d3.select(document.createElement('span'))
-                    .attr('class', 'rpd-collapse-nodelist')
-                    .text('>>')
-                    .call(function(collapseButton) {
-                        addClickSwitch(collapseButton.node(),
-                                       function() { collapseButton.classed('rpd-collapsed', true).text('<<');
-                                                    listRoot.classed('rpd-collapsed', true); },
-                                       function() { collapseButton.classed('rpd-collapsed', false).text('>>');
-                                                    listRoot.classed('rpd-collapsed', false); },
-                                       true);
-                    }).node());
-
-}
 
 // =============================================================================
 // =============================== Values ======================================

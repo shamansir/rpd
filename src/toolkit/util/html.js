@@ -50,6 +50,7 @@ Rpd.noderenderer('util/number', 'html', {
 Rpd.noderenderer('util/bounded-number', 'html', function() {
     var spinnerElm, spinner;
     return {
+        size: { width: 25 },
         first: function(bodyElm) {
             spinnerElm = document.createElement('span');
             spinnerElm.classList.add('rpd-util-spinner');
@@ -70,7 +71,7 @@ Rpd.noderenderer('util/bounded-number', 'html', function() {
 });
 
 Rpd.noderenderer('util/sum-of-three', 'html', {
-    size: { width: null, height: 200 },
+    size: { width: null, height: 80 },
     always: function(bodyElm, inlets, outlets) {
         bodyElm.innerHTML = '∑ (' + (inlets.a || '?') + ', '
                                   + (inlets.b || '?') + ', '
@@ -78,33 +79,116 @@ Rpd.noderenderer('util/sum-of-three', 'html', {
     }
 });
 
-/* Rpd.noderenderer('util/sum-of-three-with-body', 'html', function() {
-    var sumContent;
+var toHexColor = RpdUtils.toHexColor;
+
+Rpd.noderenderer('util/color', 'html', function() {
+    var colorElm;
     return {
+        size: { width: 30, height: 30 },
         first: function(bodyElm) {
-            var cValInput = document.createElement('input');
-            cValInput.style.display = 'block';
-            cValInput.type = 'number';
-            cValInput.min = 0;
-            cValInput.max = 10;
-            bodyElm.appendChild(cValInput);
-            sumContent = document.createElement('span');
-            bodyElm.appendChild(sumContent);
-            return { c:
-                        { default: function() { cValInput.value = 0; return 0; },
-                          valueOut: Kefir.fromEvents(cValInput, 'change')
-                                         .map(function() { return cValInput.value; })
-                        }
-                   };
+            colorElm = document.createElement('span');
+            colorElm.classList.add('rpd-util-color-display');
+            bodyElm.appendChild(colorElm);
         },
         always: function(bodyElm, inlets, outlets) {
-            sumContent.innerHTML = sumContent.textContent =
-                    '∑ (' + (inlets.a || '0') + ', '
-                          + (inlets.b || '0') + ', '
-                          + (inlets.c || '0') + ') = ' + (outlets.sum || '?');
+            colorElm.style.backgroundColor = toHexColor(outlets.color);
         }
-    };
-}); */
+    }
+});
+
+var d3 = d3 || d3_tiny;
+
+var NodeList = RpdUtils.NodeList;
+var getNodeTypesByToolkit = RpdUtils.getNodeTypesByToolkit;
+
+Rpd.noderenderer('util/nodelist', 'html', {
+    first: function(bodyElm) {
+
+        var patch = this.patch;
+
+        var nodeTypes = Rpd.allNodeTypes,
+            nodeDescriptions = Rpd.allNodeDescriptions,
+            toolkitIcons = Rpd.allToolkitIcons,
+            nodeTypeIcons = Rpd.allNodeTypeIcons;
+
+        var nodeTypesByToolkit = getNodeTypesByToolkit(nodeTypes);
+
+        var nodeList = new NodeList({
+            getPatch: function() { return patch; },
+            buildList: function() {
+                var listElements = [];
+
+                // build the list html structure
+                d3.select(bodyElm)
+                  .append('dl')
+                  .call(function(dl) {
+                      Object.keys(nodeTypesByToolkit).forEach(function(toolkit) {
+
+                          dl.append('dt')
+                            .call(function(dt) {
+                                if (toolkitIcons[toolkit]) dt.append('span').attr('class', 'rpd-nodelist-toolkit-icon').text(toolkitIcons[toolkit]);
+                                dt.append('span').attr('class', 'rpd-nodelist-toolkit-name').text(toolkit)
+                            });
+
+                          dl.append('dd')
+                            .append('ul')
+                            .call(function(ul) {
+                                nodeTypesByToolkit[toolkit].types.forEach(function(nodeTypeDef) {
+                                    var nodeType = nodeTypeDef.fullName;
+                                    ul.append('li')
+                                      .call(function(li) {
+
+                                          var elmData = { def: nodeTypeDef,
+                                                          element: li };
+
+                                          li.data(elmData);
+
+                                          li.append('span').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType] || String.fromCharCode(160));
+                                          li.append('span').attr('class', 'rpd-nodelist-fulltypename')
+                                            .call(function(span) {
+                                                span.append('span').attr('class', 'rpd-nodelist-toolkit').text(nodeTypeDef.toolkit);
+                                                span.append('span').attr('class', 'rpd-nodelist-separator').text('/');
+                                                span.append('span').attr('class', 'rpd-nodelist-typename').text(nodeTypeDef.name);
+                                            })
+                                          if (nodeDescriptions[nodeType]) {
+                                              li.append('span').attr('class', 'rpd-nodelist-description')
+                                                               .attr('title', nodeDescriptions[nodeType])
+                                                               .text(nodeDescriptions[nodeType]);
+                                          }
+
+                                          listElements.push(elmData);
+
+                                      })
+                                });
+                            });
+
+                      });
+                  });
+
+                return listElements;
+            },
+            createSearchInput: function() {
+                return d3.select(bodyElm).append('input').attr('type', 'text');
+            },
+            createClearSearchButton: function() {
+                return d3.select(bodyElm).append('a').attr('href', '#').text('x');
+            },
+            clearSearchInput: function(searchInput) { searchInput.node().value = ''; },
+            recalculateSize: function() {},
+            markSelected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', true); },
+            markDeselected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', false); },
+            markAdding: function(elmData) { elmData.element.classed('rpd-nodelist-add-effect', true); },
+            markAdded: function(elmData) { elmData.element.classed('rpd-nodelist-add-effect', false); },
+            setVisible: function(elmData) { elmData.element.style('display', 'list-item'); },
+            setInvisible: function(elmData) { elmData.element.style('display', 'none'); }
+        });
+
+        nodeList.addOnClick();
+        nodeList.addSearch();
+        nodeList.addCtrlSpaceAndArrows();
+
+    }
+});
 
 function extractPos(evt) { return { x: evt.clientX,
                                     y: evt.clientY }; };

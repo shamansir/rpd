@@ -26,7 +26,7 @@ return {
                             .classed('rpd-patch', true).node() };
     },
 
-    createNode: function(node, render, description) {
+    createNode: function(node, render, description, icon) {
 
         var minContentSize = render.size ? { width: render.size.width || 100,
                                              height: render.size.height || 40 }
@@ -169,7 +169,8 @@ return {
             group.append('circle').attr('class', 'rpd-connector')
                                   .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
             group.append('g').attr('class', 'rpd-value-holder')
-                 .attr('transform', 'translate(-15,0)')
+                 .attr('transform', 'translate(-8,0)')
+                 .attr('text-anchor', 'end')
                  .append('text').attr('class', 'rpd-value');
             group.append('text').attr('class', 'rpd-name').text(inlet.def.label || inlet.alias)
                                 .attr('x', 10).attr('y', 0);
@@ -198,12 +199,17 @@ return {
     },
 
     createLink: function(link) {
-        var linkElm = d3.select(_createSvgElement('line'))
-                        .attr('class', 'rpd-link');
+        var linkElm = d3.select(_createSvgElement(
+                            (config.linkForm && (config.linkForm == 'curve')) ? 'path' : 'line'
+                        )).attr('class', 'rpd-link');
         return { element: linkElm.node(),
                  rotate: function(x0, y0, x1, y1) {
-                     linkElm.attr('x1', x0).attr('y1', y0)
-                            .attr('x2', x1).attr('y2', y1);
+                     if (config.linkForm && (config.linkForm == 'curve')) {
+                        linkElm.attr('d', bezierByH(x0, y0, x1, y1));
+                    } else {
+                        linkElm.attr('x1', x0).attr('y1', y0)
+                               .attr('x2', x1).attr('y2', y1);
+                    }
                  },
                  noPointerEvents: function() {
                      linkElm.style('pointer-events', 'none');
@@ -236,6 +242,15 @@ return {
     }
 
 };
+
+function bezierByH(x0, y0, x1, y1) {
+    var mx = x0 + (x1 - x0) / 2;
+
+    return 'M' + x0 + ' ' + y0 + ' '
+         + 'C' + mx + ' ' + y0 + ' '
+               + mx + ' ' + y1 + ' '
+               + x1 + ' ' + y1;
+}
 
 function roundedRect(x, y, width, height, rtl, rtr, rbr, rbl) {
     return "M" + x + "," + y

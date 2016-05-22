@@ -91,6 +91,63 @@ describe('building: node', function() {
         });
     });
 
+    it('allows to override processing function', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty', {
+                process: function(inlets) {
+                    return {
+                        'out': inlets.in * 2
+                    }
+                }
+            });
+            var inlet = node.addInlet('spec/any', 'in');
+            var outlet = node.addOutlet('spec/any', 'out');
+
+            updateSpy.calls.reset();
+
+            inlet.receive(2);
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'outlet/update',
+                                           outlet: outlet,
+                                           value: 4 }));
+        });
+    });
+
+    it('allows to add inlets from node definition', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty', {
+                inlets: {
+                    'in': { type: 'spec/any' }
+                }
+            });
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-inlet',
+                                           inlet: jasmine.objectContaining({
+                                               type: 'spec/any'
+                                           })
+                                        }));
+        });
+    });
+
+    it('allows to add outlets from node definition', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty', {
+                outlets: {
+                    'out': { type: 'spec/any' }
+                }
+            });
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/add-outlet',
+                                           outlet: jasmine.objectContaining({
+                                               type: 'spec/any'
+                                           })
+                                        }));
+        });
+    });
+
     describe('allows to subscribe node events', function() {
 
         it('node/add-inlet', function() {
@@ -113,26 +170,6 @@ describe('building: node', function() {
                     }));
             });
         });
-
-    });
-
-    xdescribe('overriding channel type definition', function() {
-
-        xit('overriding inlet allow function', function() {});
-
-        xit('overriding inlet accept function', function() {});
-
-        xit('overriding inlet adapt function', function() {});
-
-        xit('overriding inlet show function', function() {});
-
-        xit('overriding inlet tune function', function() {});
-
-        xit('overriding outlet tune function', function() {});
-
-        xit('subscribing to inlet events', function() {});
-
-        xit('subscribing to outlet events', function() {});
 
     });
 

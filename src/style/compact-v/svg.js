@@ -34,7 +34,7 @@ return {
         };
     },
 
-    createNode: function(node, render, description) {
+    createNode: function(node, render, description, icon) {
         var minContentSize = render.size ? { width: render.size.width || 60,
                                              height: render.size.height || 25 }
                                          : { width: 60, height: 25 };
@@ -199,12 +199,17 @@ return {
     },
 
     createLink: function(link) {
-        var linkElm = d3.select(_createSvgElement('line'))
-                        .attr('class', 'rpd-link');
+        var linkElm = d3.select(_createSvgElement(
+                            (config.linkForm && (config.linkForm == 'curve')) ? 'path' : 'line'
+                        )).attr('class', 'rpd-link');
         return { element: linkElm.node(),
                  rotate: function(x0, y0, x1, y1) {
-                     linkElm.attr('x1', x0).attr('y1', y0)
-                            .attr('x2', x1).attr('y2', y1);
+                     if (config.linkForm && (config.linkForm == 'curve')) {
+                        linkElm.attr('d', bezierByH(x0, y0, x1, y1));
+                    } else {
+                        linkElm.attr('x1', x0).attr('y1', y0)
+                               .attr('x2', x1).attr('y2', y1);
+                    }
                  },
                  noPointerEvents: function() {
                      linkElm.style('pointer-events', 'none');
@@ -238,5 +243,14 @@ return {
 
 
 };
+
+function bezierByH(x0, y0, x1, y1) {
+    var mx = x0 + (x1 - x0) / 2;
+
+    return 'M' + x0 + ' ' + y0 + ' '
+         + 'C' + mx + ' ' + y0 + ' '
+               + mx + ' ' + y1 + ' '
+               + x1 + ' ' + y1;
+}
 
 } })());

@@ -14,14 +14,12 @@ var defaultConfig = {
     showBoxes: false,
     // are nodes allowed to be dragged
     nodeMovingAllowed: true,
-    // show the list of nodes
-    renderNodeList: true,
-    // is node list collapsed by default, if shown
-    nodeListCollapsed: true,
     // only one connection is allowed to inlet by default
     inletAcceptsMultipleLinks: false,
     // when user opens a projected sub-patch, automatically close its parent patch
     closeParent: false,
+    // write global errors to console, if it exists
+    logErrors: true,
     // a time for value update or error effects on inlets/outlets
     effectTime: 1000
 };
@@ -46,7 +44,8 @@ var tree = {
 var currentPatch;
 
 var nodeTypes = Rpd.allNodeTypes,
-    nodeDescriptions = Rpd.allNodeDescriptions;
+    nodeDescriptions = Rpd.allNodeDescriptions,
+    nodeTypeIcons = Rpd.allNodeTypeIcons;
 
 function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);
@@ -58,10 +57,23 @@ return function(networkRoot, userConfig) {
 
     var config = mergeConfig(userConfig, defaultConfig);
 
+    // FIXME: move to some external function (should be called once when renderer is
+    // registered and Rpd.events is ready)
+    Rpd.events.onError(function(error) {
+        if (!config.logErrors) return;
+        if (error.silent) return;
+        if (error.system) {
+            console.error(new Error(error.type + ': ' + error.message));
+        } else {
+            console.log('Error: ', error.subject, error.type, error.subject);
+        }
+    });
+
     var style = Rpd.getStyle(config.style, 'svg')(config);
 
     networkRoot = d3.select(networkRoot)
-                    .classed('rpd-network', true);
+                    .classed('rpd-network', true)
+                    .classed('rpd-full-page', config.fullPage);
 
     var svg;
     /* a.k.a. patch canvas, but not obligatory HTML5 canvas */
@@ -79,16 +91,16 @@ return function(networkRoot, userConfig) {
 
             // build canvas element as a target for all further patch modifications
             svg = d3.select(_createSvgElement('svg'))
-                    .attr('width', docElm.property('clientWidth'))
-                    .attr('height', docElm.property('clientHeight'))
+                    .attr('width', networkRoot.property('clientWidth'))
+                    .attr('height', networkRoot.property('clientHeight'))
                     .classed('rpd-canvas', true);
 
             svg.append('rect').attr('class', 'rpd-background');
 
             if (config.fullPage) {
-                svg.attr('width', docElm.property('clientWidth'))
+                svg.attr('width', '100%'/*docElm.property('clientWidth')*/)
                    .attr('height', docElm.property('clientHeight'));
-                svg.select('.rpd-background').attr('width', docElm.property('clientWidth'))
+                svg.select('.rpd-background').attr('width', '100%'/*docElm.property('clientWidth')*/)
                                              .attr('height', docElm.property('clientHeight'));
             }
 
@@ -104,6 +116,9 @@ return function(networkRoot, userConfig) {
                                                 patch: update.patch
                                               });
 
+            // resize network root on window resize
+            if (config.fullPage) updateCanvasHeightOnResize(window, document, svg, svg.select('.rpd-background'));
+
             // initialize the node placing (helps in determining the position where new node should be located)
             tree.patchToPlacing[patch.id] = new Render.Placing(style);
             tree.patchToLinks[patch.id] = new VLinks();
@@ -114,8 +129,6 @@ return function(networkRoot, userConfig) {
 
             // initialized drag-n-drop support (used to allow user drag nodes)
             if (config.nodeMovingAllowed) dnd = new Render.DragAndDrop(svg, style);
-
-            //if (config.renderNodeList) buildNodeList(patchCanvas, nodeTypes, nodeDescriptions);
 
             Kefir.fromEvents(svg.node(), 'selectstart').onValue(preventDefault);
 
@@ -179,7 +192,7 @@ return function(networkRoot, userConfig) {
                 limitSrc = tree.patches[currentPatch.id].data();
 
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
-            var styledNode = style.createNode(node, render, nodeDescriptions[node.type]);
+            var styledNode = style.createNode(node, render, nodeDescriptions[node.type], nodeTypeIcons[node.type]);
             var nodeElm = nodeBox.append(styledNode.element);
 
             // store targets information and node canvas element itself
@@ -539,7 +552,7 @@ function patchByHash(tree) {
     }
 }
 
-function updateNetworkHeightOnResize(_window, _document, svg) {
+function updateCanvasHeightOnResize(_window, _document, svg, background) {
     // resize canvas element on window resize
     Kefir.fromEvents(_window, 'resize')
          .map(function() { return _window.innerHeight ||
@@ -547,8 +560,10 @@ function updateNetworkHeightOnResize(_window, _document, svg) {
                                   _document.body.clientHeight; })
          .onValue(function(value) {
              svg.attr('height', value);
+             background.attr('height', value);
              svg.data().height = value;
          });
+    svg.data().subscribedToResize = true;
 }
 
 // =============================================================================
@@ -717,19 +732,6 @@ var Connectivity = (function() {
     return Connectivity;
 
 })();
-
-// =============================================================================
-// ============================== NodeMenu =====================================
-// =============================================================================
-
-
-// =============================================================================
-// ============================== NodeList =====================================
-// =============================================================================
-
-/* function buildNodeList(canvas, nodeTypes, nodeDescriptions) {
-
-} */
 
 // =============================================================================
 // =============================== Values ======================================

@@ -41,6 +41,12 @@
     color: #eee;
 }
 
+.rpd-node .rpd-title .rpd-icon {
+    position: relative;
+    top: 1px;
+    padding-right: 2px;
+}
+
 .rpd-node .rpd-type {
     margin-left: 4px;
     font-size: 0.8em;

@@ -22,7 +22,7 @@ return {
         };
     },
 
-    createNode: function(node, render, description) {
+    createNode: function(node, render, description, icon) {
 
         var nodeElm = d3.select(document.createElement('table'))
                         .attr('class', 'rpd-node');
@@ -41,6 +41,7 @@ return {
                          .append('th').attr('colspan', 3)
                          .call(function(th) {
                              if (config.showTypes) th.append('span').attr('class', 'rpd-type').text(node.type);
+                             if (icon) th.append('span').attr('class', 'rpd-icon').text(icon);
                              th.append('span').attr('class', 'rpd-name').text(node.def.title || node.type);
                              // add description to be shown on hover
                              th.attr('title', description ? (description + ' (' + node.type + ')') : node.type);

@@ -1,6 +1,6 @@
 .rpd-patch {
     font-family: 'PT Mono', 'Andale Mono', 'Fira mono', 'Menlo', sans-serif;
-    font-size: 0.7em;
+    font-size: 10px;
 }
 
 .rpd-background {
@@ -98,6 +98,7 @@
 .rpd-link {
     stroke: rgba(250,250,250,0.8);
     stroke-width: 1;
+    fill: transparent;
 }
 
 .rpd-link.rpd-disabled {
@@ -168,4 +169,11 @@
 .rpd-node .rpd-process text {
     dominant-baseline: central;
     text-anchor: middle;
+}
+
+.rpd-node .rpd-process input, .rpd-node .rpd-value-holder input {
+    border: 1px solid rgba(250,250,250,0.2);
+    color: #111;
+    background-color: rgba(201,201,220,0.6);
+    margin: 4px 4px 9px 0px;
 }

@@ -72,8 +72,7 @@
 
     <script>
 
-        Rpd.renderNext('html', document.getElementById('target-1'), { style: 'quartz',
-                                                                      renderNodeList: false });
+        Rpd.renderNext('html', document.getElementById('target-1'), { style: 'quartz' });
         var firstTargetOne = Rpd.addPatch('target-1-1');
         firstTargetOne.addNode('util/random');
         firstTargetOne.addNode('util/random');
@@ -81,8 +80,7 @@
         firstTargetTwo.addNode('util/random');
         firstTargetTwo.addNode('util/random');
 
-        Rpd.renderNext('html', document.getElementById('target-2'), { style: 'quartz',
-                                                                      renderNodeList: false });
+        Rpd.renderNext('html', document.getElementById('target-2'), { style: 'quartz' });
         var secondTargetOne = Rpd.addPatch('target-2-1');
         secondTargetOne.addNode('util/random');
         var secondTargetTwo = Rpd.addClosedPatch('target-2-2');

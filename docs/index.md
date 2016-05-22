@@ -17,7 +17,7 @@ id: introduction
 
 RPD is the abbreviation for _Reactive Patch Development_...
 
-...or, actually, whatever you decide. It is the library which brings node-based user interfaces to the modern web, in full their power (if you know how to use it) and in a very elegant and minimalistic way. _Node-based_ is something like the thing you (probably) see above, (almost) nothing to do with [node.js][node-js]. If you are wondering yet, what that means, _Node-based_ interface is the one where man may visually connect different low-level components using their inputs and outputs and observe the result in real time, take <!-- consider? --> PureData, QuartzComposer, VVVV, NodeBox, Reaktor etc. for example.
+...or, actually, whatever you decide. It is the library which brings node-based user interfaces to the modern web, in full their power (when you know how to use it) and in a very elegant and minimalistic way. _Node-based_ is something like the thing you'll (probably) see above if you move your mouse cursor, or any other pointing device, above the RPD logo — (almost) nothing to do with [node.js][node-js]. Some people also say that with such user interfaces they do _Flow Programming_. If you are wondering yet, what that means, _Node-based_ interface is the one where man may visually connect different low-level components using their inputs and outputs and observe the result in real time, take <!-- consider? --> PureData, QuartzComposer, VVVV, NodeBox, Reaktor etc. for example.
 
 <!-- TODO: video or some example patch, processing patch from vimeo? -->
 
@@ -29,13 +29,58 @@ show streams and simple values -->
 _Minimalism_ is another goal of this library, which implies the RPD library size
 is kept as minimal as possible, so your customer may load the interface you created using 3G internet or wi-fi limited to some very low speed. Don't ask me why may it happen, it still happens everywhere. Minimalism is here not in paranoid amounts, though&mdash;if feature requires a bit more code, or some task gets very complex with less code, we for sure will add some more code for the sake of simplicity.
 
-The default configuration with [SVG renderer][renderer-comp-section] and [Quartz style][style-comp-section] included takes _11KB_ when compiled, minimized and gzipped! (30KB not gzipped). Though you also need [latest Kefir.js](roman-pominov), the only required dependency to make it work, which adds just ~10KB more, since [Kefir.js author][roman-pominov] also likes minimalism in code.
+The default configuration with [SVG renderer][renderer-comp-section] and [Quartz style][style-comp-section] included takes _11KB_ when compiled, minimized and gzipped! (30KB not gzipped). Though you also need [latest Kefir.js][kefir], the only required dependency to make it work, which adds just ~10KB more, since [Kefir.js author][roman-pominov] also likes minimalism in his code.
 
-If you feel you that's you know everything and this library is definitely what you need (and it is!), you may either download the [version with default configuration][download-default] or go straight to [Building Section](./sections/building) to discover how easy it is to grab a code and configure a custom one. If you still feel unsafe, stay with me for a bit.
+If you feel that's you know everything in this field and this library is definitely what you need (and no doubts, it is!), you may either download the [version with default configuration][download-default] or go straight to [Building Section](./sections/building) to discover how easy it is to grab a code and configure yourself a custom one. If you still feel unsafe, stay with me for a bit.
 
 ### Code Examples
 
-<!-- TODO -->
+<!-- TODO: insert generator example itself (its gif, in the worst case) -->
+
+Random Generator with the help of [`util`](http://..) toolkit:
+
+<div id="example-one"></div>
+
+```js
+Rpd.renderNext('html', document.getElementById('example-one'),
+               { nodeMovingAllowed: false });
+
+var rgPatch = Rpd.addPatch('Generate Random Numbers');
+
+var rgNode = rgPatch.addNode('util/random', 'Random');
+rgNode.inlets['max'].receive(500);
+rgNode.inlets['period'].receive(3000);
+
+var logNode = rgPatch.addNode('util/log', 'Log');
+rgNode.outlets['out'].connect(logNode.inlets['what']);
+
+var multiplyTwo = rgPatch.addNode('core/basic', '* 2', {
+    process: function(inlets) {
+        return {
+            'result': (inlets.result || 0) * 2
+        }
+    }
+});
+var multiplierInlet = multiplyTwo.addInlet('util/number', 'multiplier');
+var resultOutlet = multiplyTwo.addOutlet('util/number', 'result');
+
+rgNode.outlets['out'].connect(multiplierInlet);
+```
+
+<!-- TODO: insert p5.js example itself (its gif, in the worst case) -->
+
+Configure [`p5.js`](http://p5.js) patch with the help of [`p5`](http://..) toolkit:
+
+```js
+Rpd.nodetype('my/sketch', function() {
+
+});
+```
+
+When you define your own toolkit in place:
+
+```js
+```
 
 ### Terminology
 

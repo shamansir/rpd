@@ -5,13 +5,20 @@ function stopPropagation(event) {
     return event;
 }
 
+var d3 = d3 || d3_tiny;
+
+function svgNode(name) { return document.createElementNS(d3.ns.prefix.svg, name); }
+function htmlNode(name) { return document.createElementNS(d3.ns.prefix.html, name); }
+
+/* ========================= util/number ========================= */
+
 Rpd.channelrenderer('util/number', 'svg', {
     /* show: function(target, value) { }, */
     edit: function(target, inlet, valueIn) {
-        var foElm = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+        var foElm = svgNode('foreignObject');
         foElm.setAttributeNS(null, 'width', 20);
         foElm.setAttributeNS(null, 'height', 30);
-        var valInput = document.createElementNS('http://www.w3.org/1999/xhtml', 'input');
+        var valInput = htmlNode('input');
         valInput.type = 'number';
         //valInput.style.position = 'absolute';
         valueIn.onValue(function(val) {
@@ -26,18 +33,20 @@ Rpd.channelrenderer('util/number', 'svg', {
     }
 });
 
+/* ========================= util/random ========================= */
+
 Rpd.noderenderer('util/random', 'svg', function() {
     return {
         size: { width: 40 }
     }
 });
 
-var d3 = d3 || d3_tiny;
+/* ========================= util/bang ========================= */
 
 Rpd.noderenderer('util/bang', 'svg', {
     size: { width: 30, height: 25 },
     first: function(bodyElm) {
-        var circle = d3.select(svg_node('circle'))
+        var circle = d3.select(svgNode('circle'))
                        .attr('cx', 15).attr('r', 9)
                        .attr('fill', 'black')
                        .style('cursor', 'pointer')
@@ -51,9 +60,67 @@ Rpd.noderenderer('util/bang', 'svg', {
     }
 });
 
+/* ========================= util/metro ========================= */
+
 Rpd.noderenderer('util/metro', 'svg', {
-    size: { width: 30, height: 25 }
+    size: { width: 30, height: 25 },
+    first: function(bodyElm) {
+        var circle = d3.select(svgNode('circle'))
+                       .attr('cx', 15).attr('r', 9)
+                       .attr('fill', 'black')
+                       .style('cursor', 'pointer')
+                       .style('pointer-events', 'all');
+        d3.select(bodyElm).append(circle.node());
+        return { 'trigger':
+            { valueOut: Kefir.fromEvents(circle.node(), 'click')
+                             .map(function() { return {}; })
+            }
+        };
+    }
 });
+
+/* ========================= util/palette ========================= */
+
+/* Rpd.noderenderer('util/palette', 'svg', function() {
+    var cellSide = 12;
+    return {
+        size: { width: 365, height: 60 },
+        first: function(bodyElm) {
+            var paletteChange = Kefir.emitter();
+            var lastSelected, paletteGroups = [];
+            d3.select(bodyElm)
+              .append('g').attr('transform', 'translate(5, 0)')
+              .call(function(target) {
+                PALETTES.forEach(function(palette, i) {
+                    target.append('g')
+                          .attr('class', 'rpd-util-palette-variant')
+                          .attr('transform', 'translate(' + (i * 14) + ', ' +
+                                                            (-1 * (palette.length / 2 * cellSide)) + ')')
+                          .call((function(palette) { return function(paletteGroup) {
+                              palette.forEach(function(color, i) {
+                                  paletteGroup.append('rect').attr('rx', 4)
+                                              .attr('x', 0).attr('y', i * cellSide)
+                                              .attr('width', cellSide).attr('height', cellSide)
+                                              .attr('fill', color);
+                              });
+                              Kefir.fromEvents(paletteGroup.node(), 'click').onValue(function() {
+                                  if (lastSelected) lastSelected.attr('class', 'rpd-util-palette-variant')
+                                  paletteGroup.attr('class', 'rpd-util-palette-variant rpd-util-palette-active-variant');
+                                  lastSelected = paletteGroup;
+                                  paletteChange.emit(palette);
+                              });
+                              paletteGroups.push(paletteGroup);
+                          } })(palette));
+                });
+            });
+            lastSelected = paletteGroups[0];
+            paletteGroups[0].attr('class', 'rpd-util-palette-variant rpd-util-palette-active-variant');
+            return { 'selection': { valueOut: paletteChange } };
+        }
+    };
+}); */
+
+/* ========================= util/sum-of-three ========================= */
 
 Rpd.noderenderer('util/sum-of-three', 'svg', function() {
     var textElement;
@@ -61,7 +128,7 @@ Rpd.noderenderer('util/sum-of-three', 'svg', function() {
         //contentRule: 'replace',
         size: { width: 150, height: null },
         first: function(bodyElm) {
-            textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            textElement = svgNode('text');
             bodyElm.appendChild(textElement);
         },
         always: function(bodyElm, inlets, outlets) {
@@ -71,6 +138,8 @@ Rpd.noderenderer('util/sum-of-three', 'svg', function() {
         }
     }
 });
+
+/* ========================= util/knob & util/knobs ========================= */
 
 function createKnob(state) {
     var radius = 13;
@@ -204,6 +273,212 @@ Rpd.noderenderer('util/knobs', 'svg', function() {
             state.max = inlets.max || 0;
         }
     };
+});
+
+/* ========================= util/color ========================= */
+
+var toHexColor = RpdUtils.toHexColor;
+
+Rpd.noderenderer('util/color', 'svg', function() {
+    var colorElm;
+    return {
+        size: { width: 140, height: 30 },
+        first: function(bodyElm) {
+            colorElm = svgNode('rect');
+            colorElm.setAttributeNS(null, 'width', '30');
+            colorElm.setAttributeNS(null, 'height', '30');
+            colorElm.setAttributeNS(null, 'rx', '5');
+            colorElm.setAttributeNS(null, 'ry', '5');
+            colorElm.setAttributeNS(null, 'transform', 'translate(-15,-15)');
+            colorElm.classList.add('rpd-util-color-display');
+            bodyElm.appendChild(colorElm);
+        },
+        always: function(bodyElm, inlets, outlets) {
+            colorElm.setAttributeNS(null, 'fill', toHexColor(outlets.color));
+        }
+    }
+});
+
+/* ========================= util/nodelist ========================= */
+
+var NodeList = RpdUtils.NodeList;
+var getNodeTypesByToolkit = RpdUtils.getNodeTypesByToolkit;
+
+var nodeListSize = { width: 180, height: 300 };
+
+var lineHeight = 22;  // find font-size?
+var iconWidth = 11;
+var inputWidth = nodeListSize.width - 40;
+var inputHeight = 45;
+
+Rpd.noderenderer('util/nodelist', 'svg', {
+    size: nodeListSize,
+    first: function(bodyElm) {
+
+        var patch = this.patch;
+
+        var nodeTypes = Rpd.allNodeTypes,
+            nodeDescriptions = Rpd.allNodeDescriptions,
+            toolkitIcons = Rpd.allToolkitIcons,
+            nodeTypeIcons = Rpd.allNodeTypeIcons;
+
+        var nodeTypesByToolkit = getNodeTypesByToolkit(nodeTypes);
+
+        var bodyGroup = d3.select(bodyElm)
+                           .append('g')
+                           .attr('transform', 'translate(' + (-1 * nodeListSize.width / 2) + ','
+                                                           + (-1 * nodeListSize.height / 2) + ')');
+        var searchGroup = bodyGroup.append('g').classed('rpd-nodelist-search', true)
+                                               .attr('transform', 'translate(12,12)');
+
+        var nodeListSvg;
+
+        var tookitElements = {},
+            listElementsIdxByType = {};
+
+        var nodeList = new NodeList({
+            getPatch: function() { return patch; },
+            buildList: function() {
+                var listElements = [];
+
+                var bodyRect = bodyGroup.node().getBoundingClientRect();
+
+                var foreignDiv = bodyGroup.append(svgNode('foreignObject'))
+                                       .append(htmlNode('div'))
+                                       .style('width', (nodeListSize.width - 20) + 'px')
+                                       .style('height', (nodeListSize.height - inputHeight) + 'px')
+                                       .style('overflow-y', 'scroll')
+                                       .style('position', 'fixed').style('left', 10 + 'px')
+                                                                  .style('top', inputHeight + 'px');
+
+                nodeListSvg = foreignDiv.append(svgNode('svg'))
+                                        .classed('rpd-nodelist-list', true)
+                                        .attr('width', (nodeListSize.width - 12) + 'px');
+                var lastY = 0;
+
+                nodeListSvg.append('g')
+                  .call(function(g) {
+                      Object.keys(nodeTypesByToolkit).forEach(function(toolkit) {
+
+                          var toolkitGroup = g.append('g').classed('rpd-nodelist-toolkit', true)
+                                              .attr('transform', 'translate(0,' + lastY + ')')
+                           .call(function(g) {
+                                if (toolkitIcons[toolkit]) g.append('text').attr('class', 'rpd-nodelist-toolkit-icon').text(toolkitIcons[toolkit]);
+                                g.append('text').attr('class', 'rpd-nodelist-toolkit-name').text(toolkit)
+                           });
+
+                          tookitElements[toolkit] = toolkitGroup;
+
+                          lastY += lineHeight;
+
+                          g.append('g').classed('rpd-nodelist-nodetypes', true)
+                           .call(function(g) {
+                                nodeTypesByToolkit[toolkit].types.forEach(function(nodeTypeDef) {
+                                    var nodeType = nodeTypeDef.fullName;
+                                    g.append('g').classed('rpd-nodelist-nodetype', true)
+                                      .attr('transform', 'translate(0,' + lastY + ')')
+                                     .call(function(g) {
+
+                                          var hasDescription = nodeDescriptions[nodeType] ? true : false;
+
+                                          var elmData = { def: nodeTypeDef,
+                                                          element: g,
+                                                          hasDescription: hasDescription,
+                                                          initialY: lastY };
+
+                                          g.data(elmData);
+
+                                          g.append('rect').attr('class', 'rpd-nodelist-item-bg')
+                                                          .attr('x', 0).attr('y', -5).attr('rx', 5).attr('ry', 5)
+                                                          .attr('width', nodeListSize.width - 20)
+                                                          .attr('height', (hasDescription ? (lineHeight * 1.5) : lineHeight) - 5);
+                                          g.append('text').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType] || ' ')
+                                                          .attr('x', (iconWidth / 2)).attr('y', 5);
+                                          g.append('text').attr('class', 'rpd-nodelist-fulltypename')
+                                                          .attr('transform', 'translate(' + (iconWidth + 4) + ',0)')
+                                                          .text(nodeTypeDef.toolkit + '/' + nodeTypeDef.name)
+                                          if (hasDescription) {
+                                              lastY += (lineHeight * 0.5);
+                                              g.select('rect').attr('title', nodeDescriptions[nodeType]);
+                                              g.append('text').attr('class', 'rpd-nodelist-description')
+                                                              .attr('transform', 'translate(3,' + (lineHeight * 0.6) + ')')
+                                                              .text(nodeDescriptions[nodeType]);
+                                          }
+
+                                          listElements.push(elmData);
+
+                                          listElementsIdxByType[nodeType] = listElements.length - 1;
+
+                                          lastY += lineHeight;
+
+                                      });
+                                });
+                           });
+
+                      });
+                  });
+
+                nodeListSvg.attr('height', lastY + 'px');
+
+                return listElements;
+            },
+            recalculateSize: function(listElements) {
+                var lastY = 0;
+
+                Object.keys(nodeTypesByToolkit).forEach(function(toolkit) {
+                    tookitElements[toolkit].attr('transform', 'translate(0,' + lastY + ')');
+
+                    lastY += lineHeight;
+
+                    var elmDataIdx, elmData;
+
+                    nodeTypesByToolkit[toolkit].types.forEach(function(nodeTypeDef) {
+                        elmDataIdx = listElementsIdxByType[nodeTypeDef.fullName];
+                        elmData = listElements[elmDataIdx];
+
+                        if (elmData.visible) {
+                            elmData.element.attr('transform', 'translate(0,' + lastY + ')');
+                            lastY += lineHeight;
+                            if (elmData.hasDescription) lastY += (lineHeight * 0.5);
+                        }
+
+                    });
+
+                });
+
+                nodeListSvg.attr('height', lastY + 'px');
+            },
+            createSearchInput: function() {
+                var foElm = svgNode('foreignObject');
+                foElm.setAttributeNS(null, 'width', inputWidth);
+                foElm.setAttributeNS(null, 'height', 20);
+                var input = htmlNode('input');
+                input.setAttribute('type', 'text');
+                input.style.width = inputWidth + 'px';
+                foElm.appendChild(input);
+                searchGroup.append(foElm);
+                return d3.select(input);
+            },
+            createClearSearchButton: function() {
+                searchGroup.append('rect').attr('transform', 'translate(' + (nodeListSize.width - 32) + ',7)')
+                           .attr('width', 12).attr('height', 12).attr('rx', 5);
+                return searchGroup.append('text').text('x')
+                                  .attr('transform', 'translate(' + (nodeListSize.width - 26) + ',12)');
+            },
+            clearSearchInput: function(searchInput) { searchInput.node().value = ''; },
+            markSelected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', true); },
+            markDeselected: function(elmData) { elmData.element.classed('rpd-nodelist-selected', false); },
+            markAdding: function(elmData) { elmData.element.classed('rpd-nodelist-add-effect', true); },
+            markAdded: function(elmData) { elmData.element.classed('rpd-nodelist-add-effect', false); },
+            setVisible: function(elmData) { elmData.element.style('display', 'list-item'); },
+            setInvisible: function(elmData) { elmData.element.style('display', 'none'); }
+        });
+
+        nodeList.addOnClick();
+        nodeList.addSearch();
+        nodeList.addCtrlSpaceAndArrows();
+
+    }
 });
 
 })();

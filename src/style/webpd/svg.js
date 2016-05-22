@@ -57,7 +57,7 @@ return {
                             .classed('rpd-patch', true).node() };
     },
 
-    createNode: function(node, render, description) {
+    createNode: function(node, render, description, icon) {
 
         var size = render.size ? { width: render.size.width || 50,
                                    height: render.size.height || 18 }
