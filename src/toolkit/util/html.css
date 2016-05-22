@@ -116,3 +116,22 @@
     height: 30px;
     border-radius: 5px;
 }
+
+.rpd-node.rpd-util-comment {
+    box-shadow: none;
+}
+
+.rpd-util-comment .rpd-title {
+    display: none;
+}
+
+.rpd-util-comment .rpd-content {
+    /* border: 1px dashed rgba(255, 255, 255, 0.1); */
+    border: none;
+    background-color: transparent;
+}
+
+.rpd-util-comment .rpd-body {
+    vertical-align: top;
+    padding: 3px;
+}

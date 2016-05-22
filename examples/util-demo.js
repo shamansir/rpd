@@ -37,4 +37,9 @@ function buildUtilDemoPatch(renderer, target, conf) {
     bounded.inlets['max'].receive(255);
     bounded.move(60, 240);
 
+    var comment = model.addNode('util/comment');
+    comment.inlets['text'].receive('connect bounded number node \'out\' to any inlet of color node');
+    comment.inlets['width'].receive(130);
+    comment.move(180, 340);
+
 }

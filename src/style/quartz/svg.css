@@ -177,3 +177,7 @@
     background-color: rgba(201,201,220,0.6);
     margin: 4px 4px 9px 0px;
 }
+
+.rpd-util-comment .rpd-process text {
+    fill: lightgray;
+}

@@ -359,3 +359,7 @@ table.rpd-node thead.rpd-title th {
     top: -4px;
     left: 6px;
 }
+
+.rpd-util-comment .rpd-body {
+    color: lightgray;
+}

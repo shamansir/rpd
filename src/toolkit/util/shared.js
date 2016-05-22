@@ -1,5 +1,9 @@
 var RpdUtils = (function() {
 
+function adaptToState(state, value) {
+    return Math.floor((state.min + ((state.max - state.min) * value)) * 100) / 100;
+}
+
 function numberToHex(num) { return (num > 15) ? num.toString(16) : '0' + num.toString(16); }
 
 function toHexColor(color) {
@@ -193,6 +197,7 @@ NodeList.prototype.addCtrlSpaceAndArrows = function() {
 }
 
 return {
+    'adaptToState': adaptToState,
     'numberToHex': numberToHex,
     'toHexColor': toHexColor,
     'getNodeTypesByToolkit': getNodeTypesByToolkit,

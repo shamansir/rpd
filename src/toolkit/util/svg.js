@@ -41,6 +41,22 @@ Rpd.noderenderer('util/random', 'svg', function() {
     }
 });
 
+/* ========================= util/comment ========================= */
+
+Rpd.noderenderer('util/comment', 'svg', function() {
+    var textElm;
+    return {
+        size: { width: 100, height: 150 },
+        first: function(bodyElm) {
+            textElm = d3.select(bodyElm).append('text');
+        },
+        always: function(bodyElm, inlets, outlets) {
+            if (inlets.width) textElm.attr('width', inlets.width);
+            textElm.text(inlets.text || '<empty>');
+        }
+    }
+});
+
 /* ========================= util/bang ========================= */
 
 Rpd.noderenderer('util/bang', 'svg', {
@@ -140,6 +156,8 @@ Rpd.noderenderer('util/sum-of-three', 'svg', function() {
 });
 
 /* ========================= util/knob & util/knobs ========================= */
+
+var adaptToState = RpdUtils.adaptToState;
 
 function createKnob(state) {
     var radius = 13;
