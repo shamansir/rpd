@@ -70,6 +70,21 @@ Rpd.noderenderer('util/bounded-number', 'html', function() {
     }
 });
 
+Rpd.noderenderer('util/comment', 'html', function() {
+    var textElm;
+    return {
+        size: { width: 100, height: 150 },
+        first: function(bodyElm) {
+            textElm = document.createElement('span');
+            bodyElm.appendChild(textElm);
+        },
+        always: function(bodyElm, inlets, outlets) {
+            if (inlets.width) bodyElm.style.width = inlets.width + 'px';
+            textElm.textContent = textElm.innerText = inlets.text || '<empty>';
+        }
+    }
+});
+
 Rpd.noderenderer('util/sum-of-three', 'html', {
     size: { width: null, height: 80 },
     always: function(bodyElm, inlets, outlets) {

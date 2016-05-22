@@ -117,6 +117,12 @@ Rpd.nodetype('util/empty', {
     }
 });
 
+Rpd.nodetype('util/comment', {
+    inlets: { 'text': { type: 'core/any', hidden: true },
+              'width': { type: 'core/any', hidden: true } },
+    process: function() {}
+});
+
 Rpd.nodetype('util/bang', {
     inlets: { 'trigger': { type: 'util/bang', hidden: true } },
     outlets: { 'out': { type: 'util/bang' } },
