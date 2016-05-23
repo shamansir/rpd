@@ -10,6 +10,7 @@ var lastCanvas = null;
 
 var socketPadding = 25, // distance between inlets/outlets in SVG units
     socketsMargin = 15; // distance between first/last inlet/outlet and body edge
+var bodySizePadding = 30;
 var headerHeight = 21; // height of a node header in SVG units
 
 var listeners = {};
@@ -32,38 +33,63 @@ return {
                                              height: render.size.height || 40 }
                                          : { width: 100, height: 40 };
 
+        var pivot = render.pivot || { x: 0.5, y: 0.5 };
+
         function findBestNodeSize(numInlets, numOutlets, minContentSize) {
             var requiredContentHeight = (2 * socketsMargin) + ((Math.max(numInlets, numOutlets) - 1) * socketPadding);
             return { width: minContentSize.width,
                      height: headerHeight + Math.max(requiredContentHeight, minContentSize.height) };
         }
 
-        var initialSize = findBestNodeSize(node.def.inlets  ? Object.keys(node.def.inlets).length  : 0,
-                                           node.def.outlets ? Object.keys(node.def.outlets).length : 0,
+        var initialInlets = node.def.inlets,
+            initialOutlets = node.def.outlets;
+
+        var initialSize = findBestNodeSize(initialInlets  ? Object.keys(initialInlets).length  : 0,
+                                           initialOutlets ? Object.keys(initialOutlets).length : 0,
                                            minContentSize);
+
+        var longestInletLabel  = 0,
+            longestOutletLabel = 0;
+
+        if (initialInlets) {
+            Object.keys(initialInlets).forEach(function(alias) {
+                longestInletLabel = Math.max(longestInletLabel,
+                    initialInlets[alias].label ? initialInlets[alias].label.length : alias.length);
+            });
+        }
+
+        if (initialOutlets) {
+            Object.keys(initialOutlets).forEach(function(alias) {
+                longestOutletLabel = Math.max(longestOutletLabel,
+                    initialOutlets[alias].label ? initialOutlets[alias].label.length : alias.length);
+            });
+        }
 
         var width = initialSize.width, height = initialSize.height;
         var bodyWidth = width,
-            bodyHeight = height - headerHeight;
+            bodyHeight = height - headerHeight,
+            inletsMargin = longestInletLabel * 10,
+            outletsMargin = longestOutletLabel * 10,
+            fullNodeWidth = inletsMargin + bodyWidth + outletsMargin;
 
         var nodeElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-node');
 
         // append shadow
         nodeElm.append('rect').attr('class', 'rpd-shadow')
-                              .attr('width', width).attr('height', height)
+                              .attr('width', fullNodeWidth).attr('height', height)
                               .attr('x', 5).attr('y', 6).attr('rx', 3).attr('ry', 3);
 
         // append node header
         nodeElm.append('path').attr('class', 'rpd-header').classed('rpd-drag-handle', true)
-                              .attr('d', roundedRect(0, 0, width, headerHeight, 2, 2, 0, 0));
+                              .attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight, 2, 2, 0, 0));
         nodeElm.append('text').attr('class', 'rpd-name').text(node.def.title || node.type)
                               .attr('x', 5).attr('y', 6)
                               .style('pointer-events', 'none');
         // append node body
         nodeElm.append('path').attr('class', 'rpd-content')
-                              .attr('d', roundedRect(0, headerHeight, width, bodyHeight, 0, 0, 2, 2));
+                              .attr('d', roundedRect(0, headerHeight, fullNodeWidth, bodyHeight, 0, 0, 2, 2));
         nodeElm.append('rect').attr('class', 'rpd-body')
-                              .attr('width', width).attr('height', height)
+                              .attr('width', fullNodeWidth).attr('height', height)
                               .attr('rx', 2).attr('ry', 2)
                               .style('pointer-events', 'none');
 
@@ -74,7 +100,7 @@ return {
 
         // append remove button
         nodeElm.append('g').attr('class', 'rpd-remove-button')
-                           .attr('transform', 'translate(' + (width-12) + ',1)')
+                           .attr('transform', 'translate(' + (fullNodeWidth-12) + ',1)')
                .call(function(button) {
                    button.append('path').attr('d', roundedRect(0, 0, 11, 11, 2, 2, 2, 3))
                                         .attr('class', 'rpd-remove-button-handle');
@@ -85,7 +111,8 @@ return {
         // append placeholders for inlets, outlets and a target element to render body into
         nodeElm.append('g').attr('class', 'rpd-inlets').attr('transform', 'translate(' + 0 + ',' + headerHeight + ')')
                                                        .data({ position: { x: 0, y: headerHeight } });
-        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (width / 2) + ',' + (headerHeight + ((height - headerHeight) / 2)) + ')');
+        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (inletsMargin + (pivot.x * width)) + ','
+                                                                                        + (headerHeight + ((height - headerHeight) * pivot.y)) + ')');
         nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + width + ',' + headerHeight + ')')
                                                         .data({ position: { x: width, y: headerHeight } });
 
@@ -100,12 +127,15 @@ return {
             var curSize = lastSize;
             var newSize = findBestNodeSize(numInlets, numOutlets, minContentSize);
             if ((newSize.width === curSize.width) && (newSize.height === curSize.height)) return;
-            nodeElm.select('rect.rpd-shadow').attr('height', newSize.height).attr('width', newSize.width);
-            nodeElm.select('rect.rpd-body').attr('height', newSize.height).attr('width', newSize.width);
+            inletsMargin = longestInletLabel * 10;
+            outletsMargin = longestOutletLabel * 10;
+            fullNodeWidth = inletsMargin + newSize.width + outletsMargin;
+            nodeElm.select('rect.rpd-shadow').attr('height', newSize.height).attr('width', fullNodeWidth);
+            nodeElm.select('rect.rpd-body').attr('height', newSize.height).attr('width', fullNodeWidth);
             nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight,
-                newSize.width, newSize.height - headerHeight, 0, 0, 2, 2));
-            nodeElm.select('g.rpd-process').attr('transform',
-                'translate(' + (newSize.width / 2) + ',' + (headerHeight + ((newSize.height - headerHeight) / 2)) + ')');
+                fullNodeWidth, newSize.height - headerHeight, 0, 0, 2, 2));
+            nodeElm.select('g.rpd-process').attr('transform', 'translate(' + (inletsMargin + (pivot.x * newSize.width)) + ','
+                                                                           + (headerHeight + ((newSize.height - headerHeight) * pivot.y)) + ')');
             lastSize = newSize;
         }
 
@@ -122,12 +152,14 @@ return {
             });
         }
 
-        function notifyNewInlet(elm) {
+        function notifyNewInlet(elm, inlet) {
+            longestInletLabel = Math.max(longestInletLabel, inlet.label ? inlet.label.length : inlet.alias.length);
             numInlets++; inletElms.push(elm); checkNodeSize();
             recalculateSockets();
         }
 
-        function notifyNewOutlet(elm) {
+        function notifyNewOutlet(elm, outlet) {
+            longestOutletLabel = Math.max(longestOutletLabel, outlet.label ? outlet.label.length : outlet.alias.length);
             numOutlets++; outletElms.push(elm); checkNodeSize();
             recalculateSockets();
         }
@@ -175,7 +207,7 @@ return {
             group.append('text').attr('class', 'rpd-name').text(inlet.def.label || inlet.alias)
                                 .attr('x', 10).attr('y', 0);
         });
-        listeners[inlet.node.id].inlet(inletElm);
+        listeners[inlet.node.id].inlet(inletElm, inlet);
         inletToConnector[inlet.id] = inletElm.select('.rpd-connector');
         return { element: inletElm.node() };
     },
@@ -193,7 +225,7 @@ return {
             group.append('text').attr('class', 'rpd-name').text(outlet.def.label || outlet.alias)
                                 .attr('x', -10).attr('y', 0);
         });
-        listeners[outlet.node.id].outlet(outletElm);
+        listeners[outlet.node.id].outlet(outletElm, outlet);
         outletToConnector[outlet.id] = outletElm.select('.rpd-connector');
         return { element: outletElm.node() };
     },

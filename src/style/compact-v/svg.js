@@ -39,6 +39,8 @@ return {
                                              height: render.size.height || 25 }
                                          : { width: 60, height: 25 };
 
+        var pivot = render.pivot || { x: 0.5, y: 0.5 };
+
         function findBestNodeSize(numInlets, numOutlets, minContentSize) {
            var requiredContentHeight = (2 * socketsMargin) + ((Math.max(numInlets, numOutlets) - 1) * socketPadding);
            return { width: minContentSize.width,
@@ -95,7 +97,8 @@ return {
         // append placeholders for inlets, outlets and a target element to render body into
         nodeElm.append('g').attr('class', 'rpd-inlets').attr('transform', 'translate(0,' + headerHeight + ')')
                                                        .data({ position: { x: 0, y: headerHeight } });
-        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(0,' + (headerHeight + ((height - headerHeight) / 2)) + ')');
+        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (bodyWidth * pivot.x) + ','
+                                                                                        + (headerHeight + ((height - headerHeight) * pivot.y)) + ')');
         nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + bodyWidth + ',' + headerHeight + ')')
                                                         .data({ position: { x: width, y: headerHeight } });
 
@@ -113,7 +116,8 @@ return {
             nodeElm.select('rect.rpd-shadow').attr('height', newSize.height).attr('width', newSize.width);
             nodeElm.select('rect.rpd-body').attr('height', newSize.height).attr('width', newSize.width);
             nodeElm.select('rect.rpd-content').attr('height', newSize.height - headerHeight);
-            nodeElm.select('g.rpd-process').attr('transform', 'translate(0,' + (headerHeight + ((newSize.height - headerHeight) / 2)) + ')');
+            nodeElm.select('g.rpd-process').attr('transform', 'translate(' + (newSize.width * pivot.x) + ','
+                                                                           + (headerHeight + ((newSize.height - headerHeight) / 2)) + ')');
             lastSize = newSize;
         }
 

@@ -273,7 +273,7 @@ Rpd.noderenderer('util/knobs', 'svg', function() {
     var nodeRoot;
 
     return {
-        size: { width: 160, height: 40 },
+        size: { width: DEFAULT_KNOB_COUNT * 40, height: 40 },
         first: function(bodyElm) {
             var valueOut = Kefir.pool();
             nodeRoot = bodyElm;
@@ -300,7 +300,7 @@ var toHexColor = RpdUtils.toHexColor;
 Rpd.noderenderer('util/color', 'svg', function() {
     var colorElm;
     return {
-        size: { width: 140, height: 30 },
+        size: { width: 30, height: 30 },
         first: function(bodyElm) {
             colorElm = svgNode('rect');
             colorElm.setAttributeNS(null, 'width', '30');
