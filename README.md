@@ -1,4 +1,4 @@
-# RPD — Reactive Pure Data
+# RPD — Reactive Patch Development v0.2-α
 
 [![Join the chat at https://gitter.im/shamansir/rpd](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/shamansir/rpd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -8,44 +8,31 @@
 
 [![logo][]](http://shamansir.github.io/rpd)
 
-**Latest Stable Version: [v0.1.0](https://github.com/shamansir/rpd/releases/tag/v0.1.0)**
+**Latest Version**: [v0.2.0-α](https://github.com/shamansir/rpd/milestones)
 
-_Version in Development: [v0.2.0](https://github.com/shamansir/rpd/milestones)_
+_Previous Version_: [v0.1.0](https://github.com/shamansir/rpd/releases/tag/v0.1.0) ([README](./README-1.0.md)).
 
-_Examples below are only compatible with the Latest Stable Version (v0.1.0)_
-
-A video of the engine in action, demonstrates most of its features: [ [Watch][video] ].
+A video of the engine in action, demonstrates some of its features: [ [Watch][video] ].
 
 [![Watch][video-img]][video]
 
-Play online: [ [Core Toolkit][hosted-core] ] | [ [PD Toolkit][hosted-pd] ] | [ [Animatron Toolkit][hosted-anm] ]
+Play online: [ [Util Toolkit][hosted-util] ] | [ [PD Toolkit][hosted-pd] ] | [ [Animatron Toolkit][hosted-anm] ]
 
-_(NB: Only modern browsers are supported, tested in Chrome and Safari, no mobile support for now)_
+<!-- Examples grid -->
 
-----
-
-## Contents
-
-* [Intro](#intro)
-* [Features](#features)
-* [Planned Features](#planned-features)
-* [Using](#using)
-* [Participating](#participating)
-* [API Reference](#reference)
+_(NB: Only modern browsers are supported, tested mostin Chrome and Safari, no mobile support for now)_
 
 ----
 
-## Intro
+**[Documentation, Examples & More...](http://shamansir.guthub.io/rpd)**
 
-RPD is a super-minimal plugin-based JS-driven engine for Node-Based User Interfaces — the ones like Pure Data, Quartz Composer, Reaktor, NodeBox, VVVV or any Shader/Material Composing View in your favorite 3D Editor.
+----
 
-And when I say _minimal_, I really mean it:
+RPD is a super-minimal plugin-based Vanilla-JS-driven engine for Node-Based User Interfaces, or Flow-Based Programming Intefaces, this concept has a lot of names — namely, the ones like Pure Data, Quartz Composer, Reaktor, NodeBox, VVVV or any Shader/Material Composing View in your favorite 3D Editor.
 
-* The engine code takes 560 lines of pure JS code with comments and stuff, it is 2.48KB closure-compiled and gzipped;
-* The HTML renderer is 1200 lines or so, due to masses of DOM manipulation code, and anyway it is 3.9KB when compiled;
-* [Kefir.js][kefir], required for Reactive Streams support, is ~7KB when gzipped and compiled, since it is also targeted as minimal;
+And when I say _minimal_, I really mean it. Minimized and gzipped with its standard configuration, it takes no more than _10KB_! (*)
 
-Together it takes only **13-14KB** when compiled and gzipped, but still provides tons (!) of awesome features!
+_(*) Excluding CSS file which usually takes 2-3 KB and [Kefir.js][kefir] requirement, which also usually takes ~10KB, minified and gzipped. Other configurations provided in repository may take from 10 to 20 KB, but users are free to use as many KB as they need._
 
 Moreover, it's built with the help of Reactive programming (thanks to [Kefir.js][kefir]), and this way it allows a programmer to treat and process any data flow as a stream, so:
 
@@ -53,7 +40,7 @@ Moreover, it's built with the help of Reactive programming (thanks to [Kefir.js]
 colorInlet.stream(Kefir.repeatedly(500, ['red', 'navy']));
 ```
 
-Will send `red` and `navy` values every 500ms to a single color-value inlet in order. It's not the only feature which is available with streams, of course, see below for much more.
+Will send `red` and `navy` values every 500ms to a single color-value inlet in order. It's not the only feature you get with streams, of course, see below for much more.
 
 Here are some GIFs in reduced quality, in addition to a video in rather good quality above, to help you decide if it worths to use this engine or not (also please take a look at code examples below!).
 
@@ -65,20 +52,27 @@ The Engine API provides easy ways to program node networks. Or to define a custo
 
 Let's switch to some simple examples. Detailed stuff is under the links below.
 
+**NB:** Despite the **α** (_alpha_) symbol in the version number, API is stable and may be used safely, since it has a very low chance to be changed in nearby future, unless issues will hardly require so. Actually **α** (_alpha_) just means that the engine wasn't tested in an enough amount of environments for now
+
 Constructing a network of nodes:
 
 ```javascript
-var first = new Rpd.Node('core/custom', 'Test');
-var boolOutlet = first.addOutlet('core/bool', true);
-first.addOutlet('core/number', 1);
-first.addOutlet('core/number');
+var patch = Rpd.addPatch('Example');
 
-var second = new Rpd.Node('core/custom', 'Foo');
-var boolInlet = second.addInlet('core/boolean');
-var numInlet = second.addInlet('core/number');
+var firstNode = patch.addNode('core/basic', 'Test');
+var boolOutlet = firstNode.addOutlet('core/boolean', true);
+firstNode.addOutlet('util/number', { default: 1 });
+firstNode.addOutlet('util/number');
+
+var secondNode = patch.addNode('core/basic', 'Foo');
+var boolInlet = secondNode.addInlet('util/boolean');
+var numInlet = secondNode.addInlet('util/number', {
+    allow: [ 'util/boolean' ],
+    adapt: function(val) { return (val === true) ? 1 : 0 }
+});
 
 boolOutlet.connect(boolInlet);
-boolOutlet.connect(numInlet, function(val) { return (val === true) ? 1 : 0 });
+boolOutlet.connect(numInlet);
 boolOutlet.send(false);
 boolOutlet.stream(Kefir.repeatedly(10, [true, false]));
 ```
@@ -86,15 +80,15 @@ boolOutlet.stream(Kefir.repeatedly(10, [true, false]));
 Creating custom node types is very easy:
 
 ```javascript
-Rpd.nodetype('core/sum-of-three-with-body', {
-    name: 'Sum of Three w/Body',
+Rpd.nodetype('util/sum-of-three', {
+    name: 'Sum of Three',
     inlets: {
-        'a': { type: 'core/number', name: 'A', default: 1 },
-        'b': { type: 'core/number', name: 'B' },
-        'c': { type: 'core/number', name: 'C', hidden: true }
+        'a': { type: 'util/number', name: 'A', default: 1 },
+        'b': { type: 'util/number', name: 'B' },
+        'c': { type: 'util/number', name: 'C', hidden: true }
     },
     outlets: {
-        'sum': { type: 'core/number', name: '∑' }
+        'sum': { type: 'util/number', name: '∑' }
     },
     process: function(inlets) {
         return { 'sum': (inlets.a || 0) + (inlets.b || 0) + (inlets.c || 0) };
@@ -134,36 +128,29 @@ Here's the [PureData Toolkit][pd-toolkit-src] and [its HTML Renderer][pd-rendere
 
 ## Features
 
-RPD provides following features:
+RPD provides following features (though probably I forgot a few):
 
 * User may observe nodes, manipulate nodes, connect inlets and outlets, effect is seen immediately; User may edit values on inlets, see results inside node bodies or additionally configure them there;
 * _Network model_ may be stored in a simple JS File;
 * Developer may build _custom node Toolkits_ to let user re-use them, in a very easy way; And it's not only restricted with configuring inlets and outlets—actually, _every aspect_ of the node or a channel _is configurable_;
 * _Streams_ provide developer with an unlimited power in sending, queueing, filtering, mapping/reducing/flattening, packing and un-packing any data, basing on time periods or not; every aspect from Reactive Programming may be used to _operate data streams_;
-* _Plugin system_ allows to easily add renderers (HTML is provided, SVG and Canvas renderers are planned) or importers/exporters for specific Toolkits;
-* HTML renderer does not uses any style injection except some very minor cases, it only operates CSS classes, and it means you may _completely redesign_ the look of your interface _using only CSS_;
-* Developer is free to use _any helper library _(while RPD tries to use only Kefir and nothing else), and it is very easy: i.e. HTML module may easily be replaced with some jQuery analogue.
+* _Plugin system_ allows to easily add renderers (HTML & SVG renderers are provided, Canvas renderer is planned), styles or importers/exporters for specific Toolkits;
+* _Styles_ allow easily and completely change a look of the interface, so your nodes may appear like ones in Blender or like ones in VVVV with just a few changes; **5** different styles are provided out-of-the-box; Also, styles are very easy to extend or create;
+* Renderers do not use any direct style injection except some very minor cases, they only operate CSS classes, and it means you may _completely redesign_ the look of your interface _using only CSS_;
+* Developer is free to use _any helper library_ (while RPD tries to use only Kefir and nothing else), and it is very easy: i.e. node renderers may easily use jQuery or d3.js;
+* JSON and Plain Text Import/Export, both provided as an example, with the ability to write module which _Imports/Exports from/to any format you want_;
+* Ability to be _injected into any part of a page_;
 * Node model may be easily programmed and _updated on-the-fly_ (i.e. while nodes already send some data);
-* Node model has _no side-effects_ in functional meaning, every change or update is provided through event streams, no data is stored or changed (expect construction); plugins, on the other hand, are completely free to use any programming model they prefer, and they are actually written in much more imperative style than the Engine;
+* Node model has _no side-effects_ in functional meaning, every change or update is provided through event streams, no data is stored or changed (expect construction); plugins, on the other hand, are completely free to use any programming model they prefer, and they are actually written in much more imperative style than the Engine, but yet they do not change the model;
 * It is so _easy to code_ for RPD, I hope community will be able and happy to write new toolkits, renderers and importers and help evolving the engine;
+* [PureData][puredata], [Animatron][animatron] and more Toolkits as an examples out-of-the-box;
+* Supports Procedures (re-use node sub-trees by name);
+* Smart layouting;
 
 <!--
 * Inlets may have the value editors programmed, so user may edit a value in place;
 * Nodes may have inner input controls, so it's possible to let user configure input value inside of a node body, in any way you decide;
 -->
-
-## Planned Features
-
-* [PureData][puredata] and/or [Animatron][animatron] node Toolkits as an examples out-of-the-box (cover more abilities);
-* Support Procedures (re-use node sequences by name);
-* SVG and Canvas renderers;
-* Pure-Data-compatible Import/Export or some special format;
-* Infinite Node Workspace;
-* Ability to be injected into any part of a page;
-* Smarter layouting;
-* Support mobile browsers;
-
-More may be seen in [Issues][issues] section.
 
 ## Using
 
@@ -271,33 +258,7 @@ You'll find the results under `./dist` folder.
 
 Feel free to fix issues or do Pull Requests!
 
-See a Reference below for details in programming Toolkits and different other things.
-
-## Reference
-
-#### Cheatsheets:
-
-* [HTML Renderer Configuration](http://github.com/shamansir/rpd/wiki/Cheatsheet:HTML-Configuration)
-* [Definition Cheatsheet](http://github.com/shamansir/rpd/wiki/Cheatsheet:Definition)
-* [Event Cheatsheet](http://github.com/shamansir/rpd/wiki/Cheatsheet:Event)
-* [Build a network](http://github.com/shamansir/rpd/wiki/Cheatsheet:Network)
-* _(TODO)_ [CSS Styles List](http://github.com/shamansir/rpd/wiki/Cheatsheet:CSS)
-
-#### Toolkits:
-
-* [Core Toolkit](http://github.com/shamansir/rpd/wiki/Toolkit:Core)
-* [PD Toolkit](http://github.com/shamansir/rpd/wiki/Toolkit:PD)
-* _(TODO)_  [Animatron Toolkit](http://github.com/shamansir/rpd/wiki/Toolkit:Animatron)
-
-#### Class Reference:
-
-* [Model](http://github.com/shamansir/rpd/wiki/Ref:Model)
-* [Node](http://github.com/shamansir/rpd/wiki/Ref:Node)
-* [Inlet](http://github.com/shamansir/rpd/wiki/Ref:Inlet)
-* [Outlet](http://github.com/shamansir/rpd/wiki/Ref:Outlet)
-* [Link](http://github.com/shamansir/rpd/wiki/Ref:Link)
-
-[hosted-core]: http://shamansir.github.io/rpd/examples/core.html
+[hosted-util]: http://shamansir.github.io/rpd/examples/util.html
 [hosted-pd]: http://shamansir.github.io/rpd/examples/pd.html
 [hosted-anm]: http://shamansir.github.io/rpd/examples/anm.html
 
