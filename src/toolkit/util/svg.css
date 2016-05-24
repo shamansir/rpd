@@ -84,9 +84,13 @@
     display: none;
 }
 
-.rpd-util-comment .rpd-header, .rpd-util-comment .rpd-name,
-.rpd-util-comment .rpd-body, .rpd-util-comment .rpd-remove-button,
+.rpd-util-comment .rpd-header, .rpd-util-comment .rpd-name, .rpd-util-comment .rpd-body,
+.rpd-util-comment .rpd-remove-button, .rpd-util-comment:hover .rpd-remove-button,
 .rpd-util-comment .rpd-inlets, .rpd-util-comment .rpd-outlets,
 .rpd-util-comment .rpd-content, .rpd-util-comment .rpd-shadow {
     display: none;
+}
+
+.rpd-util-sum-of-three .rpd-process text {
+    text-anchor: middle;
 }

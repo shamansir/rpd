@@ -13,6 +13,8 @@ var socketPadding = 25, // distance between inlets/outlets in SVG units
 var bodySizePadding = 30;
 var headerHeight = 21; // height of a node header in SVG units
 
+var letterWidth = 8;
+
 var listeners = {};
 var inletToConnector = {},
     outletToConnector = {};
@@ -29,9 +31,9 @@ return {
 
     createNode: function(node, render, description, icon) {
 
-        var minContentSize = render.size ? { width: render.size.width || 100,
+        var minContentSize = render.size ? { width: render.size.width || 70,
                                              height: render.size.height || 40 }
-                                         : { width: 100, height: 40 };
+                                         : { width: 70, height: 40 };
 
         var pivot = render.pivot || { x: 0.5, y: 0.5 };
 
@@ -68,8 +70,8 @@ return {
         var width = initialSize.width, height = initialSize.height;
         var bodyWidth = width,
             bodyHeight = height - headerHeight,
-            inletsMargin = longestInletLabel * 10,
-            outletsMargin = longestOutletLabel * 10,
+            inletsMargin = longestInletLabel * letterWidth,
+            outletsMargin = longestOutletLabel * letterWidth,
             fullNodeWidth = inletsMargin + bodyWidth + outletsMargin;
 
         var nodeElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-node');
@@ -113,7 +115,7 @@ return {
                                                        .data({ position: { x: 0, y: headerHeight } });
         nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (inletsMargin + (pivot.x * width)) + ','
                                                                                         + (headerHeight + ((height - headerHeight) * pivot.y)) + ')');
-        nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + width + ',' + headerHeight + ')')
+        nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + fullNodeWidth + ',' + headerHeight + ')')
                                                         .data({ position: { x: width, y: headerHeight } });
 
         nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
@@ -127,8 +129,8 @@ return {
             var curSize = lastSize;
             var newSize = findBestNodeSize(numInlets, numOutlets, minContentSize);
             if ((newSize.width === curSize.width) && (newSize.height === curSize.height)) return;
-            inletsMargin = longestInletLabel * 10;
-            outletsMargin = longestOutletLabel * 10;
+            inletsMargin = longestInletLabel * letterWidth;
+            outletsMargin = longestOutletLabel * letterWidth;
             fullNodeWidth = inletsMargin + newSize.width + outletsMargin;
             nodeElm.select('rect.rpd-shadow').attr('height', newSize.height).attr('width', fullNodeWidth);
             nodeElm.select('rect.rpd-body').attr('height', newSize.height).attr('width', fullNodeWidth);
