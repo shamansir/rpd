@@ -328,6 +328,43 @@ describe('building: inlet', function() {
 
         });
 
+        it('allows to set/override default value for an instance', function() {
+            Rpd.channeltype('spec/foo', { default: 42 });
+            Rpd.channeltype('spec/bar', {});
+
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/empty');
+                var inletAny = node.addInlet('spec/any', 'a', { default: 12 });
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'inlet/update',
+                                               inlet: inletAny,
+                                               value: 12 }));
+
+                updateSpy.calls.reset();
+
+                var inletFoo = node.addInlet('spec/foo', 'b', { default: 12 });
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'inlet/update',
+                                               inlet: inletFoo,
+                                               value: 12 }));
+                expect(updateSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'inlet/update',
+                                               outlet: inletFoo,
+                                               value: 42 }));
+
+                updateSpy.calls.reset();
+
+                var inletBar = node.addInlet('spec/bar', 'c', { default: 12 });
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'inlet/update',
+                                               inlet: inletBar,
+                                               value: 12 }));
+            });
+        });
+
         xit('overriding inlet accept function', function() {});
 
         xit('overriding inlet adapt function', function() {});

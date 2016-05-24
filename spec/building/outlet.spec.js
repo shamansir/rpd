@@ -222,16 +222,54 @@ describe('building: outlet', function() {
         });
     });
 
+    describe('overriding channel type definition', function() {
 
-        xdescribe('overriding channel type definition', function() {
+        it('there\'s no way to set/override default value for an instance', function() {
+            Rpd.channeltype('spec/foo', { default: 42 });
+            Rpd.channeltype('spec/bar', {});
 
-            xit('overriding outlet tune function', function() {});
+            // compare with the same (but different) test in ./inlet.spec.js
 
-            xit('overriding outlet show function', function() {});
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/empty');
+                var outletAny = node.addOutlet('spec/any', 'a', { default: 12 });
 
-            xit('subscribing to outlet events', function() {});
+                expect(updateSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'outlet/update',
+                                               outlet: outletAny,
+                                               value: 12 }));
 
+                updateSpy.calls.reset();
+
+                var outletFoo = node.addOutlet('spec/foo', 'b', { default: 12 });
+
+                expect(updateSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'outlet/update',
+                                               outlet: outletFoo,
+                                               value: 12 }));
+                expect(updateSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'outlet/update',
+                                               outlet: outletFoo,
+                                               value: 42 }));
+
+                updateSpy.calls.reset();
+
+                var outletBar = node.addOutlet('spec/bar', 'c', { default: 12 });
+
+                expect(updateSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'outlet/update',
+                                               outlet: outletBar,
+                                               value: 12 }));
+            });
         });
+
+        xit('overriding outlet tune function', function() {});
+
+        xit('overriding outlet show function', function() {});
+
+        xit('subscribing to outlet events', function() {});
+
+    });
 
     xit('allows to substitute/extend renderer', function() {
         // i#311
