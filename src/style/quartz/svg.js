@@ -132,12 +132,15 @@ return {
             inletsMargin = longestInletLabel * letterWidth;
             outletsMargin = longestOutletLabel * letterWidth;
             fullNodeWidth = inletsMargin + newSize.width + outletsMargin;
+            nodeElm.select('path.rpd-header').attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight, 2, 2, 0, 0));
+            nodeElm.select('g.rpd-remove-button').attr('transform', 'translate(' + (fullNodeWidth-12) + ',1)');
             nodeElm.select('rect.rpd-shadow').attr('height', newSize.height).attr('width', fullNodeWidth);
             nodeElm.select('rect.rpd-body').attr('height', newSize.height).attr('width', fullNodeWidth);
             nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight,
                 fullNodeWidth, newSize.height - headerHeight, 0, 0, 2, 2));
             nodeElm.select('g.rpd-process').attr('transform', 'translate(' + (inletsMargin + (pivot.x * newSize.width)) + ','
                                                                            + (headerHeight + ((newSize.height - headerHeight) * pivot.y)) + ')');
+            nodeElm.select('g.rpd-outlets').attr('transform', 'translate(' + fullNodeWidth + ',' + headerHeight + ')');
             lastSize = newSize;
         }
 
