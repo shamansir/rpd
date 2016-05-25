@@ -52,7 +52,8 @@
             outA.send(3);
 
             var genA = root.addNode('core/basic', 'Generate B');
-            var outB = genA.addOutlet('util/number', 'B', { 'default': 1 });
+            var outB = genA.addOutlet('util/number', 'B');
+            outB.send(1);
 
             var test = root.addNode('util/sum-of-three', 'foo')
             test.addInlet('util/number', 'D');

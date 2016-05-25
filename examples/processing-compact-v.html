@@ -69,6 +69,7 @@
 
             .rpd-util-random .rpd-process text {
                 font-size: 0.8em;
+                text-anchor: middle;
             }
 
             /* text.rpd-value {
@@ -128,7 +129,7 @@
                     size: { width: 90, height: 40 },
                     first: function(bodyElm) {
                         var group = document.createElementNS(SVG_XMLNS, 'g');
-                        group.setAttributeNS(null, 'transform', 'translate(10, 0)');
+                        group.setAttributeNS(null, 'transform', 'translate(-30, 0)');
                         colorElm = document.createElementNS(SVG_XMLNS, 'rect');
                         colorElm.setAttributeNS(null, 'y', -10);
                         colorElm.setAttributeNS(null, 'width', 20);
@@ -211,6 +212,7 @@
                     } };
                 return {
                     size: { width: 80, height: 40 },
+                    pivot: { x: 0, y: 0.5 },
                     first: function(bodyElm) {
                         var shapeChange = Kefir.emitter();
                         var allShapesGroup = document.createElementNS(SVG_XMLNS, 'g');
@@ -257,9 +259,10 @@
 
             Rpd.noderenderer('p5/sketch', 'svg', {
                 size: { width: 420, height: 320 },
+                pivot: { x: 0, y: 0 },
                 first: function(bodyElm) {
                     var group = document.createElementNS(SVG_XMLNS, 'g');
-                    group.setAttributeNS(null, 'transform', 'translate(10, -150)');
+                    group.setAttributeNS(null, 'transform', 'translate(10, 10)');
                     var foreign = document.createElementNS(SVG_XMLNS, 'foreignObject');
                     var p5Target = document.createElement('div');
                     p5Target.id = 'p5-canvas';
@@ -283,7 +286,6 @@
                 returnObj.first = function(bodyElm) {
                     textElm = document.createElementNS(SVG_XMLNS, 'text');
                     textElm.innerText = textElm.textContent = '?';
-                    textElm.setAttributeNS(null, 'x', 10);
                     bodyElm.appendChild(textElm);
                 };
                 returnObj.always = function(bodyElm, inlets, outlets) {
