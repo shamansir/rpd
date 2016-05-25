@@ -40,6 +40,8 @@ return {
 
         var width = contentSize.width, height = contentSize.height;
 
+        var pivot = render.pivot || { x: 0.5, y: 0.5 };
+
         var nodeElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-node');
 
         // append node header
@@ -75,7 +77,7 @@ return {
 
         // append placeholders for inlets, outlets and a target element to render body into
         nodeElm.append('g').attr('class', 'rpd-inlets').data({ position: { x: 0, y: 0 } });
-        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + 0 + ',' + (height / 2) + ')');
+        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (width * pivot.x) + ',' + (height * pivot.y) + ')');
         nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + 0 + ',' + height + ')')
                                                         .data({ position: { x: 0, y: height } });
 
