@@ -36,12 +36,17 @@
 
         <!-- RPD I/O: json -->
         <script src="../src/io/json.js"></script>
+
+        <!-- RPD navigation: browser -->
+        <script src="../src/navigation/browser.js"></script>
     </head>
 
     <body>
 
         <script>
             var finalize = Rpd.export.json('Network');
+
+            Rpd.navigation.enable();
 
             Rpd.renderNext('svg', document.body, { style: 'quartz', fullPage: true });
 
