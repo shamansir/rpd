@@ -846,6 +846,7 @@ function nodetypeicon(type, icon) {
 }
 
 nodetype('core/basic', {});
+nodetype('core/reference', {});
 channeltype('core/any', {});
 
 // =============================================================================
