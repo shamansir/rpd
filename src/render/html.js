@@ -122,7 +122,7 @@ return function(networkRoot, userConfig) {
         },
 
         'patch/open': function(update) {
-            if (config.closeParent && update.parent) update.parent.close();
+            if ((config.closeParent || config.fullPage) && update.parent) update.parent.close();
             currentPatch = update.patch;
             var newCanvas = tree.patches[update.patch.id];
             networkRoot.append(newCanvas.node());

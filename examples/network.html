@@ -36,12 +36,17 @@
 
         <!-- RPD I/O: json -->
         <script src="../src/io/json.js"></script>
+
+        <!-- RPD navigation: browser -->
+        <script src="../src/navigation/browser.js"></script>
     </head>
 
     <body>
 
         <script>
             var finalize = Rpd.export.json('Network');
+
+            Rpd.navigation.enable();
 
             Rpd.renderNext('svg', document.body, { style: 'quartz', fullPage: true });
 
@@ -52,7 +57,8 @@
             outA.send(3);
 
             var genA = root.addNode('core/basic', 'Generate B');
-            var outB = genA.addOutlet('util/number', 'B', { 'default': 1 });
+            var outB = genA.addOutlet('util/number', 'B');
+            outB.send(1);
 
             var test = root.addNode('util/sum-of-three', 'foo')
             test.addInlet('util/number', 'D');
@@ -75,7 +81,7 @@
             sum.inputs([ in1A, in1B ]);
             sum.outputs([ sum2, sum1 ]);
 
-            var p = root.addNode('util/custom');
+            var p = root.addNode('core/reference', '[Sum Patch]');
             sum.project(p);
 
             //outA.stream(Kefir.repeat(function() { return Kefir.sequentially(100, [1, 2, 3]); }));

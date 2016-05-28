@@ -38,6 +38,7 @@ return {
         var minContentSize = render.size ? { width: render.size.width || 60,
                                              height: render.size.height || 25 }
                                          : { width: 60, height: 25 };
+        var pivot = render.pivot || { x: 0.5, y: 0.5 };
 
         function findBestNodeSize(numInlets, numOutlets, minContentSize) {
            var requiredContentWidth = (2 * socketsMargin) + ((Math.max(numInlets, numOutlets) - 1) * socketPadding);
@@ -94,7 +95,8 @@ return {
 
         // append placeholders for inlets, outlets and a target element to render body into
         nodeElm.append('g').attr('class', 'rpd-inlets').data({ position: { x: 0, y: 0 } });
-        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + headerWidth + ',' + (height / 2) + ')');
+        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (headerWidth + (width * pivot.x)) + ','
+                                                                                        + (pivot.y * height) + ')');
         nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + 0 + ',' + height + ')')
                                                         .data({ position: { x: 0, y: height } });
 
@@ -113,7 +115,7 @@ return {
             nodeElm.select('rect.rpd-body').attr('height', newSize.height).attr('width', newSize.width);
             nodeElm.select('rect.rpd-content').attr('width', newSize.width - headerWidth);
             nodeElm.select('g.rpd-process').attr('transform',
-                'translate(' + (headerWidth + ((newSize.width - headerWidth) / 2)) + ',' + (newSize.height / 2) + ')');
+                'translate(' + (headerWidth + ((newSize.width - headerWidth) * pivot.x)) + ',' + (newSize.height * pivot.y) + ')');
             nodeElm.select('.rpd-remove-button').attr('transform', 'translate(' + (newSize.width-12) + ',1)');
             lastSize = newSize;
         }
