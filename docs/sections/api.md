@@ -6,18 +6,33 @@ level: 1
 
 When you want to provide user with some existing node network or to load and build it from file (for which there is no `io` module), you may use Network Building API with these methods:
 
-* Rpd
-
-* Patch
-    *
-
-When you want to build your own toolkit, you may decide to register your node & channel types and renderers using these methods:
-
-* Rpd
+* `Rpd`
+    * `Rpd.addPatch(name) → Patch`
+    * `Rpd.addClosedPatch(name) → Patch`
+* `Patch`
+    * `patch.addNode(title[, definition]) → Node`
+    * `patch.removeNode(node) → Node`
+* `Node`    
+    * `node.addInlet(alias[, definition]) → Inlet`
+    * `node.addOutlet(alias[, definition]) → Outlet`
+* `Outlet`    
+    * `outlet.connect(inlet)`
 
 To control the rendering queue, you may use these methods:
 
-* Rpd
+* `Rpd`
+    * `Rpd.renderNext(renderers, targets, config)`
+    * `Rpd.stopRendering()`
+* `Patch`
+    * `patch.render(renderers, targets, config)`
+
+When you want to build your own toolkit, you may decide to register your node & channel types and renderers using these methods:
+
+* `Rpd`
+    * `Rpd.nodetype(type, definition)`
+    * `Rpd.channeltype(type, definition)`    
+    * `Rpd.noderenderer(type, alias, definition)`        
+    * `Rpd.channelrenderer(type, alias, definition)`            
 
 ### Core types
 
@@ -49,11 +64,11 @@ From this point and below, let's consider some example to illustrate the practic
 
 #### `Rpd.stopRendering()`
 
-#### `Rpd.addPatch([title], [def]) → Patch`
+#### `Rpd.addPatch([title], [definition]) → Patch`
 
 Adds new patch to the network. Patch is a container for a set of nodes and connections between them. Every patch added this way is _opened_ by default, which means that it is rendered right away, and reacts immediately to every following change. You may set a patch title here and, also optionally, define handlers for the [events happening inside](./events.md#Patch), this way:
 
-#### `Rpd.addClosedPatch(title, [def])`
+#### `Rpd.addClosedPatch(title, [definition])`
 
 Adds new patch to the network almost the same way as `addPatch` above, but this patch is closed when you add it, so you need to explicitly call its `open()` method when you want this patch to render.
 
@@ -70,7 +85,7 @@ NB: Please note that user may in any case extend the instance with own definitio
 
 The new `type` name should be in the form `toolkit/typename`. For example, there could be nodes with the types `util/bang`, `util/color`, `blender/render`, `animatron/player`, `processing/color`, `processing/sketch` etc. Prefer one word for the type name when possible, or join several words with dash symbol `-`, when it's really not.
 
-Then goes the definition (`def`) :
+Then goes the definition:
 
 * `title`: ...
 
@@ -106,17 +121,17 @@ Nodes are connected with links going from outputs of one node to inputs of anoth
 
 #### `patch.render(renderers, targets, config)`
 
-#### `patch.addNode(type, title, [def]) → Node`
+#### `patch.addNode(type, title, [definition]) → Node`
 
 Add a node, which represents any process over some inputs (inlets) and sends result of the process to its outputs (outlets). A node can have no inputs or no outputs at all, or even both, so in the latter case this node is called self-sufficient.
 
-The type of the node is some previously registered type, for example, `core/basic`. Usually it has the form `toolkit/definition`. You may use a prepared one from the [toolkits](TODO) or easily create your own types for the nodes with [`Rpd.nodetype`](TODO).
+The type of the node is some previously registered type, for example, `core/basic`. Usually it has the form `toolkit/short-name`. You may use a prepared one from the [toolkits](TODO) or easily create your own types for the nodes with [`Rpd.nodetype`](TODO).
 
 You may specify a custom title, if you want, or the engine will fall back to the type name.
 
 _Definition:_
 
-The third argument, `def` is a bit tricky one, but just a bit. It's optional, so usually you may omit it without any compunction. This argument is the object which actually has exactly the same structure as the object used for `Rpd.nodetype`. It helps you to override the type definition for this particular node instance, when you want. <!-- Test it merges definitions, not overrides everything -->
+The third argument, `definition` is a bit tricky one, but just a bit. It's optional, so usually you may omit it without any compunction. This argument is the object which actually has exactly the same structure as the object used for `Rpd.nodetype`. It helps you to override the type definition for this particular node instance, when you want. <!-- Test it merges definitions, not overrides everything -->
 
 NB: When you override inlets and outlets this way, you may later access them using `node.inlets[alias]` and `node.outlets[alias]` shortcuts, same way as when you defined them with `Rpd.nodetype`. The inlets and outlets added later with `node.addInlet` and `node.addOutlet` methods are not accessible with this shortcuts, that is, I hope, rather logical.
 
@@ -166,25 +181,25 @@ Node represents the thing we call procedure in programming: it receives data thr
 
 _Definition:_ You can find the complete node definition at [`Rpd.nodetype`]() method description.
 
-#### `node.addInlet(type, alias, [def]) → Inlet`
+#### `node.addInlet(type, alias, [definition]) → Inlet`
 
 Add the input channel to this node, so it will be able to receive data and pass this data inside the node. You need to specify the type of this channel, so the system will know which way to process your data before passing it inside, or even decline connections from other types of channels. `core/any` is the system type which accepts connections from outlets of any type, so probably for start you'd want to use it. Later, though, it could be better to change it to something more specific, i.e. decide that it accepts only numbers or colors values. This will allow you to control the way data in this channel is displayed or even add custom _value editor_ to this channel.
 
-The second argument, `alias`, is the label of this channel displayed to user and also may be used to access this inlet from inside the node, so it's recommended to make it one-word and start from lowercase letter, like the key names you normally use for JavaScript objects. There is another form of this method, `addInlet(type, alias, label, [def])`, using which you may specify user-friendly name to display in UI with `label` attribute, and still use short programmer-friendly `alias` to access this inlet from the code.
+The second argument, `alias`, is the label of this channel displayed to user and also may be used to access this inlet from inside the node, so it's recommended to make it one-word and start from lowercase letter, like the key names you normally use for JavaScript objects. There is another form of this method, `addInlet(type, alias, label, [definition])`, using which you may specify user-friendly name to display in UI with `label` attribute, and still use short programmer-friendly `alias` to access this inlet from the code.
 
-Last argument, `def`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Inlet](#Inlet) <!-- or Rpd.channeltype? --> section below.
+Last argument, `definition`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Inlet](#Inlet) <!-- or Rpd.channeltype? --> section below.
 
 By default, inlets accept connection only from one outlet, so when user connects some other outlet to this inlet, the previous connection, if it existed, is immediately and automatically removed. Though, you can pass an option to the renderer named `inletsAcceptMultipleLinks` and set it to `true`, so multiple connections will be available to user and inlets will receive values from all the outlets connected in order they were fired. <!-- FIXME: check if it works and consider #336 -->
 
 You can discover the complete list of the properties which could be used in this definition if you read the [`Rpd.channeltype`](TODO) method description.
 
-#### `node.addOutlet(type, alias, [def]) → Outlet`
+#### `node.addOutlet(type, alias, [definition]) → Outlet`
 
 Add the output channel to this node, so it will be able to send data to the inlets of other nodes, when connected to them. Same way as for `addInlet` method described above and following the same reasons, you need to specify the type of the channel, which can be `core/any` while you do experiments and is recommended to be changed to something more specific later, unless this channel was really intended to accept anything.
 
-Also, you need to specify `alias`, to be able to access this outlet from the code using this `alias`. It is recommended to be short, preferably one-word and to start from lowercase letter. If you want to show user something more eye-candy, you may use another form of this method, `addOutlet(type, alias, label, [def])`.
+Also, you need to specify `alias`, to be able to access this outlet from the code using this `alias`. It is recommended to be short, preferably one-word and to start from lowercase letter. If you want to show user something more eye-candy, you may use another form of this method, `addOutlet(type, alias, label, [definition])`.
 
-Last argument, `def`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Outlet](#Outlet) <!-- or Rpd.channeltype? --> section below.
+Last argument, `definition`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Outlet](#Outlet) <!-- or Rpd.channeltype? --> section below.
 
 You can discover the complete list of the properties which could be used in this definition if you read the [`Rpd.channeltype`](TODO) method description.
 
