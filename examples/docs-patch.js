@@ -13,7 +13,7 @@ function applyRpdLogoPatch(logoNode, planetsSvgNode, patchTargetNode) {
       .style('left', logoBox.left + 'px').style('top', logoBox.top + 'px')
 
     d3.select(patchTargetNode)
-      .style('position', 'relative')
+      .style('position', 'absolute')
       .style('left', (logoBox.left - widthRequiredForNodes) + 'px').style('top', (logoBox.top - topMargin) + 'px')
 
     <!-- ****** Register Patch Types ****** -->

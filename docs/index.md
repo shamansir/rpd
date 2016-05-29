@@ -187,6 +187,6 @@ _I/O Module_ records every action (or only some of the actions) performed to bui
 [renderer-comp-section]: ./sections/compilation.html#renderers
 [style-comp-section]: ./sections/compilation.html#styles
 
-<script defer src="../../vendor/d3.v3.min.js"></script>
-<script defer src="../../examples/docs-patch.js"></script>
+<script defer src="./d3.v3.min.js"></script>
+<script defer src="./docs-patch.js"></script>
 <script defer src="./index-patches.js"></script>

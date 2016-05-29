@@ -26,6 +26,12 @@ function applyCodeExample1() {
 }
 
 applyCodeExample1();
-applyRpdLogoPatch(document.getElementById('rpd-logo'),
-                  document.getElementById('planets'),
-                  document.getElementById('patch-target'))
+
+var logoPatchAdded = false;
+document.getElementById('planets').addEventListener('click', function() {
+    if (logoPatchAdded) return;
+    logoPatchAdded = true;
+    applyRpdLogoPatch(document.getElementById('rpd-logo'),
+                      document.getElementById('planets'),
+                      document.getElementById('patch-target'));
+});

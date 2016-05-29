@@ -162,7 +162,7 @@ footer {
 } */
 
 #logo-patch > #patch-target {
-    width: 100%;
+    /* width: 100%; */
 }
 
 #logo-patch > #planets {
@@ -198,6 +198,7 @@ article code, article pre {
 
 .rpd-node .rpd-header {
     fill: rgba(160,107,154,0.95);
+    cursor: auto;
 }
 
 .rpd-node .rpd-content {

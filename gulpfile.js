@@ -3,6 +3,7 @@ var gulp = require('gulp'),
     closureCompiler = require('gulp-closure-compiler'),
     header = require('gulp-header'),
     size = require('gulp-size'),
+    del = require('del'),
     concat = require('gulp-concat'),
     gzip = require('gulp-gzip'),
     // to get vendor files
@@ -335,8 +336,16 @@ function makeDocs(config, f) {
                  .pipe(gulp.dest('./docs/compiled/'));
 }
 
+gulp.task('docs-clean-dir', function() {
+    return del([ './docs/compiled/assets/**/*', './docs/compiled/**/*' ]);
+});
+
 gulp.task('docs-copy-dependencies', function() {
-    var dependencies = ['./vendor/kefir.min.js', './dist/rpd-docs.css', './dist/rpd-docs.min.js'];
+    var dependencies = ['./vendor/kefir.min.js',
+                        './vendor/d3.v3.min.js',
+                        './examples/docs-patch.js',
+                        './dist/rpd-docs.css',
+                        './dist/rpd-docs.min.js'];
 
     var lastChecked;
     try {
@@ -360,6 +369,11 @@ gulp.task('docs-copy-dependencies', function() {
 });
 
 gulp.task('docs-copy-assets', function() {
+    return gulp.src([ './docs/assets/*.*' ])
+               .pipe(gulp.dest('./docs/compiled/assets'));
+});
+
+gulp.task('docs-copy-root-assets', function() {
     return gulp.src(['./docs/*.js', './docs/*.css', './docs/*.svg', './docs/*.ico'])
                .pipe(gulp.dest('./docs/compiled/'));
 });
@@ -370,7 +384,10 @@ gulp.task('docs-copy-highlight-css', function() {
                .pipe(gulp.dest('./docs/compiled/'));
 });
 
-gulp.task('docs', ['docs-copy-dependencies', 'docs-copy-assets', 'docs-copy-highlight-css'], function() {
+gulp.task('docs', [ 'docs-clean-dir', 'docs-copy-dependencies',
+                    'docs-copy-root-assets', 'docs-copy-assets',
+                    'docs-copy-highlight-css' ], function() {
+
     //var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
     var result = makeDocs(config);
