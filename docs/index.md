@@ -3,9 +3,10 @@ title: Introduction
 id: introduction
 ---
 
-<div id="logo-patch-target">
-    <img id="large-logo" src="./rpd.svg" width="140" height="140" />
-    <div id="rpd-logo-patch"></div>
+<div id="logo-patch">
+    <div id="patch-target"></div>
+    <svg id="planets" width="500px" height="140px"></svg>
+    <!-- rpd-svg-logo: #rpd-logo -->
 </div>
 
 <!-- TODO SVG icon patch: -->

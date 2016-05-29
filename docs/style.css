@@ -150,19 +150,23 @@ footer {
     width: 65%;
 }
 
-#logo-patch-target {
+#logo-patch {
     text-align: center;
     margin: 4em 0;
     width: 100%;
 }
 
-#logo-patch-target > img {
+/* #logo-patch > svg {
     width: 140px;
     height: 140px;
+} */
+
+#logo-patch > #patch-target {
+    width: 100%;
 }
 
-#logo-patch-target > #rpd-patch {
-    width: 100%;
+#logo-patch > #planets {
+    position: absolute;
 }
 
 pre {
