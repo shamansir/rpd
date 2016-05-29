@@ -6,7 +6,7 @@ id: introduction
 <div id="logo-patch">
     <div id="patch-target"></div>
     <svg id="planets" width="500px" height="140px"></svg>
-    <!-- rpd-svg-logo: #rpd-logo -->
+    <!-- rpd-svg-logo: #rpd-logo 140 140 -->
 </div>
 
 <!-- TODO SVG icon patch: -->
@@ -187,4 +187,6 @@ _I/O Module_ records every action (or only some of the actions) performed to bui
 [renderer-comp-section]: ./sections/compilation.html#renderers
 [style-comp-section]: ./sections/compilation.html#styles
 
+<script defer src="../../vendor/d3.v3.min.js"></script>
+<script defer src="../../examples/docs-patch.js"></script>
 <script defer src="./index-patches.js"></script>

@@ -1,3 +1,62 @@
+function applyRpdLogoPatch(logoNode, planetsSvgNode, patchTargetNode) {
+    var logoBox = logoNode.getBoundingClientRect();
+
+    var animationWidth = 500,
+        animationHeight = logoBox.height;
+
+    var widthRequiredForNodes = 300;
+
+    var topMargin = 20, bottomMargin = 20;
+
+    d3.select(planetsSvgNode)
+      .style('position', 'absolute')
+      .style('left', logoBox.left + 'px').style('top', logoBox.top + 'px')
+
+    d3.select(patchTargetNode)
+      .style('position', 'relative')
+      .style('left', (logoBox.left - widthRequiredForNodes) + 'px').style('top', (logoBox.top - topMargin) + 'px')
+
+    <!-- ****** Register Patch Types ****** -->
+
+    Rpd.nodetype('docs/logo-anim', {
+        inlets: {
+            'test': { type: 'core/any' }
+        }
+    });
+
+    Rpd.noderenderer('docs/logo-anim', 'svg', {
+        size: { width: animationWidth + 10, height: animationHeight },
+        first: function() {
+
+        },
+        always: function() {
+
+        }
+    });
+
+    <!-- ****** Building Patch Network ****** -->
+
+    Rpd.renderNext('svg', patchTargetNode,
+                   { style: 'compact-v', nodeMovingAllowed: false });
+
+    var patch = Rpd.addPatch('Docs Patch');
+
+    //patch.moveCanvas(logoBox.left - widthRequiredForNodes, logoBox.top);
+    patch.resizeCanvas(widthRequiredForNodes + animationWidth + 10,
+                       animationHeight + topMargin + bottomMargin);
+
+    patch.addNode('core/basic', 'Basic');
+
+    var animNode = patch.addNode('docs/logo-anim', 'Animation');
+
+    animNode.move(widthRequiredForNodes - 5, 10);
+
+    <!-- ****** Animation with D3 ****** -->
+
+    attachPlanetsAnimation(planetsSvgNode, logoNode,
+                           {}, animationWidth, animationHeight);
+}
+
 function attachPlanetsAnimation(planetsNode, logoNode, config, width, height) {
 
     var LOGO_SUN_REF = '#Oval-1';

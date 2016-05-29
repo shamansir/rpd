@@ -284,12 +284,12 @@ var injectCodepens = parser({
     }
 });
 
-var svgLogoRe = new RegExp('<!-- rpd-svg-logo: #([\-a-z]+) -->', 'g');
+var svgLogoRe = new RegExp('<!-- rpd-svg-logo: #([\-a-z]+) ([0-9]+) ([0-9]+) -->', 'g');
 var svgLogoFile = fs.readFileSync("docs/rpd.svg", "utf8");
 var injectSvgLogo = parser({
     name: 'inject-svg-logo',
     func: function(data) {
-        return data.replace(svgLogoRe, svgLogoFile.replace('<svg', '<svg id="\$1"'));
+        return data.replace(svgLogoRe, svgLogoFile.replace('<svg', '<svg id="\$1" width="\$2px" height="\$3px"'));
     }
 });
 

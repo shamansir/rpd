@@ -9,8 +9,8 @@ function applyCodeExample1() {
     rgNode.inlets['max'].receive(500);
     rgNode.inlets['period'].receive(3000);
 
-    var logNode = rgPatch.addNode('util/log', 'Log');
-    rgNode.outlets['out'].connect(logNode.inlets['what']);
+    //var logNode = rgPatch.addNode('util/log', 'Log');
+    //rgNode.outlets['out'].connect(logNode.inlets['what']);
 
     var multiplyTwo = rgPatch.addNode('core/basic', '* 2', {
         process: function(inlets) {
@@ -25,18 +25,7 @@ function applyCodeExample1() {
     rgNode.outlets['out'].connect(multiplierInlet);
 }
 
-function applyRpdLogoPatch(logoElm, patchElm) {
-
-    //Rpd.renderNext('svg', patchElm, { style: 'quartz' });
-
-    //Rpd.addPatch('test');
-
-    //Rpd.addNode('core/basic', 'Foo');
-
-    //alert('Rpd: ' + Rpd);
-    //alert('applyRpdLogoPatch ' + logoElm + ' ' + patchElm);
-}
-
 applyCodeExample1();
-applyRpdLogoPatch(document.getElementById('large-logo'),
-                  document.getElementById('rpd-logo-patch'));
+applyRpdLogoPatch(document.getElementById('rpd-logo'),
+                  document.getElementById('planets'),
+                  document.getElementById('patch-target'))

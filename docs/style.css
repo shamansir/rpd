@@ -195,3 +195,24 @@ article code, article pre {
 #jump-to-top a {
     text-decoration: none;
 }
+
+.rpd-node .rpd-header {
+    fill: rgba(160,107,154,0.95);
+}
+
+.rpd-node .rpd-content {
+    fill: rgba(141,158,198,0.9);
+}
+
+/* 203, 118, 158 */
+/* 224, 152, 145 */
+/* 232, 185, 171 */
+/* 215, 192, 208 */
+/* 124, 132, 131 */
+/* 172, 221, 231 */
+/* 154, 213, 202 */
+
+.rpd-node .rpd-shadow {
+    opacity: 0.3;
+    fill: rgb(172, 221, 231);
+}
