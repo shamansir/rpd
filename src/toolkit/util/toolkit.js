@@ -132,7 +132,9 @@ Rpd.nodetype('util/bang', {
 });
 
 Rpd.nodetype('util/metro', {
-    inlets: { 'trigger': { type: 'util/bang', hidden: true } },
+    inlets: { /*'enabled':  { type: 'util/boolean' },*/
+              'period': { type: 'util/number', default: 300 }, // -> util/time (seconds)
+              'trigger': { type: 'util/bang', hidden: true } },
     outlets: { 'out': { type: 'util/bang' } },
     process: function(inlets) {
         return inlets.trigger ? { 'out': {} } : {};

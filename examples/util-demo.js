@@ -29,7 +29,7 @@ function buildUtilDemoPatch(renderer, target, conf) {
     // outC.send(5);
 
     var log = model.addNode('util/log');
-    log.move(375,100);
+    log.move(375, 100);
     sumOfThree.outlets['sum'].connect(log.inlets['what']);
 
     var nodeList = model.addNode('util/nodelist');

@@ -84,8 +84,7 @@ Rpd.noderenderer('util/bang', 'svg', {
     size: { width: 30, height: 25 },
     first: function(bodyElm) {
         var circle = d3.select(svgNode('circle'))
-                       .attr('cx', 15).attr('r', 9)
-                       .attr('fill', 'black')
+                       .attr('r', 9).attr('fill', 'black')
                        .style('cursor', 'pointer')
                        .style('pointer-events', 'all');
         d3.select(bodyElm).append(circle.node());
@@ -103,8 +102,7 @@ Rpd.noderenderer('util/metro', 'svg', {
     size: { width: 30, height: 25 },
     first: function(bodyElm) {
         var circle = d3.select(svgNode('circle'))
-                       .attr('cx', 15).attr('r', 9)
-                       .attr('fill', 'black')
+                       .attr('r', 9).attr('fill', 'black')
                        .style('cursor', 'pointer')
                        .style('pointer-events', 'all');
         d3.select(bodyElm).append(circle.node());
