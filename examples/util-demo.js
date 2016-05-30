@@ -6,7 +6,7 @@ function buildUtilDemoPatch(renderer, target, conf) {
     var outA = genA.addOutlet('util/number', 'A');
 
     var genA = model.addNode('core/basic', 'Generate B');
-    var outB = genA.addOutlet('util/number', 'B', { 'default': 1 });
+    var outB = genA.addOutlet('util/number', 'B');
 
     var sumOfThree = model.addNode('util/sum-of-three', 'Sum1').move(200, 20);
     var inA = sumOfThree.inlets['a'];
@@ -27,6 +27,10 @@ function buildUtilDemoPatch(renderer, target, conf) {
     outB.stream(Kefir.repeat(function() {
         return Kefir.sequentially(800, [4, 5, 6]); }));
     // outC.send(5);
+
+    var log = model.addNode('util/log');
+    log.move(375,100);
+    sumOfThree.outlets['sum'].connect(log.inlets['what']);
 
     var nodeList = model.addNode('util/nodelist');
     nodeList.move(550, 30);

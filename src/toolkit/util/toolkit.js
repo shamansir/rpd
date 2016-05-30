@@ -228,9 +228,7 @@ Rpd.nodetype('util/log', {
     inlets: {
         'what': { type: 'core/any' }
     },
-    process: function(inlets) {
-        console.log(inlets.what);
-    }
+    process: function(inlets) { }
 });
 
 /* var howMuchColors = howMuch('color', 'colors');

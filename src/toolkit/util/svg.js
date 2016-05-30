@@ -57,6 +57,27 @@ Rpd.noderenderer('util/comment', 'svg', function() {
     }
 });
 
+/* ========================= util/comment ========================= */
+
+Rpd.noderenderer('util/log', 'svg', function() {
+    var textElm;
+    var capacity = 5;
+    var savedValues = [];
+    return {
+        size: { width: 130, height: 30 },
+        first: function(bodyElm) {
+            textElm = d3.select(bodyElm).append('text');
+        },
+        always: function(bodyElm, inlets, outlets) {
+            if (inlets.what) {
+                if (savedValues.length > capacity) savedValues.shift();
+                savedValues.push(inlets.what);
+            }
+            textElm.text((savedValues.length > 0) ? ('...' + savedValues.join(', ') + '.') : '...');
+        }
+    }
+});
+
 /* ========================= util/bang ========================= */
 
 Rpd.noderenderer('util/bang', 'svg', {
