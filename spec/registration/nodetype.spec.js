@@ -693,17 +693,21 @@ describe('registration: node type', function() {
 
             });
 
-            xit('users are able to turn off streams they send from outlets', function(done) {
+            it('users are able to turn off streams they send from outlets', function(done) {
 
                 var lastStream;
+                var firstTime = true;
                 var pool = Kefir.pool();
-                pool.log();
 
                 processSpy.and.callFake(function(inlets) {
-                    if (lastStream) pool.unplug(lastStream);
+                    if (lastStream) {
+                        firstTime = false;
+                        pool.unplug(lastStream);
+                    }
                     lastStream = Kefir.interval(inlets.config.period, inlets.config.value);
                     pool.plug(lastStream);
-                    return { 'out': pool };
+                    //return { 'out': firstTime ? pool : Kefir.never() };
+                    return firstTime ? { 'out': pool } : null;
                 });
 
                 Rpd.nodetype('spec/foo', {
@@ -721,8 +725,6 @@ describe('registration: node type', function() {
 
                     var outlet = node.outlets['out'];
 
-                    console.log('before value 3');
-
                     setTimeout(function() {
                         expect(updateSpy).toHaveBeenCalledWith(
                             jasmine.objectContaining({ type: 'outlet/update',
@@ -732,8 +734,6 @@ describe('registration: node type', function() {
 
                         node.inlets['config'].receive({ period: 10, value: 7 });
                         updateSpy.calls.reset();
-
-                        console.log('before value 7');
 
                         setTimeout(function() {
                             pool.unplug(lastStream);
