@@ -593,43 +593,169 @@ describe('registration: node type', function() {
 
         });
 
-        it('passes streamed values to corresponding outlets', function(done) {
+        describe('streaming to outlets', function() {
 
-            var values = [ 3, 14, 15, 92 ];
-            var period = 30;
+            it('passes streamed values to corresponding outlets', function(done) {
 
-            processSpy.and.callFake(function(inlets) {
-                return { 'out': Kefir.sequentially(period, values)
-                                     .map(function(value) {
-                                         return (inlets.in * value);
-                                     }) };
+                var values = [ 3, 14, 15, 92 ];
+                var period = 30;
+
+                processSpy.and.callFake(function(inlets) {
+                    return { 'out': Kefir.sequentially(period, values)
+                                         .map(function(value) {
+                                             return (inlets.in * value);
+                                         }) };
+                });
+
+                Rpd.nodetype('spec/foo', {
+                    inlets:  { 'in': { type: 'spec/any' } },
+                    outlets: { 'out': { type: 'spec/any' } },
+                    process: processSpy
+                });
+
+                withNewPatch(function(patch, updateSpy) {
+
+                    var node = patch.addNode('spec/foo');
+
+                    node.inlets['in'].receive(7);
+
+                    var outlet = node.outlets['out'];
+
+                    expect(processSpy).toHaveBeenCalled();
+
+                    setTimeout(function() {
+                        for (var i = 0; i < values.length; i++) {
+                            expect(updateSpy).toHaveBeenCalledWith(
+                                jasmine.objectContaining({ type: 'outlet/update',
+                                                           outlet: outlet,
+                                                           value: values[i] * 7 }));
+                        }
+                        done();
+                    }, period * (values.length + 1));
+
+                });
+
             });
 
-            Rpd.nodetype('spec/foo', {
-                inlets:  { 'in': { type: 'spec/any' } },
-                outlets: { 'out': { type: 'spec/any' } },
-                process: processSpy
-            });
+            it('new calls to the process function properly create new streams', function(done) {
 
-            withNewPatch(function(patch, updateSpy) {
+                processSpy.and.callFake(function(inlets) {
+                    return { 'out':
+                        Kefir.interval(inlets.config.period, inlets.config.value)
+                             .take(inlets.config.count)
+                    };
+                });
 
-                var node = patch.addNode('spec/foo');
+                Rpd.nodetype('spec/foo', {
+                    inlets:  { 'config': { type: 'spec/any' } },
+                    outlets: { 'out': { type: 'spec/any' } },
+                    process: processSpy
+                });
 
-                node.inlets['in'].receive(7);
+                withNewPatch(function(patch, updateSpy) {
 
-                var outlet = node.outlets['out'];
+                    var node = patch.addNode('spec/foo');
 
-                expect(processSpy).toHaveBeenCalled();
+                    node.inlets['config'].receive({ period: 20, count: 10, value: 3 });
+                    updateSpy.calls.reset();
 
-                setTimeout(function() {
-                    for (var i = 0; i < values.length; i++) {
+                    var outlet = node.outlets['out'];
+
+                    setTimeout(function() {
                         expect(updateSpy).toHaveBeenCalledWith(
                             jasmine.objectContaining({ type: 'outlet/update',
                                                        outlet: outlet,
-                                                       value: values[i] * 7 }));
-                    }
-                    done();
-                }, period * (values.length + 1));
+                                                       value: 3 }));
+                        expect(updateSpy.calls.count()).toBe(10);
+
+                        node.inlets['config'].receive({ period: 10, count: 5, value: 7 });
+                        updateSpy.calls.reset();
+
+                        setTimeout(function() {
+                            expect(updateSpy).not.toHaveBeenCalledWith(
+                                jasmine.objectContaining({ type: 'outlet/update',
+                                                           outlet: outlet,
+                                                           value: 3 }));
+
+                            expect(updateSpy).toHaveBeenCalledWith(
+                                jasmine.objectContaining({ type: 'outlet/update',
+                                                           outlet: outlet,
+                                                           value: 7 }));
+
+                            expect(updateSpy.calls.count()).toBe(5);
+
+                            done();
+                        }, 10 * 5);
+
+                    }, 20 * 10);
+
+                });
+
+            });
+
+            xit('users are able to turn off streams they send from outlets', function(done) {
+
+                var lastStream;
+                var pool = Kefir.pool();
+                pool.log();
+
+                processSpy.and.callFake(function(inlets) {
+                    if (lastStream) pool.unplug(lastStream);
+                    lastStream = Kefir.interval(inlets.config.period, inlets.config.value);
+                    pool.plug(lastStream);
+                    return { 'out': pool };
+                });
+
+                Rpd.nodetype('spec/foo', {
+                    inlets:  { 'config': { type: 'spec/any' } },
+                    outlets: { 'out': { type: 'spec/any' } },
+                    process: processSpy
+                });
+
+                withNewPatch(function(patch, updateSpy) {
+
+                    var node = patch.addNode('spec/foo');
+
+                    node.inlets['config'].receive({ period: 20, value: 3 });
+                    updateSpy.calls.reset();
+
+                    var outlet = node.outlets['out'];
+
+                    console.log('before value 3');
+
+                    setTimeout(function() {
+                        expect(updateSpy).toHaveBeenCalledWith(
+                            jasmine.objectContaining({ type: 'outlet/update',
+                                                       outlet: outlet,
+                                                       value: 3 }));
+                        expect(updateSpy.calls.count()).toBe(10);
+
+                        node.inlets['config'].receive({ period: 10, value: 7 });
+                        updateSpy.calls.reset();
+
+                        console.log('before value 7');
+
+                        setTimeout(function() {
+                            pool.unplug(lastStream);
+
+                            expect(updateSpy).not.toHaveBeenCalledWith(
+                                jasmine.objectContaining({ type: 'outlet/update',
+                                                           outlet: outlet,
+                                                           value: 3 }));
+
+                            expect(updateSpy).toHaveBeenCalledWith(
+                                jasmine.objectContaining({ type: 'outlet/update',
+                                                           outlet: outlet,
+                                                           value: 7 }));
+
+                            expect(updateSpy.calls.count()).toBe(5);
+
+                            done();
+                        }, 10 * 5);
+
+                    }, 20 * 10);
+
+                });
 
             });
 
