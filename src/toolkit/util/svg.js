@@ -103,21 +103,26 @@ Rpd.noderenderer('util/bang', 'svg', {
 
 /* ========================= util/metro ========================= */
 
-Rpd.noderenderer('util/metro', 'svg', {
-    size: { width: 30, height: 25 },
-    first: function(bodyElm) {
-        var circle = d3.select(svgNode('circle'))
+Rpd.noderenderer('util/metro', 'svg', function() {
+    var circle;
+    return {
+        size: { width: 30, height: 25 },
+        first: function(bodyElm) {
+            circle = d3.select(svgNode('circle'))
                        .attr('r', 9).attr('fill', 'black')
                        .style('cursor', 'pointer')
                        .style('pointer-events', 'all');
-        d3.select(bodyElm).append(circle.node());
-        var circleClicks = Kefir.fromEvents(circle.node(), 'click');
-        return { 'trigger':
-            { valueOut: circleClicks.map(function() { return {}; }) }
-        };
-    },
-    always: function(bodyElm, inlets, outlets) {
-
+            d3.select(bodyElm).append(circle.node());
+        },
+        always: function(bodyElm, inlets, outlets) {
+            if (outlets.out) {
+                outlets.out.onValue(function() {
+                    circle.classed('rpd-util-metro-fresh', true);
+                }).delay(500).onValue(function() {
+                    circle.classed('rpd-util-metro-fresh', false);
+                });
+            }
+        }
     }
 });
 

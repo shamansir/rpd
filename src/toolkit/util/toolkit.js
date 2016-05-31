@@ -136,19 +136,20 @@ Rpd.nodetype('util/metro', function() {
     var firstTime = true;
     var pool = Kefir.pool();
     return {
-        inlets: { /*'enabled':  { type: 'util/boolean' },*/
-                  'period': { type: 'util/time', default: 3000 }, // -> util/time (seconds)
-                  'trigger': { type: 'util/bang', hidden: true } },
+        inlets: { 'enabled': { type: 'util/boolean', default: true },
+                  'period': { type: 'util/time', default: 3000 } },
         outlets: { 'out': { type: 'util/bang' } },
         process: function(inlets) {
             if (lastStream) {
                 firstTime = false;
                 pool.unplug(lastStream);
             }
+            if (!inlets.enabled && !firstTime) return;
             lastStream = Kefir.interval(inlets.period, {});
+                            /*.filter(function() { return inlets.enabled; })*/
             pool.plug(lastStream);
             //return { 'out': firstTime ? pool : Kefir.never() };
-            return firstTime ? { 'out': pool } : null;
+            return firstTime ? { 'out': pool } : {};
         }
     }
 });
@@ -243,6 +244,13 @@ Rpd.nodetype('util/log', {
         'what': { type: 'core/any' }
     },
     process: function(inlets) { }
+});
+
+Rpd.nodetype('util/*', {
+    inlets: { 'a': { type: 'util/number' },
+              'b': { type: 'util/number' } },
+    outlets: { 'out': { type: 'util/number' } },
+    process: function(inlets) { return { 'out': (inlets.a || 0) * (inlets.b || 0) }; }
 });
 
 /* var howMuchColors = howMuch('color', 'colors');
