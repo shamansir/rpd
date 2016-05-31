@@ -720,35 +720,37 @@ describe('registration: node type', function() {
 
                     var node = patch.addNode('spec/foo');
 
-                    node.inlets['config'].receive({ period: 20, value: 3 });
-                    updateSpy.calls.reset();
-
                     var outlet = node.outlets['out'];
+                    var updateEventStream = outlet.event['outlet/update'];
+
+                    var outletUpdateSpy = jasmine.createSpy();
+                    var value3spy = jasmine.createSpy('value-3');
+                    var value7spy = jasmine.createSpy('value-7');
+
+                    updateEventStream.onValue(outletUpdateSpy);
+                    updateEventStream.filter(function(value) {
+                        return (value === 3);
+                    }).onValue(value3spy);
+                    updateEventStream.filter(function(value) {
+                        return (value === 7);
+                    }).onValue(value7spy);
+
+                    node.inlets['config'].receive({ period: 20, value: 3 });
 
                     setTimeout(function() {
-                        expect(updateSpy).toHaveBeenCalledWith(
-                            jasmine.objectContaining({ type: 'outlet/update',
-                                                       outlet: outlet,
-                                                       value: 3 }));
-                        expect(updateSpy.calls.count()).toBe(10);
+                        expect(value3spy.calls.count()).toBe(10);
+                        expect(value7spy).not.toHaveBeenCalled();
+                        value3spy.calls.reset();
 
                         node.inlets['config'].receive({ period: 10, value: 7 });
-                        updateSpy.calls.reset();
 
                         setTimeout(function() {
                             pool.unplug(lastStream);
 
-                            expect(updateSpy).not.toHaveBeenCalledWith(
-                                jasmine.objectContaining({ type: 'outlet/update',
-                                                           outlet: outlet,
-                                                           value: 3 }));
+                            expect(value3spy).not.toHaveBeenCalled();
+                            expect(value7spy.calls.count()).toBe(5);
 
-                            expect(updateSpy).toHaveBeenCalledWith(
-                                jasmine.objectContaining({ type: 'outlet/update',
-                                                           outlet: outlet,
-                                                           value: 7 }));
-
-                            expect(updateSpy.calls.count()).toBe(5);
+                            expect(outletUpdateSpy.calls.count()).toBe(10 + 5);
 
                             done();
                         }, 10 * 5);
