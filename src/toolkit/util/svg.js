@@ -185,9 +185,13 @@ Rpd.noderenderer('util/sum-of-three', 'svg', function() {
 
 var adaptToState = RpdUtils.adaptToState;
 
+var KNOB_SPEED = 1.5;
+
+var KNOB_RADIUS = 13,
+    KNOB_WIDTH = 40, // KNOB_RADIUS * 2 + MARGIN
+    KNOB_HEIGHT = KNOB_WIDTH;
+
 function createKnob(state) {
-    var radius = 13;
-    var speed = 1.5;
     var lastValue = 0;
     //var state = { min: 0, max: 100 };
 
@@ -197,23 +201,22 @@ function createKnob(state) {
             var submit = Kefir.emitter();
             d3.select(parent)
               .call(function(bodyGroup) {
-                  face = bodyGroup.append('circle')
-                                  .attr('cx', 20).attr('r', radius)
+                  face = bodyGroup.append('circle').attr('r', KNOB_RADIUS)
                                   .style('fill', 'rgba(200, 200, 200, .2)')
                                   .style('stroke-width', 2)
                                   .style('stroke', '#000');
                   handGhost = bodyGroup.append('line')
                                   .style('visibility', 'hidden')
-                                  .attr('x1', 20).attr('y1', 0)
-                                  .attr('x2', 20).attr('y2', radius - 1)
+                                  .attr('x1', 0).attr('y1', 0)
+                                  .attr('x2', 0).attr('y2', KNOB_RADIUS - 1)
                                   .style('stroke-width', 2)
                                   .style('stroke', 'rgba(255,255,255,0.1)');
                   hand = bodyGroup.append('line')
-                                  .attr('x1', 20).attr('y1', 0)
-                                  .attr('x2', 20).attr('y2', radius)
+                                  .attr('x1', 0).attr('y1', 0)
+                                  .attr('x2', 0).attr('y2', KNOB_RADIUS)
                                   .style('stroke-width', 2)
                                   .style('stroke', '#000');
-                  text = bodyGroup.append('text').attr('x', 20)
+                  text = bodyGroup.append('text')
                                   .style('text-anchor', 'middle')
                                   .style('fill', '#fff')
                                   .text(0);
@@ -229,11 +232,11 @@ function createKnob(state) {
                              .map(stopPropagation)
                              .map(function(event) {
                                  var faceRect = face.node().getBoundingClientRect();
-                                 return { x: event.clientX - (faceRect.left + radius),
-                                          y: event.clientY - (faceRect.top + radius) };
+                                 return { x: event.clientX - (faceRect.left + KNOB_RADIUS),
+                                          y: event.clientY - (faceRect.top + KNOB_RADIUS) };
                              })
                              .map(function(coords) {
-                                 var value = ((coords.y * speed * -1) + 180) / 360;
+                                 var value = ((coords.y * KNOB_SPEED * -1) + 180) / 360;
                                  if (value < 0) {
                                      value = 0;
                                  } else if (value > 1) {
@@ -243,25 +246,24 @@ function createKnob(state) {
                             });
                      values.last().onValue(function(val) {
                          lastValue = val;
-                         handGhost.attr('transform', 'rotate(' + (lastValue * 360) + ',20,0)')
+                         handGhost.attr('transform', 'rotate(' + (lastValue * 360) + ')')
                                   .style('visibility', 'hidden');
                          submit.emit(lastValue);
                      });
                      return values;
                  }).onValue(function(value) {
                      text.text(adaptToState(state, value));
-                     hand.attr('transform', 'rotate(' + (value * 360) + ',20,0)');
+                     hand.attr('transform', 'rotate(' + (value * 360) + ')');
                  });
             return submit;
         }
     }
 }
 
-function initKnob(knob, nodeRoot, id) {
+function initKnob(knob, nodeRoot, id, count) {
     var submit;
-    d3.select(nodeRoot)
-      .append('g')
-      .attr('transform', 'translate(' + (id * 40) + ',0)')
+    d3.select(nodeRoot).append('g')
+      .attr('transform', 'translate(' + ((id * KNOB_WIDTH) + (KNOB_WIDTH / 2) - (count * KNOB_WIDTH / 2)) + ',0)')
       .call(function(knobRoot) {
           knob.root = knobRoot;
           submit = knob.init(knobRoot.node());
@@ -274,7 +276,7 @@ Rpd.noderenderer('util/knob', 'svg', function() {
     var knob = createKnob(state);
 
     return {
-        size: { width: 40, height: 40 },
+        size: { width: KNOB_WIDTH, height: KNOB_HEIGHT },
         first: function(bodyElm) {
             var submit = knob.init(bodyElm);
             return {
@@ -291,21 +293,23 @@ Rpd.noderenderer('util/knob', 'svg', function() {
 var DEFAULT_KNOB_COUNT = 4;
 
 Rpd.noderenderer('util/knobs', 'svg', function() {
+    var count = DEFAULT_KNOB_COUNT;
     var state = { min: 0, max: 100 };
     var knobs = [];
-    for (var i = 0; i < DEFAULT_KNOB_COUNT; i++) {
+    for (var i = 0; i < count; i++) {
         knobs.push(createKnob(state));
     }
     var nodeRoot;
 
     return {
-        size: { width: DEFAULT_KNOB_COUNT * 40, height: 40 },
+        size: { width: count * KNOB_WIDTH, height: KNOB_HEIGHT },
+        //pivot: { x: 0, y: 0.5 },
         first: function(bodyElm) {
             var valueOut = Kefir.pool();
             nodeRoot = bodyElm;
             valueOut = Kefir.combine(
                 knobs.map(function(knob, i) {
-                    return initKnob(knob, nodeRoot, i).merge(Kefir.constant(0)); // so Kefir.combine will send every change
+                    return initKnob(knob, nodeRoot, i, count).merge(Kefir.constant(0)); // so Kefir.combine will send every change
                 })
             );
             return {

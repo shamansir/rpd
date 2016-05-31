@@ -131,13 +131,25 @@ Rpd.nodetype('util/bang', {
     }
 });
 
-Rpd.nodetype('util/metro', {
-    inlets: { /*'enabled':  { type: 'util/boolean' },*/
-              'period': { type: 'util/number', default: 300 }, // -> util/time (seconds)
-              'trigger': { type: 'util/bang', hidden: true } },
-    outlets: { 'out': { type: 'util/bang' } },
-    process: function(inlets) {
-        return inlets.trigger ? { 'out': {} } : {};
+Rpd.nodetype('util/metro', function() {
+    var lastStream;
+    var firstTime = true;
+    var pool = Kefir.pool();
+    return {
+        inlets: { /*'enabled':  { type: 'util/boolean' },*/
+                  'period': { type: 'util/time', default: 3000 }, // -> util/time (seconds)
+                  'trigger': { type: 'util/bang', hidden: true } },
+        outlets: { 'out': { type: 'util/bang' } },
+        process: function(inlets) {
+            if (lastStream) {
+                firstTime = false;
+                pool.unplug(lastStream);
+            }
+            lastStream = Kefir.interval(inlets.period, {});
+            pool.plug(lastStream);
+            //return { 'out': firstTime ? pool : Kefir.never() };
+            return firstTime ? { 'out': pool } : null;
+        }
     }
 });
 
