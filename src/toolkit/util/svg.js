@@ -88,10 +88,15 @@ Rpd.noderenderer('util/bang', 'svg', {
                        .style('cursor', 'pointer')
                        .style('pointer-events', 'all');
         d3.select(bodyElm).append(circle.node());
+        var circleClicks = Kefir.fromEvents(circle.node(), 'click');
+        circleClicks.onValue(function() {
+            circle.classed('rpd-util-bang-fresh', true);
+        });
+        circleClicks.delay(500).onValue(function() {
+            circle.classed('rpd-util-bang-fresh', false);
+        });
         return { 'trigger':
-            { valueOut: Kefir.fromEvents(circle.node(), 'click')
-                             .map(function() { return {}; })
-            }
+            { valueOut: circleClicks.map(function() { return {}; }) }
         };
     }
 });
@@ -106,11 +111,13 @@ Rpd.noderenderer('util/metro', 'svg', {
                        .style('cursor', 'pointer')
                        .style('pointer-events', 'all');
         d3.select(bodyElm).append(circle.node());
+        var circleClicks = Kefir.fromEvents(circle.node(), 'click');
         return { 'trigger':
-            { valueOut: Kefir.fromEvents(circle.node(), 'click')
-                             .map(function() { return {}; })
-            }
+            { valueOut: circleClicks.map(function() { return {}; }) }
         };
+    },
+    always: function(bodyElm, inlets, outlets) {
+
     }
 });
 

@@ -95,3 +95,14 @@
 .rpd-util-sum-of-three .rpd-process text {
     text-anchor: middle;
 }
+
+.rpd-util-bang circle {
+    transition: fill 0.1s ease-in;
+    -webkit-transition: fill 0.1s ease-in;
+}
+
+.rpd-util-bang circle.rpd-util-bang-fresh {
+    fill: red;
+    transition: fill 0.1s ease-out;
+    -webkit-transition: fill 0.1s ease-out;
+}
