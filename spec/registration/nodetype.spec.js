@@ -595,7 +595,15 @@ describe('registration: node type', function() {
 
         describe('streaming to outlets', function() {
 
-            it('passes streamed values to corresponding outlets', function(done) {
+            beforeEach(function() {
+                jasmine.clock().install();
+            });
+
+            afterEach(function() {
+                jasmine.clock().uninstall();
+            });
+
+            it('passes streamed values to corresponding outlets', function() {
 
                 var values = [ 3, 14, 15, 92 ];
                 var period = 30;
@@ -623,21 +631,21 @@ describe('registration: node type', function() {
 
                     expect(processSpy).toHaveBeenCalled();
 
-                    setTimeout(function() {
-                        for (var i = 0; i < values.length; i++) {
-                            expect(updateSpy).toHaveBeenCalledWith(
-                                jasmine.objectContaining({ type: 'outlet/update',
-                                                           outlet: outlet,
-                                                           value: values[i] * 7 }));
-                        }
-                        done();
-                    }, period * (values.length + 1));
+                    jasmine.clock().tick(period * (values.length + 1));
+
+                    for (var i = 0; i < values.length; i++) {
+                        expect(updateSpy).toHaveBeenCalledWith(
+                            jasmine.objectContaining({ type: 'outlet/update',
+                                                       outlet: outlet,
+                                                       value: values[i] * 7 }));
+                    }
+
 
                 });
 
             });
 
-            it('new calls to the process function properly create new streams', function(done) {
+            it('new calls to the process function properly create new streams', function() {
 
                 processSpy.and.callFake(function(inlets) {
                     return { 'out':
@@ -661,39 +669,36 @@ describe('registration: node type', function() {
 
                     var outlet = node.outlets['out'];
 
-                    setTimeout(function() {
-                        expect(updateSpy).toHaveBeenCalledWith(
-                            jasmine.objectContaining({ type: 'outlet/update',
-                                                       outlet: outlet,
-                                                       value: 3 }));
-                        expect(updateSpy.calls.count()).toBe(10);
+                    jasmine.clock().tick(20 * 10 + 1);
 
-                        node.inlets['config'].receive({ period: 10, count: 5, value: 7 });
-                        updateSpy.calls.reset();
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'outlet/update',
+                                                   outlet: outlet,
+                                                   value: 3 }));
+                    expect(updateSpy.calls.count()).toBe(10);
 
-                        setTimeout(function() {
-                            expect(updateSpy).not.toHaveBeenCalledWith(
-                                jasmine.objectContaining({ type: 'outlet/update',
-                                                           outlet: outlet,
-                                                           value: 3 }));
+                    node.inlets['config'].receive({ period: 10, count: 5, value: 7 });
+                    updateSpy.calls.reset();
 
-                            expect(updateSpy).toHaveBeenCalledWith(
-                                jasmine.objectContaining({ type: 'outlet/update',
-                                                           outlet: outlet,
-                                                           value: 7 }));
+                    jasmine.clock().tick(10 * 5 + 1);
 
-                            expect(updateSpy.calls.count()).toBe(5);
+                    expect(updateSpy).not.toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'outlet/update',
+                                                   outlet: outlet,
+                                                   value: 3 }));
 
-                            done();
-                        }, 10 * 5);
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'outlet/update',
+                                                   outlet: outlet,
+                                                   value: 7 }));
 
-                    }, 20 * 10);
+                    expect(updateSpy.calls.count()).toBe(5);
 
                 });
 
             });
 
-            it('users are able to turn off streams they send from outlets', function(done) {
+            it('users are able to turn off streams they send from outlets', function() {
 
                 var lastStream;
                 var firstTime = true;
@@ -737,25 +742,22 @@ describe('registration: node type', function() {
 
                     node.inlets['config'].receive({ period: 20, value: 3 });
 
-                    setTimeout(function() {
-                        expect(value3spy.calls.count()).toBe(10);
-                        expect(value7spy).not.toHaveBeenCalled();
-                        value3spy.calls.reset();
+                    jasmine.clock().tick(20 * 10 + 1);
 
-                        node.inlets['config'].receive({ period: 10, value: 7 });
+                    expect(value3spy.calls.count()).toBe(10);
+                    expect(value7spy).not.toHaveBeenCalled();
+                    value3spy.calls.reset();
 
-                        setTimeout(function() {
-                            pool.unplug(lastStream);
+                    node.inlets['config'].receive({ period: 10, value: 7 });
 
-                            expect(value3spy).not.toHaveBeenCalled();
-                            expect(value7spy.calls.count()).toBe(5);
+                    jasmine.clock().tick(10 * 5 + 1);
 
-                            expect(outletUpdateSpy.calls.count()).toBe(10 + 5);
+                    pool.unplug(lastStream);
 
-                            done();
-                        }, 10 * 5);
+                    expect(value3spy).not.toHaveBeenCalled();
+                    expect(value7spy.calls.count()).toBe(5);
 
-                    }, 20 * 10);
+                    expect(outletUpdateSpy.calls.count()).toBe(10 + 5);
 
                 });
 
