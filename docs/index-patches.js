@@ -5,9 +5,14 @@ function applyCodeExample1() {
 
     var rgPatch = Rpd.addPatch('Generate Random Numbers');
 
-    var rgNode = rgPatch.addNode('util/random', 'Random');
-    rgNode.inlets['max'].receive(500);
-    rgNode.inlets['period'].receive(3000);
+    var rgMetroNode = rgPatch.addNode('util/random', 'Random');
+
+    var rgRandomNode = rgPatch.addNode('util/random', 'Random');
+    rgRandomNode.inlets['max'].receive(500);
+
+    rgMetroNode.outlets['out'].connect(rgRandomNode.inlets['bang']);
+
+    //rgMetroNode.inlets['period'].receive(3000);
 
     //var logNode = rgPatch.addNode('util/log', 'Log');
     //rgNode.outlets['out'].connect(logNode.inlets['what']);
@@ -22,7 +27,7 @@ function applyCodeExample1() {
     var multiplierInlet = multiplyTwo.addInlet('util/number', 'multiplier');
     var resultOutlet = multiplyTwo.addOutlet('util/number', 'result');
 
-    rgNode.outlets['out'].connect(multiplierInlet);
+    rgRandomNode.outlets['out'].connect(multiplierInlet);
 }
 
 applyCodeExample1();

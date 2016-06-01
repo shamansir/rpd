@@ -63,22 +63,14 @@ Rpd.nodetype('util/number', {
 });
 
 Rpd.nodetype('util/random', function() {
-    var lastEmitterId = 0;
     return {
         title: 'random',
-        inlets:  { 'min': { type: 'util/number', default: 0 },
-                   'max': { type: 'util/number', default: 100 },
-                   'period': { type: 'util/time', default: 1000 } },
+        inlets:  { 'bang': { type: 'util/bang', default: {} },
+                   'min': { type: 'util/number', default: 0 },
+                   'max': { type: 'util/number', default: 100 } },
         outlets: { 'out':    { type: 'util/number' } },
         process: function(inlets) {
-            if (!inlets.hasOwnProperty('period')) return;
-            lastEmitterId++;
-            return { 'out': Kefir.withInterval(inlets.period, function(emitter) {
-                                      emitter.emit(Math.floor(inlets.min + (Math.random() * (inlets.max - inlets.min))));
-                                  }).takeWhile((function(myId) {
-                                      return function() { return myId === lastEmitterId; }
-                                  })(lastEmitterId))
-                   };
+            return { 'out': Math.floor(inlets.min + (Math.random() * (inlets.max - inlets.min))) };
         }
     }
 });
