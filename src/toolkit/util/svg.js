@@ -57,7 +57,7 @@ Rpd.noderenderer('util/comment', 'svg', function() {
     }
 });
 
-/* ========================= util/comment ========================= */
+/* ========================= util/log ========================= */
 
 Rpd.noderenderer('util/log', 'svg', function() {
     var textElm;
@@ -74,6 +74,20 @@ Rpd.noderenderer('util/log', 'svg', function() {
                 savedValues.push(inlets.what);
             }
             textElm.text((savedValues.length > 0) ? ('...' + savedValues.join(', ') + '.') : '...');
+        }
+    }
+});
+
+/* ========================= util/letter ========================= */
+
+Rpd.noderenderer('util/letter', 'svg', function() {
+    var textElm;
+    return {
+        first: function(bodyElm) {
+            textElm = d3.select(bodyElm).append('text');
+        },
+        always: function(bodyElm, inlets, outlets) {
+            textElm.text(outlets.letter);
         }
     }
 });

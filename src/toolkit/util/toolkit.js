@@ -238,6 +238,20 @@ Rpd.nodetype('util/log', {
     process: function(inlets) { }
 });
 
+Rpd.nodetype('util/letter', {
+    inlets: {
+        'code': { type: 'util/wholenumber' }
+    },
+    outlets: {
+        'letter': { type: 'core/any' }
+    },
+    process: function(inlets) {
+        return {
+            'letter': String.fromCharCode(inlets.code + 65)
+        }
+    }
+})
+
 Rpd.nodetype('util/*', {
     inlets: { 'a': { type: 'util/number' },
               'b': { type: 'util/number' } },

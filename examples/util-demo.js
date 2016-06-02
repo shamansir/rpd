@@ -46,4 +46,6 @@ function buildUtilDemoPatch(renderer, target, conf) {
     comment.inlets['width'].receive(130);
     comment.move(180, 340);
 
+    model.addNode('util/letter').move(180, 390);
+
 }
