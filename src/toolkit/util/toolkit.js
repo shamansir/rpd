@@ -247,7 +247,7 @@ Rpd.nodetype('util/letter', {
     },
     process: function(inlets) {
         return {
-            'letter': String.fromCharCode(inlets.code + 65)
+            'letter': String.fromCharCode(inlets.code + 97/*+ 65*/)
         }
     }
 })
