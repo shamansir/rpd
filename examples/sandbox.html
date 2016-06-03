@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+
+        <!-- gulp html-head ==style quartz ==renderer svg ==toolkit util ==root .. -->
+
+        <!-- Built with RPD v0.2.0 <http://shamansir.github.io/rpd> -->
+
+        <!-- RPD Renderer: html -->
+        <link rel="stylesheet" href="../src/render/svg.css"></style>
+        <!-- RPD Style: compact-v (svg) -->
+        <link rel="stylesheet" href="../src/style/compact-v/svg.css"></style>
+        <!-- RPD Toolkit: util (svg) -->
+        <link rel="stylesheet" href="../src/toolkit/util/svg.css"></style>
+
+        <link rel="stylesheet" href="../vendor/codemirror.css"></style>
+
+        <!-- Kefir -->
+        <script src="../vendor/kefir.min.js"></script>
+        <!-- RPD -->
+        <script src="../src/rpd.js"></script>
+
+        <!-- RPD's d3_tiny.js -->
+        <script src="../src/d3_tiny.js"></script>
+        <!-- RPD Rendering Engine: -->
+        <script src="../src/render/shared.js"></script>
+        <!-- RPD Style: compact-v (svg) -->
+        <script src="../src/style/compact-v/svg.js"></script>
+        <!-- RPD Renderer: svg -->
+        <script src="../src/render/svg.js"></script>
+        <!-- RPD Toolkit: util -->
+        <script src="../src/toolkit/util/shared.js"></script>
+        <script src="../src/toolkit/util/toolkit.js"></script>
+        <!-- RPD Toolkit: util (svg) -->
+        <script src="../src/toolkit/util/svg.js"></script>
+
+        <script src="../vendor/codemirror.js"></script>
+        <script src="../vendor/javascript.min.js"></script>
+
+    </head>
+
+    <body>
+        <div id="codemirror-target"></div>
+        <button id="run-button">Run</button>
+        <div id="patch-target"></div>
+        <script>
+            var codemirror = CodeMirror(document.getElementById('codemirror-target'));
+
+            var patch = Rpd.addPatch().render('svg', document.getElementById('patch-target'),
+                                              { style: 'compact-v', fullPage: true, linkForm: 'curve' });
+
+            var runButton = document.getElementById('run-button');
+
+            window.patch = patch;
+            window.codemirror = codemirror;
+
+            Kefir.fromEvents(runButton, 'click').onValue(function() {
+                eval(codemirror.getValue());
+            });
+
+        </script>
+    </body>
+</html>
