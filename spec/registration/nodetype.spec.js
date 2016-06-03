@@ -7,6 +7,7 @@ describe('registration: node type', function() {
     });
 
     it('creates specified inlets for the node instance', function() {
+
         Rpd.nodetype('spec/foo', {
             inlets: {
                 'a': { type: 'spec/any' },
@@ -37,6 +38,7 @@ describe('registration: node type', function() {
             );
 
         });
+
     });
 
     it('creates specified outlets for the node instance', function() {
@@ -319,7 +321,9 @@ describe('registration: node type', function() {
             });
         });
 
-        it('when inlet is set to transfer some stream by default, gets values from this stream one by one', function(done) {
+        it('when inlet is set to transfer some stream by default, gets values from this stream one by one', function() {
+            jasmine.clock().install();
+
             var values = [ 'a', 'b', 'c' ];
             var period = 30;
 
@@ -338,15 +342,18 @@ describe('registration: node type', function() {
 
                 var node = patch.addNode('spec/foo');
 
-                setTimeout(function() {
-                    ensureExecuted();
-                    done();
-                }, period * (values.length + 1));
+                jasmine.clock().tick(period * (values.length + 1));
+
+                ensureExecuted();
 
             });
+
+            jasmine.clock().uninstall();
         });
 
-        it('when stream was sent to the inlet, still gets values one by one', function(done) {
+        it('when stream was sent to the inlet, still gets values one by one', function() {
+            jasmine.clock().install();
+
             var values = [ 'a', 'b', 'c' ];
             var period = 30;
 
@@ -367,12 +374,13 @@ describe('registration: node type', function() {
 
                 node.inlets['char'].stream(Kefir.sequentially(period, values));
 
-                setTimeout(function() {
-                    ensureExecuted();
-                    done();
-                }, period * (values.length + 1));
+                jasmine.clock().tick(period * (values.length + 1));
+
+                ensureExecuted();
 
             });
+
+            jasmine.clock().uninstall();
         });
 
         it('passes previous values with a call', function() {

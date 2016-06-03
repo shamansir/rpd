@@ -94,7 +94,9 @@ describe('building: inlet', function() {
         });
     });
 
-    it('may receive sequences of values from a stream', function(done) {
+    it('may receive sequences of values from a stream', function() {
+        jasmine.clock().install();
+
         withNewPatch(function(patch, updateSpy) {
 
             var node = patch.addNode('spec/empty');
@@ -105,17 +107,18 @@ describe('building: inlet', function() {
             var inlet = node.addInlet('spec/any', 'foo');
             inlet.stream(Kefir.sequentially(period, userSequence));
 
-            setTimeout(function() {
-                for (var i = 0; i < userSequence.length; i++) {
-                    expect(updateSpy).toHaveBeenCalledWith(
-                        jasmine.objectContaining({ type: 'inlet/update',
-                                                   inlet: inlet,
-                                                   value: userSequence[i] }));
-                }
-                done();
-            }, period * (userSequence.length + 1));
+            jasmine.clock().tick(period * (userSequence.length + 1));
+
+            for (var i = 0; i < userSequence.length; i++) {
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'inlet/update',
+                                               inlet: inlet,
+                                               value: userSequence[i] }));
+            }
 
         });
+
+        jasmine.clock().uninstall();
     });
 
     it('stops receiving values when it was removed from a node', function() {
@@ -134,7 +137,9 @@ describe('building: inlet', function() {
         });
     });
 
-    it('stops receiving streamed values when it was removed from a node', function(done) {
+    it('stops receiving streamed values when it was removed from a node', function() {
+        jasmine.clock().install();
+
         withNewPatch(function(patch, updateSpy) {
 
             var node = patch.addNode('spec/empty');
@@ -147,13 +152,14 @@ describe('building: inlet', function() {
 
             inlet.stream(Kefir.sequentially(period, sequence));
 
-            setTimeout(function() {
-                expect(updateSpy).not.toHaveBeenCalledWith(
-                    jasmine.objectContaining({ type: 'inlet/update' }));
-                done();
-            }, period * (sequence.length + 1));
+            jasmine.clock().tick(period * (sequence.length + 1));
+
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'inlet/update' }));
 
         });
+
+        jasmine.clock().uninstall();
     });
 
     it('adds new stream to a previous one when new stream sent to it', function() {
