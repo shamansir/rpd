@@ -50,6 +50,8 @@ function buildUtilDemoPatch(renderer, target, conf) {
 
     var metro1 = model.addNode('util/metro').move(50, 390);
     var metro2 = model.addNode('util/metro').move(50, 440);
+    metro1.inlets['period'].receive(2000);
+    metro2.inlets['period'].receive(3000);
 
     var random1 = model.addNode('util/random').move(180, 390);
     random1.inlets['max'].receive(25);

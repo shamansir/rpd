@@ -38,26 +38,61 @@
         <script src="../vendor/codemirror.js"></script>
         <script src="../vendor/javascript.min.js"></script>
 
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                background-color: #eee;
+            }
+
+            #codemirror-target {
+                border-bottom: 1px solid #22222f;
+            }
+        </style>
+
     </head>
 
     <body>
         <div id="codemirror-target"></div>
         <button id="run-button">Run</button>
-        <div id="patch-target"></div>
+        <div id="patch-target" style="height: 400px;"></div>
         <script>
             var codemirror = CodeMirror(document.getElementById('codemirror-target'));
 
-            var patch = Rpd.addPatch().render('svg', document.getElementById('patch-target'),
-                                              { style: 'compact-v', linkForm: 'curve' });
-
             var runButton = document.getElementById('run-button');
 
-            window.patch = patch;
-            window.codemirror = codemirror;
+            var patchTarget = document.getElementById('patch-target');
+
+            var firstCode = 'patch.addNode(\'util/nodelist\');';
+
+            codemirror.setValue(firstCode);
+
+            cleanAndRun(firstCode);
 
             Kefir.fromEvents(runButton, 'click').onValue(function() {
-                eval(codemirror.getValue());
+                cleanAndRun(codemirror.getValue());
             });
+
+            function cleanAndRun(code) {
+                while (patchTarget.firstChild) {
+                    patchTarget.removeChild(patchTarget.firstChild);
+                }
+
+                var patch = Rpd.addPatch().render('svg', patchTarget,
+                                                  { style: 'compact-v', linkForm: 'curve' });
+
+                patch.resizeCanvas('100%', '100%');
+
+                window.patch = patch;
+                window.codemirror = codemirror;
+
+                eval(code);
+            }
+
+            function _createSvgElement(name) {
+                return document.createElementNS('http://www.w3.org/2000/svg', name);
+            }
 
         </script>
     </body>

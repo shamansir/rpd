@@ -175,8 +175,10 @@ return function(networkRoot, userConfig) {
         },
 
         'patch/resize-canvas': function(update) {
-            svg.attr('width', Math.floor(update.size[0]));
-            svg.attr('height', Math.floor(update.size[1]));
+            svg.attr('width', update.size[0]);
+            svg.attr('height', update.size[1]);
+            svg.select('.rpd-background').attr('width', '100%')
+                                         .attr('height', '100%');
         },
 
         'patch/add-node': function(update) {
