@@ -64,7 +64,19 @@
 
             var patchTarget = document.getElementById('patch-target');
 
-            var firstCode = 'patch.addNode(\'util/nodelist\');';
+            function HorzPlacing() {
+                this.lastX = 10;
+            }
+            HorzPlacing.prototype.nextPosition = function(node, size, limits) {
+                var nextPos = { x: this.lastX, y: 10 };
+                this.lastX += size.width + 10;
+                return nextPos;
+            }
+
+            Rpd.Render.Placing = HorzPlacing;
+
+            var firstCode = 'patch.addNode(\'util/nodelist\');\n' +
+                            'patch.addNode(\'util/metro\');';
 
             codemirror.setValue(firstCode);
 

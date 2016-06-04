@@ -92,7 +92,8 @@
 }
 
 .rpd-util-log .rpd-process text,
-.rpd-util-sum-of-three .rpd-process text {
+.rpd-util-sum-of-three .rpd-process text,
+.rpd-util-letter .rpd-process text {
     text-anchor: middle;
 }
 

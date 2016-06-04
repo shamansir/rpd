@@ -91,7 +91,8 @@ function buildUtilDemoPatch(renderer, target, conf) {
         var textElm;
         return {
             first: function(bodyElm) {
-                textElm = d3.select(bodyElm).append('text');
+                textElm = d3.select(bodyElm).append('text')
+                            .style('text-anchor', 'middle');
             },
             always: function(bodyElm, inlets, outlets) {
                 if (!outlets) return;
@@ -103,7 +104,7 @@ function buildUtilDemoPatch(renderer, target, conf) {
 
     //fromCodePoint(55356) + fromCodePoint('e'.charCodeAt(0) - 97 + 56806);
 
-    var maybeFlag = model.addNode('user/maybe-flag');
+    var maybeFlag = model.addNode('user/maybe-flag', 'Maybe<Flag>');
     letter1.outlets['letter'].connect(maybeFlag.inlets['letterA']);
     letter2.outlets['letter'].connect(maybeFlag.inlets['letterB']);
 
