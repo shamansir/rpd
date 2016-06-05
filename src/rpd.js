@@ -290,7 +290,7 @@ function Node(type, patch, def, render, callback) {
                 var updates = inlet.event['inlet/update'].map(function(value) {
                     return { inlet: inlet, value: value };
                 });;
-                if (node.def.tune) updates = node.def.tune(updates);
+                if (node.def.tune) updates = node.def.tune.bind(this)(updates);
                 return updates;
             })
 
@@ -362,7 +362,7 @@ function Node(type, patch, def, render, callback) {
         }
     }
 
-    if (this.def.prepare) this.def.prepare(this.inlets, this.outlets);
+    if (this.def.prepare) this.def.prepare.bind(this)(this.inlets, this.outlets);
 
     this.event['node/is-ready'].emit();
 }
@@ -442,7 +442,7 @@ function Inlet(type, node, alias, def, render) {
     this.event = create_event_map(event_types);
     var orig_updates = this.event['inlet/update'];
     var updates = orig_updates.merge(this.value);
-    if (this.def.tune) updates = this.def.tune(updates);
+    if (this.def.tune) updates = this.def.tune.bind(this)(updates);
     if (this.def.accept) updates = updates.flatten(function(v) {
         if (this.def.accept(v)) { return [v]; } else {
             orig_updates.error(make_silent_error(this, 'inlet')); return [];

@@ -935,7 +935,6 @@ describe('registration: node type', function() {
                 }
             });
 
-
             withNewPatch(function(patch, updateSpy) {
 
                 var node = patch.addNode('spec/foo');
@@ -967,6 +966,32 @@ describe('registration: node type', function() {
             });
 
         });
+
+        xit('tuning function receives node instance as `this`', function() {
+            var tuneSpy = jasmine.createSpy('tune');
+
+            Rpd.nodetype('spec/foo', {
+                inlets: { 'a': { type: 'spec/any' } },
+                tune: tuneSpy
+            });
+
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/foo');
+
+                tuneSpy.and.callFake(function(stream) {
+                    console.log('!!!!!');
+                    expect(this).toBe(node);
+                    return stream;
+                });
+
+                node.inlets['a'].receive({});
+
+                expect(tuneSpy).toHaveBeenCalled();
+            });
+        });
+
+        // TODO: def.process gets `this`
+        // TODO: node type could be a function returning object
 
     });
 

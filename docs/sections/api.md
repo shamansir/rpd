@@ -56,7 +56,7 @@ Every patch lays over its own _canvas_, several canvases may be attached to the 
 
 <!-- schematic picture of a network -->
 
-From this point and below, let's consider some example to illustrate the practical usage of the described methods. Say, we want to draw the Solar System in static (not that RPD is unable to do it in dynamic, but it's better to consider simple examples at start, isn't it?). We won't do it step-by-step like tutorials do, rather we'll say which method fits particular situation better. For these needs, for every API method there will be a section marked as _Example_. If you really want, the complete code of this example is accessible [here] <!-- TODO -->.
+<!-- From this point and below, let's consider some example to illustrate the practical usage of the described methods. Say, we want to draw the Solar System in static (not that RPD is unable to do it in dynamic, but it's better to consider simple examples at start, isn't it?). We won't do it step-by-step like tutorials do, rather we'll say which method fits particular situation better. For these needs, for every API method there will be a section marked as _Example_. If you really want, the complete code of this example is accessible [here] --> <!-- TODO -->.
 
 <!-- schematic picture of an example -->
 
@@ -73,8 +73,6 @@ Adds new patch to the network. Patch is a container for a set of nodes and conne
 Adds new patch to the network almost the same way as `addPatch` above, but this patch is closed when you add it, so you need to explicitly call its `open()` method when you want this patch to render.
 
 This method becomes useful when you have some dependent patch you don't want to be displayed until requested. This type of patches I'd recommend to call _Procedure Patch_, which is, unlike the _Root Patch_, treated as secondary.
-
-_Example:_
 
 #### `Rpd.nodetype(type, definition)`
 
@@ -179,7 +177,20 @@ Resize the canvas of the patch. This means all the visuals belonging to this pat
 
 Node represents the thing we call procedure in programming: it receives data through its inputs (inlets), does something using that data and returns either the same data, modified or not, or completely different data in response using outputs (outlets). But from this point, it goes beyond, since it may visualize the process inside its body or add some complex visual controls for additional inputs. On the other hand, it may stay in a boring state and have no inputs, no outputs and even no content at all. Everything depends only on yours decision.
 
-_Definition:_ You can find the complete node definition at [`Rpd.nodetype`]() method description.
+#### _Node Definition_
+
+Definition of the Node is the configuration object used to define
+new Node Type with `Rpd.nodetype` or an object with the same structure, passed to `patch.addNode` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Node Type or a single Node needs its originality, some of these properties:
+
+* `title` (_string_, `''`) — node title, usually displayed on the top of the node, defaults to node type if not specified or empty;
+* `inlets` (_object_, `{}`) — an object, containing a list of inlets this node has, _key_ is inlet label and _value_ is definition. For example, two number-typed inlets with labels `'a'` and `'b'`: `{ 'a': { type: 'util/number' }, 'b': { type: 'util/number' } }`. There are much more properties of the inlets available, see [Inlet Definition](#inlet-definition) for a full list of them;
+* `outlets` (_object_, `{}`) — an object, containing a list of outlets this node has, _key_ is outlet label and _value_ is definition. For example, two number-typed outlets with labels `'a'` and `'b'`: `{ 'a': { type: 'util/number' }, 'b': { type: 'util/number' } }`. There are much more properties of the outlets available, see [Outlet Definition](#outlet-definition) for a full list of them;
+* `prepare` (_function_, `(inlets, outlets) → nothing`)
+* `process` (_function_, `(inlets_values, prev_inlets_values) → outlets_values`)
+* `tune` (_function_, `(updates_stream) → updates_stream`)
+* `handle` (_object_, `{}`)
+
+All the functions in the definition get Node instance as `this`.
 
 #### `node.addInlet(type, alias, [definition]) → Inlet`
 
@@ -230,7 +241,24 @@ Or, could happen, you want to provide user with this nice ability, for example w
 
 Inlet is the name for one of the input channels of the node so, when its connected to something, the data may flow through it _into_ the node processing function from all of them. Inlets are differentiated by their alias, that's why aliases of inlets should be unique inside every node, yet they can be same between two nodes. Inlet is the opposite to Outlet, which allows data to flow _out_ of the node and is described next in this section.
 
-_Definition:_ You can find the complete inlet definition at [`Rpd.channeltype`]() method description.
+#### _Inlet Definition_
+
+Definition of the Inlet is the configuration object used to define
+new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addInlet` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Inlet Type or a single Inlet needs its originality, some of these properties:
+
+* `label` (_string_, `''`) — inlet label, usually displayed near to the inlet;
+* `default`
+* `hidden`
+* `cold`
+* `readonly`
+* `allow`
+* `accept`
+* `adapt`
+* `tune`
+* `show`
+* `handle`
+
+All the functions in the definition get Inlet instance as `this`.
 
 #### `inlet.receive(value)`
 
@@ -258,7 +286,17 @@ Check if this inlet allows connections from given outlet. Usually it us done by 
 
 Outlet is the output channel of the node.
 
-_Definition:_ You can find the complete outlet definition at [`Rpd.channeltype`]() method description.
+#### _Outlet Definition_
+
+Definition of the Inlet is the configuration object used to define
+new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addOutlet` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Outlet Type or a single Outlet needs its originality, some of these properties:
+
+* `label` (_string_, `''`) — inlet label, usually displayed near to the inlet;
+* `tune`
+* `show`
+* `handle`
+
+All the functions in the definition get Inlet instance as `this`.
 
 #### `outlet.connect(inlet) → Link`
 

@@ -93,8 +93,17 @@ So, in the node type you may specify any number of Inlets, any number of Outlets
 Definition of the Inlet or Outlet only requires a `type` field, other fields are optional. They are the same as for [Channel type](#channel-properties) and in [`node.addInlet` / `node.addOutlet` methods](./network.md#connecting-nodes).
 ​
 ### Writing a Channel Renderer
+
+* `prepare`
+* `show`
+* `edit`
 ​
 ### Writing a Node Renderer
+
+* `prepare`
+* `size`
+* `first`
+* `always`
 ​
 <!-- valueOut may have a timestamp passed with every value,
      that helps in determining which update came first -->
