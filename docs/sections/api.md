@@ -4,19 +4,41 @@ id: api
 level: 1
 ---
 
-When you want to provide user with some existing node network or to load and build it from file (for which there is no `io` module), you may use Network Building API with these methods:
+### Contents
+
+When you want to provide user with some existing node network or to load and build it from file (for which there is `io` module), you may use Network Building API with these methods:
 
 * `Rpd`
     * `Rpd.addPatch(name) → Patch`
     * `Rpd.addClosedPatch(name) → Patch`
 * `Patch`
     * `patch.addNode(title[, definition]) → Node`
-    * `patch.removeNode(node) → Node`
+    * `patch.removeNode(node)`
+    * `patch.inputs(list)`
+    * `patch.outputs(list)`
+    * `patch.project(node)`
 * `Node`    
     * `node.addInlet(alias[, definition]) → Inlet`
     * `node.addOutlet(alias[, definition]) → Outlet`
+    * `node.removeInlet(inlet)`
+    * `node.removeOutlet(outlet)`
+    * `node.turnOn()`
+    * `node.turnOff()`
+* `Inlet`
+    * `inlet.receive(value)`
+    * `inlet.stream(stream)`
+    * `inlet.toDefault()`
+    * `inlet.allows(outlet) → boolean`
 * `Outlet`    
-    * `outlet.connect(inlet)`
+    * `outlet.connect(inlet) → Link`
+    * `outlet.disconnect(link)`
+    * `outlet.send(value)`
+    * `outlet.stream(stream)`
+* `Link`
+    * `link.pass(value)`
+    * `link.enable()`
+    * `link.disable()`
+    * `link.disconnect()`
 
 To control the rendering queue, you may use these methods:
 
@@ -25,14 +47,40 @@ To control the rendering queue, you may use these methods:
     * `Rpd.stopRendering()`
 * `Patch`
     * `patch.render(renderers, targets, config)`
+    * `patch.open()`
+    * `patch.close()`
+    * `patch.moveCanvas(x, y)`
+    * `patch.resizeCanvas(width, height)`
+* `Node`
+    * `node.move(x, y)`    
 
 When you want to build your own toolkit, you may decide to register your node & channel types and renderers using these methods:
 
 * `Rpd`
-    * `Rpd.nodetype(type, definition)`
+    * [`Rpd.nodetype(type, definition)`](#)
     * `Rpd.channeltype(type, definition)`    
     * `Rpd.noderenderer(type, alias, definition)`        
-    * `Rpd.channelrenderer(type, alias, definition)`            
+    * `Rpd.channelrenderer(type, alias, definition)`
+    * `Rpd.nodedescription(type, description)`
+
+<!-- * `Rpd.toolkiticon(toolkit, icon)` -->
+<!-- * `Rpd.nodetypeicon(toolkit, icon)` -->
+
+These methods will help you in creating your own styles or even renderers:
+
+* `Rpd`
+    * `Rpd.style(name, renderer, style)`
+    * `Rpd.renderer(alias, renderer)`
+
+<!-- TODO: global `Rpd` object properties -->
+
+To define node type or channel type, to configure some particular node or channel, to define node renderer or channel renderer, you'll need these Definition Objects:
+
+* [Node Definition](#node-definition)
+* [Inlet Definition](#inlet-definition)
+* [Outlet Definition](#outlet-definition)
+* [Node Renderer Definition](#node-renderer-definition)
+* [Channel Renderer Definition](#channel-renderer-definition)
 
 ### Core types
 
@@ -42,7 +90,7 @@ When you want to build your own toolkit, you may decide to register your node & 
    * `core/basic`
    * `core/reference`
 
-<!-- util/nodelist -->
+<!-- * `util/nodelist` -->
 
 ### Naming rules
 
@@ -127,13 +175,11 @@ The type of the node is some previously registered type, for example, `core/basi
 
 You may specify a custom title, if you want, or the engine will fall back to the type name.
 
-_Definition:_
-
 The third argument, `definition` is a bit tricky one, but just a bit. It's optional, so usually you may omit it without any compunction. This argument is the object which actually has exactly the same structure as the object used for `Rpd.nodetype`. It helps you to override the type definition for this particular node instance, when you want. <!-- Test it merges definitions, not overrides everything -->
 
 NB: When you override inlets and outlets this way, you may later access them using `node.inlets[alias]` and `node.outlets[alias]` shortcuts, same way as when you defined them with `Rpd.nodetype`. The inlets and outlets added later with `node.addInlet` and `node.addOutlet` methods are not accessible with this shortcuts, that is, I hope, rather logical.
 
-You can discover the complete list of the properties which could be used in this definition if you read the [`Rpd.nodetype`](TODO) method description.
+You can discover the complete list of the properties which could be used in this definition if you follow to [Node Definition](#node-definition) section.
 
 #### `patch.removeNode(node)`
 
@@ -177,20 +223,56 @@ Resize the canvas of the patch. This means all the visuals belonging to this pat
 
 Node represents the thing we call procedure in programming: it receives data through its inputs (inlets), does something using that data and returns either the same data, modified or not, or completely different data in response using outputs (outlets). But from this point, it goes beyond, since it may visualize the process inside its body or add some complex visual controls for additional inputs. On the other hand, it may stay in a boring state and have no inputs, no outputs and even no content at all. Everything depends only on yours decision.
 
-#### _Node Definition_
+#### Node Definition
 
 Definition of the Node is the configuration object used to define
 new Node Type with `Rpd.nodetype` or an object with the same structure, passed to `patch.addNode` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Node Type or a single Node needs its originality, some of these properties:
 
-* `title` (_string_, `''`) — node title, usually displayed on the top of the node, defaults to node type if not specified or empty;
-* `inlets` (_object_, `{}`) — an object, containing a list of inlets this node has, _key_ is inlet label and _value_ is definition. For example, two number-typed inlets with labels `'a'` and `'b'`: `{ 'a': { type: 'util/number' }, 'b': { type: 'util/number' } }`. There are much more properties of the inlets available, see [Inlet Definition](#inlet-definition) for a full list of them;
-* `outlets` (_object_, `{}`) — an object, containing a list of outlets this node has, _key_ is outlet label and _value_ is definition. For example, two number-typed outlets with labels `'a'` and `'b'`: `{ 'a': { type: 'util/number' }, 'b': { type: 'util/number' } }`. There are much more properties of the outlets available, see [Outlet Definition](#outlet-definition) for a full list of them;
-* `prepare` (_function_, `(inlets, outlets) → nothing`)
-* `process` (_function_, `(inlets_values, prev_inlets_values) → outlets_values`)
-* `tune` (_function_, `(updates_stream) → updates_stream`)
-* `handle` (_object_, `{}`)
+##### `title`: `string`
 
-All the functions in the definition get Node instance as `this`.
+Node title, usually displayed on the top of the node, defaults to node type if not specified or empty.
+
+##### `inlets`: `object`
+
+An object, containing a list of inlets this node has, _key_ is inlet label and _value_ is definition. For example, two number-typed inlets with labels `'a'` and `'b'`:
+
+```javascript
+Rpd.nodetype('docs/example', {
+    'inlets': { 'a': { type: 'util/number' },
+                'b': { type: 'util/number' } }
+});
+```
+
+There are much more properties of the inlets available, see [Inlet Definition](#inlet-definition) for a full list of them.
+
+##### `outlets`: `object`
+
+An object, containing a list of outlets this node has, _key_ is outlet label and _value_ is definition. For example, two number-typed outlets with labels `'a'` and `'b'`:
+
+```javascript
+Rpd.nodetype('docs/example', {
+    'outlets': { 'a': { type: 'util/number' },
+                 'b': { type: 'util/number' } }
+});
+```
+
+There are much more properties of the outlets available, see [Outlet Definition](#outlet-definition) for a full list of them.
+
+##### `prepare`: `function`: `(inlets, outlets) → nothing`
+
+Receives Node instance as `this`.
+
+##### `process`: `function`: `(inlets_values, prev_inlets_values) → outlets_values`
+
+Receives Node instance as `this`.
+
+##### `tune`: `function`: `(updates_stream) → updates_stream`
+
+Receives Node instance as `this`.
+
+##### `handle`: `object`
+
+----
 
 #### `node.addInlet(type, alias, [definition]) → Inlet`
 
@@ -202,7 +284,7 @@ Last argument, `definition`, is optional, and allows you to override the options
 
 By default, inlets accept connection only from one outlet, so when user connects some other outlet to this inlet, the previous connection, if it existed, is immediately and automatically removed. Though, you can pass an option to the renderer named `inletsAcceptMultipleLinks` and set it to `true`, so multiple connections will be available to user and inlets will receive values from all the outlets connected in order they were fired. <!-- FIXME: check if it works and consider #336 -->
 
-You can discover the complete list of the properties which could be used in this definition if you read the [`Rpd.channeltype`](TODO) method description.
+You can discover the complete list of the properties which could be used in this definition if you follow to [Inlet Definition](#inlet-definition) section.
 
 #### `node.addOutlet(type, alias, [definition]) → Outlet`
 
@@ -212,7 +294,7 @@ Also, you need to specify `alias`, to be able to access this outlet from the cod
 
 Last argument, `definition`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Outlet](#Outlet) <!-- or Rpd.channeltype? --> section below.
 
-You can discover the complete list of the properties which could be used in this definition if you read the [`Rpd.channeltype`](TODO) method description.
+You can discover the complete list of the properties which could be used in this definition if you follow to [Outlet Definition](#outlet-definition) section.
 
 #### `node.removeInlet(inlet)`
 
@@ -260,6 +342,8 @@ new Channel Type with `Rpd.channeltype` or an object with the same structure, pa
 
 All the functions in the definition get Inlet instance as `this`.
 
+----
+
 #### `inlet.receive(value)`
 
 Force this inlet to receive some specific value, overpassing the connections, if there are any.
@@ -297,6 +381,8 @@ new Channel Type with `Rpd.channeltype` or an object with the same structure, pa
 * `handle`
 
 All the functions in the definition get Inlet instance as `this`.
+
+----
 
 #### `outlet.connect(inlet) → Link`
 
