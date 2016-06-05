@@ -290,7 +290,7 @@ function Node(type, patch, def, render, callback) {
                 var updates = inlet.event['inlet/update'].map(function(value) {
                     return { inlet: inlet, value: value };
                 });;
-                if (node.def.tune) updates = node.def.tune.bind(this)(updates);
+                if (node.def.tune) updates = node.def.tune.bind(node)(updates);
                 return updates;
             })
 

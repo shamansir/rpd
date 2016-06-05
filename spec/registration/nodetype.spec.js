@@ -873,6 +873,31 @@ describe('registration: node type', function() {
             });
         });
 
+        it('processing function receives node instance as `this`', function() {
+
+            var nodeInSpy;
+
+            var processSpy = jasmine.createSpy('process').and.callFake(function() {
+                nodeInSpy = this;
+                return {};
+            });
+
+            Rpd.nodetype('spec/foo', {
+                inlets: { 'a': { type: 'spec/any' } },
+                process: processSpy
+            });
+
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/foo');
+
+                node.inlets['a'].receive({});
+
+                expect(processSpy).toHaveBeenCalled();
+
+                expect(nodeInSpy).toBe(node);
+            });
+        });
+
         xdescribe('overriding channel type definition', function() {
 
             xit('overriding inlet adapt function', function() {});
@@ -967,31 +992,31 @@ describe('registration: node type', function() {
 
         });
 
-        xit('tuning function receives node instance as `this`', function() {
-            var tuneSpy = jasmine.createSpy('tune');
+        it('tuning function receives node instance as `this`', function() {
+
+            var nodeInSpy;
+
+            var tuneSpy = jasmine.createSpy('tune').and.callFake(function(stream) {
+                nodeInSpy = this;
+                return stream;
+            });
 
             Rpd.nodetype('spec/foo', {
                 inlets: { 'a': { type: 'spec/any' } },
+                process: function() {},
                 tune: tuneSpy
             });
 
             withNewPatch(function(patch, updateSpy) {
                 var node = patch.addNode('spec/foo');
 
-                tuneSpy.and.callFake(function(stream) {
-                    console.log('!!!!!');
-                    expect(this).toBe(node);
-                    return stream;
-                });
-
                 node.inlets['a'].receive({});
 
                 expect(tuneSpy).toHaveBeenCalled();
+
+                expect(nodeInSpy).toBe(node);
             });
         });
-
-        // TODO: def.process gets `this`
-        // TODO: node type could be a function returning object
 
     });
 
@@ -1067,9 +1092,33 @@ describe('registration: node type', function() {
 
     });
 
+    it('preparing function receives node instance as `this`', function() {
+
+        var nodeInSpy;
+
+        var prepareSpy = jasmine.createSpy('tune').and.callFake(function() {
+            nodeInSpy = this;
+        });
+
+        Rpd.nodetype('spec/foo', {
+            inlets: { 'a': { type: 'spec/any' } },
+            prepare: prepareSpy
+        });
+
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/foo');
+
+            expect(prepareSpy).toHaveBeenCalled();
+
+            expect(nodeInSpy).toBe(node);
+        });
+    });
+
     it('could be specified as a single function which returns the defition and gets node instance', function() {
         var definitionGenSpy = jasmine.createSpy('definition-generator')
-                                .and.callFake(function(node) { return { }; });
+                                .and.callFake(function(node) {
+                                    return { title: 'foo-' + node.id };
+                                });
 
         Rpd.nodetype('spec/foo', definitionGenSpy);
 
@@ -1080,6 +1129,9 @@ describe('registration: node type', function() {
             expect(definitionGenSpy).toHaveBeenCalled();
             expect(definitionGenSpy).toHaveBeenCalledWith(firstNode);
             expect(definitionGenSpy).toHaveBeenCalledWith(secondNode);
+
+            expect(firstNode.def.title).toBe('foo-' + firstNode.id);
+            expect(secondNode.def.title).toBe('foo-' + secondNode.id);
 
         });
     });
