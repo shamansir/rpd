@@ -1018,6 +1018,56 @@ describe('registration: node type', function() {
             });
         });
 
+        it('tuning function may delay updates', function() {
+
+            jasmine.clock().install();
+
+            Rpd.nodetype('spec/delay', {
+                inlets: { 'in': { type: 'spec/any' } },
+                outlets: { 'out': { type: 'spec/any' } },
+                tune: function(updates) {
+                    return updates.delay(1000); // delays updates for one second
+                },
+                process: function(inlets) {
+                    return { out: inlets.in };
+                }
+            });
+
+            withNewPatch(function(patch, updateSpy) {
+
+                var delayingNode = patch.addNode('spec/delay');
+
+                delayingNode.inlets['in'].receive(42);
+
+                expect(updateSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({
+                        type: 'outlet/update'
+                    })
+                );
+
+                jasmine.clock().tick(500);
+
+                expect(updateSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({
+                        type: 'outlet/update'
+                    })
+                );
+
+                jasmine.clock().tick(501);
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({
+                        type: 'outlet/update',
+                        outlet: delayingNode.outlets['out'],
+                        value: 42
+                    })
+                );
+
+            });
+
+            jasmine.clock().uninstall();
+        });
+
     });
 
     it('updates could be handled with custom handle function', function() {

@@ -104,7 +104,7 @@ Every patch lays over its own _canvas_, several canvases may be attached to the 
 
 <!-- schematic picture of a network -->
 
-<!-- From this point and below, let's consider some example to illustrate the practical usage of the described methods. Say, we want to draw the Solar System in static (not that RPD is unable to do it in dynamic, but it's better to consider simple examples at start, isn't it?). We won't do it step-by-step like tutorials do, rather we'll say which method fits particular situation better. For these needs, for every API method there will be a section marked as _Example_. If you really want, the complete code of this example is accessible [here] --> <!-- TODO -->.
+<!-- From this point and below, let's consider some example to illustrate the practical usage of the described methods. Say, we want to draw the Solar System in static (not that RPD is unable to do it in dynamic, but it's better to consider simple examples at start, isn't it?). We won't do it step-by-step like tutorials do, rather we'll say which method fits particular situation better. For these needs, for every API method there will be a section marked as _Example_. If you really want, the complete code of this example is accessible [here] --> <!-- TODO -->
 
 <!-- schematic picture of an example -->
 
@@ -131,13 +131,27 @@ NB: Please note that user may in any case extend the instance with own definitio
 
 The new `type` name should be in the form `toolkit/typename`. For example, there could be nodes with the types `util/bang`, `util/color`, `blender/render`, `animatron/player`, `processing/color`, `processing/sketch` etc. Prefer one word for the type name when possible, or join several words with dash symbol `-`, when it's really not.
 
-Then goes the definition:
+Then goes the definition, which is described in details in [Node Definition](#node-definition) section. Just note that when you need, you may pass a function to this method, it is very useful when you need to share some objects between definitions, so both examples are valid:
 
-* `title`: ...
+```javascript
+Rpd.nodetype('docs/foo', {
+    inlets: ...,
+    outlets: ...,
+    process: ...
+});
 
-When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
+Rpd.nodetype('docs/foo', function() {
+    var someSharedVariable;
+    var nodeInstance = this;
+    return {
+        inlets: ...,
+        outlets: ...,
+        process: ...
+    };
+});
+```
 
-May receive both object or function.
+When you need information on creating your own toolkits, head safely to the [Toolkits](./toolkits.html) section.
 
 #### `Rpd.nodedescription(type, description)`
 
@@ -153,11 +167,15 @@ May receive both object or function.
 
 When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
+<!-- prepare, size, first, always -->
+
 May receive both object or function.
 
 #### `Rpd.channelrenderer(type, rendererAlias, definition)`
 
 When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
+
+<!-- prepare, show, edit -->
 
 May receive both object or function.
 
@@ -191,7 +209,25 @@ The third argument, `definition` is a bit tricky one, but just a bit. It's optio
 
 NB: When you override inlets and outlets this way, you may later access them using `node.inlets[alias]` and `node.outlets[alias]` shortcuts, same way as when you defined them with `Rpd.nodetype`. The inlets and outlets added later with `node.addInlet` and `node.addOutlet` methods are not accessible with this shortcuts, that is, I hope, rather logical.
 
-You can discover the complete list of the properties which could be used in this definition if you follow to [Node Definition](#node-definition) section.
+You can discover the complete list of the properties which could be used in this definition if you follow to [Node Definition](#node-definition) section. Also, note that when you need, you may pass a function to this method, it is very useful when you need to share some objects between definitions, so both examples are valid:
+
+```javascript
+patch.addNode('docs/foo', 'Foo', {
+    inlets: ...,
+    outlets: ...,
+    process: ...
+});
+
+patch.addNode('docs/foo', 'Foo', function() {
+    var someSharedVariable;
+    var nodeInstance = this;
+    return {
+        inlets: ...,
+        outlets: ...,
+        process: ...
+    };
+});
+```
 
 #### `patch.removeNode(node)`
 
@@ -280,25 +316,53 @@ Receives Node instance as `this`.
 
 ##### `process`: `function`: `(inlets_values, prev_inlets_values) → outlets_values`
 
-The `process` handler is the main function, the really important one for the Node Type definition. This function converts the data received through inlets to the data which is required to be sent to outlets. For example, `util/*` node, designed to multiply two numbers and send the result out, has a definition like this:
+The `process` handler is the main function, the really important one for the Node Type definition. This function is triggered on every update appeared on any of the inlets and converts the data received through inlets to the data which is required to be sent to outlets. For example, `util/*` node, designed to multiply two numbers and send the result out, has a definition like this:
 
 ```javascript
 Rpd.nodetype('util/*', {
+    inlets: { 'a': { type: 'util/number' },
+              'b': { type: 'util/number' } },
+    outlets: { 'out': { type: 'util/number' } },
+    process: function(inlets) {
+        return { 'out': (inlets.a || 0) * (inlets.b || 0) };
+    }
 });
 ```
 
-Though it is not obligatory to process all the inlets or to send data to every outlet, in some cases this function does not cares about input or output at all. When Node Type defines no `process` function or it is not defined in `.addNode` method, node makes actually nothing.
+Though it is not obligatory to process all the inlets or to send data to every outlet, in some cases this function not cares about input or output at all. When Node Type defines no `process` function or it wasn't defined in `patch.addNode` method, node makes actually nothing.
+
+Another important thing to notice is that you may return [Kefir Stream][kefir] as an outlet value, so the values from this stream will be sent to the outlet just when they are triggered. In this case, however, you should make the stream finite or stop this stream manually, or else streams for one inlet will merge with every next call to `process` function. For the real life example, see `util/metro` node definition in `src/toolkit/util/toolkit.js` file.
+
+Sometimes you may want to trigger `process` function manually with some new data, but you don't want to send it through user inlet. Adding hidden inlet for your internal data is a common trick often used even in Toolkits provided with RPD distribution:
+
+```javascript
+Rpd.nodetype('util/bang', {
+    inlets: { 'trigger': { type: 'util/bang', hidden: true } },
+    outlets: { 'out': { type: 'util/bang' } },
+    process: function(inlets) {
+        return inlets.trigger ? { 'out': {} } : {};
+    }
+});
+```
 
 Receives Node instance as `this`.
 
 ##### `tune`: `function`: `(updates_stream) → updates_stream`
 
-This function allows you to tune all the updates from the inlets, so, for example, you may skip every second update from specific inlet, or every second update in general. Or you may multiply every new numeric value by 10. It gets the stream which represents all the updates from the node inlets merged. When you return the same stream you received from this function, it changes nothing in the process.
+This function allows you to tune all the updates from the inlets, so, for example, you may skip every second update from specific inlet, or every second update in general. Or you may multiply every new numeric value by 10. It gets the [Kefir Stream][kefir] which represents all the updates from the node inlets merged. When you return the same stream you received from this function, it changes nothing in the process.
 
 An example:
 
 ```javascript
-Rpd.nodetype('util/*', {
+Rpd.nodetype('docs/delay', {
+    inlets: { 'in': { type: 'util/number' } },
+    outlets: { 'out': { type: 'util/number' } },
+    tune: function(updates) {
+        return updates.delay(1000); // delays updates for one second
+    },
+    process: function(inlets) {
+        return { out: inlets.in };
+    }
 });
 ```
 
@@ -365,24 +429,34 @@ Or, could happen, you want to provide user with this nice ability, for example w
 
 Inlet is the name for one of the input channels of the node so, when its connected to something, the data may flow through it _into_ the node processing function from all of them. Inlets are differentiated by their alias, that's why aliases of inlets should be unique inside every node, yet they can be same between two nodes. Inlet is the opposite to Outlet, which allows data to flow _out_ of the node and is described next in this section.
 
-#### _Inlet Definition_
+#### Inlet Definition
 
 Definition of the Inlet is the configuration object used to define
 new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addInlet` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Inlet Type or a single Inlet needs its originality, some of these properties:
 
-* `label` (_string_, `''`) — inlet label, usually displayed near to the inlet;
-* `default`
-* `hidden`
-* `cold`
-* `readonly`
-* `allow`
-* `accept`
-* `adapt`
-* `tune`
-* `show`
-* `handle`
-
 All the functions in the definition get Inlet instance as `this`.
+
+##### `label`: `string`
+
+Inlet label, usually displayed near to the inlet.
+
+##### `default`: `boolean`
+
+##### `hidden`: `boolean`
+
+##### `cold`: `boolean`
+
+##### `readonly`: `boolean`
+
+##### `allow`: `array[string]`
+
+##### `accept`: `function`: `(value) → boolean`
+
+##### `adapt`: `function`: `(value) → value`
+
+##### `show`: `function`: `(value) → string`
+
+##### `tune`: `function`: `(values_stream) → values_stream`
 
 ##### `handle`: `object`
 
@@ -422,17 +496,20 @@ Check if this inlet allows connections from given outlet. Usually it us done by 
 
 Outlet is the output channel of the node.
 
-#### _Outlet Definition_
+#### Outlet Definition
 
 Definition of the Inlet is the configuration object used to define
 new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addOutlet` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Outlet Type or a single Outlet needs its originality, some of these properties:
 
-* `label` (_string_, `''`) — inlet label, usually displayed near to the inlet;
-* `tune`
-* `show`
-* `handle`
-
 All the functions in the definition get Inlet instance as `this`.
+
+##### `label`: `string`
+
+Outlet label, usually displayed near to the inlet.
+
+##### `show`: `function`: `(value) → string`
+
+##### `tune`: `function`: `(values_stream) → values_stream`
 
 ##### `handle`: `object`
 
@@ -495,3 +572,5 @@ Disable the link temporarily, but the connection actually stays.
 #### `io`
 
 #### `navigation`
+
+[kefir]: http://rpominov.github.io/kefir/
