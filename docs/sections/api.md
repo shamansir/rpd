@@ -137,6 +137,8 @@ Then goes the definition:
 
 When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
+May receive both object or function.
+
 #### `Rpd.nodedescription(type, description)`
 
 Any node type can have a literary textual description of what this node does in details. Normally renderer shows it in the node list, next to corresponding node type, when available, and also when user hovers over the title of the node.
@@ -145,17 +147,27 @@ Any node type can have a literary textual description of what this node does in 
 
 When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
+May receive both object or function.
+
 #### `Rpd.noderenderer(type, rendererAlias, definition)`
 
 When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
+
+May receive both object or function.
 
 #### `Rpd.channelrenderer(type, rendererAlias, definition)`
 
 When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
+May receive both object or function.
+
 #### `Rpd.renderer(alias, definition)`
 
+May receive both object or function.
+
 #### `Rpd.style(alias, rendererAlias, definition)`
+
+May receive both object or function.
 
 ### `Patch`
 
@@ -226,7 +238,7 @@ Node represents the thing we call procedure in programming: it receives data thr
 #### Node Definition
 
 Definition of the Node is the configuration object used to define
-new Node Type with `Rpd.nodetype` or an object with the same structure, passed to `patch.addNode` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Node Type or a single Node needs its originality, some of these properties:
+new Node Type with `Rpd.nodetype` or an object with the same structure, passed to `patch.addNode` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Node Type or a single Node needs its originality, some of the following properties:
 
 ##### `title`: `string`
 
@@ -260,17 +272,47 @@ There are much more properties of the outlets available, see [Outlet Definition]
 
 ##### `prepare`: `function`: `(inlets, outlets) → nothing`
 
+When new node instance is created, it is filled with inlets and outlets from corresponding Type Definition. Then node is triggered as ready to perform processes. When you want to configure its inlets or outlets before any processing, you may use this `prepare` function for that.
+
+NB: `prepare` function is called only when node has `process` handler.
+
 Receives Node instance as `this`.
 
 ##### `process`: `function`: `(inlets_values, prev_inlets_values) → outlets_values`
+
+The `process` handler is the main function, the really important one for the Node Type definition. This function converts the data received through inlets to the data which is required to be sent to outlets. For example, `util/*` node, designed to multiply two numbers and send the result out, has a definition like this:
+
+```javascript
+Rpd.nodetype('util/*', {
+});
+```
+
+Though it is not obligatory to process all the inlets or to send data to every outlet, in some cases this function does not cares about input or output at all. When Node Type defines no `process` function or it is not defined in `.addNode` method, node makes actually nothing.
 
 Receives Node instance as `this`.
 
 ##### `tune`: `function`: `(updates_stream) → updates_stream`
 
+This function allows you to tune all the updates from the inlets, so, for example, you may skip every second update from specific inlet, or every second update in general. Or you may multiply every new numeric value by 10. It gets the stream which represents all the updates from the node inlets merged. When you return the same stream you received from this function, it changes nothing in the process.
+
+An example:
+
+```javascript
+Rpd.nodetype('util/*', {
+});
+```
+
 Receives Node instance as `this`.
 
 ##### `handle`: `object`
+
+This object allows you to subscribe to any event this Node produces. _Key_ in this object is the event name, and _value_ is the handler. See [Events](#) section for the complete list of the events.
+
+An example:
+
+
+```javascript
+```
 
 ----
 
@@ -342,6 +384,16 @@ new Channel Type with `Rpd.channeltype` or an object with the same structure, pa
 
 All the functions in the definition get Inlet instance as `this`.
 
+##### `handle`: `object`
+
+This object allows you to subscribe to any event this Node produces. _Key_ in this object is the event name, and _value_ is the handler. See [Events](#) section for the complete list of the events.
+
+An example:
+
+
+```javascript
+```
+
 ----
 
 #### `inlet.receive(value)`
@@ -381,6 +433,16 @@ new Channel Type with `Rpd.channeltype` or an object with the same structure, pa
 * `handle`
 
 All the functions in the definition get Inlet instance as `this`.
+
+##### `handle`: `object`
+
+This object allows you to subscribe to any event this Node produces. _Key_ in this object is the event name, and _value_ is the handler. See [Events](#) section for the complete list of the events.
+
+An example:
+
+
+```javascript
+```
 
 ----
 
