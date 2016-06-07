@@ -352,6 +352,11 @@ Rpd.nodetype('util/bang', {
 });
 ```
 
+Sometimes it is important to know which inlet received the value first and which received its own value later. For example, when node has some input in a body, its updated value is usually sent to hidden inlet, but also user has some visible inlet in the same node to use it when she wants ti override this value from other node. Then we should know, which value came first, from user or from controller inside, so to rewrite controller value only in the first case. `util/timestamped` Channel Type wraps any incoming value with timestamp and will solve all your problems in this case: <!-- TODO: implement -->
+
+```
+```
+
 Receives Node instance as `this`.
 
 ##### `tune`: `function`: `(updates_stream) → updates_stream`
@@ -445,9 +450,21 @@ All the functions in the definition get Inlet instance as `this`.
 
 ##### `label`: `string`
 
-Inlet label, usually displayed near to the inlet.
+Inlet label, usually displayed near to the inlet. Try to make it short, when possible, so it fits any style.
 
 ##### `default`: `any`
+
+Default value for this inlet, which will be sent to it just when node is ready, no matter, has it connections or not. If it has some, values from connection will always be sent after the default value.
+
+```
+```
+
+This value can be any type, but also a [Kefir Stream][kefir], so you may configure this inlet to receive several or infinite amount of values just from the start:
+
+```
+```
+
+The default value will be passed to `tune`, then `accept` and `adapt` functions before being passed to node's `process` handler. <!-- TODO: check -->
 
 ##### `hidden`: `boolean`
 
