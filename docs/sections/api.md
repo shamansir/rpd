@@ -94,6 +94,13 @@ To define node type or channel type, to configure some particular node or channe
 
 ### Naming rules
 
+Probably you already noticed that naming style in API is different from method to method. I'd like to assure you that everything is under control and has a system before studying out any method. And the rules are simple:
+
+* Static method for _registering_ Node Types, Channel Types, Renderers, Node Renderers, Channel Renderers, Styles etc.: `Rpd.completelylowercase`;
+* Any other instance or static method: `instance.usualCamelCase`, preferrably one word;
+* Node or Channel type name: `toolkit/word-or-two`;
+* Property in a Node Definition, Channel Definition or any other Definition: strictly one word, lowercase;
+
 ### `Rpd`
 
 The `Rpd` namespace is a single entry point for your _patch network_, independently on the place where every patch should be rendered. It provides you with the ability to append new patches to your own network and <!-- scurpolously --> control the overall rendering process.
@@ -440,7 +447,7 @@ All the functions in the definition get Inlet instance as `this`.
 
 Inlet label, usually displayed near to the inlet.
 
-##### `default`: `boolean`
+##### `default`: `any`
 
 ##### `hidden`: `boolean`
 
