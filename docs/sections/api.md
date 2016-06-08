@@ -468,13 +468,40 @@ The default value will be passed to `tune`, then `accept` and `adapt` functions 
 
 ##### `hidden`: `boolean`
 
+You may set an Inlet to be hidden from user, so it is not visible, but yet may receive any data and trigger `process` function. <!-- TODO: test -->.
+
+One of the cases when it comes useful, is when Node has an additional control in its body, and you want to send the output of this control to `process` handler, so it decides if incoming data has higher priority than data from control(s) or merges all the data, both from inlets and control in one as the configuration to calculate the output.
+
+For the example of such, see [Node Renderer](#) description.
+
 ##### `cold`: `boolean`
+
+When Inlet is _cold_, any incoming update to this Inlet is _not_ triggering the `process` function call in the Node, unlike with hot Inlets (by default) which trigger the `process` with every update. However the value is saved and passed to the next `process` call later, if some hot inlet triggered it.
+
+
+```
+```
 
 ##### `readonly`: `boolean`
 
+In this case the name of the flag does _not_ mean that user is unable to change the value of the Inlet at all, user still can do it with connecting Inlet to some Outlet, but when Style allows Value Editors near to Inlets in general, this Inlet will have none.
+
+Value Editors are small inputs usually shown when user clicks the value of the inlet and they allow to change the value without the connections. Though not every Channel Type has the Editor, or Style may disable all the Editors, so even while this option is `true` by default, there is no guarantee that there will be an Editor for a value there.
+
 ##### `allow`: `array[string]`
 
+The list of the Outlet (Channel) Types this Inlet accepts to connect. By default every Inlet accepts only connections from the same Channel Type. When user tries to connect Outlet which type is not on the list, connection is not established and the error is fired. <!-- TODO: test -->
+
+So, `core/any` Outlet always may be connected to`core/any` Inlet, but can not be connected to `util/nummer` Inlet, unless it has `core/any` in `allow` list. <!-- TODO: check -->.
+
+```
+```
+
 ##### `accept`: `function`: `(value) → boolean`
+
+This function allows to filter some values, and actually if you filter the stream of values with `tune` function, the result will be the same.
+
+
 
 ##### `adapt`: `function`: `(value) → value`
 
