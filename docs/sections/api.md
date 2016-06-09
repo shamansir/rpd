@@ -446,7 +446,9 @@ Inlet is the name for one of the input channels of the node so, when its connect
 Definition of the Inlet is the configuration object used to define
 new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addInlet` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Inlet Type or a single Inlet needs its originality, some of these properties:
 
-All the functions in the definition get Inlet instance as `this`.
+All the functions in the definition get Inlet instance as `this`. <!-- TODO: check -->
+
+<!-- NB: there are several checks performed when user connects Outlet to Inlet: allow, accept, adapt -->
 
 ##### `label`: `string`
 
@@ -492,22 +494,44 @@ Value Editors are small inputs usually shown when user clicks the value of the i
 
 The list of the Outlet (Channel) Types this Inlet accepts to connect. By default every Inlet accepts only connections from the same Channel Type. When user tries to connect Outlet which type is not on the list, connection is not established and the error is fired. <!-- TODO: test -->
 
-So, `core/any` Outlet always may be connected to`core/any` Inlet, but can not be connected to `util/nummer` Inlet, unless it has `core/any` in `allow` list. <!-- TODO: check -->.
+So, Outlet with `util/color` type may always be connected to any `util/color` Inlet, but it can not be connected to `util/nummer` Inlet in any case, unless this Inlet Type,  or this Inlet in particular, has `util/color` in `allow` list. <!-- TODO: check -->
 
 ```
 ```
+
+By default, all of the Inlets have `core/any` in allow list, but when user overrides this list, user should include `core/any` there manually, if she wants to allow these connections. <!-- TODO: check -->
 
 ##### `accept`: `function`: `(value) → boolean`
 
-This function allows to filter some values, and actually if you filter the stream of values with `tune` function, the result will be the same.
+This function allows you to skip/decline some incoming values basing on the value itself, before they come to the `process` handler.
 
+```
+```
 
+Actually if you _filter_ the stream of values with `tune` function, the result will be the same, but `accept` function allows you not to mess with the streams for a simple cases when you really don't need to.
 
 ##### `adapt`: `function`: `(value) → value`
 
+You may convert every incoming value to some another value or append some data to it, before it comes to the `process` handler.
+
+```
+```
+
+Actually if you _map_ the stream of values with `tune` function, the result will be the same, but `adapt` function allows you not to mess with the streams for a simple cases when you really don't need to.
+
+
 ##### `show`: `function`: `(value) → string`
 
+This function is called by Renderer when it shows the Inlet value near to it. By default, it just uses `.toString` over the value.
+
+It is useful to convert complex values to some short summaries here. For example, when your Channel sends arrays as values, it is better to shorten the description just to the length of array and what type of elements are inside.
+
+```
+```
+
 ##### `tune`: `function`: `(values_stream) → values_stream`
+
+
 
 ##### `handle`: `object`
 
