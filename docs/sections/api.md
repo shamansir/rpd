@@ -280,6 +280,14 @@ Node represents the thing we call procedure in programming: it receives data thr
 
 #### Node Definition
 
+* `title`: `string`
+* `inlets`: `object`
+* `outlets`: `object`
+* `prepare`: `function`: `(inlets, outlets) → nothing`
+* `process`: `function`: `(inlets_values, prev_inlets_values) → outlets_values`
+* `tune`: `function`: `(updates_stream) → updates_stream`
+* `handle`: `object`
+
 Definition of the Node is the configuration object used to define
 new Node Type with `Rpd.nodetype` or an object with the same structure, passed to `patch.addNode` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Node Type or a single Node needs its originality, some of the following properties:
 
@@ -443,6 +451,18 @@ Inlet is the name for one of the input channels of the node so, when its connect
 
 #### Inlet Definition
 
+* `label`: `string`
+* `default`: `any`
+* `hidden`: `boolean`
+* `cold`: `boolean`
+* `readonly`: `boolean`
+* `allow`: `array[string]`
+* `accept`: `function`: `(value) → boolean`
+* `adapt`: `function`: `(value) → value`
+* `show`: `function`: `(value) → string`
+* `tune`: `function`: `(values_stream) → values_stream`
+* `handle`: `object`
+
 Definition of the Inlet is the configuration object used to define
 new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addInlet` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Inlet Type or a single Inlet needs its originality, some of these properties:
 
@@ -573,6 +593,11 @@ Outlet is the output channel of the node.
 
 #### Outlet Definition
 
+* `label`: `string`
+* `show`: `function`: `(value) → string`
+* `tune`: `function`: `(values_stream) → values_stream`
+* `handle`: `object`
+
 Definition of the Inlet is the configuration object used to define
 new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addOutlet` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Outlet Type or a single Outlet needs its originality, some of these properties:
 
@@ -625,6 +650,8 @@ Yet, same as with `outlet.send`, value may be declined or modified on the receiv
 ### `Link`
 
 Link represents a single connection between inlet and outlet <!-- what happens when the connection was declined? -->. Its instance is returned from `outlet.connect` method.
+
+#### `link.pass(value)`
 
 #### `link.enable()`
 
