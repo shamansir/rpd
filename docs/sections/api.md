@@ -362,7 +362,7 @@ Rpd.nodetype('util/bang', {
 
 Sometimes it is important to know which inlet received the value first and which received its own value later. For example, when node has some input in a body, its updated value is usually sent to hidden inlet, but also user has some visible inlet in the same node to use it when she wants ti override this value from other node. Then we should know, which value came first, from user or from controller inside, so to rewrite controller value only in the first case. `util/timestamped` Channel Type wraps any incoming value with timestamp and will solve all your problems in this case: <!-- TODO: implement -->
 
-```
+```javascript
 ```
 
 Receives Node instance as `this`.
@@ -478,12 +478,12 @@ Inlet label, usually displayed near to the inlet. Try to make it short, when pos
 
 Default value for this inlet, which will be sent to it just when node is ready, no matter, has it connections or not. If it has some, values from connection will always be sent after the default value.
 
-```
+```javascript
 ```
 
 This value can be any type, but also a [Kefir Stream][kefir], so you may configure this inlet to receive several or infinite amount of values just from the start:
 
-```
+```javascript
 ```
 
 The default value will be passed to `tune`, then `accept` and `adapt` functions before being passed to node's `process` handler. <!-- TODO: check -->
@@ -501,7 +501,7 @@ For the example of such, see [Node Renderer](#) description.
 When Inlet is _cold_, any incoming update to this Inlet is _not_ triggering the `process` function call in the Node, unlike with hot Inlets (by default) which trigger the `process` with every update. However the value is saved and passed to the next `process` call later, if some hot inlet triggered it.
 
 
-```
+```javascript
 ```
 
 ##### `readonly`: `boolean`
@@ -516,7 +516,7 @@ The list of the Outlet (Channel) Types this Inlet accepts to connect. By default
 
 So, Outlet with `util/color` type may always be connected to any `util/color` Inlet, but it can not be connected to `util/nummer` Inlet in any case, unless this Inlet Type,  or this Inlet in particular, has `util/color` in `allow` list. <!-- TODO: check -->
 
-```
+```javascript
 ```
 
 By default, all of the Inlets have `core/any` in allow list, but when user overrides this list, user should include `core/any` there manually, if she wants to allow these connections. <!-- TODO: check -->
@@ -525,7 +525,7 @@ By default, all of the Inlets have `core/any` in allow list, but when user overr
 
 This function allows you to skip/decline some incoming values basing on the value itself, before they come to the `process` handler.
 
-```
+```javascript
 ```
 
 Actually if you _filter_ the stream of values with `tune` function, the result will be the same, but `accept` function allows you not to mess with the streams for a simple cases when you really don't need to.
@@ -534,7 +534,7 @@ Actually if you _filter_ the stream of values with `tune` function, the result w
 
 You may convert every incoming value to some another value or append some data to it, before it comes to the `process` handler.
 
-```
+```javascript
 ```
 
 Actually if you _map_ the stream of values with `tune` function, the result will be the same, but `adapt` function allows you not to mess with the streams for a simple cases when you really don't need to.
@@ -546,7 +546,7 @@ This function is called by Renderer when it shows the Inlet value near to it. By
 
 It is useful to convert complex values to some short summaries here. For example, when your Channel sends arrays as values, it is better to shorten the description just to the length of array and what type of elements are inside.
 
-```
+```javascript
 ```
 
 ##### `tune`: `function`: `(values_stream) → values_stream`
