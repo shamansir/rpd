@@ -202,17 +202,29 @@ May receive both object or function.
 
 When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
-<!-- prepare, size, first, always -->
-
 May receive both object or function.
+
+##### `size` : `object`
+
+<!-- ##### `prepare` : `function(patchNode, currentPatchNode)` -->
+
+##### `first` : `function(bodyElm) [→ object]`
+
+<!-- `inlet` -> `default`, `valueOut` -->
+
+##### `always` : `function(bodyElm, inlets, outlets)`
 
 #### `Rpd.channelrenderer(type, rendererAlias, definition)`
 
 When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
-<!-- prepare, show, edit -->
-
 May receive both object or function.
+
+<!-- ##### `prepare` : `function()` -->
+
+##### `show` : `function(target, value, repr)`
+
+##### `edit` : `function(target, inlet, valueIn) [→ change_stream]`
 
 #### `Rpd.renderer(alias, definition)`
 
