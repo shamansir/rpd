@@ -117,6 +117,8 @@ Every patch lays over its own _canvas_, several canvases may be attached to the 
 
 #### `Rpd.renderNext(renderers, targets, config)`
 
+<!-- Render all the following Patches with specified Renderers -->
+
 #### `Rpd.stopRendering()`
 
 #### `Rpd.addPatch([title], [definition]) → Patch`
@@ -131,10 +133,11 @@ This method becomes useful when you have some dependent patch you don't want to 
 
 #### `Rpd.nodetype(type, definition)`
 
-Register a new type of the nodes, so you, or the user, may easily create instances of this type with the help of `patch.addNode`.
+Register a new type of the nodes, so you, or the user, may easily create instances of this type with the help of `patch.addNode` or using some other interface.
+
 So you may define once that all the nodes of your type have two inlets and one outlet, which channel types they have, and how the node processes data, and then create 300 instances of this node type, when you really want.
 
-NB: Please note that user may in any case extend the instance with own definition, add or remove inlets/outles and modify properties. You should not care too much about that or even you need not care at all, but in some rare cases that could be important.
+NB: Please note that user may in any case extend the instance with own definition using `patch.addNode(type, definition)` method, add or remove inlets/outles and modify properties. You should not care too much about that or even you need not care at all, but in some rare cases that could be important.
 
 The new `type` name should be in the form `toolkit/typename`. For example, there could be nodes with the types `util/bang`, `util/color`, `blender/render`, `animatron/player`, `processing/color`, `processing/sketch` etc. Prefer one word for the type name when possible, or join several words with dash symbol `-`, when it's really not.
 
@@ -165,6 +168,21 @@ When you need information on creating your own toolkits, head safely to the [Too
 Any node type can have a literary textual description of what this node does in details. Normally renderer shows it in the node list, next to corresponding node type, when available, and also when user hovers over the title of the node.
 
 #### `Rpd.channeltype(type, definition)`
+
+Register a new type of a Channel, so you, or the user, may easily create instances of this type with the help of `node.addInlet` or `node.addOutlet`, or using some other interface.
+
+This helps you to define a Channel properties once and use them everywhere. Some of the channels in Util Toolkit are: `util/number`, which handles number values, `util/boolean` which handles boolean values, `util/color` which handles color values or even `util/bang` which handles Bang signal used to trigger some actions.
+
+NB: Please note that user may in any case extend the Channel with own definition using `node.addInlet(type, alias, definition)` or `node.addOutlet(type, alias, definition)` forms of the methods, change the handlers or options. You should not care too much about that or even you need not care at all, but in some rare cases that could be important.
+
+The new `type` name should be in the form `toolkit/typename`. For example, there could be Channels with the types `util/bang`, `util/color`, `tibre/wave`, `processing/color`, `processing/shape`, `animatron/tween` etc. Prefer one word for the type name when possible, or join several words with dash symbol `-`, when it's really not.
+
+Then goes the definition, which is described in details in [Inlet Definition](#inlet-definition) section. Channel Definition is used both for Inlets and Outlets, but Outlets [lack of several options](#outlet-definition) which are used only for the Inlets. In the case when Outlet was created with a Channel or overriden Channel Definition, that contains some option belonging only to Inlets, this Outlet just doesn't takes these particular options in consideration.
+
+Just note that when you need, you may pass a function to this method, it is very useful when you need to share some objects between definitions, so both examples are valid:
+
+```javascript
+```
 
 When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
@@ -365,6 +383,8 @@ Sometimes it is important to know which inlet received the value first and which
 ```javascript
 ```
 
+As another option, you may add timestamp to Inlets using their own `tune` function, or using the `tune` function of the Node, which is described just below.
+
 Receives Node instance as `this`.
 
 ##### `tune`: `function`: `(updates_stream) → updates_stream`
@@ -530,6 +550,8 @@ This function allows you to skip/decline some incoming values basing on the valu
 
 Actually if you _filter_ the stream of values with `tune` function, the result will be the same, but `accept` function allows you not to mess with the streams for a simple cases when you really don't need to.
 
+Receives Inlet instance as `this`.
+
 ##### `adapt`: `function`: `(value) → value`
 
 You may convert every incoming value to some another value or append some data to it, before it comes to the `process` handler.
@@ -539,6 +561,7 @@ You may convert every incoming value to some another value or append some data t
 
 Actually if you _map_ the stream of values with `tune` function, the result will be the same, but `adapt` function allows you not to mess with the streams for a simple cases when you really don't need to.
 
+Receives Inlet instance as `this`.
 
 ##### `show`: `function`: `(value) → string`
 
@@ -549,9 +572,15 @@ It is useful to convert complex values to some short summaries here. For example
 ```javascript
 ```
 
+Receives Inlet instance as `this`.
+
 ##### `tune`: `function`: `(values_stream) → values_stream`
 
+With the help of `tune` function you may freely modify the incoming stream of values, delay them, filter them or even reduce them to something else. When you know the power of [Streams][kefir], you are literally the Master of this Inlet. On the other hand, when something unpredictable happens with values coming through, you may confuse the user, so if you hardly modify them, please pay attention to additionally describe or demonstrate why/how you do it, in the UI of your Node or somewhere nearby.
 
+```javascript
+```
+Receives Inlet instance as `this`.
 
 ##### `handle`: `object`
 
@@ -562,6 +591,8 @@ An example:
 
 ```javascript
 ```
+
+Every handler receives Inlet instance as `this`.
 
 ----
 
@@ -577,11 +608,13 @@ When inlet is cold, it also can postpone sending the value, till other hot inlet
 
 Force this inlet to receive stream of values. RPD uses `Kefir` library to provide streams. Value streams provide practically infinite possibilities, you can send values with time intervals, throttle values by time, combine different streams in unlimited ways, actually everything.
 
-You may find complex examples at [Kefir library page](). Also, usually it is quite easy to convert streams from some another Stream-based library, like RxJS, when you want to use such.
+You may find complex examples at [Kefir library page][kefir]. Also, usually it is quite easy to convert streams from some another Stream-based library, like RxJS, when you want to use such.
 
 <!-- examples -->
 
 #### `inlet.toDefault()`
+
+Force default value to be sent into this inlet, breaking its normal flow. It is not recommended to use it often, it is used mostly used in proper cases by RPD itself, but in case when you really need it, just know it's there.
 
 #### `inlet.allows(outlet)`
 
@@ -605,11 +638,24 @@ All the functions in the definition get Inlet instance as `this`.
 
 ##### `label`: `string`
 
-Outlet label, usually displayed near to the inlet.
+Outlet label, usually displayed near to the outlet. Try to make it both as short and descriptive as possible, since most of they styles are expecting it to be short. Also, when style options were set not to display values, this can happen that your user won't see a label at all or see it only when she hovers over the Outlet. <!-- check `valuesOnHover` -->
 
 ##### `show`: `function`: `(value) → string`
 
+This function is used to show user-friendly string when displaying the value of the Outlet. For example, when your Outlet receives an array of values, by default it will be shown as `[Array]` or if it's an object, as `[Object]` (since by default it just uses `.toString` method of JavaScript), not very user-friendly, isn't it?
+
+Receives Outlet instance as `this`.
+
 ##### `tune`: `function`: `(values_stream) → values_stream`
+
+Tuning function is very powerful and allows you to control the outgoing stream of values, modifying some, skipping some, delaying some, or applying a combination of these actions and so completely changing what happens. [Kefir streams][kefir] are what allows to do all these magical things.
+
+But please be aware that when stream of values is heavily modified, user may feel uncomfortable, while it could not be obvious without seeing what happens inside. So try to modify it so user won't see the effect or explain what happens with the help of the UI. For example, when you filter output stream, explain why it is filtered in the body of the Node or better provide user control over filtering with new Inlet.
+
+```javascript
+```
+
+Receives Outlet instance as `this`.
 
 ##### `handle`: `object`
 
@@ -621,15 +667,17 @@ An example:
 ```javascript
 ```
 
+Every handler receives Inlet instance as `this`.
+
 ----
 
 #### `outlet.connect(inlet) → Link`
 
-Establish a connection between this outlet and given inlet. It is exactly the same what user does when connects some outlet to some inlet using interface.
+Establish a connection between this outlet and given Inlet. It is exactly the same what user does when connects some outlet to some Inlet using interface.
 
-When connection was established, data flows through this wire perfectly, however the receiving end can decline any data on its will, for example when outlet channel type is not matching the inlet channel type or is not in the list if inlet's channel types allowed to connect.
+When connection was established, data flows through this wire perfectly, however the receiving end can decline any data on its will, for example when Outlet channel type is not matching the Inlet channel type or is not in the list if Inlet's channel types allowed to connect.
 
-It depends on the options, but by default it is allowed to connect one outlet to multiple inlets, but inlet may have only one connection, so when inlet is already connected to an outlet and you connect it to another, the previous one should be disconnected. <!-- TODO: control is permormed only in renderer, that's not so good-->
+It depends on the options, but by default it is allowed to connect one Outlet to multiple Inlets, but Inlet may have only one incoming connection. So when some Inlet is already connected to an Outlet and you try to connect other Outlet to it, the previous connection should be removed in advance. <!-- TODO: control is permormed only in renderer, that's not so good--> For user side of view, it is automatically performed by Renderer, when `config.inletAcceptsMultipleLinks` is set to `true`.
 
 #### `outlet.disconnect(link)`
 
@@ -641,7 +689,7 @@ Force this outlet to send given value to all the connected inlets in other nodes
 
 #### `outlet.stream(stream)`
 
-Force this outlet to receive the stream of values, any stream constructed with [Kefir API](http://kefir). These values may be distributed over time in any way you want, and last till infinity or till the stream will end.
+Force this outlet to receive the stream of values, any stream constructed with [Kefir API][kefir]. These values may be distributed over time in any way you want, and last till infinity or till the stream will end.
 
 Yet, same as with `outlet.send`, value may be declined or modified on the receiving ends, when they exist (without interrupting the stream).
 
@@ -649,21 +697,27 @@ Yet, same as with `outlet.send`, value may be declined or modified on the receiv
 
 ### `Link`
 
-Link represents a single connection between inlet and outlet <!-- what happens when the connection was declined? -->. Its instance is returned from `outlet.connect` method.
+Link represents a single connection between Inlet and Outlet <!-- what happens when the connection was declined? -->. By default, one Outlet can be connected to several Inlets, but for Inlets it is not allowed to have more than one incoming connection. This is configurable through `config.inletAcceptsMultipleLinks`, though. `Link` instance is returned from `outlet.connect` method.
 
 #### `link.pass(value)`
 
+Send a value through the link. The rather logical difference with `outlet.send()` is that this action does not apply any of the Outlet value modifiers, like `tune` function. On the other hand, when value comes to the connected Inlet, it applies all the usual modifiers to the value, as if it was sent from the Outlet. <!-- TODO: check --> Also, in default configuration, Outlet may be connected to several Inlets, so in this case value is sent only through this particular link to a single connected Inlet, instead of many.
+
 #### `link.enable()`
 
-Enable this link, so values will flow normally through, as just after the connection.
+Enable this link, so values will flow normally through, as just after the connection. Opposite to `link.disable()`.
 
 #### `link.disable()`
 
-Disable the link temporarily, but the connection actually stays.
+Disable the link temporarily, but the connection actually stays. Practically the same as filtering all the values going through the link.
 
 #### `link.disconnect()`
 
+Remove the connection between given Outlet and Inlet. For ever. Unless new one will be established.
+
 ### modules
+
+<!-- IN PROGRESS -->
 
 #### `history`
 

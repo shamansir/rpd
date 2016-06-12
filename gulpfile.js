@@ -297,6 +297,15 @@ var injectSvgLogo = parser({
     }
 });
 
+var inProgressRe = new RegExp('<!-- IN PROGRESS -->', 'g');
+var replaceInProgressWith = '<span class="in-progress" text="In Progress.">[In Progress]</span>'
+var injectInProgressMark = parser({
+    name: 'inject-in-progress-mark',
+    func: function(data) {
+        return data.replace(inProgressRe, replaceInProgressWith);
+    }
+});
+
 var renderer = new markdown.marked.Renderer();
 var prevParagraphRender = renderer.paragraph;
 renderer.paragraph = function(text) {
@@ -322,6 +331,7 @@ function makeDocs(config, f) {
                      }
                  }))
                  .pipe(injectSvgLogo())
+                 .pipe(injectInProgressMark())
                  //.pipe(injectFiddles())
                  //.pipe(injectCodepens())
                  .pipe(layout(function(file) {
