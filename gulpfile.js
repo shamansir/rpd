@@ -298,7 +298,7 @@ var injectSvgLogo = parser({
 });
 
 var inProgressRe = new RegExp('<!-- IN PROGRESS -->', 'g');
-var replaceInProgressWith = '<span class="in-progress" text="In Progress.">[In Progress]</span>'
+var replaceInProgressWith = '<div class="in-progress" text="In Progress."><span>[In Progress]</span></div>'
 var injectInProgressMark = parser({
     name: 'inject-in-progress-mark',
     func: function(data) {

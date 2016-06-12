@@ -135,11 +135,13 @@ Stop all the rendering processes, running for the moment. Even if other RPD meth
 
 Adds new patch to the network. Patch is a container for a set of nodes and connections between them. Every patch added this way is _opened_ by default, which means that it is rendered right away, and reacts immediately to every following change. You may set a patch title here and, also optionally, define handlers for the [events happening inside](./events.md#Patch), this way:
 
-#### `Rpd.addClosedPatch(title, [definition])`
+#### `Rpd.addClosedPatch(title, [definition]) → Patch`
 
 Adds new patch to the network almost the same way as `addPatch` above, but this patch is closed when you add it, so you need to explicitly call its `open()` method when you want this patch to render.
 
 This method becomes useful when you have some dependent patch you don't want to be displayed until requested. This type of patches I'd recommend to call _Procedure Patch_, which is, unlike the _Root Patch_, treated as secondary.
+
+<!-- IN PROGRESS -->
 
 #### `Rpd.nodetype(type, definition)`
 
@@ -715,7 +717,7 @@ Force this outlet to receive the stream of values, any stream constructed with [
 
 Yet, same as with `outlet.send`, value may be declined or modified on the receiving ends, when they exist (without interrupting the stream).
 
-#### `outlet.toDefault()`
+<!-- #### `outlet.toDefault()` -->
 
 ### `Link`
 
