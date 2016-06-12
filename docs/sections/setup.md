@@ -146,6 +146,10 @@ I recommend you to visit the [examples page](../examples.html#styles-and-rendere
 
 More details on building Patch Networks by yourself, you may find on [the corresponding page](./sections/network.html).
 
+### Styles and Renderers
+
+<!-- IN PROGRESS -->
+
 [kefir]: http://github.com/rpominov/kefir
 [default-svg-js]: http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.min.js
 [default-svg-css]: http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.css

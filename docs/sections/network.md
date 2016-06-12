@@ -54,7 +54,9 @@ Anywhere below (or when `body.onload` or `document.onDocumentReady` event was fi
 </body>
 ```
 
-The `renderNext` method assumes that everything later on, unless it meets another `renderNext` definition, will be rendered to the specified target and following specified options. You also may want to render a particular patch to a particular target with particular renderer, there`s a `patch.render` method existing specially for that, and it accepts exactly the same arguments, but you need to create a Patch to use it, and we haven't covered it yet.
+The `renderNext` method assumes that everything later on, unless it meets another `renderNext` definition, will be rendered to the specified target and following specified options. You also may want to render a particular patch to a particular target with particular renderer, there's a `patch.render` method existing specially for that, and it accepts exactly the same arguments, but you need to create a Patch to use it, and we haven't covered it yet.
+
+### Rendering Configuration
 
 Options passed to `renderNext` or `patch.render` could belong to one particular Renderer, but Renderers supplied with RPD tend to use a generalized set of options:
 
@@ -96,12 +98,14 @@ or, a named Patch:
 var patch = Rpd.addPatch('My Patch');
 ```
 
+<!-- TODO: closed patches and canvases -->
+
 ### Adding Nodes
 
 Adding nodes is also super-easy in a default form:
 
 ```javascript
-var untitledCoreNode = patch.addNode('util/random');
+var untitledUtilNode = patch.addNode('util/random');
 var untitledCustomNode = patch.addNode('my-toolkit/my-node-type');
 var titledCustomNode = patch.addNode('my-toolkit/my-node-type', 'My Node');
 ```

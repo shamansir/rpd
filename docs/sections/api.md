@@ -117,9 +117,19 @@ Every patch lays over its own _canvas_, several canvases may be attached to the 
 
 #### `Rpd.renderNext(renderers, targets, config)`
 
-<!-- Render all the following Patches with specified Renderers -->
+Render all the Patches which follow this statement with specified Renderer (or many), to specified target (or many), with specified configuration (just one is enough).
+
+`renderer` is an alias of a Renderer, registered with `Rpd.renderer` before. RPD comes with `'html'` and `'svg'` Renderers. Not every Style may render with both, so there's a table in [Setup](../setup.html) section clarifying which Style supports which Renderer.
+
+`target` is any DOM (i.e. HTML or SVG) Element to be a root for the next Patches to render into.
+
+`config` is the configuration object used both by Style and Renderer.
+
+The process is described in details in [Network](../network.html#rendering-configuration) section.
 
 #### `Rpd.stopRendering()`
+
+Stop all the rendering processes, running for the moment. Even if other RPD methods will be called until next call to `Rpd.renderNext` or `patch.render`, they won't show anything in UI.
 
 #### `Rpd.addPatch([title], [definition]) → Patch`
 
