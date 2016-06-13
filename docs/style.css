@@ -78,6 +78,24 @@ h3 {
     border-radius: 5px;
 }
 
+h4 {
+    /* font-size: 1.1em */
+    border-bottom: 1px solid crimson;
+    /* margin-top: 1.7em */
+}
+
+h5 {
+
+}
+
+h5:before {
+
+}
+
+h6 {
+
+}
+
 a {
     color: crimson;
 }
