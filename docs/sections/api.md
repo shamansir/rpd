@@ -202,15 +202,40 @@ May receive both object or function.
 
 #### `Rpd.noderenderer(type, rendererAlias, definition)`
 
+<!-- IN PROGRESS -->
+
 When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
 May receive both object or function.
 
+Any property in definition is optional.
+
+```javascript
+```
+
 ##### `size` : `object`
+
+Restrict the size of the Node body to some particular size. It is the object in the form `{ width: 100, height: 200 }`. You may omit width or height property, if you want it to be automatically calculated. When you omit the `size` option completely, the Node body is assigned automatically by Style, in some cases it's enough, in other cases you may need more space for body controls, for example.
+
+Pay attention that the same Node body size may look better for one Style and worse for another. If you want to support several Styles (it's for sure not obligatory), it's better to check if your Node looks well for all of them.
 
 <!-- ##### `prepare` : `function(patchNode, currentPatchNode)` -->
 
 ##### `first` : `function(bodyElm) [→ object]`
+
+This handler is called once, just before the Node is ready to process incoming data and when all the Inlets and Outlets defined in [Type Definition](#node-definition) are already attached the Node.
+
+Use this handler to prepare the Node body, i.e. append required DOM (or whichever, it depends on the Renderer) elements there. When you use the form of the function to define `Rpd.noderenderer`, you may safely save these elements in the closure to use them in `always` handler.
+
+```
+```
+
+This function may optinally return the object which allows to attach default values or streams of the values to the existing inlets. <!-- #354 --> It is very useful when you want to have a complex control in the Node body, so you add it there and pass the change [stream][kefir] to the existing hidden inlet.
+
+```
+```
+
+Receives Node instance as `this`.
 
 <!-- `inlet` -> `default`, `valueOut` -->
 
