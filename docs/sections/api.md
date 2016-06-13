@@ -269,11 +269,11 @@ May receive both object or function.
 
 #### `Rpd.renderer(alias, definition)`
 
-May receive both object or function.
+Renderer Definition is completely moved to [Style Section](../style.html#writing-your-own-renderer), since it doesn't relate to Building Patches.
 
 #### `Rpd.style(alias, rendererAlias, definition)`
 
-May receive both object or function.
+Style Definition is completely moved to [Style Section](../style.html#writing-your-own-style), since it doesn't relate to Building Patches.
 
 ### `Patch`
 

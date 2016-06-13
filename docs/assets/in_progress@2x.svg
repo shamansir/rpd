@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="291px" height="291px" viewBox="0 0 291 291" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <title>in_progress@2x</title>
+    <description>Created with Sketch (http://www.bohemiancoding.com/sketch)</description>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <rect id="Rectangle-1" stroke="#000000" stroke-width="7" fill="#F8E81C" sketch:type="MSShapeGroup" x="7" y="7" width="277" height="277" rx="24"></rect>
+        <path d="M86.8015122,226.422166 L175.843575,162.22905 L153,147 L152,178 L128,195 L111,190 L132,158 L121,118 C121,118 134.000001,118.000001 146,108 C158,98 158,85 158,85 L242,91 L236,130 L220,127 L220,106 L191,108 L214.951902,134.034676 L214.951902,134.034676 L215,134 L215.4375,134.5625 L237,158 L220,210 L238,267 L194,266 L189,209 L207,165 L183,205 L183,260 L151,261 L162,195 L172.064516,178.225806 L93.6210351,233.561906 L105.72565,246.234904 L69.1941658,268.538506 L47.523741,264.249836 L46.7352731,243.051291 L75.8332247,214.938852 L86.8015122,226.422166 Z M114,106 C133.882252,106 150,89.882252 150,70 C150,50.117748 133.882252,34 114,34 C94.117748,34 78,50.117748 78,70 C78,89.882252 94.117748,106 114,106 Z M214.951902,134.034676 L215.4375,134.5625 L222,143 L172.064516,178.225806 L180,165 L175.843575,162.22905 L214.951902,134.034676 L214.951902,134.034676 Z" id="Oval-1" fill="#000000" sketch:type="MSShapeGroup"></path>
+        <path d="M115.5,213 C120.746705,213 125,208.746705 125,203.5 C125,198.253295 120.746705,194 115.5,194 C110.253295,194 106,198.253295 106,203.5 C106,208.746705 110.253295,213 115.5,213 Z" id="Oval-2" fill="#000000" sketch:type="MSShapeGroup"></path>
+        <path d="M225.5,149 C230.746705,149 235,144.746705 235,139.5 C235,134.253295 230.746705,130 225.5,130 C220.253295,130 216,134.253295 216,139.5 C216,144.746705 220.253295,149 225.5,149 Z" id="Oval-2" fill="#000000" sketch:type="MSShapeGroup"></path>
+    </g>
+</svg>

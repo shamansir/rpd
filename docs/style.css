@@ -225,3 +225,26 @@ article code, article pre {
     opacity: 0.3;
     fill: rgb(172, 221, 231);
 }
+
+div.in-progress span {
+    text-transform: uppercase;
+    border: 2px solid black;
+    border-radius: 6px;
+    padding: 4px;
+    margin: 3px 0;
+    /* background-color: #f8e81c; */
+    background-color: yellow;
+}
+
+div.in-progress span:before {
+    display: inline-block;
+    content: '';
+    width: 1.2em;
+    height: 1.2em;
+    margin-right: 4px;
+    /* vertical-align: bottom; */
+    position: relative;
+    bottom: -4px;
+    background-image: url('./assets/in_progress.svg');
+    background-size: 1.2em 1.2em;
+}
