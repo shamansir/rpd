@@ -4,18 +4,32 @@ id: events
 level: 1
 ---
 
-<!-- COMING SOON -->
+<!-- IN PROGRESS -->
 
 ### Global Events
 
+<!-- IN PROGRESS -->
+
 ### Network Events
+
+<!-- IN PROGRESS -->
 
 ### Patch Events
 
+<!-- IN PROGRESS -->
+
 ### Node Events
+
+<!-- IN PROGRESS -->
 
 ### Outlet Events
 
+<!-- IN PROGRESS -->
+
 ### Inlet Events
 
+<!-- IN PROGRESS -->
+
 ### Link Events
+
+<!-- IN PROGRESS -->

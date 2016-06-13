@@ -220,6 +220,10 @@ Out of the box, RPD uses [Kefir][kefir] library for Streams, since it's very tin
 
 ### Adding Sub-patches
 
+<!-- IN PROGRESS -->
+
 ### Adding Import/Export
+
+<!-- IN PROGRESS -->
 
 [kefir]: http://rpominov.github.io/kefir

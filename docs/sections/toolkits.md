@@ -98,6 +98,8 @@ Definition of the Inlet or Outlet only requires a `type` field, other fields are
 * `prepare`
 * `show`
 * `edit`
+
+<!-- IN PROGRESS -->
 ​
 
 ### Writing a Node Renderer
@@ -106,9 +108,13 @@ Definition of the Inlet or Outlet only requires a `type` field, other fields are
 * `size`
 * `first`
 * `always`
+
+<!-- IN PROGRESS -->
 ​
 <!-- valueOut may have a timestamp passed with every value,
      that helps in determining which update came first -->
 
 ​
 ### Writing Custom I/O Module
+
+<!-- IN PROGRESS -->
