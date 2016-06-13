@@ -243,7 +243,12 @@ function subscribeUpdates(node, subscriptions) {
                 .filter(function(inlet) { return inlet.alias === alias; })
                 .onValue(function(inlet) {
                     node.event['node/is-ready'].onValue(function() {
-                        if (subscription.default) inlet.receive(subscription.default());
+                        if (subscription.default) {
+                            inlet.receive(
+                                (typeof subscription.default === 'function')
+                                ? subscription.default() : subscription.default
+                            );
+                        }
                         if (subscription.valueOut) {
                             subscription.valueOut.onValue(function(value) {
                                 inlet.receive(value);

@@ -227,19 +227,33 @@ This handler is called once, just before the Node is ready to process incoming d
 
 Use this handler to prepare the Node body, i.e. append required DOM (or whichever, it depends on the Renderer) elements there. When you use the form of the function to define `Rpd.noderenderer`, you may safely save these elements in the closure to use them in `always` handler.
 
-```
+```javascript
 ```
 
-This function may optinally return the object which allows to attach default values or streams of the values to the existing inlets. <!-- #354 --> It is very useful when you want to have a complex control in the Node body, so you add it there and pass the change [stream][kefir] to the existing hidden inlet.
+This function may optionally return the object which allows to attach default values or streams of the values to the existing inlets. <!-- #354 --> It is very useful when you want to have some complex control (or several ones) in the Node body, so you add control there and pass its changes [Stream][kefir] (for example, `'change'` event) to an existing hidden inlet.
 
+Don't be afraid, usually you'll need Kefir Streams only to transfer events to the Inlet, so it will be just `return Kefir.fromEvents(myControl, 'change');` here... Or may be you'll find useful to also `.map` values to something. And `.throttle` them in some cases... Streams could appear very useful!
+
+So, first, for every inlet returned, you may specify `'default'` property, which could be a function returning a default value (so you will be able to initialize your control with this value in this function) or just some value.
+
+And, second, you may specify `'valueOut'` [Stream][kefir], which should emit new value when you want to update inlet value. Usually it is ok to pass `'change'` events Stream from your control there.
+
+```javascript
 ```
-```
+
+NB: The `valueOut` and `default` functionality is discussable, please follow [Issue #354](https://github.com/shamansir/rpd/issues/354) if you want to keep track on changes, if they come, or feel free to add comments if you have any suggestions on how to improve it.
 
 Receives Node instance as `this`.
 
-<!-- `inlet` -> `default`, `valueOut` -->
-
 ##### `always` : `function(bodyElm, inlets, outlets)`
+
+This function is called on every inlet update, next to the Node `process` handler (described in [Node Definition](#node-definition)), when the latter was defined.
+
+So you may apply/render all the new updates immediately after the moment they happened. `inlets` object contains new Inlets values, `outlets` object contains
+current Outlets values, including those returned from the `process` handler.
+
+```javascript
+```
 
 #### `Rpd.channelrenderer(type, rendererAlias, definition)`
 
