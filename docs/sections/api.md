@@ -111,6 +111,10 @@ Every patch lays over its own _canvas_, several canvases may be attached to the 
 
 <!-- schematic picture of a network -->
 
+Directly in `Rpd.` namespace there are methods designed to help you register new Node Types, new Channel Types, Node Renderers and Channel Renderers. They help you to build and reuse any kinds of Nodes and Channels, actually there is no limit of what you can do using these. Every method is described below or in some section nearby.
+
+When you find that you use registration methods from `Rpd.*` namedpace too often,  please consider extracting these parts to a separate [Toolkit](./toolkit.html).
+
 <!-- From this point and below, let's consider some example to illustrate the practical usage of the described methods. Say, we want to draw the Solar System in static (not that RPD is unable to do it in dynamic, but it's better to consider simple examples at start, isn't it?). We won't do it step-by-step like tutorials do, rather we'll say which method fits particular situation better. For these needs, for every API method there will be a section marked as _Example_. If you really want, the complete code of this example is accessible [here] --> <!-- TODO -->
 
 <!-- schematic picture of an example -->
@@ -202,16 +206,30 @@ May receive both object or function.
 
 #### `Rpd.noderenderer(type, rendererAlias, definition)`
 
-<!-- IN PROGRESS -->
+Define new Node Renderer for particular Node Type. When you want to have and reuse some Node which is more complex to render than just empty body with inlets or outlets, this method is what you need.
 
-When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
+It allows you to put in the Node body whatever you want and improve user experience in every possible way. Using mostly only Node Types and corresponding Renderers for them, you may create the analogues of Pure Data, VVVV, Blender Material composer, or whichever node system comes to your mind.
 
-May receive both object or function.
+The only limits you have are the limits of HTML or SVG, but there are both nowadays also almost limitless.
+
+The Toolkits for the [Examples](./examples.html) section and the ones located at `src/toolkit` are all powered by `Rpd.nodetype`, `Rpd.channeltype`, `Rpd.noderenderer` and `Rpd.channelrenderer`, but `Rpd.noderenderer` is what makes them so powerful, since you may include, for example, control of any complexity, HTML5 Canvas, or Processing Sketch, or even something WebGL-driven into the node body. The important thing is how to deal with Toolkit architecture.
+
+But let's turn from advertisement back to API.
+
+`type` is the type of the node you want to define renderer for.
+
+`rendererAlias` is a name of a Renderer which should already be registered in the system under this alias. Out of the box, there are `'html'` and `'svg'` renderers provided. Though you should ensure [to include Renderer](./setup.html) into your version of RPD before using one of them. Both of them support HTML and SVG DOM Elements, but for latter one the Node body is itself an SVG Element, so you if you want to add HTML Elements there, you need put them into `<foreignelement />` tag before.
+
+May receive both object or function, returning the object, as `definition`. Structure of this object is described below. When it's a function, it receives Node instance as `this`. <!-- check -->
 
 Any property in definition is optional.
 
 ```javascript
 ```
+
+<!-- TODO: it is also possible to override `render` in `patch.addNode` and `node.addInlet/node.addOutlet`, check -->
+
+When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
 ##### `size` : `object`
 
@@ -237,6 +255,10 @@ Don't be afraid, usually you'll need Kefir Streams only to transfer events to th
 So, first, for every inlet returned, you may specify `'default'` property, which could be a function returning a default value (so you will be able to initialize your control with this value in this function) or just some value.
 
 And, second, you may specify `'valueOut'` [Stream][kefir], which should emit new value when you want to update inlet value. Usually it is ok to pass `'change'` events Stream from your control there.
+
+What `bodyElm` is, depends on the Renderer you use for rendering. For example, for `'html'` Renderer it is HTML Element and for `'svg'` renderer it is SVG Element, correspondingly.
+
+NB: It is highly recommended not to change `bodyElm` attributes or especially remove it from the flow. In most cases adding children to it will satisfy all your needs. It is not the strict law, however — don't feel like someone prevents you — you're grown ups, you know when you may break some ~~rules~~ HTML Elements.
 
 ```javascript
 ```
