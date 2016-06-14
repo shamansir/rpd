@@ -279,13 +279,28 @@ current Outlets values, including those returned from the `process` handler.
 
 #### `Rpd.channelrenderer(type, rendererAlias, definition)`
 
-When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
+Register a Renderer for a Channel Type.
 
-May receive both object or function.
+This allows you to render values which appear near to Inlets and Outlets of particular Channel Type not only as String, but in any kind of visual presentation. For example, you may display a color value as a color box filled with this color, instead of boring variants like `#883456` or `[Some Color]`, near to any Inlet or Outlet having your own `my/color` Channel Type:
+
+```javascript
+```
+
+This method may receive either object following the structure described below, or function which returns object of same structure. It is helpful when you need to share some data to reuse in all methods using a closure.
+
+`type`
+
+`rendererAlias`
+
+`definition`
+
+When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
 <!-- ##### `prepare` : `function()` -->
 
 ##### `show` : `function(target, value, repr)`
+
+This function converts
 
 ##### `edit` : `function(target, inlet, valueIn) [→ change_stream]`
 
