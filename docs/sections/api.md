@@ -288,11 +288,16 @@ This allows you to render values which appear near to Inlets and Outlets of part
 
 This method may receive either object following the structure described below, or function which returns object of same structure. It is helpful when you need to share some data to reuse in all methods using a closure.
 
-`type`
+`type` is an alias of a Channel Type, you render the values for.
 
-`rendererAlias`
+`rendererAlias` is the alias of a registered Renderer, like `'html'` or `'svg'`, both of which come out of the box.
 
-`definition`
+`definition` is the object that describes how the Channel Renderer should behave in different situations, its possible properties are covered below.
+
+You also may pass a function which returns such object instead, it will help you to store shared variables in the closure. When you do so, this function receives Channel instance as `this`.
+
+```javascript
+```
 
 When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
@@ -300,9 +305,19 @@ When you need more details, head safely to the [Toolkits](./toolkits.html) secti
 
 ##### `show` : `function(target, value, repr)`
 
-This function converts
+This function may convert new received value to some renderable element. For example, `util/color` Channel Renderer, creates a `<span>` element with background of this color for HTML, and `rect` element filled with this color, for SVG:
+
+```javascript
+```
+
+<!-- TODO: do this -->
+
+NB: Node Types names and Channel Types named may intersect since Node can also represent a single thing which can also be passed through a Channel.
+
 
 ##### `edit` : `function(target, inlet, valueIn) [→ change_stream]`
+
+<!-- IN PROGRESS -->
 
 #### `Rpd.renderer(alias, definition)`
 
