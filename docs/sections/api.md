@@ -312,12 +312,22 @@ This function may convert new received value to some renderable element. For exa
 
 <!-- TODO: do this -->
 
+`target` is the element (HTML Element for `'html'` Renderer, SVG Element for `'svg'` Renderer and so on) where you should put your own element, the one representing the value, into.
+
+`value` is the most fresh value this Channel received.
+
+`repr` is the string representation returned from [Channel Definition](#channel-definition) `show` method, if it was defined or just `.toString()` call on the value, when it wasn't.
+
 NB: Node Types names and Channel Types named may intersect since Node can also represent a single thing which can also be passed through a Channel.
 
 
 ##### `edit` : `function(target, inlet, valueIn) [→ change_stream]`
 
-<!-- IN PROGRESS -->
+If you want to let user edit the value not (or _not only_) in the Node body, but also when she clicks the value near to the Inlet, you may use this method to provide her that. <!-- Though it also depends on [the rendering process configuration](./network.html#rendering-configuration), there is an option to disable value editors named ... TODO -->. This method is called only for Inlets, not for Outlets, since only input values are allowed to be changed without connections.
+
+`target` is the element (HTML Element for `'html'` Renderer, SVG Element for `'svg'` Renderer and so on) where you should put your own element, the one representing the value, into.
+
+`inlet` is the Inlet where editor was attached.
 
 #### `Rpd.renderer(alias, definition)`
 
@@ -644,6 +654,8 @@ When Inlet is _cold_, any incoming update to this Inlet is _not_ triggering the 
 In this case the name of the flag does _not_ mean that user is unable to change the value of the Inlet at all, user still can do it with connecting Inlet to some Outlet, but when Style allows Value Editors near to Inlets in general, this Inlet will have none.
 
 Value Editors are small inputs usually shown when user clicks the value of the inlet and they allow to change the value without the connections. Though not every Channel Type has the Editor, or Style may disable all the Editors, so even while this option is `true` by default, there is no guarantee that there will be an Editor for a value there.
+
+<!-- TODO: change to global rendering configuration -->
 
 ##### `allow`: `array[string]`
 
