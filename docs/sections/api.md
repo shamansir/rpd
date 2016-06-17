@@ -323,11 +323,18 @@ NB: Node Types names and Channel Types named may intersect since Node can also r
 
 ##### `edit` : `function(target, inlet, valueIn) [→ change_stream]`
 
-If you want to let user edit the value not (or _not only_) in the Node body, but also when she clicks the value near to the Inlet, you may use this method to provide her that. <!-- Though it also depends on [the rendering process configuration](./network.html#rendering-configuration), there is an option to disable value editors named ... TODO -->. This method is called only for Inlets, not for Outlets, since only input values are allowed to be changed without connections.
+If you want to let user edit the value not (or _not only_) in the Node body, but also when she clicks the value near to the Inlet, you may use this method to provide her that. <!-- Though it also depends on [the rendering process configuration](./network.html#rendering-configuration), there is an option to disable value editors named ... TODO ? -->. This method is called only for Inlets, not for Outlets, since only input values are allowed to be changed without connections.
 
 `target` is the element (HTML Element for `'html'` Renderer, SVG Element for `'svg'` Renderer and so on) where you should put your own element, the one representing the value, into.
 
 `inlet` is the Inlet where editor was attached.
+
+`valueIn` is the [stream][kefir] of incoming values, so you may update the editor with new values. It is also useful to filter values when editor has user focus, so she won't distract from the process of changing the value.
+
+The function should return a [stream][kefir] of outgoing values, so every time user selects or confirms some value, it should be passed to this stream.
+
+```javascript
+```
 
 #### `Rpd.renderer(alias, definition)`
 
@@ -346,6 +353,19 @@ Nodes are connected with links going from outputs of one node to inputs of anoth
 <!-- schematic picture of a patch -->
 
 #### `patch.render(renderers, targets, config)`
+
+Render this Patch with given Renderers, to given target elements, with provided configuration.
+
+`renderers` is one or the list of the Renderer aliases, like `'html'` or `'svg'`, which come out of the box and render Patch to HTML  or SVG elements, correspondingly.
+
+`targets` is one or the list of elements where patch should be rendered. When you specify two targets, patch will be mirrored in both targets and changes in one target will be reflected in another and vice versa.
+
+`conf` is the rendering configuration, described in details in [Network section](./network.html#rendering-configuration). It allows you to select Style of the Nodes and configure a lot of other useful things.
+
+```javascript
+```
+
+<!-- TODO: on opened and closed Patches -->
 
 #### `patch.addNode(type, title, [definition]) → Node`
 
