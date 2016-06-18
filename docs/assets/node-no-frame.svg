@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="242px" height="232px" viewBox="0 0 242 232" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <title>node-no-frame</title>
+    <description>Created with Sketch (http://www.bohemiancoding.com/sketch)</description>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <rect id="Rectangle-21" sketch:type="MSShapeGroup" x="-692" y="-659" width="1184" height="954"></rect>
+        <rect id="Rectangle-1" fill="#ECECEC" sketch:type="MSShapeGroup" x="-612" y="-30" width="1042" height="272"></rect>
+        <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="-622" y="-40" width="1042" height="272"></rect>
+        <g id="Node" sketch:type="MSLayerGroup" transform="translate(62.000000, 36.000000)">
+            <rect id="Rectangle-22" fill="#D4D4D4" sketch:type="MSShapeGroup" x="14" y="11" width="105" height="165"></rect>
+            <path d="M5,18 L5,168 L111,168 L111,18 L5,18 Z" id="Rectangle-2" stroke="#000000" stroke-width="2" fill="#FFFFFF" sketch:type="MSShapeGroup"></path>
+            <rect id="Rectangle-3" stroke="#000000" stroke-width="2" fill="#000000" sketch:type="MSShapeGroup" x="5" y="2" width="106" height="18"></rect>
+            <text id="My-Node" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="10" font-weight="normal" line-spacing="16" fill="#FFFFFF">
+                <tspan x="12" y="10">My Node</tspan>
+            </text>
+            <circle id="Oval-1" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" cx="6" cy="48" r="6"></circle>
+            <circle id="Oval-1" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" cx="6" cy="77" r="6"></circle>
+            <circle id="Oval-1" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" cx="6" cy="105" r="6"></circle>
+            <circle id="Oval-1" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" cx="6" cy="137" r="6"></circle>
+            <circle id="Oval-1" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" cx="109" cy="48" r="6"></circle>
+            <circle id="Oval-1" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" cx="109" cy="77" r="6"></circle>
+            <circle id="Oval-1" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" cx="109" cy="105" r="6"></circle>
+            <rect id="Rectangle-4" stroke="#000000" stroke-dasharray="5" sketch:type="MSShapeGroup" x="19" y="33" width="78" height="120"></rect>
+        </g>
+        <g id="Node-Info" sketch:type="MSLayerGroup" transform="translate(29.000000, 56.000000)">
+            <text id="Node-Body" fill="#D8D8D8" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16">
+                <tspan x="57" y="29" fill="#000000">Node Body</tspan>
+            </text>
+            <text id="5,-10,-7" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
+                <tspan x="67" y="75">5, 10, 7</tspan>
+            </text>
+            <g id="InletA" transform="translate(0.000000, 14.000000)">
+                <rect id="Rectangle-47" fill="#EFEFEF" sketch:type="MSShapeGroup" x="0" y="1" width="31" height="27"></rect>
+                <text id="a-in" fill="#000000" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="bold" line-spacing="16">
+                    <tspan x="1" y="13">a-in</tspan>
+                </text>
+                <text id="5" stroke="#FFFFFF" fill="#0158B0" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16">
+                    <tspan x="22" y="26" fill="#000000">5</tspan>
+                </text>
+            </g>
+            <g id="InletB" transform="translate(0.000000, 44.000000)">
+                <rect id="Rectangle-47" fill="#EFEFEF" sketch:type="MSShapeGroup" x="0" y="1" width="31" height="27"></rect>
+                <text id="b-in" fill="#000000" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="bold" line-spacing="16">
+                    <tspan x="1" y="13">b-in</tspan>
+                </text>
+                <text id="10" stroke="#FFFFFF" fill="#0158B0" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16">
+                    <tspan x="14" y="26" fill="#000000">10</tspan>
+                </text>
+            </g>
+            <g id="InletC" transform="translate(0.000000, 74.000000)">
+                <rect id="Rectangle-47" fill="#EFEFEF" sketch:type="MSShapeGroup" x="0" y="1" width="31" height="27"></rect>
+                <text id="c-in" fill="#000000" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="bold" line-spacing="16">
+                    <tspan x="2" y="13">c-in</tspan>
+                </text>
+                <text id="7" stroke="#FFFFFF" fill="#0158B0" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16">
+                    <tspan x="22" y="26" fill="#000000">7</tspan>
+                </text>
+            </g>
+            <g id="InletD" transform="translate(0.000000, 104.000000)">
+                <rect id="Rectangle-47" fill="#EFEFEF" sketch:type="MSShapeGroup" x="0" y="1" width="31" height="27"></rect>
+                <text id="d-in" fill="#000000" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="bold" line-spacing="16">
+                    <tspan x="1" y="13">d-in</tspan>
+                </text>
+                <text id="-" stroke="#FFFFFF" fill="#0158B0" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16">
+                    <tspan x="23" y="26" fill="#000000">-</tspan>
+                </text>
+            </g>
+            <g id="OutletA" transform="translate(150.000000, 0.000000)">
+                <rect id="Rectangle-47" fill="#EFEFEF" sketch:type="MSShapeGroup" x="0" y="15" width="43" height="27"></rect>
+                <text id="∑-out" fill="#000000" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="bold">
+                    <tspan x="0" y="13.3999996">∑</tspan>
+                    <tspan x="10.340332" y="13.3999996">-out</tspan>
+                </text>
+                <text id="22" stroke="#FFFFFF" fill="#0158B0" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16">
+                    <tspan x="0" y="40" fill="#000000">22</tspan>
+                </text>
+            </g>
+            <g id="OutletB" transform="translate(150.000000, 30.000000)">
+                <rect id="Rectangle-47" fill="#EFEFEF" sketch:type="MSShapeGroup" x="0" y="15" width="43" height="27"></rect>
+                <text id="∏-out" fill="#000000" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="bold">
+                    <tspan x="0" y="13" fill="#0B0080">∏</tspan>
+                    <tspan x="10.3339844" y="13">-out</tspan>
+                </text>
+                <text id="1100" stroke="#FFFFFF" fill="#0158B0" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16">
+                    <tspan x="1" y="39" fill="#000000">1100</tspan>
+                </text>
+            </g>
+            <g id="OutletC" transform="translate(150.000000, 60.000000)">
+                <rect id="Rectangle-47" fill="#EFEFEF" sketch:type="MSShapeGroup" x="0" y="15" width="43" height="27"></rect>
+                <text id="::-out" fill="#000000" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="bold">
+                    <tspan x="0" y="13" fill="#09006D">::</tspan>
+                    <tspan x="6.42382812" y="13">-out</tspan>
+                </text>
+                <text id="5107" stroke="#FFFFFF" fill="#0158B0" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16">
+                    <tspan x="1" y="39" fill="#000000">5107</tspan>
+                </text>
+            </g>
+        </g>
+    </g>
+</svg>
