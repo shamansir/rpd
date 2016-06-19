@@ -260,6 +260,21 @@ function subscribeUpdates(node, subscriptions) {
     });
 }
 
+// Should be called once when renderer registered and Rpd.events is ready
+function reportErrorsToConsole(config) {
+    Rpd.events.onError(function(error) {
+        if (!config.logErrors) return;
+        if (error.silent) return;
+        if (error.system) {
+            console.error(new Error(error.type + ' — ' + error.message + '.' +
+                          'Subject: ' + Rpd.autoStringify(error.subject)));
+        } else {
+            console.log('Error:', error.type, '—', error.message + '.',
+                        'Subject: ' + Rpd.autoStringify(error.subject), error.subject);
+        }
+    });
+}
+
 return {
     Placing: GridPlacing,
     DragAndDrop: DragAndDrop,
@@ -281,7 +296,9 @@ return {
     addValueErrorEffect: addValueErrorEffect,
     addValueUpdateEffect: addValueUpdateEffect,
 
-    subscribeUpdates: subscribeUpdates
+    subscribeUpdates: subscribeUpdates,
+
+    reportErrorsToConsole: reportErrorsToConsole
 };
 
 })();

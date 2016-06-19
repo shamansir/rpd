@@ -137,6 +137,9 @@ var COMPILATION_LEVELS = {
     'advanced': 'ADVANCED_OPTIMIZATIONS'
 };
 
+var minSuffixIsObligatory = false;
+// will add `.min` suffix to compiled file name even when `--compilation` is set to `whitespace`
+
 var valueColor = gutil.colors.yellow,
     infoColor = gutil.colors.black;
 
@@ -153,7 +156,7 @@ gulp.task('get-dev-deps', function() {
 gulp.task('build', ['check-paths', 'list-opts', 'concat-css'], function() {
     var targetName = argv['target-name'];
 
-    var resultName = targetName + ((argv.compilation !== 'whitespace') ? '.min.js' : '.js');
+    var resultName = targetName + ((minSuffixIsObligatory || (argv.compilation !== 'whitespace')) ? '.min.js' : '.js');
 
     var compilerFlags = {
         language_in: 'ECMASCRIPT5',
@@ -180,7 +183,7 @@ gulp.task('build', ['check-paths', 'list-opts', 'concat-css'], function() {
 gulp.task('gzip-min-js', ['build'], function() {
     var targetName = argv['target-name'];
 
-    var sourceName = targetName + ((argv.compilation !== 'whitespace') ? '.min.js' : '.js');
+    var sourceName = targetName + ((minSuffixIsObligatory || (argv.compilation !== 'whitespace')) ? '.min.js' : '.js');
     return gulp.src(Paths.Destination + '/' + sourceName)
                .pipe(gzip())
                .pipe(gulp.dest(Paths.Destination))
@@ -271,6 +274,7 @@ gulp.task('version', function() {
 // ========================== docs, docs-watch =================================
 
 gulp.task('setup-docs-configuration', function() {
+    minSuffixIsObligatory = true;
     argv.renderer = [ 'svg' ];
     argv.style = [ 'compact-v' ];
     argv.toolkit = [ 'util' ];

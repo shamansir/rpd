@@ -4,41 +4,23 @@
         if (Rpd.PRETTIFIED) return;
 
         Rpd._.Patch.prototype.jasmineToString = function() {
-            return '[ Patch' + (this.name ? (' \'' + this.name + '\'') : ' <Unnamed>') + ' ]';
+            return Rpd.stringify.patch(this);
         }
 
         Rpd._.Node.prototype.jasmineToString = function() {
-            return '[ Node (' + this.type + ')' +
-                      (this.def.title ? (' \'' + this.def.title + '\'') : ' <Untitled>') +
-                      ' #' + this.id +
-                      ' ]';
+            return Rpd.stringify.node(this);
         }
 
         Rpd._.Inlet.prototype.jasmineToString = function() {
-            return '[ Inlet (' + this.type + ')' +
-                      (this.alias ? (' \'' + this.alias + '\'') : ' <Unaliased>') +
-                      (this.def.label ? (' \'' + this.def.label + '\'') : ' <Unlabeled>') +
-                      ' #' + this.id +
-                      (this.def.hidden ? ' (hidden)' : '') +
-                      (this.def.cold ? ' (cold)' : '') +
-                      ' ]';
+            return Rpd.stringify.inlet(this);
         }
 
         Rpd._.Outlet.prototype.jasmineToString = function() {
-            return '[ Outlet (' + this.type + ')' +
-                      (this.alias ? (' \'' + this.alias + '\'') : ' <Unaliased>') +
-                      (this.def.label ? (' \'' + this.def.label + '\'') : ' <Unlabeled>') +
-                      ' #' + this.id +
-                      ' ]';
+            return Rpd.stringify.outlet(this);
         }
 
         Rpd._.Link.prototype.jasmineToString = function() {
-            return '[ Link (' + this.type + ')' +
-                      ' \'' + this.name + '\'' +
-                      ' #' + this.id +
-                      ' ' + this.inlet.jasmineToString() + ' ->'
-                      ' ' + this.outlet.jasmineToString() +
-                      ' ]';
+            return Rpd.stringify._link(this);
         }
 
         Rpd.PRETTIFIED = true;

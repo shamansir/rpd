@@ -57,17 +57,9 @@ return function(networkRoot, userConfig) {
 
     var config = mergeConfig(userConfig, defaultConfig);
 
-    // FIXME: move to some external function (should be called once when renderer is
-    // registered and Rpd.events is ready)
-    Rpd.events.onError(function(error) {
-        if (!config.logErrors) return;
-        if (error.silent) return;
-        if (error.system) {
-            console.error(new Error(error.type + ': ' + error.message));
-        } else {
-            console.log('Error: ', error.subject, error.type, error.subject);
-        }
-    });
+    // FIXME: should be called once when renderer is
+    // registered and Rpd.events is ready, not for every patch
+    Render.reportErrorsToConsole(config);
 
     var style = Rpd.getStyle(config.style, 'svg')(config);
 
