@@ -51,6 +51,7 @@ var yargs = require('yargs')
             .command('test', 'run the Jasmine tests to check if API is consistent (the same command runs on Travis CI)')
             .command('list-options [options]', 'get the information for given options, may be used to be sure if you specified all the options correctly without compiling the library; all the options listed below are supported')
             .command('html-head [options]', 'get the full list of all the required files with given options to include into HTML file head if you use not the compiled version, but the files from `./src` directly; all the options listed below are supported')
+            .command('for-docs', 'compile the version of RPD used in documentation and put it into `./docs/compiled`, it could be useful, but not required, to do `gulp for-docs && gulp-docs` in pair')
             .command('docs [--docs-local]', 'compile the documentation from `./docs` sources into corresponding HTML files and place the resulting structure into `./docs/compiled`')
             .command('version', 'get the version of the RPD library you currently have')
             .array('renderer').array('style').array('toolkit').array('io').array('navigation')
@@ -106,8 +107,6 @@ var yargs = require('yargs')
 
 var argv = yargs.argv;
 
-var targetName = argv['target-name']; // forms dist/<targetName>.js and dist/<targetName>.css
-
 var pkg = require('./package.json');
 var Server = require('karma').Server;
 
@@ -152,6 +151,8 @@ gulp.task('get-dev-deps', function() {
 });
 
 gulp.task('build', ['check-paths', 'list-opts', 'concat-css'], function() {
+    var targetName = argv['target-name'];
+
     var resultName = targetName + ((argv.compilation !== 'whitespace') ? '.min.js' : '.js');
 
     var compilerFlags = {
@@ -177,6 +178,8 @@ gulp.task('build', ['check-paths', 'list-opts', 'concat-css'], function() {
 });
 
 gulp.task('gzip-min-js', ['build'], function() {
+    var targetName = argv['target-name'];
+
     var sourceName = targetName + ((argv.compilation !== 'whitespace') ? '.min.js' : '.js');
     return gulp.src(Paths.Destination + '/' + sourceName)
                .pipe(gzip())
@@ -188,6 +191,8 @@ gulp.task('gzip-min-js', ['build'], function() {
 });
 
 gulp.task('gzip-css', ['build'], function() {
+    var targetName = argv['target-name'];
+
     var sourceName = targetName + '.css';
     return gulp.src(Paths.Destination + '/' + sourceName)
                .pipe(gzip())
@@ -201,6 +206,8 @@ gulp.task('gzip-css', ['build'], function() {
 gulp.task('build-with-gzip', ['build', 'gzip-min-js', 'gzip-css']);
 
 gulp.task('concat-css', ['check-paths'], function() {
+    var targetName = argv['target-name'];
+
     gutil.log(infoColor('Concatenating ' + targetName + '.css'));
     return gulp.src(logFiles(getCssFiles(argv)))
                .pipe(concat(targetName + '.css'))
@@ -262,6 +269,25 @@ gulp.task('version', function() {
 });
 
 // ========================== docs, docs-watch =================================
+
+gulp.task('setup-docs-configuration', function() {
+    argv.renderer = [ 'svg' ];
+    argv.style = [ 'compact-v' ];
+    argv.toolkit = [ 'util' ];
+    argv['target-name'] = 'rpd-docs';
+});
+
+gulp.task('for-docs', ['setup-docs-configuration', 'build'], function() {
+    // `docs` task copies all required files itself
+
+    /* var docsFiles = [ Paths.Destination + './rpd-docs.min.js', Paths.Destination + './rpd-docs.css' ];
+
+    return gulp.src(docsFiles.join(' '))
+               .pipe(gulp.dest('./docs/compiled/'))
+               .on('end', function() {
+                   console.log('Copied ' + docsFiles.join(',') + ' to ./docs/compiled');
+               });*/
+});
 
 var docsLocal = argv['docs-local'],
     protocol = docsLocal ? 'http://' : '//';
@@ -369,10 +395,11 @@ gulp.task('docs-copy-dependencies', function() {
     } catch(e) {
         var failedDependency = (lastChecked || 'Unknown');
         console.error(failedDependency + ' dependency wasn\'t met');
+        gutil.log(gutil.colors.red('☠️  UNEXPECTED FAILURE: ☠️'));
         gutil.log('First time before building docs (not every time)');
         gutil.log('Please call', gutil.colors.red('`gulp get-dev-deps`'), 'to get latest Kefir.js','(if you haven\'t yet)');
         gutil.log('and then, to generate RPD version for docs, call:');
-        gutil.log(gutil.colors.red('`gulp --style compact-v --renderer svg --target-name rpd-docs`'));
+        gutil.log(gutil.colors.red('`gulp for-docs`'));
         gutil.log('so then you will be safe to call', gutil.colors.yellow('`gulp docs`'), 'again');
         throw new Error('Dependency wasn\'t met: ' + failedDependency);
     }
