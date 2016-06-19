@@ -101,5 +101,11 @@
         <path d="M182,372 L218,372 L285,434 L315,434" id="Path-1" stroke="#000000" stroke-width="3" stroke-linecap="round" sketch:type="MSShapeGroup" transform="translate(248.500000, 403.000000) scale(1, -1) translate(-248.500000, -403.000000) "></path>
         <path d="M182,377 L218,377 L285,401 L315,401" id="Path-1" stroke="#000000" stroke-width="3" stroke-linecap="round" sketch:type="MSShapeGroup"></path>
         <path d="M87,-139 L234,-139 L310,144 L595,143" id="Path-1" stroke="#000000" stroke-width="3" stroke-linecap="round" sketch:type="MSShapeGroup"></path>
+        <g id="Projection-Info" sketch:type="MSLayerGroup" transform="translate(78.000000, 85.000000)" stroke="#979797" stroke-opacity="0.77745864" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10,11">
+            <path d="M620.5,0.5 L340.5,287.5" id="Path-5" sketch:type="MSShapeGroup"></path>
+            <path d="M517.5,58.5 L0.5,321.5" id="Path-6" sketch:type="MSShapeGroup"></path>
+            <path d="M340.5,316.5 L620.5,29.5" id="Path-7" sketch:type="MSShapeGroup"></path>
+            <path d="M0.5,292.5 L516.5,30.5" id="Path-7" sketch:type="MSShapeGroup"></path>
+        </g>
     </g>
 </svg>
