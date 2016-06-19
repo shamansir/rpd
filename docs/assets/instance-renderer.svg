@@ -12,8 +12,8 @@
         <rect id="Rectangle-16" sketch:type="MSShapeGroup" x="-376" y="7" width="1209" height="367"></rect>
         <rect id="Rectangle-16" fill="#D4D4D4" sketch:type="MSShapeGroup" x="-357" y="25" width="1178" height="337"></rect>
         <rect id="Rectangle-16" fill="#FFFFFF" sketch:type="MSShapeGroup" x="-367" y="16" width="1178" height="337"></rect>
-        <text id="Instance-Renderer" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
-            <tspan x="78" y="35">Instance Renderer</tspan>
+        <text id="Type/Instance-Render" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
+            <tspan x="63" y="35">Type/Instance Renderer</tspan>
         </text>
         <g id="html-channel" sketch:type="MSLayerGroup" transform="translate(23.000000, 61.000000)">
             <rect id="Rectangle-4" fill="#D8D8D8" sketch:type="MSShapeGroup" x="3" y="3" width="227" height="30" rx="4"></rect>

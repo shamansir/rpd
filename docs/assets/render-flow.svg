@@ -51,8 +51,8 @@
         <text id="Renderer" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
             <tspan x="269" y="28">Renderer</tspan>
         </text>
-        <text id="Instance-Renderer" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
-            <tspan x="454" y="28">Instance Renderer</tspan>
+        <text id="Type/Instance-Render" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
+            <tspan x="439" y="28">Type/Instance Renderer</tspan>
         </text>
         <text id="Style" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
             <tspan x="823" y="28">Style</tspan>
