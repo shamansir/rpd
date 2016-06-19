@@ -82,6 +82,8 @@ Rpd.renderNext('svg', targetElement, { style: 'quartz',
 // Creating a Patch, Adding Nodes, ...
 ```
 
+> NB: When `fullPage` is set to `false`, Renderer is usually unaware of the required canvas height, so you need to call `patch.resizeCanvas` for every new Patch, as soon as possible after the corresponding `Rpd.renderNext` or `patch.render` call.
+
 ### Creating a Patch
 
 Patch is a collection and topology of connected Nodes.

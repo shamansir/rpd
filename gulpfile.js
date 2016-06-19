@@ -279,6 +279,8 @@ gulp.task('setup-docs-configuration', function() {
     argv.style = [ 'compact-v' ];
     argv.toolkit = [ 'util' ];
     argv['target-name'] = 'rpd-docs';
+    //argv.compilation = 'whitespace';
+    //argv.pretty = true;
 });
 
 gulp.task('for-docs', ['setup-docs-configuration', 'build'], function() {

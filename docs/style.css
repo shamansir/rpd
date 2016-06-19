@@ -266,3 +266,21 @@ div.in-progress span:before {
     background-image: url('./assets/in_progress.svg');
     background-size: 1.2em 1.2em;
 }
+
+.rpd-background {
+    fill: white/* #22222a */;
+}
+
+.rpd-link {
+    stroke: black;
+}
+
+.rpd-inlet text.rpd-name,
+.rpd-outlet text.rpd-name {
+    fill: black;
+}
+
+.rpd-inlet text.rpd-value,
+.rpd-outlet text.rpd-value {
+    fill: darkgray;
+}

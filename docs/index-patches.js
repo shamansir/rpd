@@ -3,19 +3,21 @@ function applyCodeExample1() {
                    { style: 'compact-v',
                      nodeMovingAllowed: false });
 
-    var rgPatch = Rpd.addPatch('Generate Random Numbers');
+    var rgPatch = Rpd.addPatch('Generate Random Numbers')
+                     .resizeCanvas(800, 200);
 
-    var rgMetroNode = rgPatch.addNode('util/random', 'Random');
+    var rgMetroNode = rgPatch.addNode('util/metro', 'Metro')
+                             .move(40, 10);
 
-    var rgRandomNode = rgPatch.addNode('util/random', 'Random');
+    var rgRandomNode = rgPatch.addNode('util/random', 'Random').move(130, 10);
     rgRandomNode.inlets['max'].receive(26);
 
     rgMetroNode.outlets['out'].connect(rgRandomNode.inlets['bang']);
 
     //rgMetroNode.inlets['period'].receive(3000);
 
-    //var logNode = rgPatch.addNode('util/log', 'Log');
-    //rgNode.outlets['out'].connect(logNode.inlets['what']);
+    var logNode = rgPatch.addNode('util/log', 'Log').move(210, 60);
+    rgRandomNode.outlets['out'].connect(logNode.inlets['what']);
 
     var multiplyTwo = rgPatch.addNode('core/basic', '* 2', {
         process: function(inlets) {
@@ -23,7 +25,7 @@ function applyCodeExample1() {
                 'result': (inlets.multiplier || 0) * 2
             }
         }
-    });
+    }).move(250, 10);
     var multiplierInlet = multiplyTwo.addInlet('util/number', 'multiplier');
     var resultOutlet = multiplyTwo.addOutlet('util/number', 'result');
 
