@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="1196px" height="355px" viewBox="0 0 1196 355" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+<svg width="1209px" height="367px" viewBox="0 0 1209 367" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
     <title>render-flow</title>
     <description>Created with Sketch (http://www.bohemiancoding.com/sketch)</description>
     <defs>
-        <linearGradient x1="79.3274715%" y1="95.081062%" x2="45.496673%" y2="56.5906955%" id="linearGradient-1">
-            <stop stop-color="#980101" offset="0%"></stop>
-            <stop stop-color="#0157B0" offset="100%"></stop>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FFFFFF" offset="0%"></stop>
+            <stop stop-color="#E7E7E7" offset="100%"></stop>
         </linearGradient>
     </defs>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
-        <g id="html" sketch:type="MSLayerGroup" transform="translate(241.000000, 66.000000)">
-            <rect id="Rectangle-1" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="114" height="63" rx="4"></rect>
-            <text id="‘html’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
-                <tspan x="32" y="23">‘html’</tspan>
-            </text>
-            <text id="HTML-DOM" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
-                <tspan x="21" y="49">HTML DOM</tspan>
-            </text>
-        </g>
+        <rect id="Rectangle-16" sketch:type="MSShapeGroup" x="0" y="0" width="1209" height="367"></rect>
+        <rect id="Rectangle-16" fill="#D4D4D4" sketch:type="MSShapeGroup" x="19" y="18" width="1178" height="337"></rect>
+        <rect id="Rectangle-16" fill="#FFFFFF" sketch:type="MSShapeGroup" x="9" y="9" width="1178" height="337"></rect>
         <g id="svg" sketch:type="MSLayerGroup" transform="translate(241.000000, 159.000000)">
-            <rect id="Rectangle-1" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="114" height="63" rx="4"></rect>
+            <rect id="Rectangle-1" fill="#D8D8D8" sketch:type="MSShapeGroup" x="3" y="3" width="114" height="63" rx="4"></rect>
+            <rect id="Rectangle-1" stroke="#000000" sketch:type="MSShapeGroup" x="0" y="0" width="114" height="63" rx="4"></rect>
+            <rect id="Rectangle-24" fill="#FFFFFF" sketch:type="MSShapeGroup" x="36" y="11" width="41" height="17"></rect>
+            <rect id="Rectangle-26" fill="#FFFFFF" sketch:type="MSShapeGroup" x="25" y="37" width="63" height="15"></rect>
             <text id="‘svg’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="36" y="23">‘svg’</tspan>
             </text>
@@ -27,8 +24,23 @@
                 <tspan x="27" y="49">SVG DOM</tspan>
             </text>
         </g>
+        <rect id="Rectangle-1" fill="#D8D8D8" sketch:type="MSShapeGroup" x="245" y="70" width="114" height="63" rx="4"></rect>
+        <g id="html" sketch:type="MSLayerGroup" transform="translate(241.000000, 66.000000)">
+            <rect id="Rectangle-22" fill="#FFFFFF" sketch:type="MSShapeGroup" x="32" y="10" width="49" height="17"></rect>
+            <rect id="Rectangle-22" fill="#FFFFFF" sketch:type="MSShapeGroup" x="19" y="35" width="76" height="17"></rect>
+            <rect id="Rectangle-1" stroke="#000000" sketch:type="MSShapeGroup" x="0" y="0" width="114" height="63" rx="4"></rect>
+            <text id="‘html’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
+                <tspan x="32" y="23">‘html’</tspan>
+            </text>
+            <text id="HTML-DOM" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
+                <tspan x="21" y="49">HTML DOM</tspan>
+            </text>
+        </g>
         <g id="..." sketch:type="MSLayerGroup" transform="translate(241.000000, 252.000000)">
-            <rect id="Rectangle-1" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="114" height="63" rx="4"></rect>
+            <rect id="Rectangle-1" fill="#D8D8D8" sketch:type="MSShapeGroup" x="3" y="3" width="114" height="63" rx="4"></rect>
+            <rect id="Rectangle-1" stroke="#000000" sketch:type="MSShapeGroup" x="0" y="0" width="114" height="63" rx="4"></rect>
+            <rect id="Rectangle-28" fill="#FFFFFF" sketch:type="MSShapeGroup" x="44" y="40" width="26" height="12"></rect>
+            <rect id="Rectangle-27" fill="#FFFFFF" sketch:type="MSShapeGroup" x="36" y="11" width="42" height="17"></rect>
             <text id="‘...’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="36" y="23">‘...’</tspan>
             </text>
@@ -48,120 +60,137 @@
         <text id="Target" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
             <tspan x="1083" y="28">Target</tspan>
         </text>
-        <polygon id="Star-1" stroke="url(#linearGradient-1)" stroke-width="2" sketch:type="MSShapeGroup" points="83.9999985 224.5 43.4428208 245.822175 51.1885506 200.661088 18.3770999 168.677829 63.7214153 162.088909 84.0000008 121 104.278599 162.088919 149.622911 168.677862 116.811447 200.661096 124.557178 245.822176 "></polygon>
+        <polygon id="Star-1" fill="#EFEFEF" sketch:type="MSShapeGroup" points="89.9999985 232.5 49.4428208 253.822175 57.1885506 208.661088 24.3770999 176.677829 69.7214153 170.088909 90.0000008 129 110.278599 170.088919 155.622911 176.677862 122.811447 208.661096 130.557178 253.822176 "></polygon>
+        <polygon id="Star-1" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" points="83.9999985 224.5 43.4428208 245.822175 51.1885506 200.661088 18.3770999 168.677829 63.7214153 162.088909 84.0000008 121 104.278599 162.088919 149.622911 168.677862 116.811447 200.661096 124.557178 245.822176 "></polygon>
         <text id="ACTION" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
             <tspan x="59" y="193">ACTION</tspan>
         </text>
         <g id="html-channel" sketch:type="MSLayerGroup" transform="translate(399.000000, 54.000000)">
+            <rect id="Rectangle-4" fill="#D8D8D8" sketch:type="MSShapeGroup" x="3" y="3" width="227" height="30" rx="4"></rect>
+            <rect id="Rectangle-4" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="227" height="30" rx="4"></rect>
             <text id="Channel-[Type]-Rende" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="63" y="20">Channel [Type] Renderer</tspan>
             </text>
-            <rect id="Rectangle-4" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="227" height="30" rx="4"></rect>
             <text id="‘html’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="10" y="20">‘html’</tspan>
             </text>
         </g>
         <g id="html-node" sketch:type="MSLayerGroup" transform="translate(399.000000, 102.000000)">
+            <rect id="Rectangle-4" fill="#D8D8D8" sketch:type="MSShapeGroup" x="3" y="3" width="227" height="30" rx="4"></rect>
+            <rect id="Rectangle-4" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="227" height="30" rx="4"></rect>
             <text id="Node-[Type]-Renderer" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="63" y="20">Node [Type] Renderer</tspan>
             </text>
-            <rect id="Rectangle-4" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="227" height="30" rx="4"></rect>
             <text id="‘html’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="10" y="20">‘html’</tspan>
             </text>
         </g>
         <g id="svg-channel" sketch:type="MSLayerGroup" transform="translate(399.000000, 151.000000)">
+            <rect id="Rectangle-4" fill="#D8D8D8" sketch:type="MSShapeGroup" x="3" y="3" width="227" height="30" rx="4"></rect>
+            <rect id="Rectangle-4" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="227" height="30" rx="4"></rect>
             <text id="Channel-[Type]-Rende" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="63" y="20">Channel [Type] Renderer</tspan>
             </text>
-            <rect id="Rectangle-4" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="227" height="30" rx="4"></rect>
             <text id="‘svg’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="10" y="20">‘svg’</tspan>
             </text>
         </g>
         <g id="svg-node" sketch:type="MSLayerGroup" transform="translate(399.000000, 199.000000)">
+            <rect id="Rectangle-4" fill="#D8D8D8" sketch:type="MSShapeGroup" x="3" y="3" width="227" height="30" rx="4"></rect>
+            <rect id="Rectangle-4" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="227" height="30" rx="4"></rect>
             <text id="Node-[Type]-Renderer" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="63" y="20">Node [Type] Renderer</tspan>
             </text>
-            <rect id="Rectangle-4" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="227" height="30" rx="4"></rect>
             <text id="‘svg’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="10" y="20">‘svg’</tspan>
             </text>
         </g>
         <g id="...-channel" sketch:type="MSLayerGroup" transform="translate(398.000000, 249.000000)">
-            <text id="Channel-[Type]-Rende" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
-                <tspan x="63" y="20">Channel [Type] Renderer</tspan>
-            </text>
+            <rect id="Rectangle-4" fill="#D8D8D8" sketch:type="MSShapeGroup" x="3" y="3" width="227" height="30" rx="4"></rect>
+            <rect id="Rectangle-4" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="227" height="30" rx="4"></rect>
             <text id="‘...’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="9" y="21">‘...’</tspan>
             </text>
-            <rect id="Rectangle-4" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="227" height="30" rx="4"></rect>
+            <text id="Channel-[Type]-Rende" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
+                <tspan x="63" y="20">Channel [Type] Renderer</tspan>
+            </text>
         </g>
         <g id="...-node" sketch:type="MSLayerGroup" transform="translate(398.000000, 297.000000)">
+            <rect id="Rectangle-4" fill="#D8D8D8" sketch:type="MSShapeGroup" x="4" y="3" width="227" height="30" rx="4"></rect>
+            <rect id="Rectangle-4" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="227" height="30" rx="4"></rect>
             <text id="Node-[Type]-Renderer" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="63" y="20">Node [Type] Renderer</tspan>
             </text>
-            <rect id="Rectangle-4" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="227" height="30" rx="4"></rect>
             <text id="‘...’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="10" y="20">‘...’</tspan>
             </text>
         </g>
         <g id="style-quartz" sketch:type="MSLayerGroup" transform="translate(781.000000, 42.000000)">
-            <rect id="Rectangle-10" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="115" height="32"></rect>
+            <rect id="Rectangle-10" fill="#D8D8D8" sketch:type="MSShapeGroup" x="4" y="3" width="115" height="32"></rect>
+            <rect id="Rectangle-10" stroke="#000000" sketch:type="MSShapeGroup" x="0" y="0" width="115" height="32"></rect>
             <text id="‘quartz’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="26" y="20">‘quartz’</tspan>
             </text>
         </g>
         <g id="style-pd" sketch:type="MSLayerGroup" transform="translate(781.000000, 94.000000)">
-            <rect id="Rectangle-10" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="115" height="32"></rect>
+            <rect id="Rectangle-10" fill="#D8D8D8" sketch:type="MSShapeGroup" x="5" y="4" width="115" height="32"></rect>
+            <rect id="Rectangle-10" stroke="#000000" sketch:type="MSShapeGroup" x="0" y="0" width="115" height="32"></rect>
             <text id="‘pd’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="40" y="20">‘pd’</tspan>
             </text>
         </g>
         <g id="style-compact" sketch:type="MSLayerGroup" transform="translate(781.000000, 146.000000)">
-            <rect id="Rectangle-10" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="115" height="32"></rect>
+            <rect id="Rectangle-10" fill="#D8D8D8" sketch:type="MSShapeGroup" x="5" y="3" width="115" height="32"></rect>
+            <rect id="Rectangle-10" stroke="#000000" sketch:type="MSShapeGroup" x="0" y="0" width="115" height="32"></rect>
             <text id="‘compact’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="23" y="20">‘compact’</tspan>
             </text>
         </g>
         <g id="style-compact-v" sketch:type="MSLayerGroup" transform="translate(781.000000, 198.000000)">
-            <rect id="Rectangle-10" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="115" height="32"></rect>
+            <rect id="Rectangle-10" fill="#D8D8D8" sketch:type="MSShapeGroup" x="4" y="4" width="115" height="32"></rect>
+            <rect id="Rectangle-10" stroke="#000000" sketch:type="MSShapeGroup" x="0" y="0" width="115" height="32"></rect>
             <text id="‘compact-v’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="14" y="20">‘compact-v’</tspan>
             </text>
         </g>
         <g id="style-blender" sketch:type="MSLayerGroup" transform="translate(781.000000, 250.000000)">
-            <rect id="Rectangle-10" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="115" height="32"></rect>
+            <rect id="Rectangle-10" fill="#D8D8D8" sketch:type="MSShapeGroup" x="4" y="4" width="115" height="32"></rect>
+            <rect id="Rectangle-10" stroke="#000000" sketch:type="MSShapeGroup" x="0" y="0" width="115" height="32"></rect>
             <text id="‘blender’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="20" y="20">‘blender’</tspan>
             </text>
         </g>
         <g id="style-..." sketch:type="MSLayerGroup" transform="translate(781.000000, 304.000000)">
-            <rect id="Rectangle-10" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="115" height="32"></rect>
+            <rect id="Rectangle-10" fill="#D8D8D8" sketch:type="MSShapeGroup" x="4" y="4" width="115" height="32"></rect>
+            <rect id="Rectangle-10" stroke="#000000" sketch:type="MSShapeGroup" x="0" y="0" width="115" height="32"></rect>
             <text id="‘...’" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="36" y="21">‘...’</tspan>
             </text>
         </g>
         <g id="div-target" sketch:type="MSLayerGroup" transform="translate(1043.000000, 74.000000)">
-            <ellipse id="Oval-1" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" cx="60.5" cy="21" rx="60.5" ry="21"></ellipse>
+            <ellipse id="Oval-1" fill="#D8D8D8" sketch:type="MSShapeGroup" cx="63.5" cy="25" rx="60.5" ry="21"></ellipse>
+            <ellipse id="Oval-1" fill="url(#linearGradient-1)" sketch:type="MSShapeGroup" cx="60.5" cy="21" rx="60.5" ry="21"></ellipse>
             <text id="&lt;div-/&gt;" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="31" y="25">&lt;div /&gt;</tspan>
             </text>
         </g>
         <g id="svg-target" sketch:type="MSLayerGroup" transform="translate(1043.000000, 134.000000)">
-            <ellipse id="Oval-1" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" cx="60.5" cy="21" rx="60.5" ry="21"></ellipse>
+            <ellipse id="Oval-1" fill="#D8D8D8" sketch:type="MSShapeGroup" cx="64.5" cy="25" rx="60.5" ry="21"></ellipse>
+            <ellipse id="Oval-1" fill="url(#linearGradient-1)" sketch:type="MSShapeGroup" cx="60.5" cy="21" rx="60.5" ry="21"></ellipse>
             <text id="&lt;svg-/&gt;" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="31" y="25">&lt;svg /&gt;</tspan>
             </text>
         </g>
         <g id="canvas-target" sketch:type="MSLayerGroup" transform="translate(1043.000000, 194.000000)">
-            <ellipse id="Oval-1" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" cx="60.5" cy="21" rx="60.5" ry="21"></ellipse>
+            <ellipse id="Oval-1" fill="#D8D8D8" sketch:type="MSShapeGroup" cx="63.5" cy="25" rx="60.5" ry="21"></ellipse>
+            <ellipse id="Oval-1" fill="url(#linearGradient-1)" sketch:type="MSShapeGroup" cx="60.5" cy="21" rx="60.5" ry="21"></ellipse>
             <text id="&lt;canvas-/&gt;" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="23" y="25">&lt;canvas /&gt;</tspan>
             </text>
         </g>
         <g id="...-target" sketch:type="MSLayerGroup" transform="translate(1043.000000, 255.000000)">
-            <ellipse id="Oval-1" stroke="url(#linearGradient-1)" sketch:type="MSShapeGroup" cx="60.5" cy="21" rx="60.5" ry="21"></ellipse>
+            <ellipse id="Oval-1" fill="#D8D8D8" sketch:type="MSShapeGroup" cx="64.5" cy="25" rx="60.5" ry="21"></ellipse>
+            <ellipse id="Oval-1" fill="url(#linearGradient-1)" sketch:type="MSShapeGroup" cx="60.5" cy="21" rx="60.5" ry="21"></ellipse>
             <text id="&lt;...-/&gt;" sketch:type="MSTextLayer" font-family="Input Mono" font-size="13" font-weight="normal" line-spacing="16" fill="#000000">
                 <tspan x="31" y="25">&lt;... /&gt;</tspan>
             </text>
