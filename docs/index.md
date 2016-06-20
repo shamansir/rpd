@@ -91,6 +91,8 @@ At first, we'll define terms of node-based interfaces, the way RPD sees them, st
 
 #### Network
 
+![Network](./assets/network.png)
+
 _Network_ defines a system of Patches. At this level Patch may be considered as a complex procedure with several inputs and outputs and a Network is a program that uses these procedures.
 
 Say, you define some complex functionality of a 3D vertex shader with a Patch. It has its inputs such as 3D position, color and texture coordinate of a vertex and outputs as 2D coordinate and modified color. Then you may create another “root” Patch, which allows user to apply combinations of different vertex shaders to an imported object and so re-use the Shader Patch several times in different configurations. These two Patches (first one used several times and second one used once) form a simple Network.
@@ -101,6 +103,8 @@ So, some Node in one Patch may represent the inputs and outputs of another Patch
 
 #### Patch
 
+![Patch](./assets/patch.png)
+
 _Patch_ stores a collection of Node instances and connections between them.
 The resulting structure of Nodes and connections defines the way data flows in this Patch.
 
@@ -108,9 +112,13 @@ The resulting structure of Nodes and connections defines the way data flows in t
 
 #### Node
 
+![Node](./assets/node.png)
+
 _Nodes_ are building blocks which use connections to receive any data from one nodes, modify it, and send transformed data to another Nodes. Nodes may have zero or more inputs of different types, named _Inlets_ and zero or more outputs of different types, named _Outlets_. Nodes may have a body which may represent received data or even have some controls allowing user to change it though hidden inlets.
 
 #### Outlet
+
+![Outlets](./assets/outlets.png)
 
 _Outlet_ is a socket of a Node designed to send outgoing data. Outlet may be connected to an Inlet of another Node or to several Inlets of other Nodes.
 
@@ -119,6 +127,8 @@ Type of the Outlet determines which types of values it sends.
 Outlet and Inlet types are called Channel Types.
 
 #### Inlet
+
+![Inlets](./assets/inlets.png)
 
 _Inlet_ is a socket of a Node designed to receive incoming data. Depending on configuration, it may accept only one connection from an Outlet or any number of connections from several Outlets.
 
@@ -132,6 +142,8 @@ Inlets may accept or deny values depending on their type. Type may specify a fun
 
 #### Link
 
+![Link](./assets/link.png)
+
 _Link_ is what connects single Outlet to single Inlet. Always one to one. It may be disabled, so it will not deliver all the data which comes inside, but keep the connection.
 
 <!-- TODO Nodes from different toolkits -->
@@ -143,6 +155,8 @@ _Toolkit_ is a group of Node and Channel Types lying in (preferrably, but not re
 <!-- TODO SVG and HTML -->
 
 #### Rendering Flow
+
+![Render Flow](./assets/render-flow.png)
 
 This sub-section is actually not about a specific Term and intended to quickly clarify how the things described below work together.
 
@@ -164,11 +178,15 @@ Now, let's describe the same process from participants' points of view.
 
 #### Renderer
 
+![Renderer](./assets/renderer.png)
+
 _Renderer_ is a system which determines the way current Patch model is rendered. For now, there are two Renderers: HTML and SVG, they render Patches to HTML or SVG tags correspondingly. For instance, HTML Renderer renders Link connections as `span` blocks with CSS borders and SVG Renderers just draws SVG `line` tags for the same purpose.
 
 Also, Renderer determines where new node will be placed if position was not specified.
 
 #### Node Type/Instance Renderer
+
+![Node Instance Renderer](./assets/instance-rendrerer.png)
 
 _Node Type Renderer_ builds the body of the Node and may update its content when some incoming update triggered it. Also, it may send values from inner controls to a hidden Inlets of the Node.
 
@@ -177,6 +195,8 @@ There should be a separate Node Type Renderer for each way to render a node, suc
 _Node Instance Renderer_ has exactly the same definition structure, it just overrides the Node Type Renderer so you can render any specific Node instance completely another way with just re-defining Type Renderer inline.
 
 #### Channel Type/Instance Renderer
+
+![Channel Instance Renderer](./assets/instance-rendrerer.png)
 
 _Channel Type Renderer_ builds the Inlet/Outlet value representation and also may add the editor to a Channel value.
 
@@ -187,6 +207,8 @@ _NB: For the moment, value editors are only supported in HTML Renderer_
 _Channel Instance Renderer_ has exactly the same definition structure, it just overrides the Channel Type Renderer so you can render any specific Channel instance completely another way with just re-defining Type Renderer inline.
 
 #### Style
+
+![Style](./assets/style.png)
 
 _Style_ determines the look of the Patch, Node, Channel or a Link. While Renderer builds the outer structure, controls drag-n-drop and other logic, Style only determines the inner visual appearance of these elements.
 
