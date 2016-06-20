@@ -7,12 +7,12 @@ html
   head
     meta(charset='utf-8')
     title RPD &mdash; #{front.title}
-    link(href='#{pathPrefix}/style.css',rel='stylesheet',type='text/css')
     link(href='#{pathPrefix}/highlight-js.min.css',rel='stylesheet',type='text/css')
     // load RPD library and requirements when document will be ready
     link(href='#{pathPrefix}/rpd-docs.css',rel='stylesheet',type='text/css')  
+    link(href='#{pathPrefix}/style.css',rel='stylesheet',type='text/css')    
     script(defer,src='#{pathPrefix}/kefir.min.js')
-    // compiled with: gulp --style quartz --renderer svg --target-name rpd-docs
+    // compiled with: `gulp for-docs`
     script(defer,src='#{pathPrefix}/rpd-docs.min.js')        
   body(class='rpd-docs-#{front.id}')
     header(id='_top')

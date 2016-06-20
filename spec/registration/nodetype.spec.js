@@ -7,6 +7,7 @@ describe('registration: node type', function() {
     });
 
     it('creates specified inlets for the node instance', function() {
+
         Rpd.nodetype('spec/foo', {
             inlets: {
                 'a': { type: 'spec/any' },
@@ -37,6 +38,7 @@ describe('registration: node type', function() {
             );
 
         });
+
     });
 
     it('creates specified outlets for the node instance', function() {
@@ -319,7 +321,9 @@ describe('registration: node type', function() {
             });
         });
 
-        it('when inlet is set to transfer some stream by default, gets values from this stream one by one', function(done) {
+        it('when inlet is set to transfer some stream by default, gets values from this stream one by one', function() {
+            jasmine.clock().install();
+
             var values = [ 'a', 'b', 'c' ];
             var period = 30;
 
@@ -338,15 +342,18 @@ describe('registration: node type', function() {
 
                 var node = patch.addNode('spec/foo');
 
-                setTimeout(function() {
-                    ensureExecuted();
-                    done();
-                }, period * (values.length + 1));
+                jasmine.clock().tick(period * (values.length + 1));
+
+                ensureExecuted();
 
             });
+
+            jasmine.clock().uninstall();
         });
 
-        it('when stream was sent to the inlet, still gets values one by one', function(done) {
+        it('when stream was sent to the inlet, still gets values one by one', function() {
+            jasmine.clock().install();
+
             var values = [ 'a', 'b', 'c' ];
             var period = 30;
 
@@ -367,12 +374,13 @@ describe('registration: node type', function() {
 
                 node.inlets['char'].stream(Kefir.sequentially(period, values));
 
-                setTimeout(function() {
-                    ensureExecuted();
-                    done();
-                }, period * (values.length + 1));
+                jasmine.clock().tick(period * (values.length + 1));
+
+                ensureExecuted();
 
             });
+
+            jasmine.clock().uninstall();
         });
 
         it('passes previous values with a call', function() {
@@ -593,43 +601,173 @@ describe('registration: node type', function() {
 
         });
 
-        it('passes streamed values to corresponding outlets', function(done) {
+        describe('streaming to outlets', function() {
 
-            var values = [ 3, 14, 15, 92 ];
-            var period = 30;
-
-            processSpy.and.callFake(function(inlets) {
-                return { 'out': Kefir.sequentially(period, values)
-                                     .map(function(value) {
-                                         return (inlets.in * value);
-                                     }) };
+            beforeEach(function() {
+                jasmine.clock().install();
             });
 
-            Rpd.nodetype('spec/foo', {
-                inlets:  { 'in': { type: 'spec/any' } },
-                outlets: { 'out': { type: 'spec/any' } },
-                process: processSpy
+            afterEach(function() {
+                jasmine.clock().uninstall();
             });
 
-            withNewPatch(function(patch, updateSpy) {
+            it('passes streamed values to corresponding outlets', function() {
 
-                var node = patch.addNode('spec/foo');
+                var values = [ 3, 14, 15, 92 ];
+                var period = 30;
 
-                node.inlets['in'].receive(7);
+                processSpy.and.callFake(function(inlets) {
+                    return { 'out': Kefir.sequentially(period, values)
+                                         .map(function(value) {
+                                             return (inlets.in * value);
+                                         }) };
+                });
 
-                var outlet = node.outlets['out'];
+                Rpd.nodetype('spec/foo', {
+                    inlets:  { 'in': { type: 'spec/any' } },
+                    outlets: { 'out': { type: 'spec/any' } },
+                    process: processSpy
+                });
 
-                expect(processSpy).toHaveBeenCalled();
+                withNewPatch(function(patch, updateSpy) {
 
-                setTimeout(function() {
+                    var node = patch.addNode('spec/foo');
+
+                    node.inlets['in'].receive(7);
+
+                    var outlet = node.outlets['out'];
+
+                    expect(processSpy).toHaveBeenCalled();
+
+                    jasmine.clock().tick(period * (values.length + 1));
+
                     for (var i = 0; i < values.length; i++) {
                         expect(updateSpy).toHaveBeenCalledWith(
                             jasmine.objectContaining({ type: 'outlet/update',
                                                        outlet: outlet,
                                                        value: values[i] * 7 }));
                     }
-                    done();
-                }, period * (values.length + 1));
+
+
+                });
+
+            });
+
+            it('new calls to the process function properly create new streams', function() {
+
+                processSpy.and.callFake(function(inlets) {
+                    return { 'out':
+                        Kefir.interval(inlets.config.period, inlets.config.value)
+                             .take(inlets.config.count)
+                    };
+                });
+
+                Rpd.nodetype('spec/foo', {
+                    inlets:  { 'config': { type: 'spec/any' } },
+                    outlets: { 'out': { type: 'spec/any' } },
+                    process: processSpy
+                });
+
+                withNewPatch(function(patch, updateSpy) {
+
+                    var node = patch.addNode('spec/foo');
+
+                    node.inlets['config'].receive({ period: 20, count: 10, value: 3 });
+                    updateSpy.calls.reset();
+
+                    var outlet = node.outlets['out'];
+
+                    jasmine.clock().tick(20 * 10 + 1);
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'outlet/update',
+                                                   outlet: outlet,
+                                                   value: 3 }));
+                    expect(updateSpy.calls.count()).toBe(10);
+
+                    node.inlets['config'].receive({ period: 10, count: 5, value: 7 });
+                    updateSpy.calls.reset();
+
+                    jasmine.clock().tick(10 * 5 + 1);
+
+                    expect(updateSpy).not.toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'outlet/update',
+                                                   outlet: outlet,
+                                                   value: 3 }));
+
+                    expect(updateSpy).toHaveBeenCalledWith(
+                        jasmine.objectContaining({ type: 'outlet/update',
+                                                   outlet: outlet,
+                                                   value: 7 }));
+
+                    expect(updateSpy.calls.count()).toBe(5);
+
+                });
+
+            });
+
+            it('users are able to turn off streams they send from outlets', function() {
+
+                var lastStream;
+                var firstTime = true;
+                var pool = Kefir.pool();
+
+                processSpy.and.callFake(function(inlets) {
+                    if (lastStream) {
+                        firstTime = false;
+                        pool.unplug(lastStream);
+                    }
+                    lastStream = Kefir.interval(inlets.config.period, inlets.config.value);
+                    pool.plug(lastStream);
+                    //return { 'out': firstTime ? pool : Kefir.never() };
+                    return firstTime ? { 'out': pool } : null;
+                });
+
+                Rpd.nodetype('spec/foo', {
+                    inlets:  { 'config': { type: 'spec/any' } },
+                    outlets: { 'out': { type: 'spec/any' } },
+                    process: processSpy
+                });
+
+                withNewPatch(function(patch, updateSpy) {
+
+                    var node = patch.addNode('spec/foo');
+
+                    var outlet = node.outlets['out'];
+                    var updateEventStream = outlet.event['outlet/update'];
+
+                    var outletUpdateSpy = jasmine.createSpy();
+                    var value3spy = jasmine.createSpy('value-3');
+                    var value7spy = jasmine.createSpy('value-7');
+
+                    updateEventStream.onValue(outletUpdateSpy);
+                    updateEventStream.filter(function(value) {
+                        return (value === 3);
+                    }).onValue(value3spy);
+                    updateEventStream.filter(function(value) {
+                        return (value === 7);
+                    }).onValue(value7spy);
+
+                    node.inlets['config'].receive({ period: 20, value: 3 });
+
+                    jasmine.clock().tick(20 * 10 + 1);
+
+                    expect(value3spy.calls.count()).toBe(10);
+                    expect(value7spy).not.toHaveBeenCalled();
+                    value3spy.calls.reset();
+
+                    node.inlets['config'].receive({ period: 10, value: 7 });
+
+                    jasmine.clock().tick(10 * 5 + 1);
+
+                    pool.unplug(lastStream);
+
+                    expect(value3spy).not.toHaveBeenCalled();
+                    expect(value7spy.calls.count()).toBe(5);
+
+                    expect(outletUpdateSpy.calls.count()).toBe(10 + 5);
+
+                });
 
             });
 
@@ -735,6 +873,31 @@ describe('registration: node type', function() {
             });
         });
 
+        it('processing function receives node instance as `this`', function() {
+
+            var nodeInSpy;
+
+            var processSpy = jasmine.createSpy('process').and.callFake(function() {
+                nodeInSpy = this;
+                return {};
+            });
+
+            Rpd.nodetype('spec/foo', {
+                inlets: { 'a': { type: 'spec/any' } },
+                process: processSpy
+            });
+
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/foo');
+
+                node.inlets['a'].receive({});
+
+                expect(processSpy).toHaveBeenCalled();
+
+                expect(nodeInSpy).toBe(node);
+            });
+        });
+
         xdescribe('overriding channel type definition', function() {
 
             xit('overriding inlet adapt function', function() {});
@@ -797,7 +960,6 @@ describe('registration: node type', function() {
                 }
             });
 
-
             withNewPatch(function(patch, updateSpy) {
 
                 var node = patch.addNode('spec/foo');
@@ -828,6 +990,82 @@ describe('registration: node type', function() {
                 );
             });
 
+        });
+
+        it('tuning function receives node instance as `this`', function() {
+
+            var nodeInSpy;
+
+            var tuneSpy = jasmine.createSpy('tune').and.callFake(function(stream) {
+                nodeInSpy = this;
+                return stream;
+            });
+
+            Rpd.nodetype('spec/foo', {
+                inlets: { 'a': { type: 'spec/any' } },
+                process: function() {},
+                tune: tuneSpy
+            });
+
+            withNewPatch(function(patch, updateSpy) {
+                var node = patch.addNode('spec/foo');
+
+                node.inlets['a'].receive({});
+
+                expect(tuneSpy).toHaveBeenCalled();
+
+                expect(nodeInSpy).toBe(node);
+            });
+        });
+
+        it('tuning function may delay updates', function() {
+
+            jasmine.clock().install();
+
+            Rpd.nodetype('spec/delay', {
+                inlets: { 'in': { type: 'spec/any' } },
+                outlets: { 'out': { type: 'spec/any' } },
+                tune: function(updates) {
+                    return updates.delay(1000); // delays updates for one second
+                },
+                process: function(inlets) {
+                    return { out: inlets.in };
+                }
+            });
+
+            withNewPatch(function(patch, updateSpy) {
+
+                var delayingNode = patch.addNode('spec/delay');
+
+                delayingNode.inlets['in'].receive(42);
+
+                expect(updateSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({
+                        type: 'outlet/update'
+                    })
+                );
+
+                jasmine.clock().tick(500);
+
+                expect(updateSpy).not.toHaveBeenCalledWith(
+                    jasmine.objectContaining({
+                        type: 'outlet/update'
+                    })
+                );
+
+                jasmine.clock().tick(501);
+
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({
+                        type: 'outlet/update',
+                        outlet: delayingNode.outlets['out'],
+                        value: 42
+                    })
+                );
+
+            });
+
+            jasmine.clock().uninstall();
         });
 
     });
@@ -904,9 +1142,33 @@ describe('registration: node type', function() {
 
     });
 
+    it('preparing function receives node instance as `this`', function() {
+
+        var nodeInSpy;
+
+        var prepareSpy = jasmine.createSpy('tune').and.callFake(function() {
+            nodeInSpy = this;
+        });
+
+        Rpd.nodetype('spec/foo', {
+            inlets: { 'a': { type: 'spec/any' } },
+            prepare: prepareSpy
+        });
+
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/foo');
+
+            expect(prepareSpy).toHaveBeenCalled();
+
+            expect(nodeInSpy).toBe(node);
+        });
+    });
+
     it('could be specified as a single function which returns the defition and gets node instance', function() {
         var definitionGenSpy = jasmine.createSpy('definition-generator')
-                                .and.callFake(function(node) { return { }; });
+                                .and.callFake(function(node) {
+                                    return { title: 'foo-' + node.id };
+                                });
 
         Rpd.nodetype('spec/foo', definitionGenSpy);
 
@@ -917,6 +1179,9 @@ describe('registration: node type', function() {
             expect(definitionGenSpy).toHaveBeenCalled();
             expect(definitionGenSpy).toHaveBeenCalledWith(firstNode);
             expect(definitionGenSpy).toHaveBeenCalledWith(secondNode);
+
+            expect(firstNode.def.title).toBe('foo-' + firstNode.id);
+            expect(secondNode.def.title).toBe('foo-' + secondNode.id);
 
         });
     });

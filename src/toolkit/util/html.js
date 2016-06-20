@@ -85,6 +85,26 @@ Rpd.noderenderer('util/comment', 'html', function() {
     }
 });
 
+Rpd.noderenderer('util/log', 'html', function() {
+    var textElm;
+    var capacity = 5;
+    var savedValues = [];
+    return {
+        size: { width: 130, height: 30 },
+        first: function(bodyElm) {
+            textElm = document.createElement('span');
+            bodyElm.appendChild(textElm);
+        },
+        always: function(bodyElm, inlets, outlets) {
+            if (inlets.what) {
+                if (savedValues.length > capacity) savedValues.shift();
+                savedValues.push(inlets.what);
+            }
+            textElm.textContent = textElm.innerText = (savedValues.length > 0) ? ('...' + savedValues.join(', ') + '.') : '...';
+        }
+    }
+});
+
 Rpd.noderenderer('util/sum-of-three', 'html', {
     size: { width: null, height: 80 },
     always: function(bodyElm, inlets, outlets) {

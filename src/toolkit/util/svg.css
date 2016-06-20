@@ -91,6 +91,21 @@
     display: none;
 }
 
-.rpd-util-sum-of-three .rpd-process text {
+.rpd-util-log .rpd-process text,
+.rpd-util-sum-of-three .rpd-process text,
+.rpd-util-letter .rpd-process text {
     text-anchor: middle;
+}
+
+.rpd-util-bang circle,
+.rpd-util-metro circle {
+    transition: fill 0.1s ease-in;
+    -webkit-transition: fill 0.1s ease-in;
+}
+
+.rpd-util-bang circle.rpd-util-bang-fresh,
+.rpd-util-metro circle.rpd-util-metro-fresh {
+    fill: red;
+    transition: fill 0.1s ease-out;
+    -webkit-transition: fill 0.1s ease-out;
 }

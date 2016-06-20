@@ -42,7 +42,9 @@ describe('registration: channel type', function() {
         });
     });
 
-    it('could have default value being a stream', function(done) {
+    it('could have default value being a stream', function() {
+        jasmine.clock().install();
+
         var values = [ 'a', 7, { 'foo': 'bar' } ];
         var period = 30;
 
@@ -53,17 +55,18 @@ describe('registration: channel type', function() {
             var node = patch.addNode('spec/empty');
             var inlet = node.addInlet('spec/foo', 'foo');
 
-            setTimeout(function() {
-                for (var i = 0; i < values.length; i++) {
-                    expect(updateSpy).toHaveBeenCalledWith(
-                        jasmine.objectContaining({ type: 'inlet/update',
-                                                   inlet: inlet,
-                                                   value: values[i] }));
-                }
-                done();
-            }, period * (values.length + 1));
+            jasmine.clock().tick(period * (values.length + 1));
+
+            for (var i = 0; i < values.length; i++) {
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'inlet/update',
+                                               inlet: inlet,
+                                               value: values[i] }));
+            }
 
         });
+
+        jasmine.clock().uninstall();
     });
 
     it('allows overriding its default value in a node type description', function() {
@@ -129,7 +132,9 @@ describe('registration: channel type', function() {
         });
     });
 
-    it('may specify adapting function, which adapts all values going through, streamed or not', function(done) {
+    it('may specify adapting function, which adapts all values going through, streamed or not', function() {
+        jasmine.clock().install();
+
         Rpd.channeltype('spec/foo', { 'default': 2,
                                       adapt: function(val) { return val * 3 } });
 
@@ -142,24 +147,27 @@ describe('registration: channel type', function() {
             inlet.stream(Kefir.sequentially(period, values));
             inlet.receive(21);
 
-            setTimeout(function() {
+            jasmine.clock().tick(period * (values.length + 1));
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'inlet/update',
+                                           value: 2 * 3 }));
+            for (var i = 0; i < values.length; i++) {
                 expect(updateSpy).toHaveBeenCalledWith(
                     jasmine.objectContaining({ type: 'inlet/update',
-                                               value: 2 * 3 }));
-                for (var i = 0; i < values.length; i++) {
-                    expect(updateSpy).toHaveBeenCalledWith(
-                        jasmine.objectContaining({ type: 'inlet/update',
-                                                   value: values[i] * 3 }));
-                }
-                expect(updateSpy).toHaveBeenCalledWith(
-                    jasmine.objectContaining({ type: 'inlet/update',
-                                               value: 21 * 3 }));
-                done();
-            }, period * (values.length + 1));
+                                               value: values[i] * 3 }));
+            }
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'inlet/update',
+                                           value: 21 * 3 }));
         });
+
+        jasmine.clock().uninstall();
     });
 
-    it('may specify accepting function, which declines specific values, streamed or not', function(done) {
+    it('may specify accepting function, which declines specific values, streamed or not', function() {
+        jasmine.clock().install();
+
         Rpd.channeltype('spec/foo', { 'default': 2,
                                       accept: function(val) { return (val % 2) == 0; } });
 
@@ -172,23 +180,27 @@ describe('registration: channel type', function() {
             inlet.stream(Kefir.sequentially(period, values));
             inlet.receive(21);
 
-            setTimeout(function() {
-                expect(updateSpy).toHaveBeenCalledWith(
+            jasmine.clock().tick(period * (values.length + 1));
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'inlet/update',
+                                           value: 2 }));
+
+            for (var i = 0; i < values.length; i++) {
+                var expectation = (values[i] % 2) == 0 ? expect(updateSpy)
+                                                       : expect(updateSpy).not;
+                expectation.toHaveBeenCalledWith(
                     jasmine.objectContaining({ type: 'inlet/update',
-                                               value: 2 }));
-                for (var i = 0; i < values.length; i++) {
-                    var expectation = (values[i] % 2) == 0 ? expect(updateSpy)
-                                                           : expect(updateSpy).not;
-                    expectation.toHaveBeenCalledWith(
-                        jasmine.objectContaining({ type: 'inlet/update',
-                                                   value: values[i] }));
-                }
-                expect(updateSpy).not.toHaveBeenCalledWith(
-                    jasmine.objectContaining({ type: 'inlet/update',
-                                               value: 21 }));
-                done();
-            }, period * (values.length + 1));
+                                               value: values[i] }));
+            }
+
+            expect(updateSpy).not.toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'inlet/update',
+                                           value: 21 }));
+
         });
+
+        jasmine.clock().uninstall();
     });
 
     it('uses accepting hanlder before the adapting one', function() {

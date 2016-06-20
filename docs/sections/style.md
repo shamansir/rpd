@@ -4,10 +4,10 @@ id: styling
 level: 1
 ---
 
-<!-- COMING SOON -->
+<!-- IN PROGRESS -->
 
 ### Using CSS Classes
 
-### Writing Your Own Renderer
-
 ### Writing Your Own Style
+
+### Writing Your Own Renderer

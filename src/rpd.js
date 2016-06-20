@@ -290,7 +290,7 @@ function Node(type, patch, def, render, callback) {
                 var updates = inlet.event['inlet/update'].map(function(value) {
                     return { inlet: inlet, value: value };
                 });;
-                if (node.def.tune) updates = node.def.tune(updates);
+                if (node.def.tune) updates = node.def.tune.bind(node)(updates);
                 return updates;
             })
 
@@ -362,7 +362,7 @@ function Node(type, patch, def, render, callback) {
         }
     }
 
-    if (this.def.prepare) this.def.prepare(this.inlets, this.outlets);
+    if (this.def.prepare) this.def.prepare.bind(this)(this.inlets, this.outlets);
 
     this.event['node/is-ready'].emit();
 }
@@ -442,7 +442,7 @@ function Inlet(type, node, alias, def, render) {
     this.event = create_event_map(event_types);
     var orig_updates = this.event['inlet/update'];
     var updates = orig_updates.merge(this.value);
-    if (this.def.tune) updates = this.def.tune(updates);
+    if (this.def.tune) updates = this.def.tune.bind(this)(updates);
     if (this.def.accept) updates = updates.flatten(function(v) {
         if (this.def.accept(v)) { return [v]; } else {
             orig_updates.error(make_silent_error(this, 'inlet')); return [];
@@ -850,6 +850,54 @@ nodetype('core/reference', {});
 channeltype('core/any', {});
 
 // =============================================================================
+// ========================== stringification ==================================
+// =============================================================================
+
+var stringify = {};
+stringify.patch = function(patch) {
+    return '[ Patch' + (patch.name ? (' \'' + patch.name + '\'') : ' <Unnamed>') + ' ]';
+};
+stringify.node = function(node) {
+    return '[ Node (' + node.type + ')' +
+              (node.def.title ? (' \'' + node.def.title + '\'') : ' <Untitled>') +
+              ' #' + node.id +
+              ' ]';
+};
+stringify.outlet = function(outlet) {
+    return '[ Outlet (' + outlet.type + ')' +
+              (outlet.alias ? (' \'' + outlet.alias + '\'') : ' <Unaliased>') +
+              (outlet.def.label ? (' \'' + outlet.def.label + '\'') : ' <Unlabeled>') +
+              ' #' + outlet.id +
+              ' ]';
+};
+stringify.inlet = function(inlet) {
+    return '[ Inlet (' + inlet.type + ')' +
+              (inlet.alias ? (' \'' + inlet.alias + '\'') : ' <Unaliased>') +
+              (inlet.def.label ? (' \'' + inlet.def.label + '\'') : ' <Unlabeled>') +
+              ' #' + inlet.id +
+              (inlet.def.hidden ? ' (hidden)' : '') +
+              (inlet.def.cold ? ' (cold)' : '') +
+              ' ]';
+};
+stringify.link = function(link) {
+    return '[ Link (' + link.type + ')' +
+              ' \'' + link.name + '\'' +
+              ' #' + link.id +
+              ' ' + stringify.outlet(link.outlet) + ' ->' +
+              ' ' + stringify.inlet(link.inlet) +
+              ' ]';
+};
+
+function autoStringify(value) {
+    if (value instanceof Patch)  { return stringify.patch(value); }
+    if (value instanceof Node)   { return stringify.node(value); }
+    if (value instanceof Inlet)  { return stringify.inlet(value); }
+    if (value instanceof Outlet) { return stringify.outlet(value); }
+    if (value instanceof Link)   { return stringify.link(value); }
+    return '<?> ' + value;
+}
+
+// =============================================================================
 // =============================== export ======================================
 // =============================================================================
 
@@ -895,7 +943,10 @@ return {
     'reportError': report_error,
     'reportSystemError': report_system_error,
 
-    'short_uid': short_uid
+    'short_uid': short_uid,
+
+    'stringify': stringify,
+    'autoStringify': autoStringify
 }
 
 })();

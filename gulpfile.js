@@ -3,6 +3,7 @@ var gulp = require('gulp'),
     closureCompiler = require('gulp-closure-compiler'),
     header = require('gulp-header'),
     size = require('gulp-size'),
+    del = require('del'),
     concat = require('gulp-concat'),
     gzip = require('gulp-gzip'),
     // to get vendor files
@@ -50,6 +51,7 @@ var yargs = require('yargs')
             .command('test', 'run the Jasmine tests to check if API is consistent (the same command runs on Travis CI)')
             .command('list-options [options]', 'get the information for given options, may be used to be sure if you specified all the options correctly without compiling the library; all the options listed below are supported')
             .command('html-head [options]', 'get the full list of all the required files with given options to include into HTML file head if you use not the compiled version, but the files from `./src` directly; all the options listed below are supported')
+            .command('for-docs', 'compile the version of RPD used in documentation and put it into `./docs/compiled`, it could be useful, but not required, to do `gulp for-docs && gulp-docs` in pair')
             .command('docs [--docs-local]', 'compile the documentation from `./docs` sources into corresponding HTML files and place the resulting structure into `./docs/compiled`')
             .command('version', 'get the version of the RPD library you currently have')
             .array('renderer').array('style').array('toolkit').array('io').array('navigation')
@@ -105,8 +107,6 @@ var yargs = require('yargs')
 
 var argv = yargs.argv;
 
-var targetName = argv['target-name']; // forms dist/<targetName>.js and dist/<targetName>.css
-
 var pkg = require('./package.json');
 var Server = require('karma').Server;
 
@@ -125,6 +125,9 @@ var DEV_DEPENDENCIES = [
                'https://raw.githubusercontent.com/sebpiq/WebPd/master/dist/webpd-latest.min.js', // WebPd
                'https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.19/p5.min.js', // p5
                'https://d3js.org/d3.v3.min.js', // d3
+               'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.js',
+               'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.css',
+               'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/mode/javascript/javascript.min.js',
                'http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/styles/' + DOC_HIGHLIGHT_STYLE_FILENAME // highlight.js style for documentation
              ];
 
@@ -133,6 +136,9 @@ var COMPILATION_LEVELS = {
     'simple': 'SIMPLE_OPTIMIZATIONS',
     'advanced': 'ADVANCED_OPTIMIZATIONS'
 };
+
+var minSuffixIsObligatory = false;
+// will add `.min` suffix to compiled file name even when `--compilation` is set to `whitespace`
 
 var valueColor = gutil.colors.yellow,
     infoColor = gutil.colors.black;
@@ -148,7 +154,9 @@ gulp.task('get-dev-deps', function() {
 });
 
 gulp.task('build', ['check-paths', 'list-opts', 'concat-css'], function() {
-    var resultName = targetName + ((argv.compilation !== 'whitespace') ? '.min.js' : '.js');
+    var targetName = argv['target-name'];
+
+    var resultName = targetName + ((minSuffixIsObligatory || (argv.compilation !== 'whitespace')) ? '.min.js' : '.js');
 
     var compilerFlags = {
         language_in: 'ECMASCRIPT5',
@@ -173,7 +181,9 @@ gulp.task('build', ['check-paths', 'list-opts', 'concat-css'], function() {
 });
 
 gulp.task('gzip-min-js', ['build'], function() {
-    var sourceName = targetName + ((argv.compilation !== 'whitespace') ? '.min.js' : '.js');
+    var targetName = argv['target-name'];
+
+    var sourceName = targetName + ((minSuffixIsObligatory || (argv.compilation !== 'whitespace')) ? '.min.js' : '.js');
     return gulp.src(Paths.Destination + '/' + sourceName)
                .pipe(gzip())
                .pipe(gulp.dest(Paths.Destination))
@@ -184,6 +194,8 @@ gulp.task('gzip-min-js', ['build'], function() {
 });
 
 gulp.task('gzip-css', ['build'], function() {
+    var targetName = argv['target-name'];
+
     var sourceName = targetName + '.css';
     return gulp.src(Paths.Destination + '/' + sourceName)
                .pipe(gzip())
@@ -197,6 +209,8 @@ gulp.task('gzip-css', ['build'], function() {
 gulp.task('build-with-gzip', ['build', 'gzip-min-js', 'gzip-css']);
 
 gulp.task('concat-css', ['check-paths'], function() {
+    var targetName = argv['target-name'];
+
     gutil.log(infoColor('Concatenating ' + targetName + '.css'));
     return gulp.src(logFiles(getCssFiles(argv)))
                .pipe(concat(targetName + '.css'))
@@ -259,6 +273,28 @@ gulp.task('version', function() {
 
 // ========================== docs, docs-watch =================================
 
+gulp.task('setup-docs-configuration', function() {
+    minSuffixIsObligatory = true;
+    argv.renderer = [ 'svg' ];
+    argv.style = [ 'compact-v' ];
+    argv.toolkit = [ 'util' ];
+    argv['target-name'] = 'rpd-docs';
+    //argv.compilation = 'whitespace';
+    //argv.pretty = true;
+});
+
+gulp.task('for-docs', ['setup-docs-configuration', 'build'], function() {
+    // `docs` task copies all required files itself
+
+    /* var docsFiles = [ Paths.Destination + './rpd-docs.min.js', Paths.Destination + './rpd-docs.css' ];
+
+    return gulp.src(docsFiles.join(' '))
+               .pipe(gulp.dest('./docs/compiled/'))
+               .on('end', function() {
+                   console.log('Copied ' + docsFiles.join(',') + ' to ./docs/compiled');
+               });*/
+});
+
 var docsLocal = argv['docs-local'],
     protocol = docsLocal ? 'http://' : '//';
 
@@ -281,6 +317,24 @@ var injectCodepens = parser({
     name: 'inject-codepens',
     func: function(data) {
         return data.replace(codepenRe, codepenTemplate);
+    }
+});
+
+var svgLogoRe = new RegExp('<!-- rpd-svg-logo: #([\-a-z]+) ([0-9]+) ([0-9]+) -->', 'g');
+var svgLogoFile = fs.readFileSync("docs/rpd.svg", "utf8");
+var injectSvgLogo = parser({
+    name: 'inject-svg-logo',
+    func: function(data) {
+        return data.replace(svgLogoRe, svgLogoFile.replace('<svg', '<svg id="\$1" width="\$2px" height="\$3px"'));
+    }
+});
+
+var inProgressRe = new RegExp('<!-- IN PROGRESS -->', 'g');
+var replaceInProgressWith = '<div class="in-progress" text="In Progress."><span>[ In Progress ]</span></div>'
+var injectInProgressMark = parser({
+    name: 'inject-in-progress-mark',
+    func: function(data) {
+        return data.replace(inProgressRe, replaceInProgressWith);
     }
 });
 
@@ -308,6 +362,8 @@ function makeDocs(config, f) {
                          //return highlighted ? highlighted.value : '';
                      }
                  }))
+                 .pipe(injectSvgLogo())
+                 .pipe(injectInProgressMark())
                  //.pipe(injectFiddles())
                  //.pipe(injectCodepens())
                  .pipe(layout(function(file) {
@@ -325,8 +381,16 @@ function makeDocs(config, f) {
                  .pipe(gulp.dest('./docs/compiled/'));
 }
 
+gulp.task('docs-clean-dir', function() {
+    return del([ './docs/compiled/assets/**/*', './docs/compiled/**/*' ]);
+});
+
 gulp.task('docs-copy-dependencies', function() {
-    var dependencies = ['./vendor/kefir.min.js', './dist/rpd-docs.css', './dist/rpd-docs.min.js'];
+    var dependencies = ['./vendor/kefir.min.js',
+                        './vendor/d3.v3.min.js',
+                        './examples/docs-patch.js',
+                        './dist/rpd-docs.css',
+                        './dist/rpd-docs.min.js'];
 
     var lastChecked;
     try {
@@ -337,10 +401,11 @@ gulp.task('docs-copy-dependencies', function() {
     } catch(e) {
         var failedDependency = (lastChecked || 'Unknown');
         console.error(failedDependency + ' dependency wasn\'t met');
+        gutil.log(gutil.colors.red('☠️  UNEXPECTED FAILURE: ☠️'));
         gutil.log('First time before building docs (not every time)');
         gutil.log('Please call', gutil.colors.red('`gulp get-dev-deps`'), 'to get latest Kefir.js','(if you haven\'t yet)');
         gutil.log('and then, to generate RPD version for docs, call:');
-        gutil.log(gutil.colors.red('`gulp --style compact-v --renderer svg --target-name rpd-docs`'));
+        gutil.log(gutil.colors.red('`gulp for-docs`'));
         gutil.log('so then you will be safe to call', gutil.colors.yellow('`gulp docs`'), 'again');
         throw new Error('Dependency wasn\'t met: ' + failedDependency);
     }
@@ -350,6 +415,11 @@ gulp.task('docs-copy-dependencies', function() {
 });
 
 gulp.task('docs-copy-assets', function() {
+    return gulp.src([ './docs/assets/*.*' ])
+               .pipe(gulp.dest('./docs/compiled/assets'));
+});
+
+gulp.task('docs-copy-root-assets', function() {
     return gulp.src(['./docs/*.js', './docs/*.css', './docs/*.svg', './docs/*.ico'])
                .pipe(gulp.dest('./docs/compiled/'));
 });
@@ -360,7 +430,10 @@ gulp.task('docs-copy-highlight-css', function() {
                .pipe(gulp.dest('./docs/compiled/'));
 });
 
-gulp.task('docs', ['docs-copy-dependencies', 'docs-copy-assets', 'docs-copy-highlight-css'], function() {
+gulp.task('docs', [ 'docs-clean-dir', 'docs-copy-dependencies',
+                    'docs-copy-root-assets', 'docs-copy-assets',
+                    'docs-copy-highlight-css' ], function() {
+
     //var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
     var result = makeDocs(config);

@@ -3,9 +3,10 @@ title: Introduction
 id: introduction
 ---
 
-<div id="logo-patch-target">
-    <img id="large-logo" src="./rpd.svg" width="140" height="140" />
-    <div id="rpd-logo-patch"></div>
+<div id="logo-patch">
+    <div id="patch-target"></div>
+    <svg id="planets" width="500px" height="140px"></svg>
+    <!-- rpd-svg-logo: #rpd-logo 140 140 -->
 </div>
 
 <!-- TODO SVG icon patch: -->
@@ -141,19 +142,41 @@ _Toolkit_ is a group of Node and Channel Types lying in (preferrably, but not re
 
 <!-- TODO SVG and HTML -->
 
+#### Rendering Flow
+
+This sub-section is actually not about a specific Term and intended to quickly clarify how the things described below work together.
+
+When you need to render a Patch, you need to know three things: which Renderer you want to use, which Style you prefer visually and the Target where you want everything to be injected. Style is optional, though, since `quartz` is the default one to be used, but sad things happen, and you may dislike it. So, to satisfy every taste, several Styles are included in RPD distribution. You actually may use same configuration to render several Patches, but let's leave it to [API docs](./api.html) for now.
+
+The engine of the rendering process is Actions. They are fired on every change of the value, when new Connection between Outlet and Inlet is established, or instead someone removed the Connection, or someone moved one Node etc. To the Rendering System there is no matter who did this Action, User or API call.
+
+> If you know what [Flux](https://facebook.github.io/flux/) or [Elm](http://elm-lang.org/) is, it is almost the same Action concept you've met there; if you don't know about both, just replace Action term with Event term here and below.
+
+So, for example you chose `'svg'` Renderer to render your Patch. What happens then? On every user or logical Action, this Renderer is notified. Then this Renderer decides which (preferably, the tiniest one) part of the Network it should re-render. If Node or Channel (Inlet or Outlet) is required to be updated, it searches for the corresponding Node Renderer or Channel Renderer, the one assigned to this Renderer. Node/Channel Renderer can render particular type of the Node/Channel (and then it's called Node/Channel Type Renderer) or it may be overridden for the specific instance of the Node/Channel (and then it's called Node/Channel Instance Renderer). If something else was updated, Renderer re-renders this part itself, without delegation. No, actually, it sometimes passes some updates to Style, just Node/Channel Renderer step is skipped in this case.
+
+In its turn, Node/Channel Renderer renders the body of the Node (`'svg'` Renderer uses SVG elements for that) or a value of the Channel (same, with SVG elements). Then the result of the rendering is injected into a structure, provided by selected Style.
+
+And the final piece of DOM (or whatever) is injected into the Target, into a proper place. Target for `'html'` Renderer should be some HTML element like `<div />`, for `'svg'` Renderer it should be some SVG element, preferably `<svg>` or `<g />`, and so on.
+
+That's it, now users sees the whole thing in dynamic.
+
+Now, let's describe the same process from participants' points of view.
+
 #### Renderer
 
 _Renderer_ is a system which determines the way current Patch model is rendered. For now, there are two Renderers: HTML and SVG, they render Patches to HTML or SVG tags correspondingly. For instance, HTML Renderer renders Link connections as `span` blocks with CSS borders and SVG Renderers just draws SVG `line` tags for the same purpose.
 
 Also, Renderer determines where new node will be placed if position was not specified.
 
-#### Node Type Renderer
+#### Node Type/Instance Renderer
 
 _Node Type Renderer_ builds the body of the Node and may update its content when some incoming update triggered it. Also, it may send values from inner controls to a hidden Inlets of the Node.
 
 There should be a separate Node Type Renderer for each way to render a node, such as HTML, SVG and so on. By default, if Node can't render itself in the requested way, it is rendered as an empty Node, yet having all the defined Inlets and Outlets.
 
-#### Channel Type Renderer
+_Node Instance Renderer_ has exactly the same definition structure, it just overrides the Node Type Renderer so you can render any specific Node instance completely another way with just re-defining Type Renderer inline.
+
+#### Channel Type/Instance Renderer
 
 _Channel Type Renderer_ builds the Inlet/Outlet value representation and also may add the editor to a Channel value.
 
@@ -161,13 +184,15 @@ Editor is an optional control which lets user override the value in the Inlet.
 
 _NB: For the moment, value editors are only supported in HTML Renderer_
 
+_Channel Instance Renderer_ has exactly the same definition structure, it just overrides the Channel Type Renderer so you can render any specific Channel instance completely another way with just re-defining Type Renderer inline.
+
 #### Style
 
 _Style_ determines the look of the Patch, Node, Channel or a Link. While Renderer builds the outer structure, controls drag-n-drop and other logic, Style only determines the inner visual appearance of these elements.
 
 #### Canvas
 
-_Canvas_ is a place where Patch is rendered and operated. It has size and could have background color, for example. When several Patches share same target DOM element, they still have different canvases. Canvas could be an HTML5 Canvas by accident, but for sure not obligatory — this term came from [Pure Data](pure-data), the thing existed long before HTML5 and appeared just few years after first ever HTML specification.
+_Canvas_ is a place where Patch is rendered and operated. It has size and could have background color, for example. When several Patches share same target DOM element, they still have different canvases. Canvas could be an HTML5 Canvas by accident, but for sure not obligatory — this term came from [Pure Data][pure-data], the thing existed long before HTML5 and appeared just few years after first ever HTML specification.
 
 #### I/O Module
 
@@ -186,4 +211,6 @@ _I/O Module_ records every action (or only some of the actions) performed to bui
 [renderer-comp-section]: ./sections/compilation.html#renderers
 [style-comp-section]: ./sections/compilation.html#styles
 
+<script defer src="./d3.v3.min.js"></script>
+<script defer src="./docs-patch.js"></script>
 <script defer src="./index-patches.js"></script>

@@ -70,6 +70,32 @@ h2:before {
     color: crimson;
 }
 
+h3 {
+    display: inline-block;
+    padding: 5px 7px;
+    border: 2px solid black;
+    margin-top: 3em;
+    border-radius: 5px;
+}
+
+h4 {
+    /* font-size: 1.1em */
+    border-bottom: 1px solid crimson;
+    /* margin-top: 1.7em */
+}
+
+h5 {
+
+}
+
+h5:before {
+
+}
+
+h6 {
+
+}
+
 a {
     color: crimson;
 }
@@ -150,19 +176,23 @@ footer {
     width: 65%;
 }
 
-#logo-patch-target {
+#logo-patch {
     text-align: center;
     margin: 4em 0;
     width: 100%;
 }
 
-#logo-patch-target > img {
+/* #logo-patch > svg {
     width: 140px;
     height: 140px;
+} */
+
+#logo-patch > #patch-target {
+    /* width: 100%; */
 }
 
-#logo-patch-target > #rpd-patch {
-    width: 100%;
+#logo-patch > #planets {
+    position: absolute;
 }
 
 pre {
@@ -190,4 +220,67 @@ article code, article pre {
 
 #jump-to-top a {
     text-decoration: none;
+}
+
+.rpd-node .rpd-header {
+    fill: rgba(160,107,154,0.95);
+    cursor: auto;
+}
+
+.rpd-node .rpd-content {
+    fill: rgba(141,158,198,0.9);
+}
+
+/* 203, 118, 158 */
+/* 224, 152, 145 */
+/* 232, 185, 171 */
+/* 215, 192, 208 */
+/* 124, 132, 131 */
+/* 172, 221, 231 */
+/* 154, 213, 202 */
+
+.rpd-node .rpd-shadow {
+    opacity: 0.3;
+    fill: rgb(172, 221, 231);
+}
+
+div.in-progress span {
+    text-transform: uppercase;
+    border: 2px solid black;
+    border-radius: 6px;
+    padding: 4px;
+    margin: 3px 0;
+    /* background-color: #f8e81c; */
+    background-color: yellow;
+}
+
+div.in-progress span:before {
+    display: inline-block;
+    content: '';
+    width: 1.2em;
+    height: 1.2em;
+    margin-right: 4px;
+    /* vertical-align: bottom; */
+    position: relative;
+    bottom: -4px;
+    background-image: url('./assets/in_progress.svg');
+    background-size: 1.2em 1.2em;
+}
+
+.rpd-background {
+    fill: white/* #22222a */;
+}
+
+.rpd-link {
+    stroke: black;
+}
+
+.rpd-inlet text.rpd-name,
+.rpd-outlet text.rpd-name {
+    fill: black;
+}
+
+.rpd-inlet text.rpd-value,
+.rpd-outlet text.rpd-value {
+    fill: darkgray;
 }

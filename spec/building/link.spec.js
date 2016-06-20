@@ -19,7 +19,9 @@ describe('building: link', function() {
         });
     });
 
-    it('knows streams of values going through', function(done) {
+    it('knows streams of values going through', function() {
+        jasmine.clock().install();
+
         withNewPatch(function(patch, updateSpy) {
 
             var sending = patch.addNode('spec/empty');
@@ -35,16 +37,17 @@ describe('building: link', function() {
 
             outlet.stream(Kefir.sequentially(period, userSequence));
 
-            setTimeout(function() {
-                for (var i = 0; i < userSequence.length; i++) {
-                    expect(updateSpy).toHaveBeenCalledWith(
-                        jasmine.objectContaining({ type: 'link/pass',
-                                                   link: link,
-                                                   value: userSequence[i] }));
-                }
-                done();
-            }, period * (userSequence.length + 1));
+            jasmine.clock().tick(period * (userSequence.length + 1));
+
+            for (var i = 0; i < userSequence.length; i++) {
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'link/pass',
+                                               link: link,
+                                               value: userSequence[i] }));
+            }
         });
+
+        jasmine.clock().uninstall();
     });
 
     it('gets individual values from connected outlet and passes them to connected inlet', function() {
@@ -67,7 +70,9 @@ describe('building: link', function() {
         });
     });
 
-    it('gets streams of values from connected outlet and passes them to connected inlet', function(done) {
+    it('gets streams of values from connected outlet and passes them to connected inlet', function() {
+        jasmine.clock().install();
+
         withNewPatch(function(patch, updateSpy) {
 
             var sending = patch.addNode('spec/empty');
@@ -83,17 +88,19 @@ describe('building: link', function() {
 
             outlet.stream(Kefir.sequentially(period, userSequence));
 
-            setTimeout(function() {
-                for (var i = 0; i < userSequence.length; i++) {
-                    expect(updateSpy).toHaveBeenCalledWith(
-                        jasmine.objectContaining({ type: 'inlet/update',
-                                                   inlet: inlet,
-                                                   value: userSequence[i] }));
+            jasmine.clock().tick(period * (userSequence.length + 1));
 
-                }
-                done();
-            }, period * (userSequence.length + 1));
+            for (var i = 0; i < userSequence.length; i++) {
+                expect(updateSpy).toHaveBeenCalledWith(
+                    jasmine.objectContaining({ type: 'inlet/update',
+                                               inlet: inlet,
+                                               value: userSequence[i] }));
+
+            }
+
         });
+
+        jasmine.clock().uninstall();
     });
 
     it('could be disabled', function() {

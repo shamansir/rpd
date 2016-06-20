@@ -243,7 +243,12 @@ function subscribeUpdates(node, subscriptions) {
                 .filter(function(inlet) { return inlet.alias === alias; })
                 .onValue(function(inlet) {
                     node.event['node/is-ready'].onValue(function() {
-                        if (subscription.default) inlet.receive(subscription.default());
+                        if (subscription.default) {
+                            inlet.receive(
+                                (typeof subscription.default === 'function')
+                                ? subscription.default() : subscription.default
+                            );
+                        }
                         if (subscription.valueOut) {
                             subscription.valueOut.onValue(function(value) {
                                 inlet.receive(value);
@@ -252,6 +257,21 @@ function subscribeUpdates(node, subscriptions) {
                     });
                 });
         })(subscriptions[alias], alias);
+    });
+}
+
+// Should be called once when renderer registered and Rpd.events is ready
+function reportErrorsToConsole(config) {
+    Rpd.events.onError(function(error) {
+        if (!config.logErrors) return;
+        if (error.silent) return;
+        if (error.system) {
+            console.error(new Error(error.type + ' — ' + error.message + '.' +
+                          'Subject: ' + Rpd.autoStringify(error.subject)));
+        } else {
+            console.log('Error:', error.type, '—', error.message + '.',
+                        'Subject: ' + Rpd.autoStringify(error.subject), error.subject);
+        }
     });
 }
 
@@ -276,7 +296,9 @@ return {
     addValueErrorEffect: addValueErrorEffect,
     addValueUpdateEffect: addValueUpdateEffect,
 
-    subscribeUpdates: subscribeUpdates
+    subscribeUpdates: subscribeUpdates,
+
+    reportErrorsToConsole: reportErrorsToConsole
 };
 
 })();

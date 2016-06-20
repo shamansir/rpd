@@ -57,17 +57,9 @@ return function(networkRoot, userConfig) {
 
     var config = mergeConfig(userConfig, defaultConfig);
 
-    // FIXME: move to some external function (should be called once when renderer is
-    // registered and Rpd.events is ready)
-    Rpd.events.onError(function(error) {
-        if (!config.logErrors) return;
-        if (error.silent) return;
-        if (error.system) {
-            console.error(new Error(error.type + ': ' + error.message));
-        } else {
-            console.log('Error: ', error.subject, error.type, error.subject);
-        }
-    });
+    // FIXME: should be called once when renderer is
+    // registered and Rpd.events is ready, not for every patch
+    Render.reportErrorsToConsole(config);
 
     var style = Rpd.getStyle(config.style, 'svg')(config);
 
@@ -175,8 +167,10 @@ return function(networkRoot, userConfig) {
         },
 
         'patch/resize-canvas': function(update) {
-            svg.attr('width', Math.floor(update.size[0]));
-            svg.attr('height', Math.floor(update.size[1]));
+            svg.attr('width', update.size[0]);
+            svg.attr('height', update.size[1]);
+            svg.select('.rpd-background').attr('width', '100%')
+                                         .attr('height', '100%');
         },
 
         'patch/add-node': function(update) {
