@@ -91,7 +91,7 @@ At first, we'll define terms of node-based interfaces, the way RPD sees them, st
 
 #### Network
 
-![Network](./assets/network.png)
+![Network](./assets/rpd-network.png)
 
 _Network_ defines a system of Patches. At this level Patch may be considered as a complex procedure with several inputs and outputs and a Network is a program that uses these procedures.
 
@@ -103,7 +103,7 @@ So, some Node in one Patch may represent the inputs and outputs of another Patch
 
 #### Patch
 
-![Patch](./assets/patch.png)
+![Patch](./assets/patch-no-frame.png)
 
 _Patch_ stores a collection of Node instances and connections between them.
 The resulting structure of Nodes and connections defines the way data flows in this Patch.
@@ -112,7 +112,7 @@ The resulting structure of Nodes and connections defines the way data flows in t
 
 #### Node
 
-![Node](./assets/node.png)
+![Node](./assets/node-no-frame.png)
 
 _Nodes_ are building blocks which use connections to receive any data from one nodes, modify it, and send transformed data to another Nodes. Nodes may have zero or more inputs of different types, named _Inlets_ and zero or more outputs of different types, named _Outlets_. Nodes may have a body which may represent received data or even have some controls allowing user to change it though hidden inlets.
 
@@ -142,7 +142,7 @@ Inlets may accept or deny values depending on their type. Type may specify a fun
 
 #### Link
 
-![Link](./assets/link.png)
+![Link](./assets/link-no-frame.png)
 
 _Link_ is what connects single Outlet to single Inlet. Always one to one. It may be disabled, so it will not deliver all the data which comes inside, but keep the connection.
 
@@ -186,7 +186,7 @@ Also, Renderer determines where new node will be placed if position was not spec
 
 #### Node Type/Instance Renderer
 
-![Node Instance Renderer](./assets/instance-rendrerer.png)
+![Node Instance Renderer](./assets/instance-renderer.png)
 
 _Node Type Renderer_ builds the body of the Node and may update its content when some incoming update triggered it. Also, it may send values from inner controls to a hidden Inlets of the Node.
 
@@ -196,7 +196,7 @@ _Node Instance Renderer_ has exactly the same definition structure, it just over
 
 #### Channel Type/Instance Renderer
 
-![Channel Instance Renderer](./assets/instance-rendrerer.png)
+![Channel Instance Renderer](./assets/instance-renderer.png)
 
 _Channel Type Renderer_ builds the Inlet/Outlet value representation and also may add the editor to a Channel value.
 
@@ -215,6 +215,10 @@ _Style_ determines the look of the Patch, Node, Channel or a Link. While Rendere
 #### Canvas
 
 _Canvas_ is a place where Patch is rendered and operated. It has size and could have background color, for example. When several Patches share same target DOM element, they still have different canvases. Canvas could be an HTML5 Canvas by accident, but for sure not obligatory — this term came from [Pure Data][pure-data], the thing existed long before HTML5 and appeared just few years after first ever HTML specification.
+
+#### Projection
+
+<!-- IN PROGRESS -->
 
 #### I/O Module
 
