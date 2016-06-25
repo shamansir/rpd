@@ -103,7 +103,7 @@ So, some Node in one Patch may represent the inputs and outputs of another Patch
 
 #### Patch
 
-<img src="./assets/patch-no-frame.png" width="300px" alt="Patch"></img>
+<img src="./assets/patch-no-frame.png" width="440px" alt="Patch"></img>
 
 _Patch_ stores a collection of Node instances and connections between them.
 The resulting structure of Nodes and connections defines the way data flows in this Patch.
@@ -142,7 +142,7 @@ Inlets may accept or deny values depending on their type. Type may specify a fun
 
 #### Link
 
-<img src="./assets/link-no-frame.png" width="160px" alt="Link"></img>
+<img src="./assets/link-no-frame.png" width="10 0px" alt="Link"></img>
 
 _Link_ is what connects single Outlet to single Inlet. Always one to one. It may be disabled, so it will not deliver all the data which comes inside, but keep the connection.
 
@@ -156,7 +156,7 @@ _Toolkit_ is a group of Node and Channel Types lying in (preferrably, but not re
 
 #### Rendering Flow
 
-<img src="./assets/render-flow.png" width="700px" alt="Render Flow"></img>
+<img src="./assets/render-flow.png" width="800px" alt="Render Flow"></img>
 
 This sub-section is actually not about a specific Term and intended to quickly clarify how the things described below work together.
 
@@ -178,7 +178,7 @@ Now, let's describe the same process from participants' points of view.
 
 #### Renderer
 
-<img src="./assets/renderer.png" width="150px" alt="Renderer"></img>
+<img src="./assets/renderer.png" width="100px" alt="Renderer"></img>
 
 _Renderer_ is a system which determines the way current Patch model is rendered. For now, there are two Renderers: HTML and SVG, they render Patches to HTML or SVG tags correspondingly. For instance, HTML Renderer renders Link connections as `span` blocks with CSS borders and SVG Renderers just draws SVG `line` tags for the same purpose.
 
@@ -186,7 +186,7 @@ Also, Renderer determines where new node will be placed if position was not spec
 
 #### Node Type/Instance Renderer
 
-<img src="./assets/instance-renderer.png" width="150px" alt="Node Instance Renderer"></img>
+<img src="./assets/instance-renderer.png" width="200px" alt="Node Instance Renderer"></img>
 
 _Node Type Renderer_ builds the body of the Node and may update its content when some incoming update triggered it. Also, it may send values from inner controls to a hidden Inlets of the Node.
 
@@ -196,7 +196,7 @@ _Node Instance Renderer_ has exactly the same definition structure, it just over
 
 #### Channel Type/Instance Renderer
 
-<img src="./assets/instance-renderer.png" width="150px" alt="Channel Instance Renderer"></img>
+<img src="./assets/instance-renderer.png" width="200px" alt="Channel Instance Renderer"></img>
 
 _Channel Type Renderer_ builds the Inlet/Outlet value representation and also may add the editor to a Channel value.
 
@@ -208,7 +208,7 @@ _Channel Instance Renderer_ has exactly the same definition structure, it just o
 
 #### Style
 
-<img src="./assets/style.png" width="150px" alt="Style"></img>
+<img src="./assets/style.png" width="200px" alt="Style"></img>
 
 _Style_ determines the look of the Patch, Node, Channel or a Link. While Renderer builds the outer structure, controls drag-n-drop and other logic, Style only determines the inner visual appearance of these elements.
 
