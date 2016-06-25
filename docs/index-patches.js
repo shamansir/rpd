@@ -1,35 +1,40 @@
 function applyCodeExample1() {
     Rpd.renderNext('svg', document.getElementById('example-one'),
-                   { style: 'compact-v',
-                     nodeMovingAllowed: false });
+                   { style: 'compact-v' });
 
-    var rgPatch = Rpd.addPatch('Generate Random Numbers')
-                     .resizeCanvas(800, 200);
+    var patch = Rpd.addPatch('Generate Random Numbers').resizeCanvas(800, 100);
 
-    var rgMetroNode = rgPatch.addNode('util/metro', 'Metro')
-                             .move(40, 10);
+    // add Metro Node, it may generate `bang` signal with the requested time interval
+    var metroNode = patch.addNode('util/metro', 'Metro').move(40, 10);
 
-    var rgRandomNode = rgPatch.addNode('util/random', 'Random').move(130, 10);
-    rgRandomNode.inlets['max'].receive(26);
+    // add Random Generator Node that will generate random numbers on every `bang` signal
+    var randomGenNode = patch.addNode('util/random', 'Random').move(130, 20);
+    randomGenNode.inlets['max'].receive(26); // set maximum value of the generated numbers
 
-    rgMetroNode.outlets['out'].connect(rgRandomNode.inlets['bang']);
+    // add Log Node, which will log last results of the Random Generator Node
+    var logRandomNode = patch.addNode('util/log', 'Log').move(210, 60);
+    randomGenNode.outlets['out'].connect(logRandomNode.inlets['what']);
 
-    //rgMetroNode.inlets['period'].receive(3000);
-
-    var logNode = rgPatch.addNode('util/log', 'Log').move(210, 60);
-    rgRandomNode.outlets['out'].connect(logNode.inlets['what']);
-
-    var multiplyTwo = rgPatch.addNode('core/basic', '* 2', {
+    // define the type of the node which multiplies the incoming value on two
+    var multiplyTwoNode = patch.addNode('core/basic', '* 2', {
         process: function(inlets) {
             return {
                 'result': (inlets.multiplier || 0) * 2
             }
         }
-    }).move(250, 10);
-    var multiplierInlet = multiplyTwo.addInlet('util/number', 'multiplier');
-    var resultOutlet = multiplyTwo.addOutlet('util/number', 'result');
+    }).move(240, 10);
+    var multiplierInlet = multiplyTwoNode.addInlet('util/number', 'multiplier');
+    var resultOutlet = multiplyTwoNode.addOutlet('util/number', 'result');
 
-    rgRandomNode.outlets['out'].connect(multiplierInlet);
+    // connect Random Generator output to the multiplying node
+    var logMultiplyNode = patch.addNode('util/log', 'Log').move(370, 20);
+    resultOutlet.connect(logMultiplyNode.inlets['what']);
+
+    // connect Random Generator output to the multiplying node
+    randomGenNode.outlets['out'].connect(multiplierInlet);
+
+    // finally connect Metro node to Random Generator, so the sequence starts
+    metroNode.outlets['out'].connect(randomGenNode.inlets['bang']);
 }
 
 applyCodeExample1();

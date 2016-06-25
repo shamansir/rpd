@@ -36,37 +36,52 @@ If you feel that's you know everything in this field and this library is definit
 
 ### Code Examples
 
-<!-- TODO: insert generator example itself (its gif, in the worst case) -->
+#### Random Generator
 
 Random Generator with the help of [`util`](http://..) toolkit:
 
 <div id="example-one"></div>
 
 ```js
-Rpd.renderNext('html', document.getElementById('example-one'),
-               { nodeMovingAllowed: false });
+Rpd.renderNext('svg', document.getElementById('example-one'),
+               { style: 'compact-v' });
 
-var rgPatch = Rpd.addPatch('Generate Random Numbers');
+var patch = Rpd.addPatch('Generate Random Numbers').resizeCanvas(800, 100);
 
-var rgNode = rgPatch.addNode('util/random', 'Random');
-rgNode.inlets['max'].receive(500);
-rgNode.inlets['period'].receive(3000);
+// add Metro Node, it may generate `bang` signal with the requested time interval
+var metroNode = patch.addNode('util/metro', 'Metro').move(40, 10);
 
-var logNode = rgPatch.addNode('util/log', 'Log');
-rgNode.outlets['out'].connect(logNode.inlets['what']);
+// add Random Generator Node that will generate random numbers on every `bang` signal
+var randomGenNode = patch.addNode('util/random', 'Random').move(130, 20);
+randomGenNode.inlets['max'].receive(26); // set maximum value of the generated numbers
 
-var multiplyTwo = rgPatch.addNode('core/basic', '* 2', {
+// add Log Node, which will log last results of the Random Generator Node
+var logRandomNode = patch.addNode('util/log', 'Log').move(210, 60);
+randomGenNode.outlets['out'].connect(logRandomNode.inlets['what']);
+
+// define the type of the node which multiplies the incoming value on two
+var multiplyTwoNode = patch.addNode('core/basic', '* 2', {
     process: function(inlets) {
         return {
-            'result': (inlets.result || 0) * 2
+            'result': (inlets.multiplier || 0) * 2
         }
     }
-});
-var multiplierInlet = multiplyTwo.addInlet('util/number', 'multiplier');
-var resultOutlet = multiplyTwo.addOutlet('util/number', 'result');
+}).move(240, 10);
+var multiplierInlet = multiplyTwoNode.addInlet('util/number', 'multiplier');
+var resultOutlet = multiplyTwoNode.addOutlet('util/number', 'result');
 
-rgNode.outlets['out'].connect(multiplierInlet);
+// connect Random Generator output to the multiplying node
+var logMultiplyNode = patch.addNode('util/log', 'Log').move(370, 20);
+resultOutlet.connect(logMultiplyNode.inlets['what']);
+
+// connect Random Generator output to the multiplying node
+randomGenNode.outlets['out'].connect(multiplierInlet);
+
+// finally connect Metro node to Random Generator, so the sequence starts
+metroNode.outlets['out'].connect(randomGenNode.inlets['bang']);
 ```
+
+#### Processing
 
 <!-- TODO: insert p5.js example itself (its gif, in the worst case) -->
 
@@ -77,6 +92,7 @@ Rpd.nodetype('my/sketch', function() {
 
 });
 ```
+#### Custom Toolkit
 
 When you define your own toolkit in place:
 
