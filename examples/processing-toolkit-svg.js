@@ -155,9 +155,9 @@ var curSvgRandomRendererFunc = Rpd.allNodeRenderers['util/random'].svg;
 var newSvgRandomRendererFunc = function(node) {
     var returnObj = curSvgRandomRendererFunc.apply(this, arguments);
     if (returnObj.size) {
-        returnObj.size.width = 120;
+        returnObj.size.width = 80;
     } else {
-        returnObj.size = { width: 120 };
+        returnObj.size = { width: 80 };
     }
     var textElm;
     returnObj.first = function(bodyElm) {
@@ -166,7 +166,7 @@ var newSvgRandomRendererFunc = function(node) {
         bodyElm.appendChild(textElm);
     };
     returnObj.always = function(bodyElm, inlets, outlets) {
-        textElm.innerText = textElm.textContent = 'from ' + inlets.min + ' to ' + inlets.max + ' every ' + (inlets.period / 1000) + 's';
+        textElm.innerText = textElm.textContent = 'from ' + inlets.min + ' to ' + inlets.max;
     };
     return returnObj;
 };

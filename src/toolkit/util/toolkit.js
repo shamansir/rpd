@@ -98,7 +98,7 @@ Rpd.channeltype('util/boolean', { default: false,
 Rpd.nodedescription('util/empty',
                     'Does not allow adding any inlets or outlets.');
 Rpd.nodetype('util/empty', {
-    title: 'Empty',
+    title: 'empty',
     handle: {
         'inlet/add': function() {
             throw new Error('Empty node can not have any inlets');
@@ -116,6 +116,7 @@ Rpd.nodetype('util/comment', {
 });
 
 Rpd.nodetype('util/bang', {
+    title: 'bang',
     inlets: { 'trigger': { type: 'util/bang', hidden: true } },
     outlets: { 'out': { type: 'util/bang' } },
     process: function(inlets) {
@@ -128,6 +129,7 @@ Rpd.nodetype('util/metro', function() {
     var firstTime = true;
     var pool = Kefir.pool();
     return {
+        title: 'metro',
         inlets: { 'enabled': { type: 'util/boolean', default: true },
                   'period': { type: 'util/time', default: 3000 } },
         outlets: { 'out': { type: 'util/bang' } },
@@ -148,6 +150,7 @@ Rpd.nodetype('util/metro', function() {
 
 var DEFAULT_COLOR = { r: 0xED, g: 0x22, b: 0x5D };
 Rpd.nodetype('util/color', {
+    title: 'color',
     inlets: {
         'r': { type: 'util/wholenumber', default: DEFAULT_COLOR.r, label: 'red' },
         'g': { type: 'util/wholenumber', default: DEFAULT_COLOR.g, label: 'green' },
@@ -160,7 +163,7 @@ Rpd.nodetype('util/color', {
 });
 
 Rpd.nodetype('util/sum-of-three', {
-    title: 'Sum of Three',
+    title: 'sum of three',
     inlets: {
         'a': { type: 'util/number', label: 'A' },
         'b': { type: 'util/number', label: 'B' },
@@ -177,6 +180,7 @@ Rpd.nodetype('util/sum-of-three', {
 var adaptToState = RpdUtils.adaptToState;
 
 Rpd.nodetype('util/knob', {
+    title: 'knob',
     inlets: {
         'min': { type: 'util/number', default: 0 },
         'max': { type: 'util/number', default: 100 },
@@ -193,6 +197,7 @@ Rpd.channeltype('util/numbers', { show: howMuch('number', 'numbers') });
 var DEFAULT_KNOB_COUNT = 4;
 
 Rpd.nodetype('util/knobs', {
+    title: 'knobs',
     inlets: {
         'min': { type: 'util/number', default: 0 },
         'max': { type: 'util/number', default: 100 },
@@ -216,7 +221,7 @@ Rpd.nodetype('util/knobs', {
 /*
 Rpd.nodedescription('util/hot-and-cold', 'An example of cold inlet.');
 Rpd.nodetype('util/hot-and-cold', {
-    title: 'Hot and Cold',
+    title: 'hot and cold',
     inlets: {
         'hot': { type: 'util/number', label: 'A', default: 1 },
         'cold': { type: 'util/number', label: 'B', default: 1, cold: true },
@@ -232,6 +237,7 @@ Rpd.nodetype('util/hot-and-cold', {
 
 Rpd.nodedescription('util/log', 'Log everything that goes in to console');
 Rpd.nodetype('util/log', {
+    title: 'log',
     inlets: {
         'what': { type: 'core/any' }
     },
@@ -239,6 +245,7 @@ Rpd.nodetype('util/log', {
 });
 
 Rpd.nodetype('util/letter', {
+    title: 'letter',
     inlets: {
         'code': { type: 'util/wholenumber' }
     },
@@ -253,6 +260,7 @@ Rpd.nodetype('util/letter', {
 })
 
 Rpd.nodetype('util/*', {
+    title: '*',
     inlets: { 'a': { type: 'util/number' },
               'b': { type: 'util/number' } },
     outlets: { 'out': { type: 'util/number' } },

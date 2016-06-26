@@ -46,7 +46,7 @@ Random Generator with the help of [`util`](http://..) toolkit:
 Rpd.renderNext('svg', document.getElementById('example-one'),
                { style: 'compact-v' });
 
-var patch = Rpd.addPatch('Generate Random Numbers').resizeCanvas(800, 100);
+var patch = Rpd.addPatch('Generate Random Numbers').resizeCanvas(800, 110);
 
 // add Metro Node, it may generate `bang` signal with the requested time interval
 var metroNode = patch.addNode('util/metro', 'Metro').move(40, 10);
