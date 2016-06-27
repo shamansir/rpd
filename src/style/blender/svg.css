@@ -7,3 +7,22 @@
     background-size:100px 100px, 100px 100px, 20px 20px, 20px 20px;
     background-position:-2px -2px, -2px -2px, -1px -1px, -1px -1px; */
 }
+
+.rpd-patch text {
+    font-family: sans-serif;
+    font-size: 10px;
+    dominant-baseline: central;
+}
+
+.rpd-inlet .rpd-editor-disabled,
+.rpd-outlet .rpd-editor-disabled {
+    display: none;
+}
+
+.rpd-outlet text.rpd-name {
+    text-anchor: end;
+}
+
+.rpd-node.rpd-util-nodelist .rpd-header {
+    fill: url(#cyan-gradient);
+}

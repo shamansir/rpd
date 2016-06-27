@@ -11,7 +11,7 @@ var lastCanvas = null;
 var socketPadding = 25, // distance between inlets/outlets in SVG units
     socketsMargin = 15; // distance between first/last inlet/outlet and body edge
 var bodySizePadding = 30;
-var headerHeight = 21; // height of a node header in SVG units
+var headerHeight = 18; // height of a node header in SVG units
 
 var letterWidth = 8;
 
@@ -20,6 +20,7 @@ var inletToConnector = {},
     outletToConnector = {};
 
 var defs = d3.select(_createSvgElement('defs'));
+// background blueprint pattern
 defs.append('pattern').attr('id', 'blueprint-sub').attr('patternUnits', 'userSpaceOnUse')
                       .attr('width', 20).attr('height', 20)
                       .append('rect').attr('fill', 'transparent')
@@ -35,8 +36,36 @@ defs.append('pattern').attr('id', 'blueprint').attr('patternUnits', 'userSpaceOn
                           pattern.append('rect').attr('fill', 'transparent')
                                                 .attr('stroke', '#2c2c2c').attr('stroke-width', 2)
                                                 .attr('width', 100).attr('height', 100);
-                      })
-
+                      });
+// cyan header gradient
+defs.append('linearGradient').attr('id', 'cyan-gradient')//.attr('gradientUnits', 'userSpaceOnUse')
+                             .attr('x1', '50%').attr('y1', '100%').attr('x2', '50%').attr('y2', '0%')
+                             .call(function(linearGradient) {
+                                 linearGradient.append('stop').attr('offset', '0%')
+                                                              .attr('style', 'stop-color:rgb(117,255,237);stop-opacity:0.7');
+                                 linearGradient.append('stop').attr('offset', '80%')
+                                                              .attr('style', 'stop-color:rgb(57,128,123);stop-opacity:0.85');
+                                 linearGradient.append('stop').attr('offset', '100%')
+                                                              .attr('style', 'stop-color:rgb(14,128,126);stop-opacity:0.9');
+                             });
+// gray header gradient
+defs.append('linearGradient').attr('id', 'gray-gradient')//.attr('gradientUnits', 'userSpaceOnUse')
+                             .attr('x1', '50%').attr('y1', '100%').attr('x2', '50%').attr('y2', '0%')
+                             .call(function(linearGradient) {
+                                 linearGradient.append('stop').attr('offset', '0%')
+                                                              .attr('style', 'stop-color:rgb(158,158,158);stop-opacity:0.7');
+                                 linearGradient.append('stop').attr('offset', '80%')
+                                                              .attr('style', 'stop-color:rgb(88,88,88);stop-opacity:0.85');
+                                 linearGradient.append('stop').attr('offset', '100%')
+                                                              .attr('style', 'stop-color:rgb(128,128,128);stop-opacity:0.9');
+                             });
+// shadow blur filter
+defs.append('filter').attr('id', 'shadow-blur')//.attr('gradientUnits', 'userSpaceOnUse')
+                     .attr('x', '-10').attr('y', '-10').attr('width', '300').attr('height', '300')
+                             .call(function(filter) {
+                                 filter.append('feGaussianBlur').attr('in', 'SourceGraphic')
+                                                                .attr('stdDeviation', '6');
+                             });
 
 return {
 
@@ -100,22 +129,27 @@ return {
         var nodeElm = d3.select(_createSvgElement('g')).attr('class', 'rpd-node');
 
         // append shadow
-        nodeElm.append('rect').attr('class', 'rpd-shadow')
-                              .attr('width', fullNodeWidth).attr('height', height)
-                              .attr('x', 5).attr('y', 6).attr('rx', 3).attr('ry', 3);
+        nodeElm.append('path').attr('class', 'rpd-shadow')
+                              //.attr('fill', 'url(#cyan-gradient)').attr('stroke', '#333').attr('stroke-width', 1.5)
+                              .attr('fill', 'rgba(0,0,0,0.7)')
+                              .attr('filter', 'url(#shadow-blur)')
+                              .attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight + bodyHeight, 6, 6, 6, 6));
 
         // append node header
         nodeElm.append('path').attr('class', 'rpd-header').classed('rpd-drag-handle', true)
-                              .attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight, 2, 2, 0, 0));
+                              .attr('fill', 'url(#gray-gradient)')
+                              .attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight, 6, 6, 0, 0));
         nodeElm.append('text').attr('class', 'rpd-name').text(node.def.title || node.type)
                               .attr('x', 5).attr('y', 6)
                               .style('pointer-events', 'none');
         // append node body
         nodeElm.append('path').attr('class', 'rpd-content')
-                              .attr('d', roundedRect(0, headerHeight, fullNodeWidth, bodyHeight, 0, 0, 2, 2));
+                              .attr('fill', 'rgba(200,200,200,.5)')
+                              .attr('d', roundedRect(0, headerHeight, fullNodeWidth, bodyHeight, 0, 0, 6, 6));
         nodeElm.append('rect').attr('class', 'rpd-body')
+                              .attr('fill', 'transparent').attr('stroke', '#333').attr('stroke-width', 1.5)
                               .attr('width', fullNodeWidth).attr('height', height)
-                              .attr('rx', 2).attr('ry', 2)
+                              .attr('rx', 6).attr('ry', 6)
                               .style('pointer-events', 'none');
 
         // append tooltip with description
@@ -128,6 +162,7 @@ return {
                            .attr('transform', 'translate(' + (fullNodeWidth-12) + ',1)')
                .call(function(button) {
                    button.append('path').attr('d', roundedRect(0, 0, 11, 11, 2, 2, 2, 3))
+                                        .attr('fill', 'transparent')
                                         .attr('class', 'rpd-remove-button-handle');
                    button.append('text').text('x').attr('x', 3).attr('y', 2)
                                         .style('pointer-events', 'none');
@@ -155,12 +190,12 @@ return {
             inletsMargin = longestInletLabel * letterWidth;
             outletsMargin = longestOutletLabel * letterWidth;
             fullNodeWidth = inletsMargin + newSize.width + outletsMargin;
-            nodeElm.select('path.rpd-header').attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight, 2, 2, 0, 0));
+            nodeElm.select('path.rpd-header').attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight, 6, 6, 0, 0));
             nodeElm.select('g.rpd-remove-button').attr('transform', 'translate(' + (fullNodeWidth-12) + ',1)');
-            nodeElm.select('rect.rpd-shadow').attr('height', newSize.height).attr('width', fullNodeWidth);
+            nodeElm.select('path.rpd-shadow').attr('d', roundedRect(0, 0, fullNodeWidth, newSize.height, 6, 6, 6, 6));
             nodeElm.select('rect.rpd-body').attr('height', newSize.height).attr('width', fullNodeWidth);
             nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight,
-                fullNodeWidth, newSize.height - headerHeight, 0, 0, 2, 2));
+                fullNodeWidth, newSize.height - headerHeight, 0, 0, 6, 6));
             nodeElm.select('g.rpd-process').attr('transform', 'translate(' + (inletsMargin + (pivot.x * newSize.width)) + ','
                                                                            + (headerHeight + ((newSize.height - headerHeight) * pivot.y)) + ')');
             nodeElm.select('g.rpd-outlets').attr('transform', 'translate(' + fullNodeWidth + ',' + headerHeight + ')');
@@ -227,7 +262,8 @@ return {
         inletElm.call(function(group) {
             //group.attr('transform', 'translate(' + inletPos.x + ',' + inletPos.y + ')')
             group.append('circle').attr('class', 'rpd-connector')
-                                  .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
+                                  .attr('fill', 'lightgray').attr('stroke', '#333').attr('stroke-width', 1)
+                                  .attr('cx', 0).attr('cy', 0).attr('r', 5);
             group.append('g').attr('class', 'rpd-value-holder')
                  .attr('transform', 'translate(-8,0)')
                  .attr('text-anchor', 'end')
@@ -245,7 +281,8 @@ return {
         outletElm.call(function(group) {
             //group.attr('transform', 'translate(' + outletPos.x + ',' + outletPos.y + ')')
             group.append('circle').attr('class', 'rpd-connector')
-                                  .attr('cx', 0).attr('cy', 0).attr('r', 2.5);
+                                  .attr('fill', 'lightgray').attr('stroke', '#333').attr('stroke-width', 1)
+                                  .attr('cx', 0).attr('cy', 0).attr('r', 5);
             group.append('g').attr('class', 'rpd-value-holder')
                  .append('text').attr('class', 'rpd-value')
                                 .attr('x', 10).attr('y', 0)
@@ -261,7 +298,10 @@ return {
     createLink: function(link) {
         var linkElm = d3.select(_createSvgElement(
                             (config.linkForm && (config.linkForm == 'curve')) ? 'path' : 'line'
-                        )).attr('class', 'rpd-link');
+                        )).attr('class', 'rpd-link')
+                          .attr('fill', 'transparent')
+                          .attr('stroke', 'lightgray')
+                          .attr('stroke-width', 2);
         return { element: linkElm.node(),
                  rotate: function(x0, y0, x1, y1) {
                      if (config.linkForm && (config.linkForm == 'curve')) {
@@ -278,12 +318,12 @@ return {
 
     getInletPos: function(inlet) {
         var connectorPos = getPos(inletToConnector[inlet.id].node());
-        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
+        return { x: connectorPos.x + 5, y: connectorPos.y + 5 };
     },
 
     getOutletPos: function(outlet) {
         var connectorPos = getPos(outletToConnector[outlet.id].node());
-        return { x: connectorPos.x + 3, y: connectorPos.y + 3 };
+        return { x: connectorPos.x + 5, y: connectorPos.y + 5 };
     },
 
     getLocalPos: function(pos) {
