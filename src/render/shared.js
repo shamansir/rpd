@@ -266,10 +266,10 @@ function reportErrorsToConsole(config) {
         if (!config.logErrors) return;
         if (error.silent) return;
         if (error.system) {
-            console.error(new Error(error.type + ' — ' + error.message + '.' +
+            console.error(new Error(error.type + ' — ' + error.message + '. ' +
                           'Subject: ' + Rpd.autoStringify(error.subject)));
         } else {
-            console.log('Error:', error.type, '—', error.message + '.',
+            console.log('Error:', error.type, '—', error.message + '. ',
                         'Subject: ' + Rpd.autoStringify(error.subject), error.subject);
         }
     });
