@@ -26,3 +26,11 @@
 .rpd-node.rpd-util-nodelist .rpd-header {
     fill: url(#cyan-gradient);
 }
+
+.rpd-outlet.rpd-util-color .rpd-connector {
+    fill: yellow;
+}
+
+.rpd-remove-button path:hover {
+    fill: rgba(255, 0, 0, 0.2);
+}

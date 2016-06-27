@@ -11,7 +11,7 @@ var lastCanvas = null;
 var socketPadding = 25, // distance between inlets/outlets in SVG units
     socketsMargin = 15; // distance between first/last inlet/outlet and body edge
 var bodySizePadding = 30;
-var headerHeight = 18; // height of a node header in SVG units
+var headerHeight = 24; // height of a node header in SVG units
 
 var letterWidth = 8;
 
@@ -42,29 +42,36 @@ defs.append('linearGradient').attr('id', 'cyan-gradient')//.attr('gradientUnits'
                              .attr('x1', '50%').attr('y1', '100%').attr('x2', '50%').attr('y2', '0%')
                              .call(function(linearGradient) {
                                  linearGradient.append('stop').attr('offset', '0%')
-                                                              .attr('style', 'stop-color:rgb(117,255,237);stop-opacity:0.7');
-                                 linearGradient.append('stop').attr('offset', '80%')
-                                                              .attr('style', 'stop-color:rgb(57,128,123);stop-opacity:0.85');
+                                                              .attr('style', 'stop-color:rgb(117,255,237);stop-opacity:0.5');
+                                 linearGradient.append('stop').attr('offset', '73%')
+                                                              .attr('style', 'stop-color:rgb(83,153,143);stop-opacity:0.55');
                                  linearGradient.append('stop').attr('offset', '100%')
-                                                              .attr('style', 'stop-color:rgb(14,128,126);stop-opacity:0.9');
+                                                              .attr('style', 'stop-color:rgb(14,128,126);stop-opacity:0.6');
                              });
 // gray header gradient
 defs.append('linearGradient').attr('id', 'gray-gradient')//.attr('gradientUnits', 'userSpaceOnUse')
                              .attr('x1', '50%').attr('y1', '100%').attr('x2', '50%').attr('y2', '0%')
                              .call(function(linearGradient) {
                                  linearGradient.append('stop').attr('offset', '0%')
-                                                              .attr('style', 'stop-color:rgb(158,158,158);stop-opacity:0.7');
-                                 linearGradient.append('stop').attr('offset', '80%')
-                                                              .attr('style', 'stop-color:rgb(88,88,88);stop-opacity:0.85');
+                                                              .attr('style', 'stop-color:rgb(140,140,140);stop-opacity:0.5');
+                                 linearGradient.append('stop').attr('offset', '63%')
+                                                              .attr('style', 'stop-color:rgb(120,120,120);stop-opacity:0.6');
                                  linearGradient.append('stop').attr('offset', '100%')
-                                                              .attr('style', 'stop-color:rgb(128,128,128);stop-opacity:0.9');
+                                                              .attr('style', 'stop-color:rgb(150,150,150);stop-opacity:0.5');
                              });
 // shadow blur filter
 defs.append('filter').attr('id', 'shadow-blur')//.attr('gradientUnits', 'userSpaceOnUse')
-                     .attr('x', '-10').attr('y', '-10').attr('width', '300').attr('height', '300')
+                     .attr('x', -10).attr('y', -10).attr('width', 300).attr('height', 300)
                              .call(function(filter) {
-                                 filter.append('feGaussianBlur').attr('in', 'SourceGraphic')
-                                                                .attr('stdDeviation', '6');
+                                 filter.append('feOffset').attr('in', 'SourceAlpha')
+                                                          .attr('result', 'offOut')
+                                                          .attr('dx', -3).attr('dy', 9);
+                                 filter.append('feGaussianBlur').attr('in', 'offOut')
+                                                                .attr('result', 'blurOut')
+                                                                .attr('stdDeviation', '6 3');
+                                 filter.append('feBlend').attr('in', 'SourceGraphic')
+                                                         .attr('in2', 'blurOut')
+                                                         .attr('mode', 'normal');
                              });
 
 return {
@@ -131,7 +138,7 @@ return {
         // append shadow
         nodeElm.append('path').attr('class', 'rpd-shadow')
                               //.attr('fill', 'url(#cyan-gradient)').attr('stroke', '#333').attr('stroke-width', 1.5)
-                              .attr('fill', 'rgba(0,0,0,0.7)')
+                              .attr('fill', 'rgba(0,0,0,0.3)')
                               .attr('filter', 'url(#shadow-blur)')
                               .attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight + bodyHeight, 6, 6, 6, 6));
 
@@ -140,7 +147,7 @@ return {
                               .attr('fill', 'url(#gray-gradient)')
                               .attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight, 6, 6, 0, 0));
         nodeElm.append('text').attr('class', 'rpd-name').text(node.def.title || node.type)
-                              .attr('x', 5).attr('y', 6)
+                              .attr('x', 7).attr('y', 12)
                               .style('pointer-events', 'none');
         // append node body
         nodeElm.append('path').attr('class', 'rpd-content')
@@ -161,10 +168,10 @@ return {
         nodeElm.append('g').attr('class', 'rpd-remove-button')
                            .attr('transform', 'translate(' + (fullNodeWidth-12) + ',1)')
                .call(function(button) {
-                   button.append('path').attr('d', roundedRect(0, 0, 11, 11, 2, 2, 2, 3))
+                   button.append('path').attr('d', roundedRect(0, 4, 9, 9, 2, 2, 2, 3))
                                         .attr('fill', 'transparent')
                                         .attr('class', 'rpd-remove-button-handle');
-                   button.append('text').text('x').attr('x', 3).attr('y', 2)
+                   button.append('text').text('x').attr('x', 2).attr('y', 8)
                                         .style('pointer-events', 'none');
                });
 
@@ -262,7 +269,7 @@ return {
         inletElm.call(function(group) {
             //group.attr('transform', 'translate(' + inletPos.x + ',' + inletPos.y + ')')
             group.append('circle').attr('class', 'rpd-connector')
-                                  .attr('fill', 'lightgray').attr('stroke', '#333').attr('stroke-width', 1)
+                                  .attr('fill', '#999').attr('stroke', '#333').attr('stroke-width', 1)
                                   .attr('cx', 0).attr('cy', 0).attr('r', 5);
             group.append('g').attr('class', 'rpd-value-holder')
                  .attr('transform', 'translate(-8,0)')
@@ -281,7 +288,7 @@ return {
         outletElm.call(function(group) {
             //group.attr('transform', 'translate(' + outletPos.x + ',' + outletPos.y + ')')
             group.append('circle').attr('class', 'rpd-connector')
-                                  .attr('fill', 'lightgray').attr('stroke', '#333').attr('stroke-width', 1)
+                                  .attr('fill', '#999').attr('stroke', '#333').attr('stroke-width', 1)
                                   .attr('cx', 0).attr('cy', 0).attr('r', 5);
             group.append('g').attr('class', 'rpd-value-holder')
                  .append('text').attr('class', 'rpd-value')
