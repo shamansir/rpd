@@ -10,7 +10,7 @@
 
 .rpd-patch text {
     font-family: sans-serif;
-    font-size: 10px;
+    font-size: 11px;
     dominant-baseline: central;
 }
 
@@ -33,4 +33,12 @@
 
 .rpd-remove-button path:hover {
     fill: rgba(255, 0, 0, 0.2);
+}
+
+.rpd-patch text.rpd-name {
+    text-transform: capitalize;
+}
+
+.rpd-node.rpd-util-comment .rpd-process text {
+    fill: #999;
 }
