@@ -29,7 +29,7 @@ defs.append('pattern').attr('id', 'blueprint-sub').attr('patternUnits', 'userSpa
 defs.append('pattern').attr('id', 'blueprint').attr('patternUnits', 'userSpaceOnUse')
                       .attr('width', 100).attr('height', 100)
                       .call(function(pattern) {
-                          pattern.append('rect').attr('fill', '#393939')
+                          pattern.append('rect').attr('fill', '#323232')
                                                 .attr('width', 100).attr('height', 100);
                           pattern.append('rect').attr('fill', 'url(#blueprint-sub)')
                                                 .attr('width', 100).attr('height', 100);
@@ -59,36 +59,95 @@ defs.append('linearGradient').attr('id', 'gray-gradient')//.attr('gradientUnits'
                                  linearGradient.append('stop').attr('offset', '100%')
                                                               .attr('style', 'stop-color:rgb(135,135,135);stop-opacity:0.5');
                              });
+
+// selection gradient
+defs.append('linearGradient').attr('id', 'select-gradient')//.attr('gradientUnits', 'userSpaceOnUse')
+                             .attr('x1', '50%').attr('y1', '100%').attr('x2', '50%').attr('y2', '0%')
+                             .call(function(linearGradient) {
+                                 linearGradient.append('stop').attr('offset', '0%')
+                                                              .attr('style', 'stop-color:rgb(85,146,185);stop-opacity:1');
+                                 linearGradient.append('stop').attr('offset', '71%')
+                                                              .attr('style', 'stop-color:rgb(59,129,204);stop-opacity:1');
+                                 linearGradient.append('stop').attr('offset', '100%')
+                                                              .attr('style', 'stop-color:rgb(45,112,179);stop-opacity:1');
+                             });
+
+// deselection gradient
+defs.append('linearGradient').attr('id', 'deselect-gradient')//.attr('gradientUnits', 'userSpaceOnUse')
+                             .attr('x1', '50%').attr('y1', '100%').attr('x2', '50%').attr('y2', '0%')
+                             .call(function(linearGradient) {
+                                  linearGradient.append('stop').attr('offset', '0%')
+                                                               .attr('style', 'stop-color:rgb(54,54,54);stop-opacity:1');
+                                  linearGradient.append('stop').attr('offset', '70%')
+                                                               .attr('style', 'stop-color:rgb(72,72,72);stop-opacity:1');
+                                  linearGradient.append('stop').attr('offset', '100%')
+                                                               .attr('style', 'stop-color:rgb(83,83,83);stop-opacity:1');
+                             });
+
+// link gradient
+defs.append('radialGradient').attr('id', 'link-gradient')//.attr('gradientUnits', 'userSpaceOnUse')
+                             .attr('cx', '50%').attr('cy', '50%').attr('r', '75%')
+                             .call(function(radialGradient) {
+                                 radialGradient.append('stop').attr('offset', '45%')
+                                                              .attr('style', 'stop-color:rgb(255,255,255);stop-opacity:1');
+                                 radialGradient.append('stop').attr('offset', '100%')
+                                                              .attr('style', 'stop-color:rgb(150,150,150);stop-opacity:1');
+                             });
+// disabled link gradient
+defs.append('radialGradient').attr('id', 'disabled-link-gradient')//.attr('gradientUnits', 'userSpaceOnUse')
+                             .attr('cx', '50%').attr('cy', '50%').attr('r', '75%')
+                             .call(function(radialGradient) {
+                                 radialGradient.append('stop').attr('offset', '45%')
+                                                              .attr('style', 'stop-color:rgb(155,155,155);stop-opacity:1');
+                                 radialGradient.append('stop').attr('offset', '100%')
+                                                              .attr('style', 'stop-color:rgb(75,75,75);stop-opacity:1');
+                              });
 // shadow blur filter
 defs.append('filter').attr('id', 'shadow-blur')
                      .attr('x', -10).attr('y', -10).attr('width', 400).attr('height', 400)
-                             .call(function(filter) {
-                                 filter.append('feOffset').attr('in', 'SourceAlpha')
-                                                          .attr('result', 'offOut')
-                                                          .attr('dx', 0).attr('dy', 9);
-                                 filter.append('feGaussianBlur').attr('in', 'offOut')
-                                                                .attr('result', 'blurOut')
-                                                                .attr('stdDeviation', '3 5');
-                                 filter.append('feBlend').attr('in', 'SourceGraphic')
-                                                         .attr('in2', 'blurOut')
-                                                         .attr('mode', 'normal');
-                             });
+                     .call(function(filter) {
+                         filter.append('feOffset').attr('in', 'SourceAlpha')
+                                                  .attr('result', 'offOut')
+                                                  .attr('dx', 0).attr('dy', 6);
+                         filter.append('feGaussianBlur').attr('in', 'offOut')
+                                                        .attr('result', 'blurOut')
+                                                        .attr('stdDeviation', '3 5');
+                         filter.append('feBlend').attr('in', 'SourceGraphic')
+                                                 .attr('in2', 'blurOut')
+                                                 .attr('mode', 'normal');
+                     });
 
 // text emboss filter
 defs.append('filter').attr('id', 'text-emboss')
                      .attr('x', -10).attr('y', -10).attr('width', 300).attr('height', 300)
-                             .call(function(filter) {
-                                 filter.append('feFlood').attr('flood-color', '#757575')
-                                                         .attr('result', 'color');
-                                 filter.append('feOffset').attr('in', 'SourceAlpha')
-                                                          .attr('result', 'offOut')
-                                                          .attr('dx', 0.5).attr('dy', 0);
-                                 filter.append('feComposite').attr('in', 'color')
-                                                             .attr('in2', 'offOut')
-                                                             .attr('operator', 'in');
-                                 filter.append('feBlend').attr('in', 'SourceGraphic')
-                                                         .attr('mode', 'normal');
-                             });
+                     .call(function(filter) {
+                         filter.append('feFlood').attr('flood-color', '#757575')
+                                                 .attr('result', 'color');
+                         filter.append('feOffset').attr('in', 'SourceAlpha')
+                                                  .attr('result', 'offOut')
+                                                  .attr('dx', 0.5).attr('dy', 0);
+                         filter.append('feComposite').attr('in', 'color')
+                                                     .attr('in2', 'offOut')
+                                                     .attr('operator', 'in');
+                         filter.append('feBlend').attr('in', 'SourceGraphic')
+                                                 .attr('mode', 'normal');
+                     });
+
+// button emboss filter
+defs.append('filter').attr('id', 'button-emboss')
+                     .attr('x', -10).attr('y', -0.5).attr('width', 300).attr('height', 300)
+                     .call(function(filter) {
+                         filter.append('feFlood').attr('flood-color', '#757575')
+                                                 .attr('result', 'color');
+                         filter.append('feOffset').attr('in', 'SourceAlpha')
+                                                  .attr('result', 'offOut')
+                                                  .attr('dx', -1).attr('dy', 0.5);
+                         filter.append('feComposite').attr('in', 'color')
+                                                     .attr('in2', 'offOut')
+                                                     .attr('operator', 'in');
+                         filter.append('feBlend').attr('in', 'SourceGraphic')
+                                                 .attr('mode', 'normal');
+                     });
 
 return {
 
@@ -168,10 +227,10 @@ return {
                               .style('pointer-events', 'none');
         // append node body
         nodeElm.append('path').attr('class', 'rpd-content')
-                              .attr('fill', 'rgba(155,155,155,.5)')
+                              .attr('fill', 'rgba(150,150,150,.5)')
                               .attr('d', roundedRect(0, headerHeight, fullNodeWidth, bodyHeight, 0, 0, 6, 6));
         nodeElm.append('rect').attr('class', 'rpd-body')
-                              .attr('fill', 'transparent').attr('stroke', '#333').attr('stroke-width', 1.5)
+                              .attr('fill', 'transparent').attr('stroke', '#222').attr('stroke-width', 1.5)
                               .attr('width', fullNodeWidth).attr('height', height)
                               .attr('rx', 6).attr('ry', 6)
                               .style('pointer-events', 'none');
@@ -185,7 +244,7 @@ return {
         nodeElm.append('g').attr('class', 'rpd-remove-button')
                            .attr('transform', 'translate(' + (fullNodeWidth-12) + ',1)')
                .call(function(button) {
-                   button.append('path').attr('d', roundedRect(0, 4, 9, 9, 2, 2, 2, 3))
+                   button.append('path').attr('d', roundedRect(-1, 3, 9, 9, 2, 2, 2, 3))
                                         .attr('fill', 'transparent')
                                         .attr('class', 'rpd-remove-button-handle');
                    button.append('text').text('x').attr('x', 2).attr('y', 8)
@@ -287,11 +346,11 @@ return {
             //group.attr('transform', 'translate(' + inletPos.x + ',' + inletPos.y + ')')
             group.append('circle').attr('class', 'rpd-connector')
                                   .attr('fill', '#999').attr('stroke', '#333').attr('stroke-width', 1)
-                                  .attr('cx', 0).attr('cy', 0).attr('r', 5);
+                                  .attr('cx', 0).attr('cy', 0).attr('r', 4);
             group.append('g').attr('class', 'rpd-value-holder')
                  .attr('transform', 'translate(-8,0)')
                  .attr('text-anchor', 'end')
-                 .append('text').attr('class', 'rpd-value');
+                 .append('text').attr('class', 'rpd-value').attr('fill', '#999');
             group.append('text').attr('class', 'rpd-name').text(inlet.def.label || inlet.alias)
                                 .attr('x', 10).attr('y', 0)
                                 .attr('filter', 'url(#text-emboss)');
@@ -307,9 +366,9 @@ return {
             //group.attr('transform', 'translate(' + outletPos.x + ',' + outletPos.y + ')')
             group.append('circle').attr('class', 'rpd-connector')
                                   .attr('fill', '#999').attr('stroke', '#333').attr('stroke-width', 1)
-                                  .attr('cx', 0).attr('cy', 0).attr('r', 5);
+                                  .attr('cx', 0).attr('cy', 0).attr('r', 4);
             group.append('g').attr('class', 'rpd-value-holder')
-                 .append('text').attr('class', 'rpd-value')
+                 .append('text').attr('class', 'rpd-value').attr('fill', '#999')
                                 .attr('x', 10).attr('y', 0)
                                 .style('pointer-events', 'none');
             group.append('text').attr('class', 'rpd-name').text(outlet.def.label || outlet.alias)
