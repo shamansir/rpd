@@ -1,0 +1,49 @@
+.rpd-network .rpd-full-page?
+
+  .rpd-canvas* .rpd-style-<style> (rpd-values-on-hover | rpd-values-always-shown)? .rpd-show-boxes?
+
+    .rpd-background?
+
+    .rpd-patch*
+
+      .rpd-node-box* .rpd-dragging?
+
+        .rpd-node .rpd-<toolkit>-<type> .rpd-<toolkit>-toolkit-node .rpd-patch-reference?
+
+            .rpd-shadow?
+
+            .rpd-title .rpd-drag-handle? .rpd-dragging?
+                .rpd-remove-button
+
+                .rpd-header
+                    .rpd-type
+                    .rpd-icon?
+                    .rpd-name
+
+            .rpd-content
+
+                .rpd-inlets
+                    .rpd-inlets-target
+
+                        .rpd-inlet* .rpd-<toolkit>-<type> (.rpd-stale | .rpd-fresh | .rpd-error)? .rpd-readonly? rpd-cold?
+
+                            .rpd-connector
+                            .rpd-value-holder .rpd-editor-enabled?
+                                .rpd-value .rpd-edited?
+                            .rpd-name
+                            .rpd-type?
+
+                .rpd-body
+                    .rpd-process-target
+
+                .rpd-outlets
+                    .rpd-outlets-target
+
+                        .rpd-outlet* .rpd-<toolkit>-<type> (.rpd-stale | .rpd-fresh | .rpd-error)?
+
+                            .rpd-connector
+                            .rpd-value
+                            .rpd-type?
+                            .rpd-name
+
+  .rpd-link .rpd-<inlet-toolkit>-<inlet-type> .rpd-<outlet-toolkit>-<outlet-type> .rpd-disabled?
