@@ -60,6 +60,11 @@
     stroke-width: 3;
     stroke: black;
     stroke-linecap: round;
+    fill: transparent;
+}
+
+.rpd-link.rpd-disabled {
+    stroke: lightgray;
 }
 
 .rpd-node.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype rect {
@@ -84,6 +89,35 @@
     fill: white;
 }
 
-/* .rpd-process text {
-    alignment-baseline: central;
-} */
+.rpd-util-nodelist .rpd-nodelist-search input:focus {
+    outline: none;
+    border-color: black;
+    border-width: 1;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search rect {
+    fill: lightgray !important;
+    x: 2;
+    y: -3;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search:hover rect {
+    fill: darkgray !important;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search text {
+    fill: red !important;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search:hover text {
+    fill: white !important;
+}
+
+.rpd-node .rpd-remove-button text {
+    fill: white;
+    font-size: 7px;
+}
+
+.rpd-node .rpd-remove-button:hover text {
+    fill: red;
+}

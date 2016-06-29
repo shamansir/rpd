@@ -252,16 +252,19 @@ return {
 
     createLink: function(link) {
         var linkElm = d3.select(_createSvgElement(
-                            (config.linkForm && (config.linkForm == 'curve')) ? 'path' : 'line'
+                            (config.linkForm && ((config.linkForm == 'curve') ||
+                                                 (config.linkForm == 'pipe'))) ? 'path' : 'line'
                         )).attr('class', 'rpd-link');
         return { element: linkElm.node(),
                  rotate: function(x0, y0, x1, y1) {
-                     if (config.linkForm && (config.linkForm == 'curve')) {
-                        linkElm.attr('d', bezierByH(x0, y0, x1, y1));
-                    } else {
-                        linkElm.attr('x1', x0).attr('y1', y0)
-                               .attr('x2', x1).attr('y2', y1);
-                    }
+                     if (!config.linkForm) {
+                         linkElm.attr('x1', x0).attr('y1', y0)
+                                .attr('x2', x1).attr('y2', y1);
+                     } else if (config.linkForm == 'curve') {
+                         linkElm.attr('d', bezierByH(x0, y0, x1, y1));
+                     } else if (config.linkForm == 'pipe') {
+                         linkElm.attr('d', pipeByH(x0, y0, x1, y1));
+                     }
                  },
                  noPointerEvents: function() {
                      linkElm.style('pointer-events', 'none');
@@ -302,6 +305,15 @@ function bezierByH(x0, y0, x1, y1) {
          + 'C' + mx + ' ' + y0 + ' '
                + mx + ' ' + y1 + ' '
                + x1 + ' ' + y1;
+}
+
+function pipeByH(x0, y0, x1, y1) {
+    var mx = (x1 - x0) / 2;
+
+    return 'M' + x0 + ' ' + y0 + ' '
+         + 'L' + (x0 + mx - (mx / 2)) + ' ' + y0 + ' '
+         + 'L' + (x0 + mx + (mx / 2)) + ' ' + y1 + ' '
+         + 'L' + x1 + ' ' + y1;
 }
 
 function roundedRect(x, y, width, height, rtl, rtr, rbr, rbl) {
