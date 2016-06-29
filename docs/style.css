@@ -284,3 +284,7 @@ div.in-progress span:before {
 .rpd-outlet text.rpd-value {
     fill: darkgray;
 }
+
+.hljs-comment {
+    color: #ccc;
+}
