@@ -221,9 +221,14 @@ return {
             group.append('circle').attr('class', 'rpd-connector')
                                   .attr('cx', 0).attr('cy', 0).attr('r', 4.5);
             group.append('g').attr('class', 'rpd-value-holder')
-                 .attr('transform', 'translate(-8,0)')
+                 .attr('transform', 'translate(-8,3)')
                  .attr('text-anchor', 'end')
-                 .append('text').attr('class', 'rpd-value');
+                 .call(function(g) {
+                     g.append('rect').attr('class', 'rpd-value-background')
+                                     .attr('x', -20).attr('y', -8)
+                                     .attr('width', 20).attr('height', 14)
+                     g.append('text').attr('class', 'rpd-value');
+                 });
             group.append('text').attr('class', 'rpd-name').text(inlet.def.label || inlet.alias)
                                 .attr('x', 10).attr('y', 0);
         });
@@ -239,9 +244,14 @@ return {
             group.append('circle').attr('class', 'rpd-connector')
                                   .attr('cx', 0).attr('cy', 0).attr('r', 4.5);
             group.append('g').attr('class', 'rpd-value-holder')
-                 .append('text').attr('class', 'rpd-value')
-                                .attr('x', 10).attr('y', 0)
-                                .style('pointer-events', 'none');
+                 .call(function(g) {
+                     g.append('rect').attr('class', 'rpd-value-background')
+                                     .attr('x', 8).attr('y', -8)
+                                     .attr('width', 20).attr('height', 14)
+                     g.append('text').attr('class', 'rpd-value')
+                                     .attr('x', 8).attr('y', 3)
+                                     .style('pointer-events', 'none');
+                 });
             group.append('text').attr('class', 'rpd-name').text(outlet.def.label || outlet.alias)
                                 .attr('x', -10).attr('y', 0);
         });

@@ -67,6 +67,10 @@
     stroke: lightgray;
 }
 
+.rpd-value-background {
+    fill: white;
+}
+
 .rpd-node.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype rect {
     fill: lightgray;
 }
