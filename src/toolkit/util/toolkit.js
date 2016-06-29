@@ -267,6 +267,30 @@ Rpd.nodetype('util/*', {
     process: function(inlets) { return { 'out': (inlets.a || 0) * (inlets.b || 0) }; }
 });
 
+Rpd.nodetype('util/+', {
+    title: '+',
+    inlets: { 'a': { type: 'util/number' },
+              'b': { type: 'util/number' } },
+    outlets: { 'out': { type: 'util/number' } },
+    process: function(inlets) { return { 'out': (inlets.a || 0) + (inlets.b || 0) }; }
+});
+
+Rpd.nodetype('util/-', {
+    title: '-',
+    inlets: { 'a': { type: 'util/number' },
+              'b': { type: 'util/number' } },
+    outlets: { 'out': { type: 'util/number' } },
+    process: function(inlets) { return { 'out': (inlets.a || 0) - (inlets.b || 0) }; }
+});
+
+Rpd.nodetype('util/÷', {
+    title: '/',
+    inlets: { 'a': { type: 'util/number' },
+              'b': { type: 'util/number' } },
+    outlets: { 'out': { type: 'util/number' } },
+    process: function(inlets) { return { 'out': (inlets.a || 0) / (inlets.b || 0) }; }
+});
+
 /* var howMuchColors = howMuch('color', 'colors');
 Rpd.channeltype('util/palette', { show: function(val) { return howMuchColors(val.colors); } });
 Rpd.channeltype('util/palettes', {});
