@@ -37,6 +37,97 @@ function applyCodeExample1() {
     metroNode.outlets['out'].connect(randomGenNode.inlets['bang']);
 }
 
+function applyCodeExample2() {
+    var patch = {};
+
+    Rpd.channeltype('my/vector', {
+      show: function(val) {
+      	return '<' + val.x + ':' + val.y + '>';
+      }
+    });
+
+    Rpd.nodetype('my/vector', {
+      inlets: {
+        x: { type: 'util/number', default: 0 },
+        y: { type: 'util/number', default: 0 }
+      },
+      outlets: {
+        out: { type: 'util/number' }
+      },
+      process: function(inlets) {
+        return { x: inlets.x, y: inlets.y };
+      }
+    });
+
+    Rpd.nodetype('my/canvas', {
+      inlets: {
+        from: { type: 'util/color' },
+        to: { type: 'util/color' },
+        count: { type: 'util/number', default: 5 },
+        target: { type: 'my/vector' }
+      },
+      process: function() {}
+    });
+
+    var SVG_XMLNS = 'http://www.w3.org/2000/svg';
+
+    Rpd.noderenderer('my/canvas', 'svg', function() {
+      var context;
+      var particles = [];
+      var lastCount = 0;
+
+      function draw() {
+        if (context) {
+          context.fillStyle = '#fff';
+          context.fillRect(0, 0, 150, 150);
+          context.fillStyle = '#000';
+          particles.forEach(function(particle) {
+            context.fillRect(Math.random() * 150, Math.random() * 150, 20, 20);
+          });
+        }
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
+
+      return {
+        size: { width: 150, height: 150 },
+        pivot: { x: 0, y: 0 },
+
+        first: function(bodyElm) {
+          var group = document.createElementNS(SVG_XMLNS, 'g');
+          group.setAttributeNS(null, 'transform', 'translate(10, 10)');
+          var foreign = document.createElementNS(SVG_XMLNS, 'foreignObject');
+          canvas = document.createElement('canvas');
+          canvas.setAttributeNS(null, 'width', '130px');
+          canvas.setAttributeNS(null, 'height', '130px');
+          canvas.style.position = 'fixed';
+          foreign.appendChild(canvas);
+          group.appendChild(foreign);
+          bodyElm.appendChild(group);
+
+          context = canvas.getContext('2d');
+        },
+
+        always: function(bodyElm, inlets) {
+          if (inlets.count != lastCount) {
+            particles = [];
+            for (var i = 0; i < inlets.count; i++) {
+              particles.push({});
+            }
+            lastCount = inlets.count;
+          }
+        }
+
+      };
+    });
+
+    patch.addNode('util/color');
+    patch.addNode('util/color');
+    patch.addNode('my/vector');
+    patch.addNode('my/canvas');
+    patch.addNode('util/knob');
+}
+
 applyCodeExample1();
 
 var logoPatchAdded = false;
