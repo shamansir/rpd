@@ -59,31 +59,59 @@ function applyCodeExample2() {
       }
     });
 
-    Rpd.nodetype('my/canvas', {
+    Rpd.channeltype('my/angle', {
+      allow: [ 'util/number '],
+      accept: function(v) { return (v >= 0) && (v <= 360); },
+      show: function(v) { return v + '˚'; }
+    });
+
+    var defaultConfig = {
+      count: 9,
+      from: { r: 0, g: 0, b: 0 },
+      to: { r: 255, g: 0, b: 0 },
+      shift: { x: 25, y: 0 },
+      rotate: 15
+    };
+
+    Rpd.nodetype('my/scene', {
       inlets: {
-        from: { type: 'util/color' },
-        to: { type: 'util/color' },
-        count: { type: 'util/number', default: 5 },
-        target: { type: 'my/vector' }
+        from: { type: 'util/color', default: defaultConfig.from },
+        to: { type: 'util/color', default: defaultConfig.to },
+        count: { type: 'util/number', default: defaultConfig.count },
+        shift: { type: 'my/vector', default: defaultConfig.shift },
+        rotate: { type: 'my/angle', default: defaultConfig.rotate },
       },
       process: function() {}
     });
 
     var SVG_XMLNS = 'http://www.w3.org/2000/svg';
 
-    Rpd.noderenderer('my/canvas', 'svg', function() {
+    function lerp(v1, v2, pos) {
+      return (v1 + ((v2 - v1) * pos));
+    }
+
+    Rpd.noderenderer('my/scene', 'svg', function() {
       var context;
       var particles = [];
       var lastCount = 0;
+      var config = defaultConfig;
 
       function draw() {
         if (context) {
+          context.save();
           context.fillStyle = '#fff';
           context.fillRect(0, 0, 150, 150);
           context.fillStyle = '#000';
-          particles.forEach(function(particle) {
-            context.fillRect(Math.random() * 150, Math.random() * 150, 20, 20);
+          particles.forEach(function(particle, i) {
+            context.fillStyle = 'rgb(' +
+              Math.floor(lerp(config.from.r, config.to.r, 1 / (particles.length - 1) * i)) + ',' +
+              Math.floor(lerp(config.from.g, config.to.g, 1 / (particles.length - 1) * i)) + ',' +
+    		  Math.floor(lerp(config.from.b, config.to.b, 1 / (particles.length - 1) * i)) + ')';
+            context.fillRect(0, 0, 20, 20);
+            context.translate(config.shift.x, config.shift.y);
+            context.rotate(config.rotate * Math.PI / 180);
           });
+          context.restore();
         }
         requestAnimationFrame(draw);
       }
@@ -109,23 +137,39 @@ function applyCodeExample2() {
         },
 
         always: function(bodyElm, inlets) {
-          if (inlets.count != lastCount) {
+          if (!isNaN(inlets.count) && (inlets.count != lastCount)) {
             particles = [];
             for (var i = 0; i < inlets.count; i++) {
               particles.push({});
             }
             lastCount = inlets.count;
           }
+          if (inlets.from) config.from = inlets.from;
+          if (inlets.to) config.to = inlets.to;
+          if (inlets.shift) config.to = inlets.to;
+          if (!isNaN(inlets.rotate)) config.rotate = inlets.rotate;
         }
 
       };
     });
 
-    patch.addNode('util/color');
-    patch.addNode('util/color');
-    patch.addNode('my/vector');
-    patch.addNode('my/canvas');
-    patch.addNode('util/knob');
+    var scene = patch.addNode('my/scene');
+    var color1 = patch.addNode('util/color');
+    var color2 = patch.addNode('util/color');
+    var vec = patch.addNode('my/vector');
+    var knob1 = patch.addNode('util/knob');
+    var knob2 = patch.addNode('util/knob');
+    var knob3 = patch.addNode('util/knob');
+
+    knob1.inlets['max'].receive(255);
+    knob2.inlets['max'].receive(180);
+    vec.inlets['x'].receive(25);
+
+    knob1.outlets['number'].connect(color1.inlets['r']);
+    knob3.outlets['number'].connect(vec.inlets['y']);
+    color1.outlets['color'].connect(scene.inlets['from']);
+    color2.outlets['color'].connect(scene.inlets['to']);
+    vec.outlets['out'].connect(scene.inlets['shift']);
 }
 
 applyCodeExample1();
