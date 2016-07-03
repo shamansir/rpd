@@ -38,11 +38,14 @@ function applyCodeExample1() {
 }
 
 function applyCodeExample2() {
-    var patch = {};
+    Rpd.renderNext('svg', document.getElementById('example-two'),
+                   { style: 'compact-v' });
+
+    var patch = Rpd.addPatch('Generate Canvas Shapes').resizeCanvas(800, 250);
 
     Rpd.channeltype('my/vector', {
       show: function(val) {
-      	return '<' + val.x + ':' + val.y + '>';
+      	return '<' + Math.floor(val.x) + ':' + Math.floor(val.y) + '>';
       }
     });
 
@@ -52,10 +55,10 @@ function applyCodeExample2() {
         y: { type: 'util/number', default: 0 }
       },
       outlets: {
-        out: { type: 'util/number' }
+        out: { type: 'my/vector' }
       },
       process: function(inlets) {
-        return { x: inlets.x, y: inlets.y };
+        return { out: { x: inlets.x, y: inlets.y } };
       }
     });
 
@@ -66,7 +69,7 @@ function applyCodeExample2() {
     });
 
     var defaultConfig = {
-      count: 9,
+      count: 7,
       from: { r: 0, g: 0, b: 0 },
       to: { r: 255, g: 0, b: 0 },
       shift: { x: 25, y: 0 },
@@ -77,7 +80,8 @@ function applyCodeExample2() {
       inlets: {
         from: { type: 'util/color', default: defaultConfig.from },
         to: { type: 'util/color', default: defaultConfig.to },
-        count: { type: 'util/number', default: defaultConfig.count },
+        count: { type: 'util/number', default: defaultConfig.count,
+                 adapt: function(v) { return Math.floor(v); } },
         shift: { type: 'my/vector', default: defaultConfig.shift },
         rotate: { type: 'my/angle', default: defaultConfig.rotate },
       },
@@ -91,6 +95,8 @@ function applyCodeExample2() {
     }
 
     Rpd.noderenderer('my/scene', 'svg', function() {
+      var width = 100, height = 100;
+
       var context;
       var particles = [];
       var lastCount = 0;
@@ -100,14 +106,14 @@ function applyCodeExample2() {
         if (context) {
           context.save();
           context.fillStyle = '#fff';
-          context.fillRect(0, 0, 150, 150);
+          context.fillRect(0, 0, width, height);
           context.fillStyle = '#000';
           particles.forEach(function(particle, i) {
             context.fillStyle = 'rgb(' +
               Math.floor(lerp(config.from.r, config.to.r, 1 / (particles.length - 1) * i)) + ',' +
               Math.floor(lerp(config.from.g, config.to.g, 1 / (particles.length - 1) * i)) + ',' +
     		  Math.floor(lerp(config.from.b, config.to.b, 1 / (particles.length - 1) * i)) + ')';
-            context.fillRect(0, 0, 20, 20);
+            context.fillRect(0, 0, 15, 15);
             context.translate(config.shift.x, config.shift.y);
             context.rotate(config.rotate * Math.PI / 180);
           });
@@ -118,16 +124,16 @@ function applyCodeExample2() {
       requestAnimationFrame(draw);
 
       return {
-        size: { width: 150, height: 150 },
+        size: { width: width + 10, height: height + 10 },
         pivot: { x: 0, y: 0 },
 
         first: function(bodyElm) {
           var group = document.createElementNS(SVG_XMLNS, 'g');
-          group.setAttributeNS(null, 'transform', 'translate(10, 10)');
+          group.setAttributeNS(null, 'transform', 'translate(5, 5)');
           var foreign = document.createElementNS(SVG_XMLNS, 'foreignObject');
           canvas = document.createElement('canvas');
-          canvas.setAttributeNS(null, 'width', '130px');
-          canvas.setAttributeNS(null, 'height', '130px');
+          canvas.setAttributeNS(null, 'width', width + 'px');
+          canvas.setAttributeNS(null, 'height', height + 'px');
           canvas.style.position = 'fixed';
           foreign.appendChild(canvas);
           group.appendChild(foreign);
@@ -146,23 +152,25 @@ function applyCodeExample2() {
           }
           if (inlets.from) config.from = inlets.from;
           if (inlets.to) config.to = inlets.to;
-          if (inlets.shift) config.to = inlets.to;
+          if (inlets.shift) config.shift = inlets.shift;
           if (!isNaN(inlets.rotate)) config.rotate = inlets.rotate;
         }
 
       };
     });
 
-    var scene = patch.addNode('my/scene');
-    var color1 = patch.addNode('util/color');
-    var color2 = patch.addNode('util/color');
-    var vec = patch.addNode('my/vector');
-    var knob1 = patch.addNode('util/knob');
-    var knob2 = patch.addNode('util/knob');
-    var knob3 = patch.addNode('util/knob');
+    var scene = patch.addNode('my/scene').move(570, 5);
+    var color1 = patch.addNode('util/color').move(120, 5);
+    var color2 = patch.addNode('util/color').move(100, 80);
+    var vec = patch.addNode('my/vector').move(305, 90);
+    var knob1 = patch.addNode('util/knob').move(25, 5);
+    var knob2 = patch.addNode('util/knob').move(490, 110);
+    var knob3 = patch.addNode('util/knob').move(210, 105);
+    var knob4 = patch.addNode('util/knob').move(400, 110);
 
     knob1.inlets['max'].receive(255);
     knob2.inlets['max'].receive(180);
+    knob4.inlets['max'].receive(15);
     vec.inlets['x'].receive(25);
 
     knob1.outlets['number'].connect(color1.inlets['r']);
