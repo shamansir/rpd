@@ -41,7 +41,7 @@ function applyCodeExample2() {
     Rpd.renderNext('svg', document.getElementById('example-two'),
                    { style: 'compact-v' });
 
-    var patch = Rpd.addPatch('Generate Canvas Shapes').resizeCanvas(800, 250);
+    var patch = Rpd.addPatch('Generate Canvas Shapes').resizeCanvas(800, 180);
 
     Rpd.channeltype('my/vector', {
       show: function(val) {
@@ -181,6 +181,7 @@ function applyCodeExample2() {
 }
 
 applyCodeExample1();
+applyCodeExample2();
 
 var logoPatchAdded = false;
 document.getElementById('planets').addEventListener('click', function() {

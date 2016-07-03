@@ -165,6 +165,9 @@ gulp.task('build', ['check-paths', 'list-opts', 'concat-css'], function() {
     if (argv.pretty) compilerFlags['formatting'] = 'PRETTY_PRINT';
 
     gutil.log(infoColor('Compiling ' + resultName + ' with Closure compiler'));
+    gutil.log(infoColor('Language In: ') + valueColor(compilerFlags.language_in));
+    gutil.log(infoColor('Compilation Level: ') + valueColor(compilerFlags.compilation_level));
+    gutil.log(infoColor('Formatting: ') + valueColor(compilerFlags.formatting));
     gutil.log(infoColor('Sources included:'));
     return gulp.src(logFiles(getJsFiles(argv)))
                .pipe(closureCompiler({

@@ -20,6 +20,8 @@ RPD is the abbreviation for _Reactive Patch Development_...
 
 ...or, actually, whatever you decide. It is the library which brings node-based user interfaces to the modern web, in full their power (when you know how to use it) and in a very elegant and minimalistic way. _Node-based_ is something like the thing you'll (probably) see above if you move your mouse cursor, or any other pointing device, above the RPD logo — (almost) nothing to do with [node.js][node-js]. Some people also say that with such user interfaces they do _Flow Programming_. If you are wondering yet, what that means, _Node-based_ interface is the one where man may visually connect different low-level components using their inputs and outputs and observe the result in real time, take <!-- consider? --> PureData, QuartzComposer, VVVV, NodeBox, Reaktor etc. for example.
 
+RPD brings DataFlow Programming to the Web both in the _elegant_ and _minimal_ ways.
+
 <!-- TODO: video or some example patch, processing patch from vimeo? -->
 
 _Elegancy_ is achieved both with providing you a very simple API for building these powerful things, and (thanks to the reactive streams, powered by [Kefir.js library][kefir]) pure functional approach in the core, so it's easy for you to operate with sequences of data over time in any way you want, and also every action performed, (such as adding a node, or connecting something, or sending a value) is atomic, so it can easily be rolled back or stored in, and so restored from, some file.
@@ -81,22 +83,12 @@ randomGenNode.outlets['out'].connect(multiplierInlet);
 metroNode.outlets['out'].connect(randomGenNode.inlets['bang']);
 ```
 
-#### Processing
+#### HTML5 Canvas and Custom Toolkit
 
-<!-- TODO: insert p5.js example itself (its gif, in the worst case) -->
+<div id="example-two"></div>
 
-Configure [`p5.js`](http://p5.js) patch with the help of [`p5`](http://..) toolkit:
-
-```js
-Rpd.nodetype('my/sketch', function() {
-
-});
-```
-#### Custom Toolkit
-
-When you define your own toolkit in place:
-
-```js
+```javascript
+TODO
 ```
 
 ### Terminology
