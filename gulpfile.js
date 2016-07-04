@@ -341,11 +341,11 @@ var injectInProgressMark = parser({
     }
 });
 
-var proplistRe = new RegExp('<!-- PROPLIST -->((.|[\n$^])*?)<!-- /PROPLIST -->', 'g');
+var proplistRe = new RegExp('<!-- PROPLIST: (.*) -->((.|[\n$^])*?)<!-- /PROPLIST -->', 'g');
 var injectProplist = parser({
     name: 'inject-proplist',
     func: function(data) {
-        return data.replace(proplistRe, '<div class="proplist">\$1</div>');
+        return data.replace(proplistRe, '<div class="proplist"><span>\$1</span>\$2</div>');
     }
 });
 

@@ -3,6 +3,7 @@ body {
     font-family: "Geneva", "Avenir", "Lucida Grande", sans-serif;
     margin: 30px 50px;
     color: black;
+    background-color: white;
     /*-webkit-font-smoothing: antialiased;*/
 }
 
@@ -296,33 +297,35 @@ div.in-progress span:before {
     max-width: 18%;
     left: 80%;
     font-size: 0.6em;
+    margin: 0 25px;
+}
+
+.proplist > span {
+    background-color: white;
+    border-radius: 3px;
+    padding: 5px;
 }
 
 .proplist ul {
-    list-style-type: circle;
-    /* list-style-type: none; */
+    /* list-style-type: circle; */
+    list-style-type: none;
     margin: 0;
     /* padding: 5px 5px 5px 20px; */
-    padding: 5px;
+    padding: 6px;
 }
 
 .proplist ul li {
     padding: 2px;
+    padding-left: 1em;
+    text-indent: -.7em;
 }
 
 .proplist ul li:before {
-
+    content: '- ';
+    color: crimson;
 }
 
 .proplist ul li code {
     font-weight: bold;
     color: black;
-}
-
-.proplist ul li code:first-child {
-
-}
-
-.proplist ul li code:nth-child(2) {
-
 }

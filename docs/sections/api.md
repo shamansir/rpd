@@ -149,7 +149,7 @@ This method becomes useful when you have some dependent patch you don't want to 
 
 #### `Rpd.nodetype(type, definition)`
 
-<!-- PROPLIST -->
+<!-- PROPLIST: Node Definition -->
 
 * `title`: `string`
 * `inlets`: `object`
@@ -203,7 +203,7 @@ Rpd.nodedescription('docs/foo', 'Used as the example for documentation');
 
 #### `Rpd.channeltype(type, definition)`
 
-<!-- PROPLIST -->
+<!-- PROPLIST: Channel Definition -->
 
 * `label`: `string`
 * `default`: `any`
@@ -255,7 +255,7 @@ Note: When you need more details, head safely to the [Toolkits](./toolkits.html)
 
 #### `Rpd.noderenderer(type, rendererAlias, definition)`
 
-<!-- PROPLIST -->
+<!-- PROPLIST: Node Renderer -->
 
 * `size`: `object { width, height }`
 * `first`: `function(bodyElm) [→ object { <inlet>*: { default, valueOut } }]`
@@ -351,7 +351,7 @@ current Outlets values, including those returned from the `process` handler.
 
 #### `Rpd.channelrenderer(type, rendererAlias, definition)`
 
-<!-- PROPLIST -->
+<!-- PROPLIST: Channel Renderer -->
 
 * `show`: `function(target, value, repr)`
 * `edit`: `function(target, inlet, valueIn) [→ change_stream]`
@@ -522,7 +522,7 @@ Node represents the thing we call procedure in programming: it receives data thr
 
 #### Node Definition
 
-<!-- PROPLIST -->
+<!-- PROPLIST: Node Definition -->
 
 * `title`: `string`
 * `inlets`: `object`
@@ -699,7 +699,7 @@ Inlet is the name for one of the input channels of the node so, when its connect
 
 #### Inlet Definition
 
-<!-- PROPLIST -->
+<!-- PROPLIST: Channel Definition -->
 
 * `label`: `string`
 * `default`: `any`
@@ -860,7 +860,7 @@ Outlet is the output channel of the node.
 
 #### Outlet Definition
 
-<!-- PROPLIST -->
+<!-- PROPLIST: Channel Definition -->
 
 * `label`: `string`
 * `show`: `function`: `(value) → string`
