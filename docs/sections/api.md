@@ -149,6 +149,18 @@ This method becomes useful when you have some dependent patch you don't want to 
 
 #### `Rpd.nodetype(type, definition)`
 
+<!-- PROPLIST -->
+
+* `title`: `string`
+* `inlets`: `object`
+* `outlets`: `object`
+* `prepare`: `function`: `(inlets, outlets) → nothing`
+* `process`: `function`: `(inlets_values, prev_inlets_values) → outlets_values`
+* `tune`: `function`: `(updates_stream) → updates_stream`
+* `handle`: `object`
+
+<!-- /PROPLIST -->
+
 Register a new type of the nodes, so you, or the user, may easily create instances of this type with the help of `patch.addNode` or using some other interface.
 
 So you may define once that all the nodes of your type have two inlets and one outlet, which channel types they have, and how the node processes data, and then create 300 instances of this node type, when you really want.
@@ -157,10 +169,11 @@ NB: Please note that user may in any case extend the instance with own definitio
 
 The new `type` name should be in the form `toolkit/typename`. For example, there could be nodes with the types `util/bang`, `util/color`, `blender/render`, `animatron/player`, `processing/color`, `processing/sketch` etc. Prefer one word for the type name when possible, or join several words with dash symbol `-`, when it's really not.
 
-Then goes the definition, which is described in details in [Node Definition](#node-definition) section. Just note that when you need, you may pass a function to this method, it is very useful when you need to share some objects between definitions, so both examples are valid:
+Then goes the `definition`, which is described in details in [Node Definition](#node-definition) section. Just note that when you need, you may pass a function to this method, it is very useful when you need to share some objects between definitions, so both examples are valid:
 
 ```javascript
 Rpd.nodetype('docs/foo', {
+    title: ...,
     inlets: ...,
     outlets: ...,
     process: ...
@@ -170,6 +183,7 @@ Rpd.nodetype('docs/foo', function() {
     var someSharedVariable;
     var nodeInstance = this;
     return {
+        title: ...,
         inlets: ...,
         outlets: ...,
         process: ...
@@ -177,13 +191,33 @@ Rpd.nodetype('docs/foo', function() {
 });
 ```
 
-When you need information on creating your own toolkits, head safely to the [Toolkits](./toolkits.html) section.
+Note: When you need information on creating your own toolkits, head safely to the [Toolkits](./toolkits.html) section.
 
 #### `Rpd.nodedescription(type, description)`
 
 Any node type can have a literary textual description of what this node does in details. Normally renderer shows it in the node list, next to corresponding node type, when available, and also when user hovers over the title of the node.
 
+```javascript
+Rpd.nodedescription('docs/foo', 'Used as the example for documentation');
+```
+
 #### `Rpd.channeltype(type, definition)`
+
+<!-- PROPLIST -->
+
+* `label`: `string`
+* `default`: `any`
+* `hidden`: `boolean`
+* `cold`: `boolean`
+* `readonly`: `boolean`
+* `allow`: `array[string]`
+* `accept`: `function`: `(value) → boolean`
+* `adapt`: `function`: `(value) → value`
+* `show`: `function`: `(value) → string`
+* `tune`: `function`: `(values_stream) → values_stream`
+* `handle`: `object`
+
+<!-- /PROPLIST -->
 
 Register a new type of a Channel, so you, or the user, may easily create instances of this type with the help of `node.addInlet` or `node.addOutlet`, or using some other interface.
 
@@ -198,13 +232,36 @@ Then goes the definition, which is described in details in [Inlet Definition](#i
 Just note that when you need, you may pass a function to this method, it is very useful when you need to share some objects between definitions, so both examples are valid:
 
 ```javascript
+Rpd.channeltype('docs/foo', {
+    allow: ...,
+    accept: ...,
+    adapt: ...,
+    show: ...
+});
+
+Rpd.channeltype('docs/foo', function() {
+    var someSharedVariable;
+    var channelInstance = this;
+    return {
+        allow: ...,
+        accept: ...,
+        adapt: ...,
+        show: ...
+    };
+});
 ```
 
-When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
-
-May receive both object or function.
+Note: When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
 #### `Rpd.noderenderer(type, rendererAlias, definition)`
+
+<!-- PROPLIST -->
+
+* `size`: `object { width, height }`
+* `first`: `function(bodyElm) [→ object { <inlet>*: { default, valueOut } }]`
+* `always`: `function(bodyElm, inlets, outlets)`
+
+<!-- /PROPLIST -->
 
 Define new Node Renderer for particular Node Type. When you want to have and reuse some Node which is more complex to render than just empty body with inlets or outlets, this method is what you need.
 
@@ -218,18 +275,33 @@ But let's turn from advertisement back to API.
 
 `type` is the type of the node you want to define renderer for.
 
-`rendererAlias` is a name of a Renderer which should already be registered in the system under this alias. Out of the box, there are `'html'` and `'svg'` renderers provided. Though you should ensure [to include Renderer](./setup.html) into your version of RPD before using one of them. Both of them support HTML and SVG DOM Elements, but for latter one the Node body is itself an SVG Element, so you if you want to add HTML Elements there, you need put them into `<foreignelement />` tag before.
+`rendererAlias` is a name of a Renderer which should already be registered in the system under this alias. Out of the box, there are `'html'` and `'svg'` renderers provided. Though you should ensure [to include Renderer](./setup.html) into your version of RPD before using one of them. Both of them support HTML and SVG DOM Elements, but for latter one the Node body is itself an SVG Element, so you if you want to add HTML Elements there, you need put them into `<foreignelement />` tag before, in the `definition`.
 
 May receive both object or function, returning the object, as `definition`. Structure of this object is described below. When it's a function, it receives Node instance as `this`. <!-- check -->
 
 Any property in definition is optional.
 
 ```javascript
+Rpd.noderenderer('docs/foo', 'html', {
+    size: ...,
+    first: ...,
+    always: ...
+});
+
+Rpd.noderenderer('docs/foo', 'html', function() {
+    var someSharedVariable;
+    var nodeInstance = this;
+    return {
+        size: ...,
+        first: ...,
+        always: ...
+    };
+});
 ```
 
 <!-- TODO: it is also possible to override `render` in `patch.addNode` and `node.addInlet/node.addOutlet`, check -->
 
-When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
+Note: When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
 ##### `size` : `object`
 
@@ -279,6 +351,13 @@ current Outlets values, including those returned from the `process` handler.
 
 #### `Rpd.channelrenderer(type, rendererAlias, definition)`
 
+<!-- PROPLIST -->
+
+* `show`: `function(target, value, repr)`
+* `edit`: `function(target, inlet, valueIn) [→ change_stream]`
+
+<!-- /PROPLIST -->
+
 Register a Renderer for a Channel Type.
 
 This allows you to render values which appear near to Inlets and Outlets of particular Channel Type not only as String, but in any kind of visual presentation. For example, you may display a color value as a color box filled with this color, instead of boring variants like `#883456` or `[Some Color]`, near to any Inlet or Outlet having your own `my/color` Channel Type:
@@ -299,7 +378,7 @@ You also may pass a function which returns such object instead, it will help you
 ```javascript
 ```
 
-When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
+Note: When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
 <!-- ##### `prepare` : `function()` -->
 
@@ -443,6 +522,8 @@ Node represents the thing we call procedure in programming: it receives data thr
 
 #### Node Definition
 
+<!-- PROPLIST -->
+
 * `title`: `string`
 * `inlets`: `object`
 * `outlets`: `object`
@@ -450,6 +531,8 @@ Node represents the thing we call procedure in programming: it receives data thr
 * `process`: `function`: `(inlets_values, prev_inlets_values) → outlets_values`
 * `tune`: `function`: `(updates_stream) → updates_stream`
 * `handle`: `object`
+
+<!-- /PROPLIST -->
 
 Definition of the Node is the configuration object used to define
 new Node Type with `Rpd.nodetype` or an object with the same structure, passed to `patch.addNode` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Node Type or a single Node needs its originality, some of the following properties:
@@ -616,6 +699,8 @@ Inlet is the name for one of the input channels of the node so, when its connect
 
 #### Inlet Definition
 
+<!-- PROPLIST -->
+
 * `label`: `string`
 * `default`: `any`
 * `hidden`: `boolean`
@@ -627,6 +712,8 @@ Inlet is the name for one of the input channels of the node so, when its connect
 * `show`: `function`: `(value) → string`
 * `tune`: `function`: `(values_stream) → values_stream`
 * `handle`: `object`
+
+<!-- /PROPLIST -->
 
 Definition of the Inlet is the configuration object used to define
 new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addInlet` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Inlet Type or a single Inlet needs its originality, some of these properties:
@@ -773,10 +860,14 @@ Outlet is the output channel of the node.
 
 #### Outlet Definition
 
+<!-- PROPLIST -->
+
 * `label`: `string`
 * `show`: `function`: `(value) → string`
 * `tune`: `function`: `(values_stream) → values_stream`
 * `handle`: `object`
+
+<!-- /PROPLIST -->
 
 Definition of the Inlet is the configuration object used to define
 new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addOutlet` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Outlet Type or a single Outlet needs its originality, some of these properties:

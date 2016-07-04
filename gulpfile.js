@@ -341,6 +341,14 @@ var injectInProgressMark = parser({
     }
 });
 
+var proplistRe = new RegExp('<!-- PROPLIST -->((.|[\n$^])*?)<!-- /PROPLIST -->', 'g');
+var injectProplist = parser({
+    name: 'inject-proplist',
+    func: function(data) {
+        return data.replace(proplistRe, '<div class="proplist">\$1</div>');
+    }
+});
+
 var renderer = new markdown.marked.Renderer();
 var prevParagraphRender = renderer.paragraph;
 renderer.paragraph = function(text) {
@@ -367,6 +375,7 @@ function makeDocs(config, f) {
                  }))
                  .pipe(injectSvgLogo())
                  .pipe(injectInProgressMark())
+                 .pipe(injectProplist())
                  //.pipe(injectFiddles())
                  //.pipe(injectCodepens())
                  .pipe(layout(function(file) {

@@ -288,3 +288,8 @@ div.in-progress span:before {
 .hljs-comment {
     color: #ccc;
 }
+
+.proplist {
+    background-color: #ccc;
+    border-radius: 3px;
+}
