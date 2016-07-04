@@ -290,6 +290,39 @@ div.in-progress span:before {
 }
 
 .proplist {
-    background-color: #ccc;
+    background-color: #eee;
     border-radius: 3px;
+    position: absolute;
+    max-width: 18%;
+    left: 80%;
+    font-size: 0.6em;
+}
+
+.proplist ul {
+    list-style-type: circle;
+    /* list-style-type: none; */
+    margin: 0;
+    /* padding: 5px 5px 5px 20px; */
+    padding: 5px;
+}
+
+.proplist ul li {
+    padding: 2px;
+}
+
+.proplist ul li:before {
+
+}
+
+.proplist ul li code {
+    font-weight: bold;
+    color: black;
+}
+
+.proplist ul li code:first-child {
+
+}
+
+.proplist ul li code:nth-child(2) {
+
 }
