@@ -154,12 +154,12 @@ This method becomes useful when you have some dependent patch you don't want to 
 <!-- PROPLIST: Node Definition -->
 
 * `title`: `string`
-* `inlets`: `object`
-* `outlets`: `object`
+* `inlets`: `object { <alias>*: inlet_definition }`
+* `outlets`: `object { <alias>*: outlet_definition }`
 * `prepare`: `function`: `(inlets, outlets) → nothing`
 * `process`: `function`: `(inlets_values, prev_inlets_values) → outlets_values`
 * `tune`: `function`: `(updates_stream) → updates_stream`
-* `handle`: `object`
+* `handle`: `object { <event>*: handler }`
 
 <!-- /PROPLIST -->
 
@@ -217,7 +217,7 @@ Rpd.nodedescription('docs/foo', 'Used as the example for documentation');
 * `adapt`: `function`: `(value) → value`
 * `show`: `function`: `(value) → string`
 * `tune`: `function`: `(values_stream) → values_stream`
-* `handle`: `object`
+* `handle`: `object { <event>*: handler }`
 
 <!-- /PROPLIST -->
 
@@ -530,12 +530,12 @@ Node represents the thing we call procedure in programming: it receives data thr
 <!-- PROPLIST: Node Definition -->
 
 * `title`: `string`
-* `inlets`: `object`
-* `outlets`: `object`
+* `inlets`: `object { <alias>*: inlet_definition }`
+* `outlets`: `object { <alias>*: outlet_definition }`
 * `prepare`: `function`: `(inlets, outlets) → nothing`
 * `process`: `function`: `(inlets_values, prev_inlets_values) → outlets_values`
 * `tune`: `function`: `(updates_stream) → updates_stream`
-* `handle`: `object`
+* `handle`: `object { <event>*: handler }`
 
 <!-- /PROPLIST -->
 
@@ -709,7 +709,7 @@ Inlet is the name for one of the input channels of the node so, when its connect
 <!-- PROPLIST: Channel Definition -->
 
 * `label`: `string`
-* `default`: `any`
+* `default`: `any | stream`
 * `hidden`: `boolean`
 * `cold`: `boolean`
 * `readonly`: `boolean`
@@ -718,7 +718,7 @@ Inlet is the name for one of the input channels of the node so, when its connect
 * `adapt`: `function`: `(value) → value`
 * `show`: `function`: `(value) → string`
 * `tune`: `function`: `(values_stream) → values_stream`
-* `handle`: `object`
+* `handle`: `object { <event>*: handler }`
 
 <!-- /PROPLIST -->
 
@@ -874,7 +874,7 @@ Outlet is the output channel of the node.
 * `label`: `string`
 * `show`: `function`: `(value) → string`
 * `tune`: `function`: `(values_stream) → values_stream`
-* `handle`: `object`
+* `handle`: `object { <event>*: handler }`
 
 <!-- /PROPLIST -->
 
