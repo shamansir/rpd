@@ -4,6 +4,7 @@ body {
     margin: 30px 50px;
     color: black;
     background-color: white;
+    font-size: 16px;
     /*-webkit-font-smoothing: antialiased;*/
 }
 
@@ -328,4 +329,20 @@ div.in-progress span:before {
 .proplist ul li code {
     font-weight: bold;
     color: black;
+}
+
+.section-mark {
+    position: absolute;
+    right: 0;
+    min-width: 15%;
+    padding: 0 10px;
+    border-top: 1px dashed crimson;
+    text-align: right;
+    margin: 0 25px;
+    margin-top: 3.5em;
+}
+
+.section-mark span {
+    padding: 0 3px;
+    font-size: 0.8em;
 }

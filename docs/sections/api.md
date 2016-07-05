@@ -101,6 +101,8 @@ Probably you already noticed that naming style in API is different from method t
 * Node or Channel type name: `toolkit/word-or-two`;
 * Property in a Node Definition, Channel Definition or any other Definition: strictly one word, lowercase;
 
+<!-- MARK: Rpd -->
+
 ### `Rpd`
 
 The `Rpd` namespace is a single entry point for your _patch network_, independently on the place where every patch should be rendered. It provides you with the ability to append new patches to your own network and <!-- scurpolously --> control the overall rendering process.
@@ -399,7 +401,6 @@ This function may convert new received value to some renderable element. For exa
 
 NB: Node Types names and Channel Types named may intersect since Node can also represent a single thing which can also be passed through a Channel.
 
-
 ##### `edit` : `function(target, inlet, valueIn) [→ change_stream]`
 
 If you want to let user edit the value not (or _not only_) in the Node body, but also when she clicks the value near to the Inlet, you may use this method to provide her that. <!-- Though it also depends on [the rendering process configuration](./network.html#rendering-configuration), there is an option to disable value editors named ... TODO ? -->. This method is called only for Inlets, not for Outlets, since only input values are allowed to be changed without connections.
@@ -422,6 +423,8 @@ Renderer Definition is completely moved to [Style Section](../style.html#writing
 #### `Rpd.style(alias, rendererAlias, definition)`
 
 Style Definition is completely moved to [Style Section](../style.html#writing-your-own-style), since it doesn't relate to Building Patches.
+
+<!-- MARK: Patch -->
 
 ### `Patch`
 
@@ -515,6 +518,8 @@ Move the canvas of the patch to given position, treated relatively to the root e
 #### `patch.resizeCanvas(width, height)`
 
 Resize the canvas of the patch. This means all the visuals belonging to this patch and happened to be outside of given bounds, become hidden.
+
+<!-- MARK: Node -->
 
 ### `Node`
 
@@ -693,6 +698,8 @@ Turn this node off, so it stops all the processing. This method is useful when y
 Or, could happen, you want to provide user with this nice ability, for example when user clicks somewhere in the body of a node.
 <!-- TODO: Make an issue for this, to be a bulb in the node header -->
 
+<!-- MARK: Inlet -->
+
 ### `Inlet`
 
 Inlet is the name for one of the input channels of the node so, when its connected to something, the data may flow through it _into_ the node processing function from all of them. Inlets are differentiated by their alias, that's why aliases of inlets should be unique inside every node, yet they can be same between two nodes. Inlet is the opposite to Outlet, which allows data to flow _out_ of the node and is described next in this section.
@@ -854,6 +861,8 @@ Force default value to be sent into this inlet, breaking its normal flow. It is 
 
 Check if this inlet allows connections from given outlet. Usually it us done by the renderer <!-- ? --> on connection, but if you want to ensure connection will pass, you may use this method.
 
+<!-- MARK: Outlet -->
+
 ### `Outlet`
 
 Outlet is the output channel of the node.
@@ -933,6 +942,8 @@ Yet, same as with `outlet.send`, value may be declined or modified on the receiv
 
 <!-- #### `outlet.toDefault()` -->
 
+<!-- MARK: Link -->
+
 ### `Link`
 
 Link represents a single connection between Inlet and Outlet <!-- what happens when the connection was declined? -->. By default, one Outlet can be connected to several Inlets, but for Inlets it is not allowed to have more than one incoming connection. This is configurable through `config.inletAcceptsMultipleLinks`, though. `Link` instance is returned from `outlet.connect` method.
@@ -952,6 +963,8 @@ Disable the link temporarily, but the connection actually stays. Practically the
 #### `link.disconnect()`
 
 Remove the connection between given Outlet and Inlet. For ever. Unless new one will be established.
+
+<!-- MARK: modules -->
 
 ### modules
 

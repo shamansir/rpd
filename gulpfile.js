@@ -334,8 +334,8 @@ var injectSvgLogo = parser({
 
 var inProgressRe = new RegExp('<!-- IN PROGRESS -->', 'g');
 var replaceInProgressWith = '<div class="in-progress" text="In Progress."><span>[ In Progress ]</span></div>'
-var injectInProgressMark = parser({
-    name: 'inject-in-progress-mark',
+var injectInProgressLabel = parser({
+    name: 'inject-in-progress-label',
     func: function(data) {
         return data.replace(inProgressRe, replaceInProgressWith);
     }
@@ -346,6 +346,14 @@ var injectProplist = parser({
     name: 'inject-proplist',
     func: function(data) {
         return data.replace(proplistRe, '<div class="proplist"><span>\$1</span>\$2</div>');
+    }
+});
+
+var sectionMarkRe = new RegExp('<!-- MARK: (.*) -->', 'g');
+var injectSectionMark = parser({
+    name: 'inject-section-mark',
+    func: function(data) {
+        return data.replace(sectionMarkRe, '<div class="section-mark"><span>&larr;&nbsp;\$1</span></div>');
     }
 });
 
@@ -374,8 +382,9 @@ function makeDocs(config, f) {
                      }
                  }))
                  .pipe(injectSvgLogo())
-                 .pipe(injectInProgressMark())
+                 .pipe(injectInProgressLabel())
                  .pipe(injectProplist())
+                 .pipe(injectSectionMark())
                  //.pipe(injectFiddles())
                  //.pipe(injectCodepens())
                  .pipe(layout(function(file) {
