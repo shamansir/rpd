@@ -8,69 +8,69 @@ level: 1
 
 When you want to provide user with some existing node network or to load and build it from file (for which there is `io` module), you may use Network Building API with these methods:
 
-* `Rpd`
-    * `Rpd.addPatch(name) → Patch`
-    * `Rpd.addClosedPatch(name) → Patch`
-* `Patch`
-    * `patch.addNode(title[, definition]) → Node`
-    * `patch.removeNode(node)`
-    * `patch.inputs(list)`
-    * `patch.outputs(list)`
-    * `patch.project(node)`
-* `Node`    
-    * `node.addInlet(alias[, definition]) → Inlet`
-    * `node.addOutlet(alias[, definition]) → Outlet`
-    * `node.removeInlet(inlet)`
-    * `node.removeOutlet(outlet)`
-    * `node.turnOn()`
-    * `node.turnOff()`
-* `Inlet`
-    * `inlet.receive(value)`
-    * `inlet.stream(stream)`
-    * `inlet.toDefault()`
-    * `inlet.allows(outlet) → boolean`
-* `Outlet`    
-    * `outlet.connect(inlet) → Link`
-    * `outlet.disconnect(link)`
-    * `outlet.send(value)`
-    * `outlet.stream(stream)`
-* `Link`
-    * `link.pass(value)`
-    * `link.enable()`
-    * `link.disable()`
-    * `link.disconnect()`
+* [`Rpd`](#rpd)
+    * [`Rpd.addPatch(name) → Patch`](#rpd-addpatch)
+    * [`Rpd.addClosedPatch(name) → Patch`](#rpd-addclosedpatch)
+* [`Patch`](#patch)
+    * [`patch.addNode(title[, definition]) → Node`](#patch-addnode)
+    * [`patch.removeNode(node)`](#patch-removenode)
+    * [`patch.inputs(list)`](#patch-inputs)
+    * [`patch.outputs(list)`](#patch-outputs)
+    * [`patch.project(node)`](#patch-project)
+* [`Node`](#node)
+    * [`node.addInlet(alias[, definition]) → Inlet`](#node-addinlet)
+    * [`node.addOutlet(alias[, definition]) → Outlet`](#node-addoutlet)
+    * [`node.removeInlet(inlet)`](#node-removeinlet)
+    * [`node.removeOutlet(outlet)`](#node-removeoutlet)
+    * [`node.turnOn()`](#node-turnon)
+    * [`node.turnOff()`](#node-turnoff)
+* [`Inlet`](#inlet)
+    * [`inlet.receive(value)`](#inlet-receive)
+    * [`inlet.stream(stream)`](#inlet-stream)
+    * [`inlet.toDefault()`](#inlet-todefault)
+    * [`inlet.allows(outlet) → boolean`](#inlet-allows)
+* [`Outlet`](#outlet)
+    * [`outlet.connect(inlet) → Link`](#outlet-connect)
+    * [`outlet.disconnect(link)`](#outlet-disconnect)
+    * [`outlet.send(value)`](#outlet-send)
+    * [`outlet.stream(stream)`](#outlet-stream)
+* [`Link`](#link)
+    * [`link.pass(value)`](#link-pass)
+    * [`link.enable()`](#link-enable)
+    * [`link.disable()`](#link-disable)
+    * [`link.disconnect()`](#link-disconnect)
 
 To control the rendering queue, you may use these methods:
 
-* `Rpd`
-    * `Rpd.renderNext(renderers, targets, config)`
-    * `Rpd.stopRendering()`
-* `Patch`
-    * `patch.render(renderers, targets, config)`
-    * `patch.open()`
-    * `patch.close()`
-    * `patch.moveCanvas(x, y)`
-    * `patch.resizeCanvas(width, height)`
-* `Node`
-    * `node.move(x, y)`    
+* [`Rpd`](#rpd)
+    * [`Rpd.renderNext(renderers, targets, config)`](#rpd-rendernext)
+    * [`Rpd.stopRendering()`](#rpd-stoprendering)
+* [`Patch`](#patch)
+    * [`patch.render(renderers, targets, config)`](#patch-render)
+    * [`patch.open()`](#patch-open)
+    * [`patch.close()`](#patch-close)
+    * [`patch.moveCanvas(x, y)`](#patch-movecanvas)
+    * [`patch.resizeCanvas(width, height)`](#patch-resizecanvas)
+* [`Node`](#node)
+    * [`node.move(x, y)`](#node-move)    
 
 When you want to build your own toolkit, you may decide to register your node & channel types and renderers using these methods:
 
-* `Rpd`
-    * [`Rpd.nodetype(type, definition)`](#)
-    * `Rpd.channeltype(type, definition)`    
-    * `Rpd.noderenderer(type, alias, definition)`        
-    * `Rpd.channelrenderer(type, alias, definition)`
-    * `Rpd.nodedescription(type, description)`
+* [`Rpd`](#rpd)
+    * [`Rpd.nodetype(type, definition)`](#rpd-nodetype)
+    * [`Rpd.channeltype(type, definition)`](#rpd-channeltype)
+    * [`Rpd.noderenderer(type, alias, definition)`](#rpd-noderenderer)
+    * [`Rpd.channelrenderer(type, alias, definition)`](#rpd-channelrenderer)
+    * [`Rpd.nodedescription(type, description)`](#rpd-nodedescription)
 
 <!-- * `Rpd.toolkiticon(toolkit, icon)` -->
 <!-- * `Rpd.nodetypeicon(toolkit, icon)` -->
 
 These methods will help you in creating your own styles or even renderers:
 
-* `Rpd`
-    * `Rpd.style(name, renderer, style)`
-    * `Rpd.renderer(alias, renderer)`
+* [`Rpd`](#rpd)
+    * [`Rpd.style(name, renderer, style)`](#rpd-style)
+    * [`Rpd.renderer(alias, renderer)`](#rpd-renderer)
 
 <!-- TODO: global `Rpd` object properties -->
 
