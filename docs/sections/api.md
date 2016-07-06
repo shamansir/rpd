@@ -79,8 +79,8 @@ To define node type or channel type, to configure some particular node or channe
 * [Node Definition](#node-definition)
 * [Inlet Definition](#inlet-definition)
 * [Outlet Definition](#outlet-definition)
-* [Node Renderer Definition](#node-renderer-definition)
-* [Channel Renderer Definition](#channel-renderer-definition)
+* [Node Renderer Definition](#rpd-noderenderer)
+* [Channel Renderer Definition](#rpd-channelrenderer)
 
 ### Core types
 

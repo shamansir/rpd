@@ -363,6 +363,20 @@ renderer.paragraph = function(text) {
     return prevParagraphRender(checkNewLines(text));
 }
 
+var prevHeadingRender = renderer.heading;
+renderer.heading = function(text, level) {
+    if ((text.indexOf('<code>') >= 0) && (level <= 4)) {
+        var strippedText = text.replace('<code>', '').replace('</code>', '');
+        var firstBracketIdx = strippedText.indexOf('(');
+        if (firstBracketIdx < 0) { firstBracketIdx = strippedText.length; }
+        return '<h' + level + ' id="'
+                    + strippedText.slice(0, firstBracketIdx).replace(/[\s\.]/g, '-').toLowerCase() + '">'
+                    + text + '</h' + level + '>';
+    } else {
+        return prevHeadingRender.apply(renderer, arguments);
+    }
+}
+
 function makeDocs(config, f) {
     var result = gulp.src('./docs/**/*.md');
     if (f) result = f(result);
