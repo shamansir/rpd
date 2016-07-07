@@ -13,6 +13,7 @@ RPD with default options can be downloaded here:
 
 You'll also need [Kefir.js][kefir], since RPD code is based on Reactive Streams, which it provides.
 ​
+
 But default options restrict your choice, while RPD provides truly a lot more. See [Compilation](#Compilation) section below for details. And you are surely safe to transfer your network code to use it with other options, if you already have one, the only requirement could be is to change few string values.
 ​
 ### Setup

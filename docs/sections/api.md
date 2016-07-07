@@ -320,6 +320,28 @@ This handler is called once, just before the Node is ready to process incoming d
 Use this handler to prepare the Node body, i.e. append required DOM (or whichever, it depends on the Renderer) elements there. When you use the form of the function to define `Rpd.noderenderer`, you may safely save these elements in the closure to use them in `always` handler.
 
 ```javascript
+Rpd.noderenderer('docs/recipe', 'html', {
+    first: function(bodyElm) {
+        var recipeText = '...';
+        var spanElement = document.createElement('span');
+        spanElement.innerText = recipeText;
+        bodyElm.appendChild(spanElement);
+    }
+});
+
+Rpd.noderenderer('docs/color', 'html', function() {
+    var colorElement;
+    return {
+        first: function(bodyElm) {
+            var colorElement = document.createElement('span');
+            colorElement.style.backgroundColor = 'transparent';
+            bodyElm.appendChild(colorElement);
+        },
+        always: function(inlets) {
+            colorElement.style.backgroundColor = '(' +  inlets.r + ',' + inlets.g + ',' inlets.b + ')';
+        }
+    };
+});
 ```
 
 This function may optionally return the object which allows to attach default values or streams of the values to the existing inlets. <!-- #354 --> It is very useful when you want to have some complex control (or several ones) in the Node body, so you add control there and pass its changes [Stream][kefir] (for example, `'change'` event) to an existing hidden inlet.
@@ -332,9 +354,17 @@ And, second, you may specify `'valueOut'` [Stream][kefir], which should emit new
 
 What `bodyElm` is, depends on the Renderer you use for rendering. For example, for `'html'` Renderer it is HTML Element and for `'svg'` renderer it is SVG Element, correspondingly.
 
-NB: It is highly recommended not to change `bodyElm` attributes or especially remove it from the flow. In most cases adding children to it will satisfy all your needs. It is not the strict law, however — don't feel like someone prevents you — you're grown ups, you know when you may break some ~~rules~~ HTML Elements.
+NB: It is highly recommended not to change `bodyElm` attributes or especially remove it from the flow. In most cases adding DOM children to it will satisfy all your needs. It is not the strict law, however — don't feel like someone prevents you — you're grown-ups, you know when you may break some ~~rules~~ HTML Elements.
 
 ```javascript
+// sends random number to the hidden inlet when link inside the node body was clicked
+
+Rpd.nodetype('docs/random-on-click', function() {
+
+});
+
+Rpd.noderenderer('docs/', 'html', function() {
+});
 ```
 
 NB: The `valueOut` and `default` functionality is discussable, please follow [Issue #354](https://github.com/shamansir/rpd/issues/354) if you want to keep track on changes, if they come, or feel free to add comments if you have any suggestions on how to improve it.
@@ -582,7 +612,7 @@ Receives Node instance as `this`.
 
 ##### `process`: `function`: `(inlets_values, prev_inlets_values) → outlets_values`
 
-The `process` handler is the main function, the really important one for the Node Type definition. This function is triggered on every update appeared on any of the inlets and converts the data received through inlets to the data which is required to be sent to outlets. For example, `util/*` node, designed to multiply two numbers and send the result out, has a definition like this:
+The `process` handler is the main function, the really important one for the Node Type definition. This function is triggered on every update appeared on any of the inlets and converts the data received through inlets to the data which is required to be sent to outlets. For example, `util` node, designed to multiply two numbers and send the result out, has a definition like this:
 
 ```javascript
 Rpd.nodetype('util/*', {
