@@ -359,8 +359,16 @@ NB: It is highly recommended not to change `bodyElm` attributes or especially re
 ```javascript
 // sends random number to the hidden inlet when link inside the node body was clicked
 
-Rpd.nodetype('docs/random-on-click', function() {
-
+Rpd.nodetype('docs/random-on-click', {
+    inlets: {
+        'click': { type: 'core/any', hidden: true }
+    },
+    outlets: {
+        'out': { type: 'util/number' }
+    },
+    process: function(inlets) {
+        if (inlets.click) return { out: Math.random() };
+    }
 });
 
 Rpd.noderenderer('docs/', 'html', function() {
