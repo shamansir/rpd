@@ -357,7 +357,7 @@ What `bodyElm` is, depends on the Renderer you use for rendering. For example, f
 NB: It is highly recommended not to change `bodyElm` attributes or especially remove it from the flow. In most cases adding DOM children to it will satisfy all your needs. It is not the strict law, however — don't feel like someone prevents you — you're grown-ups, you know when you may break some ~~rules~~ HTML Elements.
 
 ```javascript
-// sends random number to the hidden inlet when link inside the node body was clicked
+// sends random number to a hidden inlet immediately after a link inside the Node body was clicked
 
 Rpd.nodetype('docs/random-on-click', {
     inlets: {
@@ -371,7 +371,16 @@ Rpd.nodetype('docs/random-on-click', {
     }
 });
 
-Rpd.noderenderer('docs/', 'html', function() {
+Rpd.noderenderer('docs/random-on-click', 'html', {
+    first: function(bodyElm) {
+        var clickElm = document.createElement('a');
+        clickElm.href = '#';
+        clickElm.innerText = 'Click Me!';
+        bodyElm.appendChild(clickElm);
+        return {
+            'click': Kefir.fromEvents(clickElm, 'click')
+        }
+    }
 });
 ```
 
@@ -387,6 +396,32 @@ So you may apply/render all the new updates immediately after the moment they ha
 current Outlets values, including those returned from the `process` handler.
 
 ```javascript
+// see `docs/random-on-click` Node type definition in previous example,
+// this is a slightly modified version which also displays the generated
+// random number inside node body
+Rpd.noderenderer('docs/random-on-click', 'html', function() {
+    var numberElm;
+    return {
+        first: function(bodyElm) {
+
+            var clickElm = document.createElement('a');
+            clickElm.href = '#';
+            clickElm.innerText = 'Click Me!';
+            bodyElm.appendChild(clickElm);
+
+            numberElm = document.createElement('span');
+            numberElm.innerText = '<?>';
+            bodyElm.appendChild(numberElm);
+
+            return {
+                'click': Kefir.fromEvents(clickElm, 'click')
+            };
+        },
+        always: function(bodyElm, inlets, outlets) {
+            numberElm.innerText = outlets.out;
+        }
+    };
+});
 ```
 
 #### `Rpd.channelrenderer(type, rendererAlias, definition)`
