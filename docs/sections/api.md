@@ -438,6 +438,17 @@ Register a Renderer for a Channel Type.
 This allows you to render values which appear near to Inlets and Outlets of particular Channel Type not only as String, but in any kind of visual presentation. For example, you may display a color value as a color box filled with this color, instead of boring variants like `#883456` or `[Some Color]`, near to any Inlet or Outlet having your own `my/color` Channel Type:
 
 ```javascript
+Rpd.channetype('docs/color', {});
+
+Rpd.channelrenderer('docs/color', 'html', {
+    show: function(target, value) {
+        var colorElm = document.createElement('span');
+        colorElm.style.height = '30px';
+        colorElm.style.width = '30px';
+        colorElm.style.backgroundColor = 'rgb(' + value.r + ',' + value.g + value.b + ');';
+        target.appendChild(colorElm);
+    }
+});
 ```
 
 This method may receive either object following the structure described below, or function which returns object of same structure. It is helpful when you need to share some data to reuse in all methods using a closure.
@@ -451,6 +462,19 @@ This method may receive either object following the structure described below, o
 You also may pass a function which returns such object instead, it will help you to store shared variables in the closure. When you do so, this function receives Channel instance as `this`.
 
 ```javascript
+Rpd.channelrenderer('docs/foo', 'html', {
+    show: ...,
+    edit: ...
+});
+
+Rpd.channelrenderer('docs/foo', 'html', function() {
+    var someSharedVariable;
+    var nodeInstance = this;
+    return {
+        show: ...,
+        edit: ...
+    };
+});
 ```
 
 Note: When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
@@ -459,9 +483,33 @@ Note: When you need more details, head safely to the [Toolkits](./toolkits.html)
 
 ##### `show` : `function(target, value, repr)`
 
-This function may convert new received value to some renderable element. For example, `util/color` Channel Renderer, creates a `<span>` element with background of this color for HTML, and `rect` element filled with this color, for SVG:
+This function may convert new received value to some renderable element. For example, you may define `my/vector` Channel type which renders as the direction this vector points to, in SVG:
 
 ```javascript
+Rpd.channeltype('docs/vector', {});
+
+var SVG_XMLNS = 'http://www.w3.org/2000/svg';
+var radius = 7;
+Rpd.channelrenderer('docs/vector', 'svg', {
+    show: function(target, value) {
+        var circle = document.createElementNS(SVG_XMLNS, 'circle');
+        circle.setAttributeNS(null, 'cx', 0);
+        circle.setAttributeNS(null, 'cy', 0);
+        circle.setAttributeNS(null, 'r', radius);
+        circle.setAttributeNS(null, 'fill', 'white');
+        circle.setAttributeNS(null, 'stroke', 'black')
+        circle.setAttributeNS(null, 'strokeWidth', 1);
+        var line = document.createElementNS(SVG_XMLNS, 'line');
+        line.setAttributeNS(null, 'x1', 0);
+        line.setAttributeNS(null, 'y1', 0);
+        line.setAttributeNS(null, 'x2', Math.cos(value.angle) * radius);
+        line.setAttributeNS(null, 'y2', Math.sin(value.angle) * radius * -1);
+        line.setAttributeNS(null, 'stroke', 'black');
+        line.setAttributeNS(null, 'strokeWidth', 1);
+        target.appendChild(circle);
+        target.appendChild(line);
+    }
+});
 ```
 
 <!-- TODO: do this -->
@@ -487,6 +535,20 @@ If you want to let user edit the value not (or _not only_) in the Node body, but
 The function should return a [stream][kefir] of outgoing values, so every time user selects or confirms some value, it should be passed to this stream.
 
 ```javascript
+Rpd.channelrenderer('docs/color', 'html', {
+    show: function(target, value) {
+        // see `show` code above
+    },
+    edit: function(target, inlet, valueIn) {
+        var input = document.createElement('input');
+        input.type = 'text';
+        valueIn.onValue(function(value) {
+            input.value = colorToText(value);
+        });
+        target.appendChild(input);
+        return Kefir.fromEvents(input, 'change').map(textToColor);
+    }
+});
 ```
 
 #### `Rpd.renderer(alias, definition)`
