@@ -417,7 +417,7 @@ function makeDocs(config, f) {
 }
 
 gulp.task('docs-clean-dir', function() {
-    return del([ './docs/compiled/assets/**/*', './docs/compiled/**/*' ]);
+    return del([ './docs/compiled/assets/**/*', './docs/compiled/examples/**/*', './docs/compiled/**/*' ]);
 });
 
 gulp.task('docs-copy-dependencies', function() {
@@ -454,6 +454,11 @@ gulp.task('docs-copy-assets', function() {
                .pipe(gulp.dest('./docs/compiled/assets'));
 });
 
+gulp.task('docs-copy-examples', function() {
+    return gulp.src([ './examples/*.*' ])
+               .pipe(gulp.dest('./docs/compiled/examples'));
+});
+
 gulp.task('docs-copy-root-assets', function() {
     return gulp.src(['./docs/*.js', './docs/*.css', './docs/*.svg', './docs/*.ico'])
                .pipe(gulp.dest('./docs/compiled/'));
@@ -467,7 +472,7 @@ gulp.task('docs-copy-highlight-css', function() {
 
 gulp.task('docs', [ 'docs-clean-dir', 'docs-copy-dependencies',
                     'docs-copy-root-assets', 'docs-copy-assets',
-                    'docs-copy-highlight-css' ], function() {
+                    'docs-copy-examples', 'docs-copy-highlight-css' ], function() {
 
     //var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
@@ -476,7 +481,8 @@ gulp.task('docs', [ 'docs-clean-dir', 'docs-copy-dependencies',
     return result;
 });
 
-gulp.task('docs-watch', ['docs-copy-dependencies', 'docs-copy-assets', 'docs-copy-highlight-css'], function() {
+gulp.task('docs-watch', [ 'docs-copy-dependencies', 'docs-copy-assets',
+                          'docs-copy-examples', 'docs-copy-highlight-css'], function() {
     //var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
     return makeDocs(config, function(result) {

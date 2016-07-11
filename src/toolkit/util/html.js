@@ -2,7 +2,7 @@
 
 Rpd.channelrenderer('util/boolean', 'html', {
     /* show: function(target, value) { }, */
-    edit: function(target, inlet, valueIn) {
+    /* edit: function(target, inlet, valueIn) {
         var valInput = document.createElement('input');
         valInput.type = 'checkbox';
         valueIn.onValue(function(val) {
@@ -13,7 +13,7 @@ Rpd.channelrenderer('util/boolean', 'html', {
                     .map(function() {
                         return valInput.checked;
                     }).toProperty(function() { return false; });
-    }
+    } */
 });
 
 Rpd.channelrenderer('util/number', 'html', {
