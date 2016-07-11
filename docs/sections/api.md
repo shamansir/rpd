@@ -139,13 +139,17 @@ Stop all the rendering processes, running for the moment. Even if other RPD meth
 
 #### `Rpd.addPatch([title], [definition]) → Patch`
 
-Adds new patch to the network. Patch is a container for a set of nodes and connections between them. Every patch added this way is _opened_ by default, which means that it is rendered right away, and reacts immediately to every following change. You may set a patch title here and, also optionally, define handlers for the [events happening inside](./events.md#Patch), this way:
+Adds new Patch to the Network. Patch is a container for a set of nodes and connections between them. Every Patch added this way is _opened_ by default, which means that it is rendered right away, and reacts immediately to every following change. You may set a patch title here and, also optionally, define handlers for the [events happening inside](./events.md#Patch), this way:
 
 #### `Rpd.addClosedPatch(title, [definition]) → Patch`
 
-Adds new patch to the network almost the same way as `addPatch` above, but this patch is closed when you add it, so you need to explicitly call its `open()` method when you want this patch to render.
+Adds new Patch to the Network almost the same way as `addPatch` above, but this patch is _closed_ when you add it, so you need to explicitly call its [`open()`](#patch-open) method when you want this patch to render.
 
-This method becomes useful when you have some dependent patch you don't want to be displayed until requested. This type of patches I'd recommend to call _Procedure Patch_, which is, unlike the _Root Patch_, treated as secondary.
+Patch may exist in two conditions: _opened_ — when you, as a user, observe all the events happening inside, new nodes appear, links connect, data flows, and everything is visually in motion, and _closed_ — when you, as a user, see nothing, but all the rendering yet happens somewhere in background. When you switch some Patch from closed state to an opened one, it shows everything happened before in the target you assigned, and vice versa.
+
+It becomes useful when you have a Network of Patches and you want to show some while hiding others. In another words, you have some dependent Patch you don't want to be displayed until requested. This type of patches I'd recommend to call _Procedure Patch_, which is, unlike the _Root Patch_, treated as secondary.
+
+All the Patches are opened by default. So to add initially closed patch, use this exact method (`Rpd.addClosedPatch`) or use [`patch.close()`](#patch-close), when you want to close it later.
 
 <!-- IN PROGRESS -->
 
@@ -579,10 +583,28 @@ Render this Patch with given Renderers, to given target elements, with provided 
 
 `conf` is the rendering configuration, described in details in [Network section](./network.html#rendering-configuration). It allows you to select Style of the Nodes and configure a lot of other useful things.
 
-```javascript
+```html
+<body>
+    <div id="target-1"></div>
+    <div id="target-2"></div>
+    <div id="target-3"></div>
+</body>
 ```
 
-<!-- TODO: on opened and closed Patches -->
+```javascript
+var patchOne = Rpd.addPatch('FirstPatch')
+                  .render('svg', [ 'target-1', 'target-2' ], {
+                      style: 'compact-v',
+                      linkForm: 'curve'
+                  });
+var patchTwo = Rpd.addPatch('SecondPatch')
+                  .render([ 'html', 'svg' ], 'target-3', {
+                      style: 'quartz',
+                      linkForm: 'line'
+                  });                  
+```
+
+NB: Note that _closed_ Patches are not rendered immediately, unlike _opened_ ones. To get more details on _opening_ and _closing_ Patches, see [Rpd.addClosedPatch()](#rpd-addclosedpatch) description.
 
 #### `patch.addNode(type, title, [definition]) → Node`
 
@@ -622,37 +644,86 @@ Remove the previously added node, just pass the one you need no more.
 
 #### `patch.open()`
 
-Opening the patch triggers it to be put into the rendering flow, so it listens for all the following actions and renders them accordingly. If patch yet has no canvas to be drawn onto, engine adds this canvas to the root element before.
+Opening the Patch triggers it to be put into the rendering flow, so it listens for all the following actions and renders them accordingly. If Patch yet has no canvas to be drawn onto, engine adds this canvas to the root element before.
 
-All the patches are opened by default, unless they were added with `Rpd.addClosedPatch` method.
+All the Patches are opened by default, unless they were added with [`Rpd.addClosedPatch`](#rpd-addclosedpatch) method.
 
-Opening and closing patches helps when you have a complex network and you want to isolate some parts of it by moving them in the background. So, you may add the patches you want to hide with `Rpd.addClosedPatch` and open them later (or not open them at all). Also, you may create a special node which refers to some closed patch, passes data inside and then takes the processed data in return. Then, if you want, you may add a button to this node, which, in its turn, opens this closed patch. This approach is decscribed in details together with the `patch.project(node)` method below.
+Opening and closing Patches helps when you have a complex network and you want to isolate some parts of it by moving them in the background. So, you may add the patches you want to hide with[`Rpd.addClosedPatch`](#rpd-addclosedpatch) and open them later (or not open them at all). Also, you may create a special Node which refers to some closed Patch, passes data inside and then takes the processed data in return. Then, if you want, you may add a button to this node, which, in its turn, opens this, currently closed, Patch. This approach is described in details together with the [`patch.project(node)`](#patch-project) method below.
 
 #### `patch.close()`
 
-Closing the patch means that the canvas of this patch is hidden and moved to the background, so user sees no process happening there. Currently the rendering still goes there, yet staying invinsible, but in the future versions it meant to be cached and reduced to the latest changes before opening instead.
+Closing the Patch means that the canvas of this Patch is hidden and moved to the background, so user sees no process happening there. Currently the rendering still goes there, yet staying invisible, but in the future versions it meant to be cached and reduced to the latest changes before opening instead.
 
 #### `patch.project(node)`
 
 Make given node to visually represent current patch<!-- projectOn, projectTo, referenceWith ?-->. It is expected, but not required, for this node to be located in another patch. <!-- TODO: test -->
 
-It helps a lot when you have some complex network with a single large patch and so you probably want to group some nodes and reference them in another patch, while making invisible what happens inside. By _projecting_ a patch into the node, with the help of `patch.inputs` and `patch.outputs`, you can "pack" any part of the network in one single node, and, optionally, let user to take a look inside or even edit, reconnect or rearrange the internals.
+It helps a lot when you have some complex network with a single large patch and so you probably want to group some nodes and reference them in another patch, while making invisible what happens inside. By _projecting_ a patch into the node, with the help of [`patch.inputs`](#patch-inputs) and [`patch.outputs`](#patch-outputs), you can "pack" any part of the network in one single node, and, optionally, let user to take a look inside or even edit, reconnect or rearrange the internals.
+
+```javascript
+Rpd.renderNext('html', document.body, {
+    fullPage: true;
+});
+
+// Prepare Root patch
+
+var rootPatch = Rpd.addPatch('Root');
+
+var genANode = rootPatch.addNode('core/basic', 'Generate A');
+var genAOutlet = genANode.addOutlet('util/number', 'A');
+genAOutlet.send(3);
+
+var genBNode = rootPatch.addNode('core/basic', 'Generate B');
+var genBOutlet = genA.addOutlet('util/number', 'B');
+genBOutlet.send(1);
+
+var rootSumOfThreeNode = rootPatch.addNode('util/sum-of-three', 'foo')
+rootSumOfThreeNode.addInlet('util/number', 'D');
+rootSumOfThreeNode.addInlet('util/number', 'E');
+rootSumOfThreeNode.addOutlet('util/number', 'F');
+
+// Prepare Procedure Patch
+
+var sumPatch = Rpd.addClosedPatch('Sum Procedure');
+
+var sumOfThree1Node = sumPatch.addNode('util/sum-of-three', 'Sum1');
+var in1AInlet = sumOfThree1Node.inlets['a'];
+var in1BInlet = sumOfThree1Node.inlets['b'];
+var sum1Outlet = sumOfThree1Node.outlets['sum'];
+
+var sumOfThree2Node = sumPatch.addNode('util/sum-of-three', 'Sum2');
+var in2AInlet = sumOfThree2Node.inlets['a'];
+var sum2Outlet = sumOfThree2Node.outlets['sum'];
+
+sum1Outlet.connect(in2AInlet);
+
+sumPatch.inputs([ in1AInlet, in1BInlet ]);
+sumPatch.outputs([ sum1Outlet, sum2Outlet ]);
+
+var projectionNode = rootPatch.addNode('core/reference', '[Sum Patch]');
+sumPatch.project(projectionNode);
+
+outAOutlet.connect(projectionNode.inlets['a']);
+outBOutlet.connect(rootSumOfThreeNode.inlets['a']);
+outBOutlet.connect(rootSumOfThreeNode.inlets['b']);
+rootSumOfThreeNode.outlets['sum'].connect(projectionNode.inlets['b']);
+```
 
 #### `patch.inputs(inlets)`
 
-Specify which inlets, no matter from one or different nodes, are the global inputs of this patch. See description of the `patch.project` for details.
+Specify which inlets, no matter from one or different nodes, are the global inputs of this patch. See description of the [`patch.project`](#patch-project) for details.
 
 #### `patch.outputs(outlets)`
 
-Specify which outlets, no matter from one or different nodes, are the global outputs of this patch. See description of the `patch.project` for details.
+Specify which outlets, no matter from one or different nodes, are the global outputs of this patch. See description of the [`patch.project`](#patch-project) for details.
 
 #### `patch.moveCanvas(x, y)`
 
-Move the canvas of the patch to given position, treated relatively to the root element's top left corner.
+Move the canvas of the patch to given position, treated relatively to the root element's top left corner. Both parameters are just numbers, treated as pixels for `html` rendering, and as units, for `svg` rendering.
 
 #### `patch.resizeCanvas(width, height)`
 
-Resize the canvas of the patch. This means all the visuals belonging to this patch and happened to be outside of given bounds, become hidden.
+Resize the canvas of the patch. This means all the visuals belonging to this patch and happened to be outside of given bounds, become hidden. Both parameters are just numbers, treated as pixels for `html` rendering, and as units, for `svg` rendering.
 
 <!-- MARK: Node -->
 
@@ -715,6 +786,9 @@ NB: `prepare` function is called only when node has `process` handler.
 
 Receives Node instance as `this`.
 
+```javascript
+```
+
 ##### `process`: `function`: `(inlets_values, prev_inlets_values) → outlets_values`
 
 The `process` handler is the main function, the really important one for the Node Type definition. This function is triggered on every update appeared on any of the inlets and converts the data received through inlets to the data which is required to be sent to outlets. For example, `util` node, designed to multiply two numbers and send the result out, has a definition like this:
@@ -737,16 +811,22 @@ Another important thing to notice is that you may return [Kefir Stream][kefir] a
 Sometimes you may want to trigger `process` function manually with some new data, but you don't want to send it through user inlet. Adding hidden inlet for your internal data is a common trick often used even in Toolkits provided with RPD distribution:
 
 ```javascript
-Rpd.nodetype('util/bang', {
-    inlets: { 'trigger': { type: 'util/bang', hidden: true } },
-    outlets: { 'out': { type: 'util/bang' } },
+Rpd.channeltype('docs/bang', {
+    adapt: function(value) {
+        return (typeof value !== 'undefined') ? {} : null;
+    }
+});
+
+Rpd.nodetype('docs/bang', {
+    inlets: { 'trigger': { type: 'docs/bang', hidden: true } },
+    outlets: { 'out': { type: 'docs/bang' } },
     process: function(inlets) {
         return inlets.trigger ? { 'out': {} } : {};
     }
 });
 ```
 
-Sometimes it is important to know which inlet received the value first and which received its own value later. For example, when node has some input in a body, its updated value is usually sent to hidden inlet, but also user has some visible inlet in the same node to use it when she wants ti override this value from other node. Then we should know, which value came first, from user or from controller inside, so to rewrite controller value only in the first case. `util/timestamped` Channel Type wraps any incoming value with timestamp and will solve all your problems in this case: <!-- TODO: implement -->
+Sometimes it is important to know which Inlet received the value first and which received its own value later. For example, when Node has some input in a body, its updated value is usually sent to hidden Inlet, but also some visible Inlet in the same node is provided to the user so she'll able to use it, when she wants to override this value from another node. For this reason we should know, which value came first, from user or from controller inside, so to rewrite controller value only in the first case. For example `util/timestamped` Channel Type wraps any incoming value with timestamp. Let's implement a similar functionality which will will help us to solve the problem in this case:
 
 ```javascript
 ```
@@ -790,7 +870,7 @@ An example:
 
 #### `node.addInlet(type, alias, [definition]) → Inlet`
 
-Add the input channel to this node, so it will be able to receive data and pass this data inside the node. You need to specify the type of this channel, so the system will know which way to process your data before passing it inside, or even decline connections from other types of channels. `core/any` is the system type which accepts connections from outlets of any type, so probably for start you'd want to use it. Later, though, it could be better to change it to something more specific, i.e. decide that it accepts only numbers or colors values. This will allow you to control the way data in this channel is displayed or even add custom _value editor_ to this channel.
+Add the input channel to this node, so it will be able to receive data and pass this data inside the node. You need to specify the type of this channel, so the system will know which way to process your data before passing it inside, or even decline connections from other types of channels. `core/any` is the system type which accepts connections from outlets of any type, so probably for start you'd want to use it. Later, though, it could be better to change it to something more specific, i.e. decide that it accepts only numbers or colors values. This will allow you to control the way data in this channel is displayed or even add [custom _value editor_](#rpd-channelrenderer) to this channel.
 
 The second argument, `alias`, is the label of this channel displayed to user and also may be used to access this inlet from inside the node, so it's recommended to make it one-word and start from lowercase letter, like the key names you normally use for JavaScript objects. There is another form of this method, `addInlet(type, alias, label, [definition])`, using which you may specify user-friendly name to display in UI with `label` attribute, and still use short programmer-friendly `alias` to access this inlet from the code.
 

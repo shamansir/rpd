@@ -267,7 +267,7 @@ return {
                         )).attr('class', 'rpd-link');
         return { element: linkElm.node(),
                  rotate: function(x0, y0, x1, y1) {
-                     if (!config.linkForm) {
+                     if (!config.linkForm || (config.linkForm == 'line')) {
                          linkElm.attr('x1', x0).attr('y1', y0)
                                 .attr('x2', x1).attr('y2', y1);
                      } else if (config.linkForm == 'curve') {

@@ -64,7 +64,7 @@ Options passed to `renderNext` or `patch.render` could belong to one particular 
 * `fullPage` — (`false`) if `true`, network takes the full page, so the target element will be resized to match browser window size when it was resized by user;
 * `nodeMovingAllowed` — (`true`) are nodes allowed to be dragged or should they be immovable;
 * `inletAcceptsMultipleLinks` — (`false`) could several outlets connect to the same inlet;
-* `linkForm` — (`'line'`) connect inlets to outlets with straight lines or nice curves (set to `'curve'`), curves could not be rendered with HTML renderer, also only certain styles support them (_quartz_, _compact_, _compact-v_);
+* `linkForm` — (`'line'`) connect inlets to outlets with straight lines or nice curves (set to `'curve'`), curves could not be rendered with HTML renderer, also only certain styles support them (_`quartz`_, _`compact`_, _`compact-v`_); _`black-white`_ is the only style that supports `pipe` form of the link;
 * `valuesOnHover` — (`false`) show inlet/outlet value only when user hovers over its connector (values are always shown, by default);
 * `closeParent` — (`false`) when user opens a projected sub-patch, automatically close its parent patch;
 * `effectTime` — (`1000`) milliseconds to show the value update effect on the connector

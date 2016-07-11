@@ -53,6 +53,15 @@ Rpd.channeltype('util/bang', {
 
 Rpd.channeltype('util/color', { show: toHexColor });
 
+Rpd.channeltype('util/timestamped', {
+    adapt: function(value) {
+        return {
+            value: value,
+            timestamp: new Date().getTime()
+        }
+    }
+});
+
 Rpd.nodetype('util/number', {
     title: 'number',
     inlets:  { 'user-value': { type: 'util/number', default: 0, hidden: true } },
