@@ -300,6 +300,45 @@ Rpd.nodetype('util/÷', {
     process: function(inlets) { return { 'out': (inlets.a || 0) / (inlets.b || 0) }; }
 });
 
+Rpd.nodetype('util/mod', {
+    title: '%',
+    inlets: { 'a': { type: 'util/number' },
+              'b': { type: 'util/number' } },
+    outlets: { 'out': { type: 'util/number' } },
+    process: function(inlets) { return { 'out': (inlets.a || 0) % (inlets.b || 0) }; }
+});
+
+Rpd.nodetype('util/mouse-pos', {
+    title: 'mouse',
+    inlets: {
+        'x': { type: 'util/number', hidden: true, 'default': 0 },
+        'y': { type: 'util/number', hidden: true, 'default': 0 }
+    },
+    outlets: {
+        'x': { type: 'util/number' },
+        'y': { type: 'util/number' }
+    },
+    process: function(inlets) { return inlets; }
+});
+
+Rpd.nodetype('util/mouse-pos-by-bang', {
+    title: 'mouse + bang',
+    inlets: {
+        'bang': { type: 'util/bang' },
+        'x': { type: 'util/number', hidden: true, 'default': 0, cold: true },
+        'y': { type: 'util/number', hidden: true, 'default': 0, cold: true }
+    },
+    outlets: {
+        'x': { type: 'util/number' },
+        'y': { type: 'util/number' }
+    },
+    process: function(inlets) {
+        //if (inlets.bang) {
+            return { x: inlets.x, y: inlets.y };
+        //};
+    }
+});
+
 /* var howMuchColors = howMuch('color', 'colors');
 Rpd.channeltype('util/palette', { show: function(val) { return howMuchColors(val.colors); } });
 Rpd.channeltype('util/palettes', {});
@@ -323,15 +362,17 @@ Rpd.nodetype('util/palette', {
 Rpd.nodedescription('util/nodelist', 'Add any node to active patch by type');
 Rpd.nodetype('util/nodelist', { title: 'add nodes' });
 
-Rpd.nodetypeicon('util/number',   '🔢'); // 'ℕ'
-Rpd.nodetypeicon('util/log',      '🗒');
-Rpd.nodetypeicon('util/nodelist', '📃');
-Rpd.nodetypeicon('util/knob',     '🎛');
-Rpd.nodetypeicon('util/knobs',    '🎛');
-Rpd.nodetypeicon('util/color',    '🏮');
-Rpd.nodetypeicon('util/bang',     '⊙');
-Rpd.nodetypeicon('util/metro',    '⊚');
-Rpd.nodetypeicon('util/empty',    '∅');
+Rpd.nodetypeicon('util/number',    '🔢'); // 'ℕ'
+Rpd.nodetypeicon('util/log',       '🗒');
+Rpd.nodetypeicon('util/nodelist',  '📃');
+Rpd.nodetypeicon('util/knob',      '🎛');
+Rpd.nodetypeicon('util/knobs',     '🎛');
+Rpd.nodetypeicon('util/color',     '🏮');
+Rpd.nodetypeicon('util/bang',      '⊙');
+Rpd.nodetypeicon('util/metro',     '⊚');
+Rpd.nodetypeicon('util/empty',     '∅');
+Rpd.nodetypeicon('util/mouse-pos', '🖱');
+Rpd.nodetypeicon('util/mouse-pos-by-bang', '🖱');
 //Rpd.nodetypeicon('util/random',   '≟');
 //Rpd.nodetypeicon('util/bounded-number', '⩫');
 //Rpd.nodetypeicon('util/sum-of-three', '∑');

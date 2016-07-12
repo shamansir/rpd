@@ -10,6 +10,8 @@ var d3 = d3 || d3_tiny;
 function svgNode(name) { return document.createElementNS(d3.ns.prefix.svg, name); }
 function htmlNode(name) { return document.createElementNS(d3.ns.prefix.html, name); }
 
+// FIXME: some nodes below are written with d3 / d3_tiny usage, some are not
+
 /* ========================= util/number ========================= */
 
 Rpd.channelrenderer('util/number', 'svg', {
@@ -365,6 +367,54 @@ Rpd.noderenderer('util/color', 'svg', function() {
         }
     }
 });
+
+/* ========================= util/mouse-pos[-by-bang] ========================= */
+
+// define separately to use for both `util/mouse-pos` and `util/mouse-pos-by-bang`
+function mousePosNodeRenderer() {
+    var radius = 20;
+    var dirLine, dirCircle, posText, center;
+    var xPosStream = Kefir.fromEvents(document.body, 'mousemove').throttle(16).map(function(evt) { return evt.x; });
+    var yPosStream = Kefir.fromEvents(document.body, 'mousemove').throttle(16).map(function(evt) { return evt.y; });
+    return {
+        size: { width: radius * 2 + 10, height: radius * 2 + 10 },
+        first: function(bodyElm) {
+            var dirGroup = svgNode('g');
+            dirCircle = svgNode('circle');
+            dirLine = svgNode('line');
+            posText = svgNode('text');
+
+            dirLine.setAttributeNS(null, 'x1', 0);
+            dirLine.setAttributeNS(null, 'y1', 0);
+            dirLine.setAttributeNS(null, 'x2', 0);
+            dirLine.setAttributeNS(null, 'y2', -radius);
+            //dirLine.setAttributeNS(null, 'strokeWidth', 1);
+
+            dirCircle.setAttributeNS(null, 'r', radius);
+
+            dirGroup.appendChild(dirCircle);
+            dirGroup.appendChild(dirLine);
+            bodyElm.appendChild(dirGroup);
+            bodyElm.appendChild(posText);
+
+            return {
+                x: { 'default': 0, valueOut: xPosStream },
+                y: { 'default': 0, valueOut: yPosStream }
+            }
+        },
+        always: function(bodyElm, inlets, outlets) {
+            center = dirCircle.getBoundingClientRect();
+            var angle = Math.atan2(inlets.y - (center.top + radius),
+                                   inlets.x - (center.left + radius));
+            dirLine.setAttributeNS(null, 'x2', Math.cos(angle) * radius);
+            dirLine.setAttributeNS(null, 'y2', Math.sin(angle) * radius);
+            posText.innerHTML = posText.innerText = '<' + inlets.x + ':' + inlets.y + '>';
+        }
+    }
+}
+
+Rpd.noderenderer('util/mouse-pos', 'svg', mousePosNodeRenderer);
+Rpd.noderenderer('util/mouse-pos-by-bang', 'svg', mousePosNodeRenderer);
 
 /* ========================= util/nodelist ========================= */
 

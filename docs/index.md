@@ -61,7 +61,7 @@ randomGenNode.inlets['max'].receive(26); // set maximum value of the generated n
 var logRandomNode = patch.addNode('util/log', 'Log').move(210, 60);
 randomGenNode.outlets['out'].connect(logRandomNode.inlets['what']);
 
-// define the type of the node which multiplies the incoming value on two
+// define the type of the node which multiplies the incoming value by two
 var multiplyTwoNode = patch.addNode('core/basic', '* 2', {
     process: function(inlets) {
         return {
