@@ -38,35 +38,41 @@ function applyCodeExample1() {
 }
 
 function applyCodeExample2() {
-    Rpd.renderNext('svg', document.getElementById('example-two'),
-                   { style: 'compact-v' });
+    /* ============== Coordinates Channel Type ============== */
 
-    var patch = Rpd.addPatch('Generate Canvas Shapes').resizeCanvas(800, 180);
-
-    Rpd.channeltype('my/vector', {
+    Rpd.channeltype('my/coords', {
       show: function(val) {
+        // nicely show a received pair of coordinates, floored to an integer
       	return '<' + Math.floor(val.x) + ':' + Math.floor(val.y) + '>';
       }
     });
 
-    Rpd.nodetype('my/vector', {
+    /* ============== Coordinates Node Type ============== */
+
+    Rpd.nodetype('my/coords', {
       inlets: {
         x: { type: 'util/number', default: 0 },
         y: { type: 'util/number', default: 0 }
       },
       outlets: {
-        out: { type: 'my/vector' }
+        out: { type: 'my/coords' }
       },
+      // joins received `x` and `y` into one object
       process: function(inlets) {
         return { out: { x: inlets.x, y: inlets.y } };
       }
     });
 
+    //* ============== Angle (radians) Channel Type ============== */
+
     Rpd.channeltype('my/angle', {
-      allow: [ 'util/number '],
+      allow: [ 'util/number '], // outlets of `util/number` type are allowed to be
+                                // connected to inlets of `my/angle` type
       accept: function(v) { return (v >= 0) && (v <= 360); },
       show: function(v) { return v + '˚'; }
     });
+
+    /* ============== Canvas-driven Scene Node Type ============== */
 
     var defaultConfig = {
       count: 7,
@@ -78,15 +84,17 @@ function applyCodeExample2() {
 
     Rpd.nodetype('my/scene', {
       inlets: {
-        from: { type: 'util/color', default: defaultConfig.from },
-        to: { type: 'util/color', default: defaultConfig.to },
-        count: { type: 'util/number', default: defaultConfig.count,
+        from: { type: 'util/color', 'default': defaultConfig.from },
+        to: { type: 'util/color', 'default': defaultConfig.to },
+        count: { type: 'util/number', 'default': defaultConfig.count,
                  adapt: function(v) { return Math.floor(v); } },
-        shift: { type: 'my/vector', default: defaultConfig.shift },
-        rotate: { type: 'my/angle', default: defaultConfig.rotate },
+        shift: { type: 'my/coords', 'default': defaultConfig.shift },
+        rotate: { type: 'my/angle', 'default': defaultConfig.rotate },
       },
       process: function() {}
     });
+
+    /* ============== Renderer for Canvas-driven Scene ============== */
 
     var SVG_XMLNS = 'http://www.w3.org/2000/svg';
 
@@ -102,6 +110,7 @@ function applyCodeExample2() {
       var lastCount = 0;
       var config = defaultConfig;
 
+      // function to render current state of the scene using requestAnimationFrame
       function draw() {
         if (context) {
           context.save();
@@ -123,10 +132,12 @@ function applyCodeExample2() {
       }
       requestAnimationFrame(draw);
 
+      // return actual renderer definition
       return {
         size: { width: width + 10, height: height + 10 },
         pivot: { x: 0, y: 0 },
 
+        // on creation, add canvas to the node body
         first: function(bodyElm) {
           var group = document.createElementNS(SVG_XMLNS, 'g');
           group.setAttributeNS(null, 'transform', 'translate(5, 5)');
@@ -142,6 +153,7 @@ function applyCodeExample2() {
           context = canvas.getContext('2d');
         },
 
+        // update config values using values from inlets
         always: function(bodyElm, inlets) {
           if (!isNaN(inlets.count) && (inlets.count != lastCount)) {
             particles = [];
@@ -159,25 +171,38 @@ function applyCodeExample2() {
       };
     });
 
+    /* ============== Patch Structure ============== */
+
+    Rpd.renderNext('svg', document.getElementById('example-two'),
+                   { style: 'compact-v' });
+
+    var patch = Rpd.addPatch('Generate Canvas Shapes').resizeCanvas(800, 205);
+
     var scene = patch.addNode('my/scene').move(570, 5);
     var color1 = patch.addNode('util/color').move(120, 5);
     var color2 = patch.addNode('util/color').move(100, 80);
-    var vec = patch.addNode('my/vector').move(305, 90);
+    var coords = patch.addNode('my/coords').move(305, 90);
     var knob1 = patch.addNode('util/knob').move(25, 5);
     var knob2 = patch.addNode('util/knob').move(490, 110);
     var knob3 = patch.addNode('util/knob').move(210, 105);
     var knob4 = patch.addNode('util/knob').move(400, 110);
+    var mouse = patch.addNode('util/mouse-pos').move(0, 70);
+    var modulus = patch.addNode('util/mod').move(20, 150);
+    var comment = patch.addNode('util/comment').move(80, 100);
 
     knob1.inlets['max'].receive(255);
     knob2.inlets['max'].receive(180);
     knob4.inlets['max'].receive(15);
-    vec.inlets['x'].receive(25);
+    coords.inlets['x'].receive(25);
+    modulus.inlets['b'].receive(255);
+    comment.inlets['text'].receive('Try to connect "%" node output to "my/coords" node or one of the "color" nodes')
 
     knob1.outlets['number'].connect(color1.inlets['r']);
-    knob3.outlets['number'].connect(vec.inlets['y']);
+    knob3.outlets['number'].connect(coords.inlets['y']);
     color1.outlets['color'].connect(scene.inlets['from']);
     color2.outlets['color'].connect(scene.inlets['to']);
-    vec.outlets['out'].connect(scene.inlets['shift']);
+    coords.outlets['out'].connect(scene.inlets['shift']);
+    mouse.outlets['x'].connect(modulus.inlets['a']);
 }
 
 applyCodeExample1();

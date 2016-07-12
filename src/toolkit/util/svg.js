@@ -248,7 +248,7 @@ function createKnob(state) {
                      handGhost.style('visibility', 'visible');
                      var values =
                         Kefir.fromEvents(document.body, 'mousemove')
-                            //.throttle(50)
+                             //.throttle(16)
                              .takeUntilBy(Kefir.fromEvents(document.body, 'mouseup'))
                              .map(stopPropagation)
                              .map(function(event) {
@@ -403,6 +403,7 @@ function mousePosNodeRenderer() {
             }
         },
         always: function(bodyElm, inlets, outlets) {
+            if (Number.isNaN(inlets.x) || Number.isNaN(inlets.x)) return;
             center = dirCircle.getBoundingClientRect();
             var angle = Math.atan2(inlets.y - (center.top + radius),
                                    inlets.x - (center.left + radius));
