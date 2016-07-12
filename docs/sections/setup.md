@@ -27,7 +27,8 @@ To use either downloaded or compiled version of RPD, you need to include three f
         <meta charset="utf-8" />
 
         <!-- Compiled CSS file, it includes rendering and style-dependent
-             rules (both Renderer and Style selected at compilation stage are  listed in the top lines of this file) -->
+             rules (both Renderer and Style selected at compilation stage are
+             listed in the top lines of this file) -->
         <link rel="stylesheet"
               href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css">
         </link>
@@ -59,9 +60,28 @@ For the local version, paths would be `./dist/rpd.css`, `./vendor/kefir.min.js` 
 To test if it works and see it in action, add the target `div` to the `body` and some code to the bottom of the page:
 ​
 ```html
-<body>
-​   
-</body>
+<div id="target"></div>
+
+<script>
+    Rpd.renderNext('html', document.getElementById('target'),
+                   { style: 'quartz' });
+
+    var root = Rpd.addPatch('root').resizeCanvas(600, 600);
+
+    var metro1 = root.addNode('util/metro', 'Metro A').move(40, 20);
+    var metro2 = root.addNode('util/metro', 'Metro B');
+
+    var genA = root.addNode('util/random', 'Generate A');
+    var genB = root.addNode('util/random', 'Generate B');
+
+    var sum = root.addNode('util/+', 'Sum');
+
+    genA.outlets['out'].connect(sum.inlets['a']);
+    genB.outlets['out'].connect(sum.inlets['b']);
+
+    metro1.outlets['out'].connect(genA.inlets['bang']);
+    metro2.outlets['out'].connect(genB.inlets['bang']);
+</script>
 ```
 
 Detailed instructions on constructing your own Patch Network you may find [in the Network section](./network.html).

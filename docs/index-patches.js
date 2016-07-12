@@ -195,7 +195,7 @@ function applyCodeExample2() {
     knob4.inlets['max'].receive(15);
     coords.inlets['x'].receive(25);
     modulus.inlets['b'].receive(255);
-    comment.inlets['text'].receive('Try to connect "%" node output to "my/coords" node or one of the "color" nodes')
+    comment.inlets['text'].receive('Try to connect "%" node output to inlet of "my/coords" node or one of the "color" nodes')
 
     knob1.outlets['number'].connect(color1.inlets['r']);
     knob3.outlets['number'].connect(coords.inlets['y']);
