@@ -472,6 +472,7 @@ Inlet.prototype.toDefault = function() {
     return this;
 }
 Inlet.prototype.allows = function(outlet) {
+    if (this.type === 'core/any') return true;
     if (outlet.type === this.type) return true;
     if (!this.def.allow && (outlet.type !== this.type)) return false;
     if (this.def.allow) {

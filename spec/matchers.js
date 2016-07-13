@@ -89,7 +89,7 @@
                         gotError = firedError;
                     });
                     actual();
-                    result.pass = gotError && util.equals(gotError, jasmine.objectContaining({ type: expected }), customEqualityTesters);
+                    result.pass = gotError && util.equals(gotError.type, expected, customEqualityTesters);
                     result.message = 'Expected error ' + (expected || 'Unknown') + (result.pass ? ' not' : '') +
                                     ' to be fired, but ' + (gotError ? gotError.type : 'nothing') + ' was catched';
                     return result;

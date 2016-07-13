@@ -403,7 +403,7 @@ describe('building: inlet', function() {
 
     });
 
-    xdescribe('allowed connections', function() {
+    describe('allowing connections', function() {
 
         it('inlets do not accept connection from other types of outlets by default', function() {
             Rpd.channeltype('docs/foo', {});
@@ -418,7 +418,7 @@ describe('building: inlet', function() {
                     barInlet = node.addInlet('core/bar', 'bar');
 
                     fooOutlet.connect(barInlet);
-                }).toReportError('outler/error');
+                }).toReportError('outlet/error');
             });
 
             withNewPatch(function(patch, updateSpy) {
@@ -430,7 +430,7 @@ describe('building: inlet', function() {
                     fooInlet = node.addInlet('docs/foo', 'foo');
 
                     barOutlet.connect(fooInlet);
-                }).toReportError('ffff');
+                }).toReportError('outlet/error');
             });
         });
 
@@ -458,7 +458,7 @@ describe('building: inlet', function() {
                     fooOutlet = node.addOutlet('docs/foo', 'foo');
 
                     var node = patch.addNode('core/basic')
-                    fooInlet = node.addInlet('core/foo', 'foo');
+                    fooInlet = node.addInlet('docs/foo', 'foo');
 
                     fooOutlet.connect(fooInlet);
                 }).not.toReportAnyError();

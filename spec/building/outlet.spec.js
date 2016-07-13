@@ -292,4 +292,35 @@ describe('building: outlet', function() {
 
     });
 
+    it('outlet of core/any type is not allowed to connect other types of inlets', function() {
+
+        Rpd.channeltype('docs/foo', {});
+        Rpd.channeltype('docs/bar', {});
+
+        withNewPatch(function(patch, updateSpy) {
+            expect(function() {
+                var node = patch.addNode('core/basic')
+                anyOutlet = node.addOutlet('core/any', 'any');
+
+                var node = patch.addNode('core/basic')
+                fooInlet = node.addInlet('docs/foo', 'foo');
+
+                anyOutlet.connect(fooInlet);
+            }).toReportError('outlet/error');
+        });
+
+        withNewPatch(function(patch, updateSpy) {
+            expect(function() {
+                var node = patch.addNode('core/basic')
+                anyOutlet = node.addOutlet('core/any', 'any');
+
+                var node = patch.addNode('core/basic')
+                barInlet = node.addInlet('docs/bar', 'bar');
+
+                anyOutlet.connect(barInlet);
+            }).toReportError('outlet/error');
+        });
+
+    });
+
 });
