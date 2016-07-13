@@ -179,7 +179,7 @@ More details on building Patch Networks by yourself, you may find on [the corres
 | `compact`     | <span class="positive">✔</span> | <span class="positive">✔</span> | Horizontal  | Nodes made as tiny as possible, small fonts, navy feel; unlike `pd` Style, has vertical headers on the left side of the Node |
 | `compact-v`   | <span class="negative">✘</span> | <span class="positive">✔</span> | Vertical    | Same as `compact`, but vertical variant and has headers |
 | `black-white` | <span class="negative">✘</span> | <span class="positive">✔</span> | Vertical    | Black and White style looking like some schema from an 80's computer book |
-| `blender`     | <span class="negative">✘</span> | <span class="positive">✔</span> | Vertical    | Style, almost completely looking like [Blender]() [Material Editor]() |
+| `blender`     | <span class="negative">✘</span> | <span class="positive">✔</span> | Vertical    | Style, almost completely looking like [Blender](http://blender.org) [Material Editor](https://www.blender.org/manual/render/blender_render/materials/nodes/index.html) |
 | `webpd`       | <span class="negative">✘</span> | <span class="positive">✔</span> | Horizontal  | Nice-looking sandy style with no headers, but a drag handle on the left side of the node |
 
 ### Toolkits and Renderers

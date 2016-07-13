@@ -44,12 +44,12 @@
             "title": "API",
             "path": "sections/api.html",
             "subsections": {
-                "-rpd-": "Rpd",
-                "-patch-": "Patch",
-                "-node-": "Node",
-                "-inlet-": "Inlet",
-                "-outlet-": "Outlet",
-                "-link-": "Link",
+                "rpd": "Rpd",
+                "patch": "Patch",
+                "node": "Node",
+                "inlet": "Inlet",
+                "outlet": "Outlet",
+                "link": "Link",
                 "modules": "Modules"
             }
         },
