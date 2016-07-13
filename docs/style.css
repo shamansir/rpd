@@ -347,35 +347,58 @@ div.in-progress span:before {
     font-size: 0.8em;
 }
 
-.rpd-docs-examples article > ul {
+body.rpd-docs-examples article > ul {
     list-style-type: none;
     margin: 30px 0;
     padding: 0;
 }
 
-.rpd-docs-examples article > ul > li {
+body.rpd-docs-examples article > ul > li {
     padding: 5px;
     margin: 10px;
     border: 1px solid black;
     float: left;
 }
 
-.rpd-docs-examples article > ul > li:hover {
+body.rpd-docs-examples article > ul > li:hover {
     border: 1px solid crimson;
     opacity: 0.8;
 }
 
-.rpd-docs-examples article > ul > li span {
+body.rpd-docs-examples article > ul > li span {
     display: block;
     font-size: 0.6em;
     text-align: center;
     font-weight: bold;
 }
 
-.rpd-docs-examples article > ul > li img {
+body.rpd-docs-examples article > ul > li img {
     width: 250px;
 }
 
-.rpd-docs-examples footer {
+body.rpd-docs-examples footer {
     clear: both;
+}
+
+body.rpd-docs-setup table {
+    font-size: 0.8em;
+    border: none;
+}
+
+body.rpd-docs-setup table td,
+body.rpd-docs-setup table th {
+    padding: 1px 5px;
+}
+
+body.rpd-docs-setup table thead {
+    text-align: left;
+    color: cadetblue;
+}
+
+body.rpd-docs-setup table span.positive {
+    color: darkgreen;
+}
+
+body.rpd-docs-setup table span.negative {
+    color: crimson;
 }
