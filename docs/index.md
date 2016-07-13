@@ -169,9 +169,12 @@ Rpd.noderenderer('my/scene', 'svg', function() {
       context.fillStyle = '#000';
       particles.forEach(function(particle, i) {
         context.fillStyle = 'rgb(' +
-          Math.floor(lerp(config.from.r, config.to.r, 1 / (particles.length - 1) * i)) + ',' +
-          Math.floor(lerp(config.from.g, config.to.g, 1 / (particles.length - 1) * i)) + ',' +
-          Math.floor(lerp(config.from.b, config.to.b, 1 / (particles.length - 1) * i)) + ')';
+          Math.floor(lerp(config.from.r, config.to.r,
+                          1 / (particles.length - 1) * i)) + ',' +
+          Math.floor(lerp(config.from.g, config.to.g,
+                          1 / (particles.length - 1) * i)) + ',' +
+          Math.floor(lerp(config.from.b, config.to.b,
+                          1 / (particles.length - 1) * i)) + ')';
         context.fillRect(0, 0, 15, 15);
         context.translate(config.shift.x, config.shift.y);
         context.rotate(config.rotate * Math.PI / 180);
@@ -245,7 +248,8 @@ knob2.inlets['max'].receive(180);
 knob4.inlets['max'].receive(15);
 coords.inlets['x'].receive(25);
 modulus.inlets['b'].receive(255);
-comment.inlets['text'].receive('Try to connect "%" node output to inlet of "my/coords" node or one of the "color" nodes')
+comment.inlets['text'].receive('Try to connect "%" node output' +
+    + ' to inlet of "my/coords" node or one of the "color" nodes');
 
 knob1.outlets['number'].connect(color1.inlets['r']);
 knob3.outlets['number'].connect(coords.inlets['y']);

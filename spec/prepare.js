@@ -37,6 +37,7 @@ beforeEach(function() {
         toHaveBeenCalledOnce: RpdMatchers.toHaveBeenCalledOnce,
         toHaveBeenCalledTwice: RpdMatchers.toHaveBeenCalledTwice,
         toHaveBeenCalledTimes: RpdMatchers.toHaveBeenCalledTimes,
-        toReportError: RpdMatchers.toReportError
+        toReportError: RpdMatchers.toReportError,
+        toReportAnyError: RpdMatchers.toReportAnyError
     });
 });

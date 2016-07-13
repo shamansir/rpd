@@ -223,8 +223,8 @@ describe('building: outlet', function() {
 
             expect(function() { fooOutlet.connect(barInlet); }).toReportError('outlet/error');
             expect(function() { barOutlet.connect(fooInlet); }).toReportError('outlet/error');
-            expect(function() { fooOutlet.connect(fooInlet); }).not.toReportError();
-            expect(function() { barOutlet.connect(barInlet); }).not.toReportError();
+            expect(function() { fooOutlet.connect(fooInlet); }).not.toReportAnyError();
+            expect(function() { barOutlet.connect(barInlet); }).not.toReportAnyError();
 
         });
     });
@@ -280,6 +280,16 @@ describe('building: outlet', function() {
 
     xit('allows to substitute/extend renderer', function() {
         // i#311
+    });
+
+    it('core/any outlet type exists', function() {
+
+        withNewPatch(function(patch, updateSpy) {
+            expect(function() {
+                patch.addNode('core/basic').addOutlet('core/any', 'foo');
+            }).not.toReportAnyError();
+        });
+
     });
 
 });

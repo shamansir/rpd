@@ -30,7 +30,7 @@ describe('building: patch', function() {
         expect(function() {
             Rpd.addPatch();
             Rpd.addPatch();
-        }).not.toReportError();
+        }).not.toReportAnyError();
     });
 
     it('provides access to inner events', function() {

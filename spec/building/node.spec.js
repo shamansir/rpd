@@ -8,12 +8,11 @@ describe('building: node', function() {
         }).toReportError('node/error');
     });
 
-
     it('does not requires a title to be set', function() {
         withNewPatch(function(patch, updateSpy) {
             expect(function() {
                 patch.addNode('spec/empty');
-            }).not.toReportError();
+            }).not.toReportAnyError();
         });
     });
 
@@ -169,6 +168,16 @@ describe('building: node', function() {
                         inlet: inlet
                     }));
             });
+        });
+
+    });
+
+    it('core/basic node type exists', function() {
+
+        withNewPatch(function(patch, updateSpy) {
+            expect(function() {
+                patch.addNode('core/basic');
+            }).not.toReportAnyError();
         });
 
     });
