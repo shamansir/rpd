@@ -60,28 +60,30 @@ For the local version, paths would be `./dist/rpd.css`, `./vendor/kefir.min.js` 
 To test if it works and see it in action, add the target `div` to the `body` and some code to the bottom of the page:
 ​
 ```html
-<div id="target"></div>
+<body style="margin: 0;">
+    <div id="target"></div>
 
-<script>
-    Rpd.renderNext('html', document.getElementById('target'),
-                   { style: 'quartz' });
+    <script>
+        Rpd.renderNext('html', document.getElementById('target'),
+                       { style: 'quartz' });
 
-    var root = Rpd.addPatch('root').resizeCanvas(600, 600);
+        var root = Rpd.addPatch('root').resizeCanvas(800, 400);
 
-    var metro1 = root.addNode('util/metro', 'Metro A').move(40, 20);
-    var metro2 = root.addNode('util/metro', 'Metro B');
+        var metro1 = root.addNode('util/metro', 'Metro A').move(40, 20);
+        var metro2 = root.addNode('util/metro', 'Metro B').move(40, 120);
 
-    var genA = root.addNode('util/random', 'Generate A');
-    var genB = root.addNode('util/random', 'Generate B');
+        var genA = root.addNode('util/random', 'Generate A').move(300, 10);
+        var genB = root.addNode('util/random', 'Generate B').move(300, 160);
 
-    var sum = root.addNode('util/+', 'Sum');
+        var sum = root.addNode('util/+', 'Sum').move(520, 80);
 
-    genA.outlets['out'].connect(sum.inlets['a']);
-    genB.outlets['out'].connect(sum.inlets['b']);
+        genA.outlets['out'].connect(sum.inlets['a']);
+        genB.outlets['out'].connect(sum.inlets['b']);
 
-    metro1.outlets['out'].connect(genA.inlets['bang']);
-    metro2.outlets['out'].connect(genB.inlets['bang']);
-</script>
+        metro1.outlets['out'].connect(genA.inlets['bang']);
+        metro2.outlets['out'].connect(genB.inlets['bang']);
+    </script>
+</body>    
 ```
 
 Detailed instructions on constructing your own Patch Network you may find [in the Network section](./network.html).

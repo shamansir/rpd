@@ -113,7 +113,6 @@ VLink.prototype.update = function() {
     if (!this.link) return;
     var link = this.link;
     this.rotateOI(link.outlet, link.inlet);
-    var style = this.style;
     return this;
 }
 VLink.prototype.appendTo = function(target) {
