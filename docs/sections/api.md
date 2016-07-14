@@ -1041,7 +1041,7 @@ var burritoOutlet = burritoFactoryNode.addOutlet('docs/burrito', 'burrito', {
     show: function(burrito) {
         var wrapped = Array.isArray(burrito);
         if (wrapped) {
-            return '[Burrito] ' + (burrito[0].guacamole ? '+$1.80' : '');
+            return '[ Burrito ' + (burrito[0].guacamole ? '+$1.80' : '') + ' ]';
         } else {
             return 'Burrito' + (burrito.guacamole ? '+$1.80' : '')
         }
@@ -1071,23 +1071,33 @@ You can discover the complete list of the properties which could be used in this
 
 Remove specified inlet from the node. Node stops receiving any updates sent to this inlet and so removes this inlet from its data flow.
 
+```javascript
+// works with example from `node.addInlet(...)`
+frozenYoghurtFactoryNode.removeInlet(toppingInlet);
+```
+
 #### `node.removeOutlet(outlet)`
 
 Remove specified outlet from the node. Node stops sending any values passed to this outlet and so removes this outlet from its data flow.
 
+```javascript
+// works with example from `node.addOutlet(...)`
+burritoFactoryNode.removeOutlet(burritoOutlet);
+```
+
 #### `node.move(x, y)`
 
-Move this node to specified position relatively to the top left corner of the canvas of the patch it belongs to.
+Move this Node to the specified position relatively to the top left corner of the canvas of the Patch it belongs to. `x` and `y` are just numbers, while they could be treated differently by every renderer.
 
 #### `node.turnOn()`
 
-Turn this node on, so it processes all the incoming updates and sends values further, if it has inputs and outputs. By default nodes are always turned on.
+Turn this Node on, so it processes all the incoming updates and sends values further, if it has inputs and outputs. By default Nodes are always turned on.
 
 #### `node.turnOff()`
 
-Turn this node off, so it stops all the processing. This method is useful when your node has a lot of connections and you don't want to disconnect or disable them one by one, but to quickly turn them off at once and to have the ability to turn them back on, same way, all at once.
+Turn this Node off, so it stops all the processing. This method is useful when your Node has a lot of connections and you don't want to disconnect or disable them one by one, but to quickly turn them off at once and to have the ability to turn them back on, same way, all at once. <!-- TODO: text -->
 
-Or, could happen, you want to provide user with this nice ability, for example when user clicks somewhere in the body of a node.
+<!-- Or, could happen, you may decide to provide user with this nice ability to turn everything off and on, for example when user clicks something located in the body of a node. -->
 <!-- TODO: Make an issue for this, to be a bulb in the node header -->
 
 <!-- MARK: Inlet -->
