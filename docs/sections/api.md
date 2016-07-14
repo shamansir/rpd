@@ -936,12 +936,26 @@ Receives Node instance as `this`.
 
 ##### `handle`: `object`
 
-This object allows you to subscribe to any event this Node produces. _Key_ in this object is the event name, and _value_ is the handler. See [Events](#) section for the complete list of the events.
+This object allows you to subscribe to any event this Node produces. _Key_ in this object is the event name, and _value_ is the handler. See [Events](./events.html) section for the complete list of the events.
 
 An example:
 
-
 ```javascript
+Rpd.nodetype('docs/handle-events', {
+    inlets: { 'in': { type: 'util/number' } },
+    outlets: { 'out': { type: 'util/number' } },
+    handle: {
+        'node/move': function(event) {
+            console.log(event);
+        },
+        'node/add-inlet': function(event) {
+            console.log(event);
+        },
+        'inlet/update': function(event) {
+            console.log(event);
+        }
+    }
+});
 ```
 
 ----
@@ -954,7 +968,35 @@ The second argument, `alias`, is the label of this channel displayed to user and
 
 Last argument, `definition`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Inlet](#Inlet) <!-- or Rpd.channeltype? --> section below.
 
-By default, inlets accept connection only from one outlet, so when user connects some other outlet to this inlet, the previous connection, if it existed, is immediately and automatically removed. Though, you can pass an option to the renderer named `inletsAcceptMultipleLinks` and set it to `true`, so multiple connections will be available to user and inlets will receive values from all the outlets connected in order they were fired. <!-- FIXME: check if it works and consider #336 -->
+```javascript
+Rpd.channeltype('docs/topping', {});
+Rpd.channeltype('docs/cone', {});
+Rpd.channeltype('docs/taste', {});
+Rpd.channeltype('docs/size', {
+    show: function(value) { return '#' + value }
+});
+Rpd.channeltype('docs/yoghurt', {});
+
+var frozenYoghurtFactoryNode = patch.addNode('core/basic', 'Frozen Yoghurt', {
+    process: function(inlets) { return { yoghurt: inlets } };
+});
+var toppingInlet = frozenYoghurtFactoryNode.addInlet('docs/topping', 'topping');
+var coneInlet = frozenYoghurtFactoryNode.addInlet('docs/cone', 'cone');
+var tasteInlet = frozenYoghurtFactoryNode.addInlet('docs/taste', 'taste');
+var sizeInlet = frozenYoghurtFactoryNode.addInlet('docs/size', 'size', {
+    allow: [ 'util/number' ],
+    accept: function(size) { return (size > 0) && (size <= 4); },
+    adapt: function(value) { return Math.floor(value); }
+});
+var yoghurtOutlet = frozenYoghurtFactoryNode.addOutlet('docs/yoghurt', 'yoghurt');
+
+var knob = patch.addNode('util/knob');
+knob.inlets['min'].receive(1);
+knob.inlets['max'].receive(4);
+knob.outlets['number'].connect(sizeInlet);
+```
+
+By default, inlets accept connection only from one outlet, so when user connects some other outlet to this inlet, the previous connection, if it existed, is immediately and automatically removed. Though, you can pass an option to the renderer named `inletsAcceptMultipleLinks` and set it to `true`, so multiple connections will be available to user and inlets will receive values from all the outlets connected in order they were fired. <!-- FIXME: check if it is really so and consider #336 -->
 
 You can discover the complete list of the properties which could be used in this definition if you follow to [Inlet Definition](#inlet-definition) section.
 
@@ -965,6 +1007,63 @@ Add the output channel to this node, so it will be able to send data to the inle
 Also, you need to specify `alias`, to be able to access this outlet from the code using this `alias`. It is recommended to be short, preferably one-word and to start from lowercase letter. If you want to show user something more eye-candy, you may use another form of this method, `addOutlet(type, alias, label, [definition])`.
 
 Last argument, `definition`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Outlet](#Outlet) <!-- or Rpd.channeltype? --> section below.
+
+```javascript
+Rpd.channeltype('docs/meat-type', {});
+Rpd.channeltype('docs/rice', {
+    adapt: function(choice) {
+        if (choice == 1) return 'plain';
+        if (choice == 2) return 'mexican';
+    }
+});
+Rpd.channeltype('docs/guacamole', {});
+Rpd.channeltype('docs/cheese', {});
+Rpd.channeltype('docs/to-go', {});
+Rpd.channeltype('docs/spicy', {
+    show: function(value) { return '#' + value }
+});
+Rpd.channeltype('docs/burrito', {});
+
+var burritoFactoryNode = patch.addNode('core/basic', 'Burrito', {
+    process: function(inlets) { return { burrito: inlets } }
+});
+burritoFactoryNode.addInlet('docs/meat-type', 'meat');
+burritoFactoryNode.addInlet('docs/rice', 'rice');
+burritoFactoryNode.addInlet('docs/guacamole', 'guacamole');
+burritoFactoryNode.addInlet('docs/cheese', 'cheese');
+burritoFactoryNode.addInlet('docs/to-go', 'to-go');
+var spicyInlet = burritoFactoryNode.addInlet('docs/spicy', 'spicy', {
+    allow: [ 'util/number' ],
+    accept: function(spicy) { return (spicy > 0) && (spicy <= 4); },
+    adapt: function(value) { return Math.floor(value); }
+});
+var burritoOutlet = burritoFactoryNode.addOutlet('docs/burrito', 'burrito', {
+    show: function(burrito) {
+        var wrapped = Array.isArray(burrito);
+        if (wrapped) {
+            return '[Burrito] ' + (burrito[0].guacamole ? '+$1.80' : '');
+        } else {
+            return 'Burrito' + (burrito.guacamole ? '+$1.80' : '')
+        }
+    },
+    tune: function(stream) {
+        return stream.map(function(burrito) {
+            if (burrito['to-go']) {
+                return wrap(burrito);
+            } else {
+                return burrito;
+            }
+        });
+    }     
+});
+
+function wrap(burrito) { return [ burrito ]; }
+
+var knob = patch.addNode('util/knob');
+knob.inlets['min'].receive(1);
+knob.inlets['max'].receive(4);
+knob.outlets['number'].connect(spicyInlet);
+```
 
 You can discover the complete list of the properties which could be used in this definition if you follow to [Outlet Definition](#outlet-definition) section.
 

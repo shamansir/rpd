@@ -77,7 +77,7 @@ Rpd.nodetype('util/random', function() {
         inlets:  { 'bang': { type: 'util/bang', default: {} },
                    'min': { type: 'util/number', default: 0 },
                    'max': { type: 'util/number', default: 100 } },
-        outlets: { 'out':    { type: 'util/number' } },
+        outlets: { 'out': { type: 'util/number' } },
         process: function(inlets) {
             return { 'out': Math.floor(inlets.min + (Math.random() * (inlets.max - inlets.min))) };
         }
