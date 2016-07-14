@@ -6,7 +6,7 @@ level: 1
 
 ### Contents
 
-When you want to provide user with some existing node network or to load and build it from file (for which there is `io` module), you may use Network Building API with these methods:
+When you want to let user work with some existing Node Network or to load and build it from file (for which there is `io` module), you may use Network Building API, including these methods:
 
 * [`Rpd`](#rpd)
     * [`Rpd.addPatch(name) → Patch`](#rpd-addpatch)
@@ -803,7 +803,7 @@ Rpd.nodetype('util/*', {
 });
 ```
 
-Though it is not obligatory to process all the inlets or to send data to every outlet, in some cases this function not cares about input or output at all. When Node Type defines no `process` function or it wasn't defined in `patch.addNode` method, node makes actually nothing.
+Though it is not obligatory to process all the inlets or to send data to every outlet—in some cases this function not cares about input or output at all. When Node Type defines no `process` function or it wasn't defined in `patch.addNode` method, node makes actually nothing.
 
 Another important thing to notice is that you may return [Kefir Stream][kefir] as an outlet value, so the values from this stream will be sent to the outlet just when they are triggered. In this case, however, you should make the stream finite or stop this stream manually, or else streams for one inlet will merge with every next call to `process` function. For the real life example, see `util/metro` node definition in `src/toolkit/util/toolkit.js` file.
 
@@ -825,7 +825,11 @@ Rpd.nodetype('docs/bang', {
 });
 ```
 
-Sometimes it is important to know which Inlet received the value first and which received its own value later. For example, when Node has some input in a body, its updated value is usually sent to hidden Inlet, but also some visible Inlet in the same node is provided to the user so she'll able to use it, when she wants to override this value from another Node. For this reason we should know, which value came first, from user or from the controller inside, so to rewrite controller value only in the first case. For example `util/timestamped` Channel Type wraps any incoming value with timestamp. Let's implement a similar functionality which will will help us to solve the problem in this case:
+Usually when Node has some controller or input inside of its body, values from this controller are sent to a corresponding, existing, Inlet of this Node, so they come to `process` handler joined with other incoming data. But sometimes you may want to make input-connected Inlet hidden and leave it's pair visible, so user won't be surprised with new values coming to Inlets not from connected Outlets, but from nowhere.
+
+In this case it could be important to know which Inlet received the value first and which received its own value later. For example, when Node has some input in a body, its updated value is usually sent to hidden Inlet, but also some visible Inlet in the same node is provided to the user, so she'll able to use it, when she wants to override this value from another Node.
+
+For this reason we should know, which value came first, from user or from the controller inside, so to rewrite controller value only in the first case. For example `util/timestamped` Channel Type wraps any incoming value with timestamp. Let's implement a similar functionality which will will help us to solve the problem in this case:
 
 ```javascript
 Rpd.channeltype('docs/number-timestamped', {
@@ -887,7 +891,7 @@ Rpd.nodetyperenderer('docs/inlet-or-body', 'html', function() {
 });
 ```
 
-As another option, you may add timestamp to Inlets using their own `tune` function, or using the `tune` function of the Node, which is described just below and by chance there's an example which shows how to do it.
+As another option, you may add timestamps to Inlets' values using their own `tune` function, or using the `tune` function of the Node, which is described just below and by chance there's an example which shows how to do it.
 
 Receives Node instance as `this`.
 
@@ -897,7 +901,7 @@ This function allows you to tune all the updates from the inlets, so, for exampl
 
 Each update in `updates_stream` stream is the object in a form `{ inlet, value }`, where `inlet` is `Inlet` instance which received the update and `value` is the new value received. You should return the same structure from this function, but you are free to substitute values or even inlets.
 
-An example:
+Some examples:
 
 ```javascript
 Rpd.nodetype('docs/delay', {
@@ -1072,7 +1076,7 @@ You can discover the complete list of the properties which could be used in this
 Remove specified inlet from the node. Node stops receiving any updates sent to this inlet and so removes this inlet from its data flow.
 
 ```javascript
-// works with example from `node.addInlet(...)`
+// works with the example from `node.addInlet(...)` method
 frozenYoghurtFactoryNode.removeInlet(toppingInlet);
 ```
 
@@ -1081,7 +1085,7 @@ frozenYoghurtFactoryNode.removeInlet(toppingInlet);
 Remove specified outlet from the node. Node stops sending any values passed to this outlet and so removes this outlet from its data flow.
 
 ```javascript
-// works with example from `node.addOutlet(...)`
+// works with the example for `node.addOutlet(...)` method
 burritoFactoryNode.removeOutlet(burritoOutlet);
 ```
 
