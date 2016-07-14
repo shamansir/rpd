@@ -206,13 +206,14 @@ Rpd.noderenderer('util/sum-of-three', 'svg', function() {
 
 var adaptToState = RpdUtils.adaptToState;
 
-var KNOB_SPEED = 1.5;
+var defaultKnobConf = {
+    speed: 1.5,
+    radius: 13,
+    width: 40, // radius * 2 + margin
+    height: 40
+};
 
-var KNOB_RADIUS = 13,
-    KNOB_WIDTH = 40, // KNOB_RADIUS * 2 + MARGIN
-    KNOB_HEIGHT = KNOB_WIDTH;
-
-function createKnob(state) {
+function createKnob(state, conf) {
     var lastValue = 0;
     //var state = { min: 0, max: 100 };
 
@@ -222,19 +223,19 @@ function createKnob(state) {
             var submit = Kefir.emitter();
             d3.select(parent)
               .call(function(bodyGroup) {
-                  face = bodyGroup.append('circle').attr('r', KNOB_RADIUS)
+                  face = bodyGroup.append('circle').attr('r', conf.radius)
                                   .style('fill', 'rgba(200, 200, 200, .2)')
                                   .style('stroke-width', 2)
                                   .style('stroke', '#000');
                   handGhost = bodyGroup.append('line')
                                   .style('visibility', 'hidden')
                                   .attr('x1', 0).attr('y1', 0)
-                                  .attr('x2', 0).attr('y2', KNOB_RADIUS - 1)
+                                  .attr('x2', 0).attr('y2', conf.radius - 1)
                                   .style('stroke-width', 2)
                                   .style('stroke', 'rgba(255,255,255,0.1)');
                   hand = bodyGroup.append('line')
                                   .attr('x1', 0).attr('y1', 0)
-                                  .attr('x2', 0).attr('y2', KNOB_RADIUS)
+                                  .attr('x2', 0).attr('y2', conf.radius)
                                   .style('stroke-width', 2)
                                   .style('stroke', '#000');
                   text = bodyGroup.append('text')
@@ -253,11 +254,11 @@ function createKnob(state) {
                              .map(stopPropagation)
                              .map(function(event) {
                                  var faceRect = face.node().getBoundingClientRect();
-                                 return { x: event.clientX - (faceRect.left + KNOB_RADIUS),
-                                          y: event.clientY - (faceRect.top + KNOB_RADIUS) };
+                                 return { x: event.clientX - (faceRect.left + conf.radius),
+                                          y: event.clientY - (faceRect.top + conf.radius) };
                              })
                              .map(function(coords) {
-                                 var value = ((coords.y * KNOB_SPEED * -1) + 180) / 360;
+                                 var value = ((coords.y * conf.speed * -1) + 180) / 360;
                                  if (value < 0) {
                                      value = 0;
                                  } else if (value > 1) {
@@ -281,10 +282,10 @@ function createKnob(state) {
     }
 }
 
-function initKnob(knob, nodeRoot, id, count) {
+function initKnobInGroup(knob, nodeRoot, id, count, width) {
     var submit;
     d3.select(nodeRoot).append('g')
-      .attr('transform', 'translate(' + ((id * KNOB_WIDTH) + (KNOB_WIDTH / 2) - (count * KNOB_WIDTH / 2)) + ',0)')
+      .attr('transform', 'translate(' + ((id * width) + (width / 2) - (count * width / 2)) + ',0)')
       .call(function(knobRoot) {
           knob.root = knobRoot;
           submit = knob.init(knobRoot.node());
@@ -294,10 +295,11 @@ function initKnob(knob, nodeRoot, id, count) {
 
 Rpd.noderenderer('util/knob', 'svg', function() {
     var state = { min: 0, max: 100 };
-    var knob = createKnob(state);
+    var knob = createKnob(state, defaultKnobConf);
 
     return {
-        size: { width: KNOB_WIDTH, height: KNOB_HEIGHT },
+        size: { width: defaultKnobConf.width,
+                height: defaultKnobConf.height },
         first: function(bodyElm) {
             var submit = knob.init(bodyElm);
             return {
@@ -318,19 +320,22 @@ Rpd.noderenderer('util/knobs', 'svg', function() {
     var state = { min: 0, max: 100 };
     var knobs = [];
     for (var i = 0; i < count; i++) {
-        knobs.push(createKnob(state));
+        knobs.push(createKnob(state, defaultKnobConf));
     }
     var nodeRoot;
 
     return {
-        size: { width: count * KNOB_WIDTH, height: KNOB_HEIGHT },
+        size: { width: count * defaultKnobConf.width, height: defaultKnobConf.height },
         //pivot: { x: 0, y: 0.5 },
         first: function(bodyElm) {
             var valueOut = Kefir.pool();
             nodeRoot = bodyElm;
             valueOut = Kefir.combine(
                 knobs.map(function(knob, i) {
-                    return initKnob(knob, nodeRoot, i, count).merge(Kefir.constant(0)); // so Kefir.combine will send every change
+                    return initKnobInGroup(knob, nodeRoot, i, count, defaultKnobConf.width)
+                           .merge(Kefir.constant(0));
+                           // knob.init() returns stream of updates,
+                           // so Kefir.combine will send every change
                 })
             );
             return {

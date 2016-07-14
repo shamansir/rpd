@@ -210,7 +210,7 @@ Rpd.nodetype('util/knobs', {
     inlets: {
         'min': { type: 'util/number', default: 0 },
         'max': { type: 'util/number', default: 100 },
-        'count': { type: 'util/number', default: DEFAULT_KNOB_COUNT },
+        'count': { type: 'util/number', default: DEFAULT_KNOB_COUNT, hidden: true },
         'submit': { type: 'util/numbers', default: [], hidden: true }
     },
     outlets: {
