@@ -786,8 +786,7 @@ NB: `prepare` function is called only when node has `process` handler.
 
 Receives Node instance as `this`.
 
-```javascript
-```
+<!-- IN PROGRESS -->
 
 ##### `process`: `function`: `(inlets_values, prev_inlets_values) → outlets_values`
 
@@ -826,12 +825,69 @@ Rpd.nodetype('docs/bang', {
 });
 ```
 
-Sometimes it is important to know which Inlet received the value first and which received its own value later. For example, when Node has some input in a body, its updated value is usually sent to hidden Inlet, but also some visible Inlet in the same node is provided to the user so she'll able to use it, when she wants to override this value from another node. For this reason we should know, which value came first, from user or from controller inside, so to rewrite controller value only in the first case. For example `util/timestamped` Channel Type wraps any incoming value with timestamp. Let's implement a similar functionality which will will help us to solve the problem in this case:
+Sometimes it is important to know which Inlet received the value first and which received its own value later. For example, when Node has some input in a body, its updated value is usually sent to hidden Inlet, but also some visible Inlet in the same node is provided to the user so she'll able to use it, when she wants to override this value from another Node. For this reason we should know, which value came first, from user or from the controller inside, so to rewrite controller value only in the first case. For example `util/timestamped` Channel Type wraps any incoming value with timestamp. Let's implement a similar functionality which will will help us to solve the problem in this case:
 
 ```javascript
+Rpd.channeltype('docs/number-timestamped', {
+    allow: [ 'util/number' ],
+    adapt: function(value) {
+        return {
+            time: new Date(),
+            value: value
+        }
+    },
+    show: function(v) { return v.value }
+});
+
+function getMostRecentValue(fromOtherNode, fromNodeBody) {
+    if (!fromNodeBody) { return fromOtherNode.value; }
+    else if (!fromOtherNode) { return fromNodeBody.value; }
+    else {
+        return (fromNodeBody.time > fromOtherNode.time)
+            ? fromNodeBody.value : fromOtherNode.value;
+    }
+}
+
+Rpd.nodetype('docs/inlet-or-body', {
+    inlets: { 'from-other-node': { type: 'docs/number-timestamped' },
+              'from-node-body': { type: 'docs/number-timestamped',
+                                  hidden: true } },
+    outlets: { 'out': { type: 'util/number' } },
+    process: function(inlets) {
+        return {
+            out: getMostRecentValue(inlets['from-other-node'],
+                                    inlets['from-node-body'])
+        };
+    }
+});
+
+Rpd.nodetyperenderer('docs/inlet-or-body', 'html', function() {
+    var input;
+    return {
+        first: function(bodyElm) {
+            input = document.createElement('input');
+            input.type = 'number';
+            bodyElm.appendChild(input);
+            return {
+                'from-node-body': Kefir.fromEvents(input, 'change')
+                                       .map(function(event) {
+                                           return event.target.value;
+                                       })
+            }
+        },
+        always: function(bodyElm, inlets) {
+            if (inlets['from-other-node'] &&
+                (!inlets['from-node-body'] ||
+                 ( inlets['from-other-node'].time >  
+                   inlets['from-node-body'].time ))) {
+              input.value = inlets['from-other-node'].value;
+            }  
+        }
+    };
+});
 ```
 
-As another option, you may add timestamp to Inlets using their own `tune` function, or using the `tune` function of the Node, which is described just below.
+As another option, you may add timestamp to Inlets using their own `tune` function, or using the `tune` function of the Node, which is described just below and by chance there's an example which shows how to do it.
 
 Receives Node instance as `this`.
 
@@ -839,17 +895,39 @@ Receives Node instance as `this`.
 
 This function allows you to tune all the updates from the inlets, so, for example, you may skip every second update from specific inlet, or every second update in general. Or you may multiply every new numeric value by 10. It gets the [Kefir Stream][kefir] which represents all the updates from the node inlets merged. When you return the same stream you received from this function, it changes nothing in the process.
 
+Each update in `updates_stream` stream is the object in a form `{ inlet, value }`, where `inlet` is `Inlet` instance which received the update and `value` is the new value received. You should return the same structure from this function, but you are free to substitute values or even inlets.
+
 An example:
 
 ```javascript
 Rpd.nodetype('docs/delay', {
+    inlets: { 'this': { type: 'core/any' },
+              'that': { type: 'core/any' } },
+    outlets: { 'out': { type: 'core/any' } },
+    tune: function(updates) {
+        return updates.delay(3000); // delays all updates for three seconds
+    },
+    process: function(inlets) {
+        return { out: inlets['this'] || inlets['that'] };
+    }
+});
+```
+
+```javascript
+Rpd.nodetype('docs/timestamp-example', {
     inlets: { 'in': { type: 'util/number' } },
     outlets: { 'out': { type: 'util/number' } },
     tune: function(updates) {
-        return updates.delay(1000); // delays updates for one second
+        return updates.map(function(update) {
+            var updateCopy = Object.assign({}, update);
+            updateCopy.value = { value: update.value,
+                                 time: new Date() }
+            return updateCopy;
+        })
     },
     process: function(inlets) {
-        return { out: inlets.in };
+        console.log(inlets.in.time);
+        return { out: inlets.in.value };
     }
 });
 ```
