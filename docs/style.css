@@ -213,6 +213,13 @@ article code, article pre {
     font-style: normal;
 }
 
+article pre > code {
+    font-size: 0.9em;
+    /* border-left: 1px dashed black; */
+    /* border-right: 1px dashed black; */
+    /* padding: 7px; */
+}
+
 #jump-to-top {
     position: fixed;
     text-align: right;

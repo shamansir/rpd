@@ -1129,9 +1129,48 @@ Inlet is the name for one of the input channels of the node so, when its connect
 <!-- /PROPLIST -->
 
 Definition of the Inlet is the configuration object used to define
-new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addInlet` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Inlet Type or a single Inlet needs its originality, some of these properties:
+new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addInlet` method or with `inlets` property to Node type or instance definition, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Inlet Type or a single Inlet needs its originality, some of these properties:
 
 All the functions in the definition get Inlet instance as `this`. <!-- TODO: check -->
+
+```javascript
+Rpd.channeltype(..., {
+    label: ...,
+    default: ...,
+    hidden: ...,
+    cold: ...,
+    accept: ...,
+    ...
+});
+
+Rpd.nodetype(..., ..., {
+    inlets: {
+        alias-1: {
+            label: ...,
+            default: ...,
+            hidden: ...,
+            cold: ...,
+            accept: ...,
+            ...
+        },
+        alias-2: {
+            label: ...,
+            default: ...
+        }
+    },
+    outlets: {
+        alias-1: {
+            label: ...,
+            default: ...
+        }
+    },
+
+});
+
+var inlet = Rpd.addInlet(..., ..., {
+    label: ...
+})
+```
 
 <!-- NB: there are several checks performed when user connects Outlet to Inlet: allow, accept, adapt -->
 
@@ -1144,12 +1183,21 @@ Inlet label, usually displayed near to the inlet. Try to make it short, when pos
 Default value for this inlet, which will be sent to it just when node is ready, no matter, has it connections or not. If it has some, values from connection will always be sent after the default value.
 
 ```javascript
+Rpd.channeltype('docs/color', {
+	default: 'black'
+});
 ```
 
 This value can be any type, but also a [Kefir Stream][kefir], so you may configure this inlet to receive several or infinite amount of values just from the start:
 
 ```javascript
+Rpd.channeltype('docs/alarm', {
+    // ring every 24 hours by default
+    default: Kefir.perodically(1000 * 60 * 60 * 24, 'sound.wav')
+});
 ```
+
+<!-- TODO: test -->
 
 The default value will be passed to `tune`, then `accept` and `adapt` functions before being passed to node's `process` handler. <!-- TODO: check -->
 
@@ -1159,15 +1207,35 @@ You may set an Inlet to be hidden from user, so it is not visible, but yet may r
 
 One of the cases when it comes useful, is when Node has an additional control in its body, and you want to send the output of this control to `process` handler, so it decides if incoming data has higher priority than data from control(s) or merges all the data, both from inlets and control in one as the configuration to calculate the output.
 
-For the example of such, see [Node Renderer](#) description.
+For the example of such, see [Node Renderer](#rpd-noderenderer) description.
 
 ##### `cold`: `boolean`
 
 When Inlet is _cold_, any incoming update to this Inlet is _not_ triggering the `process` function call in the Node, unlike with hot Inlets (by default) which trigger the `process` with every update. However the value is saved and passed to the next `process` call later, if some hot inlet triggered it.
 
-
 ```javascript
+Rpd.nodetype('docs/microwave', {
+    inlets: {
+        'food': { type: 'docs/food' },
+        'time': { type: 'docs/stopwatch', cold: true, default '1min' },
+        'temperature': { type: 'docs/temperature', cold: true, default: 200 }
+    },
+    outlets: {
+       'prepared-food': { type: 'docs/food' }
+    },
+    process: function(inlets) {
+        // will be called only when there's some new food was received
+        // i.e. time or temperature updates will be saved but won't trigger cooking
+        return: {
+            'prepared-food': Kefir.constant(
+                prepareFood(inlets.food, inlets.temperature)
+            ).delay(inlets.time)
+        }
+    }
+});
 ```
+
+<!-- TODO: test -->
 
 ##### `readonly`: `boolean`
 
@@ -1184,15 +1252,31 @@ The list of the Outlet (Channel) Types this Inlet accepts to connect. By default
 So, Outlet with `util/color` type may always be connected to any `util/color` Inlet, but it can not be connected to `util/nummer` Inlet in any case, unless this Inlet Type,  or this Inlet in particular, has `util/color` in `allow` list. <!-- TODO: check -->
 
 ```javascript
+Rpd.channeltype('docs/time', {
+    allow: [ 'util/number' ],
+    adapt: function(value) {
+        if (Number.isNumber(value)) {
+            return new Date(value); // convert from milliseconds
+        } else {
+            return value;
+        }
+    }
+});
 ```
 
-By default, all of the Inlets have `core/any` in allow list, but when user overrides this list, user should include `core/any` there manually, if she wants to allow these connections. <!-- TODO: check -->
+By default, all of the Inlets have `core/any` in allow list, but when user overrides this list, user should include `core/any` there manually, if she wants to allow these connections. <!-- FIXME: correct tests -->
 
 ##### `accept`: `function`: `(value) → boolean`
 
 This function allows you to skip/decline some incoming values basing on the value itself, before they come to the `process` handler.
 
 ```javascript
+Rpd.channeltype('docs/byte', {
+    allow: [ 'util/number' ],
+    accept: function(value) {
+        return (value >= 0) && (value <= 255);
+    }
+});
 ```
 
 Actually if you _filter_ the stream of values with `tune` function, the result will be the same, but `accept` function allows you not to mess with the streams for a simple cases when you really don't need to.
@@ -1204,6 +1288,14 @@ Receives Inlet instance as `this`.
 You may convert every incoming value to some another value or append some data to it, before it comes to the `process` handler.
 
 ```javascript
+Rpd.channeltype('docs/byte', {
+    allow: [ 'util/number' ],
+    adapt: function(value) {
+        if (value < 0) return 0;
+        if (value > 255) return 255;
+        return value;
+    }
+});
 ```
 
 Actually if you _map_ the stream of values with `tune` function, the result will be the same, but `adapt` function allows you not to mess with the streams for a simple cases when you really don't need to.
@@ -1217,7 +1309,28 @@ This function is called by Renderer when it shows the Inlet value near to it. By
 It is useful to convert complex values to some short summaries here. For example, when your Channel sends arrays as values, it is better to shorten the description just to the length of array and what type of elements are inside.
 
 ```javascript
+Rpd.channeltype('docs/radians', {
+    allow: [ 'util/number '],
+    accept: function(value) {
+        return (value >= 0) && (value <= (2 * Math.PI));
+    }
+    show: function(value) {
+        // just an example, do not use in production
+        var degrees = Math.round(value / Math.PI * 180);
+        if (degrees == 360) return '2π';
+        if (degrees > 270) return '3π/2 > α > 2π';
+        if (degrees == 270) return '3π/2';
+        if (degrees > 180) return 'π > α > 3π/2';
+        if (degrees == 180) return 'π';
+        if (degrees > 90) return 'π/2 > α > π';
+        if (degrees == 90) return 'π/2';
+        if (degrees > 0) return '0π > α > π/2';
+        return '0π';
+    }
+});
 ```
+
+<!-- TODO: test -->
 
 Receives Inlet instance as `this`.
 
@@ -1226,7 +1339,16 @@ Receives Inlet instance as `this`.
 With the help of `tune` function you may freely modify the incoming stream of values, delay them, filter them or even reduce them to something else. When you know the power of [Streams][kefir], you are literally the Master of this Inlet. On the other hand, when something unpredictable happens with values coming through, you may confuse the user, so if you hardly modify them, please pay attention to additionally describe or demonstrate why/how you do it, in the UI of your Node or somewhere nearby.
 
 ```javascript
+Rpd.channeltype('docs/synchronized', function() {
+    tune: function(stream) {
+        // emit last received values exactly with a second pause
+        return stream.throttle(1000);
+    }
+});
 ```
+
+<!-- TODO: test -->
+
 Receives Inlet instance as `this`.
 
 ##### `handle`: `object`
@@ -1234,7 +1356,6 @@ Receives Inlet instance as `this`.
 This object allows you to subscribe to any event this Node produces. _Key_ in this object is the event name, and _value_ is the handler. See [Events](#) section for the complete list of the events.
 
 An example:
-
 
 ```javascript
 ```
@@ -1285,7 +1406,7 @@ Outlet is the output channel of the node.
 <!-- /PROPLIST -->
 
 Definition of the Inlet is the configuration object used to define
-new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addOutlet` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Outlet Type or a single Outlet needs its originality, some of these properties:
+new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addOutlet` method or with `outlets` property to Node type or instance definition, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Outlet Type or a single Outlet needs its originality, some of these properties:
 
 All the functions in the definition get Inlet instance as `this`.
 
