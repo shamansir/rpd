@@ -63,6 +63,10 @@
     background-color: rgba(0, 0, 0, .5);
 }
 
+.rpd-anm-toolkit-node.rpd-anm-color .rpd-process-target {
+    max-width: 200px;
+}
+
 /* .rpd-anm-toolkit-node .rpd-inlet .rpd-name,
 .rpd-anm-toolkit-node .rpd-outlet .rpd-name {
     display: block;

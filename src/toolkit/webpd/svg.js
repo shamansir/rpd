@@ -5,7 +5,7 @@ var d3 = d3 || d3_tiny;
 // TODO: nodes have different size depending on their content
 var defaultSize = { width: 50, height: 18 };
 
-var view = new PdView(defaultSize);
+var view = new PdView(defaultSize, function() { return document.body; });
 
 function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);

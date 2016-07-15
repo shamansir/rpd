@@ -82,15 +82,32 @@
         toReportError: function(util, customEqualityTesters) {
             return {
                 compare: function(actual, expected) {
-                    var result = { pass: false };
+                    var result = { };
+                    var gotError;
+                    Rpd.events.onError(function(firedError) {
+                        //console.log('got error', firedError);
+                        gotError = firedError;
+                    });
+                    actual();
+                    result.pass = gotError && util.equals(gotError.type, expected, customEqualityTesters);
+                    result.message = 'Expected error ' + (expected || 'Unknown') + (result.pass ? ' not' : '') +
+                                    ' to be fired, but ' + (gotError ? gotError.type : 'nothing') + ' was catched';
+                    return result;
+                }
+            }
+        },
+        toReportAnyError: function(util, customEqualityTesters) {
+            return {
+                compare: function(actual) {
+                    var result = { };
                     var gotError;
                     Rpd.events.onError(function(firedError) {
                         gotError = firedError;
                     });
                     actual();
-                    result.pass = expected && util.equals(gotError, jasmine.objectContaining({ type: expected }), customEqualityTesters);
-                    result.message = 'Expected error ' + expected + (result.pass ? ' not' : '')
-                          ' to be fired, but ' + (gotError || 'nothing') + ' was received';
+                    result.pass = gotError;
+                    result.message = 'Expected' + (result.pass ? ' no' : '') + ' error to be fired, but at least one'
+                                    + (gotError ? (' of type ' + gotError.type) : '') + ' was' + (gotError ? '' : ' not');
                     return result;
                 }
             }

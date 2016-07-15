@@ -13,6 +13,7 @@ RPD with default options can be downloaded here:
 
 You'll also need [Kefir.js][kefir], since RPD code is based on Reactive Streams, which it provides.
 ​
+
 But default options restrict your choice, while RPD provides truly a lot more. See [Compilation](#Compilation) section below for details. And you are surely safe to transfer your network code to use it with other options, if you already have one, the only requirement could be is to change few string values.
 ​
 ### Setup
@@ -26,7 +27,8 @@ To use either downloaded or compiled version of RPD, you need to include three f
         <meta charset="utf-8" />
 
         <!-- Compiled CSS file, it includes rendering and style-dependent
-             rules (both Renderer and Style selected at compilation stage are  listed in the top lines of this file) -->
+             rules (both Renderer and Style selected at compilation stage are
+             listed in the top lines of this file) -->
         <link rel="stylesheet"
               href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css">
         </link>
@@ -58,9 +60,30 @@ For the local version, paths would be `./dist/rpd.css`, `./vendor/kefir.min.js` 
 To test if it works and see it in action, add the target `div` to the `body` and some code to the bottom of the page:
 ​
 ```html
-<body>
-​   
-</body>
+<body style="margin: 0;">
+    <div id="target"></div>
+
+    <script>
+        Rpd.renderNext('html', document.getElementById('target'),
+                       { style: 'quartz' });
+
+        var root = Rpd.addPatch('root').resizeCanvas(800, 400);
+
+        var metro1 = root.addNode('util/metro', 'Metro A').move(40, 20);
+        var metro2 = root.addNode('util/metro', 'Metro B').move(40, 120);
+
+        var genA = root.addNode('util/random', 'Generate A').move(300, 10);
+        var genB = root.addNode('util/random', 'Generate B').move(300, 160);
+
+        var sum = root.addNode('util/+', 'Sum').move(520, 80);
+
+        genA.outlets['out'].connect(sum.inlets['a']);
+        genB.outlets['out'].connect(sum.inlets['b']);
+
+        metro1.outlets['out'].connect(genA.inlets['bang']);
+        metro2.outlets['out'].connect(genB.inlets['bang']);
+    </script>
+</body>    
 ```
 
 Detailed instructions on constructing your own Patch Network you may find [in the Network section](./network.html).
@@ -147,6 +170,30 @@ I recommend you to visit the [examples page](../examples.html#styles-and-rendere
 More details on building Patch Networks by yourself, you may find on [the corresponding page](./sections/network.html).
 
 ### Styles and Renderers
+
+| Style         | HTML                            | SVG                             | Horz./Vert. | Notes              |
+|---------------|---------------------------------|---------------------------------|-------------|--------------------|
+| `quartz`      | <span class="positive">✔</span> | <span class="positive">✔</span> | Vertical    | Basic, grotesque style, even though based on Quartz Composer look |
+| `pd`          | <span class="positive">✔</span> | <span class="positive">✔</span> | Horizontal  | Nice-looking sandy-colored style with no headers, but a drag handle on the left side of the node |
+| `plain`       | <span class="positive">✔</span> | <span class="positive">✔</span> | Horizontal  | Minimal style with simple shapes, few contrast colors and no shadows |
+| `compact`     | <span class="positive">✔</span> | <span class="positive">✔</span> | Horizontal  | Nodes made as tiny as possible, small fonts, navy feel; unlike `pd` Style, has vertical headers on the left side of the Node |
+| `compact-v`   | <span class="negative">✘</span> | <span class="positive">✔</span> | Vertical    | Same as `compact`, but vertical variant and has headers |
+| `black-white` | <span class="negative">✘</span> | <span class="positive">✔</span> | Vertical    | Black and White style looking like some schema from an 80's computer book |
+| `blender`     | <span class="negative">✘</span> | <span class="positive">✔</span> | Vertical    | Style, almost completely looking like [Blender](http://blender.org) [Material Editor](https://www.blender.org/manual/render/blender_render/materials/nodes/index.html) |
+| `webpd`       | <span class="negative">✘</span> | <span class="positive">✔</span> | Horizontal  | Nice-looking sandy style with no headers, but a drag handle on the left side of the node |
+
+### Toolkits and Renderers
+
+| Toolkit        | HTML                            | SVG                             | Notes              |
+|----------------|---------------------------------|---------------------------------|--------------------|
+| `core`         | <span class="positive">✔</span> | <span class="positive">✔</span> | Only `core/basic` Node type and `core/any` Channel type; always included, no option needed |
+| `util`         | <span class="positive">✔</span> | <span class="positive">✔</span> | Utility Nodes: numbers, colors, random generators, everything useful but not obligatory |
+| `timbre`       | <span class="positive">✔</span> | <span class="positive">✔</span> | Nodes intended to help user generate sound with [timbre.js](http://mohayonao.github.io/timbre.js/) in future, but has only five basic nodes for the moment |
+| `webpd`        | <span class="positive">✔</span> | <span class="positive">✔</span> | The project with a plan to implement complete [PureData](https://puredata.info/) toolkit, but for the web, with the help of [WebPd](https://github.com/sebpiq/WebPd) library |
+| `anm`          | <span class="positive">✔</span> | <span class="positive">✔</span> | Demonstrates the ability to generate graphics with [Animatron Player](https://github.com/Animatron/player), includes Spreads logic like the ones [VVVV](http://www.vvvvjs.com/) has |
+| [`processing`] | <span class="negative">✘</span> | <span class="positive">✔</span> | Used only in examples, has some Node types to demonstrate how to work with [P5.js](http://p5js.org) |
+
+### Modules
 
 <!-- IN PROGRESS -->
 

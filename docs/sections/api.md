@@ -6,71 +6,71 @@ level: 1
 
 ### Contents
 
-When you want to provide user with some existing node network or to load and build it from file (for which there is `io` module), you may use Network Building API with these methods:
+When you want to let user work with some existing Node Network or to load and build it from file (for which there is `io` module), you may use Network Building API, including these methods:
 
-* `Rpd`
-    * `Rpd.addPatch(name) → Patch`
-    * `Rpd.addClosedPatch(name) → Patch`
-* `Patch`
-    * `patch.addNode(title[, definition]) → Node`
-    * `patch.removeNode(node)`
-    * `patch.inputs(list)`
-    * `patch.outputs(list)`
-    * `patch.project(node)`
-* `Node`    
-    * `node.addInlet(alias[, definition]) → Inlet`
-    * `node.addOutlet(alias[, definition]) → Outlet`
-    * `node.removeInlet(inlet)`
-    * `node.removeOutlet(outlet)`
-    * `node.turnOn()`
-    * `node.turnOff()`
-* `Inlet`
-    * `inlet.receive(value)`
-    * `inlet.stream(stream)`
-    * `inlet.toDefault()`
-    * `inlet.allows(outlet) → boolean`
-* `Outlet`    
-    * `outlet.connect(inlet) → Link`
-    * `outlet.disconnect(link)`
-    * `outlet.send(value)`
-    * `outlet.stream(stream)`
-* `Link`
-    * `link.pass(value)`
-    * `link.enable()`
-    * `link.disable()`
-    * `link.disconnect()`
+* [`Rpd`](#rpd)
+    * [`Rpd.addPatch(name) → Patch`](#rpd-addpatch)
+    * [`Rpd.addClosedPatch(name) → Patch`](#rpd-addclosedpatch)
+* [`Patch`](#patch)
+    * [`patch.addNode(type, [title, definition]) → Node`](#patch-addnode)
+    * [`patch.removeNode(node)`](#patch-removenode)
+    * [`patch.inputs(list)`](#patch-inputs)
+    * [`patch.outputs(list)`](#patch-outputs)
+    * [`patch.project(node)`](#patch-project)
+* [`Node`](#node)
+    * [`node.addInlet(type, alias[, definition]) → Inlet`](#node-addinlet)
+    * [`node.addOutlet(type, alias[, definition]) → Outlet`](#node-addoutlet)
+    * [`node.removeInlet(inlet)`](#node-removeinlet)
+    * [`node.removeOutlet(outlet)`](#node-removeoutlet)
+    * [`node.turnOn()`](#node-turnon)
+    * [`node.turnOff()`](#node-turnoff)
+* [`Inlet`](#inlet)
+    * [`inlet.receive(value)`](#inlet-receive)
+    * [`inlet.stream(stream)`](#inlet-stream)
+    * [`inlet.toDefault()`](#inlet-todefault)
+    * [`inlet.allows(outlet) → boolean`](#inlet-allows)
+* [`Outlet`](#outlet)
+    * [`outlet.connect(inlet) → Link`](#outlet-connect)
+    * [`outlet.disconnect(link)`](#outlet-disconnect)
+    * [`outlet.send(value)`](#outlet-send)
+    * [`outlet.stream(stream)`](#outlet-stream)
+* [`Link`](#link)
+    * [`link.pass(value)`](#link-pass)
+    * [`link.enable()`](#link-enable)
+    * [`link.disable()`](#link-disable)
+    * [`link.disconnect()`](#link-disconnect)
 
 To control the rendering queue, you may use these methods:
 
-* `Rpd`
-    * `Rpd.renderNext(renderers, targets, config)`
-    * `Rpd.stopRendering()`
-* `Patch`
-    * `patch.render(renderers, targets, config)`
-    * `patch.open()`
-    * `patch.close()`
-    * `patch.moveCanvas(x, y)`
-    * `patch.resizeCanvas(width, height)`
-* `Node`
-    * `node.move(x, y)`    
+* [`Rpd`](#rpd)
+    * [`Rpd.renderNext(renderers, targets, config)`](#rpd-rendernext)
+    * [`Rpd.stopRendering()`](#rpd-stoprendering)
+* [`Patch`](#patch)
+    * [`patch.render(renderers, targets, config)`](#patch-render)
+    * [`patch.open()`](#patch-open)
+    * [`patch.close()`](#patch-close)
+    * [`patch.moveCanvas(x, y)`](#patch-movecanvas)
+    * [`patch.resizeCanvas(width, height)`](#patch-resizecanvas)
+* [`Node`](#node)
+    * [`node.move(x, y)`](#node-move)    
 
 When you want to build your own toolkit, you may decide to register your node & channel types and renderers using these methods:
 
-* `Rpd`
-    * [`Rpd.nodetype(type, definition)`](#)
-    * `Rpd.channeltype(type, definition)`    
-    * `Rpd.noderenderer(type, alias, definition)`        
-    * `Rpd.channelrenderer(type, alias, definition)`
-    * `Rpd.nodedescription(type, description)`
+* [`Rpd`](#rpd)
+    * [`Rpd.nodetype(type, definition)`](#rpd-nodetype)
+    * [`Rpd.channeltype(type, definition)`](#rpd-channeltype)
+    * [`Rpd.noderenderer(type, alias, definition)`](#rpd-noderenderer)
+    * [`Rpd.channelrenderer(type, alias, definition)`](#rpd-channelrenderer)
+    * [`Rpd.nodedescription(type, description)`](#rpd-nodedescription)
 
 <!-- * `Rpd.toolkiticon(toolkit, icon)` -->
 <!-- * `Rpd.nodetypeicon(toolkit, icon)` -->
 
 These methods will help you in creating your own styles or even renderers:
 
-* `Rpd`
-    * `Rpd.style(name, renderer, style)`
-    * `Rpd.renderer(alias, renderer)`
+* [`Rpd`](#rpd)
+    * [`Rpd.style(name, renderer, style)`](#rpd-style)
+    * [`Rpd.renderer(alias, renderer)`](#rpd-renderer)
 
 <!-- TODO: global `Rpd` object properties -->
 
@@ -79,8 +79,8 @@ To define node type or channel type, to configure some particular node or channe
 * [Node Definition](#node-definition)
 * [Inlet Definition](#inlet-definition)
 * [Outlet Definition](#outlet-definition)
-* [Node Renderer Definition](#node-renderer-definition)
-* [Channel Renderer Definition](#channel-renderer-definition)
+* [Node Renderer Definition](#rpd-noderenderer)
+* [Channel Renderer Definition](#rpd-channelrenderer)
 
 ### Core types
 
@@ -100,6 +100,8 @@ Probably you already noticed that naming style in API is different from method t
 * Any other instance or static method: `instance.usualCamelCase`, preferrably one word;
 * Node or Channel type name: `toolkit/word-or-two`;
 * Property in a Node Definition, Channel Definition or any other Definition: strictly one word, lowercase;
+
+<!-- MARK: Rpd -->
 
 ### `Rpd`
 
@@ -137,17 +139,33 @@ Stop all the rendering processes, running for the moment. Even if other RPD meth
 
 #### `Rpd.addPatch([title], [definition]) → Patch`
 
-Adds new patch to the network. Patch is a container for a set of nodes and connections between them. Every patch added this way is _opened_ by default, which means that it is rendered right away, and reacts immediately to every following change. You may set a patch title here and, also optionally, define handlers for the [events happening inside](./events.md#Patch), this way:
+Adds new Patch to the Network. Patch is a container for a set of nodes and connections between them. Every Patch added this way is _opened_ by default, which means that it is rendered right away, and reacts immediately to every following change. You may set a patch title here and, also optionally, define handlers for the [events happening inside](./events.md#Patch), this way:
 
 #### `Rpd.addClosedPatch(title, [definition]) → Patch`
 
-Adds new patch to the network almost the same way as `addPatch` above, but this patch is closed when you add it, so you need to explicitly call its `open()` method when you want this patch to render.
+Adds new Patch to the Network almost the same way as `addPatch` above, but this patch is _closed_ when you add it, so you need to explicitly call its [`open()`](#patch-open) method when you want this patch to render.
 
-This method becomes useful when you have some dependent patch you don't want to be displayed until requested. This type of patches I'd recommend to call _Procedure Patch_, which is, unlike the _Root Patch_, treated as secondary.
+Patch may exist in two conditions: _opened_ — when you, as a user, observe all the events happening inside, new nodes appear, links connect, data flows, and everything is visually in motion, and _closed_ — when you, as a user, see nothing, but all the rendering yet happens somewhere in background. When you switch some Patch from closed state to an opened one, it shows everything happened before in the target you assigned, and vice versa.
+
+It becomes useful when you have a Network of Patches and you want to show some while hiding others. In another words, you have some dependent Patch you don't want to be displayed until requested. This type of patches I'd recommend to call _Procedure Patch_, which is, unlike the _Root Patch_, treated as secondary.
+
+All the Patches are opened by default. So to add initially closed patch, use this exact method (`Rpd.addClosedPatch`) or use [`patch.close()`](#patch-close), when you want to close it later.
 
 <!-- IN PROGRESS -->
 
 #### `Rpd.nodetype(type, definition)`
+
+<!-- PROPLIST: Node Definition -->
+
+* `title`: `string`
+* `inlets`: `object { <alias>*: inlet_definition }`
+* `outlets`: `object { <alias>*: outlet_definition }`
+* `prepare`: `function`: `(inlets, outlets) → nothing`
+* `process`: `function`: `(inlets_values, prev_inlets_values) → outlets_values`
+* `tune`: `function`: `(updates_stream) → updates_stream`
+* `handle`: `object { <event>*: handler }`
+
+<!-- /PROPLIST -->
 
 Register a new type of the nodes, so you, or the user, may easily create instances of this type with the help of `patch.addNode` or using some other interface.
 
@@ -157,10 +175,11 @@ NB: Please note that user may in any case extend the instance with own definitio
 
 The new `type` name should be in the form `toolkit/typename`. For example, there could be nodes with the types `util/bang`, `util/color`, `blender/render`, `animatron/player`, `processing/color`, `processing/sketch` etc. Prefer one word for the type name when possible, or join several words with dash symbol `-`, when it's really not.
 
-Then goes the definition, which is described in details in [Node Definition](#node-definition) section. Just note that when you need, you may pass a function to this method, it is very useful when you need to share some objects between definitions, so both examples are valid:
+Then goes the `definition`, which is described in details in [Node Definition](#node-definition) section. Just note that when you need, you may pass a function to this method, it is very useful when you need to share some objects between definitions, so both examples are valid:
 
 ```javascript
 Rpd.nodetype('docs/foo', {
+    title: ...,
     inlets: ...,
     outlets: ...,
     process: ...
@@ -170,6 +189,7 @@ Rpd.nodetype('docs/foo', function() {
     var someSharedVariable;
     var nodeInstance = this;
     return {
+        title: ...,
         inlets: ...,
         outlets: ...,
         process: ...
@@ -177,13 +197,33 @@ Rpd.nodetype('docs/foo', function() {
 });
 ```
 
-When you need information on creating your own toolkits, head safely to the [Toolkits](./toolkits.html) section.
+Note: When you need information on creating your own toolkits, head safely to the [Toolkits](./toolkits.html) section.
 
 #### `Rpd.nodedescription(type, description)`
 
 Any node type can have a literary textual description of what this node does in details. Normally renderer shows it in the node list, next to corresponding node type, when available, and also when user hovers over the title of the node.
 
+```javascript
+Rpd.nodedescription('docs/foo', 'Used as the example for documentation');
+```
+
 #### `Rpd.channeltype(type, definition)`
+
+<!-- PROPLIST: Channel Definition -->
+
+* `label`: `string`
+* `default`: `any`
+* `hidden`: `boolean`
+* `cold`: `boolean`
+* `readonly`: `boolean`
+* `allow`: `array[string]`
+* `accept`: `function`: `(value) → boolean`
+* `adapt`: `function`: `(value) → value`
+* `show`: `function`: `(value) → string`
+* `tune`: `function`: `(values_stream) → values_stream`
+* `handle`: `object { <event>*: handler }`
+
+<!-- /PROPLIST -->
 
 Register a new type of a Channel, so you, or the user, may easily create instances of this type with the help of `node.addInlet` or `node.addOutlet`, or using some other interface.
 
@@ -198,13 +238,36 @@ Then goes the definition, which is described in details in [Inlet Definition](#i
 Just note that when you need, you may pass a function to this method, it is very useful when you need to share some objects between definitions, so both examples are valid:
 
 ```javascript
+Rpd.channeltype('docs/foo', {
+    allow: ...,
+    accept: ...,
+    adapt: ...,
+    show: ...
+});
+
+Rpd.channeltype('docs/foo', function() {
+    var someSharedVariable;
+    var channelInstance = this;
+    return {
+        allow: ...,
+        accept: ...,
+        adapt: ...,
+        show: ...
+    };
+});
 ```
 
-When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
-
-May receive both object or function.
+Note: When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
 #### `Rpd.noderenderer(type, rendererAlias, definition)`
+
+<!-- PROPLIST: Node Renderer -->
+
+* `size`: `object { width, height }`
+* `first`: `function(bodyElm) [→ object { <inlet>*: { default, valueOut } }]`
+* `always`: `function(bodyElm, inlets, outlets)`
+
+<!-- /PROPLIST -->
 
 Define new Node Renderer for particular Node Type. When you want to have and reuse some Node which is more complex to render than just empty body with inlets or outlets, this method is what you need.
 
@@ -218,18 +281,33 @@ But let's turn from advertisement back to API.
 
 `type` is the type of the node you want to define renderer for.
 
-`rendererAlias` is a name of a Renderer which should already be registered in the system under this alias. Out of the box, there are `'html'` and `'svg'` renderers provided. Though you should ensure [to include Renderer](./setup.html) into your version of RPD before using one of them. Both of them support HTML and SVG DOM Elements, but for latter one the Node body is itself an SVG Element, so you if you want to add HTML Elements there, you need put them into `<foreignelement />` tag before.
+`rendererAlias` is a name of a Renderer which should already be registered in the system under this alias. Out of the box, there are `'html'` and `'svg'` renderers provided. Though you should ensure [to include Renderer](./setup.html) into your version of RPD before using one of them. Both of them support HTML and SVG DOM Elements, but for latter one the Node body is itself an SVG Element, so you if you want to add HTML Elements there, you need put them into `<foreignelement />` tag before, in the `definition`.
 
 May receive both object or function, returning the object, as `definition`. Structure of this object is described below. When it's a function, it receives Node instance as `this`. <!-- check -->
 
 Any property in definition is optional.
 
 ```javascript
+Rpd.noderenderer('docs/foo', 'html', {
+    size: ...,
+    first: ...,
+    always: ...
+});
+
+Rpd.noderenderer('docs/foo', 'html', function() {
+    var someSharedVariable;
+    var nodeInstance = this;
+    return {
+        size: ...,
+        first: ...,
+        always: ...
+    };
+});
 ```
 
 <!-- TODO: it is also possible to override `render` in `patch.addNode` and `node.addInlet/node.addOutlet`, check -->
 
-When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
+Note: When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
 ##### `size` : `object`
 
@@ -246,6 +324,28 @@ This handler is called once, just before the Node is ready to process incoming d
 Use this handler to prepare the Node body, i.e. append required DOM (or whichever, it depends on the Renderer) elements there. When you use the form of the function to define `Rpd.noderenderer`, you may safely save these elements in the closure to use them in `always` handler.
 
 ```javascript
+Rpd.noderenderer('docs/recipe', 'html', {
+    first: function(bodyElm) {
+        var recipeText = '...';
+        var spanElement = document.createElement('span');
+        spanElement.innerText = recipeText;
+        bodyElm.appendChild(spanElement);
+    }
+});
+
+Rpd.noderenderer('docs/color', 'html', function() {
+    var colorElement;
+    return {
+        first: function(bodyElm) {
+            var colorElement = document.createElement('span');
+            colorElement.style.backgroundColor = 'transparent';
+            bodyElm.appendChild(colorElement);
+        },
+        always: function(inlets) {
+            colorElement.style.backgroundColor = '(' +  inlets.r + ',' + inlets.g + ',' inlets.b + ')';
+        }
+    };
+});
 ```
 
 This function may optionally return the object which allows to attach default values or streams of the values to the existing inlets. <!-- #354 --> It is very useful when you want to have some complex control (or several ones) in the Node body, so you add control there and pass its changes [Stream][kefir] (for example, `'change'` event) to an existing hidden inlet.
@@ -258,9 +358,34 @@ And, second, you may specify `'valueOut'` [Stream][kefir], which should emit new
 
 What `bodyElm` is, depends on the Renderer you use for rendering. For example, for `'html'` Renderer it is HTML Element and for `'svg'` renderer it is SVG Element, correspondingly.
 
-NB: It is highly recommended not to change `bodyElm` attributes or especially remove it from the flow. In most cases adding children to it will satisfy all your needs. It is not the strict law, however — don't feel like someone prevents you — you're grown ups, you know when you may break some ~~rules~~ HTML Elements.
+NB: It is highly recommended not to change `bodyElm` attributes or especially remove it from the flow. In most cases adding DOM children to it will satisfy all your needs. It is not the strict law, however — don't feel like someone prevents you — you're grown-ups, you know when you may break some ~~rules~~ HTML Elements.
 
 ```javascript
+// sends random number to a hidden inlet immediately after a link inside the Node body was clicked
+
+Rpd.nodetype('docs/random-on-click', {
+    inlets: {
+        'click': { type: 'core/any', hidden: true }
+    },
+    outlets: {
+        'out': { type: 'util/number' }
+    },
+    process: function(inlets) {
+        if (inlets.click) return { out: Math.random() };
+    }
+});
+
+Rpd.noderenderer('docs/random-on-click', 'html', {
+    first: function(bodyElm) {
+        var clickElm = document.createElement('a');
+        clickElm.href = '#';
+        clickElm.innerText = 'Click Me!';
+        bodyElm.appendChild(clickElm);
+        return {
+            'click': Kefir.fromEvents(clickElm, 'click')
+        }
+    }
+});
 ```
 
 NB: The `valueOut` and `default` functionality is discussable, please follow [Issue #354](https://github.com/shamansir/rpd/issues/354) if you want to keep track on changes, if they come, or feel free to add comments if you have any suggestions on how to improve it.
@@ -275,15 +400,59 @@ So you may apply/render all the new updates immediately after the moment they ha
 current Outlets values, including those returned from the `process` handler.
 
 ```javascript
+// see `docs/random-on-click` Node type definition in previous example,
+// this is a slightly modified version which also displays the generated
+// random number inside node body
+Rpd.noderenderer('docs/random-on-click', 'html', function() {
+    var numberElm;
+    return {
+        first: function(bodyElm) {
+
+            var clickElm = document.createElement('a');
+            clickElm.href = '#';
+            clickElm.innerText = 'Click Me!';
+            bodyElm.appendChild(clickElm);
+
+            numberElm = document.createElement('span');
+            numberElm.innerText = '<?>';
+            bodyElm.appendChild(numberElm);
+
+            return {
+                'click': Kefir.fromEvents(clickElm, 'click')
+            };
+        },
+        always: function(bodyElm, inlets, outlets) {
+            numberElm.innerText = outlets.out;
+        }
+    };
+});
 ```
 
 #### `Rpd.channelrenderer(type, rendererAlias, definition)`
+
+<!-- PROPLIST: Channel Renderer -->
+
+* `show`: `function(target, value, repr)`
+* `edit`: `function(target, inlet, valueIn) [→ change_stream]`
+
+<!-- /PROPLIST -->
 
 Register a Renderer for a Channel Type.
 
 This allows you to render values which appear near to Inlets and Outlets of particular Channel Type not only as String, but in any kind of visual presentation. For example, you may display a color value as a color box filled with this color, instead of boring variants like `#883456` or `[Some Color]`, near to any Inlet or Outlet having your own `my/color` Channel Type:
 
 ```javascript
+Rpd.channetype('docs/color', {});
+
+Rpd.channelrenderer('docs/color', 'html', {
+    show: function(target, value) {
+        var colorElm = document.createElement('span');
+        colorElm.style.height = '30px';
+        colorElm.style.width = '30px';
+        colorElm.style.backgroundColor = 'rgb(' + value.r + ',' + value.g + value.b + ');';
+        target.appendChild(colorElm);
+    }
+});
 ```
 
 This method may receive either object following the structure described below, or function which returns object of same structure. It is helpful when you need to share some data to reuse in all methods using a closure.
@@ -297,17 +466,54 @@ This method may receive either object following the structure described below, o
 You also may pass a function which returns such object instead, it will help you to store shared variables in the closure. When you do so, this function receives Channel instance as `this`.
 
 ```javascript
+Rpd.channelrenderer('docs/foo', 'html', {
+    show: ...,
+    edit: ...
+});
+
+Rpd.channelrenderer('docs/foo', 'html', function() {
+    var someSharedVariable;
+    var nodeInstance = this;
+    return {
+        show: ...,
+        edit: ...
+    };
+});
 ```
 
-When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
+Note: When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
 <!-- ##### `prepare` : `function()` -->
 
 ##### `show` : `function(target, value, repr)`
 
-This function may convert new received value to some renderable element. For example, `util/color` Channel Renderer, creates a `<span>` element with background of this color for HTML, and `rect` element filled with this color, for SVG:
+This function may convert new received value to some renderable element. For example, you may define `my/vector` Channel type which renders as the direction this vector points to, in SVG:
 
 ```javascript
+Rpd.channeltype('docs/vector', {});
+
+var SVG_XMLNS = 'http://www.w3.org/2000/svg';
+var radius = 7;
+Rpd.channelrenderer('docs/vector', 'svg', {
+    show: function(target, value) {
+        var circle = document.createElementNS(SVG_XMLNS, 'circle');
+        circle.setAttributeNS(null, 'cx', 0);
+        circle.setAttributeNS(null, 'cy', 0);
+        circle.setAttributeNS(null, 'r', radius);
+        circle.setAttributeNS(null, 'fill', 'white');
+        circle.setAttributeNS(null, 'stroke', 'black')
+        circle.setAttributeNS(null, 'strokeWidth', 1);
+        var line = document.createElementNS(SVG_XMLNS, 'line');
+        line.setAttributeNS(null, 'x1', 0);
+        line.setAttributeNS(null, 'y1', 0);
+        line.setAttributeNS(null, 'x2', Math.cos(value.angle) * radius);
+        line.setAttributeNS(null, 'y2', Math.sin(value.angle) * radius * -1);
+        line.setAttributeNS(null, 'stroke', 'black');
+        line.setAttributeNS(null, 'strokeWidth', 1);
+        target.appendChild(circle);
+        target.appendChild(line);
+    }
+});
 ```
 
 <!-- TODO: do this -->
@@ -319,7 +525,6 @@ This function may convert new received value to some renderable element. For exa
 `repr` is the string representation returned from [Channel Definition](#channel-definition) `show` method, if it was defined or just `.toString()` call on the value, when it wasn't.
 
 NB: Node Types names and Channel Types named may intersect since Node can also represent a single thing which can also be passed through a Channel.
-
 
 ##### `edit` : `function(target, inlet, valueIn) [→ change_stream]`
 
@@ -334,6 +539,20 @@ If you want to let user edit the value not (or _not only_) in the Node body, but
 The function should return a [stream][kefir] of outgoing values, so every time user selects or confirms some value, it should be passed to this stream.
 
 ```javascript
+Rpd.channelrenderer('docs/color', 'html', {
+    show: function(target, value) {
+        // see `show` code above
+    },
+    edit: function(target, inlet, valueIn) {
+        var input = document.createElement('input');
+        input.type = 'text';
+        valueIn.onValue(function(value) {
+            input.value = colorToText(value);
+        });
+        target.appendChild(input);
+        return Kefir.fromEvents(input, 'change').map(textToColor);
+    }
+});
 ```
 
 #### `Rpd.renderer(alias, definition)`
@@ -343,6 +562,8 @@ Renderer Definition is completely moved to [Style Section](../style.html#writing
 #### `Rpd.style(alias, rendererAlias, definition)`
 
 Style Definition is completely moved to [Style Section](../style.html#writing-your-own-style), since it doesn't relate to Building Patches.
+
+<!-- MARK: Patch -->
 
 ### `Patch`
 
@@ -362,10 +583,28 @@ Render this Patch with given Renderers, to given target elements, with provided 
 
 `conf` is the rendering configuration, described in details in [Network section](./network.html#rendering-configuration). It allows you to select Style of the Nodes and configure a lot of other useful things.
 
-```javascript
+```html
+<body>
+    <div id="target-1"></div>
+    <div id="target-2"></div>
+    <div id="target-3"></div>
+</body>
 ```
 
-<!-- TODO: on opened and closed Patches -->
+```javascript
+var patchOne = Rpd.addPatch('FirstPatch')
+                  .render('svg', [ 'target-1', 'target-2' ], {
+                      style: 'compact-v',
+                      linkForm: 'curve'
+                  });
+var patchTwo = Rpd.addPatch('SecondPatch')
+                  .render([ 'html', 'svg' ], 'target-3', {
+                      style: 'quartz',
+                      linkForm: 'line'
+                  });                  
+```
+
+NB: Note that _closed_ Patches are not rendered immediately, unlike _opened_ ones. To get more details on _opening_ and _closing_ Patches, see [Rpd.addClosedPatch()](#rpd-addclosedpatch) description.
 
 #### `patch.addNode(type, title, [definition]) → Node`
 
@@ -405,37 +644,88 @@ Remove the previously added node, just pass the one you need no more.
 
 #### `patch.open()`
 
-Opening the patch triggers it to be put into the rendering flow, so it listens for all the following actions and renders them accordingly. If patch yet has no canvas to be drawn onto, engine adds this canvas to the root element before.
+Opening the Patch triggers it to be put into the rendering flow, so it listens for all the following actions and renders them accordingly. If Patch yet has no canvas to be drawn onto, engine adds this canvas to the root element before.
 
-All the patches are opened by default, unless they were added with `Rpd.addClosedPatch` method.
+All the Patches are opened by default, unless they were added with [`Rpd.addClosedPatch`](#rpd-addclosedpatch) method.
 
-Opening and closing patches helps when you have a complex network and you want to isolate some parts of it by moving them in the background. So, you may add the patches you want to hide with `Rpd.addClosedPatch` and open them later (or not open them at all). Also, you may create a special node which refers to some closed patch, passes data inside and then takes the processed data in return. Then, if you want, you may add a button to this node, which, in its turn, opens this closed patch. This approach is decscribed in details together with the `patch.project(node)` method below.
+Opening and closing Patches helps when you have a complex network and you want to isolate some parts of it by moving them in the background. So, you may add the patches you want to hide with[`Rpd.addClosedPatch`](#rpd-addclosedpatch) and open them later (or not open them at all). Also, you may create a special Node which refers to some closed Patch, passes data inside and then takes the processed data in return. Then, if you want, you may add a button to this node, which, in its turn, opens this, currently closed, Patch. This approach is described in details together with the [`patch.project(node)`](#patch-project) method below.
 
 #### `patch.close()`
 
-Closing the patch means that the canvas of this patch is hidden and moved to the background, so user sees no process happening there. Currently the rendering still goes there, yet staying invinsible, but in the future versions it meant to be cached and reduced to the latest changes before opening instead.
+Closing the Patch means that the canvas of this Patch is hidden and moved to the background, so user sees no process happening there. Currently the rendering still goes there, yet staying invisible, but in the future versions it meant to be cached and reduced to the latest changes before opening instead.
 
 #### `patch.project(node)`
 
 Make given node to visually represent current patch<!-- projectOn, projectTo, referenceWith ?-->. It is expected, but not required, for this node to be located in another patch. <!-- TODO: test -->
 
-It helps a lot when you have some complex network with a single large patch and so you probably want to group some nodes and reference them in another patch, while making invisible what happens inside. By _projecting_ a patch into the node, with the help of `patch.inputs` and `patch.outputs`, you can "pack" any part of the network in one single node, and, optionally, let user to take a look inside or even edit, reconnect or rearrange the internals.
+It helps a lot when you have some complex network with a single large patch and so you probably want to group some nodes and reference them in another patch, while making invisible what happens inside. By _projecting_ a patch into the node, with the help of [`patch.inputs`](#patch-inputs) and [`patch.outputs`](#patch-outputs), you can "pack" any part of the network in one single node, and, optionally, let user to take a look inside or even edit, reconnect or rearrange the internals.
+
+```javascript
+Rpd.renderNext('html', document.body, {
+    fullPage: true;
+});
+
+// Prepare Root patch
+
+var rootPatch = Rpd.addPatch('Root');
+
+var genANode = rootPatch.addNode('core/basic', 'Generate A');
+var genAOutlet = genANode.addOutlet('util/number', 'A');
+genAOutlet.send(3);
+
+var genBNode = rootPatch.addNode('core/basic', 'Generate B');
+var genBOutlet = genA.addOutlet('util/number', 'B');
+genBOutlet.send(1);
+
+var rootSumOfThreeNode = rootPatch.addNode('util/sum-of-three', 'foo')
+rootSumOfThreeNode.addInlet('util/number', 'D');
+rootSumOfThreeNode.addInlet('util/number', 'E');
+rootSumOfThreeNode.addOutlet('util/number', 'F');
+
+// Prepare Procedure Patch
+
+var sumPatch = Rpd.addClosedPatch('Sum Procedure');
+
+var sumOfThree1Node = sumPatch.addNode('util/sum-of-three', 'Sum1');
+var in1AInlet = sumOfThree1Node.inlets['a'];
+var in1BInlet = sumOfThree1Node.inlets['b'];
+var sum1Outlet = sumOfThree1Node.outlets['sum'];
+
+var sumOfThree2Node = sumPatch.addNode('util/sum-of-three', 'Sum2');
+var in2AInlet = sumOfThree2Node.inlets['a'];
+var sum2Outlet = sumOfThree2Node.outlets['sum'];
+
+sum1Outlet.connect(in2AInlet);
+
+sumPatch.inputs([ in1AInlet, in1BInlet ]);
+sumPatch.outputs([ sum1Outlet, sum2Outlet ]);
+
+var projectionNode = rootPatch.addNode('core/reference', '[Sum Patch]');
+sumPatch.project(projectionNode);
+
+outAOutlet.connect(projectionNode.inlets['a']);
+outBOutlet.connect(rootSumOfThreeNode.inlets['a']);
+outBOutlet.connect(rootSumOfThreeNode.inlets['b']);
+rootSumOfThreeNode.outlets['sum'].connect(projectionNode.inlets['b']);
+```
 
 #### `patch.inputs(inlets)`
 
-Specify which inlets, no matter from one or different nodes, are the global inputs of this patch. See description of the `patch.project` for details.
+Specify which inlets, no matter from one or different nodes, are the global inputs of this patch. See description of the [`patch.project`](#patch-project) for details.
 
 #### `patch.outputs(outlets)`
 
-Specify which outlets, no matter from one or different nodes, are the global outputs of this patch. See description of the `patch.project` for details.
+Specify which outlets, no matter from one or different nodes, are the global outputs of this patch. See description of the [`patch.project`](#patch-project) for details.
 
 #### `patch.moveCanvas(x, y)`
 
-Move the canvas of the patch to given position, treated relatively to the root element's top left corner.
+Move the canvas of the patch to given position, treated relatively to the root element's top left corner. Both parameters are just numbers, treated as pixels for `html` rendering, and as units, for `svg` rendering.
 
 #### `patch.resizeCanvas(width, height)`
 
-Resize the canvas of the patch. This means all the visuals belonging to this patch and happened to be outside of given bounds, become hidden.
+Resize the canvas of the patch. This means all the visuals belonging to this patch and happened to be outside of given bounds, become hidden. Both parameters are just numbers, treated as pixels for `html` rendering, and as units, for `svg` rendering.
+
+<!-- MARK: Node -->
 
 ### `Node`
 
@@ -443,13 +733,17 @@ Node represents the thing we call procedure in programming: it receives data thr
 
 #### Node Definition
 
+<!-- PROPLIST: Node Definition -->
+
 * `title`: `string`
-* `inlets`: `object`
-* `outlets`: `object`
+* `inlets`: `object { <alias>*: inlet_definition }`
+* `outlets`: `object { <alias>*: outlet_definition }`
 * `prepare`: `function`: `(inlets, outlets) → nothing`
 * `process`: `function`: `(inlets_values, prev_inlets_values) → outlets_values`
 * `tune`: `function`: `(updates_stream) → updates_stream`
-* `handle`: `object`
+* `handle`: `object { <event>*: handler }`
+
+<!-- /PROPLIST -->
 
 Definition of the Node is the configuration object used to define
 new Node Type with `Rpd.nodetype` or an object with the same structure, passed to `patch.addNode` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Node Type or a single Node needs its originality, some of the following properties:
@@ -492,9 +786,11 @@ NB: `prepare` function is called only when node has `process` handler.
 
 Receives Node instance as `this`.
 
+<!-- IN PROGRESS -->
+
 ##### `process`: `function`: `(inlets_values, prev_inlets_values) → outlets_values`
 
-The `process` handler is the main function, the really important one for the Node Type definition. This function is triggered on every update appeared on any of the inlets and converts the data received through inlets to the data which is required to be sent to outlets. For example, `util/*` node, designed to multiply two numbers and send the result out, has a definition like this:
+The `process` handler is the main function, the really important one for the Node Type definition. This function is triggered on every update appeared on any of the inlets and converts the data received through inlets to the data which is required to be sent to outlets. For example, `util` node, designed to multiply two numbers and send the result out, has a definition like this:
 
 ```javascript
 Rpd.nodetype('util/*', {
@@ -507,28 +803,95 @@ Rpd.nodetype('util/*', {
 });
 ```
 
-Though it is not obligatory to process all the inlets or to send data to every outlet, in some cases this function not cares about input or output at all. When Node Type defines no `process` function or it wasn't defined in `patch.addNode` method, node makes actually nothing.
+Though it is not obligatory to process all the inlets or to send data to every outlet—in some cases this function not cares about input or output at all. When Node Type defines no `process` function or it wasn't defined in `patch.addNode` method, node makes actually nothing.
 
 Another important thing to notice is that you may return [Kefir Stream][kefir] as an outlet value, so the values from this stream will be sent to the outlet just when they are triggered. In this case, however, you should make the stream finite or stop this stream manually, or else streams for one inlet will merge with every next call to `process` function. For the real life example, see `util/metro` node definition in `src/toolkit/util/toolkit.js` file.
 
 Sometimes you may want to trigger `process` function manually with some new data, but you don't want to send it through user inlet. Adding hidden inlet for your internal data is a common trick often used even in Toolkits provided with RPD distribution:
 
 ```javascript
-Rpd.nodetype('util/bang', {
-    inlets: { 'trigger': { type: 'util/bang', hidden: true } },
-    outlets: { 'out': { type: 'util/bang' } },
+Rpd.channeltype('docs/bang', {
+    adapt: function(value) {
+        return (typeof value !== 'undefined') ? {} : null;
+    }
+});
+
+Rpd.nodetype('docs/bang', {
+    inlets: { 'trigger': { type: 'docs/bang', hidden: true } },
+    outlets: { 'out': { type: 'docs/bang' } },
     process: function(inlets) {
         return inlets.trigger ? { 'out': {} } : {};
     }
 });
 ```
 
-Sometimes it is important to know which inlet received the value first and which received its own value later. For example, when node has some input in a body, its updated value is usually sent to hidden inlet, but also user has some visible inlet in the same node to use it when she wants ti override this value from other node. Then we should know, which value came first, from user or from controller inside, so to rewrite controller value only in the first case. `util/timestamped` Channel Type wraps any incoming value with timestamp and will solve all your problems in this case: <!-- TODO: implement -->
+Usually when Node has some controller or input inside of its body, values from this controller are sent to a corresponding, existing, Inlet of this Node, so they come to `process` handler joined with other incoming data. But sometimes you may want to make input-connected Inlet hidden and leave it's pair visible, so user won't be surprised with new values coming to Inlets not from connected Outlets, but from nowhere.
+
+In this case it could be important to know which Inlet received the value first and which received its own value later. For example, when Node has some input in a body, its updated value is usually sent to hidden Inlet, but also some visible Inlet in the same node is provided to the user, so she'll able to use it, when she wants to override this value from another Node.
+
+For this reason we should know, which value came first, from user or from the controller inside, so to rewrite controller value only in the first case. For example `util/timestamped` Channel Type wraps any incoming value with timestamp. Let's implement a similar functionality which will will help us to solve the problem in this case:
 
 ```javascript
+Rpd.channeltype('docs/number-timestamped', {
+    allow: [ 'util/number' ],
+    adapt: function(value) {
+        return {
+            time: new Date(),
+            value: value
+        }
+    },
+    show: function(v) { return v.value }
+});
+
+function getMostRecentValue(fromOtherNode, fromNodeBody) {
+    if (!fromNodeBody) { return fromOtherNode.value; }
+    else if (!fromOtherNode) { return fromNodeBody.value; }
+    else {
+        return (fromNodeBody.time > fromOtherNode.time)
+            ? fromNodeBody.value : fromOtherNode.value;
+    }
+}
+
+Rpd.nodetype('docs/inlet-or-body', {
+    inlets: { 'from-other-node': { type: 'docs/number-timestamped' },
+              'from-node-body': { type: 'docs/number-timestamped',
+                                  hidden: true } },
+    outlets: { 'out': { type: 'util/number' } },
+    process: function(inlets) {
+        return {
+            out: getMostRecentValue(inlets['from-other-node'],
+                                    inlets['from-node-body'])
+        };
+    }
+});
+
+Rpd.nodetyperenderer('docs/inlet-or-body', 'html', function() {
+    var input;
+    return {
+        first: function(bodyElm) {
+            input = document.createElement('input');
+            input.type = 'number';
+            bodyElm.appendChild(input);
+            return {
+                'from-node-body': Kefir.fromEvents(input, 'change')
+                                       .map(function(event) {
+                                           return event.target.value;
+                                       })
+            }
+        },
+        always: function(bodyElm, inlets) {
+            if (inlets['from-other-node'] &&
+                (!inlets['from-node-body'] ||
+                 ( inlets['from-other-node'].time >  
+                   inlets['from-node-body'].time ))) {
+              input.value = inlets['from-other-node'].value;
+            }  
+        }
+    };
+});
 ```
 
-As another option, you may add timestamp to Inlets using their own `tune` function, or using the `tune` function of the Node, which is described just below.
+As another option, you may add timestamps to Inlets' values using their own `tune` function, or using the `tune` function of the Node, which is described just below and by chance there's an example which shows how to do it.
 
 Receives Node instance as `this`.
 
@@ -536,17 +899,39 @@ Receives Node instance as `this`.
 
 This function allows you to tune all the updates from the inlets, so, for example, you may skip every second update from specific inlet, or every second update in general. Or you may multiply every new numeric value by 10. It gets the [Kefir Stream][kefir] which represents all the updates from the node inlets merged. When you return the same stream you received from this function, it changes nothing in the process.
 
-An example:
+Each update in `updates_stream` stream is the object in a form `{ inlet, value }`, where `inlet` is `Inlet` instance which received the update and `value` is the new value received. You should return the same structure from this function, but you are free to substitute values or even inlets.
+
+Some examples:
 
 ```javascript
 Rpd.nodetype('docs/delay', {
+    inlets: { 'this': { type: 'core/any' },
+              'that': { type: 'core/any' } },
+    outlets: { 'out': { type: 'core/any' } },
+    tune: function(updates) {
+        return updates.delay(3000); // delays all updates for three seconds
+    },
+    process: function(inlets) {
+        return { out: inlets['this'] || inlets['that'] };
+    }
+});
+```
+
+```javascript
+Rpd.nodetype('docs/timestamp-example', {
     inlets: { 'in': { type: 'util/number' } },
     outlets: { 'out': { type: 'util/number' } },
     tune: function(updates) {
-        return updates.delay(1000); // delays updates for one second
+        return updates.map(function(update) {
+            var updateCopy = Object.assign({}, update);
+            updateCopy.value = { value: update.value,
+                                 time: new Date() }
+            return updateCopy;
+        })
     },
     process: function(inlets) {
-        return { out: inlets.in };
+        console.log(inlets.in.time);
+        return { out: inlets.in.value };
     }
 });
 ```
@@ -555,25 +940,67 @@ Receives Node instance as `this`.
 
 ##### `handle`: `object`
 
-This object allows you to subscribe to any event this Node produces. _Key_ in this object is the event name, and _value_ is the handler. See [Events](#) section for the complete list of the events.
+This object allows you to subscribe to any event this Node produces. _Key_ in this object is the event name, and _value_ is the handler. See [Events](./events.html) section for the complete list of the events.
 
 An example:
 
-
 ```javascript
+Rpd.nodetype('docs/handle-events', {
+    inlets: { 'in': { type: 'util/number' } },
+    outlets: { 'out': { type: 'util/number' } },
+    handle: {
+        'node/move': function(event) {
+            console.log(event);
+        },
+        'node/add-inlet': function(event) {
+            console.log(event);
+        },
+        'inlet/update': function(event) {
+            console.log(event);
+        }
+    }
+});
 ```
 
 ----
 
 #### `node.addInlet(type, alias, [definition]) → Inlet`
 
-Add the input channel to this node, so it will be able to receive data and pass this data inside the node. You need to specify the type of this channel, so the system will know which way to process your data before passing it inside, or even decline connections from other types of channels. `core/any` is the system type which accepts connections from outlets of any type, so probably for start you'd want to use it. Later, though, it could be better to change it to something more specific, i.e. decide that it accepts only numbers or colors values. This will allow you to control the way data in this channel is displayed or even add custom _value editor_ to this channel.
+Add the input channel to this node, so it will be able to receive data and pass this data inside the node. You need to specify the type of this channel, so the system will know which way to process your data before passing it inside, or even decline connections from other types of channels. `core/any` is the system type which accepts connections from outlets of any type, so probably for start you'd want to use it. Later, though, it could be better to change it to something more specific, i.e. decide that it accepts only numbers or colors values. This will allow you to control the way data in this channel is displayed or even add [custom _value editor_](#rpd-channelrenderer) to this channel.
 
 The second argument, `alias`, is the label of this channel displayed to user and also may be used to access this inlet from inside the node, so it's recommended to make it one-word and start from lowercase letter, like the key names you normally use for JavaScript objects. There is another form of this method, `addInlet(type, alias, label, [definition])`, using which you may specify user-friendly name to display in UI with `label` attribute, and still use short programmer-friendly `alias` to access this inlet from the code.
 
 Last argument, `definition`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Inlet](#Inlet) <!-- or Rpd.channeltype? --> section below.
 
-By default, inlets accept connection only from one outlet, so when user connects some other outlet to this inlet, the previous connection, if it existed, is immediately and automatically removed. Though, you can pass an option to the renderer named `inletsAcceptMultipleLinks` and set it to `true`, so multiple connections will be available to user and inlets will receive values from all the outlets connected in order they were fired. <!-- FIXME: check if it works and consider #336 -->
+```javascript
+Rpd.channeltype('docs/topping', {});
+Rpd.channeltype('docs/cone', {});
+Rpd.channeltype('docs/taste', {});
+Rpd.channeltype('docs/size', {
+    show: function(value) { return '#' + value }
+});
+Rpd.channeltype('docs/yoghurt', {});
+
+var frozenYoghurtFactoryNode = patch.addNode('core/basic', 'Frozen Yoghurt', {
+    process: function(inlets) { return { yoghurt: inlets } };
+});
+var toppingInlet = frozenYoghurtFactoryNode.addInlet('docs/topping', 'topping');
+var coneInlet = frozenYoghurtFactoryNode.addInlet('docs/cone', 'cone');
+var tasteInlet = frozenYoghurtFactoryNode.addInlet('docs/taste', 'taste');
+var sizeInlet = frozenYoghurtFactoryNode.addInlet('docs/size', 'size', {
+    allow: [ 'util/number' ],
+    accept: function(size) { return (size > 0) && (size <= 4); },
+    adapt: function(value) { return Math.floor(value); }
+});
+var yoghurtOutlet = frozenYoghurtFactoryNode.addOutlet('docs/yoghurt', 'yoghurt');
+
+var knob = patch.addNode('util/knob');
+knob.inlets['min'].receive(1);
+knob.inlets['max'].receive(4);
+knob.outlets['number'].connect(sizeInlet);
+```
+
+By default, inlets accept connection only from one outlet, so when user connects some other outlet to this inlet, the previous connection, if it existed, is immediately and automatically removed. Though, you can pass an option to the renderer named `inletsAcceptMultipleLinks` and set it to `true`, so multiple connections will be available to user and inlets will receive values from all the outlets connected in order they were fired. <!-- FIXME: check if it is really so and consider #336 -->
 
 You can discover the complete list of the properties which could be used in this definition if you follow to [Inlet Definition](#inlet-definition) section.
 
@@ -585,30 +1012,99 @@ Also, you need to specify `alias`, to be able to access this outlet from the cod
 
 Last argument, `definition`, is optional, and allows you to override the options inherited from type description for this particular instance. This object is described in details in the [Outlet](#Outlet) <!-- or Rpd.channeltype? --> section below.
 
+```javascript
+Rpd.channeltype('docs/meat-type', {});
+Rpd.channeltype('docs/rice', {
+    adapt: function(choice) {
+        if (choice == 1) return 'plain';
+        if (choice == 2) return 'mexican';
+    }
+});
+Rpd.channeltype('docs/guacamole', {});
+Rpd.channeltype('docs/cheese', {});
+Rpd.channeltype('docs/to-go', {});
+Rpd.channeltype('docs/spicy', {
+    show: function(value) { return '#' + value }
+});
+Rpd.channeltype('docs/burrito', {});
+
+var burritoFactoryNode = patch.addNode('core/basic', 'Burrito', {
+    process: function(inlets) { return { burrito: inlets } }
+});
+burritoFactoryNode.addInlet('docs/meat-type', 'meat');
+burritoFactoryNode.addInlet('docs/rice', 'rice');
+burritoFactoryNode.addInlet('docs/guacamole', 'guacamole');
+burritoFactoryNode.addInlet('docs/cheese', 'cheese');
+burritoFactoryNode.addInlet('docs/to-go', 'to-go');
+var spicyInlet = burritoFactoryNode.addInlet('docs/spicy', 'spicy', {
+    allow: [ 'util/number' ],
+    accept: function(spicy) { return (spicy > 0) && (spicy <= 4); },
+    adapt: function(value) { return Math.floor(value); }
+});
+var burritoOutlet = burritoFactoryNode.addOutlet('docs/burrito', 'burrito', {
+    show: function(burrito) {
+        var wrapped = Array.isArray(burrito);
+        if (wrapped) {
+            return '[ Burrito ' + (burrito[0].guacamole ? '+$1.80' : '') + ' ]';
+        } else {
+            return 'Burrito' + (burrito.guacamole ? '+$1.80' : '')
+        }
+    },
+    tune: function(stream) {
+        return stream.map(function(burrito) {
+            if (burrito['to-go']) {
+                return wrap(burrito);
+            } else {
+                return burrito;
+            }
+        });
+    }     
+});
+
+function wrap(burrito) { return [ burrito ]; }
+
+var knob = patch.addNode('util/knob');
+knob.inlets['min'].receive(1);
+knob.inlets['max'].receive(4);
+knob.outlets['number'].connect(spicyInlet);
+```
+
 You can discover the complete list of the properties which could be used in this definition if you follow to [Outlet Definition](#outlet-definition) section.
 
 #### `node.removeInlet(inlet)`
 
 Remove specified inlet from the node. Node stops receiving any updates sent to this inlet and so removes this inlet from its data flow.
 
+```javascript
+// works with the example from `node.addInlet(...)` method
+frozenYoghurtFactoryNode.removeInlet(toppingInlet);
+```
+
 #### `node.removeOutlet(outlet)`
 
 Remove specified outlet from the node. Node stops sending any values passed to this outlet and so removes this outlet from its data flow.
 
+```javascript
+// works with the example for `node.addOutlet(...)` method
+burritoFactoryNode.removeOutlet(burritoOutlet);
+```
+
 #### `node.move(x, y)`
 
-Move this node to specified position relatively to the top left corner of the canvas of the patch it belongs to.
+Move this Node to the specified position relatively to the top left corner of the canvas of the Patch it belongs to. `x` and `y` are just numbers, while they could be treated differently by every renderer.
 
 #### `node.turnOn()`
 
-Turn this node on, so it processes all the incoming updates and sends values further, if it has inputs and outputs. By default nodes are always turned on.
+Turn this Node on, so it processes all the incoming updates and sends values further, if it has inputs and outputs. By default Nodes are always turned on.
 
 #### `node.turnOff()`
 
-Turn this node off, so it stops all the processing. This method is useful when your node has a lot of connections and you don't want to disconnect or disable them one by one, but to quickly turn them off at once and to have the ability to turn them back on, same way, all at once.
+Turn this Node off, so it stops all the processing. This method is useful when your Node has a lot of connections and you don't want to disconnect or disable them one by one, but to quickly turn them off at once and to have the ability to turn them back on, same way, all at once. <!-- TODO: text -->
 
-Or, could happen, you want to provide user with this nice ability, for example when user clicks somewhere in the body of a node.
+<!-- Or, could happen, you may decide to provide user with this nice ability to turn everything off and on, for example when user clicks something located in the body of a node. -->
 <!-- TODO: Make an issue for this, to be a bulb in the node header -->
+
+<!-- MARK: Inlet -->
 
 ### `Inlet`
 
@@ -616,8 +1112,10 @@ Inlet is the name for one of the input channels of the node so, when its connect
 
 #### Inlet Definition
 
+<!-- PROPLIST: Channel Definition -->
+
 * `label`: `string`
-* `default`: `any`
+* `default`: `any | stream`
 * `hidden`: `boolean`
 * `cold`: `boolean`
 * `readonly`: `boolean`
@@ -626,7 +1124,9 @@ Inlet is the name for one of the input channels of the node so, when its connect
 * `adapt`: `function`: `(value) → value`
 * `show`: `function`: `(value) → string`
 * `tune`: `function`: `(values_stream) → values_stream`
-* `handle`: `object`
+* `handle`: `object { <event>*: handler }`
+
+<!-- /PROPLIST -->
 
 Definition of the Inlet is the configuration object used to define
 new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addInlet` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Inlet Type or a single Inlet needs its originality, some of these properties:
@@ -767,16 +1267,22 @@ Force default value to be sent into this inlet, breaking its normal flow. It is 
 
 Check if this inlet allows connections from given outlet. Usually it us done by the renderer <!-- ? --> on connection, but if you want to ensure connection will pass, you may use this method.
 
+<!-- MARK: Outlet -->
+
 ### `Outlet`
 
 Outlet is the output channel of the node.
 
 #### Outlet Definition
 
+<!-- PROPLIST: Channel Definition -->
+
 * `label`: `string`
 * `show`: `function`: `(value) → string`
 * `tune`: `function`: `(values_stream) → values_stream`
-* `handle`: `object`
+* `handle`: `object { <event>*: handler }`
+
+<!-- /PROPLIST -->
 
 Definition of the Inlet is the configuration object used to define
 new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addOutlet` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Outlet Type or a single Outlet needs its originality, some of these properties:
@@ -842,6 +1348,8 @@ Yet, same as with `outlet.send`, value may be declined or modified on the receiv
 
 <!-- #### `outlet.toDefault()` -->
 
+<!-- MARK: Link -->
+
 ### `Link`
 
 Link represents a single connection between Inlet and Outlet <!-- what happens when the connection was declined? -->. By default, one Outlet can be connected to several Inlets, but for Inlets it is not allowed to have more than one incoming connection. This is configurable through `config.inletAcceptsMultipleLinks`, though. `Link` instance is returned from `outlet.connect` method.
@@ -861,6 +1369,8 @@ Disable the link temporarily, but the connection actually stays. Practically the
 #### `link.disconnect()`
 
 Remove the connection between given Outlet and Inlet. For ever. Unless new one will be established.
+
+<!-- MARK: modules -->
 
 ### modules
 

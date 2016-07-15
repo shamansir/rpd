@@ -223,8 +223,8 @@ describe('building: outlet', function() {
 
             expect(function() { fooOutlet.connect(barInlet); }).toReportError('outlet/error');
             expect(function() { barOutlet.connect(fooInlet); }).toReportError('outlet/error');
-            expect(function() { fooOutlet.connect(fooInlet); }).not.toReportError();
-            expect(function() { barOutlet.connect(barInlet); }).not.toReportError();
+            expect(function() { fooOutlet.connect(fooInlet); }).not.toReportAnyError();
+            expect(function() { barOutlet.connect(barInlet); }).not.toReportAnyError();
 
         });
     });
@@ -280,6 +280,47 @@ describe('building: outlet', function() {
 
     xit('allows to substitute/extend renderer', function() {
         // i#311
+    });
+
+    it('core/any outlet type exists', function() {
+
+        withNewPatch(function(patch, updateSpy) {
+            expect(function() {
+                patch.addNode('core/basic').addOutlet('core/any', 'foo');
+            }).not.toReportAnyError();
+        });
+
+    });
+
+    it('outlet of core/any type is not allowed to connect other types of inlets', function() {
+
+        Rpd.channeltype('docs/foo', {});
+        Rpd.channeltype('docs/bar', {});
+
+        withNewPatch(function(patch, updateSpy) {
+            expect(function() {
+                var node = patch.addNode('core/basic')
+                anyOutlet = node.addOutlet('core/any', 'any');
+
+                var node = patch.addNode('core/basic')
+                fooInlet = node.addInlet('docs/foo', 'foo');
+
+                anyOutlet.connect(fooInlet);
+            }).toReportError('outlet/error');
+        });
+
+        withNewPatch(function(patch, updateSpy) {
+            expect(function() {
+                var node = patch.addNode('core/basic')
+                anyOutlet = node.addOutlet('core/any', 'any');
+
+                var node = patch.addNode('core/basic')
+                barInlet = node.addInlet('docs/bar', 'bar');
+
+                anyOutlet.connect(barInlet);
+            }).toReportError('outlet/error');
+        });
+
     });
 
 });

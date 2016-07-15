@@ -36,6 +36,7 @@ Rpd.import.pd = function(lines) {
     var rootPatch = Rpd.addPatch('PD');
     var model = new PdModel(rootPatch, webPdPatch); // it is wrong to do it here as well
                                                     // since PdModel is defined for toolkit, not the import
+    rootPatch.model = model;
 
     var nodeToInlets = {},
         nodeToOutlets = {};

@@ -1186,4 +1186,8 @@ describe('registration: node type', function() {
         });
     });
 
+    xit('it is possible to handle events from node definition');
+
+    xit('`node/process` event is not fired to node definition handler unless `process` callback is defined');
+
 });

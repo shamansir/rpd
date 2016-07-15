@@ -3,7 +3,7 @@ describe('registration: channel type', function() {
     it('could be registered with an empty object', function() {
         expect(function() {
             Rpd.channeltype('spec/foo', {});
-        }).not.toReportError();
+        }).not.toReportAnyError();
     });
 
     it('could be used both for inlets and outlets', function() {
@@ -22,7 +22,7 @@ describe('registration: channel type', function() {
                 node.addInlet('spec/bar', 'bar');
                 node.addOutlet('spec/bar', 'bar');
 
-            }).not.toReportError();
+            }).not.toReportAnyError();
         });
     });
 
@@ -109,16 +109,16 @@ describe('registration: channel type', function() {
             var buzInlet  = secondNode.addInlet('spec/buz', 'buz');
 
             // outlets of type spec/foo are allowed to connect to inlets of type spec/foo
-            expect(function() { fooOutlet.connect(fooInlet); }).not.toReportError();
+            expect(function() { fooOutlet.connect(fooInlet); }).not.toReportAnyError();
             // outlets of type spec/bar are allowed to connect to inlets of type spec/foo
-            expect(function() { barOutlet.connect(fooInlet); }).not.toReportError();
+            expect(function() { barOutlet.connect(fooInlet); }).not.toReportAnyError();
             // outlets of type spec/buz are allowed to connect to inlets of type spec/foo
-            expect(function() { buzOutlet.connect(fooInlet); }).not.toReportError();
+            expect(function() { buzOutlet.connect(fooInlet); }).not.toReportAnyError();
 
             // outlets of type spec/foo are allowed to connect to inlets of type spec/bar
-            expect(function() { fooOutlet.connect(barInlet); }).not.toReportError();
+            expect(function() { fooOutlet.connect(barInlet); }).not.toReportAnyError();
             // outlets of type spec/bar are allowed to connect to inlets of type spec/bar
-            expect(function() { barOutlet.connect(barInlet); }).not.toReportError();
+            expect(function() { barOutlet.connect(barInlet); }).not.toReportAnyError();
             // outlets of type spec/buz are NOT allowed to connect to inlets of type spec/bar
             expect(function() { buzOutlet.connect(barInlet); }).toReportError('outlet/error');
 
@@ -127,7 +127,7 @@ describe('registration: channel type', function() {
             // outlets of type spec/bar are NOT allowed to connect to inlets of type spec/buz
             expect(function() { barOutlet.connect(buzInlet); }).toReportError('outlet/error');
             // outlets of type spec/buz are allowed to connect to inlets of type spec/buz
-            expect(function() { buzOutlet.connect(buzInlet); }).not.toReportError();
+            expect(function() { buzOutlet.connect(buzInlet); }).not.toReportAnyError();
 
         });
     });
@@ -245,7 +245,7 @@ describe('registration: channel type', function() {
             var barInlet  = secondNode.addInlet('spec/bar', 'bar');
             var buzInlet  = secondNode.addInlet('spec/buz', 'buz');
 
-            expect(function() { fooOutlet.connect(barInlet); }).not.toReportError();
+            expect(function() { fooOutlet.connect(barInlet); }).not.toReportAnyError();
             expect(acceptFooSpy).toHaveBeenCalled();
             expect(acceptBarSpy).toHaveBeenCalled();
             expect(adaptFooSpy).toHaveBeenCalled();

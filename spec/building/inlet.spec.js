@@ -393,6 +393,123 @@ describe('building: inlet', function() {
 
     });
 
+    it('core/any inlet type exists', function() {
+
+        withNewPatch(function(patch, updateSpy) {
+            expect(function() {
+                patch.addNode('core/basic').addInlet('core/any', 'foo');
+            }).not.toReportAnyError();
+        });
+
+    });
+
+    describe('allowing connections', function() {
+
+        it('inlets do not accept connection from other types of outlets by default', function() {
+            Rpd.channeltype('docs/foo', {});
+            Rpd.channeltype('docs/bar', {});
+
+            withNewPatch(function(patch, updateSpy) {
+                expect(function() {
+                    var node = patch.addNode('core/basic')
+                    fooOutlet = node.addOutlet('docs/foo', 'foo');
+
+                    var node = patch.addNode('core/basic')
+                    barInlet = node.addInlet('core/bar', 'bar');
+
+                    fooOutlet.connect(barInlet);
+                }).toReportError('outlet/error');
+            });
+
+            withNewPatch(function(patch, updateSpy) {
+                expect(function() {
+                    var node = patch.addNode('core/basic')
+                    barOutlet = node.addOutlet('docs/bar', 'bar');
+
+                    var node = patch.addNode('core/basic')
+                    fooInlet = node.addInlet('docs/foo', 'foo');
+
+                    barOutlet.connect(fooInlet);
+                }).toReportError('outlet/error');
+            });
+        });
+
+        it('it is allowed to connect inlet and outlet of core/any types', function() {
+            withNewPatch(function(patch, updateSpy) {
+                expect(function() {
+                    var node = patch.addNode('core/basic')
+                    anyOutlet = node.addOutlet('core/any', 'any');
+
+                    var node = patch.addNode('core/basic')
+                    anyInlet = node.addInlet('core/any', 'any');
+
+                    anyOutlet.connect(anyInlet);
+                }).not.toReportAnyError();
+            });
+        });
+
+        it('it is allowed to connect inlet and outlet of same types', function() {
+            Rpd.channeltype('docs/foo', {});
+            Rpd.channeltype('docs/bar', {});
+
+            withNewPatch(function(patch, updateSpy) {
+                expect(function() {
+                    var node = patch.addNode('core/basic')
+                    fooOutlet = node.addOutlet('docs/foo', 'foo');
+
+                    var node = patch.addNode('core/basic')
+                    fooInlet = node.addInlet('docs/foo', 'foo');
+
+                    fooOutlet.connect(fooInlet);
+                }).not.toReportAnyError();
+            });
+
+            withNewPatch(function(patch, updateSpy) {
+                expect(function() {
+                    var node = patch.addNode('core/basic')
+                    barOutlet = node.addOutlet('docs/bar', 'bar');
+
+                    var node = patch.addNode('core/basic')
+                    barInlet = node.addInlet('docs/bar', 'bar');
+
+                    barOutlet.connect(barInlet);
+                }).not.toReportAnyError();
+            });
+        });
+
+        it('any inlet type allows connections from core/any type of outlet', function() {
+
+            Rpd.channeltype('docs/foo', {});
+            Rpd.channeltype('docs/bar', {});
+
+            withNewPatch(function(patch, updateSpy) {
+                expect(function() {
+                    var node = patch.addNode('core/basic')
+                    fooOutlet = node.addOutlet('docs/foo', 'foo');
+
+                    var node = patch.addNode('core/basic')
+                    anyInlet = node.addInlet('core/any', 'any');
+
+                    fooOutlet.connect(anyInlet);
+                }).not.toReportAnyError();
+            });
+
+            withNewPatch(function(patch, updateSpy) {
+                expect(function() {
+                    var node = patch.addNode('core/basic')
+                    barOutlet = node.addOutlet('docs/foo', 'foo');
+
+                    var node = patch.addNode('core/basic')
+                    anyInlet = node.addInlet('core/any', 'foo');
+
+                    barOutlet.connect(anyInlet);
+                }).not.toReportAnyError();
+            });
+
+        });
+
+    });
+
     xit('allows to substitute/extend renderer', function() {
         // i#311
     });

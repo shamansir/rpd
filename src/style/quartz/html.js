@@ -132,18 +132,20 @@ return {
     },
 
     getInletPos: function(inlet) {
-        return getPos(inletToConnector[inlet.id].node());
+        var connectorPos = getPos(inletToConnector[inlet.id].node());
+        return { x: connectorPos.x, y: connectorPos.y - 1 };;
     },
 
     getOutletPos: function(outlet) {
-        return getPos(outletToConnector[outlet.id].node());
+        var connectorPos = getPos(outletToConnector[outlet.id].node());
+        return { x: connectorPos.x, y: connectorPos.y - 1 };
     },
 
     getLocalPos: function(pos) {
         if (!lastCanvas) return pos;
         // calculate once on patch switch?
         var canvasPos = getPos(lastCanvas.node());
-        return { x: pos.x - canvasPos.x, y: pos.y - canvasPos.y };
+        return { x: pos.x - canvasPos.x, y: pos.y - canvasPos.y - 1 };
     },
 
     onPatchSwitch: function(patch, canvas) {

@@ -22,9 +22,9 @@ var PdView = (function() {
 
     var switchEditMode = Kefir.emitter();
 
-    function PdView(defaultSize, root) { // FIXME: a) create view only when document is ready;
-                                         //        b) 'root' should be a canvas of the patch... probably;
-        this.root = root;
+    function PdView(defaultSize, getRoot) { // FIXME: a) create view only when document is ready;
+                                            //        b) 'root' should be a canvas of the patch... probably;
+        this.getRoot = (typeof getRoot === 'function') ? getRoot : function() { return getRoot; };
         this.inEditMode = switchEditMode.map(ƒ(true))
                                         .scan(Rpd.not, false) // will switch between `true` and `false`
                                         .toProperty(ƒ(false));
@@ -36,17 +36,16 @@ var PdView = (function() {
                            .node();
         var view = this;
         document.addEventListener('DOMContentLoaded', function() {
-            if (!view.root) view.root = document.body;
-            d3.select(view.root)
+            d3.select(view.getRoot())
               .append(d3.select(editorNode)
                         .style('display', 'none')
                         .style('position', 'absolute').node());
 
-            Kefir.fromEvents(view.root, 'keydown')
+            Kefir.fromEvents(view.getRoot(), 'keydown')
                           .filter(function(evt) { return isAltAnd(evt, 69/*E*/) })
                           .onValue(function() { switchEditMode.emit(); });
 
-            Kefir.fromEvents(view.root, 'keydown')
+            Kefir.fromEvents(view.getRoot(), 'keydown')
                           .filter(function(evt) { return isAltAnd(evt, 8/*Delete*/) && selection; })
                           .onValue(function() {
                               var node = selection.node;
@@ -56,7 +55,7 @@ var PdView = (function() {
                               }
                           });
 
-            Kefir.fromEvents(view.root, 'keydown')
+            Kefir.fromEvents(view.getRoot(), 'keydown')
                  .filter(function() { return PdModel.lastPatch; }) // there's some current patch
                  .map(function(evt) { return PdModel.getNodeTypeByKey(evt); })
                  .filter(function(type) { return type; }) // type is defined
@@ -79,7 +78,7 @@ var PdView = (function() {
                  selection = { element: selectNode, node : node };
                  d3.select(selectNode).classed('rpd-wpd-selected', true);
 
-                 Kefir.fromEvents(view.root, 'click').take(1)
+                 Kefir.fromEvents(view.getRoot(), 'click').take(1)
                       .onValue(function() {
 
                           d3.select(selectNode).classed('rpd-wpd-selected', false);
@@ -111,7 +110,7 @@ var PdView = (function() {
                  editor.style('display', 'block')
                        .node().focus();
 
-                 Kefir.merge([ Kefir.fromEvents(view.root, 'click'),
+                 Kefir.merge([ Kefir.fromEvents(view.getRoot(), 'click'),
                                Kefir.fromEvents(editorNode, 'keydown')
                                     .filter(function(evt) { return isKey(evt, 13/*Enter*/); }),
                                startSelection
@@ -170,7 +169,7 @@ var PdView = (function() {
     }
 
     PdView.prototype.addSpinner = function(sourceNode) {
-        return new Spinner(this.root, sourceNode, this.inEditMode);
+        return new Spinner(this.getRoot(), sourceNode, this.inEditMode);
     }
 
     PdView.prototype.measureText = function(textHolder) {

@@ -1,0 +1,127 @@
+.rpd-patch {
+    font-family: sans-serif;
+    font-size: 9px;
+}
+
+.rpd-node path.rpd-header {
+    fill: black;
+}
+
+.rpd-node text.rpd-name {
+    fill: white;
+    text-transform: capitalize;
+}
+
+.rpd-node .rpd-inlet text.rpd-name,
+.rpd-node .rpd-outlet text.rpd-name {
+    fill: black;
+    /* font-weight: bold; */
+    text-decoration: underline;
+    text-transform: none;
+    alignment-baseline: central;
+}
+
+.rpd-node .rpd-outlet text.rpd-name {
+    text-anchor: end;
+}
+
+.rpd-node .rpd-content {
+    /* stroke: black; */
+    fill: white;
+}
+
+.rpd-node .rpd-body {
+    stroke: black;
+    stroke-width: 1.5;
+    fill: transparent;
+}
+
+.rpd-link {
+    stroke: black;
+    stroke-width: 2;
+}
+
+.rpd-shadow {
+    fill: lightgray;
+}
+
+.rpd-value-holder.rpd-editor-disabled foreignobject {
+    display: none;
+}
+
+.rpd-inlet .rpd-connector,
+.rpd-outlet .rpd-connector {
+    stroke-width: 1;
+    stroke: black;
+    fill: white;
+}
+
+.rpd-link {
+    stroke-width: 3;
+    stroke: black;
+    stroke-linecap: round;
+    fill: transparent;
+}
+
+.rpd-link.rpd-disabled {
+    stroke: lightgray;
+}
+
+.rpd-value-background {
+    fill: white;
+}
+
+.rpd-node.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype rect {
+    fill: lightgray;
+}
+
+.rpd-node.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype.rpd-selected rect {
+    fill: darkgray;
+}
+
+.rpd-node.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-selected text.rpd-nodelist-fulltypename {
+    fill: white;
+}
+
+.rpd-node.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype.rpd-nodelist-add-effect text.rpd-nodelist-fulltypename {
+    fill: black;
+}
+
+.rpd-node.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype.rpd-nodelist-add-effect rect {
+    stroke-width: 1;
+    stroke: black;
+    fill: white;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search input:focus {
+    outline: none;
+    border-color: black;
+    border-width: 1;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search rect {
+    fill: lightgray !important;
+    x: 2;
+    y: -3;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search:hover rect {
+    fill: darkgray !important;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search text {
+    fill: red !important;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search:hover text {
+    fill: white !important;
+}
+
+.rpd-node .rpd-remove-button text {
+    fill: white;
+    font-size: 7px;
+}
+
+.rpd-node .rpd-remove-button:hover text {
+    fill: red;
+}

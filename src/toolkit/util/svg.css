@@ -109,3 +109,21 @@
     transition: fill 0.1s ease-out;
     -webkit-transition: fill 0.1s ease-out;
 }
+
+.rpd-util-mouse-pos .rpd-process line,
+.rpd-util-mouse-pos-by-bang .rpd-process line {
+    stroke: teal;
+    stroke-width: 2;
+}
+
+.rpd-util-mouse-pos .rpd-process circle,
+.rpd-util-mouse-pos-by-bang .rpd-process circle {
+    fill: #36464c;
+}
+
+.rpd-util-mouse-pos .rpd-process text,
+.rpd-util-mouse-pos-by-bang .rpd-process text {
+    fill: rgba(255, 255, 255, 0.7);
+    font-size: 0.7em;
+    text-anchor: middle;
+}

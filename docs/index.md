@@ -20,6 +20,8 @@ RPD is the abbreviation for _Reactive Patch Development_...
 
 ...or, actually, whatever you decide. It is the library which brings node-based user interfaces to the modern web, in full their power (when you know how to use it) and in a very elegant and minimalistic way. _Node-based_ is something like the thing you'll (probably) see above if you move your mouse cursor, or any other pointing device, above the RPD logo — (almost) nothing to do with [node.js][node-js]. Some people also say that with such user interfaces they do _Flow Programming_. If you are wondering yet, what that means, _Node-based_ interface is the one where man may visually connect different low-level components using their inputs and outputs and observe the result in real time, take <!-- consider? --> PureData, QuartzComposer, VVVV, NodeBox, Reaktor etc. for example.
 
+RPD brings DataFlow Programming to the Web both in the _elegant_ and _minimal_ ways.
+
 <!-- TODO: video or some example patch, processing patch from vimeo? -->
 
 _Elegancy_ is achieved both with providing you a very simple API for building these powerful things, and (thanks to the reactive streams, powered by [Kefir.js library][kefir]) pure functional approach in the core, so it's easy for you to operate with sequences of data over time in any way you want, and also every action performed, (such as adding a node, or connecting something, or sending a value) is atomic, so it can easily be rolled back or stored in, and so restored from, some file.
@@ -36,51 +38,225 @@ If you feel that's you know everything in this field and this library is definit
 
 ### Code Examples
 
-<!-- TODO: insert generator example itself (its gif, in the worst case) -->
+#### Random Generator
 
 Random Generator with the help of [`util`](http://..) toolkit:
 
 <div id="example-one"></div>
 
 ```js
-Rpd.renderNext('html', document.getElementById('example-one'),
-               { nodeMovingAllowed: false });
+Rpd.renderNext('svg', document.getElementById('example-one'),
+               { style: 'compact-v' });
 
-var rgPatch = Rpd.addPatch('Generate Random Numbers');
+var patch = Rpd.addPatch('Generate Random Numbers').resizeCanvas(800, 110);
 
-var rgNode = rgPatch.addNode('util/random', 'Random');
-rgNode.inlets['max'].receive(500);
-rgNode.inlets['period'].receive(3000);
+// add Metro Node, it may generate `bang` signal with the requested time interval
+var metroNode = patch.addNode('util/metro', 'Metro').move(40, 10);
 
-var logNode = rgPatch.addNode('util/log', 'Log');
-rgNode.outlets['out'].connect(logNode.inlets['what']);
+// add Random Generator Node that will generate random numbers on every `bang` signal
+var randomGenNode = patch.addNode('util/random', 'Random').move(130, 20);
+randomGenNode.inlets['max'].receive(26); // set maximum value of the generated numbers
 
-var multiplyTwo = rgPatch.addNode('core/basic', '* 2', {
+// add Log Node, which will log last results of the Random Generator Node
+var logRandomNode = patch.addNode('util/log', 'Log').move(210, 60);
+randomGenNode.outlets['out'].connect(logRandomNode.inlets['what']);
+
+// define the type of the node which multiplies the incoming value by two
+var multiplyTwoNode = patch.addNode('core/basic', '* 2', {
     process: function(inlets) {
         return {
-            'result': (inlets.result || 0) * 2
+            'result': (inlets.multiplier || 0) * 2
         }
     }
-});
-var multiplierInlet = multiplyTwo.addInlet('util/number', 'multiplier');
-var resultOutlet = multiplyTwo.addOutlet('util/number', 'result');
+}).move(240, 10);
+var multiplierInlet = multiplyTwoNode.addInlet('util/number', 'multiplier');
+var resultOutlet = multiplyTwoNode.addOutlet('util/number', 'result');
 
-rgNode.outlets['out'].connect(multiplierInlet);
+// connect Random Generator output to the multiplying node
+var logMultiplyNode = patch.addNode('util/log', 'Log').move(370, 20);
+resultOutlet.connect(logMultiplyNode.inlets['what']);
+
+// connect Random Generator output to the multiplying node
+randomGenNode.outlets['out'].connect(multiplierInlet);
+
+// finally connect Metro node to Random Generator, so the sequence starts
+metroNode.outlets['out'].connect(randomGenNode.inlets['bang']);
 ```
 
-<!-- TODO: insert p5.js example itself (its gif, in the worst case) -->
+#### HTML5 Canvas and Custom Toolkit
 
-Configure [`p5.js`](http://p5.js) patch with the help of [`p5`](http://..) toolkit:
+<div id="example-two"></div>
 
-```js
-Rpd.nodetype('my/sketch', function() {
+```javascript
+/* ============== Coordinates Channel Type ============== */
 
+Rpd.channeltype('my/coords', {
+  show: function(val) {
+    // nicely show a received pair of coordinates, floored to an integer
+    return '<' + Math.floor(val.x) + ':' + Math.floor(val.y) + '>';
+  }
 });
-```
 
-When you define your own toolkit in place:
+/* ============== Coordinates Node Type ============== */
 
-```js
+Rpd.nodetype('my/coords', {
+  inlets: {
+    x: { type: 'util/number', default: 0 },
+    y: { type: 'util/number', default: 0 }
+  },
+  outlets: {
+    out: { type: 'my/coords' }
+  },
+  // joins received `x` and `y` into one object
+  process: function(inlets) {
+    return { out: { x: inlets.x, y: inlets.y } };
+  }
+});
+
+//* ============== Angle (radians) Channel Type ============== */
+
+Rpd.channeltype('my/angle', {
+  allow: [ 'util/number '], // outlets of `util/number` type are allowed to be
+                            // connected to inlets of `my/angle` type
+  accept: function(v) { return (v >= 0) && (v <= 360); },
+  show: function(v) { return v + '˚'; }
+});
+
+/* ============== Canvas-driven Scene Node Type ============== */
+
+var defaultConfig = {
+  count: 7,
+  from: { r: 0, g: 0, b: 0 },
+  to: { r: 255, g: 0, b: 0 },
+  shift: { x: 25, y: 0 },
+  rotate: 15
+};
+
+Rpd.nodetype('my/scene', {
+  inlets: {
+    from: { type: 'util/color', 'default': defaultConfig.from },
+    to: { type: 'util/color', 'default': defaultConfig.to },
+    count: { type: 'util/number', 'default': defaultConfig.count,
+             adapt: function(v) { return Math.floor(v); } },
+    shift: { type: 'my/coords', 'default': defaultConfig.shift },
+    rotate: { type: 'my/angle', 'default': defaultConfig.rotate },
+  },
+  process: function() {}
+});
+
+/* ============== Renderer for Canvas-driven Scene ============== */
+
+var SVG_XMLNS = 'http://www.w3.org/2000/svg';
+
+function lerp(v1, v2, pos) {
+  return (v1 + ((v2 - v1) * pos));
+}
+
+Rpd.noderenderer('my/scene', 'svg', function() {
+  var width = 100, height = 100;
+
+  var context;
+  var particles = [];
+  var lastCount = 0;
+  var config = defaultConfig;
+
+  // function to render current state of the scene using requestAnimationFrame
+  function draw() {
+    if (context) {
+      context.save();
+      context.fillStyle = '#fff';
+      context.fillRect(0, 0, width, height);
+      context.fillStyle = '#000';
+      particles.forEach(function(particle, i) {
+        context.fillStyle = 'rgb(' +
+          Math.floor(lerp(config.from.r, config.to.r,
+                          1 / (particles.length - 1) * i)) + ',' +
+          Math.floor(lerp(config.from.g, config.to.g,
+                          1 / (particles.length - 1) * i)) + ',' +
+          Math.floor(lerp(config.from.b, config.to.b,
+                          1 / (particles.length - 1) * i)) + ')';
+        context.fillRect(0, 0, 15, 15);
+        context.translate(config.shift.x, config.shift.y);
+        context.rotate(config.rotate * Math.PI / 180);
+      });
+      context.restore();
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+
+  // return actual renderer definition
+  return {
+    size: { width: width + 10, height: height + 10 },
+    pivot: { x: 0, y: 0 },
+
+    // on creation, add canvas to the node body
+    first: function(bodyElm) {
+      var group = document.createElementNS(SVG_XMLNS, 'g');
+      group.setAttributeNS(null, 'transform', 'translate(5, 5)');
+      var foreign = document.createElementNS(SVG_XMLNS, 'foreignObject');
+      canvas = document.createElement('canvas');
+      canvas.setAttributeNS(null, 'width', width + 'px');
+      canvas.setAttributeNS(null, 'height', height + 'px');
+      canvas.style.position = 'fixed';
+      foreign.appendChild(canvas);
+      group.appendChild(foreign);
+      bodyElm.appendChild(group);
+
+      context = canvas.getContext('2d');
+    },
+
+    // update config values using values from inlets
+    always: function(bodyElm, inlets) {
+      if (!isNaN(inlets.count) && (inlets.count != lastCount)) {
+        particles = [];
+        for (var i = 0; i < inlets.count; i++) {
+          particles.push({});
+        }
+        lastCount = inlets.count;
+      }
+      if (inlets.from) config.from = inlets.from;
+      if (inlets.to) config.to = inlets.to;
+      if (inlets.shift) config.shift = inlets.shift;
+      if (!isNaN(inlets.rotate)) config.rotate = inlets.rotate;
+    }
+
+  };
+});
+
+/* ============== Patch Structure ============== */
+
+Rpd.renderNext('svg', document.getElementById('example-two'),
+               { style: 'compact-v' });
+
+var patch = Rpd.addPatch('Generate Canvas Shapes').resizeCanvas(800, 205);
+
+var scene = patch.addNode('my/scene').move(570, 5);
+var color1 = patch.addNode('util/color').move(120, 5);
+var color2 = patch.addNode('util/color').move(100, 80);
+var coords = patch.addNode('my/coords').move(305, 90);
+var knob1 = patch.addNode('util/knob').move(25, 5);
+var knob2 = patch.addNode('util/knob').move(490, 110);
+var knob3 = patch.addNode('util/knob').move(210, 105);
+var knob4 = patch.addNode('util/knob').move(400, 110);
+var mouse = patch.addNode('util/mouse-pos').move(0, 70);
+var modulus = patch.addNode('util/mod').move(20, 150);
+var comment = patch.addNode('util/comment').move(80, 100);
+
+knob1.inlets['max'].receive(255);
+knob2.inlets['max'].receive(180);
+knob4.inlets['max'].receive(15);
+coords.inlets['x'].receive(25);
+modulus.inlets['b'].receive(255);
+comment.inlets['text'].receive('Try to connect "%" node output' +
+    + ' to inlet of "my/coords" node or one of the "color" nodes');
+
+knob1.outlets['number'].connect(color1.inlets['r']);
+knob3.outlets['number'].connect(coords.inlets['y']);
+color1.outlets['color'].connect(scene.inlets['from']);
+color2.outlets['color'].connect(scene.inlets['to']);
+coords.outlets['out'].connect(scene.inlets['shift']);
+mouse.outlets['x'].connect(modulus.inlets['a']);
 ```
 
 ### Terminology
@@ -90,6 +266,8 @@ At first, we'll define terms of node-based interfaces, the way RPD sees them, st
 <!-- TODO Image or interactive example (jsfiddle, run by click?) showing the network of simple patches -->
 
 #### Network
+
+<img src="./assets/rpd-network.png" width="600px" alt="Network"></img>
 
 _Network_ defines a system of Patches. At this level Patch may be considered as a complex procedure with several inputs and outputs and a Network is a program that uses these procedures.
 
@@ -101,6 +279,8 @@ So, some Node in one Patch may represent the inputs and outputs of another Patch
 
 #### Patch
 
+<img src="./assets/patch-no-frame.png" width="440px" alt="Patch"></img>
+
 _Patch_ stores a collection of Node instances and connections between them.
 The resulting structure of Nodes and connections defines the way data flows in this Patch.
 
@@ -108,9 +288,13 @@ The resulting structure of Nodes and connections defines the way data flows in t
 
 #### Node
 
+<img src="./assets/node-no-frame.png" width="160px" alt="Node"></img>
+
 _Nodes_ are building blocks which use connections to receive any data from one nodes, modify it, and send transformed data to another Nodes. Nodes may have zero or more inputs of different types, named _Inlets_ and zero or more outputs of different types, named _Outlets_. Nodes may have a body which may represent received data or even have some controls allowing user to change it though hidden inlets.
 
 #### Outlet
+
+<img src="./assets/outlets.png" width="160px" alt="Outlets"></img>
 
 _Outlet_ is a socket of a Node designed to send outgoing data. Outlet may be connected to an Inlet of another Node or to several Inlets of other Nodes.
 
@@ -119,6 +303,8 @@ Type of the Outlet determines which types of values it sends.
 Outlet and Inlet types are called Channel Types.
 
 #### Inlet
+
+<img src="./assets/inlets.png" width="160px" alt="Inlets"></img>
 
 _Inlet_ is a socket of a Node designed to receive incoming data. Depending on configuration, it may accept only one connection from an Outlet or any number of connections from several Outlets.
 
@@ -132,6 +318,8 @@ Inlets may accept or deny values depending on their type. Type may specify a fun
 
 #### Link
 
+<img src="./assets/link-no-frame.png" width="100px" alt="Link"></img>
+
 _Link_ is what connects single Outlet to single Inlet. Always one to one. It may be disabled, so it will not deliver all the data which comes inside, but keep the connection.
 
 <!-- TODO Nodes from different toolkits -->
@@ -143,6 +331,8 @@ _Toolkit_ is a group of Node and Channel Types lying in (preferrably, but not re
 <!-- TODO SVG and HTML -->
 
 #### Rendering Flow
+
+<img src="./assets/render-flow.png" width="800px" alt="Render Flow"></img>
 
 This sub-section is actually not about a specific Term and intended to quickly clarify how the things described below work together.
 
@@ -164,11 +354,15 @@ Now, let's describe the same process from participants' points of view.
 
 #### Renderer
 
+<img src="./assets/renderer.png" width="100px" alt="Renderer"></img>
+
 _Renderer_ is a system which determines the way current Patch model is rendered. For now, there are two Renderers: HTML and SVG, they render Patches to HTML or SVG tags correspondingly. For instance, HTML Renderer renders Link connections as `span` blocks with CSS borders and SVG Renderers just draws SVG `line` tags for the same purpose.
 
 Also, Renderer determines where new node will be placed if position was not specified.
 
 #### Node Type/Instance Renderer
+
+<img src="./assets/instance-renderer.png" width="200px" alt="Node Instance Renderer"></img>
 
 _Node Type Renderer_ builds the body of the Node and may update its content when some incoming update triggered it. Also, it may send values from inner controls to a hidden Inlets of the Node.
 
@@ -177,6 +371,8 @@ There should be a separate Node Type Renderer for each way to render a node, suc
 _Node Instance Renderer_ has exactly the same definition structure, it just overrides the Node Type Renderer so you can render any specific Node instance completely another way with just re-defining Type Renderer inline.
 
 #### Channel Type/Instance Renderer
+
+<img src="./assets/instance-renderer.png" width="200px" alt="Channel Instance Renderer"></img>
 
 _Channel Type Renderer_ builds the Inlet/Outlet value representation and also may add the editor to a Channel value.
 
@@ -188,11 +384,17 @@ _Channel Instance Renderer_ has exactly the same definition structure, it just o
 
 #### Style
 
+<img src="./assets/style.png" width="200px" alt="Style"></img>
+
 _Style_ determines the look of the Patch, Node, Channel or a Link. While Renderer builds the outer structure, controls drag-n-drop and other logic, Style only determines the inner visual appearance of these elements.
 
 #### Canvas
 
 _Canvas_ is a place where Patch is rendered and operated. It has size and could have background color, for example. When several Patches share same target DOM element, they still have different canvases. Canvas could be an HTML5 Canvas by accident, but for sure not obligatory — this term came from [Pure Data][pure-data], the thing existed long before HTML5 and appeared just few years after first ever HTML specification.
+
+#### Projection
+
+<!-- IN PROGRESS -->
 
 #### I/O Module
 

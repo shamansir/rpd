@@ -3,6 +3,8 @@ body {
     font-family: "Geneva", "Avenir", "Lucida Grande", sans-serif;
     margin: 30px 50px;
     color: black;
+    background-color: white;
+    font-size: 16px;
     /*-webkit-font-smoothing: antialiased;*/
 }
 
@@ -283,4 +285,120 @@ div.in-progress span:before {
 .rpd-inlet text.rpd-value,
 .rpd-outlet text.rpd-value {
     fill: darkgray;
+}
+
+.hljs-comment {
+    color: #ccc;
+}
+
+.proplist {
+    background-color: #eee;
+    border-radius: 3px;
+    position: absolute;
+    max-width: 18%;
+    left: 80%;
+    font-size: 0.6em;
+    margin: 0 25px;
+}
+
+.proplist > span {
+    background-color: white;
+    border-radius: 3px;
+    padding: 5px;
+}
+
+.proplist ul {
+    /* list-style-type: circle; */
+    list-style-type: none;
+    margin: 0;
+    /* padding: 5px 5px 5px 20px; */
+    padding: 6px;
+}
+
+.proplist ul li {
+    padding: 2px;
+    padding-left: 1em;
+    text-indent: -.7em;
+}
+
+.proplist ul li:before {
+    content: '- ';
+    color: crimson;
+}
+
+.proplist ul li code {
+    font-weight: bold;
+    color: black;
+}
+
+.section-mark {
+    position: absolute;
+    right: 0;
+    min-width: 15%;
+    padding: 0 10px;
+    border-top: 1px dashed crimson;
+    text-align: right;
+    margin: 0 25px;
+    margin-top: 3.5em;
+}
+
+.section-mark span {
+    padding: 0 3px;
+    font-size: 0.8em;
+}
+
+body.rpd-docs-examples article > ul {
+    list-style-type: none;
+    margin: 30px 0;
+    padding: 0;
+}
+
+body.rpd-docs-examples article > ul > li {
+    padding: 5px;
+    margin: 10px;
+    border: 1px solid black;
+    float: left;
+}
+
+body.rpd-docs-examples article > ul > li:hover {
+    border: 1px solid crimson;
+    opacity: 0.8;
+}
+
+body.rpd-docs-examples article > ul > li span {
+    display: block;
+    font-size: 0.6em;
+    text-align: center;
+    font-weight: bold;
+}
+
+body.rpd-docs-examples article > ul > li img {
+    width: 250px;
+}
+
+body.rpd-docs-examples footer {
+    clear: both;
+}
+
+body.rpd-docs-setup table {
+    font-size: 0.8em;
+    border: none;
+}
+
+body.rpd-docs-setup table td,
+body.rpd-docs-setup table th {
+    padding: 1px 5px;
+}
+
+body.rpd-docs-setup table thead {
+    text-align: left;
+    color: lightslategray;
+}
+
+body.rpd-docs-setup table span.positive {
+    color: darkgreen;
+}
+
+body.rpd-docs-setup table span.negative {
+    color: crimson;
 }

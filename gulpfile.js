@@ -165,6 +165,9 @@ gulp.task('build', ['check-paths', 'list-opts', 'concat-css'], function() {
     if (argv.pretty) compilerFlags['formatting'] = 'PRETTY_PRINT';
 
     gutil.log(infoColor('Compiling ' + resultName + ' with Closure compiler'));
+    gutil.log(infoColor('Language In: ') + valueColor(compilerFlags.language_in));
+    gutil.log(infoColor('Compilation Level: ') + valueColor(compilerFlags.compilation_level));
+    gutil.log(infoColor('Formatting: ') + valueColor(compilerFlags.formatting));
     gutil.log(infoColor('Sources included:'));
     return gulp.src(logFiles(getJsFiles(argv)))
                .pipe(closureCompiler({
@@ -331,10 +334,26 @@ var injectSvgLogo = parser({
 
 var inProgressRe = new RegExp('<!-- IN PROGRESS -->', 'g');
 var replaceInProgressWith = '<div class="in-progress" text="In Progress."><span>[ In Progress ]</span></div>'
-var injectInProgressMark = parser({
-    name: 'inject-in-progress-mark',
+var injectInProgressLabel = parser({
+    name: 'inject-in-progress-label',
     func: function(data) {
         return data.replace(inProgressRe, replaceInProgressWith);
+    }
+});
+
+var proplistRe = new RegExp('<!-- PROPLIST: (.*) -->((.|[\n$^])*?)<!-- /PROPLIST -->', 'g');
+var injectProplist = parser({
+    name: 'inject-proplist',
+    func: function(data) {
+        return data.replace(proplistRe, '<div class="proplist"><span>\$1</span>\$2</div>');
+    }
+});
+
+var sectionMarkRe = new RegExp('<!-- MARK: (.*) -->', 'g');
+var injectSectionMark = parser({
+    name: 'inject-section-mark',
+    func: function(data) {
+        return data.replace(sectionMarkRe, '<div class="section-mark"><span>&larr;&nbsp;\$1</span></div>');
     }
 });
 
@@ -342,6 +361,20 @@ var renderer = new markdown.marked.Renderer();
 var prevParagraphRender = renderer.paragraph;
 renderer.paragraph = function(text) {
     return prevParagraphRender(checkNewLines(text));
+}
+
+var prevHeadingRender = renderer.heading;
+renderer.heading = function(text, level) {
+    if ((text.indexOf('<code>') >= 0) && (level <= 4)) {
+        var strippedText = text.replace('<code>', '').replace('</code>', '');
+        var firstBracketIdx = strippedText.indexOf('(');
+        if (firstBracketIdx < 0) { firstBracketIdx = strippedText.length; }
+        return '<h' + level + ' id="'
+                    + strippedText.slice(0, firstBracketIdx).replace(/[\s\.]/g, '-').toLowerCase() + '">'
+                    + text + '</h' + level + '>';
+    } else {
+        return prevHeadingRender.apply(renderer, arguments);
+    }
 }
 
 function makeDocs(config, f) {
@@ -363,7 +396,9 @@ function makeDocs(config, f) {
                      }
                  }))
                  .pipe(injectSvgLogo())
-                 .pipe(injectInProgressMark())
+                 .pipe(injectInProgressLabel())
+                 .pipe(injectProplist())
+                 .pipe(injectSectionMark())
                  //.pipe(injectFiddles())
                  //.pipe(injectCodepens())
                  .pipe(layout(function(file) {
@@ -382,7 +417,7 @@ function makeDocs(config, f) {
 }
 
 gulp.task('docs-clean-dir', function() {
-    return del([ './docs/compiled/assets/**/*', './docs/compiled/**/*' ]);
+    return del([ './docs/compiled/assets/**/*', './docs/compiled/examples/**/*', './docs/compiled/**/*' ]);
 });
 
 gulp.task('docs-copy-dependencies', function() {
@@ -419,6 +454,11 @@ gulp.task('docs-copy-assets', function() {
                .pipe(gulp.dest('./docs/compiled/assets'));
 });
 
+gulp.task('docs-copy-examples', function() {
+    return gulp.src([ './examples/*.*' ])
+               .pipe(gulp.dest('./docs/compiled/examples'));
+});
+
 gulp.task('docs-copy-root-assets', function() {
     return gulp.src(['./docs/*.js', './docs/*.css', './docs/*.svg', './docs/*.ico'])
                .pipe(gulp.dest('./docs/compiled/'));
@@ -432,7 +472,7 @@ gulp.task('docs-copy-highlight-css', function() {
 
 gulp.task('docs', [ 'docs-clean-dir', 'docs-copy-dependencies',
                     'docs-copy-root-assets', 'docs-copy-assets',
-                    'docs-copy-highlight-css' ], function() {
+                    'docs-copy-examples', 'docs-copy-highlight-css' ], function() {
 
     //var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
@@ -441,7 +481,8 @@ gulp.task('docs', [ 'docs-clean-dir', 'docs-copy-dependencies',
     return result;
 });
 
-gulp.task('docs-watch', ['docs-copy-dependencies', 'docs-copy-assets', 'docs-copy-highlight-css'], function() {
+gulp.task('docs-watch', [ 'docs-copy-dependencies', 'docs-copy-assets',
+                          'docs-copy-examples', 'docs-copy-highlight-css'], function() {
     //var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
     return makeDocs(config, function(result) {

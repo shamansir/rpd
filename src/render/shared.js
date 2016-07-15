@@ -113,7 +113,6 @@ VLink.prototype.update = function() {
     if (!this.link) return;
     var link = this.link;
     this.rotateOI(link.outlet, link.inlet);
-    var style = this.style;
     return this;
 }
 VLink.prototype.appendTo = function(target) {
@@ -266,10 +265,10 @@ function reportErrorsToConsole(config) {
         if (!config.logErrors) return;
         if (error.silent) return;
         if (error.system) {
-            console.error(new Error(error.type + ' — ' + error.message + '.' +
+            console.error(new Error(error.type + ' — ' + error.message + '. ' +
                           'Subject: ' + Rpd.autoStringify(error.subject)));
         } else {
-            console.log('Error:', error.type, '—', error.message + '.',
+            console.log('Error:', error.type, '—', error.message + '. ',
                         'Subject: ' + Rpd.autoStringify(error.subject), error.subject);
         }
     });

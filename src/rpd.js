@@ -472,6 +472,7 @@ Inlet.prototype.toDefault = function() {
     return this;
 }
 Inlet.prototype.allows = function(outlet) {
+    if (this.type === 'core/any') return true;
     if (outlet.type === this.type) return true;
     if (!this.def.allow && (outlet.type !== this.type)) return false;
     if (this.def.allow) {
@@ -859,21 +860,21 @@ stringify.patch = function(patch) {
 };
 stringify.node = function(node) {
     return '[ Node (' + node.type + ')' +
-              (node.def.title ? (' \'' + node.def.title + '\'') : ' <Untitled>') +
+              (node.def ? (node.def.title ? (' \'' + node.def.title + '\'') : ' <Untitled>') : ' <Unprepared>') +
               ' #' + node.id +
               ' ]';
 };
 stringify.outlet = function(outlet) {
     return '[ Outlet (' + outlet.type + ')' +
               (outlet.alias ? (' \'' + outlet.alias + '\'') : ' <Unaliased>') +
-              (outlet.def.label ? (' \'' + outlet.def.label + '\'') : ' <Unlabeled>') +
+              (outlet.def ? (outlet.def.label ? (' \'' + outlet.def.label + '\'') : ' <Unlabeled>') : ' <Unprepared>') +
               ' #' + outlet.id +
               ' ]';
 };
 stringify.inlet = function(inlet) {
     return '[ Inlet (' + inlet.type + ')' +
               (inlet.alias ? (' \'' + inlet.alias + '\'') : ' <Unaliased>') +
-              (inlet.def.label ? (' \'' + inlet.def.label + '\'') : ' <Unlabeled>') +
+              (inlet.def ? (inlet.def.label ? (' \'' + inlet.def.label + '\'') : ' <Unlabeled>') : ' <Unprepared>') +
               ' #' + inlet.id +
               (inlet.def.hidden ? ' (hidden)' : '') +
               (inlet.def.cold ? ' (cold)' : '') +
