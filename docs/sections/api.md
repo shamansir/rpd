@@ -305,6 +305,8 @@ Rpd.noderenderer('docs/foo', 'html', function() {
 });
 ```
 
+<!-- TODO: also may appear in path.addNode(..., ..., <node-definition>, <render-definition>) -->
+
 <!-- TODO: it is also possible to override `render` in `patch.addNode` and `node.addInlet/node.addOutlet`, check -->
 
 Note: When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
@@ -480,6 +482,8 @@ Rpd.channelrenderer('docs/foo', 'html', function() {
     };
 });
 ```
+
+<!-- TODO: also may appear in node.addInlet(..., ..., <channel-definition>, <channel-render-definition>), node.addOutlet(..., ..., <channel-definition>, <channel-render-definition>) -->
 
 Note: When you need more details, head safely to the [Toolkits](./toolkits.html) section, which is the tutorial for writing your very own toolkit.
 
@@ -746,7 +750,18 @@ Node represents the thing we call procedure in programming: it receives data thr
 <!-- /PROPLIST -->
 
 Definition of the Node is the configuration object used to define
-new Node Type with `Rpd.nodetype` or an object with the same structure, passed to `patch.addNode` method, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Node Type or a single Node needs its originality, some of the following properties:
+new Node Type with `Rpd.nodetype` or an object with the same structure, passed to `patch.addNode` method, intended to override or to append the Type Definition.
+
+```javascript
+Rpd.nodetype(..., <node-definition>);
+Rpd.nodetype(..., function() {
+    return <node-definition>;
+});
+
+patch.addNode(..., ..., <node-definition>);
+```
+
+This object may contain no properties at all, or, in cases when Node Type or a single Node needs its originality, some of the following properties:
 
 ##### `title`: `string`
 
@@ -1129,48 +1144,32 @@ Inlet is the name for one of the input channels of the node so, when its connect
 <!-- /PROPLIST -->
 
 Definition of the Inlet is the configuration object used to define
-new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addInlet` method or with `inlets` property to Node type or instance definition, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Inlet Type or a single Inlet needs its originality, some of these properties:
+new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addInlet` method or with `inlets` property to Node type or instance definition, intended to override or to append the Type Definition.
 
 All the functions in the definition get Inlet instance as `this`. <!-- TODO: check -->
 
 ```javascript
-Rpd.channeltype(..., {
-    label: ...,
-    default: ...,
-    hidden: ...,
-    cold: ...,
-    accept: ...,
-    ...
+Rpd.channeltype(..., <channel-definition>);
+Rpd.channeltype(..., function() {
+    return <channel-definition>;
 });
 
 Rpd.nodetype(..., ..., {
     inlets: {
-        alias-1: {
-            label: ...,
-            default: ...,
-            hidden: ...,
-            cold: ...,
-            accept: ...,
-            ...
-        },
-        alias-2: {
-            label: ...,
-            default: ...
-        }
+        alias-1: <channel-definition>,
+        alias-2: <channel-definition>
     },
     outlets: {
-        alias-1: {
-            label: ...,
-            default: ...
-        }
+        alias-1: <channel-definition>
     },
-
+    ...
 });
 
-var inlet = Rpd.addInlet(..., ..., {
-    label: ...
-})
+var inlet = Rpd.addInlet(..., ..., <channel-definition>)
+var outlet = Rpd.addOutlet(..., ..., <channel-definition>);
 ```
+
+This object may contain no properties at all, or, in cases when Inlet Type or a single Inlet needs its originality, some of these properties:
 
 <!-- NB: there are several checks performed when user connects Outlet to Inlet: allow, accept, adapt -->
 
@@ -1372,11 +1371,17 @@ Channel mechanics are involved only partly in this case, but the value is still 
 
 When inlet is cold, it also can postpone sending the value, till other hot inlet triggers node update.
 
+```javascript
+```
+
 #### `inlet.stream(stream)`
 
 Force this inlet to receive stream of values. RPD uses `Kefir` library to provide streams. Value streams provide practically infinite possibilities, you can send values with time intervals, throttle values by time, combine different streams in unlimited ways, actually everything.
 
 You may find complex examples at [Kefir library page][kefir]. Also, usually it is quite easy to convert streams from some another Stream-based library, like RxJS, when you want to use such.
+
+```javascript
+```
 
 <!-- examples -->
 
@@ -1406,9 +1411,32 @@ Outlet is the output channel of the node.
 <!-- /PROPLIST -->
 
 Definition of the Inlet is the configuration object used to define
-new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addOutlet` method or with `outlets` property to Node type or instance definition, intended to override or to append the Type Definition. This object may contain no properties at all, or, in cases when Outlet Type or a single Outlet needs its originality, some of these properties:
+new Channel Type with `Rpd.channeltype` or an object with the same structure, passed to `node.addOutlet` method or with `outlets` property to Node type or instance definition, intended to override or to append the Type Definition.
 
 All the functions in the definition get Inlet instance as `this`.
+
+```javascript
+Rpd.channeltype(..., <channel-definition>);
+Rpd.channeltype(..., function() {
+    return <channel-definition>;
+});
+
+Rpd.nodetype(..., ..., {
+    inlets: {
+        alias-1: <channel-definition>,
+        alias-2: <channel-definition>
+    },
+    outlets: {
+        alias-1: <channel-definition>
+    },
+    ...
+});
+
+var inlet = Rpd.addInlet(..., ..., <channel-definition>)
+var outlet = Rpd.addOutlet(..., ..., <channel-definition>);
+```
+
+This object may contain no properties at all, or, in cases when Outlet Type or a single Outlet needs its originality, some of these properties:
 
 ##### `label`: `string`
 
@@ -1427,6 +1455,7 @@ Tuning function is very powerful and allows you to control the outgoing stream o
 But please be aware that when stream of values is heavily modified, user may feel uncomfortable, while it could not be obvious without seeing what happens inside. So try to modify it so user won't see the effect or explain what happens with the help of the UI. For example, when you filter output stream, explain why it is filtered in the body of the Node or better provide user control over filtering with new Inlet.
 
 ```javascript
+Rpd.channeltype('docs/w')
 ```
 
 Receives Outlet instance as `this`.
@@ -1466,6 +1495,9 @@ Force this outlet to send given value to all the connected inlets in other nodes
 Force this outlet to receive the stream of values, any stream constructed with [Kefir API][kefir]. These values may be distributed over time in any way you want, and last till infinity or till the stream will end.
 
 Yet, same as with `outlet.send`, value may be declined or modified on the receiving ends, when they exist (without interrupting the stream).
+
+```javascript
+```
 
 <!-- #### `outlet.toDefault()` -->
 
