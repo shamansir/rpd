@@ -145,9 +145,7 @@ patch.addNode('custom/type').move(20, 20);
 
 <!-- TODO: embedded example -->
 
-Node Types definition is [covered in details](./toolkits.html#defining-node-type) at the Toolkits page. As well as [writing a Renderer for a Node](./toolkits.html#writing-node-renderer).
-
-#### Node properties
+For a complete list of properties could be used to define a Node, see [Node Definition](./api.html#node-definition) in [API section](./api.html). Also see [Defining node type](./toolkits.html#defining-node-type) and [Writing a Renderer for a Node](./toolkits.html#writing-node-renderer) chapters in [Toolkits section](./toolkits.html).
 
 ### Connecting Nodes
 
