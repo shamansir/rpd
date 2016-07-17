@@ -49,17 +49,9 @@ Rpd.channeltype('my/color', {
 Rpd.channeltype('my/any', {});
 ```
 ​
-So, point by point, Channel type properties could be:
+For a complete list of properties could be used to define a Channel, see [Channel Definition](./api.html#channel-definition) in [API section](./api.html).
 
-#### Channel Properties
-​
-##### label: String
-
-##### default: Boolean
-
-Only for Inlets!
-​
-#####  `show`: `function(value: Any) -> String`
+<!-- IN PROGRESS -->
 
 <!-- TODO -->
 ​
@@ -92,12 +84,15 @@ So, in the node type you may specify any number of Inlets, any number of Outlets
 
 Definition of the Inlet or Outlet only requires a `type` field, other fields are optional. They are the same as for [Channel type](#channel-properties) and in [`node.addInlet` / `node.addOutlet` methods](./network.md#connecting-nodes).
 ​
+For a complete list of properties could be used to define a Node, see [Node Definition](./api.html#node-definition) in [API section](./api.html).
 
 ### Writing a Channel Renderer
 
 * `prepare`
 * `show`
 * `edit`
+
+For a complete list of properties could be used to define a Channel Renderer, see [Channel Renderer Definition](./api.html#channel-renderer-definition) in [API section](./api.html).
 
 <!-- IN PROGRESS -->
 ​
@@ -108,6 +103,8 @@ Definition of the Inlet or Outlet only requires a `type` field, other fields are
 * `size`
 * `first`
 * `always`
+
+For a complete list of properties could be used to define a Channel Renderer, see [Node Renderer Definition](./api.html#node-renderer-definition) in [API section](./api.html).
 
 <!-- IN PROGRESS -->
 ​

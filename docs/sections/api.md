@@ -1518,11 +1518,31 @@ When connection was established, data flows through this wire perfectly, however
 It depends on the options, but by default it is allowed to connect one Outlet to multiple Inlets, but Inlet may have only one incoming connection. So when some Inlet is already connected to an Outlet and you try to connect other Outlet to it, the previous connection should be removed in advance. <!-- TODO: control is performed only in renderer, that's not so good--> For user side of view, it is automatically performed by Renderer, when `config.inletAcceptsMultipleLinks` is set to `true`.
 
 ```javascript
+var knob1 = patch.addNode('util/knob'),
+    knob2 = patch.addNode('util/knob'),
+    knob3 = patch.addNode('util/knob');
+var color = patch.addNode('util/color');
+knob1.outlets['out'].connect(color.inlets['r']);
+var knob2ToGreenLink = knob2.outlets['out'].connect(color.inlets['g']);
+knob3.outlets['out'].connect(color.inlets['b']);
+
+var always42 = patch.addNode('docs/always-42', 'Always 42');
+var outlet = always42.addOutlet('core/any', 'out', {
+    tune: function(stream) {
+        return stream.map(function() { return 42; });
+    }
+});
+knob2ToGreenLink.disconnect();
+outlet.connect(color.inlets['g']);
+outlet.send(Math.PI); // will be converted to 42
 ```
+
+<!-- test -->
 
 #### `outlet.disconnect(link)`
 
 Break the existing connection, so all the values from this outlet are no more delivered trough this link to the corresponding inlet.
+
 
 #### `outlet.send(value)`
 
