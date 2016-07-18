@@ -409,3 +409,24 @@ body.rpd-docs-setup table span.positive {
 body.rpd-docs-setup table span.negative {
     color: crimson;
 }
+
+body.rpd-docs-introduction p:first-of-type {
+    float: right;
+    font-size: 0.8em;
+    color: lightblue;
+    margin-right: 8px;
+}
+
+body.rpd-docs-introduction p:first-of-type a {
+    padding: 4px;
+    border-radius: 3px;
+    background-color: #eee;
+    text-decoration: none;
+    transition: background-color 0.1s ease-in;
+    -webkit-transition: background-color 0.1s ease-in;
+}
+
+body.rpd-docs-introduction p:first-of-type a:hover {
+    text-decoration: underline;
+    background-color: lightblue;
+}

@@ -14,6 +14,8 @@ id: introduction
 <!-- circle particles -->
 <!-- logo color shift -->
 
+( [GitHub](http://github.com/shamansir/rpd) | [Examples](./sections/examples.html) | [API](./sections/api.html) | [Issues](http://github.com/shamansir/rpd/issues) | [Terminology](#terminology) <!-- | [Tests](...) --> )
+
 ### What is RPD?
 
 RPD is the abbreviation for _Reactive Patch Development_...
