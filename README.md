@@ -12,19 +12,19 @@
 
 _Previous Version_: [v0.1.0](https://github.com/shamansir/rpd/releases/tag/v0.1.0) ([README](./README-1.0.md)).
 
-A video of the engine in action, demonstrates some of its features: [ [Watch][video] ].
+A video of the engine v1.0 in action, demonstrates some of its features: [ [Watch][video] ].
 
 [![Watch][video-img]][video]
 
-Play online: [ [Util Toolkit][hosted-util] ] | [ [PD Toolkit][hosted-pd] ] | [ [Animatron Toolkit][hosted-anm] ]
+[ [Play online](http://shamansir.guthub.io/rpd/sections/examples.html) ]
 
 <!-- Examples grid -->
 
-_(NB: Only modern browsers are supported, tested mostin Chrome and Safari, no mobile support for now)_
+_(NB: Only modern browsers are supported, tested most in Chrome and Safari, no mobile support for now)_
 
 ----
 
-**[Documentation, Examples & More...](http://shamansir.guthub.io/rpd)**
+**Surely visit** **[Documentation, Examples & More...](http://shamansir.guthub.io/rpd)**
 
 ----
 
@@ -37,7 +37,7 @@ _(*) Excluding CSS file which usually takes 2-3 KB and [Kefir.js][kefir] require
 Moreover, it's built with the help of Reactive programming (thanks to [Kefir.js][kefir]), and this way it allows a programmer to treat and process any data flow as a stream, so:
 
 ```javascript
-colorInlet.stream(Kefir.repeatedly(500, ['red', 'navy']));
+colorInlet.stream(Kefir.sequentially(500, ['red', 'navy']));
 ```
 
 Will send `red` and `navy` values every 500ms to a single color-value inlet in order. It's not the only feature you get with streams, of course, see below for much more.
@@ -125,19 +125,20 @@ Rpd.nodetype('pd/play', function() {
 
 [Here's][engine-source] the engine code at a glance;
 
+<!-- Here's the [Util Toolkit][util-toolkit-src] and [its HTML Renderer][util-renderer-src] source codes.
 Here's the [Anitmatron Toolkit][anm-toolkit-src] and [its HTML Renderer][anm-renderer-src] source codes.
-Here's the [PureData Toolkit][pd-toolkit-src] and [its HTML Renderer][pd-renderer-src] source codes.
+Here's the [PureData Toolkit][pd-toolkit-src] and [its HTML Renderer][pd-renderer-src] source codes. -->
 
 ## Features
 
-RPD provides following features (though probably I forgot a few):
+RPD provides following features (though probably I forgot a dozen):
 
 * User may observe nodes, manipulate nodes, connect inlets and outlets, effect is seen immediately; User may edit values on inlets, see results inside node bodies or additionally configure them there;
 * _Network model_ may be stored in a simple JS File;
 * Developer may build _custom node Toolkits_ to let user re-use them, in a very easy way; And it's not only restricted with configuring inlets and outlets—actually, _every aspect_ of the node or a channel _is configurable_;
 * _Streams_ provide developer with an unlimited power in sending, queueing, filtering, mapping/reducing/flattening, packing and un-packing any data, basing on time periods or not; every aspect from Reactive Programming may be used to _operate data streams_;
 * _Plugin system_ allows to easily add renderers (HTML & SVG renderers are provided, Canvas renderer is planned), styles or importers/exporters for specific Toolkits;
-* _Styles_ allow easily and completely change a look of the interface, so your nodes may appear like ones in Blender or like ones in VVVV with just a few changes; **5** different styles are provided out-of-the-box; Also, styles are very easy to extend or create;
+* _Styles_ allow easily and completely change a look of the interface, so your nodes may appear like ones in Blender or like ones in VVVV with just a few changes; **8** different styles are provided out-of-the-box; Also, styles are very easy to extend or create;
 * Renderers do not use any direct style injection except some very minor cases, they only operate CSS classes, and it means you may _completely redesign_ the look of your interface _using only CSS_;
 * Developer is free to use _any helper library_ (while RPD tries to use only Kefir and nothing else), and it is very easy: i.e. node renderers may easily use jQuery or d3.js;
 * JSON and Plain Text Import/Export, both provided as an example, with the ability to write module which _Imports/Exports from/to any format you want_;
@@ -156,107 +157,11 @@ RPD provides following features (though probably I forgot a few):
 
 ## Using
 
-Download [`kefir.min.js`][kefir-src].
-
-Choose a distribution of RPD and download it:
-
-* [`rpd-core-html.min.js`][core-html-src] : Core Toolkit, HTML Renderer
-* [`rpd-core-pd-html.min.js`][core-pd-html-src] : Core & PD Toolkits, HTML Renderer
-* [`rpd-core-anm-html.min.js`][core-anm-html-src] : Core & Animatron Toolkits, HTML Renderer
-* _(more to come)_
-
-If your choice of renderer is HTML, get a corresponding CSS file:
-
-* [`rpd-core.css`][core-style] : for Core Toolkit
-* [`rpd-core-pd.css`][core-pd-style] : for Core & PD Toolkit
-* [`rpd-core-anm.css`][core-pd-style] : for Core & Animatron Toolkit
-
-Add these files to a head of your page:
-
-For Core Toolkit only:
-
-```html
-<script src="./kefir.min.js"></script>
-<script src="./rpd-core-html.min.js"></script>
-<link rel="stylesheet" href="./rpd-core.css"></link>
-```
-
-For Core & PD Toolkits:
-
-Download [`timbre.js`][timbre-src].
-
-```html
-<script src="./kefir.min.js"></script>
-<script src="./timbre.js"></script>
-<script src="./rpd-core-pd-html.min.js"></script>
-<link rel="stylesheet" href="./rpd-core-pd.css"></link>
-```
-
-For Core & Animatron Toolkits:
-
-Download [`anm-player.min.js`][animatron-src].
-
-```html
-<script src="./kefir.min.js"></script>
-<script src="./anm-player.min.js"></script>
-<script src="./rpd-core-anm-html.min.js"></script>
-<link rel="stylesheet" href="./rpd-core-anm.css"></link>
-```
-
-Now, you may just initialize user model and let him/her add nodes by himself/herself:
-
-```javascript
-var model = Rpd.Model.start().attachTo(document.body)
-                             .renderWith('html');
-```
-
-Or, you may add some prepared nodes after that (you may save them to a file, of course):
-
-```javascript
-var first = new Rpd.Node('core/custom', 'Test');
-var boolOutlet = first.addOutlet('core/bool', true);
-first.addOutlet('core/number', 1);
-first.addOutlet('core/number');
-
-var second = new Rpd.Node('core/custom', 'Foo');
-var boolInlet = second.addInlet('core/boolean');
-var numInlet = second.addInlet('core/number');
-
-boolOutlet.connect(boolInlet);
-boolOutlet.connect(numInlet, function(val) { return (val === true) ? 1 : 0 });
-boolOutlet.send(false);
-boolOutlet.stream(Kefir.repeatedly(10, [true, false]));
-```
+See [Setup](http://shamansir.guthub.io/rpd/sections/setup.html) and [Network](http://shamansir.guthub.io/rpd/sections/network.html) sections in Official Documentation.
 
 ## Participating
 
-To participate, get a copy of repository including submodules (which are just optional example Toolkits ([animatron][anm-toolkit-repo] & [puredata][pd-toolkit-repo]), tied to main repository by version tag):
-
-`git clone --recursive git@github.com:shamansir/rpd.git`
-
-If you already have a clone but have no submodules, do there:
-
-`git submodule update --init --recursive`
-
-After that, get dependencies:
-
-`make deps`
-
-(Updating dependencies may be performed only once a version of RPD is increased, it is not required to get them before every build.)
-
-Now you should be able to run examples from `./examples/*.html`.
-
-To minify and join sources (prepare for distribution), ensure you have [Closure Compiler][closure-compiler] installed, put (or link to) `compiler.jar` in the root directory of RPD, and then run, for HTML renderer case:
-
-`make dist-html`
-
-Or, to build a version with PD Toolkit included and HTML renderer, run:
-
-`make dist-pd-html`
-
-To build with Animatron toolkit, for example, just replace `-pd-` with `-anm-`.
-
-You'll find the results under `./dist` folder.
+See [Participation](http://shamansir.guthub.io/rpd/sections/participate.html) sections in Official Documentation.
 
 Feel free to fix issues or do Pull Requests!
 

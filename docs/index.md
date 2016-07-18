@@ -20,7 +20,7 @@ id: introduction
 
 RPD is the abbreviation for _Reactive Patch Development_...
 
-...or, actually, whatever you decide. It is the library which brings node-based user interfaces to the modern web, in full their power (when you know how to use it) and in a very elegant and minimalistic way. _Node-based_ is something like the thing you'll (probably) see above if you move your mouse cursor, or any other pointing device, above the RPD logo — (almost) nothing to do with [node.js][node-js]. Some people also say that with such user interfaces they do _Flow Programming_. If you are wondering yet, what that means, _Node-based_ interface is the one where man may visually connect different low-level components using their inputs and outputs and observe the result in real time, take <!-- consider? --> PureData, QuartzComposer, VVVV, NodeBox, Reaktor etc. for example.
+...or, actually, whatever you decide. It is the library which brings node-based user interfaces to the modern web, in full their power (when you know how to use it) and in a very elegant and minimalistic way. _Node-based_ is something like the thing you'll (probably) see above if you move your mouse cursor, or any other pointing device, above the RPD logo — (almost) nothing to do with [node.js][node-js]. Some people also say that with such user interfaces they do _Flow Programming_. If you are wondering yet, what that means, _Node-based_ interface is the one where man may visually connect different low-level components using their inputs and outputs and observe the result in real time, take <!-- consider? --> [PureData][puredata], [QuartzComposer](quartzcomposer), [VVVV][vvvv], [NodeBox][nodebox], [Reaktor][reaktor] etc. for example.
 
 RPD brings DataFlow Programming to the Web both in the _elegant_ and _minimal_ ways.
 
@@ -34,9 +34,9 @@ show streams and simple values -->
 _Minimalism_ is another goal of this library, which implies the RPD library size
 is kept as minimal as possible, so your customer may load the interface you created using 3G internet or wi-fi limited to some very low speed. Don't ask me why may it happen, it still happens everywhere. Minimalism is here not in paranoid amounts, though&mdash;if feature requires a bit more code, or some task gets very complex with less code, we for sure will add some more code for the sake of simplicity.
 
-The default configuration with [SVG renderer][renderer-comp-section] and [Quartz style][style-comp-section] included takes _11KB_ when compiled, minimized and gzipped! (30KB not gzipped). Though you also need [latest Kefir.js][kefir], the only required dependency to make it work, which adds just ~10KB more, since [Kefir.js author][roman-pominov] also likes minimalism in his code.
+The default configuration with SVG renderer and Quartz style included takes _11KB_ when compiled, minimized and gzipped! (30KB not gzipped). Though you also need [latest Kefir.js][kefir], the only required dependency to make it work, which adds just ~10KB more, since [Kefir.js author][roman-pominov] also likes minimalism in his code.
 
-If you feel that's you know everything in this field and this library is definitely what you need (and no doubts, it is!), you may either download the [version with default configuration][download-default] or go straight to [Building Section](./sections/building) to discover how easy it is to grab a code and configure yourself a custom one. If you still feel unsafe, stay with me for a bit.
+If you feel that's you know everything in this field and this library is definitely what you need (and no doubts, it is!), you may either download the [version with default configuration](./sections/setup.html#download) or go straight to [Building Section](./sections/setup.html#compilation) to discover how easy it is to grab a code and configure yourself a custom one. If you still feel unsafe, stay with me for a bit.
 
 ### Code Examples
 
@@ -475,7 +475,7 @@ _Style_ determines the look of the Patch, Node, Channel or a Link. While Rendere
 
 #### Canvas
 
-_Canvas_ is a place where Patch is rendered and operated. It has size and could have background color, for example. When several Patches share same target DOM element, they still have different canvases. Canvas could be an HTML5 Canvas by accident, but for sure not obligatory — this term came from [Pure Data][pure-data], the thing existed long before HTML5 and appeared just few years after first ever HTML specification.
+_Canvas_ is a place where Patch is rendered and operated. It has size and could have background color, for example. When several Patches share same target DOM element, they still have different canvases. Canvas could be an HTML5 Canvas by accident, but for sure not obligatory — this term came from [Pure Data][puredata], the thing existed long before HTML5 and appeared just few years after first ever HTML specification.
 
 #### Projection
 
@@ -491,12 +491,17 @@ For example, _I/O Module_ records every action (or only some of the actions) per
 [kefir]: http://rpominov.github.io/kefir/
 [roman-pominov]: http://rpominov.github.io
 [processing-js]: http://p5js.org
-[pure-data]: http://puredata.info/
 
 [download-default]: TODO
 [building-section]: ./sections/building.html
 [renderer-comp-section]: ./sections/compilation.html#renderers
 [style-comp-section]: ./sections/compilation.html#styles
+
+[puredata]: https://puredata.info/
+[quartzcomposer]: https://en.wikipedia.org/wiki/Quartz_Composer
+[vvvv]: https://vvvv.org/
+[nodebox]: https://www.nodebox.net/
+[reactor]: http://www.native-instruments.com/en/products/komplete/synths/reaktor-6/
 
 <script defer src="./d3.v3.min.js"></script>
 <script defer src="./docs-patch.js"></script>
