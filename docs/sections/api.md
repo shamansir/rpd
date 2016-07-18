@@ -90,7 +90,9 @@ To define node type or channel type, to configure some particular node or channe
    * `core/basic`
    * `core/reference`
 
-<!-- * `util/nodelist` -->
+### `util` Toolkit
+
+List of Nodes, which currently exist in `util` Toolkit [is located here](http://github.com/shamansir/rpd/blob/master/src/toolkit/util/toolkit.md).
 
 ### Naming rules
 
