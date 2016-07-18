@@ -408,8 +408,8 @@ function mousePosNodeRenderer() {
             }
         },
         always: function(bodyElm, inlets, outlets) {
-            if (Number.isNaN(inlets.x) || Number.isNaN(inlets.x)) return;
-            center = dirCircle.getBoundingClientRect();
+            if (Number.isNaN(inlets.x) || Number.isNaN(inlets.y) || !inlets.y) return;
+            var center = dirCircle.getBoundingClientRect();
             var angle = Math.atan2(inlets.y - (center.top + radius),
                                    inlets.x - (center.left + radius));
             dirLine.setAttributeNS(null, 'x2', Math.cos(angle) * radius);
