@@ -52,7 +52,7 @@ The Engine API provides easy ways to program node networks. Or to define a custo
 
 Let's switch to some simple examples. Detailed stuff is under the links below.
 
-**NB:** Despite the **α** (_alpha_) symbol in the version number, API is stable and may be used safely, since it has a very low chance to be changed in nearby future, unless issues will hardly require so. Actually **α** (_alpha_) just means that the engine wasn't tested in an enough amount of environments for now
+**NB:** Despite the **α** (_alpha_) symbol in the version number, API is stable and may be used safely, since it has a very low chance to be changed in nearby future, unless issues will hardly require so. If such occasion will occur despite the above allegations, minor version number will be raised and users will be notified about API changes coming in a new version. Actually **α** (_alpha_) just means that the engine wasn't tested in an enough amount of environments for now, and planned to be removed at the time there will be enough.
 
 Constructing a network of nodes:
 
@@ -60,13 +60,15 @@ Constructing a network of nodes:
 var patch = Rpd.addPatch('Example');
 
 var firstNode = patch.addNode('core/basic', 'Test');
-var boolOutlet = firstNode.addOutlet('core/boolean', true);
+var boolOutlet = firstNode.addOutlet('core/boolean', 'bool', {
+    default: true;
+});
 firstNode.addOutlet('util/number', { default: 1 });
 firstNode.addOutlet('util/number');
 
 var secondNode = patch.addNode('core/basic', 'Foo');
-var boolInlet = secondNode.addInlet('util/boolean');
-var numInlet = secondNode.addInlet('util/number', {
+var boolInlet = secondNode.addInlet('util/boolean', 'bool');
+var numInlet = secondNode.addInlet('util/number', 'num', {
     allow: [ 'util/boolean' ],
     adapt: function(val) { return (val === true) ? 1 : 0 }
 });
@@ -74,7 +76,7 @@ var numInlet = secondNode.addInlet('util/number', {
 boolOutlet.connect(boolInlet);
 boolOutlet.connect(numInlet);
 boolOutlet.send(false);
-boolOutlet.stream(Kefir.repeatedly(10, [true, false]));
+boolInlet.stream(Kefir.repeatedly(10, [true, false]));
 ```
 
 Creating custom node types is very easy:

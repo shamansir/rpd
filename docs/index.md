@@ -396,11 +396,11 @@ _Canvas_ is a place where Patch is rendered and operated. It has size and could 
 
 <!-- IN PROGRESS -->
 
-#### I/O Module
+#### Module
 
-_I/O Module_ records every action (or only some of the actions) performed to build the Network in some specific format, so it can optionally “replay” these actions in order, using this data.
+_Module_ is any extension for the RPD functionality, not included in the library code itself.
 
-<!-- All the updates inside the Network are based on purely functional code, so there are no actual data modifications performed, only signals are sent. Among other useful things, it allows to easily record and restore things. Your code could be imperative, if you decide, but you should not modify the Network structure if you plan to share the code with others. -->
+For example, _I/O Module_ records every action (or only some of the actions) performed to build the Network in some specific format, so it can optionally “replay” these actions later, in proper order.
 
 [node-js]: http://nodejs.org
 [kefir]: http://rpominov.github.io/kefir/

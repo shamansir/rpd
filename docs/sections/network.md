@@ -4,7 +4,7 @@ id: network
 level: 1
 ---
 
-No matter, have you [compiled](./setup.html#Compilation) your own customized version of RPD, or have you [downloaded](./setup.html#Download) the version with default options, you are ready to build a Patch network.
+No matter, have you [compiled](./setup.html#Compilation) your own customized version of RPD, or have you [downloaded](./setup.html#Download) the version with default options, you are ready to build a Patch network. Just ensure that you've included all the required Styles, Toolkits and Modules into your page, this process is also covered in the [Setup section](./setup.html).
 
 <!-- Here's an example of a very simple patch, just to give you an idea on how easy it is to build one:
 
@@ -24,6 +24,8 @@ No matter, have you [compiled](./setup.html#Compilation) your own customized ver
 ```
 
 But of course that's not everything RPD capable of — there are much, much more possibilities covered below, and they may help you build very complex Patches. -->
+
+> NB: All the updates inside the Network are based on purely functional code, so there are no actual data modifications performed, only signals are sent. Among other useful things, it allows to easily record and restore things. Your code could be imperative, if you decide, but you should not modify the Network inner structure if you plan to share the code with others.
 
 ### Setup Rendering
 
@@ -86,6 +88,8 @@ Rpd.renderNext('svg', targetElement, { style: 'quartz',
 
 ### Creating a Patch
 
+> NB: If you what to know what exactly all the terms like _Patch_, _Node_, _Inlet_, _Outlet_, _Link_ mean in context of RPD, see [Terminology sub-section on the Main page](../index.html#terminology).
+
 Patch is a collection and topology of connected Nodes.
 
 And creating a Patch is super-easy:
@@ -123,7 +127,6 @@ patch.addNode('my-toolkit/my-node-type')
      .move(100 /* x */, 150 /* y */); // in pixels for HTML, or SVG units
 ```
 
-
 <!-- But nodes also could have options you may find useful. These options are passed as an object:
 
 ```javascript
@@ -145,11 +148,11 @@ patch.addNode('custom/type').move(20, 20);
 
 <!-- TODO: embedded example -->
 
-For a complete list of properties could be used to define a Node, see [Node Definition](./api.html#node-definition) in [API section](./api.html). Also see [Defining node type](./toolkits.html#defining-node-type) and [Writing a Renderer for a Node](./toolkits.html#writing-node-renderer) chapters in [Toolkits section](./toolkits.html).
+For a complete list of properties could be used to define a Node, see [Node Definition](./api.html#node-definition) in [API section](./api.html). Also see [Defining Node Type](./toolkits.html#defining-node-type) and [Writing a Renderer for a Node](./toolkits.html#writing-node-renderer) chapters in [Toolkits section](./toolkits.html) if you want to create bundles of your Node types, called _Toolkits_.
 
 ### Connecting Nodes
 
-Nodes process data that came inside through Inlets and then send processed data through their Outlets to Inlets of the other nodes. The connection between Outlet of one node and Inlet of another node is called Link. User may connect one Outlet to several Inlets, and also, if it's allowed by configuration (usually not), connect several Outlets to one Inlet.
+Nodes process data that came inside through Inlets and then send processed data through their Outlets to Inlets of the other nodes. The connection between Outlet of one node and Inlet of another node is called Link. User may connect one Outlet to several Inlets, and also, if it's allowed by configuration (usually not), connect several Outlets to one Inlet. But this rules are controlled only by Renderer, in the code you may connect outlets to inlets as many times as you want, so you should control existing connections by yourself.
 
 <!-- TODO: some picture about how the process goes -->
 
@@ -160,62 +163,183 @@ Nodes may have any number of Inlets and any number of Outlets defined in their t
 Type-defined Inlets and Outlets are accessible through `node.inlets` and `node.outlets` properties:
 
 ```javascript
+var knob = patch.addNode('util/knob', 'Number');
+var color = patch.addNode('util/color', 'Color');
+knob.outlets['out'].connect(color.inlets['r']);
 ```
 
-User-defined Inlets and Outlets are _not_ stored this way, <!-- (since it's not allowed to mutate Node state from the code) --> but you may receive an instance of such just when you use `addInlet` or `addOutlet` method:
+Disconnecting is also very easy:
 
 ```javascript
+var link = knob.outlets['out'].connect(color.inlets['r']);
+...
+link.disconnect();
 ```
+
+Also, you may temporary disable the link and then enable it later, when you don't want to remove the connection completely. When link is disabled, it skips all the updates coming through, but still exists. So this way link will be shown to the user, but will be greyed out:
+
+```javascript
+var link = knob.outlets['out'].connect(color.inlets['r']);
+...
+link.disable();
+...
+link.enable();
+```
+
+There is also a possibility to create custom Nodes just in place by adding Inlets and Outlets of any type to a `core/basic` Node:
+
+```javascript
+// through redefining Node instance:
+var myNode = patch.addNode('core/basic', 'My Node', {
+    inlets: {
+        foo: { type: 'core/any', 'default': 0 },
+        bar: { type: 'core/any' }
+    },
+    outlets: {
+        out: { type: 'core/any' }
+    }
+    process: function(inlets) {
+        return { out: (inlets.foo || 0) + (inlets.bar || 0) }
+    }
+});
+knob.outlets['out'].connect(myNode.inlets['foo']);
+
+// through adding inlets/outlets to the instance
+var myNode = patch.addNode('core/basic', 'My Node', {
+    process: function(inlets) {
+        return { out: (inlets.foo || 0) + (inlets.bar || 0) }
+    }
+});
+var fooInlet = myNode.addInlet('core/any', 'foo', { 'default': 0 });
+var barInlet = myNode.addInlet('core/any', 'bar');
+var outlet = myNode.addOutlet('core/any', 'out');
+knob.outlets['out'].connect(fooInlet);
+```
+
+Actually, you also may add Inlets and Outlets to any instance of the Node of any type using `node.addInlet`/`node.addOutlet`, but it probably has no sense, since such Nodes usually have inner processing logic hardly bound to what is inside.
+
+<!-- Inlets and Outlets which were added directly to the instance and not through the Type Definition (the way Toolkits usually define them), are _not_ stored this way,but you may receive an instance of such just when you use `addInlet` or `addOutlet` method:
+
+```javascript
+var myRandomGeneratorNode = patch.addNode('core/basic', 'My Random 0-255', {
+    process: function() {
+        if (inlets.bang) return { 'out': Math.floor(Math.random() * 256) }    
+    }
+});
+var outOutlet = myRandomGeneratorNode.addOutlet('util/number', 'out');
+var bangInlet = myRandomGeneratorNode.addInlet('util/bang', 'bang');
+// send bang signal every second to the inlet
+bangInlet.stream(Kefir.interval(1000, {}));
+var colorNode = patch.addNode('util/color', 'Color');
+var alphaInlet = color.addInlet('util/wholenumber', 'a');
+outOutlet.connect(alphaInlet);
+```
+
+On the other hand, code above works exactly same way as the next one, the only difference is in the fact that Inlets and Outlets in this example are defined before the specific Node instance was created:
+
+```javascript
+var myRandomGeneratorNode = patch.addNode('core/basic', 'My Random 0-255', {
+    inlets: { 'bang': { type: 'util/bang' } },
+    outlets: { 'out': { type: 'util/number' } },
+    process: function(inlets) {
+        if (inlets.bang) return { 'out': Math.floor(Math.random() * 256) }    
+    }
+});
+var outOutlet = myRandomGeneratorNode.outlets['out'];
+var bangInlet = myRandomGeneratorNode.inlets['bang'];
+// send bang signal every second to the inlet
+bangInlet.stream(Kefir.interval(1000, {}));
+// clone `inlets` definition not to modify inlets for all instances
+// of that type, but just for this particular instance
+colorTypeInlets = Object.create(Rpd.allNodeTypes['util/color'].inlets);
+colorTypeInlets['a'] = { type: 'util/wholenumber', 'default': 255 };
+var colorNode = patch.addNode('util/color', 'Color', {
+    inlets: colorTypeInlets
+});
+var alphaInlet = colorNode.inlets['a'];
+outOutlet.connect(alphaInlet);
+``` -->
+
+In UI, user commonly starts creating a Link from the Outlet and finishes it on the Inlet. That's same for your code. You get the Outlet instance (defined by type or added by you) and connect it to the Inlet instance (defined by type or added by you).
+
+<!-- Once again, if you want to know all the properties Node types or instances could have, see [Node Definition](./api.html#node-definition) in [API section](./api.html). -->
 
 You may notice that Inlets and Outlets also have their own types. Their type determines which data they may accept, connections of which type they allow, how they present the data to the user or how they transform it before sending it to the Node.
 
-Same way as for the nodes, Channel (Inlets and Outlets together are called Channels in RPD) type may be defined just before Channel usage.
+Same way as for the Nodes, Channel (Inlets and Outlets together are called Channels in RPD) type may be defined just before Channel usage.
 
 ```javascript
+var customNode = patch.addNode('custom/node-type', 'Foo');
+Rpd.channeltype('custom/channel-type', {
+    accept: function(value) {
+        return (value >= 0) && (value <= 255);
+    }
+});
+customNode.addInlet('custom/channel-type', 'foo');
+customNode.addOutlet('custom/channel-type', 'bar');
+Rpd.nodetype('custom/another-node-type', {
+    inlets: {
+        'in': { type: 'custom/channel-type' }
+    }
+});
 ```
 
-Channel Types definition is [covered in details](./toolkits.html#defining-channel-type) at the Toolkits page. As well as [writing a Renderer for a Channel](./toolkits.html#writing-channel-renderer).
+Node types and Channel Types may intersect, for example there is `util/color` Channel which operates with objects in a form of `{ r: 255, g: 255, b: 255 }` and `util/color` Node, which has Inlets `r`, `g` and `b` of type `util/wholenumber` and outputs color in the Outlet of type `util/color`. Also, the Node includes rectangle filled with current color in its body.
 
-In UI, user commonly starts creating a Link from the Inlet and finishes it on the Outlet. That's same for your code. You get the Outlet instance (defined by type or added by you) and connect it to the Inlet instance (defined by type or added by you):
-
-```javascript
-```
-
-#### Inlet properties
-
-That's important to say that Inlets could have a lot of options:
-
-```javascript
-```
-
-#### Outlet properties
+For a complete list of properties could be used to define an Inlet or Outlet, see [Channel Definition](./api.html#channel-definition) in [API section](./api.html). As well as [Writing a Renderer for a Channel](./toolkits.html#writing-channel-renderer). Also see [Defining Channel Type](./toolkits.html#defining-node-type) and [Writing a Renderer for a Channel](./toolkits.html#writing-channel-renderer) chapters in [Toolkits section](./toolkits.html) if you want to create bundles of your Node and/or Channel types, called _Toolkits_.
 
 ### Sending Data
 
 To send your own data to an Inlet, you may use its `receive` method. There's no requirement for this inlet to be connected to anything, but if it is indeed connected, you'll just insert your update in it's established data flow.
 
 ```javascript
+var randomNode = patch.addNode('util/random');
+randomNode.inlets['max'].receive(256);
+var colorNode = patch.addNode('util/color', 'Color');
+randomNode.outlets['out'].connect(colorNode.inlets['g']);
+
+randomNode.inlets['bang'].receive({}); // trigger generating random number
+setTimeout(function() {
+    // trigger generating random number once again after a second
+    randomNode.inlets['bang'].receive({});
+}, 1000);
 ```
 
 To send some data from an outlet, use it's `send` method. You might want it to be connected to something before. The data then will flow through all the connections until the end of the wire or until some Node on the way will interrupt it.
 
 ```javascript
+// override the output and send 1000 from Random Generator Node
+randomNode.outlets['out'].send(1000);
 ```
 
-When you send data to some Inlet, data is first transformed according to Inlet type, if there was such transformation requested. So the Node may receive a bit different data than you've sent to the Inlet.
-
-```javascript
-```
+> NB: When you send data to some Inlet, data is first transformed according to Inlet type, if there was such transformation requested. So the Node may receive and may want to receive a bit different data than you've sent to the Inlet. On the other hand, Outlets usually do not transform data and just send them out. So, the law is, always prefer sending data to the Inlets of the Node, since Inlets insert data into the Node processing flow, as it expects it to be received. Or, even better in the cases you do same thing several times, find or define a transformation Node type which will send the data you want and will be re-usable.
 
 Of course you may use `inlet.receive` or `outlet.send` in any moment after the corresponding Inlet or Outlet was created. If you want, use `setTimeout` to postpone the update or `setInterval` to send value each period of time. But I have a better suggestion for you.
 
-You may shedule the updates using the Stream approach. Streams are sequences of data distributed over time, and they are the major part of Reactive Programming, so you may find more details on this topic in any documentation covering FRP. Using Streams provides truly a lot of possibilities and combinations, since data flows may be combined and transformed in a lot of ways independently of time when a data itself was produced.
+You may schedule the updates using the Stream approach. Streams are sequences of data distributed over time, and they are the major part of Reactive Programming, so you may find more details on this topic in any documentation covering FRP. Using Streams provides truly a lot of possibilities and combinations, since data flows may be combined and transformed in a lot of ways independently of time when a data itself was produced.
 
 But let me give just the basic example here, so you may either realise the full potential if you already know something about them, or head to FRP docs if you ever plan to use Streams and need complex workflows.
 
 Out of the box, RPD uses [Kefir][kefir] library for Streams, since it's very tiny and neat <!-- laconic --> at the same time. Both Inlets and Outlets have `stream` method, which plugs given Kefir Stream into the flow:
 
 ```javascript
+randomNode.inlets['bang'].stream(Kefir.interval(1000, {}));
+randomNode.outlets['out'].stream(Kefir.sequentially(1000, [1, 2, 3]));
+```
+
+Streams allow you to do really powerful things:
+
+```javascript
+// set red component of the color using the mouse X position
+colorNode.inlets['r'].stream(
+    Kefir.fromEvents(document.body, 'mousemove').throttle(10)
+         .map(function(event) {
+             return { x: event.clientX, y: event.clientY };
+         })
+         .map(function(position) {
+             return position.x % 255;
+         });
+);
 ```
 
 ### Adding Sub-patches
@@ -224,6 +348,29 @@ Out of the box, RPD uses [Kefir][kefir] library for Streams, since it's very tin
 
 ### Adding Import/Export
 
-<!-- IN PROGRESS -->
+Currently, there are only JSON and Plain Modules included with RPD distribution. Both may save Networks to `*.json` and `*.txt` (Plain Text) files correspondingly and restore them back from these files.
+
+To add JSON export, just ensure to [include the Module into your version of RPD](./setup.html), then call this:
+
+```javascript
+var finalize = Rpd.export.json('Name of the Patch');
+
+var patch = Rpd.addPatch(...);
+patch.addNode(...);
+...
+...
+
+console.log(finalize());
+```
+
+And you'll get the full restorable log of actions in JSON format in the console. Flush it to the file and read it back with:
+
+```javascript
+var jsonContent = JSON.parse(readFile('my-file.json'));
+
+Rpd.import.json(jsonContent);
+```
+
+To do the same, but with Plain Text format, just change `Rpd.export.json` and `Rpd.import.json` to `Rpd.export.plain` and `Rpd.import.plain`, and you're done!
 
 [kefir]: http://rpominov.github.io/kefir
