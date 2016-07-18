@@ -66,7 +66,7 @@ Rpd.noderenderer('util/log', 'svg', function() {
     var capacity = 5;
     var savedValues = [];
     return {
-        size: { width: 130, height: 30 },
+        size: { width: 140, height: 30 },
         first: function(bodyElm) {
             textElm = d3.select(bodyElm).append('text');
         },

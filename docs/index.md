@@ -90,6 +90,77 @@ Tries to generate Country Flag from Unicode codepoints, [inspired by article "Em
 <div id="example-two"></div>
 
 ```javascript
+Rpd.renderNext('svg', document.getElementById('example-two'),
+                      { style: 'compact-v' });
+
+var patch = Rpd.addPatch('Flag Generator').resizeCanvas(800, 200);
+
+var metro1 = patch.addNode('util/metro').move(50, 30);
+var metro2 = patch.addNode('util/metro').move(50, 90);
+metro1.inlets['period'].receive(2000);
+metro2.inlets['period'].receive(3000);
+
+var random1 = patch.addNode('util/random').move(170, 10);
+random1.inlets['max'].receive(25);
+var random2 = patch.addNode('util/random').move(170, 120);
+random2.inlets['max'].receive(25);
+
+var letter1 = patch.addNode('util/letter').move(300, 10);
+var letter2 = patch.addNode('util/letter').move(300, 110);
+
+metro1.outlets['bang'].connect(random1.inlets['bang']);
+metro2.outlets['bang'].connect(random2.inlets['bang']);
+
+random1.outlets['random'].connect(letter1.inlets['code']);
+random2.outlets['random'].connect(letter2.inlets['code']);
+
+Rpd.nodetype('user/maybe-flag', {
+    title: 'May be a flag?',
+    inlets: {
+        'letterA': { type: 'core/any' },
+        'letterB': { type: 'core/any' }
+    },
+    outlets: {
+        'char': { type: 'core/any' },
+        'code': { type: 'core/any' }
+    },
+    process: function(inlets) {
+        if (!inlets.letterA || !inlets.letterB) return;
+        return { 'code': String.fromCharCode(inlets.letterA.charCodeAt(0) - 32) + String.fromCharCode(inlets.letterB.charCodeAt(0) - 32),
+                 'char' : fromCodePoint(55356) + fromCodePoint(inlets.letterA.charCodeAt(0) - 97 + 56806) +
+                          fromCodePoint(55356) + fromCodePoint(inlets.letterB.charCodeAt(0) - 97 + 56806) };
+    }
+});
+
+// d3_tiny is a 100-lined JavaScript included in RPD distribution
+// which supports basic d3.js functions like `.select`, `.attr` & s.o.,
+// fully compatible with "big" d3.js
+var d3 = d3 || d3_tiny;
+
+Rpd.noderenderer('user/maybe-flag', 'svg', function() {
+    var textElm;
+    return {
+        first: function(bodyElm) {
+            textElm = d3.select(bodyElm).append('text')
+                        .style('text-anchor', 'middle');
+        },
+        always: function(bodyElm, inlets, outlets) {
+            if (!outlets) return;
+            textElm.text(outlets.char + ' (' + outlets.code + ')');
+        }
+    }
+});
+
+var maybeFlag = patch.addNode('user/maybe-flag', 'Maybe<Flag>').move(430, 70);
+letter1.outlets['letter'].connect(maybeFlag.inlets['letterA']);
+letter2.outlets['letter'].connect(maybeFlag.inlets['letterB']);
+
+var logNode = patch.addNode('util/log', {}, {
+    'svg': {
+        size: { width: 210, height: 30 }
+    }
+}).move(550, 70);
+maybeFlag.outlets['char'].connect(logNode.inlets['what']);
 ```
 
 #### HTML5 Canvas and Custom Toolkit
@@ -236,7 +307,7 @@ Rpd.noderenderer('my/scene', 'svg', function() {
 /* ============== Patch Structure ============== */
 
 Rpd.renderNext('svg', document.getElementById('example-three'),
-               { style: 'compact-v' });
+                      { style: 'compact-v' });
 
 var patch = Rpd.addPatch('Generate Canvas Shapes').resizeCanvas(800, 205);
 

@@ -41,20 +41,20 @@ function applyCodeExample2() {
     Rpd.renderNext('svg', document.getElementById('example-two'),
                    { style: 'compact-v' });
 
-    var model = Rpd.addPatch('Flag Generator').resizeCanvas(800, 200);
+    var patch = Rpd.addPatch('Flag Generator').resizeCanvas(800, 200);
 
-    var metro1 = model.addNode('util/metro').move(50, 70);
-    var metro2 = model.addNode('util/metro').move(50, 160);
+    var metro1 = patch.addNode('util/metro').move(50, 30);
+    var metro2 = patch.addNode('util/metro').move(50, 90);
     metro1.inlets['period'].receive(2000);
     metro2.inlets['period'].receive(3000);
 
-    var random1 = model.addNode('util/random').move(200, 50);
+    var random1 = patch.addNode('util/random').move(170, 10);
     random1.inlets['max'].receive(25);
-    var random2 = model.addNode('util/random').move(200, 180);
+    var random2 = patch.addNode('util/random').move(170, 120);
     random2.inlets['max'].receive(25);
 
-    var letter1 = model.addNode('util/letter').move(350, 50);
-    var letter2 = model.addNode('util/letter').move(350, 140);
+    var letter1 = patch.addNode('util/letter').move(300, 10);
+    var letter2 = patch.addNode('util/letter').move(300, 110);
 
     metro1.outlets['bang'].connect(random1.inlets['bang']);
     metro2.outlets['bang'].connect(random2.inlets['bang']);
@@ -99,9 +99,16 @@ function applyCodeExample2() {
         }
     });
 
-    var maybeFlag = model.addNode('user/maybe-flag', 'Maybe<Flag>').move(570, 100);
+    var maybeFlag = patch.addNode('user/maybe-flag', 'Maybe<Flag>').move(430, 70);
     letter1.outlets['letter'].connect(maybeFlag.inlets['letterA']);
     letter2.outlets['letter'].connect(maybeFlag.inlets['letterB']);
+
+    var logNode = patch.addNode('util/log', {}, {
+        'svg': {
+            size: { width: 210, height: 30 }
+        }
+    }).move(550, 70);
+    maybeFlag.outlets['char'].connect(logNode.inlets['what']);
 }
 
 function applyCodeExample3() {
