@@ -44,7 +44,7 @@ Random Generator with the help of [`util`](http://..) toolkit:
 
 <div id="example-one"></div>
 
-```js
+```javascript
 Rpd.renderNext('svg', document.getElementById('example-one'),
                { style: 'compact-v' });
 
@@ -83,9 +83,18 @@ randomGenNode.outlets['out'].connect(multiplierInlet);
 metroNode.outlets['out'].connect(randomGenNode.inlets['bang']);
 ```
 
-#### HTML5 Canvas and Custom Toolkit
+#### Flag Generator
+
+Tries to generate Country Flag from Unicode codepoints, [inspired by article "Emoji flags from ISO 3166-1 country codes"](https://bendodson.com/weblog/2016/04/26/emoji-flags-from-iso-3166-country-codes-in-swift). (There's also ["Emoji Flag Redux"](https://esham.io/2015/04/emoji-flags-redux) article, written earlier). When you see blank squares (_tofu_) in "Maybe Flag" Node, there's no flag for this combination of letters.
 
 <div id="example-two"></div>
+
+```javascript
+```
+
+#### HTML5 Canvas and Custom Toolkit
+
+<div id="example-three"></div>
 
 ```javascript
 /* ============== Coordinates Channel Type ============== */
@@ -226,7 +235,7 @@ Rpd.noderenderer('my/scene', 'svg', function() {
 
 /* ============== Patch Structure ============== */
 
-Rpd.renderNext('svg', document.getElementById('example-two'),
+Rpd.renderNext('svg', document.getElementById('example-three'),
                { style: 'compact-v' });
 
 var patch = Rpd.addPatch('Generate Canvas Shapes').resizeCanvas(800, 205);

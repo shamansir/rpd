@@ -44,22 +44,22 @@ function buildUtilDemoPatch(renderer, target, conf) {
     var comment = model.addNode('util/comment');
     comment.inlets['text'].receive('connect bounded number node \'out\' to any inlet of color node');
     comment.inlets['width'].receive(130);
-    comment.move(180, 340);
+    comment.move(150, 230);
 
-    // TODO: remove
+    // Flag Generator
 
-    var metro1 = model.addNode('util/metro').move(50, 390);
-    var metro2 = model.addNode('util/metro').move(50, 440);
+    var metro1 = model.addNode('util/metro').move(50, 370);
+    var metro2 = model.addNode('util/metro').move(50, 460);
     metro1.inlets['period'].receive(2000);
     metro2.inlets['period'].receive(3000);
 
-    var random1 = model.addNode('util/random').move(180, 390);
+    var random1 = model.addNode('util/random').move(200, 350);
     random1.inlets['max'].receive(25);
-    var random2 = model.addNode('util/random').move(180, 440);
+    var random2 = model.addNode('util/random').move(200, 480);
     random2.inlets['max'].receive(25);
 
-    var letter1 = model.addNode('util/letter').move(180, 390);
-    var letter2 = model.addNode('util/letter').move(180, 440);
+    var letter1 = model.addNode('util/letter').move(350, 350);
+    var letter2 = model.addNode('util/letter').move(350, 440);
 
     metro1.outlets['out'].connect(random1.inlets['bang']);
     metro2.outlets['out'].connect(random2.inlets['bang']);
@@ -104,7 +104,7 @@ function buildUtilDemoPatch(renderer, target, conf) {
 
     //fromCodePoint(55356) + fromCodePoint('e'.charCodeAt(0) - 97 + 56806);
 
-    var maybeFlag = model.addNode('user/maybe-flag', 'Maybe<Flag>');
+    var maybeFlag = model.addNode('user/maybe-flag', 'Maybe<Flag>').move(570, 400);
     letter1.outlets['letter'].connect(maybeFlag.inlets['letterA']);
     letter2.outlets['letter'].connect(maybeFlag.inlets['letterB']);
 

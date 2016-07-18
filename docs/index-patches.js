@@ -38,6 +38,73 @@ function applyCodeExample1() {
 }
 
 function applyCodeExample2() {
+    Rpd.renderNext('svg', document.getElementById('example-two'),
+                   { style: 'compact-v' });
+
+    var model = Rpd.addPatch('Flag Generator').resizeCanvas(800, 200);
+
+    var metro1 = model.addNode('util/metro').move(50, 70);
+    var metro2 = model.addNode('util/metro').move(50, 160);
+    metro1.inlets['period'].receive(2000);
+    metro2.inlets['period'].receive(3000);
+
+    var random1 = model.addNode('util/random').move(200, 50);
+    random1.inlets['max'].receive(25);
+    var random2 = model.addNode('util/random').move(200, 180);
+    random2.inlets['max'].receive(25);
+
+    var letter1 = model.addNode('util/letter').move(350, 50);
+    var letter2 = model.addNode('util/letter').move(350, 140);
+
+    metro1.outlets['out'].connect(random1.inlets['bang']);
+    metro2.outlets['out'].connect(random2.inlets['bang']);
+
+    random1.outlets['out'].connect(letter1.inlets['code']);
+    random2.outlets['out'].connect(letter2.inlets['code']);
+
+    Rpd.nodetype('user/maybe-flag', {
+        title: 'May be a flag?',
+        inlets: {
+            'letterA': { type: 'core/any' },
+            'letterB': { type: 'core/any' }
+        },
+        outlets: {
+            'out': { type: 'core/any' },
+            'code': { type: 'core/any' }
+        },
+        process: function(inlets) {
+            if (!inlets.letterA || !inlets.letterB) return;
+            return { 'code': String.fromCharCode(inlets.letterA.charCodeAt(0) - 32) + String.fromCharCode(inlets.letterB.charCodeAt(0) - 32),
+                     'out' : fromCodePoint(55356) + fromCodePoint(inlets.letterA.charCodeAt(0) - 97 + 56806) +
+                             fromCodePoint(55356) + fromCodePoint(inlets.letterB.charCodeAt(0) - 97 + 56806) };
+        }
+    });
+
+    // d3_tiny is a 100-lined JavaScript included in RPD distribution
+    // which supports basic d3.js functions like `.select`, `.attr` & s.o.,
+    // fully compatible with "big" d3.js
+    var d3 = d3 || d3_tiny;
+
+    Rpd.noderenderer('user/maybe-flag', 'svg', function() {
+        var textElm;
+        return {
+            first: function(bodyElm) {
+                textElm = d3.select(bodyElm).append('text')
+                            .style('text-anchor', 'middle');
+            },
+            always: function(bodyElm, inlets, outlets) {
+                if (!outlets) return;
+                textElm.text(outlets.out + ' (' + outlets.code + ')');
+            }
+        }
+    });
+
+    var maybeFlag = model.addNode('user/maybe-flag', 'Maybe<Flag>').move(570, 100);
+    letter1.outlets['letter'].connect(maybeFlag.inlets['letterA']);
+    letter2.outlets['letter'].connect(maybeFlag.inlets['letterB']);
+}
+
+function applyCodeExample3() {
     /* ============== Coordinates Channel Type ============== */
 
     Rpd.channeltype('my/coords', {
@@ -173,7 +240,7 @@ function applyCodeExample2() {
 
     /* ============== Patch Structure ============== */
 
-    Rpd.renderNext('svg', document.getElementById('example-two'),
+    Rpd.renderNext('svg', document.getElementById('example-three'),
                    { style: 'compact-v' });
 
     var patch = Rpd.addPatch('Generate Canvas Shapes').resizeCanvas(800, 205);
@@ -207,6 +274,7 @@ function applyCodeExample2() {
 
 applyCodeExample1();
 applyCodeExample2();
+applyCodeExample3();
 
 var logoPatchAdded = false;
 document.getElementById('planets').addEventListener('click', function() {
@@ -217,9 +285,9 @@ document.getElementById('planets').addEventListener('click', function() {
                       document.getElementById('patch-target'));
 });
 
-var stringFromCharCode = String.fromCharCode;
-var floor = Math.floor;
 function fromCodePoint(_) {
+    var stringFromCharCode = String.fromCharCode;
+    var floor = Math.floor;
     // https://github.com/mathiasbynens/String.fromCodePoint/blob/master/fromcodepoint.js
     var MAX_SIZE = 0x4000;
     var codeUnits = [];

@@ -125,3 +125,11 @@
 .rpd-node .rpd-remove-button:hover text {
     fill: red;
 }
+
+.rpd-node .rpd-header.rpd-drag-handle {
+    transition: fill 0.75s ease-in;
+}
+
+.rpd-node .rpd-header.rpd-drag-handle:hover {
+    fill: gray; /* navy */
+}
