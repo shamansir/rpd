@@ -370,10 +370,10 @@ Rpd.nodetype('docs/random-on-click', {
         'click': { type: 'core/any', hidden: true }
     },
     outlets: {
-        'out': { type: 'util/number' }
+        'random': { type: 'util/number' }
     },
     process: function(inlets) {
-        if (inlets.click) return { out: Math.random() };
+        if (inlets.click) return { random: Math.random() };
     }
 });
 
@@ -424,7 +424,7 @@ Rpd.noderenderer('docs/random-on-click', 'html', function() {
             };
         },
         always: function(bodyElm, inlets, outlets) {
-            numberElm.innerText = outlets.out;
+            numberElm.innerText = outlets.random;
         }
     };
 });
@@ -811,9 +811,9 @@ The `process` handler is the main function, the really important one for the Nod
 Rpd.nodetype('util/*', {
     inlets: { 'a': { type: 'util/number' },
               'b': { type: 'util/number' } },
-    outlets: { 'out': { type: 'util/number' } },
+    outlets: { 'result': { type: 'util/number' } },
     process: function(inlets) {
-        return { 'out': (inlets.a || 0) * (inlets.b || 0) };
+        return { 'result': (inlets.a || 0) * (inlets.b || 0) };
     }
 });
 ```
@@ -833,9 +833,9 @@ Rpd.channeltype('docs/bang', {
 
 Rpd.nodetype('docs/bang', {
     inlets: { 'trigger': { type: 'docs/bang', hidden: true } },
-    outlets: { 'out': { type: 'docs/bang' } },
+    outlets: { 'bang': { type: 'docs/bang' } },
     process: function(inlets) {
-        return inlets.trigger ? { 'out': {} } : {};
+        return inlets.trigger ? { 'bang': {} } : {};
     }
 });
 ```
@@ -871,11 +871,11 @@ Rpd.nodetype('docs/inlet-or-body', {
     inlets: { 'from-other-node': { type: 'docs/number-timestamped' },
               'from-node-body': { type: 'docs/number-timestamped',
                                   hidden: true } },
-    outlets: { 'out': { type: 'util/number' } },
+    outlets: { 'recent': { type: 'util/number' } },
     process: function(inlets) {
         return {
-            out: getMostRecentValue(inlets['from-other-node'],
-                                    inlets['from-node-body'])
+            recent: getMostRecentValue(inlets['from-other-node'],
+                                       inlets['from-node-body'])
         };
     }
 });
@@ -922,12 +922,12 @@ Some examples:
 Rpd.nodetype('docs/delay', {
     inlets: { 'this': { type: 'core/any' },
               'that': { type: 'core/any' } },
-    outlets: { 'out': { type: 'core/any' } },
+    outlets: { 'delayed': { type: 'core/any' } },
     tune: function(updates) {
         return updates.delay(3000); // delays all updates for three seconds
     },
     process: function(inlets) {
-        return { out: inlets['this'] || inlets['that'] };
+        return { delayed: inlets['this'] || inlets['that'] };
     }
 });
 ```
@@ -1522,12 +1522,12 @@ var knob1 = patch.addNode('util/knob'),
     knob2 = patch.addNode('util/knob'),
     knob3 = patch.addNode('util/knob');
 var color = patch.addNode('util/color');
-knob1.outlets['out'].connect(color.inlets['r']);
+knob1.outlets['number'].connect(color.inlets['r']);
 var knob2ToGreenLink = knob2.outlets['out'].connect(color.inlets['g']);
-knob3.outlets['out'].connect(color.inlets['b']);
+knob3.outlets['number'].connect(color.inlets['b']);
 
 var always42 = patch.addNode('docs/always-42', 'Always 42');
-var outlet = always42.addOutlet('core/any', 'out', {
+var outlet = always42.addOutlet('core/any', 'fourty-two', {
     tune: function(stream) {
         return stream.map(function() { return 42; });
     }

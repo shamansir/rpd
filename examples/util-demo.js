@@ -61,11 +61,11 @@ function buildUtilDemoPatch(renderer, target, conf) {
     var letter1 = model.addNode('util/letter').move(350, 350);
     var letter2 = model.addNode('util/letter').move(350, 440);
 
-    metro1.outlets['out'].connect(random1.inlets['bang']);
-    metro2.outlets['out'].connect(random2.inlets['bang']);
+    metro1.outlets['bang'].connect(random1.inlets['bang']);
+    metro2.outlets['bang'].connect(random2.inlets['bang']);
 
-    random1.outlets['out'].connect(letter1.inlets['code']);
-    random2.outlets['out'].connect(letter2.inlets['code']);
+    random1.outlets['random'].connect(letter1.inlets['code']);
+    random2.outlets['random'].connect(letter2.inlets['code']);
 
     Rpd.nodetype('user/maybe-flag', {
         title: 'May be a flag?',
@@ -74,13 +74,13 @@ function buildUtilDemoPatch(renderer, target, conf) {
             'letterB': { type: 'core/any' }
         },
         outlets: {
-            'out': { type: 'core/any' },
+            'char': { type: 'core/any' },
             'code': { type: 'core/any' }
         },
         process: function(inlets) {
             if (!inlets.letterA || !inlets.letterB) return;
             return { 'code': String.fromCharCode(inlets.letterA.charCodeAt(0) - 32) + String.fromCharCode(inlets.letterB.charCodeAt(0) - 32),
-                     'out' : fromCodePoint(55356) + fromCodePoint(inlets.letterA.charCodeAt(0) - 97 + 56806) +
+                     'char': fromCodePoint(55356) + fromCodePoint(inlets.letterA.charCodeAt(0) - 97 + 56806) +
                              fromCodePoint(55356) + fromCodePoint(inlets.letterB.charCodeAt(0) - 97 + 56806) };
         }
     });
@@ -96,13 +96,10 @@ function buildUtilDemoPatch(renderer, target, conf) {
             },
             always: function(bodyElm, inlets, outlets) {
                 if (!outlets) return;
-                //console.log(inlets, outlets);
-                textElm.text(outlets.out + ' (' + outlets.code + ')');
+                textElm.text(outlets.char + ' (' + outlets.code + ')');
             }
         }
     });
-
-    //fromCodePoint(55356) + fromCodePoint('e'.charCodeAt(0) - 97 + 56806);
 
     var maybeFlag = model.addNode('user/maybe-flag', 'Maybe<Flag>').move(570, 400);
     letter1.outlets['letter'].connect(maybeFlag.inlets['letterA']);

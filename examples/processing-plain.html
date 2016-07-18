@@ -156,7 +156,7 @@
             var color1 = patch.addNode('p5/color').move(20, 150);
             var color2 = patch.addNode('p5/color').move(160, 50);
 
-            random1.outlets['out'].connect(color1.inlets['r']);
+            random1.outlets['random'].connect(color1.inlets['r']);
 
             color2.outlets['color'].connect(sketch.inlets['endcolor']);
             color2.inlets['r'].receive(20); color2.inlets['g'].receive(0); color2.inlets['b'].receive(0);

@@ -13,7 +13,7 @@ function applyCodeExample1() {
 
     // add Log Node, which will log last results of the Random Generator Node
     var logRandomNode = patch.addNode('util/log', 'Log').move(210, 60);
-    randomGenNode.outlets['out'].connect(logRandomNode.inlets['what']);
+    randomGenNode.outlets['random'].connect(logRandomNode.inlets['what']);
 
     // define the type of the node which multiplies the incoming value on two
     var multiplyTwoNode = patch.addNode('core/basic', '* 2', {
@@ -31,10 +31,10 @@ function applyCodeExample1() {
     resultOutlet.connect(logMultiplyNode.inlets['what']);
 
     // connect Random Generator output to the multiplying node
-    randomGenNode.outlets['out'].connect(multiplierInlet);
+    randomGenNode.outlets['random'].connect(multiplierInlet);
 
     // finally connect Metro node to Random Generator, so the sequence starts
-    metroNode.outlets['out'].connect(randomGenNode.inlets['bang']);
+    metroNode.outlets['bang'].connect(randomGenNode.inlets['bang']);
 }
 
 function applyCodeExample2() {
@@ -56,11 +56,11 @@ function applyCodeExample2() {
     var letter1 = model.addNode('util/letter').move(350, 50);
     var letter2 = model.addNode('util/letter').move(350, 140);
 
-    metro1.outlets['out'].connect(random1.inlets['bang']);
-    metro2.outlets['out'].connect(random2.inlets['bang']);
+    metro1.outlets['bang'].connect(random1.inlets['bang']);
+    metro2.outlets['bang'].connect(random2.inlets['bang']);
 
-    random1.outlets['out'].connect(letter1.inlets['code']);
-    random2.outlets['out'].connect(letter2.inlets['code']);
+    random1.outlets['random'].connect(letter1.inlets['code']);
+    random2.outlets['random'].connect(letter2.inlets['code']);
 
     Rpd.nodetype('user/maybe-flag', {
         title: 'May be a flag?',
@@ -69,14 +69,14 @@ function applyCodeExample2() {
             'letterB': { type: 'core/any' }
         },
         outlets: {
-            'out': { type: 'core/any' },
+            'char': { type: 'core/any' },
             'code': { type: 'core/any' }
         },
         process: function(inlets) {
             if (!inlets.letterA || !inlets.letterB) return;
             return { 'code': String.fromCharCode(inlets.letterA.charCodeAt(0) - 32) + String.fromCharCode(inlets.letterB.charCodeAt(0) - 32),
-                     'out' : fromCodePoint(55356) + fromCodePoint(inlets.letterA.charCodeAt(0) - 97 + 56806) +
-                             fromCodePoint(55356) + fromCodePoint(inlets.letterB.charCodeAt(0) - 97 + 56806) };
+                     'char' : fromCodePoint(55356) + fromCodePoint(inlets.letterA.charCodeAt(0) - 97 + 56806) +
+                              fromCodePoint(55356) + fromCodePoint(inlets.letterB.charCodeAt(0) - 97 + 56806) };
         }
     });
 
@@ -94,7 +94,7 @@ function applyCodeExample2() {
             },
             always: function(bodyElm, inlets, outlets) {
                 if (!outlets) return;
-                textElm.text(outlets.out + ' (' + outlets.code + ')');
+                textElm.text(outlets.char + ' (' + outlets.code + ')');
             }
         }
     });
@@ -122,11 +122,11 @@ function applyCodeExample3() {
         y: { type: 'util/number', default: 0 }
       },
       outlets: {
-        out: { type: 'my/coords' }
+        coords: { type: 'my/coords' }
       },
       // joins received `x` and `y` into one object
       process: function(inlets) {
-        return { out: { x: inlets.x, y: inlets.y } };
+        return { coords: { x: inlets.x, y: inlets.y } };
       }
     });
 
@@ -268,7 +268,7 @@ function applyCodeExample3() {
     knob3.outlets['number'].connect(coords.inlets['y']);
     color1.outlets['color'].connect(scene.inlets['from']);
     color2.outlets['color'].connect(scene.inlets['to']);
-    coords.outlets['out'].connect(scene.inlets['shift']);
+    coords.outlets['coords'].connect(scene.inlets['shift']);
     mouse.outlets['x'].connect(modulus.inlets['a']);
 }
 

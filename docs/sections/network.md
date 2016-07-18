@@ -15,7 +15,7 @@ No matter, have you [compiled](./setup.html#Compilation) your own customized ver
     var patch = Rpd.render('svg', targetElement, { style: 'quartz' });
     var randomNode = patch.addNode('util/random', 'Random');    
     var numberNode = patch.addNode('util/number', 'Number');
-    randomNode.outlets['out'].connect(numberNode.inlets['in']);
+    randomNode.outlets['random'].connect(numberNode.inlets['in']);
     randomNode.inlets['min'].receive(10);
     randomNode.inlets['max'].receive(Kefir.repeat(function() {
         return Kefir.sequentially(1000, [100, 1000, 10000]);
@@ -118,7 +118,7 @@ var titledCustomNode = patch.addNode('my-toolkit/my-node-type', 'My Node');
 
 At least, you need to specify a type of the Node you want to create. Type determines how many inlets/outlets new Node will have, their names and types, and the way (algorithm) it will use to process incoming data before sending it to other nodes. Or, type may determine that this Node won't change the data and just pass it through, but visualize it in some way.
 
-For example, all the Nodes with type `util/random` always have two inlets, `min` and `max` (both accept only numbers), and one outlet named `out`. You are free to add other inlets or outlets to any instance of any type, though. When one of the inlets gets new value, Node with `util/random` type generates new random number laying between the requested bounds and immediately sends it to the `out` outlet. Renderer of the `util/random` type ensures that last four generated numbers are also shown in the body of every such Node.
+For example, all the Nodes with type `util/random` always have two inlets, `min` and `max` (both accept only numbers), and one outlet named `random`. You are free to add other inlets or outlets to any instance of any type, though. When one of the inlets gets new value, Node with `util/random` type generates new random number laying between the requested bounds and immediately sends it to the `random` outlet. Renderer of the `util/random` type ensures that last four generated numbers are also shown in the body of every such Node.
 
 New nodes are positioned in the free space automatically, though the placing algorithm is intentionally not perfect, to keep it simple, so you have the ability to force-move the created node to the desired place if you don't like what machine suggested for you:
 
@@ -146,6 +146,8 @@ Rpd.nodetype('custom/type', {
 patch.addNode('custom/type').move(20, 20);
 ```
 
+> NB: I really know how could it be tempting to name your Outlet `out`, just like in this example, but please avoid that in any case, may be only excluding the cases when your Inlet is called `in`. Always try to find a better alias for an Outlet, especially when it's just a single Outlet of the Node. If there's no documentation for a Toolkit (and there's none for the moment), user should be able to imagine the alias without inspecting code or variable. At least to try. Usually output inlets are named similarly to the type, or if they produce something processed, alias represents how exactly values are transformed, like `random` Outlet of type `util/number` in `util/random` Node.
+
 <!-- TODO: embedded example -->
 
 For a complete list of properties could be used to define a Node, see [Node Definition](./api.html#node-definition) in [API section](./api.html). Also see [Defining Node Type](./toolkits.html#defining-node-type) and [Writing a Renderer for a Node](./toolkits.html#writing-node-renderer) chapters in [Toolkits section](./toolkits.html) if you want to create bundles of your Node types, called _Toolkits_.
@@ -165,13 +167,13 @@ Type-defined Inlets and Outlets are accessible through `node.inlets` and `node.o
 ```javascript
 var knob = patch.addNode('util/knob', 'Number');
 var color = patch.addNode('util/color', 'Color');
-knob.outlets['out'].connect(color.inlets['r']);
+knob.outlets['number'].connect(color.inlets['r']);
 ```
 
 Disconnecting is also very easy:
 
 ```javascript
-var link = knob.outlets['out'].connect(color.inlets['r']);
+var link = knob.outlets['number'].connect(color.inlets['r']);
 ...
 link.disconnect();
 ```
@@ -179,7 +181,7 @@ link.disconnect();
 Also, you may temporary disable the link and then enable it later, when you don't want to remove the connection completely. When link is disabled, it skips all the updates coming through, but still exists. So this way link will be shown to the user, but will be greyed out:
 
 ```javascript
-var link = knob.outlets['out'].connect(color.inlets['r']);
+var link = knob.outlets['number'].connect(color.inlets['r']);
 ...
 link.disable();
 ...
@@ -202,7 +204,7 @@ var myNode = patch.addNode('core/basic', 'My Node', {
         return { out: (inlets.foo || 0) + (inlets.bar || 0) }
     }
 });
-knob.outlets['out'].connect(myNode.inlets['foo']);
+knob.outlets['number'].connect(myNode.inlets['foo']);
 
 // through adding inlets/outlets to the instance
 var myNode = patch.addNode('core/basic', 'My Node', {
@@ -213,7 +215,7 @@ var myNode = patch.addNode('core/basic', 'My Node', {
 var fooInlet = myNode.addInlet('core/any', 'foo', { 'default': 0 });
 var barInlet = myNode.addInlet('core/any', 'bar');
 var outlet = myNode.addOutlet('core/any', 'out');
-knob.outlets['out'].connect(fooInlet);
+knob.outlets['number'].connect(fooInlet);
 ```
 
 Actually, you also may add Inlets and Outlets to any instance of the Node of any type using `node.addInlet`/`node.addOutlet`, but it probably has no sense, since such Nodes usually have inner processing logic hardly bound to what is inside.
@@ -223,16 +225,18 @@ Actually, you also may add Inlets and Outlets to any instance of the Node of any
 ```javascript
 var myRandomGeneratorNode = patch.addNode('core/basic', 'My Random 0-255', {
     process: function() {
-        if (inlets.bang) return { 'out': Math.floor(Math.random() * 256) }    
+        if (inlets.bang) {
+            return { 'random': Math.floor(Math.random() * 256) };
+        }    
     }
 });
-var outOutlet = myRandomGeneratorNode.addOutlet('util/number', 'out');
+var randomOutlet = myRandomGeneratorNode.addOutlet('util/number', 'random');
 var bangInlet = myRandomGeneratorNode.addInlet('util/bang', 'bang');
 // send bang signal every second to the inlet
 bangInlet.stream(Kefir.interval(1000, {}));
 var colorNode = patch.addNode('util/color', 'Color');
 var alphaInlet = color.addInlet('util/wholenumber', 'a');
-outOutlet.connect(alphaInlet);
+randomOutlet.connect(alphaInlet);
 ```
 
 On the other hand, code above works exactly same way as the next one, the only difference is in the fact that Inlets and Outlets in this example are defined before the specific Node instance was created:
@@ -240,12 +244,14 @@ On the other hand, code above works exactly same way as the next one, the only d
 ```javascript
 var myRandomGeneratorNode = patch.addNode('core/basic', 'My Random 0-255', {
     inlets: { 'bang': { type: 'util/bang' } },
-    outlets: { 'out': { type: 'util/number' } },
+    outlets: { 'random': { type: 'util/number' } },
     process: function(inlets) {
-        if (inlets.bang) return { 'out': Math.floor(Math.random() * 256) }    
+        if (inlets.bang) {
+            return { 'random': Math.floor(Math.random() * 256) }
+        }
     }
 });
-var outOutlet = myRandomGeneratorNode.outlets['out'];
+var randomOutlet = myRandomGeneratorNode.outlets['random'];
 var bangInlet = myRandomGeneratorNode.inlets['bang'];
 // send bang signal every second to the inlet
 bangInlet.stream(Kefir.interval(1000, {}));
@@ -257,7 +263,7 @@ var colorNode = patch.addNode('util/color', 'Color', {
     inlets: colorTypeInlets
 });
 var alphaInlet = colorNode.inlets['a'];
-outOutlet.connect(alphaInlet);
+randomOutlet.connect(alphaInlet);
 ``` -->
 
 In UI, user commonly starts creating a Link from the Outlet and finishes it on the Inlet. That's same for your code. You get the Outlet instance (defined by type or added by you) and connect it to the Inlet instance (defined by type or added by you).
@@ -296,7 +302,7 @@ To send your own data to an Inlet, you may use its `receive` method. There's no 
 var randomNode = patch.addNode('util/random');
 randomNode.inlets['max'].receive(256);
 var colorNode = patch.addNode('util/color', 'Color');
-randomNode.outlets['out'].connect(colorNode.inlets['g']);
+randomNode.outlets['random'].connect(colorNode.inlets['g']);
 
 randomNode.inlets['bang'].receive({}); // trigger generating random number
 setTimeout(function() {
@@ -309,7 +315,7 @@ To send some data from an outlet, use it's `send` method. You might want it to b
 
 ```javascript
 // override the output and send 1000 from Random Generator Node
-randomNode.outlets['out'].send(1000);
+randomNode.outlets['random'].send(1000);
 ```
 
 > NB: When you send data to some Inlet, data is first transformed according to Inlet type, if there was such transformation requested. So the Node may receive and may want to receive a bit different data than you've sent to the Inlet. On the other hand, Outlets usually do not transform data and just send them out. So, the law is, always prefer sending data to the Inlets of the Node, since Inlets insert data into the Node processing flow, as it expects it to be received. Or, even better in the cases you do same thing several times, find or define a transformation Node type which will send the data you want and will be re-usable.
@@ -324,7 +330,7 @@ Out of the box, RPD uses [Kefir][kefir] library for Streams, since it's very tin
 
 ```javascript
 randomNode.inlets['bang'].stream(Kefir.interval(1000, {}));
-randomNode.outlets['out'].stream(Kefir.sequentially(1000, [1, 2, 3]));
+randomNode.outlets['random'].stream(Kefir.sequentially(1000, [1, 2, 3]));
 ```
 
 Streams allow you to do really powerful things:

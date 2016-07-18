@@ -145,13 +145,13 @@
             var random1 = patch.addNode('util/random').move(140, 50);
             random1.inlets['min'].receive(50); random1.inlets['max'].receive(255);
 
-            metro1.outlets['out'].connect(random1.inlets['bang']);
+            metro1.outlets['bang'].connect(random1.inlets['bang']);
 
             var color1 = patch.addNode('p5/color').move(50, 150);
             var color2 = patch.addNode('p5/color').move(260, 50);
 
-            random1.outlets['out'].connect(color2.inlets['b']);
-            random1.outlets['out'].connect(color2.inlets['g']);
+            random1.outlets['random'].connect(color2.inlets['b']);
+            random1.outlets['random'].connect(color2.inlets['g']);
 
             color2.outlets['color'].connect(sketch.inlets['endcolor']);
             color2.inlets['r'].receive(20); color2.inlets['g'].receive(0); color2.inlets['b'].receive(0);
@@ -161,7 +161,7 @@
             var random2 = patch.addNode('util/random').move(260, 150);
             random2.inlets['min'].receive(5); random2.inlets['max'].receive(25);
 
-            metro2.outlets['out'].connect(random2.inlets['bang']);
+            metro2.outlets['bang'].connect(random2.inlets['bang']);
 
             var shape = patch.addNode('p5/shape').move(260, 250);
             shape.outlets['shape'].connect(sketch.inlets['shape']);

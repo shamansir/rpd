@@ -65,9 +65,9 @@ Rpd.channeltype('util/timestamped', {
 Rpd.nodetype('util/number', {
     title: 'number',
     inlets:  { 'user-value': { type: 'util/number', default: 0, hidden: true } },
-    outlets: { 'out':     { type: 'util/number' } },
+    outlets: { 'number':     { type: 'util/number' } },
     process: function(inlets) {
-        return { 'out': inlets['user-value'] };
+        return { 'number': inlets['user-value'] };
     }
 });
 
@@ -77,9 +77,9 @@ Rpd.nodetype('util/random', function() {
         inlets:  { 'bang': { type: 'util/bang', default: {} },
                    'min': { type: 'util/number', default: 0 },
                    'max': { type: 'util/number', default: 100 } },
-        outlets: { 'out': { type: 'util/number' } },
+        outlets: { 'random': { type: 'util/number' } },
         process: function(inlets) {
-            return { 'out': Math.floor(inlets.min + (Math.random() * (inlets.max - inlets.min))) };
+            return { 'random': Math.floor(inlets.min + (Math.random() * (inlets.max - inlets.min))) };
         }
     }
 });
@@ -89,12 +89,12 @@ Rpd.nodetype('util/bounded-number', {
     inlets:  { 'min': { type: 'util/number', default: 0 },
                'max': { type: 'util/number', default: Infinity },
                'spinner': { type: 'util/number', default: 0, hidden: true } },
-    outlets: { 'out':     { type: 'util/number' } },
+    outlets: { 'number':  { type: 'util/number' } },
     process: function(inlets) {
          if (!inlets.hasOwnProperty('spinner')) return;
          // comparison logic is in the renderer, since it communicates with
          // this node through a hidden spinner inlet
-         return { 'out': inlets.spinner };
+         return { 'number': inlets.spinner };
     }
 });
 
@@ -127,9 +127,9 @@ Rpd.nodetype('util/comment', {
 Rpd.nodetype('util/bang', {
     title: 'bang',
     inlets: { 'trigger': { type: 'util/bang', hidden: true } },
-    outlets: { 'out': { type: 'util/bang' } },
+    outlets: { 'bang': { type: 'util/bang' } },
     process: function(inlets) {
-        return inlets.trigger ? { 'out': {} } : {};
+        return inlets.trigger ? { 'bang': {} } : {};
     }
 });
 
@@ -141,7 +141,7 @@ Rpd.nodetype('util/metro', function() {
         title: 'metro',
         inlets: { 'enabled': { type: 'util/boolean', default: true },
                   'period': { type: 'util/time', default: 3000 } },
-        outlets: { 'out': { type: 'util/bang' } },
+        outlets: { 'bang': { type: 'util/bang' } },
         process: function(inlets) {
             if (lastStream) {
                 firstTime = false;
@@ -152,7 +152,7 @@ Rpd.nodetype('util/metro', function() {
                             /*.filter(function() { return inlets.enabled; })*/
             pool.plug(lastStream);
             //return { 'out': firstTime ? pool : Kefir.never() };
-            return firstTime ? { 'out': pool } : {};
+            return firstTime ? { 'bang': pool } : {};
         }
     }
 });
@@ -272,40 +272,40 @@ Rpd.nodetype('util/*', {
     title: '*',
     inlets: { 'a': { type: 'util/number' },
               'b': { type: 'util/number' } },
-    outlets: { 'out': { type: 'util/number' } },
-    process: function(inlets) { return { 'out': (inlets.a || 0) * (inlets.b || 0) }; }
+    outlets: { 'result': { type: 'util/number' } },
+    process: function(inlets) { return { 'result': (inlets.a || 0) * (inlets.b || 0) }; }
 });
 
 Rpd.nodetype('util/+', {
     title: '+',
     inlets: { 'a': { type: 'util/number' },
               'b': { type: 'util/number' } },
-    outlets: { 'out': { type: 'util/number' } },
-    process: function(inlets) { return { 'out': (inlets.a || 0) + (inlets.b || 0) }; }
+    outlets: { 'result': { type: 'util/number' } },
+    process: function(inlets) { return { 'result': (inlets.a || 0) + (inlets.b || 0) }; }
 });
 
 Rpd.nodetype('util/-', {
     title: '-',
     inlets: { 'a': { type: 'util/number' },
               'b': { type: 'util/number' } },
-    outlets: { 'out': { type: 'util/number' } },
-    process: function(inlets) { return { 'out': (inlets.a || 0) - (inlets.b || 0) }; }
+    outlets: { 'result': { type: 'util/number' } },
+    process: function(inlets) { return { 'result': (inlets.a || 0) - (inlets.b || 0) }; }
 });
 
 Rpd.nodetype('util/÷', {
     title: '/',
     inlets: { 'a': { type: 'util/number' },
               'b': { type: 'util/number' } },
-    outlets: { 'out': { type: 'util/number' } },
-    process: function(inlets) { return { 'out': (inlets.a || 0) / (inlets.b || 0) }; }
+    outlets: { 'result': { type: 'util/number' } },
+    process: function(inlets) { return { 'result': (inlets.a || 0) / (inlets.b || 0) }; }
 });
 
 Rpd.nodetype('util/mod', {
     title: '%',
     inlets: { 'a': { type: 'util/number' },
               'b': { type: 'util/number' } },
-    outlets: { 'out': { type: 'util/number' } },
-    process: function(inlets) { return { 'out': (inlets.a || 0) % (inlets.b || 0) }; }
+    outlets: { 'result': { type: 'util/number' } },
+    process: function(inlets) { return { 'result': (inlets.a || 0) % (inlets.b || 0) }; }
 });
 
 Rpd.nodetype('util/mouse-pos', {

@@ -77,11 +77,11 @@ To test if it works and see it in action, add the target `div` to the `body` and
 
         var sum = root.addNode('util/+', 'Sum').move(520, 80);
 
-        genA.outlets['out'].connect(sum.inlets['a']);
-        genB.outlets['out'].connect(sum.inlets['b']);
+        genA.outlets['random'].connect(sum.inlets['a']);
+        genB.outlets['random'].connect(sum.inlets['b']);
 
-        metro1.outlets['out'].connect(genA.inlets['bang']);
-        metro2.outlets['out'].connect(genB.inlets['bang']);
+        metro1.outlets['bang'].connect(genA.inlets['bang']);
+        metro2.outlets['bang'].connect(genB.inlets['bang']);
     </script>
 </body>    
 ```

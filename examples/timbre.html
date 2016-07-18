@@ -64,7 +64,7 @@
             freq.inlets['spinner'].receive(440);
 
             var osc = root.addNode('timbre/osc').move(220, 90);
-            freq.outlets['out'].connect(osc.inlets['freq']);
+            freq.outlets['number'].connect(osc.inlets['freq']);
             wave.outlets['wave'].connect(osc.inlets['wave']);
 
             var plot = root.addNode('timbre/plot').move(460, 80);
@@ -75,7 +75,7 @@
             var random = root.addNode('util/random').move(45, 275);
             random.inlets['min'].receive(110);
             random.inlets['max'].receive(880);
-            random.inlets['period'].receive(3000);
+            random.inlets['bang'].stream(Kefir.interval(3000, {}));
 
         </script>
     </body>
