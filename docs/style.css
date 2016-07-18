@@ -157,9 +157,52 @@ nav li.active {
     left: -3px;
 } */
 
+@media (max-width: 840px) {
+    nav {
+        float: none;
+    }
+
+    nav > ul {
+        padding: 0 0 11px 0;
+        margin: -14px 0 50px 0;
+        border-bottom: 3px double lightblue;
+    }
+
+    nav > ul:after {
+        /* display: block; */
+        /* content: '⁂'; */
+        /* width: 100%; */
+        /* font-size: 1.3em; */
+        /* padding: 6px 0; */
+    }
+
+    nav > ul > li {
+        border-bottom: none;
+    }
+
+    body > nav > ul > li {
+        display: none;
+    }
+
+    body > nav > ul > li.active {
+        display: block;
+    }
+
+    body.rpd-docs-introduction nav > ul > li,
+    body.rpd-docs-introduction nav > ul > li.active {
+        display: block;
+    }
+}
+
 main {
     display: block;
     max-width: 80%;
+}
+
+@media (max-width: 840px) {
+    main {
+        max-width: 95%;
+    }
 }
 
 /* footer {
@@ -218,6 +261,12 @@ article pre > code {
     /* border-left: 1px dashed black; */
     /* border-right: 1px dashed black; */
     /* padding: 7px; */
+}
+
+@media (max-width: 840px) {
+    article pre > code {
+        font-size: 0.7em;
+    }
 }
 
 #jump-to-top {

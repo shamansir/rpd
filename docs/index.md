@@ -128,9 +128,12 @@ Rpd.nodetype('user/maybe-flag', {
     },
     process: function(inlets) {
         if (!inlets.letterA || !inlets.letterB) return;
-        return { 'code': String.fromCharCode(inlets.letterA.charCodeAt(0) - 32) + String.fromCharCode(inlets.letterB.charCodeAt(0) - 32),
-                 'char' : fromCodePoint(55356) + fromCodePoint(inlets.letterA.charCodeAt(0) - 97 + 56806) +
-                          fromCodePoint(55356) + fromCodePoint(inlets.letterB.charCodeAt(0) - 97 + 56806) };
+        return { 'code': String.fromCharCode(inlets.letterA.charCodeAt(0) - 32)
+                       + String.fromCharCode(inlets.letterB.charCodeAt(0) - 32),
+                 'char' : fromCodePoint(55356)
+                        + fromCodePoint(inlets.letterA.charCodeAt(0) - 97 + 56806)
+                        + fromCodePoint(55356)
+                        + fromCodePoint(inlets.letterB.charCodeAt(0) - 97 + 56806) };
     }
 });
 
