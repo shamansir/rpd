@@ -131,6 +131,47 @@ Rpd.noderenderer('util/color', 'html', function() {
     }
 });
 
+Rpd.noderenderer('util/bang', 'html', function() {
+    var bangElm;
+    return {
+        size: { width: 30, height: 25 },
+        first: function(bodyElm) {
+            bangElm = document.createElement('span');
+            var bangClicks = Kefir.fromEvents(bangElm, 'click');
+            bodyElm.appendChild(bangElm);
+            bangClicks.onValue(function() {
+                bangElm.classList.add('rpd-util-bang-fresh');
+            });
+            bangClicks.delay(500).onValue(function() {
+                bangElm.classList.remove('rpd-util-bang-fresh');
+            });
+            return { 'trigger':
+                { valueOut: bangClicks.map(function() { return {}; }) }
+            };
+        }
+    }
+});
+
+Rpd.noderenderer('util/metro', 'html', function() {
+    var metroElm;
+    return {
+        size: { width: 30, height: 25 },
+        first: function(bodyElm) {
+            metroElm = document.createElement('span');
+            bodyElm.appendChild(metroElm);
+        },
+        always: function(bodyElm, inlets, outlets) {
+            if (outlets.out) {
+                outlets.out.onValue(function() {
+                    metroElm.classList.add('rpd-util-metro-fresh');
+                }).delay(500).onValue(function() {
+                    metroElm.classList.remove('rpd-util-metro-fresh');
+                });
+            }
+        }
+    }
+});
+
 var d3 = d3 || d3_tiny;
 
 var NodeList = RpdUtils.NodeList;

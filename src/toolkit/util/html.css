@@ -135,3 +135,22 @@
     vertical-align: top;
     padding: 3px;
 }
+
+.rpd-util-bang .rpd-body span,
+.rpd-util-metro .rpd-body span {
+    display: block;
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: black;
+    cursor: pointer;
+    transition: background-color 0.1s ease-in;
+    -webkit-transition: background-color 0.1s ease-in;
+}
+
+.rpd-util-bang .rpd-body span.rpd-util-bang-fresh,
+.rpd-util-metro .rpd-body span.rpd-util-metro-fresh {
+    background-color: red;
+    transition: background-color 0.1s ease-out;
+    -webkit-transition: background-color 0.1s ease-out;
+}
