@@ -2,13 +2,14 @@
 <html>
     <head>
         <meta charset="utf-8" />
+        <title>Core with Network</title>
 
         <!-- gulp html-head ==style quartz ==renderer html ==toolkit util ==root .. -->
 
         <!-- Built with RPD v2.0.0 <http://shamansir.github.io/rpd> -->
 
-        <!-- RPD Renderer: html -->
-        <link rel="stylesheet" href="../src/render/html.css"></style>
+        <!-- RPD Renderer: svg -->
+        <link rel="stylesheet" href="../src/render/svg.css"></style>
         <!-- RPD Style: quartz (html) -->
         <link rel="stylesheet" href="../src/style/quartz/html.css"></style>
         <!-- RPD Toolkit: util (html) -->
@@ -21,7 +22,7 @@
 
         <!-- RPD's d3_tiny.js -->
         <script src="../src/d3_tiny.js"></script>
-        <!-- RPD Rendering Engine: -->
+        <!-- RPD Render Core: -->
         <script src="../src/render/shared.js"></script>
         <!-- RPD Style: quartz (html) -->
         <script src="../src/style/quartz/html.js"></script>
@@ -32,13 +33,29 @@
         <script src="../src/toolkit/util/toolkit.js"></script>
         <!-- RPD Toolkit: util (html) -->
         <script src="../src/toolkit/util/html.js"></script>
-
     </head>
 
     <body>
-        <script src="./util-demo.js"></script>
+
         <script>
-            buildUtilDemoPatch('html', document.body, { fullPage: true });
+            Rpd.renderNext('html', document.body,
+                           { style: 'quartz', fullPage: true });
+
+            var root = Rpd.addPatch('root').resizeCanvas(800, 400);
+
+            var metro1 = root.addNode('util/metro', 'Metro A').move(40, 20);
+            var metro2 = root.addNode('util/metro', 'Metro B').move(40, 120);
+
+            var genA = root.addNode('util/random', 'Generate A').move(300, 10);
+            var genB = root.addNode('util/random', 'Generate B').move(300, 160);
+
+            var sum = root.addNode('util/+', 'Sum').move(520, 80);
+
+            genA.outlets['random'].connect(sum.inlets['a']);
+            genB.outlets['random'].connect(sum.inlets['b']);
+
+            metro1.outlets['bang'].connect(genA.inlets['bang']);
+            metro2.outlets['bang'].connect(genB.inlets['bang']);
         </script>
     </body>
 </html>

@@ -455,7 +455,25 @@ gulp.task('docs-copy-assets', function() {
 });
 
 gulp.task('docs-copy-examples', function() {
+    /* var sourceRe = new RegExp('src="\.\./src/(.*)"|\.\./src/src=\'(.*)\'', 'g');
+    var replaceSourceFiles = parser({
+        name: 'replace-source-files',
+        func: function(data) {
+            return data.replace(sourceRe, 'TEST');
+        }
+    });
+
+    var hrefRe = new RegExp('href="\.\./src/(.*)"|href=\'(.*)\'', 'g');
+    var replaceHrefFiles = parser({
+        name: 'replace-href-files',
+        func: function(data) {
+            return data.replace(hrefRe, 'TEST');
+        }
+    }); */
+
     return gulp.src([ './examples/*.*' ])
+               //.pipe(replaceSourceFiles())
+               //.pipe(replaceHrefFiles())
                .pipe(gulp.dest('./docs/compiled/examples'));
 });
 

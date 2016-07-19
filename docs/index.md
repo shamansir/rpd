@@ -501,7 +501,7 @@ For example, _I/O Module_ records every action (or only some of the actions) per
 [quartzcomposer]: https://en.wikipedia.org/wiki/Quartz_Composer
 [vvvv]: https://vvvv.org/
 [nodebox]: https://www.nodebox.net/
-[reactor]: http://www.native-instruments.com/en/products/komplete/synths/reaktor-6/
+[reaktor]: http://www.native-instruments.com/en/products/komplete/synths/reaktor-6/
 
 <script defer src="./d3.v3.min.js"></script>
 <script defer src="./docs-patch.js"></script>
