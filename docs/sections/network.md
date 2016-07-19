@@ -62,7 +62,7 @@ The `renderNext` method assumes that everything later on, unless it meets anothe
 
 Options passed to `renderNext` or `patch.render` could belong to one particular Renderer, but Renderers supplied with RPD tend to use a generalized set of options:
 
-* `style` — the only required option, sets the [style](../examples.html#styles-and-renderers) used to visualize nodes; you need to ensure to [include this Style code](./setup.html#compilation-options) in your RPD version or else this option will fail;
+* `style` — the only required option, sets the [style](./setup.html#styles-and-renderers) used to visualize nodes; you need to ensure to [include this Style code](./setup.html#compilation-options) in your RPD version or else this option will fail;
 * `fullPage` — (`false`) if `true`, network takes the full page, so the target element will be resized to match browser window size when it was resized by user;
 * `nodeMovingAllowed` — (`true`) are nodes allowed to be dragged or should they be immovable;
 * `inletAcceptsMultipleLinks` — (`false`) could several outlets connect to the same inlet;

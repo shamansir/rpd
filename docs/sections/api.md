@@ -277,7 +277,7 @@ It allows you to put in the Node body whatever you want and improve user experie
 
 The only limits you have are the limits of HTML or SVG, but there are both nowadays also almost limitless.
 
-The Toolkits for the [Examples](./examples.html) section and the ones located at `src/toolkit` are all powered by `Rpd.nodetype`, `Rpd.channeltype`, `Rpd.noderenderer` and `Rpd.channelrenderer`, but `Rpd.noderenderer` is what makes them so powerful, since you may include, for example, control of any complexity, HTML5 Canvas, or Processing Sketch, or even something WebGL-driven into the node body. The important thing is how to deal with Toolkit architecture.
+The Toolkits for the [Examples](../examples.html) section and the ones located at `src/toolkit` are all powered by `Rpd.nodetype`, `Rpd.channeltype`, `Rpd.noderenderer` and `Rpd.channelrenderer`, but `Rpd.noderenderer` is what makes them so powerful, since you may include, for example, control of any complexity, HTML5 Canvas, or Processing Sketch, or even something WebGL-driven into the node body. The important thing is how to deal with Toolkit architecture.
 
 But let's turn from advertisement back to API.
 

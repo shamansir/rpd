@@ -125,7 +125,7 @@ Now it's time to use all the powers and to configure your preferences:
 * *Renderers* (`-r` or `--renderer`): defines which technique (_HTML_, _SVG_, though there's no _HTML5 Canvas_ renderer yet) will be used to render your Patch;
     * _`html`_: renders your Patch using plain HTML tags, i.e. using `<span>`s for links between nodes;
     * _`svg`_: renders your Patch using SVG tags;
-* *Styles* (`-s` or `--style`): determines the look of your nodes and backgrounds, see [examples below](../examples.html#styles-and-renderers);
+* *Styles* (`-s` or `--style`): determines the look of your nodes and backgrounds, see [list of styles below](#styles-and-renderers) or [examples](../examples.htm);
     * _`quartz`_ (HTML & SVG): intended to be used on a full page; default style, normal-sized font, rounded borders for the nodes, connectors are circles, inlets are placed in a vertical column on the left side of the node and distributed over this side, outlets are placed in a vertical column on the right side of the node and distributed over this side;
     * _`pd`_ (HTML & SVG): intended to be used on a full page; normal-sized font, rectangular nodes, header takes the left connectors are circles, inlets are placed in a horizontal row on the top side of the node, outlets are placed in a horizontal row on the bottom side of the node;   
     * _`plain`_ (HTML & SVG): intended to be used on a small areas, most minimal style, majorly in black and white; font size is small, nodes are rectangular, titles do not belong to the nodes, inlets are placed in a horizontal row above the node, outlets are placed in a horizontal row below the node;
@@ -165,7 +165,7 @@ Also, you may select the name of the output file with `--target-name` or `-o` op
 
 <!-- If you plan to use [d3.js](http://d3js.org/), you may want to exclude the super-tiny version of d3 from compilation using `--no-d3-tiny` flag (though actually it adds not a lot, since it's tiny) -->
 
-I recommend you to visit the [examples page](../examples.html#styles-and-renderers), there you may find several examples for different combinations of styles and renderers used to compile the same patch.
+I recommend you to visit the [examples page](../examples.html), there you may find several examples for different combinations of styles and renderers used to compile the same patch.
 
 More details on building Patch Networks by yourself, you may find on [the corresponding page](./sections/network.html).
 

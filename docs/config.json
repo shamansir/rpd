@@ -13,10 +13,7 @@
         "examples": {
             "title": "Examples of RPD in Action",
             "path": "examples.html",
-            "subsections": {
-                "styles-and-renderers": "Styles and Renderers",
-                "different-toolkits": "Different Toolkits"
-            }
+            "subsections": { }
         },
         "compilation": {
             "title": "Getting Your Version of RPD",
