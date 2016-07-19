@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="245px" height="246px" viewBox="0 0 245 246" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <title>link@2x</title>
+    <description>Created with Sketch (http://www.bohemiancoding.com/sketch)</description>
+    <defs>
+        <radialGradient cx="50%" cy="47.5132042%" fx="50%" fy="47.5132042%" r="45.9788114%" id="radialGradient-1" stop-color="#FFFFFF">
+            <stop stop-opacity="0" offset="0%"></stop>
+            <stop offset="100%"></stop>
+        </radialGradient>
+        <linearGradient x1="79.3274715%" y1="95.081062%" x2="45.496673%" y2="56.5906955%" id="linearGradient-2">
+            <stop stop-color="#980101" offset="0%"></stop>
+            <stop stop-color="#0157B0" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <rect id="Rectangle-21" sketch:type="MSShapeGroup" x="-560" y="-149" width="1184" height="954"></rect>
+        <rect id="Rectangle-1" fill="#ECECEC" sketch:type="MSShapeGroup" x="-480" y="-76" width="1042" height="526"></rect>
+        <rect id="Rectangle-1" sketch:type="MSShapeGroup" x="-490" y="-86" width="1042" height="526"></rect>
+        <g id="Node" sketch:type="MSLayerGroup" transform="translate(-30.000000, 106.000000)">
+            <rect id="Rectangle-22" fill="#D4D4D4" sketch:type="MSShapeGroup" x="13" y="10" width="105" height="165"></rect>
+            <path d="M5,18 L5,168 L111,168 L111,18 L5,18 Z" id="Rectangle-2" stroke="#000000" stroke-width="2" fill="#FFFFFF" sketch:type="MSShapeGroup"></path>
+            <rect id="Rectangle-3" stroke="#000000" stroke-width="2" fill="#000000" sketch:type="MSShapeGroup" x="5" y="2" width="106" height="18"></rect>
+            <text id="My-Node" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="10" font-weight="normal" line-spacing="16" fill="#FFFFFF">
+                <tspan x="12" y="10">My Node</tspan>
+            </text>
+            <circle id="Oval-1" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" cx="109" cy="48" r="6"></circle>
+            <circle id="Oval-1" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" cx="109" cy="77" r="6"></circle>
+            <circle id="Oval-1" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" cx="109" cy="105" r="6"></circle>
+            <rect id="Rectangle-4" stroke="#000000" stroke-dasharray="5" sketch:type="MSShapeGroup" x="19" y="33" width="78" height="120"></rect>
+        </g>
+        <g id="Node" sketch:type="MSLayerGroup" transform="translate(210.000000, 241.000000)">
+            <rect id="Rectangle-3" stroke="#000000" stroke-width="2" fill="#000000" sketch:type="MSShapeGroup" x="5" y="2" width="106" height="18"></rect>
+            <text id="My-Node" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="10" font-weight="normal" line-spacing="16" fill="#FFFFFF">
+                <tspan x="12" y="10">My Node</tspan>
+            </text>
+        </g>
+        <g id="Node" sketch:type="MSLayerGroup" transform="translate(179.000000, -29.000000)">
+            <rect id="Rectangle-22" fill="#D4D4D4" sketch:type="MSShapeGroup" x="14" y="11" width="105" height="165"></rect>
+            <path d="M5,18 L5,168 L111,168 L111,18 L5,18 Z" id="Rectangle-2" stroke="#000000" stroke-width="2" fill="#FFFFFF" sketch:type="MSShapeGroup"></path>
+            <circle id="Oval-1" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" cx="6" cy="48" r="6"></circle>
+            <circle id="Oval-1" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" cx="6" cy="77" r="6"></circle>
+            <circle id="Oval-1" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" cx="6" cy="105" r="6"></circle>
+            <circle id="Oval-1" stroke="#000000" fill="#FFFFFF" sketch:type="MSShapeGroup" cx="6" cy="137" r="6"></circle>
+            <rect id="Rectangle-4" stroke="#000000" stroke-dasharray="5" sketch:type="MSShapeGroup" x="19" y="33" width="78" height="120"></rect>
+        </g>
+        <path d="M79,211 L95,211 L171,318 L216,318" id="Path-1" stroke="#000000" stroke-width="3" stroke-linecap="round" sketch:type="MSShapeGroup"></path>
+        <path d="M79,108 L115,108 L155,182 L185,183" id="Path-1" stroke="#000000" stroke-width="3" stroke-linecap="round" sketch:type="MSShapeGroup" transform="translate(132.000000, 145.500000) scale(1, -1) translate(-132.000000, -145.500000) "></path>
+        <path d="M-292,64 L-145,64 L-69,347 L216,346" id="Path-1" stroke="#000000" stroke-width="3" stroke-linecap="round" sketch:type="MSShapeGroup"></path>
+        <path d="M-22.990936,-30 C-27.4142199,-30 -31,-26.419352 -31,-21.9907108 L-31,259.990711 C-31,264.414119 -27.4239999,268 -22.990936,268 L276.990936,268 C281.41422,268 285,264.419352 285,259.990711 L285,-21.9907108 C285,-26.4141191 281.424,-30 276.990936,-30 L-22.990936,-30 Z M123.928467,40 L50.9983653,40.0000003 C48.7901291,40.0000001 47,41.7943119 47,43.9998579 L47,197.000142 C47,199.209203 48.7991428,201 51.0009607,201 L137.068018,201 L200.001141,201 C202.20965,201 204,199.203626 204,196.996043 L204,111.158203 L204,44.0003491 C204,41.7910173 202.210915,40 200.000731,40 L123.928467,40 Z" id="Link-Frame" stroke="url(#linearGradient-2)" stroke-width="3" fill="url(#radialGradient-1)" sketch:type="MSShapeGroup"></path>
+        <path d="M94,169 L107,169 L147,95 L172,95" id="Link-Info" stroke="#0158B0" stroke-width="2" fill="#FFFFFF" sketch:type="MSShapeGroup"></path>
+        <path id="Link-Info-decoration-1" d="M171.881035,95 C168.101035,93.95 164.861035,93.05 161.081035,92 C161.081035,94.1 161.081035,95.9 161.081035,98 C164.861035,96.95 168.101035,96.05 171.881035,95 C171.881035,95 171.881035,95 171.881035,95 Z" stroke="#0158B0" stroke-width="2" fill="#FFFFFF"></path>
+    </g>
+</svg>

@@ -8,17 +8,17 @@
         <script src="http://player.animatron.com/latest/bundle/animatron.min.js"></script>
 
         <!-- replace double equals signs with double dashes to get html head like below generated -->
-        <!-- gulp html-head ==style pd ==renderer html ==toolkit anm ==root .. -->
+        <!-- gulp html-head ==style plain ==renderer html ==toolkit anm ==root .. -->
 
         <!-- or run this, and get everything combined in two files: rpd.js and rpd.css -->
-        <!-- gulp ==style pd ==renderer html ==toolkit anm -->
+        <!-- gulp ==style plain ==renderer html ==toolkit anm -->
 
         <!-- Built with RPD v2.0.0 <http://shamansir.github.io/rpd> -->
 
         <!-- RPD Renderer: html -->
         <link rel="stylesheet" href="https://rawgit.com/shamansir/rpd/v2.0.0/src/render/html.css"></style>
-        <!-- RPD Style: pd (html) -->
-        <link rel="stylesheet" href="https://rawgit.com/shamansir/rpd/v2.0.0/src/style/pd/html.css"></style>
+        <!-- RPD Style: plain (html) -->
+        <link rel="stylesheet" href="https://rawgit.com/shamansir/rpd/v2.0.0/src/style/plain/html.css"></style>
         <!-- RPD Toolkit: anm (html) -->
         <link rel="stylesheet" href="https://rawgit.com/shamansir/rpd/v2.0.0/src/toolkit/anm/html.css"></style>
 
@@ -31,8 +31,8 @@
         <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/d3_tiny.js"></script>
         <!-- RPD Render Core: -->
         <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/render/shared.js"></script>
-        <!-- RPD Style: pd (html) -->
-        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/style/pd/html.js"></script>
+        <!-- RPD Style: plain (html) -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/style/plain/html.js"></script>
         <!-- RPD Renderer: html -->
         <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/render/html.js"></script>
         <!-- RPD Toolkit: anm -->
@@ -43,7 +43,9 @@
 
         <script>
             function buildNetwork() {
-                Rpd.renderNext('html', document.body, { style: 'pd', fullPage: true });
+                Rpd.renderNext('html', document.body, { style: 'plain',
+                                                        fullPage: true,
+                                                        valuesOnHover: true });
 
                 var root = Rpd.addPatch('root');
 

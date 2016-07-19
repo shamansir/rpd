@@ -1,0 +1,481 @@
+body {
+    /*font-family: "Geneva", "Avenir", "Lucida Grande", "Input Sans Cond Ex Lt", sans-serif;*/
+    font-family: "Geneva", "Avenir", "Lucida Grande", sans-serif;
+    margin: 30px 50px;
+    color: black;
+    background-color: white;
+    font-size: 16px;
+    /*-webkit-font-smoothing: antialiased;*/
+}
+
+article code {
+    font-family: Menlo, Consolas, Monaco, Inconsolata, "DejaVu Sans Mono", "Ubuntu Mono", "Lucida Console", monospace;
+}
+
+header {
+    /* margin-bottom: 54px; */
+    /* margin-bottom: 36px; */
+    /* margin-bottom: 2.35em; */
+    margin-bottom: 1.2em;
+    border-bottom: 2px solid black;
+    padding-bottom: 15px;
+}
+
+header > img {
+    width: 2em;
+    height: 2em;
+    /*vertical-align: text-bottom;*/
+    position: relative;
+    top: 4px;
+    left: -1px;
+}
+
+h1, h2, h3, h4, h5, h6, nav {
+    /*font-family: "Avenir", "Lucida Grande", "Geneva", sans-serif;*/
+}
+
+h1 {
+    /* font-family: "Input Sans Cond Ex Lt", "Geneva", "Lucida Grande", "Avenir", sans-serif; */
+    font-family: "Avenir", "Lucida Grande", "Geneva", sans-serif;
+    margin: 0;
+    position: relative;
+    margin-left: 6px;
+    display: inline;
+}
+
+h1 a {
+    text-decoration: none;
+    color: black;
+}
+
+h1 a:hover {
+    background-color: #eee;
+}
+
+#version {
+    display: inline;
+    color: lightslategray;
+}
+
+h2 {
+    margin-bottom: 1.5em;
+}
+
+h2:before {
+    content: '§';
+    font-size: 0.8em;
+    vertical-align: top;
+    /* opacity: 0.5; */
+    position: relative;
+    margin-right: 0.26em;
+    top: 2px;
+    color: crimson;
+}
+
+h3 {
+    display: inline-block;
+    padding: 5px 7px;
+    border: 2px solid black;
+    margin-top: 3em;
+    border-radius: 5px;
+}
+
+h4 {
+    /* font-size: 1.1em */
+    border-bottom: 1px solid crimson;
+    /* margin-top: 1.7em */
+}
+
+h5 {
+
+}
+
+h5:before {
+
+}
+
+h6 {
+
+}
+
+a {
+    color: crimson;
+}
+
+a:active, a.active {
+    color: darkcyan;
+}
+
+nav {
+    font-size: 0.8em;
+    display: block;
+    float: right;
+    /* border-left: 1px solid crimson; */
+}
+
+nav > ul {
+    margin: 0px 5px 40px 40px;
+    padding: 5px 0 5px 10px;
+    list-style-position: inside;
+}
+
+nav > ul ul {
+    padding-left: 30px;
+}
+
+nav ul li a {
+    text-decoration: none;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+nav > ul > li {
+    /* border-left: 5px solid transparent; */
+    padding-left: 5px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    /* border-bottom: 1px solid crimson; */
+    border-bottom: 1px solid lightblue; /* bisque, gainsboro, lightblue, darkgray, lightseagreen, beige, coral, darkcyan, crimson, deepskyblue, floralwhite,  */
+    /*text-indent: -3px;*/
+}
+
+nav > ul > li:last-child {
+    border-bottom: none;
+}
+
+nav li.active {
+    /*color: darkblue;*/ /* brown, darkred, firebrick, maroon, orangered, red, tomato */
+    /* font-weight: bold; */
+    /* border-left: 5px solid crimson; */
+    background-color: #fbfbfb;
+}
+
+/* nav li.active > a {
+    position: relative;
+    left: -3px;
+} */
+
+@media (max-width: 840px) {
+    nav {
+        float: none;
+    }
+
+    nav > ul {
+        padding: 0 0 11px 0;
+        margin: -14px 0 50px 0;
+        border-bottom: 3px double lightblue;
+    }
+
+    nav > ul:after {
+        /* display: block; */
+        /* content: '⁂'; */
+        /* width: 100%; */
+        /* font-size: 1.3em; */
+        /* padding: 6px 0; */
+    }
+
+    nav > ul > li {
+        border-bottom: none;
+    }
+
+    body > nav > ul > li {
+        display: none;
+    }
+
+    body > nav > ul > li.active {
+        display: block;
+    }
+
+    body.rpd-docs-introduction nav > ul > li,
+    body.rpd-docs-introduction nav > ul > li.active {
+        display: block;
+    }
+}
+
+main {
+    display: block;
+    max-width: 80%;
+}
+
+@media (max-width: 840px) {
+    main {
+        max-width: 95%;
+    }
+}
+
+/* footer {
+    position: absolute;
+    right: 0;
+    margin: 10px;
+    font-szie: 0.8em;
+} */
+
+footer {
+    font-size: 0.8em;
+    margin: 5em 0 1.5em 0;
+    padding: 3px 0 0 1px;
+    /* text-decoration: overline; */
+    border-top: 2px solid black;
+    width: 65%;
+}
+
+#logo-patch {
+    text-align: center;
+    margin: 4em 0;
+    width: 100%;
+}
+
+/* #logo-patch > svg {
+    width: 140px;
+    height: 140px;
+} */
+
+#logo-patch > #patch-target {
+    /* width: 100%; */
+}
+
+#logo-patch > #planets {
+    position: absolute;
+}
+
+pre {
+    padding: 1.2em 0 1.2em;
+    margin: 2em 0em;
+    border-style: solid;
+    border-width: 2px 0;
+    border-color: black;
+}
+
+p code, ul code {
+    color: #368; /* #368; */ /* #863 */ /* #933 */
+}
+
+article code, article pre {
+    font-style: normal;
+}
+
+article pre > code {
+    font-size: 0.9em;
+    /* border-left: 1px dashed black; */
+    /* border-right: 1px dashed black; */
+    /* padding: 7px; */
+}
+
+@media (max-width: 840px) {
+    article pre > code {
+        font-size: 0.7em;
+    }
+}
+
+#jump-to-top {
+    position: fixed;
+    text-align: right;
+    right: 10px;
+    bottom: 10px;
+}
+
+#jump-to-top a {
+    text-decoration: none;
+}
+
+.rpd-node .rpd-header {
+    fill: rgba(160,107,154,0.95);
+    cursor: auto;
+}
+
+.rpd-node .rpd-content {
+    fill: rgba(141,158,198,0.9);
+}
+
+/* 203, 118, 158 */
+/* 224, 152, 145 */
+/* 232, 185, 171 */
+/* 215, 192, 208 */
+/* 124, 132, 131 */
+/* 172, 221, 231 */
+/* 154, 213, 202 */
+
+.rpd-node .rpd-shadow {
+    opacity: 0.3;
+    fill: rgb(172, 221, 231);
+}
+
+div.in-progress span {
+    text-transform: uppercase;
+    border: 2px solid black;
+    border-radius: 6px;
+    padding: 4px;
+    margin: 3px 0;
+    /* background-color: #f8e81c; */
+    background-color: yellow;
+}
+
+div.in-progress span:before {
+    display: inline-block;
+    content: '';
+    width: 1.2em;
+    height: 1.2em;
+    margin-right: 4px;
+    /* vertical-align: bottom; */
+    position: relative;
+    bottom: -4px;
+    background-image: url('./assets/in_progress.svg');
+    background-size: 1.2em 1.2em;
+}
+
+.rpd-background {
+    fill: white/* #22222a */;
+}
+
+.rpd-link {
+    stroke: black;
+}
+
+.rpd-inlet text.rpd-name,
+.rpd-outlet text.rpd-name {
+    fill: black;
+}
+
+.rpd-inlet text.rpd-value,
+.rpd-outlet text.rpd-value {
+    fill: darkgray;
+}
+
+.hljs-comment {
+    color: #ccc;
+}
+
+.proplist {
+    background-color: #eee;
+    border-radius: 3px;
+    position: absolute;
+    max-width: 18%;
+    left: 80%;
+    font-size: 0.6em;
+    margin: 0 25px;
+}
+
+.proplist > span {
+    background-color: white;
+    border-radius: 3px;
+    padding: 5px;
+}
+
+.proplist ul {
+    /* list-style-type: circle; */
+    list-style-type: none;
+    margin: 0;
+    /* padding: 5px 5px 5px 20px; */
+    padding: 6px;
+}
+
+.proplist ul li {
+    padding: 2px;
+    padding-left: 1em;
+    text-indent: -.7em;
+}
+
+.proplist ul li:before {
+    content: '- ';
+    color: crimson;
+}
+
+.proplist ul li code {
+    font-weight: bold;
+    color: black;
+}
+
+.section-mark {
+    position: absolute;
+    right: 0;
+    min-width: 15%;
+    padding: 0 10px;
+    border-top: 1px dashed crimson;
+    text-align: right;
+    margin: 0 25px;
+    margin-top: 3.5em;
+}
+
+.section-mark span {
+    padding: 0 3px;
+    font-size: 0.8em;
+}
+
+body.rpd-docs-examples article > ul {
+    list-style-type: none;
+    margin: 30px 0;
+    padding: 0;
+}
+
+body.rpd-docs-examples article > ul > li {
+    padding: 5px;
+    margin: 10px;
+    border: 1px solid black;
+    float: left;
+}
+
+body.rpd-docs-examples article > ul > li:hover {
+    border: 1px solid crimson;
+    opacity: 0.8;
+}
+
+body.rpd-docs-examples article > ul > li span {
+    display: block;
+    font-size: 0.6em;
+    text-align: center;
+    font-weight: bold;
+}
+
+body.rpd-docs-examples article > ul > li img {
+    width: 250px;
+}
+
+body.rpd-docs-examples footer {
+    clear: both;
+}
+
+body.rpd-docs-setup table {
+    font-size: 0.8em;
+    border: none;
+}
+
+body.rpd-docs-setup table td,
+body.rpd-docs-setup table th {
+    padding: 1px 5px;
+}
+
+body.rpd-docs-setup table thead {
+    text-align: left;
+    color: lightslategray;
+}
+
+body.rpd-docs-setup table span.positive {
+    color: darkgreen;
+}
+
+body.rpd-docs-setup table span.negative {
+    color: crimson;
+}
+
+body.rpd-docs-introduction p:first-of-type {
+    float: right;
+    font-size: 0.8em;
+    color: lightblue;
+    margin-right: 8px;
+}
+
+body.rpd-docs-introduction p:first-of-type a {
+    padding: 4px;
+    border-radius: 3px;
+    background-color: #eee;
+    text-decoration: none;
+    transition: background-color 0.1s ease-in;
+    -webkit-transition: background-color 0.1s ease-in;
+}
+
+body.rpd-docs-introduction p:first-of-type a:hover {
+    text-decoration: underline;
+    background-color: lightblue;
+}

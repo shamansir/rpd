@@ -1,15 +1,15 @@
 /**
  * rpd - RPD is a minimal framework for building Node-Based User Interfaces, powered by Reactive Programming
- * Built at Sat, 09 Jan 2016 22:33:38 GMT
+ * Built at Tue, 19 Jul 2016 01:21:29 GMT
  *
- * @version v0.2.0-alpha
+ * @version v2.0.0
  * @link http://shamansir.github.io/rpd
  * @author Ulric Wilfred <shaman.sir@gmail.com>
  * @license MIT
  * 
  * Selected Renderers: svg
  * Selected Styles: compact-v
- * Selected Toolkits: core
+ * Selected Toolkits: util
  *
  * User Styles: [None]
  * User Toolkits: [None]
@@ -17,6 +17,12 @@
 
 .rpd-network {
     margin: 0;
+}
+
+.rpd-full-page {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
 }
 
 .rpd-node .rpd-drag-handle {
@@ -160,6 +166,7 @@
 .rpd-link {
     stroke: rgba(250,250,250,0.8);
     stroke-width: 1;
+    fill: transparent;
 }
 
 .rpd-link.rpd-disabled {
@@ -236,6 +243,136 @@
     cursor: pointer;
 }
 
-input[type=number] {
+.rpd-util-comment .rpd-process text {
+    fill: lightgray;
+}
+
+.rpd-inlet.rpd-util-number input[type=number],
+.rpd-outlet.rpd-util-number input[type=number] {
     width: 30px;
+}
+
+.rpd-node.rpd-util-palette .rpd-process .rpd-util-palette-variant * {
+    cursor: pointer;
+    pointer-events: all;
+}
+
+.rpd-util-palette-variant.rpd-util-palette-active-variant {
+    stroke: white;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search {
+    cursor: pointer;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search rect {
+    fill: slategray;
+    transition: fill 0.2s ease-in;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search text {
+    /* font-size: 1.5em; */
+    fill: darkred;
+    pointer-events: all;
+    transition: fill 0.2s ease-in;
+    /* background-color: lightgray; */
+}
+
+.rpd-util-nodelist .rpd-nodelist-search:hover rect {
+    fill: aliceblue;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search:hover text {
+    fill: red;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list text {
+    text-anchor: start;
+    dominant-baseline: hanging;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list text.rpd-nodelist-icon {
+    text-anchor: middle;
+    dominant-baseline: middle;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list text.rpd-nodelist-toolkit-name {
+    font-weight: bold;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list text.rpd-nodelist-description {
+    font-size: 0.8em;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-selected .rpd-nodelist-fulltypename {
+    fill: red;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype rect {
+    fill: rgba(96,141,104,0.4);
+    transition: fill 0.1s ease-in;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype:hover rect {
+    fill: rgba(0, 0, 0, 0.15);
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype.rpd-nodelist-selected rect {
+    fill: rgba(0, 0, 0, 0.3);
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype.rpd-nodelist-add-effect rect {
+    fill: red;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype:hover {
+    cursor: pointer;
+}
+
+.rpd-util-comment .rpd-header {
+    display: none;
+}
+
+.rpd-util-comment .rpd-header, .rpd-util-comment .rpd-name, .rpd-util-comment .rpd-body,
+.rpd-util-comment .rpd-remove-button, .rpd-util-comment:hover .rpd-remove-button,
+.rpd-util-comment .rpd-inlets, .rpd-util-comment .rpd-outlets,
+.rpd-util-comment .rpd-content, .rpd-util-comment .rpd-shadow {
+    display: none;
+}
+
+.rpd-util-log .rpd-process text,
+.rpd-util-sum-of-three .rpd-process text,
+.rpd-util-letter .rpd-process text {
+    text-anchor: middle;
+}
+
+.rpd-util-bang circle,
+.rpd-util-metro circle {
+    transition: fill 0.1s ease-in;
+    -webkit-transition: fill 0.1s ease-in;
+}
+
+.rpd-util-bang circle.rpd-util-bang-fresh,
+.rpd-util-metro circle.rpd-util-metro-fresh {
+    fill: red;
+    transition: fill 0.1s ease-out;
+    -webkit-transition: fill 0.1s ease-out;
+}
+
+.rpd-util-mouse-pos .rpd-process line,
+.rpd-util-mouse-pos-by-bang .rpd-process line {
+    stroke: teal;
+    stroke-width: 2;
+}
+
+.rpd-util-mouse-pos .rpd-process circle,
+.rpd-util-mouse-pos-by-bang .rpd-process circle {
+    fill: #36464c;
+}
+
+.rpd-util-mouse-pos .rpd-process text,
+.rpd-util-mouse-pos-by-bang .rpd-process text {
+    fill: rgba(255, 255, 255, 0.7);
+    font-size: 0.7em;
+    text-anchor: middle;
 }

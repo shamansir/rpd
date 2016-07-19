@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>RPD &mdash; Subscribing to Events</title>
+    <link href="./../highlight-js.min.css" rel="stylesheet" type="text/css">
+    <!-- load RPD library and requirements when document will be ready-->
+    <link href="./../rpd-docs.css" rel="stylesheet" type="text/css">
+    <link href="./../style.css" rel="stylesheet" type="text/css">
+    <script defer src="./../kefir.min.js"></script>
+    <!-- compiled with: `gulp for-docs`-->
+    <script defer src="./../rpd-docs.min.js">       </script>
+  </head>
+  <body class="rpd-docs-events">
+    <header id="_top"><img src="./../rpd.svg" width="30px" height="30px">
+      <h1><a href="./../index.html">RPD &mdash; Reactive Patch Development</a></h1>
+      <div id="version"><span>v2.0.0</span></div>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="./../index.html">Introduction</a>
+          <ul>
+            <li><a href="./../index.html#what-is">What is RPD?</a></li>
+            <li><a href="./../index.html#code-examples">Code Examples</a></li>
+            <li><a href="./../index.html#terminology">Terminology</a></li>
+          </ul>
+        </li>
+        <li><a href="./../examples.html">Examples of RPD in Action</a>
+          <ul>
+          </ul>
+        </li>
+        <li><a href="./../sections/setup.html">Getting Your Version of RPD</a>
+          <ul>
+            <li><a href="./../sections/setup.html#download">Download</a></li>
+            <li><a href="./../sections/setup.html#setup">Setup</a></li>
+            <li><a href="./../sections/setup.html#compilation">Compilation</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/network.html">Building a Patch Network</a>
+          <ul>
+            <li><a href="./../sections/network.html#setup-rendering">Setup Rendering</a></li>
+            <li><a href="./../sections/network.html#creating-a-patch">Creating a Patch</a></li>
+            <li><a href="./../sections/network.html#adding-nodes">Adding Nodes</a></li>
+            <li><a href="./../sections/network.html#connecting-nodes">Connecting Nodes</a></li>
+            <li><a href="./../sections/network.html#sending-data">Sending Data</a></li>
+            <li><a href="./../sections/network.html#adding-sub-patches">Adding Subpatches</a></li>
+            <li><a href="./../sections/network.html#adding-import-export">Adding Import/Export</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/api.html">API</a>
+          <ul>
+            <li><a href="./../sections/api.html#rpd">Rpd</a></li>
+            <li><a href="./../sections/api.html#patch">Patch</a></li>
+            <li><a href="./../sections/api.html#node">Node</a></li>
+            <li><a href="./../sections/api.html#inlet">Inlet</a></li>
+            <li><a href="./../sections/api.html#outlet">Outlet</a></li>
+            <li><a href="./../sections/api.html#link">Link</a></li>
+            <li><a href="./../sections/api.html#modules">Modules</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/toolkits.html">Creating Your Own Toolkits</a>
+          <ul>
+            <li><a href="./../sections/toolkits.html#creating-toolkits">Organizational Moments</a></li>
+            <li><a href="./../sections/toolkits.html#defining-channel-type">Defining Channel Type</a></li>
+            <li><a href="./../sections/toolkits.html#defining-node-type">Defining Node Type</a></li>
+            <li><a href="./../sections/toolkits.html#writing-channel-renderer">Writing Channel Renderer</a></li>
+            <li><a href="./../sections/toolkits.html#writing-node-renderer">Writing Node Renderer</a></li>
+            <li><a href="./../sections/toolkits.html#writing-custom-i-o-module">Writing Custom I/O Module</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/style.html">Custom Styling RPD</a>
+          <ul>
+            <li><a href="./../sections/style.html#using-css-classes">Using CSS Classes</a></li>
+            <li><a href="./../sections/style.html#writing-your-own-renderer">Writing Your Own Renderer</a></li>
+            <li><a href="./../sections/style.html#writing-your-own-style">Writing Your Own Style</a></li>
+          </ul>
+        </li>
+        <li class="active"><a href="./../sections/events.html">Subscribing to Events</a>
+          <ul>
+            <li><a href="./../sections/events.html#global-events">Global Events</a></li>
+            <li><a href="./../sections/events.html#network-events">Network Events</a></li>
+            <li><a href="./../sections/events.html#patch-events">Patch Events</a></li>
+            <li><a href="./../sections/events.html#node-events">Node Events</a></li>
+            <li><a href="./../sections/events.html#outlet-events">Outlet Events</a></li>
+            <li><a href="./../sections/events.html#inlet-events">Inlet Events</a></li>
+            <li><a href="./../sections/events.html#link-events">Link events</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/participate.html">Participating in Development</a>
+        </li>
+      </ul>
+    </nav>
+    <main>
+      <h2>Subscribing to Events </h2>
+      <article><div class="in-progress" text="In Progress."><span>[ In Progress ]</span></div>
+<h3 id="global-events">Global Events</h3>
+<div class="in-progress" text="In Progress."><span>[ In Progress ]</span></div>
+<h3 id="network-events">Network Events</h3>
+<ul>
+<li><code>network/add-patch</code>: <code>patch</code></li>
+</ul>
+<div class="in-progress" text="In Progress."><span>[ In Progress ]</span></div>
+<h3 id="patch-events">Patch Events</h3>
+<ul>
+<li><code>patch/is-ready</code>: <em>none</em></li>
+<li><code>patch/open</code>: <code>parent</code></li>
+<li><code>patch/close</code>: <em>none</em></li>
+<li><code>patch/move-canvas</code>: <code>position</code></li>
+<li><code>patch/resize-canvas</code>: <code>size</code></li>
+<li><code>patch/set-inputs</code>: <code>inputs</code></li>
+<li><code>patch/set-outputs</code>: <code>outputs</code></li>
+<li><code>patch/project</code>: <code>node</code>, <code>target</code></li>
+<li><code>patch/refer</code>: <code>node</code>, <code>target</code></li>
+<li><code>patch/add-node</code>: <code>node</code></li>
+<li><code>patch/remove-node</code>: <code>node</code></li>
+</ul>
+<div class="in-progress" text="In Progress."><span>[ In Progress ]</span></div>
+<h3 id="node-events">Node Events</h3>
+<ul>
+<li><code>node/turn-on</code>: <em>none</em></li>
+<li><code>node/is-ready</code>: <em>none</em></li>
+<li><code>node/process</code>: <code>inlets</code>, <code>outlets</code> (not called unless Node has <code>process</code> handler)</li>
+<li><code>node/turn-off</code>: <em>none</em></li>
+<li><code>node/add-inlet</code>: <code>inlet</code></li>
+<li><code>node/remove-inlet</code>: <code>inlet</code></li>
+<li><code>node/add-outlet</code>: <code>outlet</code></li>
+<li><code>node/remove-outlet</code>: <code>outlet</code></li>
+<li><code>node/move</code>: <code>position</code></li>
+</ul>
+<div class="in-progress" text="In Progress."><span>[ In Progress ]</span></div>
+<h3 id="outlet-events">Outlet Events</h3>
+<ul>
+<li><code>outlet/update</code>: <code>value</code></li>
+<li><code>outlet/connect</code>: <code>link</code>, <code>inlet</code></li>
+<li><code>outlet/disconnect</code>: <code>link</code></li>
+</ul>
+<div class="in-progress" text="In Progress."><span>[ In Progress ]</span></div>
+<h3 id="inlet-events">Inlet Events</h3>
+<ul>
+<li><code>inlet/update</code>: <code>value</code></li>
+</ul>
+<div class="in-progress" text="In Progress."><span>[ In Progress ]</span></div>
+<h3 id="link-events">Link Events</h3>
+<ul>
+<li><code>link/enable</code>: <em>none</em></li>
+<li><code>link/disable</code>: <em>none</em></li>
+<li><code>link/pass</code>: <code>value</code></li>
+</ul>
+<div class="in-progress" text="In Progress."><span>[ In Progress ]</span></div>
+
+      </article>
+      <div id="jump-to-top"><a href="#_top">↑</a></div>
+    </main>
+    <footer><span>&copy; shaman.sir, 2016</span></footer>
+  </body>
+</html>

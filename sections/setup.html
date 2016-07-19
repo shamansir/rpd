@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>RPD &mdash; Getting Your Version of RPD</title>
+    <link href="./../highlight-js.min.css" rel="stylesheet" type="text/css">
+    <!-- load RPD library and requirements when document will be ready-->
+    <link href="./../rpd-docs.css" rel="stylesheet" type="text/css">
+    <link href="./../style.css" rel="stylesheet" type="text/css">
+    <script defer src="./../kefir.min.js"></script>
+    <!-- compiled with: `gulp for-docs`-->
+    <script defer src="./../rpd-docs.min.js">       </script>
+  </head>
+  <body class="rpd-docs-setup">
+    <header id="_top"><img src="./../rpd.svg" width="30px" height="30px">
+      <h1><a href="./../index.html">RPD &mdash; Reactive Patch Development</a></h1>
+      <div id="version"><span>v2.0.0</span></div>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="./../index.html">Introduction</a>
+          <ul>
+            <li><a href="./../index.html#what-is">What is RPD?</a></li>
+            <li><a href="./../index.html#code-examples">Code Examples</a></li>
+            <li><a href="./../index.html#terminology">Terminology</a></li>
+          </ul>
+        </li>
+        <li><a href="./../examples.html">Examples of RPD in Action</a>
+          <ul>
+          </ul>
+        </li>
+        <li><a href="./../sections/setup.html">Getting Your Version of RPD</a>
+          <ul>
+            <li><a href="./../sections/setup.html#download">Download</a></li>
+            <li><a href="./../sections/setup.html#setup">Setup</a></li>
+            <li><a href="./../sections/setup.html#compilation">Compilation</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/network.html">Building a Patch Network</a>
+          <ul>
+            <li><a href="./../sections/network.html#setup-rendering">Setup Rendering</a></li>
+            <li><a href="./../sections/network.html#creating-a-patch">Creating a Patch</a></li>
+            <li><a href="./../sections/network.html#adding-nodes">Adding Nodes</a></li>
+            <li><a href="./../sections/network.html#connecting-nodes">Connecting Nodes</a></li>
+            <li><a href="./../sections/network.html#sending-data">Sending Data</a></li>
+            <li><a href="./../sections/network.html#adding-sub-patches">Adding Subpatches</a></li>
+            <li><a href="./../sections/network.html#adding-import-export">Adding Import/Export</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/api.html">API</a>
+          <ul>
+            <li><a href="./../sections/api.html#rpd">Rpd</a></li>
+            <li><a href="./../sections/api.html#patch">Patch</a></li>
+            <li><a href="./../sections/api.html#node">Node</a></li>
+            <li><a href="./../sections/api.html#inlet">Inlet</a></li>
+            <li><a href="./../sections/api.html#outlet">Outlet</a></li>
+            <li><a href="./../sections/api.html#link">Link</a></li>
+            <li><a href="./../sections/api.html#modules">Modules</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/toolkits.html">Creating Your Own Toolkits</a>
+          <ul>
+            <li><a href="./../sections/toolkits.html#creating-toolkits">Organizational Moments</a></li>
+            <li><a href="./../sections/toolkits.html#defining-channel-type">Defining Channel Type</a></li>
+            <li><a href="./../sections/toolkits.html#defining-node-type">Defining Node Type</a></li>
+            <li><a href="./../sections/toolkits.html#writing-channel-renderer">Writing Channel Renderer</a></li>
+            <li><a href="./../sections/toolkits.html#writing-node-renderer">Writing Node Renderer</a></li>
+            <li><a href="./../sections/toolkits.html#writing-custom-i-o-module">Writing Custom I/O Module</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/style.html">Custom Styling RPD</a>
+          <ul>
+            <li><a href="./../sections/style.html#using-css-classes">Using CSS Classes</a></li>
+            <li><a href="./../sections/style.html#writing-your-own-renderer">Writing Your Own Renderer</a></li>
+            <li><a href="./../sections/style.html#writing-your-own-style">Writing Your Own Style</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/events.html">Subscribing to Events</a>
+          <ul>
+            <li><a href="./../sections/events.html#global-events">Global Events</a></li>
+            <li><a href="./../sections/events.html#network-events">Network Events</a></li>
+            <li><a href="./../sections/events.html#patch-events">Patch Events</a></li>
+            <li><a href="./../sections/events.html#node-events">Node Events</a></li>
+            <li><a href="./../sections/events.html#outlet-events">Outlet Events</a></li>
+            <li><a href="./../sections/events.html#inlet-events">Inlet Events</a></li>
+            <li><a href="./../sections/events.html#link-events">Link events</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/participate.html">Participating in Development</a>
+        </li>
+      </ul>
+    </nav>
+    <main>
+      <h2>Getting Your Version of RPD </h2>
+      <article><p></p>
+<h3 id="download">Download</h3>
+<p>RPD with default options can be downloaded here:</p>
+<ul>
+<li>SVG renderer, Quartz style, no I/O: <a href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.min.js"><code>rpd-svg.min.js</code></a> (<em>38KB</em>, <em>~11KB</em> gzipped) + <a href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.css"><code>rpd-svg.css</code></a> (<em>3.7KB</em>, <em>~1KB</em> gzipped);</li>
+<li>HTML renderer, Quartz style, no I/O: <a href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.min.js"><code>rpd-html.min.js</code></a>  (<em>~40KB</em>, <em>~11KB</em> gzipped) + <a href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css"><code>rpd-html.css</code></a> (<em>~10KB</em>, <em>~2KB</em> gzipped);</li>
+</ul>
+<p>You&#39;ll also need <a href="http://github.com/rpominov/kefir">Kefir.js</a>, since RPD code is based on Reactive Streams, which it provides.</p>
+<p>But default options restrict your choice, while RPD provides truly a lot more. See <a href="#Compilation">Compilation</a> section below for details. And you are surely safe to transfer your network code to use it with other options, if you already have one, the only requirement could be is to change few string values.</p>
+<h3 id="setup">Setup</h3>
+<p>To use either downloaded or compiled version of RPD, you need to include three files in a page head:</p>
+<pre><code class="lang-html"><span class="hljs-meta">&lt;!DOCTYPE html&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"utf-8"</span> /&gt;</span>
+
+        <span class="hljs-comment">&lt;!-- Compiled CSS file, it includes rendering and style-dependent
+             rules (both Renderer and Style selected at compilation stage are
+             listed in the top lines of this file) --&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"stylesheet"</span>
+              <span class="hljs-attr">href</span>=<span class="hljs-string">"http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css"</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">link</span>&gt;</span>
+
+        <span class="hljs-comment">&lt;!-- Kefir.js library --&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"http://rawgit.com/rpominov/kefir/gh-pages/dist/kefir.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+
+        <span class="hljs-comment">&lt;!-- RPD Library, compiled with the options you specified (all these
+             options are listed in the first lines of this file, so you may
+             distinguish `rpd.js` compiled with different options even while it
+             has the same name for all the versions) --&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+        <span class="hljs-comment">&lt;!-- ... --&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<blockquote>
+<p>Here, remote files are named <code>rpd-html</code>, but in majority of cases I personally
+use <code>rpd.css</code> and <code>rpd.js</code> respectively. All the compilation preferences are
+listed in the comments sections, in both files, including the commands used
+to build them, so it is always easy to get what is included just by looking
+inside.</p>
+</blockquote>
+<p>For the local version, paths would be <code>./dist/rpd.css</code>, <code>./vendor/kefir.min.js</code> and <code>./dist/rpd.min.js</code> respectively.
+​
+To test if it works and see it in action, add the target <code>div</code> to the <code>body</code> and some code to the bottom of the page:</p>
+<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">body</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"margin: 0;"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"target"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
+        Rpd.renderNext(<span class="hljs-string">'html'</span>, <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'target'</span>),
+                       { style: <span class="hljs-string">'quartz'</span> });
+
+        <span class="hljs-keyword">var</span> root = Rpd.addPatch(<span class="hljs-string">'root'</span>).resizeCanvas(<span class="hljs-number">800</span>, <span class="hljs-number">400</span>);
+
+        <span class="hljs-keyword">var</span> metro1 = root.addNode(<span class="hljs-string">'util/metro'</span>, <span class="hljs-string">'Metro A'</span>).move(<span class="hljs-number">40</span>, <span class="hljs-number">20</span>);
+        <span class="hljs-keyword">var</span> metro2 = root.addNode(<span class="hljs-string">'util/metro'</span>, <span class="hljs-string">'Metro B'</span>).move(<span class="hljs-number">40</span>, <span class="hljs-number">120</span>);
+
+        <span class="hljs-keyword">var</span> genA = root.addNode(<span class="hljs-string">'util/random'</span>, <span class="hljs-string">'Generate A'</span>).move(<span class="hljs-number">300</span>, <span class="hljs-number">10</span>);
+        <span class="hljs-keyword">var</span> genB = root.addNode(<span class="hljs-string">'util/random'</span>, <span class="hljs-string">'Generate B'</span>).move(<span class="hljs-number">300</span>, <span class="hljs-number">160</span>);
+
+        <span class="hljs-keyword">var</span> sum = root.addNode(<span class="hljs-string">'util/+'</span>, <span class="hljs-string">'Sum'</span>).move(<span class="hljs-number">520</span>, <span class="hljs-number">80</span>);
+
+        genA.outlets[<span class="hljs-string">'random'</span>].connect(sum.inlets[<span class="hljs-string">'a'</span>]);
+        genB.outlets[<span class="hljs-string">'random'</span>].connect(sum.inlets[<span class="hljs-string">'b'</span>]);
+
+        metro1.outlets[<span class="hljs-string">'bang'</span>].connect(genA.inlets[<span class="hljs-string">'bang'</span>]);
+        metro2.outlets[<span class="hljs-string">'bang'</span>].connect(genB.inlets[<span class="hljs-string">'bang'</span>]);
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+</code></pre>
+<p>Detailed instructions on constructing your own Patch Network you may find <a href="./network.html">in the Network section</a>.</p>
+<h3 id="compilation">Compilation</h3>
+<p>To compile RPD with custom options, you need to get the latest clone of RPD github repository and have <code>npm</code> installed. When compiled, RPD only uses <code>Kefir.js</code>, but for building you need few tools installed, however it should be quite easy to get them all:</p>
+<pre><code class="lang-sh"><span class="hljs-symbol">$</span> cd ~/Workspace
+<span class="hljs-symbol">$</span> git clone ...
+<span class="hljs-symbol">$</span> cd ./rpd
+<span class="hljs-symbol">$</span> npm install -g gulp
+<span class="hljs-symbol">$</span> npm install
+<span class="hljs-symbol">$</span> gulp get-deps
+<span class="hljs-symbol">$</span> gulp
+</code></pre>
+<p>If every command, and especially the last one, was successful, you&#39;ll see it created <code>dist/rpd.min.js</code> and <code>dist/rpd.css</code>. So you&#39;ve built a version with default options and now you are on the right way. Then, you&#39;ll only need to run <code>gulp</code> (with specific flags listed below, if you are not satisfied with default options).</p>
+<p>To be able to view examples from <code>./examples</code> directory, you also need to call this command once:</p>
+<pre><code class="lang-sh"><span class="hljs-symbol">$</span> gulp get-dev-deps
+</code></pre>
+<h4 id="compilation-options">Compilation Options</h4>
+<p>Foremost, it should be noted that you may get the complete list of possible commands and options with calling:</p>
+<pre><code class="lang-sh"><span class="hljs-symbol">$</span> gulp help
+</code></pre>
+<p>There are a lot more options and commands than I describe here, but in contrast with this literary text, <code>gulp help</code> provides you with far more bureaucratic style.
+​
+Now it&#39;s time to use all the powers and to configure your preferences:</p>
+<ul>
+<li><em>Renderers</em> (<code>-r</code> or <code>--renderer</code>): defines which technique (<em>HTML</em>, <em>SVG</em>, though there&#39;s no <em>HTML5 Canvas</em> renderer yet) will be used to render your Patch;<ul>
+<li><em><code>html</code></em>: renders your Patch using plain HTML tags, i.e. using <code>&lt;span&gt;</code>s for links between nodes;</li>
+<li><em><code>svg</code></em>: renders your Patch using SVG tags;</li>
+</ul>
+</li>
+<li><em>Styles</em> (<code>-s</code> or <code>--style</code>): determines the look of your nodes and backgrounds, see <a href="#styles-and-renderers">list of styles below</a> or <a href="../examples.htm">examples</a>;<ul>
+<li><em><code>quartz</code></em> (HTML &amp; SVG): intended to be used on a full page; default style, normal-sized font, rounded borders for the nodes, connectors are circles, inlets are placed in a vertical column on the left side of the node and distributed over this side, outlets are placed in a vertical column on the right side of the node and distributed over this side;</li>
+<li><em><code>pd</code></em> (HTML &amp; SVG): intended to be used on a full page; normal-sized font, rectangular nodes, header takes the left connectors are circles, inlets are placed in a horizontal row on the top side of the node, outlets are placed in a horizontal row on the bottom side of the node;   </li>
+<li><em><code>plain</code></em> (HTML &amp; SVG): intended to be used on a small areas, most minimal style, majorly in black and white; font size is small, nodes are rectangular, titles do not belong to the nodes, inlets are placed in a horizontal row above the node, outlets are placed in a horizontal row below the node;</li>
+<li><em><code>compact</code></em> (HTML &amp; SVG): intended to be used on a small areas; font size is small, nodes are rectangular, node headers are tiny on the left side or absent, inlets are placed in a horizontal row above the node, outlets are placed in a horizontal row below the node;</li>
+<li><em><code>compact-v</code></em> (SVG only): intended to be used on a small areas; font size is small, nodes are rectangular, node headers are tiny or absent, on the top side, inlets are placed in a vertical column on the right side of the node, outlets are placed in a vertical column on the left side the node;</li>
+<li><em><code>webpd</code></em> (SVG only): used to render <a href="https://github.com/sebpiq/WebPd">WebPd</a> toolkit, nodes have no titles, normal-sized font, inlets are placed in a horizontal row above the node, outlets are placed in a horizontal row below the node;</li>
+</ul>
+</li>
+<li><em>Toolkits</em> (<code>-t</code> or <code>--toolkit</code>): there are some predefined toolkits (sets of nodes) in the repository, but except the WebPD, for now they only demonstrate some special aspect of the possibilities you have (i.e. configuring the example sketch for Processing.js toolkit), rather than provide all-sufficient toolboxes;<ul>
+<li><em><code>util</code></em> (HTML &amp; SVG): optional <code>util</code> toolkit with channels to transfer numbers, node with random generator, nodes with spinner to select numbers and some other primitive examples;</li>
+<li><em><code>anm</code></em> (only HTML): the toolkit to demonstrate connection with <a href="http://animatron.com/player/">Animatron Player</a> to create generative graphics;</li>
+<li><em><code>webpd</code></em> (only SVG): the toolkit in development, intended to be able to load and run <a href="https://puredata.info/">PureData</a> patches using <a href="https://github.com/sebpiq/WebPd">WebPd</a>, PureData is mostly used to procedurally generate audio with the help of Node-driven interface;</li>
+<li><em><code>timbre</code></em> (only HTML): the toolkit to demonstrate connection with [timbre.js][timbre] which is an JavaScript API to procedurally generate audio;</li>
+</ul>
+</li>
+<li><em>Import/Export</em> (<code>-x</code>, <code>--io</code>): provides the ways to save and restore your Patch, nit necessarily from file, but it could be the most used option;<ul>
+<li><em><code>json</code></em>: Stores all the performed actions in JSON format and could restore them in order, may be used to add Undo/Redo to the interface or store patches in JSON files;</li>
+<li><em><code>pd</code></em>: Used by <code>webpd</code> toolkit and uses <a href="https://github.com/sebpiq/WebPd">WebPd</a> library to get required logical information about nodes in the files;
+​
+Every of the listed options may be specified several times, but for Renderers and Styles it has less sense, unless you have several differently-rendered and differently-styled patches on the same page.</li>
+</ul>
+</li>
+</ul>
+<p>For example, to compile RPD with SVG renderer (instead of default HTML), <code>plain</code> style (instead of default <code>quartz</code> style), include <code>timbre</code> and <code>anm</code> toolkits, plus add JSON Import/Export, you need to call:</p>
+<pre><code class="lang-sh"><span class="hljs-symbol">$</span> gulp --renderer svg --toolkit anm --toolkit timbre --style plain --io json
+</code></pre>
+<p>Or, in short format:</p>
+<pre><code class="lang-sh"><span class="hljs-symbol">$</span> gulp -r svg -t anm -t timbre -s plain -x json
+</code></pre>
+<p>The order in which options were specified is completely not important.</p>
+<p><strong>NB:</strong> Please be aware that, as noted above, some <em>styles</em> or <em>toolkits</em> work only with <em>particular renderers</em>.</p>
+<p>Both <code>gulp build</code> (defaults to <code>gulp</code>) and <code>gulp build-with-gzip</code> report the resulting file size, since options may affect it in different directions and it could be meaningful for you.</p>
+<p>Also, you may select the name of the output file with <code>--target-name</code> or <code>-o</code> option.</p>
+<!-- If you plan to use [d3.js](http://d3js.org/), you may want to exclude the super-tiny version of d3 from compilation using `--no-d3-tiny` flag (though actually it adds not a lot, since it's tiny) -->
+<p>I recommend you to visit the <a href="../examples.html">examples page</a>, there you may find several examples for different combinations of styles and renderers used to compile the same patch.</p>
+<p>More details on building Patch Networks by yourself, you may find on <a href="./sections/network.html">the corresponding page</a>.</p>
+<h3 id="styles-and-renderers">Styles and Renderers</h3>
+<table>
+<thead>
+<tr>
+<th>Style</th>
+<th>HTML</th>
+<th>SVG</th>
+<th>Horz./Vert.</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>quartz</code></td>
+<td><span class="positive">✔</span></td>
+<td><span class="positive">✔</span></td>
+<td>Vertical</td>
+<td>Basic, grotesque style, even though based on Quartz Composer look</td>
+</tr>
+<tr>
+<td><code>pd</code></td>
+<td><span class="positive">✔</span></td>
+<td><span class="positive">✔</span></td>
+<td>Horizontal</td>
+<td>Nice-looking sandy-colored style with no headers, but a drag handle on the left side of the node</td>
+</tr>
+<tr>
+<td><code>plain</code></td>
+<td><span class="positive">✔</span></td>
+<td><span class="positive">✔</span></td>
+<td>Horizontal</td>
+<td>Minimal style with simple shapes, few contrast colors and no shadows</td>
+</tr>
+<tr>
+<td><code>compact</code></td>
+<td><span class="positive">✔</span></td>
+<td><span class="positive">✔</span></td>
+<td>Horizontal</td>
+<td>Nodes made as tiny as possible, small fonts, navy feel; unlike <code>pd</code> Style, has vertical headers on the left side of the Node</td>
+</tr>
+<tr>
+<td><code>compact-v</code></td>
+<td><span class="negative">✘</span></td>
+<td><span class="positive">✔</span></td>
+<td>Vertical</td>
+<td>Same as <code>compact</code>, but vertical variant and has headers</td>
+</tr>
+<tr>
+<td><code>black-white</code></td>
+<td><span class="negative">✘</span></td>
+<td><span class="positive">✔</span></td>
+<td>Vertical</td>
+<td>Black and White style looking like some schema from an 80&#39;s computer book</td>
+</tr>
+<tr>
+<td><code>blender</code></td>
+<td><span class="negative">✘</span></td>
+<td><span class="positive">✔</span></td>
+<td>Vertical</td>
+<td>Style, almost completely looking like <a href="http://blender.org">Blender</a> <a href="https://www.blender.org/manual/render/blender_render/materials/nodes/index.html">Material Editor</a></td>
+</tr>
+<tr>
+<td><code>webpd</code></td>
+<td><span class="negative">✘</span></td>
+<td><span class="positive">✔</span></td>
+<td>Horizontal</td>
+<td>Nice-looking sandy style with no headers, but a drag handle on the left side of the node</td>
+</tr>
+</tbody>
+</table>
+<h3 id="toolkits-and-renderers">Toolkits and Renderers</h3>
+<table>
+<thead>
+<tr>
+<th>Toolkit</th>
+<th>HTML</th>
+<th>SVG</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>core</code></td>
+<td><span class="positive">✔</span></td>
+<td><span class="positive">✔</span></td>
+<td>Only <code>core/basic</code> Node type and <code>core/any</code> Channel type; always included, no option needed</td>
+</tr>
+<tr>
+<td><code>util</code></td>
+<td><span class="positive">✔</span></td>
+<td><span class="positive">✔</span></td>
+<td>Utility Nodes: numbers, colors, random generators, everything useful but not obligatory</td>
+</tr>
+<tr>
+<td><code>timbre</code></td>
+<td><span class="positive">✔</span></td>
+<td><span class="positive">✔</span></td>
+<td>Nodes intended to help user generate sound with <a href="http://mohayonao.github.io/timbre.js/">timbre.js</a> in future, but has only five basic nodes for the moment</td>
+</tr>
+<tr>
+<td><code>webpd</code></td>
+<td><span class="positive">✔</span></td>
+<td><span class="positive">✔</span></td>
+<td>The project with a plan to implement complete <a href="https://puredata.info/">PureData</a> toolkit, but for the web, with the help of <a href="https://github.com/sebpiq/WebPd">WebPd</a> library</td>
+</tr>
+<tr>
+<td><code>anm</code></td>
+<td><span class="positive">✔</span></td>
+<td><span class="positive">✔</span></td>
+<td>Demonstrates the ability to generate graphics with <a href="https://github.com/Animatron/player">Animatron Player</a>, includes Spreads logic like the ones <a href="http://www.vvvvjs.com/">VVVV</a> has</td>
+</tr>
+<tr>
+<td>[<code>processing</code>]</td>
+<td><span class="negative">✘</span></td>
+<td><span class="positive">✔</span></td>
+<td>Used only in examples, has some Node types to demonstrate how to work with <a href="http://p5js.org">P5.js</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="modules">Modules</h3>
+<div class="in-progress" text="In Progress."><span>[ In Progress ]</span></div>
+
+      </article>
+      <div id="jump-to-top"><a href="#_top">↑</a></div>
+    </main>
+    <footer><span>&copy; shaman.sir, 2016</span></footer>
+  </body>
+</html>

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>RPD &mdash; Building a Patch Network</title>
+    <link href="./../highlight-js.min.css" rel="stylesheet" type="text/css">
+    <!-- load RPD library and requirements when document will be ready-->
+    <link href="./../rpd-docs.css" rel="stylesheet" type="text/css">
+    <link href="./../style.css" rel="stylesheet" type="text/css">
+    <script defer src="./../kefir.min.js"></script>
+    <!-- compiled with: `gulp for-docs`-->
+    <script defer src="./../rpd-docs.min.js">       </script>
+  </head>
+  <body class="rpd-docs-network">
+    <header id="_top"><img src="./../rpd.svg" width="30px" height="30px">
+      <h1><a href="./../index.html">RPD &mdash; Reactive Patch Development</a></h1>
+      <div id="version"><span>v2.0.0</span></div>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="./../index.html">Introduction</a>
+          <ul>
+            <li><a href="./../index.html#what-is">What is RPD?</a></li>
+            <li><a href="./../index.html#code-examples">Code Examples</a></li>
+            <li><a href="./../index.html#terminology">Terminology</a></li>
+          </ul>
+        </li>
+        <li><a href="./../examples.html">Examples of RPD in Action</a>
+          <ul>
+          </ul>
+        </li>
+        <li><a href="./../sections/setup.html">Getting Your Version of RPD</a>
+          <ul>
+            <li><a href="./../sections/setup.html#download">Download</a></li>
+            <li><a href="./../sections/setup.html#setup">Setup</a></li>
+            <li><a href="./../sections/setup.html#compilation">Compilation</a></li>
+          </ul>
+        </li>
+        <li class="active"><a href="./../sections/network.html">Building a Patch Network</a>
+          <ul>
+            <li><a href="./../sections/network.html#setup-rendering">Setup Rendering</a></li>
+            <li><a href="./../sections/network.html#creating-a-patch">Creating a Patch</a></li>
+            <li><a href="./../sections/network.html#adding-nodes">Adding Nodes</a></li>
+            <li><a href="./../sections/network.html#connecting-nodes">Connecting Nodes</a></li>
+            <li><a href="./../sections/network.html#sending-data">Sending Data</a></li>
+            <li><a href="./../sections/network.html#adding-sub-patches">Adding Subpatches</a></li>
+            <li><a href="./../sections/network.html#adding-import-export">Adding Import/Export</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/api.html">API</a>
+          <ul>
+            <li><a href="./../sections/api.html#rpd">Rpd</a></li>
+            <li><a href="./../sections/api.html#patch">Patch</a></li>
+            <li><a href="./../sections/api.html#node">Node</a></li>
+            <li><a href="./../sections/api.html#inlet">Inlet</a></li>
+            <li><a href="./../sections/api.html#outlet">Outlet</a></li>
+            <li><a href="./../sections/api.html#link">Link</a></li>
+            <li><a href="./../sections/api.html#modules">Modules</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/toolkits.html">Creating Your Own Toolkits</a>
+          <ul>
+            <li><a href="./../sections/toolkits.html#creating-toolkits">Organizational Moments</a></li>
+            <li><a href="./../sections/toolkits.html#defining-channel-type">Defining Channel Type</a></li>
+            <li><a href="./../sections/toolkits.html#defining-node-type">Defining Node Type</a></li>
+            <li><a href="./../sections/toolkits.html#writing-channel-renderer">Writing Channel Renderer</a></li>
+            <li><a href="./../sections/toolkits.html#writing-node-renderer">Writing Node Renderer</a></li>
+            <li><a href="./../sections/toolkits.html#writing-custom-i-o-module">Writing Custom I/O Module</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/style.html">Custom Styling RPD</a>
+          <ul>
+            <li><a href="./../sections/style.html#using-css-classes">Using CSS Classes</a></li>
+            <li><a href="./../sections/style.html#writing-your-own-renderer">Writing Your Own Renderer</a></li>
+            <li><a href="./../sections/style.html#writing-your-own-style">Writing Your Own Style</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/events.html">Subscribing to Events</a>
+          <ul>
+            <li><a href="./../sections/events.html#global-events">Global Events</a></li>
+            <li><a href="./../sections/events.html#network-events">Network Events</a></li>
+            <li><a href="./../sections/events.html#patch-events">Patch Events</a></li>
+            <li><a href="./../sections/events.html#node-events">Node Events</a></li>
+            <li><a href="./../sections/events.html#outlet-events">Outlet Events</a></li>
+            <li><a href="./../sections/events.html#inlet-events">Inlet Events</a></li>
+            <li><a href="./../sections/events.html#link-events">Link events</a></li>
+          </ul>
+        </li>
+        <li><a href="./../sections/participate.html">Participating in Development</a>
+        </li>
+      </ul>
+    </nav>
+    <main>
+      <h2>Building a Patch Network </h2>
+      <article><p>No matter, have you <a href="./setup.html#Compilation">compiled</a> your own customized version of RPD, or have you <a href="./setup.html#Download">downloaded</a> the version with default options, you are ready to build a Patch network. Just ensure that you&#39;ve included all the required Styles, Toolkits and Modules into your page, this process is also covered in the <a href="./setup.html">Setup section</a>.</p>
+<!-- Here's an example of a very simple patch, just to give you an idea on how easy it is to build one:
+
+```html
+<div id="patch-target"></div>
+<script>
+    var targetElement = document.getElementById('patch-target');
+    var patch = Rpd.render('svg', targetElement, { style: 'quartz' });
+    var randomNode = patch.addNode('util/random', 'Random');    
+    var numberNode = patch.addNode('util/number', 'Number');
+    randomNode.outlets['random'].connect(numberNode.inlets['in']);
+    randomNode.inlets['min'].receive(10);
+    randomNode.inlets['max'].receive(Kefir.repeat(function() {
+        return Kefir.sequentially(1000, [100, 1000, 10000]);
+    })); // will sequence 100, 1000, 10000, 100, 1000, 1000, ... sending new value every second
+</script>
+```
+
+But of course that's not everything RPD capable of — there are much, much more possibilities covered below, and they may help you build very complex Patches. -->
+<blockquote>
+<p>NB: All the updates inside the Network are based on purely functional code, so there are no actual data modifications performed, only signals are sent. Among other useful things, it allows to easily record and restore things. Your code could be imperative, if you decide, but you should not modify the Network inner structure if you plan to share the code with others.</p>
+</blockquote>
+<h3 id="setup-rendering">Setup Rendering</h3>
+<p>You have to have some target DOM element to render your Patch into. So, first,
+there should be the one accessible to the RPD code. It could be a <code>div</code>:</p>
+<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"patch-target"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+</code></pre>
+<p>Anywhere below (or when <code>body.onload</code> or <code>document.onDocumentReady</code> event was fired), you may start writing the code to build the RPD network:</p>
+<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"patch-target"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
+        <span class="hljs-keyword">var</span> targetElement = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'patch-target'</span>);
+        <span class="hljs-comment">// use SVG Renderer with Quartz Style to render into div#patch-target,</span>
+        <span class="hljs-comment">// also configure Renderer to allow multiple connections to inlets</span>
+        <span class="hljs-comment">// (only single connection is allowed by default)</span>
+        Rpd.renderNext(<span class="hljs-string">'svg'</span>, targetElement, { style: <span class="hljs-string">'quartz'</span>,
+                                               inletAcceptsMultipleLinks: <span class="hljs-literal">true</span> });
+
+        <span class="hljs-comment">// Network creation code</span>
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+</code></pre>
+<p>The <code>renderNext</code> method assumes that everything later on, unless it meets another <code>renderNext</code> definition, will be rendered to the specified target and following specified options. You also may want to render a particular patch to a particular target with particular renderer, there&#39;s a <code>patch.render</code> method existing specially for that, and it accepts exactly the same arguments, but you need to create a Patch to use it, and we haven&#39;t covered it yet.</p>
+<h3 id="rendering-configuration">Rendering Configuration</h3>
+<p>Options passed to <code>renderNext</code> or <code>patch.render</code> could belong to one particular Renderer, but Renderers supplied with RPD tend to use a generalized set of options:</p>
+<ul>
+<li><code>style</code> — the only required option, sets the <a href="./setup.html#styles-and-renderers">style</a> used to visualize nodes; you need to ensure to <a href="./setup.html#compilation-options">include this Style code</a> in your RPD version or else this option will fail;</li>
+<li><code>fullPage</code> — (<code>false</code>) if <code>true</code>, network takes the full page, so the target element will be resized to match browser window size when it was resized by user;</li>
+<li><code>nodeMovingAllowed</code> — (<code>true</code>) are nodes allowed to be dragged or should they be immovable;</li>
+<li><code>inletAcceptsMultipleLinks</code> — (<code>false</code>) could several outlets connect to the same inlet;</li>
+<li><code>linkForm</code> — (<code>&#39;line&#39;</code>) connect inlets to outlets with straight lines or nice curves (set to <code>&#39;curve&#39;</code>), curves could not be rendered with HTML renderer, also only certain styles support them (<em><code>quartz</code></em>, <em><code>compact</code></em>, <em><code>compact-v</code></em>); <em><code>black-white</code></em> is the only style that supports <code>pipe</code> form of the link;</li>
+<li><code>valuesOnHover</code> — (<code>false</code>) show inlet/outlet value only when user hovers over its connector (values are always shown, by default);</li>
+<li><code>closeParent</code> — (<code>false</code>) when user opens a projected sub-patch, automatically close its parent patch;</li>
+<li><code>effectTime</code> — (<code>1000</code>) milliseconds to show the value update effect on the connector</li>
+<li><code>showTypes</code> — (<code>false</code>) show inlet/outlet types for debugging purposes;</li>
+<li><code>showBoxes</code> — (<code>false</code>) show node bounding for debugging purposes;</li>
+<li><code>logErrors</code> — (<code>true</code>) write all the happening system-wide errors to the console, if it exists;</li>
+</ul>
+<p>Further on let&#39;s assume that you write subsequent code below those two lines:</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> targetElement = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'patch-target'</span>);
+Rpd.renderNext(<span class="hljs-string">'svg'</span>, targetElement, { style: <span class="hljs-string">'quartz'</span>,
+                                       inletAcceptsMultipleLinks: <span class="hljs-literal">true</span> });
+
+<span class="hljs-comment">// Creating a Patch, Adding Nodes, ...</span>
+</code></pre>
+<blockquote>
+<p>NB: When <code>fullPage</code> is set to <code>false</code>, Renderer is usually unaware of the required canvas height, so you need to call <code>patch.resizeCanvas</code> for every new Patch, as soon as possible after the corresponding <code>Rpd.renderNext</code> or <code>patch.render</code> call.</p>
+</blockquote>
+<h3 id="creating-a-patch">Creating a Patch</h3>
+<blockquote>
+<p>NB: If you what to know what exactly all the terms like <em>Patch</em>, <em>Node</em>, <em>Inlet</em>, <em>Outlet</em>, <em>Link</em> mean in context of RPD, see <a href="../index.html#terminology">Terminology sub-section on the Main page</a>.</p>
+</blockquote>
+<p>Patch is a collection and topology of connected Nodes.</p>
+<p>And creating a Patch is super-easy:</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> patch = Rpd.addPatch();
+</code></pre>
+<p>or, a named Patch:</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> patch = Rpd.addPatch(<span class="hljs-string">'My Patch'</span>);
+</code></pre>
+<!-- TODO: closed patches and canvases -->
+<h3 id="adding-nodes">Adding Nodes</h3>
+<p>Adding nodes is also super-easy in a default form:</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> untitledUtilNode = patch.addNode(<span class="hljs-string">'util/random'</span>);
+<span class="hljs-keyword">var</span> untitledCustomNode = patch.addNode(<span class="hljs-string">'my-toolkit/my-node-type'</span>);
+<span class="hljs-keyword">var</span> titledCustomNode = patch.addNode(<span class="hljs-string">'my-toolkit/my-node-type'</span>, <span class="hljs-string">'My Node'</span>);
+</code></pre>
+<p>At least, you need to specify a type of the Node you want to create. Type determines how many inlets/outlets new Node will have, their names and types, and the way (algorithm) it will use to process incoming data before sending it to other nodes. Or, type may determine that this Node won&#39;t change the data and just pass it through, but visualize it in some way.</p>
+<p>For example, all the Nodes with type <code>util/random</code> always have two inlets, <code>min</code> and <code>max</code> (both accept only numbers), and one outlet named <code>random</code>. You are free to add other inlets or outlets to any instance of any type, though. When one of the inlets gets new value, Node with <code>util/random</code> type generates new random number laying between the requested bounds and immediately sends it to the <code>random</code> outlet. Renderer of the <code>util/random</code> type ensures that last four generated numbers are also shown in the body of every such Node.</p>
+<p>New nodes are positioned in the free space automatically, though the placing algorithm is intentionally not perfect, to keep it simple, so you have the ability to force-move the created node to the desired place if you don&#39;t like what machine suggested for you:</p>
+<pre><code class="lang-javascript">patch.addNode(<span class="hljs-string">'my-toolkit/my-node-type'</span>)
+     .move(<span class="hljs-number">100</span> <span class="hljs-comment">/* x */</span>, <span class="hljs-number">150</span> <span class="hljs-comment">/* y */</span>); <span class="hljs-comment">// in pixels for HTML, or SVG units</span>
+</code></pre>
+<!-- But nodes also could have options you may find useful. These options are passed as an object:
+
+```javascript
+
+```
+
+* -->
+<p>Actually, you may define a new type for a Node anywhere above the place it is created. Having a Renderer for a Node type is absolutely optional:</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> patch = Rpd.addPatch(<span class="hljs-string">'My Patch'</span>);
+Rpd.nodetype(<span class="hljs-string">'custom/type'</span>, {
+    inlets: { <span class="hljs-string">'in'</span>: { type: <span class="hljs-string">'core/any'</span> } },
+    outlets: { <span class="hljs-string">'out'</span>: { type: <span class="hljs-string">'core/any'</span> } }
+});
+patch.addNode(<span class="hljs-string">'custom/type'</span>).move(<span class="hljs-number">20</span>, <span class="hljs-number">20</span>);
+</code></pre>
+<blockquote>
+<p>NB: I really know how could it be tempting to name your Outlet <code>out</code>, just like in this example, but please avoid that in any case, may be only excluding the cases when your Inlet is called <code>in</code>. Always try to find a better alias for an Outlet, especially when it&#39;s just a single Outlet of the Node. If there&#39;s no documentation for a Toolkit (and there&#39;s none for the moment), user should be able to imagine the alias without inspecting code or variable. At least to try. Usually output inlets are named similarly to the type, or if they produce something processed, alias represents how exactly values are transformed, like <code>random</code> Outlet of type <code>util/number</code> in <code>util/random</code> Node.</p>
+</blockquote>
+<!-- TODO: embedded example -->
+<p>For a complete list of properties could be used to define a Node, see <a href="./api.html#node-definition">Node Definition</a> in <a href="./api.html">API section</a>. Also see <a href="./toolkits.html#defining-node-type">Defining Node Type</a> and <a href="./toolkits.html#writing-node-renderer">Writing a Renderer for a Node</a> chapters in <a href="./toolkits.html">Toolkits section</a> if you want to create bundles of your Node types, called <em>Toolkits</em>.</p>
+<h3 id="connecting-nodes">Connecting Nodes</h3>
+<p>Nodes process data that came inside through Inlets and then send processed data through their Outlets to Inlets of the other nodes. The connection between Outlet of one node and Inlet of another node is called Link. User may connect one Outlet to several Inlets, and also, if it&#39;s allowed by configuration (usually not), connect several Outlets to one Inlet. But this rules are controlled only by Renderer, in the code you may connect outlets to inlets as many times as you want, so you should control existing connections by yourself.</p>
+<!-- TODO: some picture about how the process goes -->
+<p>Some nodes have no Inlets, and that&#39;s ok, since they probably have some initial state and/or default values for Inlets and/or hidden inlets (a bit later about it). Some nodes may have no outlets if they send nothing, and that&#39;s also completely ok!</p>
+<p>Nodes may have any number of Inlets and any number of Outlets defined in their type and also may have any number of Inlets and any number of Outlets attached by you to the instance of the Node.</p>
+<p>Type-defined Inlets and Outlets are accessible through <code>node.inlets</code> and <code>node.outlets</code> properties:</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> knob = patch.addNode(<span class="hljs-string">'util/knob'</span>, <span class="hljs-string">'Number'</span>);
+<span class="hljs-keyword">var</span> color = patch.addNode(<span class="hljs-string">'util/color'</span>, <span class="hljs-string">'Color'</span>);
+knob.outlets[<span class="hljs-string">'number'</span>].connect(color.inlets[<span class="hljs-string">'r'</span>]);
+</code></pre>
+<p>Disconnecting is also very easy:</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> link = knob.outlets[<span class="hljs-string">'number'</span>].connect(color.inlets[<span class="hljs-string">'r'</span>]);
+...
+link.disconnect();
+</code></pre>
+<p>Also, you may temporary disable the link and then enable it later, when you don&#39;t want to remove the connection completely. When link is disabled, it skips all the updates coming through, but still exists. So this way link will be shown to the user, but will be greyed out:</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> link = knob.outlets[<span class="hljs-string">'number'</span>].connect(color.inlets[<span class="hljs-string">'r'</span>]);
+...
+link.disable();
+...
+link.enable();
+</code></pre>
+<p>There is also a possibility to create custom Nodes just in place by adding Inlets and Outlets of any type to a <code>core/basic</code> Node:</p>
+<pre><code class="lang-javascript"><span class="hljs-comment">// through redefining Node instance:</span>
+<span class="hljs-keyword">var</span> myNode = patch.addNode(<span class="hljs-string">'core/basic'</span>, <span class="hljs-string">'My Node'</span>, {
+    inlets: {
+        foo: { type: <span class="hljs-string">'core/any'</span>, <span class="hljs-string">'default'</span>: <span class="hljs-number">0</span> },
+        bar: { type: <span class="hljs-string">'core/any'</span> }
+    },
+    outlets: {
+        out: { type: <span class="hljs-string">'core/any'</span> }
+    }
+    process: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">inlets</span>) </span>{
+        <span class="hljs-keyword">return</span> { out: (inlets.foo || <span class="hljs-number">0</span>) + (inlets.bar || <span class="hljs-number">0</span>) }
+    }
+});
+knob.outlets[<span class="hljs-string">'number'</span>].connect(myNode.inlets[<span class="hljs-string">'foo'</span>]);
+
+<span class="hljs-comment">// through adding inlets/outlets to the instance</span>
+<span class="hljs-keyword">var</span> myNode = patch.addNode(<span class="hljs-string">'core/basic'</span>, <span class="hljs-string">'My Node'</span>, {
+    process: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">inlets</span>) </span>{
+        <span class="hljs-keyword">return</span> { out: (inlets.foo || <span class="hljs-number">0</span>) + (inlets.bar || <span class="hljs-number">0</span>) }
+    }
+});
+<span class="hljs-keyword">var</span> fooInlet = myNode.addInlet(<span class="hljs-string">'core/any'</span>, <span class="hljs-string">'foo'</span>, { <span class="hljs-string">'default'</span>: <span class="hljs-number">0</span> });
+<span class="hljs-keyword">var</span> barInlet = myNode.addInlet(<span class="hljs-string">'core/any'</span>, <span class="hljs-string">'bar'</span>);
+<span class="hljs-keyword">var</span> outlet = myNode.addOutlet(<span class="hljs-string">'core/any'</span>, <span class="hljs-string">'out'</span>);
+knob.outlets[<span class="hljs-string">'number'</span>].connect(fooInlet);
+</code></pre>
+<p>Actually, you also may add Inlets and Outlets to any instance of the Node of any type using <code>node.addInlet</code>/<code>node.addOutlet</code>, but it probably has no sense, since such Nodes usually have inner processing logic hardly bound to what is inside.</p>
+<!-- Inlets and Outlets which were added directly to the instance and not through the Type Definition (the way Toolkits usually define them), are _not_ stored this way,but you may receive an instance of such just when you use `addInlet` or `addOutlet` method:
+
+```javascript
+var myRandomGeneratorNode = patch.addNode('core/basic', 'My Random 0-255', {
+    process: function() {
+        if (inlets.bang) {
+            return { 'random': Math.floor(Math.random() * 256) };
+        }    
+    }
+});
+var randomOutlet = myRandomGeneratorNode.addOutlet('util/number', 'random');
+var bangInlet = myRandomGeneratorNode.addInlet('util/bang', 'bang');
+// send bang signal every second to the inlet
+bangInlet.stream(Kefir.interval(1000, {}));
+var colorNode = patch.addNode('util/color', 'Color');
+var alphaInlet = color.addInlet('util/wholenumber', 'a');
+randomOutlet.connect(alphaInlet);
+```
+
+On the other hand, code above works exactly same way as the next one, the only difference is in the fact that Inlets and Outlets in this example are defined before the specific Node instance was created:
+
+```javascript
+var myRandomGeneratorNode = patch.addNode('core/basic', 'My Random 0-255', {
+    inlets: { 'bang': { type: 'util/bang' } },
+    outlets: { 'random': { type: 'util/number' } },
+    process: function(inlets) {
+        if (inlets.bang) {
+            return { 'random': Math.floor(Math.random() * 256) }
+        }
+    }
+});
+var randomOutlet = myRandomGeneratorNode.outlets['random'];
+var bangInlet = myRandomGeneratorNode.inlets['bang'];
+// send bang signal every second to the inlet
+bangInlet.stream(Kefir.interval(1000, {}));
+// clone `inlets` definition not to modify inlets for all instances
+// of that type, but just for this particular instance
+colorTypeInlets = Object.create(Rpd.allNodeTypes['util/color'].inlets);
+colorTypeInlets['a'] = { type: 'util/wholenumber', 'default': 255 };
+var colorNode = patch.addNode('util/color', 'Color', {
+    inlets: colorTypeInlets
+});
+var alphaInlet = colorNode.inlets['a'];
+randomOutlet.connect(alphaInlet);
+``` -->
+<p>In UI, user commonly starts creating a Link from the Outlet and finishes it on the Inlet. That&#39;s same for your code. You get the Outlet instance (defined by type or added by you) and connect it to the Inlet instance (defined by type or added by you).</p>
+<!-- Once again, if you want to know all the properties Node types or instances could have, see [Node Definition](./api.html#node-definition) in [API section](./api.html). -->
+<p>You may notice that Inlets and Outlets also have their own types. Their type determines which data they may accept, connections of which type they allow, how they present the data to the user or how they transform it before sending it to the Node.</p>
+<p>Same way as for the Nodes, Channel (Inlets and Outlets together are called Channels in RPD) type may be defined just before Channel usage.</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> customNode = patch.addNode(<span class="hljs-string">'custom/node-type'</span>, <span class="hljs-string">'Foo'</span>);
+Rpd.channeltype(<span class="hljs-string">'custom/channel-type'</span>, {
+    accept: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">value</span>) </span>{
+        <span class="hljs-keyword">return</span> (value &gt;= <span class="hljs-number">0</span>) &amp;&amp; (value &lt;= <span class="hljs-number">255</span>);
+    }
+});
+customNode.addInlet(<span class="hljs-string">'custom/channel-type'</span>, <span class="hljs-string">'foo'</span>);
+customNode.addOutlet(<span class="hljs-string">'custom/channel-type'</span>, <span class="hljs-string">'bar'</span>);
+Rpd.nodetype(<span class="hljs-string">'custom/another-node-type'</span>, {
+    inlets: {
+        <span class="hljs-string">'in'</span>: { type: <span class="hljs-string">'custom/channel-type'</span> }
+    }
+});
+</code></pre>
+<p>Node types and Channel Types may intersect, for example there is <code>util/color</code> Channel which operates with objects in a form of <code>{ r: 255, g: 255, b: 255 }</code> and <code>util/color</code> Node, which has Inlets <code>r</code>, <code>g</code> and <code>b</code> of type <code>util/wholenumber</code> and outputs color in the Outlet of type <code>util/color</code>. Also, the Node includes rectangle filled with current color in its body.</p>
+<p>For a complete list of properties could be used to define an Inlet or Outlet, see <a href="./api.html#channel-definition">Channel Definition</a> in <a href="./api.html">API section</a>. As well as <a href="./toolkits.html#writing-channel-renderer">Writing a Renderer for a Channel</a>. Also see <a href="./toolkits.html#defining-node-type">Defining Channel Type</a> and <a href="./toolkits.html#writing-channel-renderer">Writing a Renderer for a Channel</a> chapters in <a href="./toolkits.html">Toolkits section</a> if you want to create bundles of your Node and/or Channel types, called <em>Toolkits</em>.</p>
+<h3 id="sending-data">Sending Data</h3>
+<p>To send your own data to an Inlet, you may use its <code>receive</code> method. There&#39;s no requirement for this inlet to be connected to anything, but if it is indeed connected, you&#39;ll just insert your update in it&#39;s established data flow.</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> randomNode = patch.addNode(<span class="hljs-string">'util/random'</span>);
+randomNode.inlets[<span class="hljs-string">'max'</span>].receive(<span class="hljs-number">256</span>);
+<span class="hljs-keyword">var</span> colorNode = patch.addNode(<span class="hljs-string">'util/color'</span>, <span class="hljs-string">'Color'</span>);
+randomNode.outlets[<span class="hljs-string">'random'</span>].connect(colorNode.inlets[<span class="hljs-string">'g'</span>]);
+
+randomNode.inlets[<span class="hljs-string">'bang'</span>].receive({}); <span class="hljs-comment">// trigger generating random number</span>
+setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-comment">// trigger generating random number once again after a second</span>
+    randomNode.inlets[<span class="hljs-string">'bang'</span>].receive({});
+}, <span class="hljs-number">1000</span>);
+</code></pre>
+<p>To send some data from an outlet, use it&#39;s <code>send</code> method. You might want it to be connected to something before. The data then will flow through all the connections until the end of the wire or until some Node on the way will interrupt it.</p>
+<pre><code class="lang-javascript"><span class="hljs-comment">// override the output and send 1000 from Random Generator Node</span>
+randomNode.outlets[<span class="hljs-string">'random'</span>].send(<span class="hljs-number">1000</span>);
+</code></pre>
+<blockquote>
+<p>NB: When you send data to some Inlet, data is first transformed according to Inlet type, if there was such transformation requested. So the Node may receive and may want to receive a bit different data than you&#39;ve sent to the Inlet. On the other hand, Outlets usually do not transform data and just send them out. So, the law is, always prefer sending data to the Inlets of the Node, since Inlets insert data into the Node processing flow, as it expects it to be received. Or, even better in the cases you do same thing several times, find or define a transformation Node type which will send the data you want and will be re-usable.</p>
+</blockquote>
+<p>Of course you may use <code>inlet.receive</code> or <code>outlet.send</code> in any moment after the corresponding Inlet or Outlet was created. If you want, use <code>setTimeout</code> to postpone the update or <code>setInterval</code> to send value each period of time. But I have a better suggestion for you.</p>
+<p>You may schedule the updates using the Stream approach. Streams are sequences of data distributed over time, and they are the major part of Reactive Programming, so you may find more details on this topic in any documentation covering FRP. Using Streams provides truly a lot of possibilities and combinations, since data flows may be combined and transformed in a lot of ways independently of time when a data itself was produced.</p>
+<p>But let me give just the basic example here, so you may either realise the full potential if you already know something about them, or head to FRP docs if you ever plan to use Streams and need complex workflows.</p>
+<p>Out of the box, RPD uses <a href="http://rpominov.github.io/kefir">Kefir</a> library for Streams, since it&#39;s very tiny and neat <!-- laconic --> at the same time. Both Inlets and Outlets have <code>stream</code> method, which plugs given Kefir Stream into the flow:</p>
+<pre><code class="lang-javascript">randomNode.inlets[<span class="hljs-string">'bang'</span>].stream(Kefir.interval(<span class="hljs-number">1000</span>, {}));
+randomNode.outlets[<span class="hljs-string">'random'</span>].stream(Kefir.sequentially(<span class="hljs-number">1000</span>, [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]));
+</code></pre>
+<p>Streams allow you to do really powerful things:</p>
+<pre><code class="lang-javascript"><span class="hljs-comment">// set red component of the color using the mouse X position</span>
+colorNode.inlets[<span class="hljs-string">'r'</span>].stream(
+    Kefir.fromEvents(<span class="hljs-built_in">document</span>.body, <span class="hljs-string">'mousemove'</span>).throttle(<span class="hljs-number">10</span>)
+         .map(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">event</span>) </span>{
+             <span class="hljs-keyword">return</span> { x: event.clientX, y: event.clientY };
+         })
+         .map(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">position</span>) </span>{
+             <span class="hljs-keyword">return</span> position.x % <span class="hljs-number">255</span>;
+         });
+);
+</code></pre>
+<h3 id="adding-sub-patches">Adding Sub-patches</h3>
+<div class="in-progress" text="In Progress."><span>[ In Progress ]</span></div>
+<h3 id="adding-import-export">Adding Import/Export</h3>
+<p>Currently, there are only JSON and Plain Modules included with RPD distribution. Both may save Networks to <code>*.json</code> and <code>*.txt</code> (Plain Text) files correspondingly and restore them back from these files.</p>
+<p>To add JSON export, just ensure to <a href="./setup.html">include the Module into your version of RPD</a>, then call this:</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> finalize = Rpd.export.json(<span class="hljs-string">'Name of the Patch'</span>);
+
+<span class="hljs-keyword">var</span> patch = Rpd.addPatch(...);
+patch.addNode(...);
+...
+...
+
+console.log(finalize());
+</code></pre>
+<p>And you&#39;ll get the full restorable log of actions in JSON format in the console. Flush it to the file and read it back with:</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> jsonContent = <span class="hljs-built_in">JSON</span>.parse(readFile(<span class="hljs-string">'my-file.json'</span>));
+
+Rpd.import.json(jsonContent);
+</code></pre>
+<p>To do the same, but with Plain Text format, just change <code>Rpd.export.json</code> and <code>Rpd.import.json</code> to <code>Rpd.export.plain</code> and <code>Rpd.import.plain</code>, and you&#39;re done!</p>
+
+      </article>
+      <div id="jump-to-top"><a href="#_top">↑</a></div>
+    </main>
+    <footer><span>&copy; shaman.sir, 2016</span></footer>
+  </body>
+</html>

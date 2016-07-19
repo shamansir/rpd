@@ -1,0 +1,526 @@
+/**
+ * rpd - RPD is a minimal framework for building Node-Based User Interfaces, powered by Reactive Programming
+ * Built at Tue, 19 Jul 2016 01:35:15 GMT
+ *
+ * @version v2.0.0
+ * @link http://shamansir.github.io/rpd
+ * @author Ulric Wilfred <shaman.sir@gmail.com>
+ * @license MIT
+ * 
+ * Selected Renderers: html
+ * Selected Styles: quartz
+ * Selected Toolkits: [None]
+ *
+ * User Styles: [None]
+ * User Toolkits: [None]
+ */
+
+.rpd-network {
+    margin: 0;
+}
+
+.rpd-full-page {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.rpd-network > .rpd-canvas {
+    position: relative;
+}
+
+.rpd-network > .rpd-canvas > .rpd-node-box {
+    /* position: relative; */
+}
+
+/* NODE LIST */
+
+.rpd-nodelist {
+    float: right;
+    position: relative;
+    width: 200px;
+    z-index: 1000;
+    height: 100%;
+    margin: 0;
+    background-color: rgba(82,99,99,0.5);
+    box-shadow: 3px 9px 9px 5px rgba(33,33,33,0.4);
+    -webkit-box-shadow: 3px 9px 9px 5px rgba(33,33,33,0.4);
+    border-left: 1px solid rgba(220,220,220,.4);
+}
+
+.rpd-nodelist dl,
+.rpd-nodelist dd,
+.rpd-nodelist dt {
+    margin: 0;
+}
+
+.rpd-nodelist {
+    color: #ddd;
+    padding: 0px 10px 0px 10px;
+}
+
+.rpd-nodelist.rpd-collapsed {
+    display: none;
+}
+
+.rpd-nodelist .rpd-toolkit-name {
+    padding: 6px 5px;
+    font-weight: bold;
+    border: 1px solid rgba(220,220,220,.2);
+    border-bottom-width: 0;
+    background-color: rgba(33,33,99,0.3);
+    text-decoration: overline;
+    cursor: pointer;
+    border-radius: 4px 4px 0 0;
+    margin-top: 10px;
+}
+
+.rpd-nodelist .rpd-toolkit-name:hover {
+    background-color: rgba(33,33,99,0.5);
+}
+
+.rpd-nodelist .rpd-toolkit {
+    border: 1px solid rgba(220,220,220,.2);
+    border-top-width: 0;
+    background-color: rgba(33,33,99,.1);
+    border-radius: 0 0 4px 4px;
+    transition: height 1s;
+    -webkit-transition: height 1s;
+}
+
+.rpd-nodelist .rpd-toolkit .rpd-node-title,
+.rpd-nodelist .rpd-toolkit .rpd-node-description {
+    padding: 5px 5px 5px 12px;
+    transition: opacity .3s;
+    -webkit-transition: opacity .3s;
+}
+
+.rpd-nodelist .rpd-toolkit .rpd-node-description {
+    opacity: 0.6;
+    border-bottom: 1px solid rgba(250,250,250,.5);
+    font-size: 0.9em;
+    line-height: 1.29em;
+    position: relative;
+    top: -6px;
+}
+
+.rpd-nodelist .rpd-toolkit .rpd-node-description:last-child {
+    border-bottom: 0;
+}
+
+.rpd-nodelist .rpd-toolkit .rpd-node-title:hover {
+    background-color: rgba(200,200,200,.2);
+    cursor: pointer;
+}
+
+.rpd-nodelist .rpd-toolkit .rpd-node-title .rpd-add-node {
+    visibility: hidden;
+    float: right;
+    padding: 3px;
+    border-radius: 2px;
+    font-size: 0.7em;
+    background-color: rgba(10,60,0,.8);
+    position: relative;
+    top: -2px;
+}
+
+.rpd-nodelist .rpd-toolkit .rpd-node-title:hover .rpd-add-node {
+    visibility: visible;
+    background-color: rgba(10,100,0,.8);
+}
+
+.rpd-nodelist .rpd-toolkit .rpd-node-title:hover .rpd-add-node:hover {
+    background-color: rgba(10,150,0,1);
+}
+
+.rpd-nodelist .rpd-toolkit.rpd-collapsed {
+    height: 0;
+}
+
+.rpd-nodelist .rpd-toolkit.rpd-collapsed .rpd-node-title,
+.rpd-nodelist .rpd-toolkit.rpd-collapsed .rpd-node-description {
+    opacity: 0;
+}
+
+.rpd-nodelist .rpd-toolkit .rpd-node-description.rpd-collapsed {
+    display: none;
+}
+
+.rpd-collapse-nodelist {
+    cursor: pointer;
+    position: absolute;
+    z-index: 10000;
+    top: 4px;
+    right: 228px;
+    color: rgba(200,200,200,0.7);
+}
+
+.rpd-collapse-nodelist.rpd-collapsed {
+    right: 4px;
+}
+
+.rpd-patch {
+    font-family: 'PT Mono', 'Andale Mono', 'Fira mono', 'Menlo', sans-serif;
+    font-size: 0.7em;
+    color: #111;
+    background-color: #3c464c;
+    margin: 0;
+}
+
+.rpd-link {
+    height: 1px;
+    background-color: rgba(250,250,250,0.8);
+}
+
+.rpd-link.rpd-disabled {
+    background-color: rgba(250,250,250,0.3);
+}
+
+.rpd-link:hover {
+    cursor: crosshair;
+}
+
+.rpd-link.rpd-disabled:hover {
+    cursor: cell;
+}
+
+.rpd-node-box {
+    position: absolute;
+    max-width: 250px;
+}
+
+.rpd-node {
+    /* box-shadow: 3px 3px 14px 1px rgba(33,33,33,0.7); */
+    /* box-shadow: -1px 5px 13px 1px rgba(30,30,30,0.8); */
+    /* margin: 20px 50px; */
+    background-clip: border-box;
+}
+
+.rpd-node .rpd-title {
+    background-color: #617b79;
+    padding: 3px 5px;
+    color: #eee;
+}
+
+.rpd-node .rpd-title .rpd-icon {
+    position: relative;
+    top: 1px;
+    padding-right: 2px;
+}
+
+.rpd-node .rpd-type {
+    margin-left: 4px;
+    font-size: 0.8em;
+    color: rgba(250,250,250,0.5);
+}
+
+.rpd-node .rpd-value {
+    font-size: 0.7em;
+}
+
+.rpd-node .rpd-value.rpd-stale {
+    background-color: transparent;
+    transition: background-color .3s;
+}
+
+.rpd-node .rpd-value.rpd-fresh {
+    background-color: #f00;
+    transition: background-color .3s;
+}
+
+.rpd-inlets,
+.rpd-outlets {
+    margin: 0;
+    padding: 2px;
+}
+
+.rpd-inlet .rpd-connector,
+.rpd-outlet .rpd-connector {
+    cursor: pointer;
+    border-radius: 6px;
+    border-width: 3px;
+    border-style: solid;
+}
+
+.rpd-connector:hover {
+    transition: none;
+}
+
+.rpd-fresh .rpd-connector {
+    border-color: #c00;
+    background-color: #ff0;
+}
+
+.rpd-fresh .rpd-connector:hover {
+    border-color: #c66;
+}
+
+.rpd-stale .rpd-connector {
+    border-color: #000;
+    background-color: #fff;
+    transition: border-color .3s ease-out;
+}
+
+.rpd-stale .rpd-connector:hover {
+    transition: none;
+    /* border-color: #333; */
+    border-color: #ccc;
+    opacity: 0.6;
+}
+
+.rpd-cold .rpd-connector {
+    border-color: #009;
+}
+
+.rpd-cold .rpd-connector:hover {
+    border-color: #669;
+}
+
+.rpd-error .rpd-connector {
+    border-color: #cc0;
+    background-color: #f00;
+    transition: border-color .3s;
+}
+
+.rpd-error .rpd-connector:hover {
+    border-color: #aa0;
+}
+
+.rpd-inlet .rpd-value,
+.rpd-outlet .rpd-value {
+    color: rgba(200,200,200,0.7);
+}
+
+.rpd-value.rpd-edited {
+    color: rgba(150,150,225,0.7);
+}
+
+.rpd-outlet .rpd-value,
+.rpd-inlet.rpd-readonly .rpd-value {
+    cursor: default;
+}
+
+.rpd-values-on-hover .rpd-inlet .rpd-value-holder,
+.rpd-values-on-hover .rpd-outlet .rpd-value {
+    display: none;
+}
+
+.rpd-values-on-hover .rpd-inlet:hover .rpd-value-holder,
+.rpd-values-on-hover .rpd-outlet:hover .rpd-value {
+    display: block;
+}
+
+.rpd-values-always-shown .rpd-inlet .rpd-value-holder,
+.rpd-values-always-shown .rpd-outlet .rpd-value {
+    display: block;
+}
+
+.rpd-body {
+    min-width: 20px;
+}
+
+.rpd-body input,
+.rpd-value-holder input {
+    border: 1px solid rgba(250,250,250,0.2);
+    color: #111;
+    background-color: rgba(201,201,220,0.6);
+    margin: 4px 4px 9px 0px;
+}
+
+.rpd-body input:focus,
+.rpd-value-holder input:focus {
+    border: 1px solid #000;
+}
+
+.rpd-body input[type="number"] {
+    width: 30px;
+}
+
+.rpd-value-holder input[type="number"] {
+    font-size: 0.8em;
+    text-align: right;
+    width: 25px;
+    position: relative;
+}
+
+.rpd-show-boxes .rpd-node-box {
+    border: 2px solid #f00;
+}
+
+.rpd-drag-handle:hover {
+    cursor: pointer;
+}
+
+/* .rpd-drag-handle:hover span {
+    cursor: text;
+} */
+
+.rpd-inlet .rpd-value-holder .rpd-value-editor {
+    display: none;
+}
+
+.rpd-inlet .rpd-value-holder.rpd-editor-enabled .rpd-value {
+    display: none;
+}
+
+.rpd-inlet .rpd-value-holder.rpd-editor-enabled .rpd-value-editor {
+    display: block;
+    z-index: 1000;
+}
+
+.rpd-node .rpd-remove-button {
+    display: none;
+    background-color: rgba(30,30,30,0.2);
+    padding: 0 2px;
+    border-radius: 0 0 0 3px;
+    font-size: 0.7em;
+    cursor: pointer;
+}
+
+.rpd-node .rpd-remove-button:hover {
+    color: #ff6666;
+}
+
+.rpd-node:hover .rpd-remove-button {
+    display: block;
+}
+
+.rpd-node.rpd-patch-reference .rpd-process-target {
+    cursor: pointer;
+}
+
+.rpd-node.rpd-patch-reference .rpd-process-target:hover {
+    color: #ccc;
+}
+
+/* Custom Style */
+
+.rpd-node {
+    /* margin: 9px 30px; */
+}
+
+.rpd-node,
+.rpd-node > .rpd-title {
+    /* box-shadow: 3px 3px 14px 1px rgba(33,33,33,0.7); */
+    box-shadow: -1px 5px 13px 1px rgba(30,30,30,0.8);
+}
+
+.rpd-dragging .rpd-node,
+.rpd-dragging .rpd-node > .rpd-title {
+    box-shadow: 4px 8px 20px 0px rgba(30,30,30,0.8);
+    z-index: 100;
+}
+
+.rpd-node .rpd-title {
+    display: table-caption;
+    background-clip: border-box;
+    border-style: solid;
+    border-color: rgba(250,250,250,0.4);
+    border-width: 1px 1px 0 1px;
+    border-radius: 2px 2px 0 0;
+    /* border-radius: 4px 4px 0 0; */
+    /* border-radius: 4px 0 0 0; */
+}
+
+.rpd-node .rpd-content {
+    border-color: rgba(250,250,250,0.4);
+    border-width: 0 1px 1px 1px;
+    /* border-radius: 0 0 4px 4px; */
+    border-style: solid;
+    background-color: #50607e;
+    background-clip: border-box;
+}
+
+table.rpd-node {
+    position: relative;
+    border-collapse: collapse;
+    min-width: 100px;
+    min-height: 30px;
+}
+
+.rpd-node .rpd-remove-button {
+    position: absolute;
+    right: 0;
+    margin-top: -3px;
+}
+
+table.rpd-node thead.rpd-title th {
+    padding: 2px;
+    text-align: left;
+    font-weight: normal;
+}
+
+.rpd-body {
+    padding: 9px 6px;
+}
+
+.rpd-inlet .rpd-value-holder {
+    margin: 0.2em 5px 0px 5px;
+}
+
+.rpd-outlet .rpd-value {
+    margin: 0.6em 5px 0px 5px;
+}
+
+.rpd-name {
+    padding: 4px 2px;
+    color: rgba(250,250,250,0.9);
+}
+
+.rpd-inlet,
+.rpd-outlet {
+    min-height: 20px;
+}
+
+.rpd-inlet .rpd-name {
+    text-align: left;
+}
+
+.rpd-outlet .rpd-name {
+    text-align: right;
+}
+
+.rpd-inlet .rpd-connector {
+    position: absolute;
+    margin-top: 0.5em;
+    left: -4px;
+}
+
+.rpd-outlet .rpd-connector {
+    position: absolute;
+    margin-top: 0.5em;
+    right: -5px;
+}
+
+.rpd-inlet .rpd-value-holder {
+    position: absolute;
+    right: 103%;
+}
+
+.rpd-outlet .rpd-value {
+    position: absolute;
+    left: 103%;
+}
+
+.rpd-outlets > table {
+    margin-left: auto;
+}
+
+.rpd-inlet:hover .rpd-name,
+.rpd-outlet:hover .rpd-name {
+    background-color: rgba(250,250,250,0.1);
+}
+
+.rpd-link {
+    margin-left: 4px;
+    margin-top: 0.5em;
+}
+
+.rpd-value-holder input[type="number"] {
+    top: -4px;
+    left: 6px;
+}
+
+.rpd-util-comment .rpd-body {
+    color: lightgray;
+}

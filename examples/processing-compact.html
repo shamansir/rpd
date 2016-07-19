@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+
+        <!-- gulp html-head ==style compact ==renderer svg ==toolkit util ==root .. -->
+
+        <!-- Built with RPD v2.0.0 <http://shamansir.github.io/rpd> -->
+
+        <!-- RPD Renderer: svg -->
+        <link rel="stylesheet" href="https://rawgit.com/shamansir/rpd/v2.0.0/src/render/html.css"></style>
+        <!-- RPD Style: compact (svg) -->
+        <link rel="stylesheet" href="https://rawgit.com/shamansir/rpd/v2.0.0/src/style/compact/svg.css"></style>
+        <!-- RPD Toolkit: util (svg) -->
+        <link rel="stylesheet" href="https://rawgit.com/shamansir/rpd/v2.0.0/src/toolkit/util/svg.css"></style>
+
+        <!-- Kefir -->
+        <script src="../vendor/kefir.min.js"></script>
+        <!-- RPD -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/rpd.js"></script>
+
+        <!-- RPD's d3_tiny.js -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/d3_tiny.js"></script>
+        <!-- RPD Rendering Engine: -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/render/shared.js"></script>
+        <!-- RPD Style: compact (svg) -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/style/compact/svg.js"></script>
+        <!-- RPD Renderer: svg -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/render/svg.js"></script>
+        <!-- RPD Toolkit: util -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/toolkit/util/shared.js"></script>
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/toolkit/util/toolkit.js"></script>
+        <!-- RPD Toolkit: util (svg) -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/toolkit/util/svg.js"></script>
+
+        <style>
+            #p5-canvas {
+                position: fixed;
+            }
+
+            .rpd-node .rpd-process * {
+                pointer-events: none;
+            }
+
+            .rpd-node.rpd-p5-shape .rpd-process .rpd-p5-shape-variant * {
+                pointer-events: all;
+                cursor: pointer;
+            }
+
+            .rpd-p5-shape-variant {
+                fill: black;
+                stroke: black;
+                stroke-width: 0;
+            }
+
+            .rpd-p5-shape-variant line {
+                stroke-width: 2;
+            }
+
+            .rpd-p5-shape-variant:hover {
+                fill: deepskyblue;
+                stroke: deepskyblue;
+            }
+
+            .rpd-p5-shape-variant.rpd-p5-active-variant {
+                fill: crimson;
+                stroke: crimson;
+            }
+
+            .rpd-util-random .rpd-process text {
+                font-size: 0.8em;
+                text-anchor: middle;
+                alignment-baseline: central;
+            }
+
+            .rpd-p5-sketch .rpd-inlet .rpd-value,
+            .rpd-p5-sketch .rpd-inlet .rpd-name {
+                visibility: hidden;
+            }
+
+            .rpd-p5-sketch .rpd-inlet:hover .rpd-value,
+            .rpd-p5-sketch .rpd-inlet:hover .rpd-name {
+                visibility: visible;
+            }
+
+            /* text.rpd-value {
+                display: none;
+            }
+
+            .rpd-inlet:hover text.rpd-value,
+            .rpd-outlet:hover text.rpd-value {
+                display: inline;
+            } */
+        </style>
+
+    </head>
+
+    <body>
+
+        <script>
+            window.sketchUpdate = function(config) {
+                window.missedSketchConfig = config;
+            }; // we'll replace it later
+        </script>
+
+        <script src="./processing-toolkit-svg.js"></script>
+
+        <script>
+
+            // ============= Register p5/sketch node type and renderer =============
+
+            var SVG_XMLNS = "http://www.w3.org/2000/svg";
+
+            Rpd.nodetype('p5/sketch', {
+                inlets: {
+                    'shape': { type: 'p5/shape', default: 'circle', name: 'shape' },
+                    'wavescount': { type: 'util/number', default: 5, name: 'waves' },
+                    'startcolor': { type: 'p5/color', name: 'from' },
+                    'endcolor': { type: 'p5/color', name: 'to' },
+                    'xspacing': { type: 'util/number', default: 16, name: 'xspan' },
+                    'amplitude': { type: 'util/number', default: 75, name: 'ampl.' },
+                    'period': { type: 'util/number', default: 500, name: 'period' }
+                },
+                process: function(inlets) {
+                    window.sketchUpdate(inlets);
+                }
+            });
+
+            Rpd.noderenderer('p5/sketch', 'svg', {
+                size: { width: 420, height: 320 },
+                pivot: { x: 0, y: 0 },
+                first: function(bodyElm) {
+                    var group = document.createElementNS(SVG_XMLNS, 'g');
+                    group.setAttributeNS(null, 'transform', 'translate(10, 10)');
+                    var foreign = document.createElementNS(SVG_XMLNS, 'foreignObject');
+                    var p5Target = document.createElement('div');
+                    p5Target.id = 'p5-canvas';
+                    foreign.appendChild(p5Target);
+                    group.appendChild(foreign);
+                    bodyElm.appendChild(group);
+                }
+            });
+
+            // ============= Build and render patch =============
+
+            var patch = Rpd.addPatch('processing');
+
+            patch.render('svg', document.body, { style: 'compact',
+                                                 fullPage: true });
+            var sketch = patch.addNode('p5/sketch').move(300, 50);
+
+            var random1 = patch.addNode('util/random').move(20, 50);
+            random1.inlets['min'].receive(50); random1.inlets['max'].receive(255);
+
+            var color1 = patch.addNode('p5/color').move(20, 150);
+            var color2 = patch.addNode('p5/color').move(160, 50);
+
+            random1.outlets['random'].connect(color1.inlets['r']);
+
+            color2.outlets['color'].connect(sketch.inlets['endcolor']);
+            color2.inlets['r'].receive(20); color2.inlets['g'].receive(0); color2.inlets['b'].receive(0);
+
+            var random2 = patch.addNode('util/random').move(160, 150);
+            random2.inlets['min'].receive(5); random2.inlets['max'].receive(25);
+
+            var shape = patch.addNode('p5/shape').move(160, 250);
+            shape.outlets['shape'].connect(sketch.inlets['shape']);
+
+        </script>
+
+        <!-- p5.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.19/p5.min.js"></script>
+        <!-- p5 Sketch -->
+        <script src="./example.sketch.js"></script>
+
+        <script>
+            window.addEventListener('load', function() {
+                window.sketchUpdate = function(inlets) {
+                    sketchConfig = inlets;
+                    // uses a global function from the sketch
+                    updateWithConfig(sketchConfig);
+                };
+
+                if (window.missedSketchConfig) window.sketchUpdate(window.missedSketchConfig);
+            });
+        </script>
+
+    </body>
+</html>

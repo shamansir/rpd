@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>RPD &mdash; Examples of RPD in Action</title>
+    <link href="./highlight-js.min.css" rel="stylesheet" type="text/css">
+    <!-- load RPD library and requirements when document will be ready-->
+    <link href="./rpd-docs.css" rel="stylesheet" type="text/css">
+    <link href="./style.css" rel="stylesheet" type="text/css">
+    <script defer src="./kefir.min.js"></script>
+    <!-- compiled with: `gulp for-docs`-->
+    <script defer src="./rpd-docs.min.js">       </script>
+  </head>
+  <body class="rpd-docs-examples">
+    <header id="_top"><img src="./rpd.svg" width="30px" height="30px">
+      <h1><a href="./index.html">RPD &mdash; Reactive Patch Development</a></h1>
+      <div id="version"><span>v2.0.0</span></div>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="./index.html">Introduction</a>
+          <ul>
+            <li><a href="./index.html#what-is">What is RPD?</a></li>
+            <li><a href="./index.html#code-examples">Code Examples</a></li>
+            <li><a href="./index.html#terminology">Terminology</a></li>
+          </ul>
+        </li>
+        <li class="active"><a href="./examples.html">Examples of RPD in Action</a>
+          <ul>
+          </ul>
+        </li>
+        <li><a href="./sections/setup.html">Getting Your Version of RPD</a>
+          <ul>
+            <li><a href="./sections/setup.html#download">Download</a></li>
+            <li><a href="./sections/setup.html#setup">Setup</a></li>
+            <li><a href="./sections/setup.html#compilation">Compilation</a></li>
+          </ul>
+        </li>
+        <li><a href="./sections/network.html">Building a Patch Network</a>
+          <ul>
+            <li><a href="./sections/network.html#setup-rendering">Setup Rendering</a></li>
+            <li><a href="./sections/network.html#creating-a-patch">Creating a Patch</a></li>
+            <li><a href="./sections/network.html#adding-nodes">Adding Nodes</a></li>
+            <li><a href="./sections/network.html#connecting-nodes">Connecting Nodes</a></li>
+            <li><a href="./sections/network.html#sending-data">Sending Data</a></li>
+            <li><a href="./sections/network.html#adding-sub-patches">Adding Subpatches</a></li>
+            <li><a href="./sections/network.html#adding-import-export">Adding Import/Export</a></li>
+          </ul>
+        </li>
+        <li><a href="./sections/api.html">API</a>
+          <ul>
+            <li><a href="./sections/api.html#rpd">Rpd</a></li>
+            <li><a href="./sections/api.html#patch">Patch</a></li>
+            <li><a href="./sections/api.html#node">Node</a></li>
+            <li><a href="./sections/api.html#inlet">Inlet</a></li>
+            <li><a href="./sections/api.html#outlet">Outlet</a></li>
+            <li><a href="./sections/api.html#link">Link</a></li>
+            <li><a href="./sections/api.html#modules">Modules</a></li>
+          </ul>
+        </li>
+        <li><a href="./sections/toolkits.html">Creating Your Own Toolkits</a>
+          <ul>
+            <li><a href="./sections/toolkits.html#creating-toolkits">Organizational Moments</a></li>
+            <li><a href="./sections/toolkits.html#defining-channel-type">Defining Channel Type</a></li>
+            <li><a href="./sections/toolkits.html#defining-node-type">Defining Node Type</a></li>
+            <li><a href="./sections/toolkits.html#writing-channel-renderer">Writing Channel Renderer</a></li>
+            <li><a href="./sections/toolkits.html#writing-node-renderer">Writing Node Renderer</a></li>
+            <li><a href="./sections/toolkits.html#writing-custom-i-o-module">Writing Custom I/O Module</a></li>
+          </ul>
+        </li>
+        <li><a href="./sections/style.html">Custom Styling RPD</a>
+          <ul>
+            <li><a href="./sections/style.html#using-css-classes">Using CSS Classes</a></li>
+            <li><a href="./sections/style.html#writing-your-own-renderer">Writing Your Own Renderer</a></li>
+            <li><a href="./sections/style.html#writing-your-own-style">Writing Your Own Style</a></li>
+          </ul>
+        </li>
+        <li><a href="./sections/events.html">Subscribing to Events</a>
+          <ul>
+            <li><a href="./sections/events.html#global-events">Global Events</a></li>
+            <li><a href="./sections/events.html#network-events">Network Events</a></li>
+            <li><a href="./sections/events.html#patch-events">Patch Events</a></li>
+            <li><a href="./sections/events.html#node-events">Node Events</a></li>
+            <li><a href="./sections/events.html#outlet-events">Outlet Events</a></li>
+            <li><a href="./sections/events.html#inlet-events">Inlet Events</a></li>
+            <li><a href="./sections/events.html#link-events">Link events</a></li>
+          </ul>
+        </li>
+        <li><a href="./sections/participate.html">Participating in Development</a>
+        </li>
+      </ul>
+    </nav>
+    <main>
+      <h2>Examples of RPD in Action </h2>
+      <article><p>NB: Versions of RPD used in these examples may appear not to be up-to-date, please use the methods described on <a href="./sections/setup.html">Setup page</a> to ensure you get the latest one.</p>
+<ul>
+<li><span>Animatron toolkit, <code>compact</code> style, HTML</span> <a href="./examples/anm-compact.html"><img src="./assets/example-anm-compact.png" alt="Animatron toolkit, Compact style, HTML"></a></li>
+<li><span>Animatron toolkit, <code>plain</code> style, HTML</span> <a href="./examples/anm-plain.html"><img src="./assets/example-anm-plain.png" alt="Plain style, Animatron toolkit, HTML"></a></li>
+<li><span>Animatron toolkit, <code>pd</code> style, HTML</span> <a href="./examples/anm.html"><img src="./assets/example-anm.png" alt="PD style, Animatron toolkit, HTML"></a></li>
+<li><span>Pure Data toolkit, <code>webpd</code> style, SVG</span> <a href="./examples/pd.html"><img src="./assets/example-pd.png" alt="WebPD Style, Pure Data Toolkit, SVG"></a></li>
+<li><span>Processing toolkit, <code>compact-v</code> style, SVG</span> <a href="./examples/processing-compact-v.html"><img src="./assets/example-processing-compact-v.png" alt="Compact-V Style, Processing Toolkit, SVG"></a></li>
+<li><span>Processing toolkit, <code>compact</code> style, SVG</span> <a href="./examples/processing-compact.html"><img src="./assets/example-processing-compact.png" alt="Compact Style, Processing Toolkit, SVG"></a></li>
+<li><span>Processing toolkit, <code>plain</code> style, SVG</span> <a href="./examples/processing-plain.html"><img src="./assets/example-processing-plain.png" alt="Plain Style, Processing Toolkit, SVG"></a></li>
+<li><span>Processing toolkit, <code>quartz</code> style, HTML</span> <a href="./examples/processing.html"><img src="./assets/example-processing.png" alt="Quartz Style, Processing Toolkitm HTML"></a></li>
+<li><span>Timbre toolkit, <code>quartz</code> style, HTML</span> <a href="./examples/timbre.html"><img src="./assets/example-timbre.png" alt="Quartz Style, Timbre Toolkit, HTML"></a></li>
+<li><span>Util toolkit, <code>black-white</code> style, SVG</span> <a href="./examples/util-black-white.html"><img src="./assets/example-util-black-white.png" alt="Black&amp;White Style, Util Toolkit, SVG"></a></li>
+<li><span>Util toolkit, <code>blender</code> style, SVG</span> <a href="./examples/util-blender.html"><img src="./assets/example-util-blender.png" alt="Blender Style, Util Toolkit, SVG"></a></li>
+<li><span>Util toolkit, <code>compact-v</code> style, SVG</span> <a href="./examples/util-compact-v.html"><img src="./assets/example-util-compact-v.png" alt="Compact-V Style, Util Toolkit, SVG"></a></li>
+<li><span>Util toolkit, <code>quartz</code> style, SVG</span> <a href="./examples/util-svg.html"><img src="./assets/example-util-compact-v.png" alt="Quartz Style, Util Toolkit, SVG"></a></li>
+<li><span>Util toolkit, <code>quartz</code> style, HTML</span> <a href="./examples/util.html"><img src="./assets/example-util.png" alt="Quartz Style, Util Toolkit, HTML"></a></li>
+</ul>
+<!-- TODO: example for every style with every possible renderer -->
+
+      </article>
+      <div id="jump-to-top"><a href="#_top">↑</a></div>
+    </main>
+    <footer><span>&copy; shaman.sir, 2016</span></footer>
+  </body>
+</html>

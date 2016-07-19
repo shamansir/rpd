@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+
+        <!-- gulp html-head ==style quartz ==renderer svg ==toolkit util ==root .. -->
+
+        <!-- Built with RPD v2.0.0 <http://shamansir.github.io/rpd> -->
+
+        <!-- RPD Renderer: html -->
+        <link rel="stylesheet" href="https://rawgit.com/shamansir/rpd/v2.0.0/src/render/svg.css"></style>
+        <!-- RPD Style: quartz (svg) -->
+        <link rel="stylesheet" href="https://rawgit.com/shamansir/rpd/v2.0.0/src/style/quartz/svg.css"></style>
+        <!-- RPD Toolkit: util (svg) -->
+        <link rel="stylesheet" href="https://rawgit.com/shamansir/rpd/v2.0.0/src/toolkit/util/svg.css"></style>
+
+        <!-- Kefir -->
+        <script src="../vendor/kefir.min.js"></script>
+        <!-- RPD -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/rpd.js"></script>
+
+        <!-- RPD's d3_tiny.js -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/d3_tiny.js"></script>
+        <!-- RPD Rendering Engine: -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/render/shared.js"></script>
+        <!-- RPD Style: quartz (svg) -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/style/quartz/svg.js"></script>
+        <!-- RPD Renderer: svg -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/render/svg.js"></script>
+        <!-- RPD Toolkit: util -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/toolkit/util/shared.js"></script>
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/toolkit/util/toolkit.js"></script>
+        <!-- RPD Toolkit: util (svg) -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/toolkit/util/svg.js"></script>
+
+    </head>
+
+    <body>
+        <script src="./util-demo.js"></script>
+        <script>
+            buildUtilDemoPatch('svg', document.body, { fullPage: true, linkForm: 'curve' });
+        </script>
+    </body>
+</html>

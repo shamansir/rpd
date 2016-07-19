@@ -1,153 +1,505 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="utf-8">
-    <link href="//cloud.webtype.com/css/aeaf962b-fb56-4a2d-af48-f7da7a5ede31.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="./index.css"></link>
-</head>
-<body>
-    <a href="https://github.com/shamansir/rpd"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="http://aral.github.com/fork-me-on-github-retina-ribbons/right-graphite@2x.png" alt="Fork me on GitHub"></a>
-    <!-- CONTENT HERE -->
-    <h1 id="rpd-reactive-pure-data">RPD — Reactive Pure Data</h1>
-    <p><a href="http://shamansir.github.io/rpd"><img src="http://shamansir.github.io/rpd/logo-small.png" alt="logo"></a></p>
-    <p><strong>Version 0.1.0</strong></p>
-    <p>A video of the engine in action, demonstrates most of its features: [ <a href="http://vimeo.com/118197237">Watch</a> ].</p>
-    <p><a href="http://vimeo.com/118197237"><img src="http://shamansir.github.io/rpd/rpd-vimeo.png" alt="Watch"></a></p>
-    <p>Play online: [ <a href="http://shamansir.github.io/rpd/examples/core.html">Core Toolkit</a> ] | [ <a href="http://shamansir.github.io/rpd/examples/pd.html">PD Toolkit</a> ] | [ <a href="http://shamansir.github.io/rpd/examples/anm.html">Animatron Toolkit</a> ]</p>
-    <p><em>(NB: Only modern browsers are supported, tested in Chrome and Safari, no mobile support for now)</em></p>
-    <hr>
-    <h2 id="contents">Contents</h2>
-    <ul>
-    <li><a href="#intro">Intro</a></li>
-    <li><a href="#features">Features</a></li>
-    <li><a href="#planned-features">Planned Features</a></li>
-    <li><a href="#using">Using</a></li>
-    <li><a href="#participating">Participating</a></li>
-    <li><a href="#reference">API Reference</a></li>
-    </ul>
-    <hr>
-    <h2 id="intro">Intro</h2>
-    <p>RPD is a super-minimal plugin-based JS-driven engine for Node-Based User Interfaces — the ones like Pure Data, Quartz Composer, Reaktor, NodeBox, VVVV or any Shader/Material Composing View in your favorite 3D Editor.</p>
-    <p>And when I say <em>minimal</em>, I really mean it:</p>
-    <ul>
-    <li>The engine code takes 560 lines of pure JS code with comments and stuff, it is 2.48KB closure-compiled and gzipped;</li>
-    <li>The HTML renderer is 1200 lines or so, due to masses of DOM manipulation code, and anyway it is 3.9KB when compiled;</li>
-    <li><a href="http://pozadi.github.io/kefir/">Kefir.js</a>, required for Reactive Streams support, is ~7KB when gzipped and compiled, since it is also targeted as minimal;</li>
-    </ul>
-    <p>Together it takes only <strong>13-14KB</strong> when compiled and gzipped, but still provides tons (!) of awesome features!</p>
-    <p>Moreover, it's built with the help of Reactive programming (thanks to <a href="http://pozadi.github.io/kefir/">Kefir.js</a>), and this way it allows a programmer to treat and process any data flow as a stream, so:</p>
-    <pre class="editor-colors lang-javascript"><div class="line"><span class="source js"><span>colorInlet</span><span class="meta delimiter method period js"><span>.</span></span><span>stream</span><span class="meta brace round js"><span>(</span></span><span>Kefir</span><span class="meta delimiter method period js"><span>.</span></span><span>repeatedly</span><span class="meta brace round js"><span>(</span></span><span class="constant numeric js"><span>500</span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="meta brace square js"><span>[</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>red</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>navy</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta brace square js"><span>]</span></span><span class="meta brace round js"><span>)</span><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div></pre>
-    <p>Will send <code>red</code> and <code>navy</code> values every 500ms to a single color-value inlet in order. It's not the only feature which is available with streams, of course, see below for much more.</p>
-    <p>Here are some GIFs in reduced quality, in addition to a video in rather good quality above, to help you decide if it worths to use this engine or not (also please take a look at code examples below!).</p>
-    <p><img src="http://shamansir.github.io/rpd/core.gif" alt="Core GIF">
-    <img src="http://shamansir.github.io/rpd/pd.gif" alt="PD GIF">
-    <img src="http://shamansir.github.io/rpd/anm.gif" alt="Animatron GIF"></p>
-    <p>The Engine API provides easy ways to program node networks. Or to define a custom node or a channel type. Even node sets (named <em>toolkits</em>) are enormously easy to build!</p>
-    <p>Let's switch to some simple examples. Detailed stuff is under the links below.</p>
-    <p>Constructing a network of nodes:</p>
-    <pre class="editor-colors lang-javascript"><div class="line"><span class="source js"><span class="storage modifier js"><span>var</span></span><span>&nbsp;first&nbsp;</span><span class="keyword operator js"><span>=</span></span><span>&nbsp;</span><span class="meta class instance constructor"><span class="keyword operator new js"><span>new</span></span><span>&nbsp;</span><span class="entity name type instance js"><span>Rpd.Node</span></span></span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/custom</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>Test</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span class="storage modifier js"><span>var</span></span><span>&nbsp;boolOutlet&nbsp;</span><span class="keyword operator js"><span>=</span></span><span>&nbsp;first</span><span class="meta delimiter method period js"><span>.</span></span><span>addOutlet</span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/bool</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="constant language boolean true js"><span>true</span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>first</span><span class="meta delimiter method period js"><span>.</span></span><span>addOutlet</span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/number</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="constant numeric js"><span>1</span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>first</span><span class="meta delimiter method period js"><span>.</span></span><span>addOutlet</span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/number</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;</span></span></div><div class="line"><span class="source js"><span class="storage modifier js"><span>var</span></span><span>&nbsp;second&nbsp;</span><span class="keyword operator js"><span>=</span></span><span>&nbsp;</span><span class="meta class instance constructor"><span class="keyword operator new js"><span>new</span></span><span>&nbsp;</span><span class="entity name type instance js"><span>Rpd.Node</span></span></span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/custom</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>Foo</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span class="storage modifier js"><span>var</span></span><span>&nbsp;boolInlet&nbsp;</span><span class="keyword operator js"><span>=</span></span><span>&nbsp;second</span><span class="meta delimiter method period js"><span>.</span></span><span>addInlet</span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/boolean</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span class="storage modifier js"><span>var</span></span><span>&nbsp;numInlet&nbsp;</span><span class="keyword operator js"><span>=</span></span><span>&nbsp;second</span><span class="meta delimiter method period js"><span>.</span></span><span>addInlet</span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/number</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;</span></span></div><div class="line"><span class="source js"><span>boolOutlet</span><span class="meta delimiter method period js"><span>.</span></span><span>connect</span><span class="meta brace round js"><span>(</span></span><span>boolInlet</span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>boolOutlet</span><span class="meta delimiter method period js"><span>.</span></span><span>connect</span><span class="meta brace round js"><span>(</span></span><span>numInlet</span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="meta function js"><span class="storage type function js"><span>function</span></span><span class="punctuation definition parameters begin js"><span>(</span></span><span class="variable parameter function js"><span>val</span></span><span class="punctuation definition parameters end js"><span>)</span></span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span><span>&nbsp;</span><span class="keyword control js"><span>return</span></span><span>&nbsp;</span><span class="meta brace round js"><span>(</span></span><span>val&nbsp;</span><span class="keyword operator js"><span>===</span></span><span>&nbsp;</span><span class="constant language boolean true js"><span>true</span></span><span class="meta brace round js"><span>)</span></span><span>&nbsp;</span><span class="keyword operator js"><span>?</span></span><span>&nbsp;</span><span class="constant numeric js"><span>1</span></span><span>&nbsp;</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="constant numeric js"><span>0</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>}</span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>boolOutlet</span><span class="meta delimiter method period js"><span>.</span></span><span class="support function js"><span>send</span></span><span class="meta brace round js"><span>(</span></span><span class="constant language boolean false js"><span>false</span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>boolOutlet</span><span class="meta delimiter method period js"><span>.</span></span><span>stream</span><span class="meta brace round js"><span>(</span></span><span>Kefir</span><span class="meta delimiter method period js"><span>.</span></span><span>repeatedly</span><span class="meta brace round js"><span>(</span></span><span class="constant numeric js"><span>10</span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="meta brace square js"><span>[</span></span><span class="constant language boolean true js"><span>true</span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="constant language boolean false js"><span>false</span></span><span class="meta brace square js"><span>]</span></span><span class="meta brace round js"><span>)</span><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div></pre>
-    <p>Creating custom node types is very easy:</p>
-    <pre class="editor-colors lang-javascript"><div class="line"><span class="source js"><span>Rpd</span><span class="meta delimiter method period js"><span>.</span></span><span>nodetype</span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/sum-of-three-with-body</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;name</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>Sum&nbsp;of&nbsp;Three&nbsp;w/Body</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;inlets</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>a</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span><span>&nbsp;type</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/number</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;name</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>A</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="keyword control js"><span>default</span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="constant numeric js"><span>1</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>}</span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>b</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span><span>&nbsp;type</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/number</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;name</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>B</span><span class="punctuation definition string end js"><span>'</span></span></span><span>&nbsp;</span><span class="meta brace curly js"><span>}</span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>c</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span><span>&nbsp;type</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/number</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;name</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>C</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;hidden</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="constant language boolean true js"><span>true</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>}</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta brace curly js"><span>}</span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;outlets</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>sum</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span><span>&nbsp;type</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/number</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;name</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>∑</span><span class="punctuation definition string end js"><span>'</span></span></span><span>&nbsp;</span><span class="meta brace curly js"><span>}</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta brace curly js"><span>}</span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta function json js"><span class="entity name function js"><span>process</span></span><span>:&nbsp;</span><span class="storage type function js"><span>function</span></span><span class="punctuation definition parameters begin js"><span>(</span></span><span class="variable parameter function js"><span>inlets</span></span><span class="punctuation definition parameters end js"><span>)</span></span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="keyword control js"><span>return</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>sum</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="meta brace round js"><span>(</span></span><span>inlets</span><span class="meta delimiter method period js"><span>.</span></span><span>a&nbsp;</span><span class="keyword operator js"><span>||</span></span><span>&nbsp;</span><span class="constant numeric js"><span>0</span></span><span class="meta brace round js"><span>)</span></span><span>&nbsp;</span><span class="keyword operator js"><span>+</span></span><span>&nbsp;</span><span class="meta brace round js"><span>(</span></span><span>inlets</span><span class="meta delimiter method period js"><span>.</span></span><span>b&nbsp;</span><span class="keyword operator js"><span>||</span></span><span>&nbsp;</span><span class="constant numeric js"><span>0</span></span><span class="meta brace round js"><span>)</span></span><span>&nbsp;</span><span class="keyword operator js"><span>+</span></span><span>&nbsp;</span><span class="meta brace round js"><span>(</span></span><span>inlets</span><span class="meta delimiter method period js"><span>.</span></span><span>c&nbsp;</span><span class="keyword operator js"><span>||</span></span><span>&nbsp;</span><span class="constant numeric js"><span>0</span></span><span class="meta brace round js"><span>)</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>}</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta brace curly js"><span>}</span></span></span></div><div class="line"><span class="source js"><span class="meta brace curly js"><span>}</span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div></pre>
-    <p>Even very complex ones:</p>
-    <pre class="editor-colors lang-javascript"><div class="line"><span class="source js"><span>Rpd</span><span class="meta delimiter method period js"><span>.</span></span><span>nodetype</span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>pd/play</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="meta function js"><span class="storage type function js"><span>function</span></span><span class="punctuation definition parameters begin js"><span>(</span></span><span class="punctuation definition parameters end js"><span>)</span></span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="storage modifier js"><span>var</span></span><span>&nbsp;lastSound</span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="keyword control js"><span>return</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>play</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inlets</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>sound</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span><span>&nbsp;type</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>pd/t-obj</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="keyword control js"><span>default</span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="constant language null js"><span>null</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>}</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>}</span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta function json js"><span class="entity name function js"><span>tune</span></span><span>:&nbsp;</span><span class="storage type function js"><span>function</span></span><span class="punctuation definition parameters begin js"><span>(</span></span><span class="variable parameter function js"><span>updates</span></span><span class="punctuation definition parameters end js"><span>)</span></span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span><span>&nbsp;</span><span class="keyword control js"><span>return</span></span><span>&nbsp;updates</span><span class="meta delimiter method period js"><span>.</span></span><span>throttle</span><span class="meta brace round js"><span>(</span></span><span class="constant numeric js"><span>50</span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>}</span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta function json js"><span class="entity name function js"><span>process</span></span><span>:&nbsp;</span><span class="storage type function js"><span>function</span></span><span class="punctuation definition parameters begin js"><span>(</span></span><span class="variable parameter function js"><span>inlets</span></span><span>,&nbsp;</span><span class="variable parameter function js"><span>inlets_prev</span></span><span class="punctuation definition parameters end js"><span>)</span></span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="keyword control js"><span>if</span></span><span>&nbsp;</span><span class="meta brace round js"><span>(</span></span><span>inlets_prev</span><span class="meta delimiter method period js"><span>.</span></span><span>sound</span><span class="meta brace round js"><span>)</span></span><span>&nbsp;inlets_prev</span><span class="meta delimiter method period js"><span>.</span></span><span>sound</span><span class="meta delimiter method period js"><span>.</span></span><span>pause</span><span class="meta brace round js"><span>(</span><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="keyword control js"><span>if</span></span><span>&nbsp;</span><span class="meta brace round js"><span>(</span></span><span>inlets</span><span class="meta delimiter method period js"><span>.</span></span><span>sound</span><span class="meta brace round js"><span>)</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lastSound&nbsp;</span><span class="keyword operator js"><span>=</span></span><span>&nbsp;inlets</span><span class="meta delimiter method period js"><span>.</span></span><span>sound</span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inlets</span><span class="meta delimiter method period js"><span>.</span></span><span>sound</span><span class="meta delimiter method period js"><span>.</span></span><span>play</span><span class="meta brace round js"><span>(</span><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta brace curly js"><span>}</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta brace curly js"><span>}</span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;handle</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta function json js"><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span class="entity name function js"><span>node/turn-off</span></span><span class="punctuation definition string end js"><span>'</span></span></span><span>:&nbsp;</span><span class="storage type function js"><span>function</span></span><span class="punctuation definition parameters begin js"><span>(</span></span><span class="punctuation definition parameters end js"><span>)</span></span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="keyword control js"><span>if</span></span><span>&nbsp;</span><span class="meta brace round js"><span>(</span></span><span>lastSound</span><span class="meta brace round js"><span>)</span></span><span>&nbsp;lastSound</span><span class="meta delimiter method period js"><span>.</span></span><span>pause</span><span class="meta brace round js"><span>(</span><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta brace curly js"><span>}</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta brace curly js"><span>}</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta brace curly js"><span>}</span></span></span></div><div class="line"><span class="source js"><span class="meta brace curly js"><span>}</span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div></pre>
-    <p><a href="https://github.com/shamansir/rpd/blob/master/src/rpd.js">Here's</a> the engine code at a glance;</p>
-    <h2 id="features">Features</h2>
-    <p>RPD provides following features:</p>
-    <ul>
-    <li>User may observe nodes, manipulate nodes, connect inlets and outlets, effect is seen immediately; User may edit values on inlets, see results inside node bodies or additionally configure them there;</li>
-    <li><em>Network model</em> may be stored in a simple JS File;</li>
-    <li>Developer may build <em>custom node Toolkits</em> to let user re-use them, in a very easy way; And it's not only restricted with configuring inlets and outlets—actually, <em>every aspect</em> of the node or a channel <em>is configurable</em>;</li>
-    <li><em>Streams</em> provide developer with an unlimited power in sending, queueing, filtering, mapping/reducing/flattening, packing and un-packing any data, basing on time periods or not; every aspect from Reactive Programming may be used to <em>operate data streams</em>;</li>
-    <li><em>Plugin system</em> allows to easily add renderers (HTML is provided, SVG and Canvas renderers are planned) or importers/exporters for specific Toolkits;</li>
-    <li>HTML renderer does not uses any style injection except some very minor cases, it only operates CSS classes, and it means you may <em>completely redesign</em> the look of your interface <em>using only CSS</em>;</li>
-    <li>Developer is free to use <em>any helper library </em>(while RPD tries to use only Kefir and nothing else), and it is very easy: i.e. HTML module may easily be replaced with some jQuery analogue.</li>
-    <li>Node model may be easily programmed and <em>updated on-the-fly</em> (i.e. while nodes already send some data);</li>
-    <li>Node model has <em>no side-effects</em> in functional meaning, every change or update is provided through event streams, no data is stored or changed (expect construction); plugins, on the other hand, are completely free to use any programming model they prefer, and they are actually written in much more imperative style than the Engine;</li>
-    <li>It is so <em>easy to code</em> for RPD, I hope community will be able and happy to write new toolkits, renderers and importers and help evolving the engine;</li>
-    </ul>
-    <!--
-    * Inlets may have the value editors programmed, so user may edit a value in place;
-    * Nodes may have inner input controls, so it's possible to let user configure input value inside of a node body, in any way you decide;
-    -->
+    <title>RPD &mdash; Introduction</title>
+    <link href="./highlight-js.min.css" rel="stylesheet" type="text/css">
+    <!-- load RPD library and requirements when document will be ready-->
+    <link href="./rpd-docs.css" rel="stylesheet" type="text/css">
+    <link href="./style.css" rel="stylesheet" type="text/css">
+    <script defer src="./kefir.min.js"></script>
+    <!-- compiled with: `gulp for-docs`-->
+    <script defer src="./rpd-docs.min.js">       </script>
+  </head>
+  <body class="rpd-docs-introduction">
+    <header id="_top"><img src="./rpd.svg" width="30px" height="30px">
+      <h1><a href="./index.html">RPD &mdash; Reactive Patch Development</a></h1>
+      <div id="version"><span>v2.0.0</span></div>
+    </header>
+    <nav>
+      <ul>
+        <li class="active"><a href="./index.html">Introduction</a>
+          <ul>
+            <li><a href="./index.html#what-is">What is RPD?</a></li>
+            <li><a href="./index.html#code-examples">Code Examples</a></li>
+            <li><a href="./index.html#terminology">Terminology</a></li>
+          </ul>
+        </li>
+        <li><a href="./examples.html">Examples of RPD in Action</a>
+          <ul>
+          </ul>
+        </li>
+        <li><a href="./sections/setup.html">Getting Your Version of RPD</a>
+          <ul>
+            <li><a href="./sections/setup.html#download">Download</a></li>
+            <li><a href="./sections/setup.html#setup">Setup</a></li>
+            <li><a href="./sections/setup.html#compilation">Compilation</a></li>
+          </ul>
+        </li>
+        <li><a href="./sections/network.html">Building a Patch Network</a>
+          <ul>
+            <li><a href="./sections/network.html#setup-rendering">Setup Rendering</a></li>
+            <li><a href="./sections/network.html#creating-a-patch">Creating a Patch</a></li>
+            <li><a href="./sections/network.html#adding-nodes">Adding Nodes</a></li>
+            <li><a href="./sections/network.html#connecting-nodes">Connecting Nodes</a></li>
+            <li><a href="./sections/network.html#sending-data">Sending Data</a></li>
+            <li><a href="./sections/network.html#adding-sub-patches">Adding Subpatches</a></li>
+            <li><a href="./sections/network.html#adding-import-export">Adding Import/Export</a></li>
+          </ul>
+        </li>
+        <li><a href="./sections/api.html">API</a>
+          <ul>
+            <li><a href="./sections/api.html#rpd">Rpd</a></li>
+            <li><a href="./sections/api.html#patch">Patch</a></li>
+            <li><a href="./sections/api.html#node">Node</a></li>
+            <li><a href="./sections/api.html#inlet">Inlet</a></li>
+            <li><a href="./sections/api.html#outlet">Outlet</a></li>
+            <li><a href="./sections/api.html#link">Link</a></li>
+            <li><a href="./sections/api.html#modules">Modules</a></li>
+          </ul>
+        </li>
+        <li><a href="./sections/toolkits.html">Creating Your Own Toolkits</a>
+          <ul>
+            <li><a href="./sections/toolkits.html#creating-toolkits">Organizational Moments</a></li>
+            <li><a href="./sections/toolkits.html#defining-channel-type">Defining Channel Type</a></li>
+            <li><a href="./sections/toolkits.html#defining-node-type">Defining Node Type</a></li>
+            <li><a href="./sections/toolkits.html#writing-channel-renderer">Writing Channel Renderer</a></li>
+            <li><a href="./sections/toolkits.html#writing-node-renderer">Writing Node Renderer</a></li>
+            <li><a href="./sections/toolkits.html#writing-custom-i-o-module">Writing Custom I/O Module</a></li>
+          </ul>
+        </li>
+        <li><a href="./sections/style.html">Custom Styling RPD</a>
+          <ul>
+            <li><a href="./sections/style.html#using-css-classes">Using CSS Classes</a></li>
+            <li><a href="./sections/style.html#writing-your-own-renderer">Writing Your Own Renderer</a></li>
+            <li><a href="./sections/style.html#writing-your-own-style">Writing Your Own Style</a></li>
+          </ul>
+        </li>
+        <li><a href="./sections/events.html">Subscribing to Events</a>
+          <ul>
+            <li><a href="./sections/events.html#global-events">Global Events</a></li>
+            <li><a href="./sections/events.html#network-events">Network Events</a></li>
+            <li><a href="./sections/events.html#patch-events">Patch Events</a></li>
+            <li><a href="./sections/events.html#node-events">Node Events</a></li>
+            <li><a href="./sections/events.html#outlet-events">Outlet Events</a></li>
+            <li><a href="./sections/events.html#inlet-events">Inlet Events</a></li>
+            <li><a href="./sections/events.html#link-events">Link events</a></li>
+          </ul>
+        </li>
+        <li><a href="./sections/participate.html">Participating in Development</a>
+        </li>
+      </ul>
+    </nav>
+    <main>
+      <h2>Introduction </h2>
+      <article><div id="logo-patch">
+    <div id="patch-target"></div>
+    <svg id="planets" width="500px" height="140px"></svg>
+    <svg id="rpd-logo" width="140px" height="140px" viewBox="0 0 387 343" version="1.1"
+     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>rpd-logo</title>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle id="Oval-1" fill="#000000" cx="207" cy="172" r="165"/>
+        <circle id="Oval-2" stroke="#FFFFFF" stroke-width="17" fill="#000000" cx="26.5" cy="172.5" r="28.5" />
+        <path id="RPD-text" d="M -142.1018181,38.09454549999998 L -152.96727270000002,38.09454549999998 L -152.96727270000002,-66.63272750000002 L -117.09818130000001,-66.63272750000002 C -107.14904130000001,-66.63272750000002,-99.70911530000001,-64.38547650000002,-94.77818130000003,-59.89090950000002 C -89.84724830000002,-55.396341500000005,-87.38181830000002,-48.56731850000003,-87.38181830000002,-39.40363650000003 L -87.38181830000002,-31.549090500000005 C -87.38181830000002,-22.909047500000014,-89.38907030000001,-16.27638650000003,-93.40363630000002,-11.650909500000012 C -97.41820230000002,-7.025431500000025,-103.52723130000001,-4.320003500000013,-111.73090930000001,-3.5345455000000072 L -86.4654543,38.09454549999998 L -99.0327273,38.09454549999998 L -124.16727230000001,-3.403636500000033 L -142.1018181,-3.403636500000033 L -142.1018181,38.09454549999998 Z  M -142.1018181,-12.95999950000001 L -116.96727230000002,-12.95999950000001 C -110.24723930000002,-12.95999950000001,-105.44728730000003,-14.399985500000014,-102.56727230000001,-17.27999950000003 C -99.68725830000002,-20.160014500000017,-98.24727230000002,-24.872694500000023,-98.24727230000002,-31.41818150000003 L -98.24727230000002,-39.66545450000001 C -98.24727230000002,-45.687302500000015,-99.68725830000002,-50.050895500000024,-102.56727230000001,-52.75636350000002 C -105.44728730000003,-55.46183150000002,-110.24723930000002,-56.81454550000001,-116.96727230000002,-56.81454550000001 L -142.1018181,-56.81454550000001 L -142.1018181,-12.95999950000001 Z  M -66.30545430000001,38.09454549999998 L -66.30545430000001,-66.63272750000002 L -32.92363630000003,-66.63272750000002 C -22.79994930000001,-66.63272750000002,-15.360023300000023,-64.40729450000002,-10.603636300000005,-59.95636350000002 C -5.847249300000016,-55.50543250000001,-3.4690913000000023,-48.61095550000002,-3.4690913000000023,-39.27272750000003 L -3.4690913000000023,-27.490909500000015 C -3.4690913000000023,-18.15268050000003,-5.869067300000012,-11.192750500000017,-10.66909130000002,-6.6109095000000195 C -15.469115300000027,-2.029067500000025,-22.93085830000001,0.26181849999997553,-33.0545453,0.26181849999997553 L -55.44000030000001,0.26181849999997553 L -55.44000030000001,38.09454549999998 L -66.30545430000001,38.09454549999998 Z  M -55.44000030000001,-9.294545500000027 L -33.0545453,-9.294545500000027 C -26.24723830000002,-9.294545500000027,-21.40365030000001,-10.69089550000001,-18.52363630000002,-13.483636500000017 C -15.643622300000004,-16.276377500000024,-14.203636300000028,-20.814513500000032,-14.203636300000028,-27.09818150000001 L -14.203636300000028,-39.27272750000003 C -14.203636300000028,-45.46912150000003,-15.643622300000004,-49.94180450000002,-18.52363630000002,-52.69090950000003 C -21.40365030000001,-55.44001350000002,-26.24723830000002,-56.81454550000001,-33.0545453,-56.81454550000001 L -55.44000030000001,-56.81454550000001 L -55.44000030000001,-9.294545500000027 Z  M 15.356363699999974,38.09454549999998 L 15.356363699999974,-66.63272750000002 L 40.88363670000001,-66.63272750000002 C 52.05460169999998,-66.63272750000002,60.847240699999986,-63.27276050000002,67.26181869999999,-56.55272750000003 C 73.6763957,-49.832693500000005,76.88363670000001,-40.84369250000003,76.88363670000001,-29.585454500000026 L 76.88363670000001,1.5709094999999706 C 76.88363670000001,12.654600499999987,73.6763957,21.51269449999998,67.26181869999999,28.14545449999997 C 60.847240699999986,34.77821549999999,52.05460169999998,38.09454549999998,40.88363670000001,38.09454549999998 L 15.356363699999974,38.09454549999998 Z  M 26.22181869999997,28.276363499999974 L 41.14545469999996,28.276363499999974 C 49.43640469999997,28.276363499999974,55.65452469999997,25.832751499999972,59.7999997,20.945454499999983 C 63.945475699999974,16.058157499999993,66.01818170000001,9.81821949999997,66.01818170000001,2.2254544999999837 L 66.01818170000001,-30.23999950000001 C 66.01818170000001,-37.83276550000002,63.945475699999974,-44.15997450000003,59.7999997,-49.22181850000001 C 55.65452469999997,-54.28366150000002,49.43640469999997,-56.81454550000001,41.14545469999996,-56.81454550000001 L 26.22181869999997,-56.81454550000001 L 26.22181869999997,28.276363499999974 Z  M 136.60363669999998,-13.483636500000017 C 132.67634369999996,-13.483636500000017,129.4909217,-14.29090050000002,127.04727270000001,-15.905454500000019 C 124.60362470000001,-17.520008500000017,123.3818187,-20.203617500000007,123.3818187,-23.95636350000001 L 123.3818187,-29.454545500000023 C 123.3818187,-33.29456450000001,124.60362470000001,-36.06544550000001,127.04727270000001,-37.76727250000002 C 129.4909217,-39.46909950000003,132.67634369999996,-40.31999950000002,136.60363669999998,-40.31999950000002 C 140.5309287,-40.31999950000002,143.69453369999997,-39.46909950000003,146.09454569999997,-37.76727250000002 C 148.49455769999997,-36.06544550000001,149.6945457,-33.29456450000001,149.6945457,-29.454545500000023 L 149.6945457,-23.95636350000001 C 149.6945457,-20.203617500000007,148.45092169999998,-17.520008500000017,145.9636367,-15.905454500000019 C 143.4763517,-14.29090050000002,140.35638269999998,-13.483636500000017,136.60363669999998,-13.483636500000017 Z  M 118.5381817,66.63272749999999 L 129.6654547,14.400000499999976 L 152.96727269999997,14.400000499999976 L 128.2254547,66.63272749999999 L 118.5381817,66.63272749999999 Z" transform="translate(233.84363630000001 184.90545450000002)" fill="#FFFFFF" />
+    </g>
+</svg>
 
-    <h2 id="planned-features">Planned Features</h2>
-    <ul>
-    <li><a href="http://puredata.info/">PureData</a> and/or <a href="http://animatron.com">Animatron</a> node Toolkits as an examples out-of-the-box (cover more abilities);</li>
-    <li>Support Procedures (re-use node sequences by name);</li>
-    <li>SVG and Canvas renderers;</li>
-    <li>Pure-Data-compatible Import/Export or some special format;</li>
-    <li>Infinite Node Workspace;</li>
-    <li>Ability to be injected into any part of a page;</li>
-    <li>Smarter layouting;</li>
-    <li>Support mobile browsers;</li>
-    </ul>
-    <p>More may be seen in <a href="https://github.com/shamansir/rpd/issues">Issues</a> section.</p>
-    <h2 id="using">Using</h2>
-    <p>Download <a href="http://pozadi.github.io/kefir/dist/kefir.min.js"><code>kefir.min.js</code></a>.</p>
-    <p>Choose a distribution of RPD and download it:</p>
-    <ul>
-    <li><a href="http://shamansir.github.io/rpd/dist/rpd-core-html.min.js"><code>rpd-core-html.min.js</code></a> : Core Toolkit, HTML Renderer</li>
-    <li><a href="http://shamansir.github.io/rpd/dist/rpd-core-pd-html.min.js"><code>rpd-core-pd-html.min.js</code></a> : Core &amp; PD Toolkits, HTML Renderer</li>
-    <li><a href="http://shamansir.github.io/rpd/dist/rpd-core-anm-html.min.js"><code>rpd-core-anm-html.min.js</code></a> : Core &amp; Animatron Toolkits, HTML Renderer</li>
-    <li><em>(more to come)</em></li>
-    </ul>
-    <p>If your choice of renderer is HTML, get a corresponding CSS file:</p>
-    <ul>
-    <li><a href="http://shamansir.github.io/rpd/dist/rpd-core.css"><code>rpd-core.css</code></a> : for Core Toolkit</li>
-    <li><a href="http://shamansir.github.io/rpd/dist/rpd-core-pd.css"><code>rpd-core-pd.css</code></a> : for Core &amp; PD Toolkit</li>
-    <li><a href="http://shamansir.github.io/rpd/dist/rpd-core-pd.css"><code>rpd-core-anm.css</code></a> : for Core &amp; Animatron Toolkit</li>
-    </ul>
-    <p>Add these files to a head of your page:</p>
-    <p>For Core Toolkit only:</p>
-    <pre class="editor-colors lang-html"><div class="line"><span class="text html basic"><span class="meta tag any html"><span class="punctuation definition tag html"><span>&lt;</span></span><span class="entity name tag html"><span>script</span></span><span>&nbsp;</span><span class="entity other attribute-name html"><span>src</span></span><span>=</span><span class="string quoted double html"><span class="punctuation definition string begin html"><span>"</span></span><span>./kefir.min.js</span><span class="punctuation definition string end html"><span>"</span></span></span><span class="punctuation definition tag html"><span>&gt;</span><span class="meta scope between-tag-pair html"><span>&lt;</span></span><span>/</span></span><span class="entity name tag html"><span>script</span></span><span class="punctuation definition tag html"><span>&gt;</span></span></span></span></div><div class="line"><span class="text html basic"><span class="meta tag any html"><span class="punctuation definition tag html"><span>&lt;</span></span><span class="entity name tag html"><span>script</span></span><span>&nbsp;</span><span class="entity other attribute-name html"><span>src</span></span><span>=</span><span class="string quoted double html"><span class="punctuation definition string begin html"><span>"</span></span><span>./rpd-core-html.min.js</span><span class="punctuation definition string end html"><span>"</span></span></span><span class="punctuation definition tag html"><span>&gt;</span><span class="meta scope between-tag-pair html"><span>&lt;</span></span><span>/</span></span><span class="entity name tag html"><span>script</span></span><span class="punctuation definition tag html"><span>&gt;</span></span></span></span></div><div class="line"><span class="text html basic"><span class="meta tag any html"><span class="punctuation definition tag html"><span>&lt;</span></span><span class="entity name tag html"><span>link</span></span><span>&nbsp;</span><span class="entity other attribute-name html"><span>rel</span></span><span>=</span><span class="string quoted double html"><span class="punctuation definition string begin html"><span>"</span></span><span>stylesheet</span><span class="punctuation definition string end html"><span>"</span></span></span><span>&nbsp;</span><span class="entity other attribute-name html"><span>href</span></span><span>=</span><span class="string quoted double html"><span class="punctuation definition string begin html"><span>"</span></span><span>./rpd-core.css</span><span class="punctuation definition string end html"><span>"</span></span></span><span class="punctuation definition tag html"><span>&gt;</span><span class="meta scope between-tag-pair html"><span>&lt;</span></span><span>/</span></span><span class="entity name tag html"><span>link</span></span><span class="punctuation definition tag html"><span>&gt;</span></span></span></span></div></pre>
-    <p>For Core &amp; PD Toolkits:</p>
-    <p>Download <a href="http://mohayonao.github.io/timbre.js/timbre.js"><code>timbre.js</code></a>.</p>
-    <pre class="editor-colors lang-html"><div class="line"><span class="text html basic"><span class="meta tag any html"><span class="punctuation definition tag html"><span>&lt;</span></span><span class="entity name tag html"><span>script</span></span><span>&nbsp;</span><span class="entity other attribute-name html"><span>src</span></span><span>=</span><span class="string quoted double html"><span class="punctuation definition string begin html"><span>"</span></span><span>./kefir.min.js</span><span class="punctuation definition string end html"><span>"</span></span></span><span class="punctuation definition tag html"><span>&gt;</span><span class="meta scope between-tag-pair html"><span>&lt;</span></span><span>/</span></span><span class="entity name tag html"><span>script</span></span><span class="punctuation definition tag html"><span>&gt;</span></span></span></span></div><div class="line"><span class="text html basic"><span class="meta tag any html"><span class="punctuation definition tag html"><span>&lt;</span></span><span class="entity name tag html"><span>script</span></span><span>&nbsp;</span><span class="entity other attribute-name html"><span>src</span></span><span>=</span><span class="string quoted double html"><span class="punctuation definition string begin html"><span>"</span></span><span>./timbre.js</span><span class="punctuation definition string end html"><span>"</span></span></span><span class="punctuation definition tag html"><span>&gt;</span><span class="meta scope between-tag-pair html"><span>&lt;</span></span><span>/</span></span><span class="entity name tag html"><span>script</span></span><span class="punctuation definition tag html"><span>&gt;</span></span></span></span></div><div class="line"><span class="text html basic"><span class="meta tag any html"><span class="punctuation definition tag html"><span>&lt;</span></span><span class="entity name tag html"><span>script</span></span><span>&nbsp;</span><span class="entity other attribute-name html"><span>src</span></span><span>=</span><span class="string quoted double html"><span class="punctuation definition string begin html"><span>"</span></span><span>./rpd-core-pd-html.min.js</span><span class="punctuation definition string end html"><span>"</span></span></span><span class="punctuation definition tag html"><span>&gt;</span><span class="meta scope between-tag-pair html"><span>&lt;</span></span><span>/</span></span><span class="entity name tag html"><span>script</span></span><span class="punctuation definition tag html"><span>&gt;</span></span></span></span></div><div class="line"><span class="text html basic"><span class="meta tag any html"><span class="punctuation definition tag html"><span>&lt;</span></span><span class="entity name tag html"><span>link</span></span><span>&nbsp;</span><span class="entity other attribute-name html"><span>rel</span></span><span>=</span><span class="string quoted double html"><span class="punctuation definition string begin html"><span>"</span></span><span>stylesheet</span><span class="punctuation definition string end html"><span>"</span></span></span><span>&nbsp;</span><span class="entity other attribute-name html"><span>href</span></span><span>=</span><span class="string quoted double html"><span class="punctuation definition string begin html"><span>"</span></span><span>./rpd-core-pd.css</span><span class="punctuation definition string end html"><span>"</span></span></span><span class="punctuation definition tag html"><span>&gt;</span><span class="meta scope between-tag-pair html"><span>&lt;</span></span><span>/</span></span><span class="entity name tag html"><span>link</span></span><span class="punctuation definition tag html"><span>&gt;</span></span></span></span></div></pre>
-    <p>For Core &amp; Animatron Toolkits:</p>
-    <p>Download <a href="http://shamansir.github.io/rpd/vendor/anm-player.min.js"><code>anm-player.min.js</code></a>.</p>
-    <pre class="editor-colors lang-html"><div class="line"><span class="text html basic"><span class="meta tag any html"><span class="punctuation definition tag html"><span>&lt;</span></span><span class="entity name tag html"><span>script</span></span><span>&nbsp;</span><span class="entity other attribute-name html"><span>src</span></span><span>=</span><span class="string quoted double html"><span class="punctuation definition string begin html"><span>"</span></span><span>./kefir.min.js</span><span class="punctuation definition string end html"><span>"</span></span></span><span class="punctuation definition tag html"><span>&gt;</span><span class="meta scope between-tag-pair html"><span>&lt;</span></span><span>/</span></span><span class="entity name tag html"><span>script</span></span><span class="punctuation definition tag html"><span>&gt;</span></span></span></span></div><div class="line"><span class="text html basic"><span class="meta tag any html"><span class="punctuation definition tag html"><span>&lt;</span></span><span class="entity name tag html"><span>script</span></span><span>&nbsp;</span><span class="entity other attribute-name html"><span>src</span></span><span>=</span><span class="string quoted double html"><span class="punctuation definition string begin html"><span>"</span></span><span>./anm-player.min.js</span><span class="punctuation definition string end html"><span>"</span></span></span><span class="punctuation definition tag html"><span>&gt;</span><span class="meta scope between-tag-pair html"><span>&lt;</span></span><span>/</span></span><span class="entity name tag html"><span>script</span></span><span class="punctuation definition tag html"><span>&gt;</span></span></span></span></div><div class="line"><span class="text html basic"><span class="meta tag any html"><span class="punctuation definition tag html"><span>&lt;</span></span><span class="entity name tag html"><span>script</span></span><span>&nbsp;</span><span class="entity other attribute-name html"><span>src</span></span><span>=</span><span class="string quoted double html"><span class="punctuation definition string begin html"><span>"</span></span><span>./rpd-core-anm-html.min.js</span><span class="punctuation definition string end html"><span>"</span></span></span><span class="punctuation definition tag html"><span>&gt;</span><span class="meta scope between-tag-pair html"><span>&lt;</span></span><span>/</span></span><span class="entity name tag html"><span>script</span></span><span class="punctuation definition tag html"><span>&gt;</span></span></span></span></div><div class="line"><span class="text html basic"><span class="meta tag any html"><span class="punctuation definition tag html"><span>&lt;</span></span><span class="entity name tag html"><span>link</span></span><span>&nbsp;</span><span class="entity other attribute-name html"><span>rel</span></span><span>=</span><span class="string quoted double html"><span class="punctuation definition string begin html"><span>"</span></span><span>stylesheet</span><span class="punctuation definition string end html"><span>"</span></span></span><span>&nbsp;</span><span class="entity other attribute-name html"><span>href</span></span><span>=</span><span class="string quoted double html"><span class="punctuation definition string begin html"><span>"</span></span><span>./rpd-core-anm.css</span><span class="punctuation definition string end html"><span>"</span></span></span><span class="punctuation definition tag html"><span>&gt;</span><span class="meta scope between-tag-pair html"><span>&lt;</span></span><span>/</span></span><span class="entity name tag html"><span>link</span></span><span class="punctuation definition tag html"><span>&gt;</span></span></span></span></div></pre>
-    <p>Now, you may just initialize user model and let him/her add nodes by himself/herself:</p>
-    <pre class="editor-colors lang-javascript"><div class="line"><span class="source js"><span class="storage modifier js"><span>var</span></span><span>&nbsp;model&nbsp;</span><span class="keyword operator js"><span>=</span></span><span>&nbsp;Rpd</span><span class="meta delimiter method period js"><span>.</span></span><span>Model</span><span class="meta delimiter method period js"><span>.</span></span><span class="support constant dom js"><span>start</span></span><span class="meta brace round js"><span>(</span><span>)</span></span><span class="meta delimiter method period js"><span>.</span></span><span>attachTo</span><span class="meta brace round js"><span>(</span></span><span class="support class js"><span>document</span></span><span class="meta delimiter method period js"><span>.</span></span><span class="support constant dom js"><span>body</span></span><span class="meta brace round js"><span>)</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta delimiter method period js"><span>.</span></span><span>renderWith</span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>html</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div></pre>
-    <p>Or, you may add some prepared nodes after that (you may save them to a file, of course):</p>
-    <pre class="editor-colors lang-javascript"><div class="line"><span class="source js"><span class="storage modifier js"><span>var</span></span><span>&nbsp;first&nbsp;</span><span class="keyword operator js"><span>=</span></span><span>&nbsp;</span><span class="meta class instance constructor"><span class="keyword operator new js"><span>new</span></span><span>&nbsp;</span><span class="entity name type instance js"><span>Rpd.Node</span></span></span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/custom</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>Test</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span class="storage modifier js"><span>var</span></span><span>&nbsp;boolOutlet&nbsp;</span><span class="keyword operator js"><span>=</span></span><span>&nbsp;first</span><span class="meta delimiter method period js"><span>.</span></span><span>addOutlet</span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/bool</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="constant language boolean true js"><span>true</span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>first</span><span class="meta delimiter method period js"><span>.</span></span><span>addOutlet</span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/number</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="constant numeric js"><span>1</span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>first</span><span class="meta delimiter method period js"><span>.</span></span><span>addOutlet</span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/number</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;</span></span></div><div class="line"><span class="source js"><span class="storage modifier js"><span>var</span></span><span>&nbsp;second&nbsp;</span><span class="keyword operator js"><span>=</span></span><span>&nbsp;</span><span class="meta class instance constructor"><span class="keyword operator new js"><span>new</span></span><span>&nbsp;</span><span class="entity name type instance js"><span>Rpd.Node</span></span></span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/custom</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>Foo</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span class="storage modifier js"><span>var</span></span><span>&nbsp;boolInlet&nbsp;</span><span class="keyword operator js"><span>=</span></span><span>&nbsp;second</span><span class="meta delimiter method period js"><span>.</span></span><span>addInlet</span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/boolean</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span class="storage modifier js"><span>var</span></span><span>&nbsp;numInlet&nbsp;</span><span class="keyword operator js"><span>=</span></span><span>&nbsp;second</span><span class="meta delimiter method period js"><span>.</span></span><span>addInlet</span><span class="meta brace round js"><span>(</span></span><span class="string quoted single js"><span class="punctuation definition string begin js"><span>'</span></span><span>core/number</span><span class="punctuation definition string end js"><span>'</span></span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;</span></span></div><div class="line"><span class="source js"><span>boolOutlet</span><span class="meta delimiter method period js"><span>.</span></span><span>connect</span><span class="meta brace round js"><span>(</span></span><span>boolInlet</span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>boolOutlet</span><span class="meta delimiter method period js"><span>.</span></span><span>connect</span><span class="meta brace round js"><span>(</span></span><span>numInlet</span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="meta function js"><span class="storage type function js"><span>function</span></span><span class="punctuation definition parameters begin js"><span>(</span></span><span class="variable parameter function js"><span>val</span></span><span class="punctuation definition parameters end js"><span>)</span></span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span><span>&nbsp;</span><span class="keyword control js"><span>return</span></span><span>&nbsp;</span><span class="meta brace round js"><span>(</span></span><span>val&nbsp;</span><span class="keyword operator js"><span>===</span></span><span>&nbsp;</span><span class="constant language boolean true js"><span>true</span></span><span class="meta brace round js"><span>)</span></span><span>&nbsp;</span><span class="keyword operator js"><span>?</span></span><span>&nbsp;</span><span class="constant numeric js"><span>1</span></span><span>&nbsp;</span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="constant numeric js"><span>0</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>}</span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>boolOutlet</span><span class="meta delimiter method period js"><span>.</span></span><span class="support function js"><span>send</span></span><span class="meta brace round js"><span>(</span></span><span class="constant language boolean false js"><span>false</span></span><span class="meta brace round js"><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div><div class="line"><span class="source js"><span>boolOutlet</span><span class="meta delimiter method period js"><span>.</span></span><span>stream</span><span class="meta brace round js"><span>(</span></span><span>Kefir</span><span class="meta delimiter method period js"><span>.</span></span><span>repeatedly</span><span class="meta brace round js"><span>(</span></span><span class="constant numeric js"><span>10</span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="meta brace square js"><span>[</span></span><span class="constant language boolean true js"><span>true</span></span><span class="meta delimiter object comma js"><span>,</span></span><span>&nbsp;</span><span class="constant language boolean false js"><span>false</span></span><span class="meta brace square js"><span>]</span></span><span class="meta brace round js"><span>)</span><span>)</span></span><span class="punctuation terminator statement js"><span>;</span></span></span></div></pre>
-    <h2 id="participating">Participating</h2>
-    <p>To participate, get a copy of repository:</p>
-    <p><code>git clone git@github.com:shamansir/rpd.git</code></p>
-    <p>After that, get dependencies:</p>
-    <p><code>make deps</code></p>
-    <p>(Updating dependencies may be performed only once a version of RPD is increased, it is not required to get them before every build.)</p>
-    <p>Now you should be able to run examples from <code>./examples/*.html</code>.</p>
-    <p>To minify and join sources (prepare for distribution), ensure you have <a href="https://developers.google.com/closure/compiler/">Closure Compiler</a> installed, put (or link to) <code>compiler.jar</code> in the root directory of RPD, and then run, for HTML renderer case:</p>
-    <p><code>make dist-html</code></p>
-    <p>Or, to build a version with PD Toolkit included and HTML renderer, run:</p>
-    <p><code>make dist-pd-html</code></p>
-    <p>To build with Animatron toolkit, for example, just replace <code>-pd-</code> with <code>-anm-</code>.</p>
-    <p>You'll find the results under <code>./dist</code> folder.</p>
-    <p>Feel free to fix issues or do Pull Requests!</p>
-    <p>See a Reference below for details in programming Tollkits and different other things.</p>
-    <h2 id="reference">Reference</h2>
-    <h4 id="cheatsheets-">Cheatsheets:</h4>
-    <ul>
-    <li><a href="http://github.com/shamansir/rpd/wiki/Cheatsheet:HTML-Configuration">HTML Renderer Configuration</a></li>
-    <li><a href="http://github.com/shamansir/rpd/wiki/Cheatsheet:Definition">Definition Cheatsheet</a></li>
-    <li><a href="http://github.com/shamansir/rpd/wiki/Cheatsheet:Event">Event Cheatsheet</a></li>
-    <li><a href="http://github.com/shamansir/rpd/wiki/Cheatsheet:Network">Build a network</a></li>
-    <li><em>(TODO)</em> <a href="http://github.com/shamansir/rpd/wiki/Cheatsheet:CSS">CSS Styles List</a></li>
-    </ul>
-    <h4 id="toolkits-">Toolkits:</h4>
-    <ul>
-    <li><a href="http://github.com/shamansir/rpd/wiki/Toolkit:Core">Core Toolkit</a></li>
-    <li><a href="http://github.com/shamansir/rpd/wiki/Toolkit:PD">PD Toolkit</a></li>
-    <li><em>(TODO)</em>  <a href="http://github.com/shamansir/rpd/wiki/Toolkit:Animatron">Animatron Toolkit</a></li>
-    </ul>
-    <h4 id="class-reference-">Class Reference:</h4>
-    <ul>
-    <li><a href="http://github.com/shamansir/rpd/wiki/Ref:Model">Model</a></li>
-    <li><a href="http://github.com/shamansir/rpd/wiki/Ref:Node">Node</a></li>
-    <li><a href="http://github.com/shamansir/rpd/wiki/Ref:Inlet">Inlet</a></li>
-    <li><a href="http://github.com/shamansir/rpd/wiki/Ref:Outlet">Outlet</a></li>
-    <li><a href="http://github.com/shamansir/rpd/wiki/Ref:Link">Link</a></li>
-    </ul>
-    <!-- CONTENT HERE -->
-    </body>
+</div>
+
+<!-- TODO SVG icon patch: -->
+<!-- sun and moon -->
+<!-- circle particles -->
+<!-- logo color shift -->
+<p>( <a href="http://github.com/shamansir/rpd">GitHub</a> | <a href="./examples.html">Examples</a> | <a href="./sections/api.html">API</a> | <a href="http://github.com/shamansir/rpd/issues">Issues</a> | <a href="#terminology">Terminology</a> <!-- | [Tests](...) --> )</p>
+<h3 id="what-is-rpd-">What is RPD?</h3>
+<p>RPD is the abbreviation for <em>Reactive Patch Development</em>...</p>
+<p>...or, actually, whatever you decide. It is the library which brings node-based user interfaces to the modern web, in full their power (when you know how to use it) and in a very elegant and minimalistic way. <em>Node-based</em> is something like the thing you&#39;ll (probably) see above if you move your mouse cursor, or any other pointing device, above the RPD logo — (almost) nothing to do with <a href="http://nodejs.org">node.js</a>. Some people also say that with such user interfaces they do <em>Flow Programming</em>. If you are wondering yet, what that means, <em>Node-based</em> interface is the one where man may visually connect different low-level components using their inputs and outputs and observe the result in real time, take <!-- consider? --> <a href="https://puredata.info/">PureData</a>, <a href="quartzcomposer">QuartzComposer</a>, <a href="https://vvvv.org/">VVVV</a>, <a href="https://www.nodebox.net/">NodeBox</a>, <a href="http://www.native-instruments.com/en/products/komplete/synths/reaktor-6/">Reaktor</a> etc. for example.</p>
+<p>RPD brings DataFlow Programming to the Web both in the <em>elegant</em> and <em>minimal</em> ways.</p>
+<!-- TODO: video or some example patch, processing patch from vimeo? -->
+<p><em>Elegancy</em> is achieved both with providing you a very simple API for building these powerful things, and (thanks to the reactive streams, powered by <a href="http://rpominov.github.io/kefir/">Kefir.js library</a>) pure functional approach in the core, so it&#39;s easy for you to operate with sequences of data over time in any way you want, and also every action performed, (such as adding a node, or connecting something, or sending a value) is atomic, so it can easily be rolled back or stored in, and so restored from, some file.</p>
+<!-- an example of defining simple node (and channel?) type and connecting it to a patch,
+show streams and simple values -->
+<p><em>Minimalism</em> is another goal of this library, which implies the RPD library size
+is kept as minimal as possible, so your customer may load the interface you created using 3G internet or wi-fi limited to some very low speed. Don&#39;t ask me why may it happen, it still happens everywhere. Minimalism is here not in paranoid amounts, though&mdash;if feature requires a bit more code, or some task gets very complex with less code, we for sure will add some more code for the sake of simplicity.</p>
+<p>The default configuration with SVG renderer and Quartz style included takes <em>11KB</em> when compiled, minimized and gzipped! (30KB not gzipped). Though you also need <a href="http://rpominov.github.io/kefir/">latest Kefir.js</a>, the only required dependency to make it work, which adds just ~10KB more, since <a href="http://rpominov.github.io">Kefir.js author</a> also likes minimalism in his code.</p>
+<p>If you feel that&#39;s you know everything in this field and this library is definitely what you need (and no doubts, it is!), you may either download the <a href="./sections/setup.html#download">version with default configuration</a> or go straight to <a href="./sections/setup.html#compilation">Building Section</a> to discover how easy it is to grab a code and configure yourself a custom one. If you still feel unsafe, stay with me for a bit.</p>
+<h3 id="code-examples">Code Examples</h3>
+<h4 id="random-generator">Random Generator</h4>
+<p>Random Generator with the help of <a href="http://.."><code>util</code></a> toolkit:</p>
+<div id="example-one"></div>
+
+<pre><code class="lang-javascript">Rpd.renderNext(<span class="hljs-string">'svg'</span>, <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'example-one'</span>),
+               { style: <span class="hljs-string">'compact-v'</span> });
+
+<span class="hljs-keyword">var</span> patch = Rpd.addPatch(<span class="hljs-string">'Generate Random Numbers'</span>).resizeCanvas(<span class="hljs-number">800</span>, <span class="hljs-number">110</span>);
+
+<span class="hljs-comment">// add Metro Node, it may generate `bang` signal with the requested time interval</span>
+<span class="hljs-keyword">var</span> metroNode = patch.addNode(<span class="hljs-string">'util/metro'</span>, <span class="hljs-string">'Metro'</span>).move(<span class="hljs-number">40</span>, <span class="hljs-number">10</span>);
+
+<span class="hljs-comment">// add Random Generator Node that will generate random numbers on every `bang` signal</span>
+<span class="hljs-keyword">var</span> randomGenNode = patch.addNode(<span class="hljs-string">'util/random'</span>, <span class="hljs-string">'Random'</span>).move(<span class="hljs-number">130</span>, <span class="hljs-number">20</span>);
+randomGenNode.inlets[<span class="hljs-string">'max'</span>].receive(<span class="hljs-number">26</span>); <span class="hljs-comment">// set maximum value of the generated numbers</span>
+
+<span class="hljs-comment">// add Log Node, which will log last results of the Random Generator Node</span>
+<span class="hljs-keyword">var</span> logRandomNode = patch.addNode(<span class="hljs-string">'util/log'</span>, <span class="hljs-string">'Log'</span>).move(<span class="hljs-number">210</span>, <span class="hljs-number">60</span>);
+randomGenNode.outlets[<span class="hljs-string">'out'</span>].connect(logRandomNode.inlets[<span class="hljs-string">'what'</span>]);
+
+<span class="hljs-comment">// define the type of the node which multiplies the incoming value by two</span>
+<span class="hljs-keyword">var</span> multiplyTwoNode = patch.addNode(<span class="hljs-string">'core/basic'</span>, <span class="hljs-string">'* 2'</span>, {
+    process: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">inlets</span>) </span>{
+        <span class="hljs-keyword">return</span> {
+            <span class="hljs-string">'result'</span>: (inlets.multiplier || <span class="hljs-number">0</span>) * <span class="hljs-number">2</span>
+        }
+    }
+}).move(<span class="hljs-number">240</span>, <span class="hljs-number">10</span>);
+<span class="hljs-keyword">var</span> multiplierInlet = multiplyTwoNode.addInlet(<span class="hljs-string">'util/number'</span>, <span class="hljs-string">'multiplier'</span>);
+<span class="hljs-keyword">var</span> resultOutlet = multiplyTwoNode.addOutlet(<span class="hljs-string">'util/number'</span>, <span class="hljs-string">'result'</span>);
+
+<span class="hljs-comment">// connect Random Generator output to the multiplying node</span>
+<span class="hljs-keyword">var</span> logMultiplyNode = patch.addNode(<span class="hljs-string">'util/log'</span>, <span class="hljs-string">'Log'</span>).move(<span class="hljs-number">370</span>, <span class="hljs-number">20</span>);
+resultOutlet.connect(logMultiplyNode.inlets[<span class="hljs-string">'what'</span>]);
+
+<span class="hljs-comment">// connect Random Generator output to the multiplying node</span>
+randomGenNode.outlets[<span class="hljs-string">'out'</span>].connect(multiplierInlet);
+
+<span class="hljs-comment">// finally connect Metro node to Random Generator, so the sequence starts</span>
+metroNode.outlets[<span class="hljs-string">'out'</span>].connect(randomGenNode.inlets[<span class="hljs-string">'bang'</span>]);
+</code></pre>
+<h4 id="flag-generator">Flag Generator</h4>
+<p>Tries to generate Country Flag from Unicode codepoints, <a href="https://bendodson.com/weblog/2016/04/26/emoji-flags-from-iso-3166-country-codes-in-swift">inspired by article &quot;Emoji flags from ISO 3166-1 country codes&quot;</a>. (There&#39;s also <a href="https://esham.io/2015/04/emoji-flags-redux">&quot;Emoji Flag Redux&quot;</a> article, written earlier). When you see blank squares (<em>tofu</em>) in &quot;Maybe Flag&quot; Node, there&#39;s no flag for this combination of letters.</p>
+<div id="example-two"></div>
+
+<pre><code class="lang-javascript">Rpd.renderNext(<span class="hljs-string">'svg'</span>, <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'example-two'</span>),
+                      { style: <span class="hljs-string">'compact-v'</span> });
+
+<span class="hljs-keyword">var</span> patch = Rpd.addPatch(<span class="hljs-string">'Flag Generator'</span>).resizeCanvas(<span class="hljs-number">800</span>, <span class="hljs-number">200</span>);
+
+<span class="hljs-keyword">var</span> metro1 = patch.addNode(<span class="hljs-string">'util/metro'</span>).move(<span class="hljs-number">50</span>, <span class="hljs-number">30</span>);
+<span class="hljs-keyword">var</span> metro2 = patch.addNode(<span class="hljs-string">'util/metro'</span>).move(<span class="hljs-number">50</span>, <span class="hljs-number">90</span>);
+metro1.inlets[<span class="hljs-string">'period'</span>].receive(<span class="hljs-number">2000</span>);
+metro2.inlets[<span class="hljs-string">'period'</span>].receive(<span class="hljs-number">3000</span>);
+
+<span class="hljs-keyword">var</span> random1 = patch.addNode(<span class="hljs-string">'util/random'</span>).move(<span class="hljs-number">170</span>, <span class="hljs-number">10</span>);
+random1.inlets[<span class="hljs-string">'max'</span>].receive(<span class="hljs-number">25</span>);
+<span class="hljs-keyword">var</span> random2 = patch.addNode(<span class="hljs-string">'util/random'</span>).move(<span class="hljs-number">170</span>, <span class="hljs-number">120</span>);
+random2.inlets[<span class="hljs-string">'max'</span>].receive(<span class="hljs-number">25</span>);
+
+<span class="hljs-keyword">var</span> letter1 = patch.addNode(<span class="hljs-string">'util/letter'</span>).move(<span class="hljs-number">300</span>, <span class="hljs-number">10</span>);
+<span class="hljs-keyword">var</span> letter2 = patch.addNode(<span class="hljs-string">'util/letter'</span>).move(<span class="hljs-number">300</span>, <span class="hljs-number">110</span>);
+
+metro1.outlets[<span class="hljs-string">'bang'</span>].connect(random1.inlets[<span class="hljs-string">'bang'</span>]);
+metro2.outlets[<span class="hljs-string">'bang'</span>].connect(random2.inlets[<span class="hljs-string">'bang'</span>]);
+
+random1.outlets[<span class="hljs-string">'random'</span>].connect(letter1.inlets[<span class="hljs-string">'code'</span>]);
+random2.outlets[<span class="hljs-string">'random'</span>].connect(letter2.inlets[<span class="hljs-string">'code'</span>]);
+
+Rpd.nodetype(<span class="hljs-string">'user/maybe-flag'</span>, {
+    title: <span class="hljs-string">'May be a flag?'</span>,
+    inlets: {
+        <span class="hljs-string">'letterA'</span>: { type: <span class="hljs-string">'core/any'</span> },
+        <span class="hljs-string">'letterB'</span>: { type: <span class="hljs-string">'core/any'</span> }
+    },
+    outlets: {
+        <span class="hljs-string">'char'</span>: { type: <span class="hljs-string">'core/any'</span> },
+        <span class="hljs-string">'code'</span>: { type: <span class="hljs-string">'core/any'</span> }
+    },
+    process: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">inlets</span>) </span>{
+        <span class="hljs-keyword">if</span> (!inlets.letterA || !inlets.letterB) <span class="hljs-keyword">return</span>;
+        <span class="hljs-keyword">return</span> { <span class="hljs-string">'code'</span>: <span class="hljs-built_in">String</span>.fromCharCode(inlets.letterA.charCodeAt(<span class="hljs-number">0</span>) - <span class="hljs-number">32</span>)
+                       + <span class="hljs-built_in">String</span>.fromCharCode(inlets.letterB.charCodeAt(<span class="hljs-number">0</span>) - <span class="hljs-number">32</span>),
+                 <span class="hljs-string">'char'</span> : fromCodePoint(<span class="hljs-number">55356</span>)
+                        + fromCodePoint(inlets.letterA.charCodeAt(<span class="hljs-number">0</span>) - <span class="hljs-number">97</span> + <span class="hljs-number">56806</span>)
+                        + fromCodePoint(<span class="hljs-number">55356</span>)
+                        + fromCodePoint(inlets.letterB.charCodeAt(<span class="hljs-number">0</span>) - <span class="hljs-number">97</span> + <span class="hljs-number">56806</span>) };
+    }
+});
+
+<span class="hljs-comment">// d3_tiny is a 100-lined JavaScript included in RPD distribution</span>
+<span class="hljs-comment">// which supports basic d3.js functions like `.select`, `.attr` &amp; s.o.,</span>
+<span class="hljs-comment">// fully compatible with "big" d3.js</span>
+<span class="hljs-keyword">var</span> d3 = d3 || d3_tiny;
+
+Rpd.noderenderer(<span class="hljs-string">'user/maybe-flag'</span>, <span class="hljs-string">'svg'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> textElm;
+    <span class="hljs-keyword">return</span> {
+        first: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bodyElm</span>) </span>{
+            textElm = d3.select(bodyElm).append(<span class="hljs-string">'text'</span>)
+                        .style(<span class="hljs-string">'text-anchor'</span>, <span class="hljs-string">'middle'</span>);
+        },
+        always: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bodyElm, inlets, outlets</span>) </span>{
+            <span class="hljs-keyword">if</span> (!outlets) <span class="hljs-keyword">return</span>;
+            textElm.text(outlets.char + <span class="hljs-string">' ('</span> + outlets.code + <span class="hljs-string">')'</span>);
+        }
+    }
+});
+
+<span class="hljs-keyword">var</span> maybeFlag = patch.addNode(<span class="hljs-string">'user/maybe-flag'</span>, <span class="hljs-string">'Maybe&lt;Flag&gt;'</span>).move(<span class="hljs-number">430</span>, <span class="hljs-number">70</span>);
+letter1.outlets[<span class="hljs-string">'letter'</span>].connect(maybeFlag.inlets[<span class="hljs-string">'letterA'</span>]);
+letter2.outlets[<span class="hljs-string">'letter'</span>].connect(maybeFlag.inlets[<span class="hljs-string">'letterB'</span>]);
+
+<span class="hljs-keyword">var</span> logNode = patch.addNode(<span class="hljs-string">'util/log'</span>, {}, {
+    <span class="hljs-string">'svg'</span>: {
+        size: { width: <span class="hljs-number">210</span>, height: <span class="hljs-number">30</span> }
+    }
+}).move(<span class="hljs-number">550</span>, <span class="hljs-number">70</span>);
+maybeFlag.outlets[<span class="hljs-string">'char'</span>].connect(logNode.inlets[<span class="hljs-string">'what'</span>]);
+</code></pre>
+<h4 id="html5-canvas-and-custom-toolkit">HTML5 Canvas and Custom Toolkit</h4>
+<div id="example-three"></div>
+
+<pre><code class="lang-javascript"><span class="hljs-comment">/* ============== Coordinates Channel Type ============== */</span>
+
+Rpd.channeltype(<span class="hljs-string">'my/coords'</span>, {
+  show: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">val</span>) </span>{
+    <span class="hljs-comment">// nicely show a received pair of coordinates, floored to an integer</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">'&lt;'</span> + <span class="hljs-built_in">Math</span>.floor(val.x) + <span class="hljs-string">':'</span> + <span class="hljs-built_in">Math</span>.floor(val.y) + <span class="hljs-string">'&gt;'</span>;
+  }
+});
+
+<span class="hljs-comment">/* ============== Coordinates Node Type ============== */</span>
+
+Rpd.nodetype(<span class="hljs-string">'my/coords'</span>, {
+  inlets: {
+    x: { type: <span class="hljs-string">'util/number'</span>, <span class="hljs-keyword">default</span>: <span class="hljs-number">0</span> },
+    y: { type: <span class="hljs-string">'util/number'</span>, <span class="hljs-keyword">default</span>: <span class="hljs-number">0</span> }
+  },
+  outlets: {
+    out: { type: <span class="hljs-string">'my/coords'</span> }
+  },
+  <span class="hljs-comment">// joins received `x` and `y` into one object</span>
+  process: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">inlets</span>) </span>{
+    <span class="hljs-keyword">return</span> { out: { x: inlets.x, y: inlets.y } };
+  }
+});
+
+<span class="hljs-comment">//* ============== Angle (radians) Channel Type ============== */</span>
+
+Rpd.channeltype(<span class="hljs-string">'my/angle'</span>, {
+  allow: [ <span class="hljs-string">'util/number '</span>], <span class="hljs-comment">// outlets of `util/number` type are allowed to be</span>
+                            <span class="hljs-comment">// connected to inlets of `my/angle` type</span>
+  accept: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">v</span>) </span>{ <span class="hljs-keyword">return</span> (v &gt;= <span class="hljs-number">0</span>) &amp;&amp; (v &lt;= <span class="hljs-number">360</span>); },
+  show: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">v</span>) </span>{ <span class="hljs-keyword">return</span> v + <span class="hljs-string">'˚'</span>; }
+});
+
+<span class="hljs-comment">/* ============== Canvas-driven Scene Node Type ============== */</span>
+
+<span class="hljs-keyword">var</span> defaultConfig = {
+  count: <span class="hljs-number">7</span>,
+  <span class="hljs-keyword">from</span>: { r: <span class="hljs-number">0</span>, g: <span class="hljs-number">0</span>, b: <span class="hljs-number">0</span> },
+  to: { r: <span class="hljs-number">255</span>, g: <span class="hljs-number">0</span>, b: <span class="hljs-number">0</span> },
+  shift: { x: <span class="hljs-number">25</span>, y: <span class="hljs-number">0</span> },
+  rotate: <span class="hljs-number">15</span>
+};
+
+Rpd.nodetype(<span class="hljs-string">'my/scene'</span>, {
+  inlets: {
+    <span class="hljs-keyword">from</span>: { type: <span class="hljs-string">'util/color'</span>, <span class="hljs-string">'default'</span>: defaultConfig.from },
+    to: { type: <span class="hljs-string">'util/color'</span>, <span class="hljs-string">'default'</span>: defaultConfig.to },
+    count: { type: <span class="hljs-string">'util/number'</span>, <span class="hljs-string">'default'</span>: defaultConfig.count,
+             adapt: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">v</span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-built_in">Math</span>.floor(v); } },
+    shift: { type: <span class="hljs-string">'my/coords'</span>, <span class="hljs-string">'default'</span>: defaultConfig.shift },
+    rotate: { type: <span class="hljs-string">'my/angle'</span>, <span class="hljs-string">'default'</span>: defaultConfig.rotate },
+  },
+  process: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{}
+});
+
+<span class="hljs-comment">/* ============== Renderer for Canvas-driven Scene ============== */</span>
+
+<span class="hljs-keyword">var</span> SVG_XMLNS = <span class="hljs-string">'http://www.w3.org/2000/svg'</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">lerp</span>(<span class="hljs-params">v1, v2, pos</span>) </span>{
+  <span class="hljs-keyword">return</span> (v1 + ((v2 - v1) * pos));
+}
+
+Rpd.noderenderer(<span class="hljs-string">'my/scene'</span>, <span class="hljs-string">'svg'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> width = <span class="hljs-number">100</span>, height = <span class="hljs-number">100</span>;
+
+  <span class="hljs-keyword">var</span> context;
+  <span class="hljs-keyword">var</span> particles = [];
+  <span class="hljs-keyword">var</span> lastCount = <span class="hljs-number">0</span>;
+  <span class="hljs-keyword">var</span> config = defaultConfig;
+
+  <span class="hljs-comment">// function to render current state of the scene using requestAnimationFrame</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">draw</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">if</span> (context) {
+      context.save();
+      context.fillStyle = <span class="hljs-string">'#fff'</span>;
+      context.fillRect(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, width, height);
+      context.fillStyle = <span class="hljs-string">'#000'</span>;
+      particles.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">particle, i</span>) </span>{
+        context.fillStyle = <span class="hljs-string">'rgb('</span> +
+          <span class="hljs-built_in">Math</span>.floor(lerp(config.from.r, config.to.r,
+                          <span class="hljs-number">1</span> / (particles.length - <span class="hljs-number">1</span>) * i)) + <span class="hljs-string">','</span> +
+          <span class="hljs-built_in">Math</span>.floor(lerp(config.from.g, config.to.g,
+                          <span class="hljs-number">1</span> / (particles.length - <span class="hljs-number">1</span>) * i)) + <span class="hljs-string">','</span> +
+          <span class="hljs-built_in">Math</span>.floor(lerp(config.from.b, config.to.b,
+                          <span class="hljs-number">1</span> / (particles.length - <span class="hljs-number">1</span>) * i)) + <span class="hljs-string">')'</span>;
+        context.fillRect(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>);
+        context.translate(config.shift.x, config.shift.y);
+        context.rotate(config.rotate * <span class="hljs-built_in">Math</span>.PI / <span class="hljs-number">180</span>);
+      });
+      context.restore();
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+
+  <span class="hljs-comment">// return actual renderer definition</span>
+  <span class="hljs-keyword">return</span> {
+    size: { width: width + <span class="hljs-number">10</span>, height: height + <span class="hljs-number">10</span> },
+    pivot: { x: <span class="hljs-number">0</span>, y: <span class="hljs-number">0</span> },
+
+    <span class="hljs-comment">// on creation, add canvas to the node body</span>
+    first: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bodyElm</span>) </span>{
+      <span class="hljs-keyword">var</span> group = <span class="hljs-built_in">document</span>.createElementNS(SVG_XMLNS, <span class="hljs-string">'g'</span>);
+      group.setAttributeNS(<span class="hljs-literal">null</span>, <span class="hljs-string">'transform'</span>, <span class="hljs-string">'translate(5, 5)'</span>);
+      <span class="hljs-keyword">var</span> foreign = <span class="hljs-built_in">document</span>.createElementNS(SVG_XMLNS, <span class="hljs-string">'foreignObject'</span>);
+      canvas = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'canvas'</span>);
+      canvas.setAttributeNS(<span class="hljs-literal">null</span>, <span class="hljs-string">'width'</span>, width + <span class="hljs-string">'px'</span>);
+      canvas.setAttributeNS(<span class="hljs-literal">null</span>, <span class="hljs-string">'height'</span>, height + <span class="hljs-string">'px'</span>);
+      canvas.style.position = <span class="hljs-string">'fixed'</span>;
+      foreign.appendChild(canvas);
+      group.appendChild(foreign);
+      bodyElm.appendChild(group);
+
+      context = canvas.getContext(<span class="hljs-string">'2d'</span>);
+    },
+
+    <span class="hljs-comment">// update config values using values from inlets</span>
+    always: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bodyElm, inlets</span>) </span>{
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">isNaN</span>(inlets.count) &amp;&amp; (inlets.count != lastCount)) {
+        particles = [];
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; inlets.count; i++) {
+          particles.push({});
+        }
+        lastCount = inlets.count;
+      }
+      <span class="hljs-keyword">if</span> (inlets.from) config.from = inlets.from;
+      <span class="hljs-keyword">if</span> (inlets.to) config.to = inlets.to;
+      <span class="hljs-keyword">if</span> (inlets.shift) config.shift = inlets.shift;
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">isNaN</span>(inlets.rotate)) config.rotate = inlets.rotate;
+    }
+
+  };
+});
+
+<span class="hljs-comment">/* ============== Patch Structure ============== */</span>
+
+Rpd.renderNext(<span class="hljs-string">'svg'</span>, <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'example-three'</span>),
+                      { style: <span class="hljs-string">'compact-v'</span> });
+
+<span class="hljs-keyword">var</span> patch = Rpd.addPatch(<span class="hljs-string">'Generate Canvas Shapes'</span>).resizeCanvas(<span class="hljs-number">800</span>, <span class="hljs-number">205</span>);
+
+<span class="hljs-keyword">var</span> scene = patch.addNode(<span class="hljs-string">'my/scene'</span>).move(<span class="hljs-number">570</span>, <span class="hljs-number">5</span>);
+<span class="hljs-keyword">var</span> color1 = patch.addNode(<span class="hljs-string">'util/color'</span>).move(<span class="hljs-number">120</span>, <span class="hljs-number">5</span>);
+<span class="hljs-keyword">var</span> color2 = patch.addNode(<span class="hljs-string">'util/color'</span>).move(<span class="hljs-number">100</span>, <span class="hljs-number">80</span>);
+<span class="hljs-keyword">var</span> coords = patch.addNode(<span class="hljs-string">'my/coords'</span>).move(<span class="hljs-number">305</span>, <span class="hljs-number">90</span>);
+<span class="hljs-keyword">var</span> knob1 = patch.addNode(<span class="hljs-string">'util/knob'</span>).move(<span class="hljs-number">25</span>, <span class="hljs-number">5</span>);
+<span class="hljs-keyword">var</span> knob2 = patch.addNode(<span class="hljs-string">'util/knob'</span>).move(<span class="hljs-number">490</span>, <span class="hljs-number">110</span>);
+<span class="hljs-keyword">var</span> knob3 = patch.addNode(<span class="hljs-string">'util/knob'</span>).move(<span class="hljs-number">210</span>, <span class="hljs-number">105</span>);
+<span class="hljs-keyword">var</span> knob4 = patch.addNode(<span class="hljs-string">'util/knob'</span>).move(<span class="hljs-number">400</span>, <span class="hljs-number">110</span>);
+<span class="hljs-keyword">var</span> mouse = patch.addNode(<span class="hljs-string">'util/mouse-pos'</span>).move(<span class="hljs-number">0</span>, <span class="hljs-number">70</span>);
+<span class="hljs-keyword">var</span> modulus = patch.addNode(<span class="hljs-string">'util/mod'</span>).move(<span class="hljs-number">20</span>, <span class="hljs-number">150</span>);
+<span class="hljs-keyword">var</span> comment = patch.addNode(<span class="hljs-string">'util/comment'</span>).move(<span class="hljs-number">80</span>, <span class="hljs-number">100</span>);
+
+knob1.inlets[<span class="hljs-string">'max'</span>].receive(<span class="hljs-number">255</span>);
+knob2.inlets[<span class="hljs-string">'max'</span>].receive(<span class="hljs-number">180</span>);
+knob4.inlets[<span class="hljs-string">'max'</span>].receive(<span class="hljs-number">15</span>);
+coords.inlets[<span class="hljs-string">'x'</span>].receive(<span class="hljs-number">25</span>);
+modulus.inlets[<span class="hljs-string">'b'</span>].receive(<span class="hljs-number">255</span>);
+comment.inlets[<span class="hljs-string">'text'</span>].receive(<span class="hljs-string">'Try to connect "%" node output'</span> +
+    + <span class="hljs-string">' to inlet of "my/coords" node or one of the "color" nodes'</span>);
+
+knob1.outlets[<span class="hljs-string">'number'</span>].connect(color1.inlets[<span class="hljs-string">'r'</span>]);
+knob3.outlets[<span class="hljs-string">'number'</span>].connect(coords.inlets[<span class="hljs-string">'y'</span>]);
+color1.outlets[<span class="hljs-string">'color'</span>].connect(scene.inlets[<span class="hljs-string">'from'</span>]);
+color2.outlets[<span class="hljs-string">'color'</span>].connect(scene.inlets[<span class="hljs-string">'to'</span>]);
+coords.outlets[<span class="hljs-string">'out'</span>].connect(scene.inlets[<span class="hljs-string">'shift'</span>]);
+mouse.outlets[<span class="hljs-string">'x'</span>].connect(modulus.inlets[<span class="hljs-string">'a'</span>]);
+</code></pre>
+<h3 id="terminology">Terminology</h3>
+<p>At first, we&#39;ll define terms of node-based interfaces, the way RPD sees them, starting from the highest level (the <em>Network</em>) and going down till the lowest known level (the <em>Link</em>). If that&#39;s not very comfortable for you, you may do it in reverse direction, then please scroll down to <em>Link</em> and then reach the top at <em>Network</em>.</p>
+<!-- TODO Image or interactive example (jsfiddle, run by click?) showing the network of simple patches -->
+<h4 id="network">Network</h4>
+<p><img src="./assets/rpd-network.png" width="600px" alt="Network"></img></p>
+<p><em>Network</em> defines a system of Patches. At this level Patch may be considered as a complex procedure with several inputs and outputs and a Network is a program that uses these procedures.</p>
+<p>Say, you define some complex functionality of a 3D vertex shader with a Patch. It has its inputs such as 3D position, color and texture coordinate of a vertex and outputs as 2D coordinate and modified color. Then you may create another “root” Patch, which allows user to apply combinations of different vertex shaders to an imported object and so re-use the Shader Patch several times in different configurations. These two Patches (first one used several times and second one used once) form a simple Network.</p>
+<!-- TODO: diagram of a vertex shader network -->
+<p>So, some Node in one Patch may represent the inputs and outputs of another Patch&#39;s copy, running in the same Network.</p>
+<h4 id="patch">Patch</h4>
+<p><img src="./assets/patch-no-frame.png" width="440px" alt="Patch"></img></p>
+<p><em>Patch</em> stores a collection of Node instances and connections between them.
+The resulting structure of Nodes and connections defines the way data flows in this Patch.</p>
+<!--TODO Two nodes connected, to show inlets and outlets (run by click?) -->
+<h4 id="node">Node</h4>
+<p><img src="./assets/node-no-frame.png" width="160px" alt="Node"></img></p>
+<p><em>Nodes</em> are building blocks which use connections to receive any data from one nodes, modify it, and send transformed data to another Nodes. Nodes may have zero or more inputs of different types, named <em>Inlets</em> and zero or more outputs of different types, named <em>Outlets</em>. Nodes may have a body which may represent received data or even have some controls allowing user to change it though hidden inlets.</p>
+<h4 id="outlet">Outlet</h4>
+<p><img src="./assets/outlets.png" width="160px" alt="Outlets"></img></p>
+<p><em>Outlet</em> is a socket of a Node designed to send outgoing data. Outlet may be connected to an Inlet of another Node or to several Inlets of other Nodes.</p>
+<p>Type of the Outlet determines which types of values it sends.</p>
+<p>Outlet and Inlet types are called Channel Types.</p>
+<h4 id="inlet">Inlet</h4>
+<p><img src="./assets/inlets.png" width="160px" alt="Inlets"></img></p>
+<p><em>Inlet</em> is a socket of a Node designed to receive incoming data. Depending on configuration, it may accept only one connection from an Outlet or any number of connections from several Outlets.</p>
+<p>Inlet may have a default value, so it sends it to the Node when the latter is added to a Patch.</p>
+<p>Inlet may be hidden, so it won&#39;t be visible for user, but may receive data from inputs located in the body of the Node.</p>
+<p>Inlet may be “cold”, in contrary to “hot” by default, so it won&#39;t trigger the modifying process, but save the last value that came to this Inlet.</p>
+<p>Inlets may accept or deny values depending on their type. Type may specify a function which will transform data before it will be sent to the Node.</p>
+<h4 id="link">Link</h4>
+<p><img src="./assets/link-no-frame.png" width="100px" alt="Link"></img></p>
+<p><em>Link</em> is what connects single Outlet to single Inlet. Always one to one. It may be disabled, so it will not deliver all the data which comes inside, but keep the connection.</p>
+<!-- TODO Nodes from different toolkits -->
+<h4 id="toolkit">Toolkit</h4>
+<p><em>Toolkit</em> is a group of Node and Channel Types lying in (preferrably, but not required) one namespace. For example, <a href="http://p5js.org">Processing.js</a> Toolkit may define Nodes and Channels which control the configuration of a Processing Sketch, use and convert data types specific to Processing and so on.</p>
+<!-- TODO SVG and HTML -->
+<h4 id="rendering-flow">Rendering Flow</h4>
+<p><img src="./assets/render-flow.png" width="800px" alt="Render Flow"></img></p>
+<p>This sub-section is actually not about a specific Term and intended to quickly clarify how the things described below work together.</p>
+<p>When you need to render a Patch, you need to know three things: which Renderer you want to use, which Style you prefer visually and the Target where you want everything to be injected. Style is optional, though, since <code>quartz</code> is the default one to be used, but sad things happen, and you may dislike it. So, to satisfy every taste, several Styles are included in RPD distribution. You actually may use same configuration to render several Patches, but let&#39;s leave it to <a href="./api.html">API docs</a> for now.</p>
+<p>The engine of the rendering process is Actions. They are fired on every change of the value, when new Connection between Outlet and Inlet is established, or instead someone removed the Connection, or someone moved one Node etc. To the Rendering System there is no matter who did this Action, User or API call.</p>
+<blockquote>
+<p>If you know what <a href="https://facebook.github.io/flux/">Flux</a> or <a href="http://elm-lang.org/">Elm</a> is, it is almost the same Action concept you&#39;ve met there; if you don&#39;t know about both, just replace Action term with Event term here and below.</p>
+</blockquote>
+<p>So, for example you chose <code>&#39;svg&#39;</code> Renderer to render your Patch. What happens then? On every user or logical Action, this Renderer is notified. Then this Renderer decides which (preferably, the tiniest one) part of the Network it should re-render. If Node or Channel (Inlet or Outlet) is required to be updated, it searches for the corresponding Node Renderer or Channel Renderer, the one assigned to this Renderer. Node/Channel Renderer can render particular type of the Node/Channel (and then it&#39;s called Node/Channel Type Renderer) or it may be overridden for the specific instance of the Node/Channel (and then it&#39;s called Node/Channel Instance Renderer). If something else was updated, Renderer re-renders this part itself, without delegation. No, actually, it sometimes passes some updates to Style, just Node/Channel Renderer step is skipped in this case.</p>
+<p>In its turn, Node/Channel Renderer renders the body of the Node (<code>&#39;svg&#39;</code> Renderer uses SVG elements for that) or a value of the Channel (same, with SVG elements). Then the result of the rendering is injected into a structure, provided by selected Style.</p>
+<p>And the final piece of DOM (or whatever) is injected into the Target, into a proper place. Target for <code>&#39;html&#39;</code> Renderer should be some HTML element like <code>&lt;div /&gt;</code>, for <code>&#39;svg&#39;</code> Renderer it should be some SVG element, preferably <code>&lt;svg&gt;</code> or <code>&lt;g /&gt;</code>, and so on.</p>
+<p>That&#39;s it, now users sees the whole thing in dynamic.</p>
+<p>Now, let&#39;s describe the same process from participants&#39; points of view.</p>
+<h4 id="renderer">Renderer</h4>
+<p><img src="./assets/renderer.png" width="100px" alt="Renderer"></img></p>
+<p><em>Renderer</em> is a system which determines the way current Patch model is rendered. For now, there are two Renderers: HTML and SVG, they render Patches to HTML or SVG tags correspondingly. For instance, HTML Renderer renders Link connections as <code>span</code> blocks with CSS borders and SVG Renderers just draws SVG <code>line</code> tags for the same purpose.</p>
+<p>Also, Renderer determines where new node will be placed if position was not specified.</p>
+<h4 id="node-type-instance-renderer">Node Type/Instance Renderer</h4>
+<p><img src="./assets/instance-renderer.png" width="200px" alt="Node Instance Renderer"></img></p>
+<p><em>Node Type Renderer</em> builds the body of the Node and may update its content when some incoming update triggered it. Also, it may send values from inner controls to a hidden Inlets of the Node.</p>
+<p>There should be a separate Node Type Renderer for each way to render a node, such as HTML, SVG and so on. By default, if Node can&#39;t render itself in the requested way, it is rendered as an empty Node, yet having all the defined Inlets and Outlets.</p>
+<p><em>Node Instance Renderer</em> has exactly the same definition structure, it just overrides the Node Type Renderer so you can render any specific Node instance completely another way with just re-defining Type Renderer inline.</p>
+<h4 id="channel-type-instance-renderer">Channel Type/Instance Renderer</h4>
+<p><img src="./assets/instance-renderer.png" width="200px" alt="Channel Instance Renderer"></img></p>
+<p><em>Channel Type Renderer</em> builds the Inlet/Outlet value representation and also may add the editor to a Channel value.</p>
+<p>Editor is an optional control which lets user override the value in the Inlet.</p>
+<p><em>NB: For the moment, value editors are only supported in HTML Renderer</em></p>
+<p><em>Channel Instance Renderer</em> has exactly the same definition structure, it just overrides the Channel Type Renderer so you can render any specific Channel instance completely another way with just re-defining Type Renderer inline.</p>
+<h4 id="style">Style</h4>
+<p><img src="./assets/style.png" width="200px" alt="Style"></img></p>
+<p><em>Style</em> determines the look of the Patch, Node, Channel or a Link. While Renderer builds the outer structure, controls drag-n-drop and other logic, Style only determines the inner visual appearance of these elements.</p>
+<h4 id="canvas">Canvas</h4>
+<p><em>Canvas</em> is a place where Patch is rendered and operated. It has size and could have background color, for example. When several Patches share same target DOM element, they still have different canvases. Canvas could be an HTML5 Canvas by accident, but for sure not obligatory — this term came from <a href="https://puredata.info/">Pure Data</a>, the thing existed long before HTML5 and appeared just few years after first ever HTML specification.</p>
+<h4 id="projection">Projection</h4>
+<div class="in-progress" text="In Progress."><span>[ In Progress ]</span></div>
+<h4 id="module">Module</h4>
+<p><em>Module</em> is any extension for the RPD functionality, not included in the library code itself.</p>
+<p>For example, <em>I/O Module</em> records every action (or only some of the actions) performed to build the Network in some specific format, so it can optionally “replay” these actions later, in proper order.</p>
+<script defer src="./d3.v3.min.js"></script>
+<script defer src="./docs-patch.js"></script>
+<script defer src="./index-patches.js"></script>
+
+      </article>
+      <div id="jump-to-top"><a href="#_top">↑</a></div>
+    </main>
+    <footer><span>&copy; shaman.sir, 2016</span></footer>
+  </body>
 </html>

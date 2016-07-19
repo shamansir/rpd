@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Core with Network</title>
+
+        <!-- gulp html-head ==style quartz ==io json ==renderer svg ==toolkit util ==root .. -->
+
+        <!-- Built with RPD v2.0.0 <http://shamansir.github.io/rpd> -->
+
+        <!-- RPD Renderer: svg -->
+        <link rel="stylesheet" href="https://rawgit.com/shamansir/rpd/v2.0.0/src/render/svg.css"></style>
+        <!-- RPD Style: quartz (svg) -->
+        <link rel="stylesheet" href="https://rawgit.com/shamansir/rpd/v2.0.0/src/style/quartz/svg.css"></style>
+        <!-- RPD Toolkit: util (svg) -->
+        <link rel="stylesheet" href="https://rawgit.com/shamansir/rpd/v2.0.0/src/toolkit/util/svg.css"></style>
+
+        <!-- Kefir -->
+        <script src="../vendor/kefir.min.js"></script>
+        <!-- RPD -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/rpd.js"></script>
+
+        <!-- RPD's d3_tiny.js -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/d3_tiny.js"></script>
+        <!-- RPD Render Core: -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/render/shared.js"></script>
+        <!-- RPD Style: quartz (svg) -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/style/quartz/svg.js"></script>
+        <!-- RPD Renderer: svg -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/render/svg.js"></script>
+        <!-- RPD Toolkit: util -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/toolkit/util/shared.js"></script>
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/toolkit/util/toolkit.js"></script>
+        <!-- RPD Toolkit: util (svg) -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/toolkit/util/svg.js"></script>
+
+        <!-- RPD I/O: json -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/io/json.js"></script>
+
+        <!-- RPD navigation: browser -->
+        <script src="https://rawgit.com/shamansir/rpd/v2.0.0/src/navigation/browser.js"></script>
+    </head>
+
+    <body>
+
+        <script>
+            var finalize = Rpd.export.json('Network');
+
+            Rpd.navigation.enable();
+
+            Rpd.renderNext('svg', document.body, { style: 'quartz', fullPage: true });
+
+            var root = Rpd.addPatch('root');
+
+            var genA = root.addNode('core/basic', 'Generate A');
+            var outA = genA.addOutlet('util/number', 'A');
+            outA.send(3);
+
+            var genB = root.addNode('core/basic', 'Generate B');
+            var outB = genB.addOutlet('util/number', 'B');
+            outB.send(1);
+
+            var test = root.addNode('util/sum-of-three', 'foo')
+            test.addInlet('util/number', 'D');
+            test.addInlet('util/number', 'E');
+            test.addOutlet('util/number', 'F');
+
+            var sum = Rpd.addClosedPatch('sum');
+
+            var sumOfThree1 = sum.addNode('util/sum-of-three', 'Sum1');
+            var in1A = sumOfThree1.inlets['a'];
+            var in1B = sumOfThree1.inlets['b'];
+            var sum1 = sumOfThree1.outlets['sum'];
+
+            var sumOfThree2 = sum.addNode('util/sum-of-three', 'Sum2');
+            var in2A = sumOfThree2.inlets['a'];
+            var sum2 = sumOfThree2.outlets['sum'];
+
+            sum1.connect(in2A);
+
+            sum.inputs([ in1A, in1B ]);
+            sum.outputs([ sum2, sum1 ]);
+
+            var p = root.addNode('core/reference', '[Sum Patch]');
+            sum.project(p);
+
+            //outA.stream(Kefir.repeat(function() { return Kefir.sequentially(100, [1, 2, 3]); }));
+            //outB.stream(Kefir.repeat(function() { return Kefir.sequentially(200, [4, 5, 6]); }));
+
+            console.log(finalize());
+
+        </script>
+    </body>
+</html>
