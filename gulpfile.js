@@ -465,13 +465,14 @@ gulp.task('docs-copy-vendor', function() {
                .pipe(gulp.dest('./docs/compiled/vendor'));
 });
 
-var RAWGIT_PREFIX = 'https://cdn.rawgit.com/shamansir/rpd/';
+//var RAWGIT_PREFIX = 'https://cdn.rawgit.com/shamansir/rpd/' + 'v' + pkg.version;
+var RAWGIT_PREFIX = 'https://rawgit.com/shamansir/rpd/' + 'v' + pkg.version;
 gulp.task('docs-copy-examples', function() {
     var sourceRe = new RegExp('src="\.\./src/(.*)"|\.\./src=\'\.\.src/(.*)\'', 'g');
     var replaceSourceFiles = parser({
         name: 'replace-source-files',
         func: function(data) {
-            return data.replace(sourceRe, 'src="' + RAWGIT_PREFIX + 'v' + pkg.version + '/src/\$1"');
+            return data.replace(sourceRe, 'src="' + RAWGIT_PREFIX + '/src/\$1"');
         }
     });
 
@@ -479,7 +480,7 @@ gulp.task('docs-copy-examples', function() {
     var replaceHrefFiles = parser({
         name: 'replace-href-files',
         func: function(data) {
-            return data.replace(hrefRe, 'href="' + RAWGIT_PREFIX + 'v' + pkg.version + '/src/\$1"');
+            return data.replace(hrefRe, 'href="' + RAWGIT_PREFIX + '/src/\$1"');
         }
     });
 
