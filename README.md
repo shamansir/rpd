@@ -7,7 +7,7 @@
 <!-- [![Code Climate](https://codeclimate.com/github/shamansir/rpd/badges/gpa.svg)](https://codeclimate.com/github/shamansir/rpd) -->
 
 <a href="http://shamansir.github.io/rpd" title="Reactive Patch Development">
-    <img src="./docs/rpd.svg" width="140px" height="140px" />
+    <img src="https://rawgit.com/shamansir/rpd/v2.0.0/docs/rpd.svg" width="140px" height="140px" />
 </a>    
 
 **Latest Version**: [v0.2.0-α](https://github.com/shamansir/rpd/milestones)
