@@ -286,7 +286,9 @@ gulp.task('setup-docs-configuration', function() {
     //argv.pretty = true;
 });
 
-gulp.task('for-docs', ['setup-docs-configuration', 'build'], function() {
+gulp.task('for-docs', [ 'setup-docs-configuration', 'build'/*,
+                        'build-rpd-to-distribute-html',
+                        'build-rpd-to-distribute-svg' */ ], function() {
     // `docs` task copies all required files itself
 
     /* var docsFiles = [ Paths.Destination + './rpd-docs.min.js', Paths.Destination + './rpd-docs.css' ];
@@ -417,7 +419,7 @@ function makeDocs(config, f) {
 }
 
 gulp.task('docs-clean-dir', function() {
-    return del([ './docs/compiled/assets/**/*', './docs/compiled/examples/**/*', './docs/compiled/**/*' ]);
+    return del([ './docs/compiled/assets/**/*', './docs/compiled/vendor/**/*', './docs/compiled/examples/**/*', './docs/compiled/**/*' ]);
 });
 
 gulp.task('docs-copy-dependencies', function() {
@@ -425,7 +427,11 @@ gulp.task('docs-copy-dependencies', function() {
                         './vendor/d3.v3.min.js',
                         './examples/docs-patch.js',
                         './dist/rpd-docs.css',
-                        './dist/rpd-docs.min.js'];
+                        './dist/rpd-docs.min.js'/*,
+                        './dist/rpd-html.css',
+                        './dist/rpd-html.min.js',
+                        './dist/rpd-svg.css',
+                        './dist/rpd-svg.min.js'*/];
 
     var lastChecked;
     try {
@@ -454,26 +460,32 @@ gulp.task('docs-copy-assets', function() {
                .pipe(gulp.dest('./docs/compiled/assets'));
 });
 
+gulp.task('docs-copy-vendor', function() {
+    return gulp.src([ './vendor/*.*' ])
+               .pipe(gulp.dest('./docs/compiled/vendor'));
+});
+
+var RAWGIT_PREFIX = 'https://cdn.rawgit.com/shamansir/rpd/';
 gulp.task('docs-copy-examples', function() {
-    /* var sourceRe = new RegExp('src="\.\./src/(.*)"|\.\./src/src=\'(.*)\'', 'g');
+    var sourceRe = new RegExp('src="\.\./src/(.*)"|\.\./src=\'\.\.src/(.*)\'', 'g');
     var replaceSourceFiles = parser({
         name: 'replace-source-files',
         func: function(data) {
-            return data.replace(sourceRe, 'TEST');
+            return data.replace(sourceRe, 'src="' + RAWGIT_PREFIX + 'v' + pkg.version + '/src/\$1"');
         }
     });
 
-    var hrefRe = new RegExp('href="\.\./src/(.*)"|href=\'(.*)\'', 'g');
+    var hrefRe = new RegExp('href="\.\./src/(.*)"|href=\'\.\.src/(.*)\'', 'g');
     var replaceHrefFiles = parser({
         name: 'replace-href-files',
         func: function(data) {
-            return data.replace(hrefRe, 'TEST');
+            return data.replace(hrefRe, 'href="' + RAWGIT_PREFIX + 'v' + pkg.version + '/src/\$1"');
         }
-    }); */
+    });
 
     return gulp.src([ './examples/*.*' ])
-               //.pipe(replaceSourceFiles())
-               //.pipe(replaceHrefFiles())
+               .pipe(replaceSourceFiles())
+               .pipe(replaceHrefFiles())
                .pipe(gulp.dest('./docs/compiled/examples'));
 });
 
@@ -489,7 +501,7 @@ gulp.task('docs-copy-highlight-css', function() {
 });
 
 gulp.task('docs', [ 'docs-clean-dir', 'docs-copy-dependencies',
-                    'docs-copy-root-assets', 'docs-copy-assets',
+                    'docs-copy-root-assets', 'docs-copy-assets', 'docs-copy-vendor',
                     'docs-copy-examples', 'docs-copy-highlight-css' ], function() {
 
     //var utils = require('./docs/utils.js');
@@ -508,6 +520,25 @@ gulp.task('docs-watch', [ 'docs-copy-dependencies', 'docs-copy-assets',
     });
     console.log('Will watch for docs updates...');
 });
+
+gulp.task('setup-distribute-variant-html', function() {
+    minSuffixIsObligatory = true;
+    argv.renderer = [ 'html' ];
+    argv.style = [ 'quartz' ];
+    argv.toolkit = [ ];
+    argv['target-name'] = 'rpd-html';
+});
+
+gulp.task('setup-distribute-variant-svg', function() {
+    minSuffixIsObligatory = true;
+    argv.renderer = [ 'svg' ];
+    argv.style = [ 'quartz' ];
+    argv.toolkit = [ ];
+    argv['target-name'] = 'rpd-svg';
+});
+
+gulp.task('build-rpd-to-distribute-html', [ 'setup-distribute-variant-html', 'build' ]);
+gulp.task('build-rpd-to-distribute-svg', [ 'setup-distribute-variant-svg', 'build' ]);
 
 // Helpers =====================================================================
 
