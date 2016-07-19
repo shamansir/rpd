@@ -178,7 +178,7 @@ Feel free to fix issues or do Pull Requests!
 
 [issues]: https://github.com/shamansir/rpd/issues
 [video]: http://vimeo.com/118197237
-[video-img]: http://shamansir.github.io/rpd/rpd-vimeo.png
+[video-img]: http://shamansir.github.io/rpd/assets/rpd-vimeo.png
 [kefir]: http://rpominov.github.io/kefir/
 [kefir-src]: http://rpominov.github.io/kefir/dist/kefir.min.js
 [timbre]: http://mohayonao.github.io/timbre.js/
@@ -198,8 +198,8 @@ Feel free to fix issues or do Pull Requests!
 [core-pd-style]: http://shamansir.github.io/rpd/dist/rpd-core-pd.css
 [core-anm-style]: http://shamansir.github.io/rpd/dist/rpd-core-anm.css
 
-[core-gif]: http://shamansir.github.io/rpd/core.gif
-[pd-gif]: http://shamansir.github.io/rpd/pd.gif
-[anm-gif]: http://shamansir.github.io/rpd/anm.gif
+[core-gif]: http://shamansir.github.io/rpd/assets/core.gif
+[pd-gif]: http://shamansir.github.io/rpd/assets/pd.gif
+[anm-gif]: http://shamansir.github.io/rpd/assets/anm.gif
 
-[logo]: http://shamansir.github.io/rpd/logo-small.png
+[logo]: http://shamansir.github.io/rpd/assets/logo-small.png
