@@ -161,8 +161,8 @@ Rpd.noderenderer('util/metro', 'html', function() {
             bodyElm.appendChild(metroElm);
         },
         always: function(bodyElm, inlets, outlets) {
-            if (outlets.out) {
-                outlets.out.onValue(function() {
+            if (outlets.bang) {
+                outlets.bang.onValue(function() {
                     metroElm.classList.add('rpd-util-metro-fresh');
                 }).delay(500).onValue(function() {
                     metroElm.classList.remove('rpd-util-metro-fresh');

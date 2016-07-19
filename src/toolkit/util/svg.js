@@ -131,8 +131,8 @@ Rpd.noderenderer('util/metro', 'svg', function() {
             d3.select(bodyElm).append(circle.node());
         },
         always: function(bodyElm, inlets, outlets) {
-            if (outlets.out) {
-                outlets.out.onValue(function() {
+            if (outlets.bang) {
+                outlets.bang.onValue(function() {
                     circle.classed('rpd-util-metro-fresh', true);
                 }).delay(500).onValue(function() {
                     circle.classed('rpd-util-metro-fresh', false);
