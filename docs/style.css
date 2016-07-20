@@ -212,6 +212,12 @@ main {
     font-szie: 0.8em;
 } */
 
+blockquote {
+    margin: 0;
+    padding-left: 15px;
+    border-left: 10px solid lightblue;
+}
+
 footer {
     font-size: 0.8em;
     margin: 5em 0 1.5em 0;
@@ -459,14 +465,14 @@ body.rpd-docs-setup table span.negative {
     color: crimson;
 }
 
-body.rpd-docs-introduction p:first-of-type {
+body.rpd-docs-introduction article > p:first-of-type {
     float: right;
     font-size: 0.8em;
     color: lightblue;
     margin-right: 8px;
 }
 
-body.rpd-docs-introduction p:first-of-type a {
+body.rpd-docs-introduction article > p:first-of-type a {
     padding: 4px;
     border-radius: 3px;
     background-color: #eee;
@@ -475,7 +481,7 @@ body.rpd-docs-introduction p:first-of-type a {
     -webkit-transition: background-color 0.1s ease-in;
 }
 
-body.rpd-docs-introduction p:first-of-type a:hover {
+body.rpd-docs-introduction article > p:first-of-type a:hover {
     text-decoration: underline;
     background-color: lightblue;
 }

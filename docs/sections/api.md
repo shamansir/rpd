@@ -567,7 +567,7 @@ Renderer Definition is completely moved to [Style Section](../style.html#writing
 
 #### `Rpd.style(alias, rendererAlias, definition)`
 
-Style Definition is completely moved to [Style Section](../style.html#writing-your-own-style), since it doesn't relate to Building Patches.
+Style Definition is completely moved to [Style Section](./style.html#writing-your-own-style), since it doesn't relate to Building Patches.
 
 <!-- MARK: Patch -->
 

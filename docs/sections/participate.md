@@ -18,8 +18,8 @@ If everything above succeeded, you may look through examples located in `/exampl
 
 Currently there's no `watch` mode in RPD development flow, but all the examples in `/examples` folder use plain source code, so you may use an existing example page or add your own and just change-and-refresh. Same applies for tests.
 
-Of course, you are free to create [Issues]() and submit [Pull Requests]().
+Of course, you are free to create [Issues](https://github.com/shamansir/rpd/issues) and submit [Pull Requests](https://github.com/shamansir/rpd/pulls).
 
 If you want to improve existing toolkits, please consider reading [how Toolkits are organized](./toolkits.html).
 
-Specifically, the very first need is fixing/implementing RPD issues for the [current milestone](), the second one is improving [WebPD Toolkit](), the third one is moving [VVVV]() concepts to the Web with the help of RPD (since currently it only works on Windows). But any other things you think important are also welcome, from fixing English language in this documentation to completely rewriting RPD in [Elm](http://elm-lang.org).
+Specifically, the very first need is fixing/implementing RPD issues for the [current milestone](https://github.com/shamansir/rpd/milestones), the second one is improving [WebPD Toolkit](https://github.com/shamansir/rpd/milestone/7), the third one is moving [vvvv](https://vvvv.org/) concepts to the Web with the help of RPD (there exists [vvvv.js](http://www.vvvvjs.com/), but for the moment Patch editing possibilities are very limited there). But any other things you think important are also welcome, from fixing English language in this documentation to completely rewriting RPD in [Elm](http://elm-lang.org).
