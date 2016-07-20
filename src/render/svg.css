@@ -31,3 +31,7 @@
 .rpd-node.rpd-patch-reference .rpd-process > text {
     cursor: pointer;
 }
+
+.rpd-inlet.rpd-readonly {
+    cursor: default;
+}

@@ -133,3 +133,7 @@
 .rpd-node .rpd-header.rpd-drag-handle:hover {
     fill: gray; /* navy */
 }
+
+.rpd-inlet.rpd-util-number foreignobject {
+    transform: translate(-34px,-9px) !important;
+}

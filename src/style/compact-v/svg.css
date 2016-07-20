@@ -195,3 +195,14 @@
 .rpd-util-comment .rpd-process text {
     fill: lightgray;
 }
+
+.rpd-inlet.rpd-util-number foreignobject,
+.rpd-outlet.rpd-util-number foreignobject {
+    transform: translate(-30px,-5px);
+}
+
+.rpd-inlet.rpd-util-number input[type=number],
+.rpd-outlet.rpd-util-number input[type=number] {
+    /* text-align: end; */
+    width: 28px !important;
+}

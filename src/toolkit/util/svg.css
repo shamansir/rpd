@@ -1,6 +1,19 @@
+.rpd-inlet.rpd-util-number foreignobject,
+.rpd-outlet.rpd-util-number foreignobject {
+    transform: translate(-2px,-8px);
+    /* text-align: end; */
+    /* text-anchor: end; */
+}
+
 .rpd-inlet.rpd-util-number input[type=number],
 .rpd-outlet.rpd-util-number input[type=number] {
-    width: 30px;
+    border: 1px solid lightgray;
+    background-color: #eee;
+    font-size: 0.8em;
+    outline: none;
+    display: block;
+    width: 31px;
+    /* opacity: 0.8; */
 }
 
 .rpd-node.rpd-util-palette .rpd-process .rpd-util-palette-variant * {

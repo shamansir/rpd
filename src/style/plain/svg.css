@@ -70,8 +70,12 @@ text.rpd-value {
     fill: deepskyblue;
 }
 
-.rpd-value-editor {
+.rpd-value-holder .rpd-value-editor {
     display: none;
+}
+
+.rpd-value-holder.rpd-editor-enabled .rpd-value-editor {
+    display: block;
 }
 
 .rpd-inlet .rpd-name,

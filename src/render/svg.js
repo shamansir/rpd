@@ -758,11 +758,14 @@ function ValueEditor(inlet, render, canvas, valueHolder, valueElm, editorElm) {
                 if (inletData.link) inletData.link.disable();
                 valueIn.emit(conf.lastValue);
                 valueHolder.classed('rpd-editor-enabled', true);
+                valueHolder.classed('rpd-editor-disabled', false);
             } else if (conf.cancelEditing) {
                 valueElm.classed('rpd-edited', true);
                 valueHolder.classed('rpd-editor-enabled', false);
+                valueHolder.classed('rpd-editor-disabled', true);
             }
          });
+    valueHolder.classed('rpd-editor-enabled', false);
     valueHolder.classed('rpd-editor-disabled', true);
 }
 ValueEditor.prototype.disable = function() {

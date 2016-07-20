@@ -181,3 +181,8 @@
 .rpd-util-comment .rpd-process text {
     fill: lightgray;
 }
+
+.rpd-inlet.rpd-util-number foreignobject,
+.rpd-outlet.rpd-util-number foreignobject {
+    transform: translate(-33px,-7px) !important;
+}
