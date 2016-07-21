@@ -56,11 +56,15 @@ All the examples below are _interactive_—you are free to connect Nodes and man
 
 To **connect** Outlet of one Node to Inlet of another, use the _click the Outlet_ → _move your mouse_ → _click the Inlet_ method.
 
-<img src="./assets/rpd-connect.gif" width="320px" async />
+<img src="./assets/rpd-connect.gif" width="320px" />
 
 To **disconnect**, _click the Inlet_ → _move your mouse_ → _click anywhere_.
 
+<img src="./assets/rpd-disconnect.gif" width="320px" />
+
 To **reconnect** to another Inlet: _click currently connected Inlet_ → _move your mouse_ → _click wanted Inlet_.
+
+<img src="./assets/rpd-reconnect.gif" width="320px" />
 
 <!--
 > For the moment, it could be hard to connect Nodes using Touch control on a small screens or with high sensitivity setup, but [Touch Support is planned](https://github.com/shamansir/rpd/issues/368). -->
