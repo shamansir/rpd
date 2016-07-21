@@ -20,7 +20,8 @@
       <ul>
         <li class="active"><a href="./index.html">Introduction</a>
           <ul>
-            <li><a href="./index.html#what-is">What is RPD?</a></li>
+            <li><a href="./index.html#what-is-rpd">What is RPD?</a></li>
+            <li><a href="./index.html#features">Features</a></li>
             <li><a href="./index.html#code-examples">Code Examples</a></li>
             <li><a href="./index.html#terminology">Terminology</a></li>
           </ul>
@@ -125,7 +126,32 @@ show streams and simple values -->
 is kept as minimal as possible, so your customer may load the interface you created using 3G internet or wi-fi limited to some very low speed. Don&#39;t ask me why may it happen, it still happens everywhere. Minimalism is here not in paranoid amounts, though&mdash;if feature requires a bit more code, or some task gets very complex with less code, we for sure will add some more code for the sake of simplicity.</p>
 <p>The default configuration with SVG renderer and Quartz style included takes <em>11KB</em> when compiled, minimized and gzipped! (30KB not gzipped). Though you also need <a href="http://rpominov.github.io/kefir/">latest Kefir.js</a>, the only required dependency to make it work, which adds just ~10KB more, since <a href="http://rpominov.github.io">Kefir.js author</a> also likes minimalism in his code.</p>
 <p>If you feel that&#39;s you know everything in this field and this library is definitely what you need (and no doubts, it is!), you may either download the <a href="./sections/setup.html#download">version with default configuration</a> or go straight to <a href="./sections/setup.html#compilation">Building Section</a> to discover how easy it is to grab a code and configure yourself a custom one. If you still feel unsafe, stay with me for a bit.</p>
+<h3 id="features">Features</h3>
+<ul>
+<li>HTML (yes, pure HTML&amp;CSS!) and SVG renderers out-of-the-box;</li>
+<li><a href="./sections/setup.html#styles-and-renderers">7 Rendering Styles</a> out-of-the-box;</li>
+<li>Dozens of Nodes in 4 Toolkits, serving as examples of <a href="./sections/examples.html">what you can do</a> with the help of RPD;</li>
+<li>Your user may <a href="./examples/sandbox.html">add Nodes from the list</a>, connect Nodes, remove Nodes, go into sub-Patches, ...;</li>
+<li>Import/Export of Networks from/to JSON or Plain Text out-of-the-box;</li>
+<li>Very powerful, and both super-simple and minimal, API allowing you to create your custom Node Toolkits;</li>
+<li>Everything is configurable and optional at the same time, how you render the Node, the way it looks, the way it processes data, the way input and output channels behave;</li>
+<li>Powered by <a href="http://rpominov.github.io/kefir/">Kefir</a> library, so allows you to include <em>Reactive Streams</em> of any complexity into the flow of your Network;</li>
+<li><em>tons of features more...</em></li>
+</ul>
 <h3 id="code-examples">Code Examples</h3>
+<p>All the examples below are <em>interactive</em>—you are free to connect Nodes and manipulate the Patch Flow.</p>
+<p>To <strong>connect</strong> Outlet of one Node to Inlet of another, use the <em>click the Outlet</em> → <em>move your mouse</em> → <em>click the Inlet</em> method.</p>
+<p><img src="./assets/rpd-connect.gif" width="320px" async /></p>
+<p>To <strong>disconnect</strong>, <em>click the Inlet</em> → <em>move your mouse</em> → <em>click anywhere</em>.</p>
+<p>To <strong>reconnect</strong> to another Inlet: <em>click currently connected Inlet</em> → <em>move your mouse</em> → <em>click wanted Inlet</em>.</p>
+<!--
+> For the moment, it could be hard to connect Nodes using Touch control on a small screens or with high sensitivity setup, but [Touch Support is planned](https://github.com/shamansir/rpd/issues/368). -->
+<p>Examples with source code:</p>
+<ul>
+<li><a href="#random-generator">Random Generator</a></li>
+<li><a href="#flag-generator">Flag Generator</a></li>
+<li><a href="#html5-canvas-and-custom-toolkit">HTML5 Canvas and Custom Toolkit</a></li>
+</ul>
 <h4 id="random-generator">Random Generator</h4>
 <p>Random Generator with the help of <a href="http://.."><code>util</code></a> toolkit:</p>
 <div id="example-one"></div>
