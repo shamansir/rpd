@@ -73,7 +73,7 @@ Examples with source code:
 
 #### Random Generator
 
-Random Generator with the help of [`util`](http://..) toolkit:
+Random Generator with the help of [`util`](https://github.com/shamansir/rpd/tree/master/src/toolkit/util) toolkit. Following a signal of Metronome, which "bangs" every 3 seconds by default, Random Generator yields a new value between specified minimum and maximum (here: a number from 0 to 26, just for the sake of the example). The result then goes to a multiply-by-two Node, which is produced from a new type defined in the code. Then we Log last five generated random values and last five multiplied value, just to keep track on things.
 
 <div id="example-one"></div>
 
@@ -120,6 +120,8 @@ metroNode.outlets['out'].connect(randomGenNode.inlets['bang']);
 
 Tries to generate Country Flag from Unicode codepoints, [inspired by article "Emoji flags from ISO 3166-1 country codes"](https://bendodson.com/weblog/2016/04/26/emoji-flags-from-iso-3166-country-codes-in-swift). (There's also ["Emoji Flag Redux"](https://esham.io/2015/04/emoji-flags-redux) article, written earlier). When you see blank squares (_tofu_) in "Maybe Flag" Node, there's no flag for this combination of letters.
 
+Both Metronomes tick with different period—top one waits two seconds to pass between ticks, bottom one waits three. Ticks trigger corresponding Random Generators to generate a new value between 0 and 26 (so, 0 <= value < 26), which is used as an index of a letter in the alphabet to yield from Letter nodes. Then, two letters are sent to `Maybe<Flag>` Node where they are combined, and if they form a proper two-letter ISO code of the country, you see the flag. If not, you see two _tofu_ squares or a squares with letters inside. Or, if your system is not supporting Emoji, you see something else and then for you this one is not the kind of representative example.
+
 <div id="example-two"></div>
 
 ```javascript
@@ -134,9 +136,9 @@ metro1.inlets['period'].receive(2000);
 metro2.inlets['period'].receive(3000);
 
 var random1 = patch.addNode('util/random').move(170, 10);
-random1.inlets['max'].receive(25);
+random1.inlets['max'].receive(26);
 var random2 = patch.addNode('util/random').move(170, 120);
-random2.inlets['max'].receive(25);
+random2.inlets['max'].receive(26);
 
 var letter1 = patch.addNode('util/letter').move(300, 10);
 var letter2 = patch.addNode('util/letter').move(300, 110);
@@ -200,6 +202,12 @@ maybeFlag.outlets['char'].connect(logNode.inlets['what']);
 ```
 
 #### HTML5 Canvas and Custom Toolkit
+
+The Scene consists of seven (by default) shifted and colored squares is loaded and attached to HTML5 Canvas. It has a configuration object where values could be changed by user. Since it uses `requestAnimationFrame` for animation, on every frame it checks this configuration and redraws itself according to values specified there. So when values in this object are changed, Scene is immediately updated.
+
+The Networks of given Nodes allows you to change configuration values. For example, by tuning the top left Knob, you may change the value of Red component of the starting color. By tuning the one in the middle, you may change the Y-coordinate of the shift between every two squares. You may take one of the free unconnected Knobs and connect it to Count Inlet of the Scene node to control the number of squares.
+
+But if you connect the `result` Outlet of the Node named `%` to one or several of the `color` Node Inlets, you may interact with the Scene in even more direct way. `mouse` Node collects all of the movements of your mouse and converts them to the pair of X and Y coordinates. Then the mentioned `%` Node divides the value of X coordinate by modulus of 256, so the result is always between 0 and 256 (so, 0 <= result < 256) and always matches the amount `color` node wants as the input.
 
 <div id="example-three"></div>
 
@@ -359,11 +367,11 @@ var mouse = patch.addNode('util/mouse-pos').move(0, 70);
 var modulus = patch.addNode('util/mod').move(20, 150);
 var comment = patch.addNode('util/comment').move(80, 100);
 
-knob1.inlets['max'].receive(255);
+knob1.inlets['max'].receive(256);
 knob2.inlets['max'].receive(180);
 knob4.inlets['max'].receive(15);
 coords.inlets['x'].receive(25);
-modulus.inlets['b'].receive(255);
+modulus.inlets['b'].receive(256);
 comment.inlets['text'].receive('Try to connect "%" node output' +
     + ' to inlet of "my/coords" node or one of the "color" nodes');
 

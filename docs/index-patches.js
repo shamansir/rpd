@@ -49,9 +49,9 @@ function applyCodeExample2() {
     metro2.inlets['period'].receive(3000);
 
     var random1 = patch.addNode('util/random').move(170, 10);
-    random1.inlets['max'].receive(25);
+    random1.inlets['max'].receive(26);
     var random2 = patch.addNode('util/random').move(170, 120);
-    random2.inlets['max'].receive(25);
+    random2.inlets['max'].receive(26);
 
     var letter1 = patch.addNode('util/letter').move(300, 10);
     var letter2 = patch.addNode('util/letter').move(300, 110);
@@ -264,11 +264,11 @@ function applyCodeExample3() {
     var modulus = patch.addNode('util/mod').move(20, 150);
     var comment = patch.addNode('util/comment').move(80, 100);
 
-    knob1.inlets['max'].receive(255);
+    knob1.inlets['max'].receive(256);
     knob2.inlets['max'].receive(180);
     knob4.inlets['max'].receive(15);
     coords.inlets['x'].receive(25);
-    modulus.inlets['b'].receive(255);
+    modulus.inlets['b'].receive(256);
     comment.inlets['text'].receive('Try to connect "%" node output to inlet of "my/coords" node or one of the "color" nodes')
 
     knob1.outlets['number'].connect(color1.inlets['r']);
