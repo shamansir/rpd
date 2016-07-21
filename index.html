@@ -141,9 +141,11 @@ is kept as minimal as possible, so your customer may load the interface you crea
 <h3 id="code-examples">Code Examples</h3>
 <p>All the examples below are <em>interactive</em>—you are free to connect Nodes and manipulate the Patch Flow.</p>
 <p>To <strong>connect</strong> Outlet of one Node to Inlet of another, use the <em>click the Outlet</em> → <em>move your mouse</em> → <em>click the Inlet</em> method.</p>
-<p><img src="./assets/rpd-connect.gif" width="320px" async /></p>
+<p><img src="./assets/rpd-connect.gif" width="320px" /></p>
 <p>To <strong>disconnect</strong>, <em>click the Inlet</em> → <em>move your mouse</em> → <em>click anywhere</em>.</p>
+<p><img src="./assets/rpd-disconnect.gif" width="320px" /></p>
 <p>To <strong>reconnect</strong> to another Inlet: <em>click currently connected Inlet</em> → <em>move your mouse</em> → <em>click wanted Inlet</em>.</p>
+<p><img src="./assets/rpd-reconnect.gif" width="320px" /></p>
 <!--
 > For the moment, it could be hard to connect Nodes using Touch control on a small screens or with high sensitivity setup, but [Touch Support is planned](https://github.com/shamansir/rpd/issues/368). -->
 <p>Examples with source code:</p>
@@ -153,7 +155,7 @@ is kept as minimal as possible, so your customer may load the interface you crea
 <li><a href="#html5-canvas-and-custom-toolkit">HTML5 Canvas and Custom Toolkit</a></li>
 </ul>
 <h4 id="random-generator">Random Generator</h4>
-<p>Random Generator with the help of <a href="http://.."><code>util</code></a> toolkit:</p>
+<p>Random Generator with the help of <a href="https://github.com/shamansir/rpd/tree/master/src/toolkit/util"><code>util</code></a> toolkit. Following a signal of Metronome, which &quot;bangs&quot; every 3 seconds by default, Random Generator yields a new value between specified minimum and maximum (here: a number from 0 to 26, just for the sake of the example). The result then goes to a multiply-by-two Node, which is produced from a new type defined in the code. Then we Log last five generated random values and last five multiplied value, just to keep track on things.</p>
 <div id="example-one"></div>
 
 <pre><code class="lang-javascript">Rpd.renderNext(<span class="hljs-string">'svg'</span>, <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'example-one'</span>),
@@ -195,6 +197,7 @@ metroNode.outlets[<span class="hljs-string">'out'</span>].connect(randomGenNode.
 </code></pre>
 <h4 id="flag-generator">Flag Generator</h4>
 <p>Tries to generate Country Flag from Unicode codepoints, <a href="https://bendodson.com/weblog/2016/04/26/emoji-flags-from-iso-3166-country-codes-in-swift">inspired by article &quot;Emoji flags from ISO 3166-1 country codes&quot;</a>. (There&#39;s also <a href="https://esham.io/2015/04/emoji-flags-redux">&quot;Emoji Flag Redux&quot;</a> article, written earlier). When you see blank squares (<em>tofu</em>) in &quot;Maybe Flag&quot; Node, there&#39;s no flag for this combination of letters.</p>
+<p>Both Metronomes tick with different period—top one waits two seconds to pass between ticks, bottom one waits three. Ticks trigger corresponding Random Generators to generate a new value between 0 and 26 (so, 0 &lt;= value &lt; 26), which is used as an index of a letter in the alphabet to yield from Letter nodes. Then, two letters are sent to <code>Maybe&lt;Flag&gt;</code> Node where they are combined, and if they form a proper two-letter ISO code of the country, you see the flag. If not, you see two <em>tofu</em> squares or a squares with letters inside. Or, if your system is not supporting Emoji, you see something else and then for you this one is not the kind of representative example.</p>
 <div id="example-two"></div>
 
 <pre><code class="lang-javascript">Rpd.renderNext(<span class="hljs-string">'svg'</span>, <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'example-two'</span>),
@@ -208,9 +211,9 @@ metro1.inlets[<span class="hljs-string">'period'</span>].receive(<span class="hl
 metro2.inlets[<span class="hljs-string">'period'</span>].receive(<span class="hljs-number">3000</span>);
 
 <span class="hljs-keyword">var</span> random1 = patch.addNode(<span class="hljs-string">'util/random'</span>).move(<span class="hljs-number">170</span>, <span class="hljs-number">10</span>);
-random1.inlets[<span class="hljs-string">'max'</span>].receive(<span class="hljs-number">25</span>);
+random1.inlets[<span class="hljs-string">'max'</span>].receive(<span class="hljs-number">26</span>);
 <span class="hljs-keyword">var</span> random2 = patch.addNode(<span class="hljs-string">'util/random'</span>).move(<span class="hljs-number">170</span>, <span class="hljs-number">120</span>);
-random2.inlets[<span class="hljs-string">'max'</span>].receive(<span class="hljs-number">25</span>);
+random2.inlets[<span class="hljs-string">'max'</span>].receive(<span class="hljs-number">26</span>);
 
 <span class="hljs-keyword">var</span> letter1 = patch.addNode(<span class="hljs-string">'util/letter'</span>).move(<span class="hljs-number">300</span>, <span class="hljs-number">10</span>);
 <span class="hljs-keyword">var</span> letter2 = patch.addNode(<span class="hljs-string">'util/letter'</span>).move(<span class="hljs-number">300</span>, <span class="hljs-number">110</span>);
@@ -273,6 +276,9 @@ letter2.outlets[<span class="hljs-string">'letter'</span>].connect(maybeFlag.inl
 maybeFlag.outlets[<span class="hljs-string">'char'</span>].connect(logNode.inlets[<span class="hljs-string">'what'</span>]);
 </code></pre>
 <h4 id="html5-canvas-and-custom-toolkit">HTML5 Canvas and Custom Toolkit</h4>
+<p>The Scene consists of seven (by default) shifted and colored squares is loaded and attached to HTML5 Canvas. It has a configuration object where values could be changed by user. Since it uses <code>requestAnimationFrame</code> for animation, on every frame it checks this configuration and redraws itself according to values specified there. So when values in this object are changed, Scene is immediately updated.</p>
+<p>The Networks of given Nodes allows you to change configuration values. For example, by tuning the top left Knob, you may change the value of Red component of the starting color. By tuning the one in the middle, you may change the Y-coordinate of the shift between every two squares. You may take one of the free unconnected Knobs and connect it to Count Inlet of the Scene node to control the number of squares.</p>
+<p>But if you connect the <code>result</code> Outlet of the Node named <code>%</code> to one or several of the <code>color</code> Node Inlets, you may interact with the Scene in even more direct way. <code>mouse</code> Node collects all of the movements of your mouse and converts them to the pair of X and Y coordinates. Then the mentioned <code>%</code> Node divides the value of X coordinate by modulus of 256, so the result is always between 0 and 256 (so, 0 &lt;= result &lt; 256) and always matches the amount <code>color</code> node wants as the input.</p>
 <div id="example-three"></div>
 
 <pre><code class="lang-javascript"><span class="hljs-comment">/* ============== Coordinates Channel Type ============== */</span>
@@ -430,11 +436,11 @@ Rpd.renderNext(<span class="hljs-string">'svg'</span>, <span class="hljs-built_i
 <span class="hljs-keyword">var</span> modulus = patch.addNode(<span class="hljs-string">'util/mod'</span>).move(<span class="hljs-number">20</span>, <span class="hljs-number">150</span>);
 <span class="hljs-keyword">var</span> comment = patch.addNode(<span class="hljs-string">'util/comment'</span>).move(<span class="hljs-number">80</span>, <span class="hljs-number">100</span>);
 
-knob1.inlets[<span class="hljs-string">'max'</span>].receive(<span class="hljs-number">255</span>);
+knob1.inlets[<span class="hljs-string">'max'</span>].receive(<span class="hljs-number">256</span>);
 knob2.inlets[<span class="hljs-string">'max'</span>].receive(<span class="hljs-number">180</span>);
 knob4.inlets[<span class="hljs-string">'max'</span>].receive(<span class="hljs-number">15</span>);
 coords.inlets[<span class="hljs-string">'x'</span>].receive(<span class="hljs-number">25</span>);
-modulus.inlets[<span class="hljs-string">'b'</span>].receive(<span class="hljs-number">255</span>);
+modulus.inlets[<span class="hljs-string">'b'</span>].receive(<span class="hljs-number">256</span>);
 comment.inlets[<span class="hljs-string">'text'</span>].receive(<span class="hljs-string">'Try to connect "%" node output'</span> +
     + <span class="hljs-string">' to inlet of "my/coords" node or one of the "color" nodes'</span>);
 
