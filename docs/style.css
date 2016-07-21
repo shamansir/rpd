@@ -417,9 +417,11 @@ body.rpd-docs-examples article > ul {
 
 body.rpd-docs-examples article > ul > li {
     padding: 5px;
-    margin: 10px;
+    /* margin: 10px; */
     border: 1px solid black;
     float: left;
+    margin: 0 15px 15px 0px;
+    background-color: #f9f9f9;
 }
 
 body.rpd-docs-examples article > ul > li:hover {
@@ -436,6 +438,17 @@ body.rpd-docs-examples article > ul > li span {
 
 body.rpd-docs-examples article > ul > li img {
     width: 250px;
+}
+
+body.rpd-docs-examples article > ul:after {
+    content: '';
+    display: table;
+    clear: both;
+}
+
+body.rpd-docs-examples iframe {
+    float: left;
+    margin: 0 15px 15px 0px;
 }
 
 body.rpd-docs-examples footer {

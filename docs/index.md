@@ -38,7 +38,38 @@ The default configuration with SVG renderer and Quartz style included takes _11K
 
 If you feel that's you know everything in this field and this library is definitely what you need (and no doubts, it is!), you may either download the [version with default configuration](./sections/setup.html#download) or go straight to [Building Section](./sections/setup.html#compilation) to discover how easy it is to grab a code and configure yourself a custom one. If you still feel unsafe, stay with me for a bit.
 
+### Features
+
+* HTML (yes, pure HTML&amp;CSS!) and SVG renderers out-of-the-box;
+* [7 Rendering Styles](./sections/setup.html#styles-and-renderers) out-of-the-box;
+* Dozens of Nodes in 4 Toolkits, serving as examples of [what you can do](./sections/examples.html) with the help of RPD;
+* Your user may [add Nodes from the list](./examples/sandbox.html), connect Nodes, remove Nodes, go into sub-Patches, ...;
+* Import/Export of Networks from/to JSON or Plain Text out-of-the-box;
+* Very powerful, and both super-simple and minimal, API allowing you to create your custom Node Toolkits;
+* Everything is configurable and optional at the same time, how you render the Node, the way it looks, the way it processes data, the way input and output channels behave;
+* Powered by [Kefir](http://rpominov.github.io/kefir/) library, so allows you to include _Reactive Streams_ of any complexity into the flow of your Network;
+* _tons of features more..._
+
 ### Code Examples
+
+All the examples below are _interactive_—you are free to connect Nodes and manipulate the Patch Flow.
+
+To **connect** Outlet of one Node to Inlet of another, use the _click the Outlet_ → _move your mouse_ → _click the Inlet_ method.
+
+<img src="./assets/rpd-connect.gif" width="320px" async />
+
+To **disconnect**, _click the Inlet_ → _move your mouse_ → _click anywhere_.
+
+To **reconnect** to another Inlet: _click currently connected Inlet_ → _move your mouse_ → _click wanted Inlet_.
+
+<!--
+> For the moment, it could be hard to connect Nodes using Touch control on a small screens or with high sensitivity setup, but [Touch Support is planned](https://github.com/shamansir/rpd/issues/368). -->
+
+Examples with source code:
+
+* [Random Generator](#random-generator)
+* [Flag Generator](#flag-generator)
+* [HTML5 Canvas and Custom Toolkit](#html5-canvas-and-custom-toolkit)
 
 #### Random Generator
 

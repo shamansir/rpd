@@ -5,7 +5,8 @@
             "title": "Introduction",
             "path": "index.html",
             "subsections": {
-                "what-is": "What is RPD?",
+                "what-is-rpd": "What is RPD?",
+                "features": "Features",
                 "code-examples": "Code Examples",
                 "terminology": "Terminology"
             }
