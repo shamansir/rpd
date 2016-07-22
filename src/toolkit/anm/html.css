@@ -56,7 +56,7 @@
 }
 
 .rpd-anm-toolkit-node.rpd-anm-spread .rpd-inlet .rpd-value-holder.rpd-editor-enabled .rpd-value {
-    display: none;
+    visibility: hidden;
 }
 
 .rpd-anm-toolkit-node.rpd-anm-render canvas {

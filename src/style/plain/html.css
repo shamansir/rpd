@@ -69,6 +69,15 @@ table.rpd-node {
 .rpd-inlet .rpd-value-holder.rpd-editor-enabled .rpd-value-editor {
     display: block;
     z-index: 1000;
+    position: absolute;
+    left: 20px;
+    top: 0px;
+    /* font-size: 0.8em; */
+}
+
+.rpd-inlet .rpd-value-holder .rpd-value-editor input {
+    font-size: 0.8em;
+    width: 25px;
 }
 
 .rpd-inlet .rpd-connector,
@@ -140,6 +149,7 @@ table.rpd-node {
     /* right: 0px; */
     padding: 0 3px;
     color: deepskyblue;
+    /* top: -10px; */
 }
 
 .rpd-node .rpd-remove-button {
