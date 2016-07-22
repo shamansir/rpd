@@ -119,7 +119,7 @@ var DOC_HIGHLIGHT_STYLE = 'docco', // default, tomorrow, foundation, github-gist
     DOC_HIGHLIGHT_STYLE_FILENAME = DOC_HIGHLIGHT_STYLE + '.min.css';
 
 var DEV_DEPENDENCIES = [
-               'https://cdn.jsdelivr.net/kefir/3.0.0/kefir.min.js', // Kefir
+               'https://cdn.jsdelivr.net/kefir/3.3.0/kefir.min.js', // Kefir
                'http://mohayonao.github.io/timbre.js/timbre.js', // timbre
                'http://player-dev.animatron.com/latest/bundle/animatron.min.js', // animatron
                'https://raw.githubusercontent.com/sebpiq/WebPd/master/dist/webpd-latest.min.js', // WebPd
