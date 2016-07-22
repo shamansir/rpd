@@ -480,7 +480,8 @@ body.rpd-docs-setup table span.negative {
 
 body.rpd-docs-introduction article > p:first-of-type {
     float: right;
-    font-size: 0.8em;
+    /* font-size: 0.8em; */
+    font-size: 13px;
     color: lightblue;
     margin-right: 8px;
 }
