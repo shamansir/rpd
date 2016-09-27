@@ -124,7 +124,7 @@ var DEV_DEPENDENCIES = [
                'http://player-dev.animatron.com/latest/bundle/animatron.min.js', // animatron
                'https://raw.githubusercontent.com/sebpiq/WebPd/master/dist/webpd-latest.min.js', // WebPd
                'https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.19/p5.min.js', // p5
-               'https://d3js.org/d3.v3.min.js', // d3
+               'https://d3js.org/d3.v4.min.js', // d3
                'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.js',
                'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.css',
                'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/mode/javascript/javascript.min.js',
