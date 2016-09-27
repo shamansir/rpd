@@ -18,7 +18,7 @@ A video of the engine v1.0 in action, demonstrates some of its features: [ [Watc
 
 [![Watch][video-img]][video]
 
-[ [Play online](http://shamansir.guthub.io/rpd/sections/examples.html) ]
+[ [Play online](http://shamansir.github.io/rpd/sections/examples.html) ]
 
 <!-- Examples grid -->
 
@@ -26,7 +26,7 @@ _(NB: Only modern browsers are supported, tested most in Chrome and Safari, no m
 
 ----
 
-**Surely visit** **[Documentation, Examples & More...](http://shamansir.guthub.io/rpd)**
+**Surely visit** **[Documentation, Examples & More...](http://shamansir.github.io/rpd)**
 
 ----
 
