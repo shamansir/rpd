@@ -18,7 +18,7 @@ A video of the engine v1.0 in action, demonstrates some of its features: [ [Watc
 
 [![Watch][video-img]][video]
 
-[ [Play online](http://shamansir.github.io/rpd/sections/examples.html) ]
+[ [Play online](http://shamansir.github.io/rpd/examples.html) ]
 
 <!-- Examples grid -->
 
