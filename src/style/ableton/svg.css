@@ -37,10 +37,6 @@
     fill: rgba(255, 0, 0, 0.2);
 }
 
-.rpd-patch text.rpd-name {
-    text-transform: capitalize;
-}
-
 .rpd-node.rpd-util-comment .rpd-process text {
     fill: #999;
 }
@@ -51,6 +47,14 @@
 
 .rpd-node .rpd-header {
     fill: #939EA8;
+}
+
+.rpd-node.rpd-dragging .rpd-header {
+    fill: #4286BA;
+}
+
+.rpd-node.rpd-dragging .rpd-header .rpd-name {
+    fill: white !important;
 }
 
 .rpd-node .rpd-content {
