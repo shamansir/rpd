@@ -18,6 +18,8 @@
 .rpd-inlet text.rpd-value,
 .rpd-outlet text.rpd-value {
     font-size: 9px;
+    /* fill: #4286BA; */
+    fill: white;
 }
 
 .rpd-inlet .rpd-editor-disabled,
@@ -25,7 +27,13 @@
     display: none;
 }
 
+.rpd-inlet text.rpd-name,
 .rpd-outlet text.rpd-name {
+    font-size: 9px;
+    fill: #ADADAD;
+}
+
+.rpd-inlet text.rpd-name {
     text-anchor: end;
 }
 
@@ -50,11 +58,15 @@
 }
 
 .rpd-node .rpd-header {
-    fill: #939EA8;
+    /* fill: #6495B4; */
+    /* fill: #D6692C; */
+    fill: #4286BA;
+    /* fill: #BACF79; */
 }
 
 .rpd-node.rpd-dragging .rpd-header {
-    fill: #4286BA;
+    fill: #E6E947;
+    /* fill: #4286BA; */
 }
 
 .rpd-node.rpd-dragging .rpd-header .rpd-name {
