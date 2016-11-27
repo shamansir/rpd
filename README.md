@@ -1,5 +1,7 @@
 # RPD — Reactive Patch Development v2.0.0
 
+**Official Documentation & Examples**: [http://shamansir.github.io/rpd](http://shamansir.github.io/rpd)
+
 [![Join the chat at https://gitter.im/shamansir/rpd](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/shamansir/rpd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Build Status](https://travis-ci.org/shamansir/rpd.svg?branch=master)](https://travis-ci.org/shamansir/rpd)
@@ -10,9 +12,13 @@
     <img src="https://rawgit.com/shamansir/rpd/v2.0.0/docs/rpd.svg" width="140px" height="140px" />
 </a>    
 
-**Latest Version**: [v2.0.0](https://github.com/shamansir/rpd/milestones?state=closed)
+**[Closed Milestones](https://github.com/shamansir/rpd/milestones?state=closed)**
 
-_Previous Version_: [v0.1.5](https://github.com/shamansir/rpd/releases/tag/v0.1.5).
+**Latest Stable Version**: [v2.0.1](https://github.com/shamansir/rpd/releases/tag/v2.0.1)
+
+_Version in development_: [v2.1.0](https://github.com/shamansir/rpd/milestone/9).
+
+_Previous Stable Version_: [v0.1.5](https://github.com/shamansir/rpd/releases/tag/v0.1.5). (no [semantic versioning](http://semver.org/) was used before v2.0)
 
 A video of the engine v0.1.0 in action, demonstrates some of its features: [ [Watch][video] ].
 
@@ -53,8 +59,6 @@ Here are some GIFs in reduced quality, in addition to a video in rather good qua
 The Engine API provides easy ways to program node networks. Or to define a custom node or a channel type. Even node sets (named _toolkits_) are enormously easy to build!
 
 Let's switch to some simple examples. Detailed stuff is under the links below.
-
-**NB:** Despite the **α** (_alpha_) symbol in the version number, API is stable and may be used safely, since it has a very low chance to be changed in nearby future, unless issues will hardly require so. If such occasion will occur despite the above allegations, minor version number will be raised and users will be notified about API changes coming in a new version. Actually **α** (_alpha_) just means that the engine wasn't tested in an enough amount of environments for now, and planned to be removed at the time there will be enough.
 
 Constructing a network of nodes:
 
