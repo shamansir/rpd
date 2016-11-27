@@ -1,4 +1,4 @@
-# RPD — Reactive Patch Development v0.2-α
+# RPD — Reactive Patch Development v2.0.0
 
 [![Join the chat at https://gitter.im/shamansir/rpd](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/shamansir/rpd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -10,11 +10,11 @@
     <img src="https://rawgit.com/shamansir/rpd/v2.0.0/docs/rpd.svg" width="140px" height="140px" />
 </a>    
 
-**Latest Version**: [v0.2.0-α](https://github.com/shamansir/rpd/milestones)
+**Latest Version**: [v2.0.0](https://github.com/shamansir/rpd/milestones?state=closed)
 
-_Previous Version_: [v0.1.0](https://github.com/shamansir/rpd/releases/tag/v0.1.0) ([README](./README-1.0.md)).
+_Previous Version_: [v0.1.5](https://github.com/shamansir/rpd/releases/tag/v0.1.5).
 
-A video of the engine v1.0 in action, demonstrates some of its features: [ [Watch][video] ].
+A video of the engine v0.1.0 in action, demonstrates some of its features: [ [Watch][video] ].
 
 [![Watch][video-img]][video]
 
