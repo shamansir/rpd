@@ -1,4 +1,4 @@
-Rpd.style('blender', 'svg', function(config) {
+Rpd.style('ableton', 'svg', function(config) {
 
 var d3 = d3 || d3_tiny;
 
@@ -19,89 +19,71 @@ var listeners = {};
 var inletToConnector = {},
     outletToConnector = {};
 
+var AbletonTheme = {
+    _palette: [
+        '#3AFDAA',
+        '#1EBEAF',
+        '#65FEE8',
+        '#FEEDA3',
+        '#BB6118',
+        '#FEEE4A',
+        '#FDA43A',
+        '#BFB96E',
+        '#31E7FB',
+        '#8BFD70',
+        '#A24FAB',
+        '#7661C3',
+        '#CDBCE3',
+        '#B9C2E2',
+        '#FC43B2',
+        '#FD95A7',
+        '#BACF79',
+        '#FDA378',
+        '#E2F134',
+        '#84FFFF'
+    ],
+    'one': {
+        background: '#12181C',
+        header: '#939EA8',
+        headerSelection: '#DADDE2',
+        highlight: '#DADDE2',
+        highlight2: '#E6E947',
+        controls0: '#12181C',
+        controls1: '#22282F',
+        controls2: '#6F7783',
+        controls3: '#6495B4',
+        nodeBody: '#ABB3B8',
+        nodeBody2: '#999999',
+        selection: '#FACE3E',
+        border: '#808C94',
+        border2: '#ADADAD',
+        signal: '#59FD39',
+        error: '#F87829',
+    },
+    'two': {
+        background: '#767676',
+        header: '#727272',
+        headerSelection: '#31E9FD',
+        highlight: '#B5B2B1',
+        highlight2: '#FACE3E',
+        controls0: '#767676',
+        controls1: '#161616',
+        controls2: '#D6692C',
+        controls3: '#4286BA',
+        nodeBody: '#8D8D8D',
+        nodeBody2: '#999999',
+        selection: '#9CD1C9',
+        border: '#5A5A5A',
+        border2: '#ADADAD',
+        signal: '#59FD39',
+        error: '#FC151B',
+    }
+};
+
+var theme = AbletonTheme.one;
+
 var defs = d3.select(_createSvgElement('defs'));
-// background blueprint pattern
-defs.append('pattern').attr('id', 'blueprint-sub').attr('patternUnits', 'userSpaceOnUse')
-                      .attr('width', 20).attr('height', 20)
-                      .append('rect').attr('fill', 'transparent')
-                                     .attr('stroke', '#2c2c2c').attr('stroke-width', 1)
-                                     .attr('width', 20).attr('height', 20);
-defs.append('pattern').attr('id', 'blueprint').attr('patternUnits', 'userSpaceOnUse')
-                      .attr('width', 100).attr('height', 100)
-                      .call(function(pattern) {
-                          pattern.append('rect').attr('fill', '#323232')
-                                                .attr('width', 100).attr('height', 100);
-                          pattern.append('rect').attr('fill', 'url(#blueprint-sub)')
-                                                .attr('width', 100).attr('height', 100);
-                          pattern.append('rect').attr('fill', 'transparent')
-                                                .attr('stroke', '#2c2c2c').attr('stroke-width', 2)
-                                                .attr('width', 100).attr('height', 100);
-                      });
-// cyan header gradient
-defs.append('linearGradient').attr('id', 'cyan-gradient')//.attr('gradientUnits', 'userSpaceOnUse')
-                             .attr('x1', '50%').attr('y1', '100%').attr('x2', '50%').attr('y2', '0%')
-                             .call(function(linearGradient) {
-                                 linearGradient.append('stop').attr('offset', '0%')
-                                                              .attr('style', 'stop-color:rgb(59,195,189);stop-opacity:0.5');
-                                 linearGradient.append('stop').attr('offset', '90%')
-                                                              .attr('style', 'stop-color:rgb(83,186,176);stop-opacity:0.55');
-                                 linearGradient.append('stop').attr('offset', '100%')
-                                                              .attr('style', 'stop-color:rgb(83,219,213);stop-opacity:0.6');
-                             });
-// gray header gradient
-defs.append('linearGradient').attr('id', 'gray-gradient')//.attr('gradientUnits', 'userSpaceOnUse')
-                             .attr('x1', '50%').attr('y1', '100%').attr('x2', '50%').attr('y2', '0%')
-                             .call(function(linearGradient) {
-                                 linearGradient.append('stop').attr('offset', '0%')
-                                                              .attr('style', 'stop-color:rgb(110,110,110);stop-opacity:0.5');
-                                 linearGradient.append('stop').attr('offset', '90%')
-                                                              .attr('style', 'stop-color:rgb(115,115,115);stop-opacity:0.6');
-                                 linearGradient.append('stop').attr('offset', '100%')
-                                                              .attr('style', 'stop-color:rgb(135,135,135);stop-opacity:0.5');
-                             });
 
-// selection gradient
-defs.append('linearGradient').attr('id', 'select-gradient')//.attr('gradientUnits', 'userSpaceOnUse')
-                             .attr('x1', '50%').attr('y1', '100%').attr('x2', '50%').attr('y2', '0%')
-                             .call(function(linearGradient) {
-                                 linearGradient.append('stop').attr('offset', '0%')
-                                                              .attr('style', 'stop-color:rgb(85,146,185);stop-opacity:1');
-                                 linearGradient.append('stop').attr('offset', '71%')
-                                                              .attr('style', 'stop-color:rgb(59,129,204);stop-opacity:1');
-                                 linearGradient.append('stop').attr('offset', '100%')
-                                                              .attr('style', 'stop-color:rgb(45,112,179);stop-opacity:1');
-                             });
-
-// deselection gradient
-defs.append('linearGradient').attr('id', 'deselect-gradient')//.attr('gradientUnits', 'userSpaceOnUse')
-                             .attr('x1', '50%').attr('y1', '100%').attr('x2', '50%').attr('y2', '0%')
-                             .call(function(linearGradient) {
-                                  linearGradient.append('stop').attr('offset', '0%')
-                                                               .attr('style', 'stop-color:rgb(54,54,54);stop-opacity:1');
-                                  linearGradient.append('stop').attr('offset', '70%')
-                                                               .attr('style', 'stop-color:rgb(72,72,72);stop-opacity:1');
-                                  linearGradient.append('stop').attr('offset', '100%')
-                                                               .attr('style', 'stop-color:rgb(83,83,83);stop-opacity:1');
-                             });
-
-// link gradient
-defs.append('radialGradient').attr('id', 'link-gradient')//.attr('gradientUnits', 'userSpaceOnUse')
-                             .attr('cx', '50%').attr('cy', '50%').attr('r', '75%')
-                             .call(function(radialGradient) {
-                                 radialGradient.append('stop').attr('offset', '45%')
-                                                              .attr('style', 'stop-color:rgb(255,255,255);stop-opacity:1');
-                                 radialGradient.append('stop').attr('offset', '100%')
-                                                              .attr('style', 'stop-color:rgb(150,150,150);stop-opacity:1');
-                             });
-// disabled link gradient
-defs.append('radialGradient').attr('id', 'disabled-link-gradient')//.attr('gradientUnits', 'userSpaceOnUse')
-                             .attr('cx', '50%').attr('cy', '50%').attr('r', '75%')
-                             .call(function(radialGradient) {
-                                 radialGradient.append('stop').attr('offset', '45%')
-                                                              .attr('style', 'stop-color:rgb(155,155,155);stop-opacity:1');
-                                 radialGradient.append('stop').attr('offset', '100%')
-                                                              .attr('style', 'stop-color:rgb(75,75,75);stop-opacity:1');
-                              });
 // shadow blur filter
 defs.append('filter').attr('id', 'shadow-blur')
                      .attr('x', -10).attr('y', -10).attr('width', 400).attr('height', 400)
@@ -117,38 +99,6 @@ defs.append('filter').attr('id', 'shadow-blur')
                                                  .attr('mode', 'normal');
                      });
 
-// text emboss filter
-defs.append('filter').attr('id', 'text-emboss')
-                     .attr('x', -10).attr('y', -10).attr('width', 300).attr('height', 300)
-                     .call(function(filter) {
-                         filter.append('feFlood').attr('flood-color', '#757575')
-                                                 .attr('result', 'color');
-                         filter.append('feOffset').attr('in', 'SourceAlpha')
-                                                  .attr('result', 'offOut')
-                                                  .attr('dx', 0.5).attr('dy', 0);
-                         filter.append('feComposite').attr('in', 'color')
-                                                     .attr('in2', 'offOut')
-                                                     .attr('operator', 'in');
-                         filter.append('feBlend').attr('in', 'SourceGraphic')
-                                                 .attr('mode', 'normal');
-                     });
-
-// button emboss filter
-defs.append('filter').attr('id', 'button-emboss')
-                     .attr('x', -10).attr('y', -0.5).attr('width', 300).attr('height', 300)
-                     .call(function(filter) {
-                         filter.append('feFlood').attr('flood-color', '#757575')
-                                                 .attr('result', 'color');
-                         filter.append('feOffset').attr('in', 'SourceAlpha')
-                                                  .attr('result', 'offOut')
-                                                  .attr('dx', -1).attr('dy', 0.5);
-                         filter.append('feComposite').attr('in', 'color')
-                                                     .attr('in2', 'offOut')
-                                                     .attr('operator', 'in');
-                         filter.append('feBlend').attr('in', 'SourceGraphic')
-                                                 .attr('mode', 'normal');
-                     });
-
 return {
 
     edgePadding: { horizontal: 30, vertical: 20 },
@@ -159,13 +109,13 @@ return {
                        .classed('rpd-patch', true);
         canvas.append(defs.node());
         canvas.append('rect').attr('width', '100%').attr('height', '100%')
-                             .attr('fill', 'url(#blueprint)');
+                             .attr('fill', theme.background);
         return { element: canvas.node() };
     },
 
     createNode: function(node, render, description, icon) {
 
-        var minContentSize = render.size ? { width: render.size.width || 70,
+        var minContentSize = render.size ? { width: render.size.width || 40,
                                              height: render.size.height || 40 }
                                          : { width: 70, height: 40 };
 
@@ -212,25 +162,22 @@ return {
 
         // append shadow
         nodeElm.append('path').attr('class', 'rpd-shadow')
-                              //.attr('fill', 'url(#cyan-gradient)').attr('stroke', '#333').attr('stroke-width', 1.5)
                               .attr('fill', 'rgba(0,0,0,0.3)')
                               .attr('filter', 'url(#shadow-blur)')
                               .attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight + bodyHeight, 6, 6, 6, 6));
 
         // append node header
         nodeElm.append('path').attr('class', 'rpd-header').classed('rpd-drag-handle', true)
-                              .attr('fill', 'url(#gray-gradient)')
                               .attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight, 6, 6, 0, 0));
         nodeElm.append('text').attr('class', 'rpd-name').text(node.def.title || node.type)
                               .attr('x', 7).attr('y', 12)
-                              .attr('filter', 'url(#text-emboss)')
                               .style('pointer-events', 'none');
         // append node body
         nodeElm.append('path').attr('class', 'rpd-content')
                               .attr('fill', 'rgba(150,150,150,.5)')
                               .attr('d', roundedRect(0, headerHeight, fullNodeWidth, bodyHeight, 0, 0, 6, 6));
         nodeElm.append('rect').attr('class', 'rpd-body')
-                              .attr('fill', 'transparent').attr('stroke', '#222').attr('stroke-width', 1.5)
+                              .attr('fill', 'transparent').attr('stroke', '#222').attr('stroke-width', 1)
                               .attr('width', fullNodeWidth).attr('height', height)
                               .attr('rx', 6).attr('ry', 6)
                               .style('pointer-events', 'none');
@@ -352,8 +299,7 @@ return {
                  .attr('text-anchor', 'end')
                  .append('text').attr('class', 'rpd-value').attr('fill', '#999');
             group.append('text').attr('class', 'rpd-name').text(inlet.def.label || inlet.alias)
-                                .attr('x', 10).attr('y', 0)
-                                .attr('filter', 'url(#text-emboss)');
+                                .attr('x', 8).attr('y', 0);
         });
         listeners[inlet.node.id].inlet(inletElm, inlet);
         inletToConnector[inlet.id] = inletElm.select('.rpd-connector');
@@ -372,8 +318,7 @@ return {
                                 .attr('x', 10).attr('y', 0)
                                 .style('pointer-events', 'none');
             group.append('text').attr('class', 'rpd-name').text(outlet.def.label || outlet.alias)
-                                .attr('x', -10).attr('y', 0)
-                                .attr('filter', 'url(#text-emboss)');
+                                .attr('x', -8).attr('y', 0);
         });
         listeners[outlet.node.id].outlet(outletElm, outlet);
         outletToConnector[outlet.id] = outletElm.select('.rpd-connector');

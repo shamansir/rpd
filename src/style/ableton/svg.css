@@ -1,4 +1,5 @@
 .rpd-background {
+    fill: #12181C;
     /* background-color: #393939;
     background-image: linear-gradient(#2c2c2c 2px, transparent 2px),
     linear-gradient(90deg, #2c2c2c 2px, transparent 2px),
@@ -14,6 +15,11 @@
     dominant-baseline: central;
 }
 
+.rpd-inlet text.rpd-value,
+.rpd-outlet text.rpd-value {
+    font-size: 9px;
+}
+
 .rpd-inlet .rpd-editor-disabled,
 .rpd-outlet .rpd-editor-disabled {
     display: none;
@@ -21,10 +27,6 @@
 
 .rpd-outlet text.rpd-name {
     text-anchor: end;
-}
-
-.rpd-node.rpd-util-nodelist .rpd-header {
-    fill: url(#cyan-gradient);
 }
 
 .rpd-outlet.rpd-util-color .rpd-connector {
@@ -43,12 +45,39 @@
     fill: #999;
 }
 
+.rpd-node .rpd-body {
+    stroke: #fff;
+}
+
+.rpd-node .rpd-header {
+    fill: #939EA8;
+}
+
+.rpd-node .rpd-content {
+    fill: #8D8D8D;
+}
+
 .rpd-link {
-    stroke: url(#link-gradient);
+    stroke: lightgray;
 }
 
 .rpd-link.rpd-disabled {
-    stroke: url(#disabled-link-gradient);
+    stroke: red;
+}
+
+.rpd-inlet .rpd-connector,
+.rpd-outlet .rpd-connector {
+    fill: lightgray;
+}
+
+.rpd-inlet:hover .rpd-connector,
+.rpd-outlet:hover .rpd-connector {
+    fill: white;
+}
+
+.rpd-inlet.rpd-fresh .rpd-connector,
+.rpd-outlet.rpd-fresh .rpd-connector {
+    fill: #E6E947;
 }
 
 .rpd-node .rpd-remove-button {
@@ -67,14 +96,7 @@
     border-color: #353535;
     border-style: double;
     padding: 3px;
-    /*background-color: #ccc;*/
-    background: -moz-linear-gradient(90deg, rgba(186,186,186,0.9) 0%, rgba(191,191,191,0.9) 55%, rgba(176,176,176,0.9) 100%); /* ff3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(176,176,176,0.9)), color-stop(45%, rgba(191,191,191,0.9)), color-stop(100%, rgba(186,186,186,0.9))); /* safari4+,chrome */
-    background: -webkit-linear-gradient(90deg, rgba(186,186,186,0.9) 0%, rgba(191,191,191,0.9) 55%, rgba(176,176,176,0.9) 100%); /* safari5.1+,chrome10+ */
-    background: -o-linear-gradient(90deg, rgba(186,186,186,0.9) 0%, rgba(191,191,191,0.9) 55%, rgba(176,176,176,0.9) 100%); /* opera 11.10+ */
-    background: -ms-linear-gradient(90deg, rgba(186,186,186,0.9) 0%, rgba(191,191,191,0.9) 55%, rgba(176,176,176,0.9) 100%); /* ie10+ */
-    background: linear-gradient(0deg, rgba(186,186,186,0.9) 0%, rgba(191,191,191,0.9) 55%, rgba(176,176,176,0.9) 100%); /* w3c */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#B0B0B0', endColorstr='#BABABA',GradientType=0 ); /* ie6-9 */
+    background-color: #ccc;
 }
 
 .rpd-node.rpd-util-nodelist input:focus {
@@ -90,7 +112,7 @@
 }
 
 .rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-fulltypename {
-    fill: #ccc !important;
+    fill: #000 !important;
     transform: translate(18px,-1px);
 }
 
@@ -99,8 +121,7 @@
 }
 
 .rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype rect {
-    fill: url(#deselect-gradient) !important;
-    filter: url(#button-emboss);
+    fill: #B5B2B1 !important;
     stroke: #111;
     stroke-width: 1px;
     rx: 3;
@@ -109,7 +130,7 @@
 }
 
 .rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype.rpd-nodelist-selected rect {
-    fill: url(#select-gradient) !important;
+    fill: #FACE3E !important;
 }
 
 .rpd-util-nodelist .rpd-nodelist-list text.rpd-nodelist-description {
