@@ -13,12 +13,13 @@ var socketPadding = 25, // distance between inlets/outlets in SVG units
 var bodySizePadding = 30;
 var headerHeight = 20; // height of a node header in SVG units
 
-var letterWidth = 8;
+var letterWidth = 7;
 
 var listeners = {};
 var inletToConnector = {},
     outletToConnector = {};
 
+/*
 var AbletonTheme = {
     _palette: [
         '#3AFDAA',
@@ -80,24 +81,11 @@ var AbletonTheme = {
     }
 };
 
-var theme = AbletonTheme.one;
+var theme = AbletonTheme.one; */
+
+var roundness = 6;
 
 var defs = d3.select(_createSvgElement('defs'));
-
-// shadow blur filter
-defs.append('filter').attr('id', 'shadow-blur')
-                     .attr('x', -10).attr('y', -10).attr('width', 400).attr('height', 400)
-                     .call(function(filter) {
-                         filter.append('feOffset').attr('in', 'SourceAlpha')
-                                                  .attr('result', 'offOut')
-                                                  .attr('dx', 0).attr('dy', 6);
-                         filter.append('feGaussianBlur').attr('in', 'offOut')
-                                                        .attr('result', 'blurOut')
-                                                        .attr('stdDeviation', '3 5');
-                         filter.append('feBlend').attr('in', 'SourceGraphic')
-                                                 .attr('in2', 'blurOut')
-                                                 .attr('mode', 'normal');
-                     });
 
 return {
 
@@ -109,7 +97,7 @@ return {
                        .classed('rpd-patch', true);
         canvas.append(defs.node());
         canvas.append('rect').attr('width', '100%').attr('height', '100%')
-                             .attr('fill', theme.background);
+              .classed('rpd-background', true);
         return { element: canvas.node() };
     },
 
@@ -163,23 +151,25 @@ return {
         // append shadow
         nodeElm.append('path').attr('class', 'rpd-shadow')
                               .attr('fill', 'rgba(0,0,0,0.3)')
-                              .attr('filter', 'url(#shadow-blur)')
-                              .attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight + bodyHeight, 6, 6, 6, 6));
+                              .attr('d', roundedRect(3, 3, fullNodeWidth, headerHeight + bodyHeight,
+                                                     roundness, roundness, roundness, roundness));
 
         // append node header
         nodeElm.append('path').attr('class', 'rpd-header').classed('rpd-drag-handle', true)
-                              .attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight, 6, 6, 0, 0));
+                              .attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight,
+                                                     roundness, roundness, 0, 0));
         nodeElm.append('text').attr('class', 'rpd-name').text(node.def.title || node.type)
                               .attr('x', 7).attr('y', 12)
                               .style('pointer-events', 'none');
         // append node body
         nodeElm.append('path').attr('class', 'rpd-content')
                               .attr('fill', 'rgba(150,150,150,.5)')
-                              .attr('d', roundedRect(0, headerHeight, fullNodeWidth, bodyHeight, 0, 0, 6, 6));
+                              .attr('d', roundedRect(0, headerHeight, fullNodeWidth, bodyHeight, 0, 0,
+                                                        roundness, roundness));
         nodeElm.append('rect').attr('class', 'rpd-body')
                               .attr('fill', 'transparent').attr('stroke', '#222').attr('stroke-width', 1)
                               .attr('width', fullNodeWidth).attr('height', height)
-                              .attr('rx', 6).attr('ry', 6)
+                              .attr('rx', roundness).attr('ry', roundness)
                               .style('pointer-events', 'none');
 
         // append tooltip with description
@@ -220,12 +210,15 @@ return {
             inletsMargin = longestInletLabel * letterWidth;
             outletsMargin = longestOutletLabel * letterWidth;
             fullNodeWidth = inletsMargin + newSize.width + outletsMargin;
-            nodeElm.select('path.rpd-header').attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight, 6, 6, 0, 0));
+            nodeElm.select('path.rpd-header').attr('d', roundedRect(0, 0, fullNodeWidth, headerHeight,
+                                                                    roundness, roundness, 0, 0));
             nodeElm.select('g.rpd-remove-button').attr('transform', 'translate(' + (fullNodeWidth-12) + ',1)');
-            nodeElm.select('path.rpd-shadow').attr('d', roundedRect(0, 0, fullNodeWidth, newSize.height, 6, 6, 6, 6));
+            nodeElm.select('path.rpd-shadow').attr('d', roundedRect(0, 0, fullNodeWidth, newSize.height,
+                                                                    roundness, roundness, roundness, roundness));
             nodeElm.select('rect.rpd-body').attr('height', newSize.height).attr('width', fullNodeWidth);
             nodeElm.select('path.rpd-content').attr('d', roundedRect(0, headerHeight,
-                fullNodeWidth, newSize.height - headerHeight, 0, 0, 6, 6));
+                fullNodeWidth, newSize.height - headerHeight,
+                0, 0, roundness, roundness));
             nodeElm.select('g.rpd-process').attr('transform', 'translate(' + (inletsMargin + (pivot.x * newSize.width)) + ','
                                                                            + (headerHeight + ((newSize.height - headerHeight) * pivot.y)) + ')');
             nodeElm.select('g.rpd-outlets').attr('transform', 'translate(' + fullNodeWidth + ',' + headerHeight + ')');

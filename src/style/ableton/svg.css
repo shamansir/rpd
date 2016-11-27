@@ -29,6 +29,10 @@
     text-anchor: end;
 }
 
+.rpd-background {
+    fill: #12181C;
+}
+
 .rpd-outlet.rpd-util-color .rpd-connector {
     fill: yellow;
 }
