@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+
+        <!-- gulp html-head ==style quartz ==renderer svg ==toolkit util ==root .. -->
+
+        <!-- Built with RPD v2.0.0 <http://shamansir.github.io/rpd> -->
+
+        <!-- RPD Renderer: html -->
+        <link rel="stylesheet" href="../src/render/svg.css"></style>
+        <!-- RPD Style: ableton (svg) -->
+        <link rel="stylesheet" href="../src/style/ableton/svg.css"></style>
+        <!-- RPD Toolkit: util (svg) -->
+        <link rel="stylesheet" href="../src/toolkit/util/svg.css"></style>
+
+        <!-- Kefir -->
+        <script src="../vendor/kefir.min.js"></script>
+        <!-- RPD -->
+        <script src="../src/rpd.js"></script>
+
+        <!-- RPD's d3_tiny.js -->
+        <script src="../src/d3_tiny.js"></script>
+        <!-- RPD Rendering Engine: -->
+        <script src="../src/render/shared.js"></script>
+        <!-- RPD Style: ableton (svg) -->
+        <script src="../src/style/ableton/svg.js"></script>
+        <!-- RPD Renderer: svg -->
+        <script src="../src/render/svg.js"></script>
+        <!-- RPD Toolkit: util -->
+        <script src="../src/toolkit/util/shared.js"></script>
+        <script src="../src/toolkit/util/toolkit.js"></script>
+        <!-- RPD Toolkit: util (svg) -->
+        <script src="../src/toolkit/util/svg.js"></script>
+
+    </head>
+
+    <body>
+        <script src="./util-demo.js"></script>
+        <script>
+            buildUtilDemoPatch('svg', document.body, { style: 'ableton', fullPage: true, linkForm: 'curve' });
+        </script>
+    </body>
+</html>

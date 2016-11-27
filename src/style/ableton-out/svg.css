@@ -1,0 +1,162 @@
+.rpd-background {
+    fill: #12181C;
+    /* background-color: #393939;
+    background-image: linear-gradient(#2c2c2c 2px, transparent 2px),
+    linear-gradient(90deg, #2c2c2c 2px, transparent 2px),
+    linear-gradient(#303030 1px, transparent 1px),
+    linear-gradient(90deg, #303030 1px, transparent 1px);
+    background-size:100px 100px, 100px 100px, 20px 20px, 20px 20px;
+    background-position:-2px -2px, -2px -2px, -1px -1px, -1px -1px; */
+}
+
+.rpd-patch text {
+    font-family: sans-serif;
+    font-size: 11px;
+    dominant-baseline: central;
+}
+
+.rpd-inlet text.rpd-value,
+.rpd-outlet text.rpd-value {
+    font-size: 9px;
+    /* fill: #4286BA; */
+    fill: white;
+}
+
+.rpd-inlet .rpd-editor-disabled,
+.rpd-outlet .rpd-editor-disabled {
+    display: none;
+}
+
+.rpd-inlet text.rpd-name,
+.rpd-outlet text.rpd-name {
+    font-size: 9px;
+    fill: #ADADAD;
+}
+
+.rpd-inlet text.rpd-name {
+    text-anchor: end;
+}
+
+.rpd-background {
+    fill: #12181C;
+}
+
+.rpd-outlet.rpd-util-color .rpd-connector {
+    fill: yellow;
+}
+
+.rpd-remove-button path:hover {
+    fill: rgba(255, 0, 0, 0.4);
+}
+
+.rpd-node.rpd-util-comment .rpd-process text {
+    fill: #999;
+}
+
+.rpd-node .rpd-body {
+    stroke: #fff;
+}
+
+.rpd-node .rpd-header {
+    /* fill: #6495B4; */
+    /* fill: #D6692C; */
+    fill: #4286BA;
+    /* fill: #BACF79; */
+}
+
+.rpd-node.rpd-dragging .rpd-header {
+    fill: #E6E947;
+    /* fill: #4286BA; */
+}
+
+.rpd-node.rpd-dragging .rpd-header .rpd-name {
+    fill: white !important;
+}
+
+.rpd-node .rpd-content {
+    fill: #8D8D8D;
+}
+
+.rpd-link {
+    stroke: lightgray;
+}
+
+.rpd-link.rpd-disabled {
+    stroke: red;
+}
+
+.rpd-inlet .rpd-connector,
+.rpd-outlet .rpd-connector {
+    fill: lightgray;
+}
+
+.rpd-inlet:hover .rpd-connector,
+.rpd-outlet:hover .rpd-connector {
+    fill: white;
+}
+
+.rpd-inlet.rpd-fresh .rpd-connector,
+.rpd-outlet.rpd-fresh .rpd-connector {
+    fill: #E6E947;
+}
+
+.rpd-node .rpd-remove-button {
+    fill: rgba(200,200,200,.8);
+}
+
+.rpd-node .rpd-remove-button text {
+    font-size: 7px;
+}
+
+.rpd-node.rpd-util-nodelist input {
+    /* opacity: 0.8; */
+    width: 135px !important;
+    border-radius: 11px;
+    border-width: 1px;
+    border-color: #353535;
+    border-style: double;
+    padding: 3px;
+    background-color: #ccc;
+}
+
+.rpd-node.rpd-util-nodelist input:focus {
+    outline: none;
+}
+
+.rpd-node.rpd-util-nodelist .rpd-nodelist-search text {
+    text-anchor: middle;
+}
+
+.rpd-util-nodelist .rpd-nodelist-search rect {
+    fill: #666 !important;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-fulltypename {
+    fill: #000 !important;
+    transform: translate(18px,-1px);
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-selected .rpd-nodelist-fulltypename {
+    fill: black !important;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype rect {
+    fill: #B5B2B1 !important;
+    stroke: #111;
+    stroke-width: 1px;
+    rx: 3;
+    ry: 3;
+    /* height: 19px; */
+}
+
+.rpd-util-nodelist .rpd-nodelist-list .rpd-nodelist-nodetype.rpd-nodelist-selected rect {
+    fill: #FACE3E !important;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list text.rpd-nodelist-description {
+    font-size: 7px !important;
+}
+
+.rpd-util-nodelist .rpd-nodelist-list text.rpd-nodelist-icon {
+    transform: translate(3px,0);
+}
