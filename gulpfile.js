@@ -466,7 +466,8 @@ gulp.task('docs-copy-vendor', function() {
 });
 
 //var RAWGIT_PREFIX = 'https://cdn.rawgit.com/shamansir/rpd/' + 'v' + pkg.version;
-var RAWGIT_PREFIX = 'https://rawgit.com/shamansir/rpd/' + 'v' + pkg.version;
+//var RAWGIT_PREFIX = 'https://rawgit.com/shamansir/rpd/' + 'v' + pkg.version;
+var RAWGIT_PREFIX = 'https://rawgit.com/shamansir/rpd/master';
 gulp.task('docs-copy-examples', function() {
     var sourceRe = new RegExp('src="\.\./src/(.*)"|\.\./src=\'\.\.src/(.*)\'', 'g');
     var replaceSourceFiles = parser({
