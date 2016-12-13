@@ -22,9 +22,14 @@
     fill: white;
 }
 
-.rpd-inlet .rpd-editor-disabled,
-.rpd-outlet .rpd-editor-disabled {
+.rpd-inlet .rpd-editor-disabled .rpd-value-editor,
+.rpd-outlet .rpd-editor-disabled .rpd-value-editor {
     display: none;
+}
+
+.rpd-inlet.rpd-util-number foreignobject, .rpd-outlet.rpd-util-number foreignobject {
+    transform: translate(-43px,1px);
+    font-size: 8px;
 }
 
 .rpd-inlet text.rpd-name,

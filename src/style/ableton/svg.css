@@ -20,8 +20,8 @@
     font-size: 9px;
 }
 
-.rpd-inlet .rpd-editor-disabled,
-.rpd-outlet .rpd-editor-disabled {
+.rpd-inlet .rpd-editor-disabled .rpd-value-editor,
+.rpd-outlet .rpd-editor-disabled .rpd-value-editor {
     display: none;
 }
 
