@@ -26,6 +26,34 @@ describe('registration: channel type', function() {
         });
     });
 
+   it('fires the proper error when unregistered type was used in a node definition, for inlet', function() {
+        withNewPatch(function(patch, updateSpy) {
+            expect(function() {
+
+                Rpd.nodetype('spec/test', {
+                    inlets: { 'in': { type: 'aaazzz/123456' } }
+                });
+
+                patch.addNode('spec/test');
+
+            }).toReportError('inlet/error');
+        });
+    });
+
+    it('fires the proper error when unregistered type was used in a node definition, for outlet', function() {
+        withNewPatch(function(patch, updateSpy) {
+            expect(function() {
+
+                Rpd.nodetype('spec/test', {
+                    outlets: { 'out': { type: 'aaazzz/123456' } }
+                });
+
+                patch.addNode('spec/test');
+
+            }).toReportError('outlet/error');
+        });
+    });
+
     it('could have default value which is used when channel of this type was created', function() {
         Rpd.channeltype('spec/foo', { 'default': 5 });
 

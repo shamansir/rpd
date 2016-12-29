@@ -264,12 +264,18 @@ function reportErrorsToConsole(config) {
     Rpd.events.onError(function(error) {
         if (!config.logErrors) return;
         if (error.silent) return;
+        var subjectStringified;
+        try {
+            subjectStringified = Rpd.autoStringify(error.subject);
+        } catch (e) {
+            subjectStringified = '<Unable-to-Stringify>';
+        }
         if (error.system) {
             console.error(new Error(error.type + ' — ' + error.message + '. ' +
-                          'Subject: ' + Rpd.autoStringify(error.subject)));
+                          'Subject: ' + subjectStringified));
         } else {
             console.log('Error:', error.type, '—', error.message + '. ',
-                        'Subject: ' + Rpd.autoStringify(error.subject), error.subject);
+                        'Subject: ' + subjectStringified, error.subject);
         }
     });
 }
