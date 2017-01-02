@@ -1,23 +1,32 @@
 /* @flow */
 
-export type Node: {
+export type PatchDefinition = {
+    name: string;
+}
+
+declare class Patch {
+    Patch(name: string, patchDef: PatchDefinition): Patch;
+}
+
+declare class Node {
 
 };
 
-export type Inlet: {
+declare class Inlet {
 
 };
 
-export type Outlet: {
+declare class Outlet {
 
 };
 
-export type Link: {
+declare class Link {
 
 };
+declare var Rpd : {
+    Patch: typeof Patch;
 
-declare var Rpd: {
-
+    addPatch(): Patch;
 };
 
 module.exports = Rpd;
