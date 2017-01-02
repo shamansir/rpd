@@ -10,7 +10,7 @@ export type NodeDefinition = {
     // TODO
 }
 
-export type NodeRenderDefinition = {
+export type NodeRendererDefinition = {
     name: string;
     // TODO
 }
@@ -20,7 +20,7 @@ export type InletDefinition = {
     // TODO
 }
 
-export type InletRenderDefinition = {
+export type InletRendererDefinition = {
     name: string;
     // TODO
 }
@@ -30,17 +30,29 @@ export type OutletDefinition = {
     // TODO
 }
 
-export type OutletRenderDefinition = {
+export type OutletRendererDefinition = {
     name: string;
     // TODO
 }
 
 export type ChannelDefiniton = InletDefinition | OutletDefinition;
 
+export type ChannelRendererDefinition = InletRendererDefinition | OutletRendererDefinition;
+
 export type RendererConfig = {
 }
 
 export type KefirStream = { /* TODO */ }
+
+export type RendererDefinition = {
+    name: string;
+    // TODO
+}
+
+export type StyleDefinition = {
+    name: string;
+    // TODO
+}
 
 declare class Patch {
     Patch(name: string, def?: PatchDefinition): Patch;
@@ -59,7 +71,7 @@ declare class Patch {
 }
 
 declare class Node {
-    Node(type: string, patch: Patch, def?: NodeDefinition, render?: NodeRenderDefinition, callback?: (node: Node) => void): Node;
+    Node(type: string, patch: Patch, def?: NodeDefinition, render?: NodeRendererDefinition, callback?: (node: Node) => void): Node;
     turnOn(): Node;
     turnOff(): Node;
     addInlet(type: string, alias: string, def?: InletDefinition): Inlet;
@@ -72,7 +84,7 @@ declare class Node {
 };
 
 declare class Inlet {
-    Inlet(type: string, node: Node, alias?: string, def?: InletDefinition, render?: InletRenderDefinition): Inlet;
+    Inlet(type: string, node: Node, alias?: string, def?: InletDefinition, render?: InletRendererDefinition): Inlet;
     receive(value: any): Inlet; // FIXME: value: any except KefirStream
     stream(stream: KefirStream): Inlet;
     toDefault(): Inlet;
@@ -80,7 +92,7 @@ declare class Inlet {
 };
 
 declare class Outlet {
-    Outlet(type: string, node: Node, alias?: string, def?: OutletDefinition, render?: OutletRenderDefinition): Outlet;
+    Outlet(type: string, node: Node, alias?: string, def?: OutletDefinition, render?: OutletRendererDefinition): Outlet;
     connect(inlet: Inlet): Link;
     disconnect(link: Link): Outlet;
     send(value: any): Outlet; // FIXME: value: any except KefirStream
@@ -101,12 +113,38 @@ declare var HiddenTypes : {
 }
 
 declare var Rpd : {
+    VERSION: string;
+
     _: typeof HiddenTypes;
 
     // FIXME: remove this block later
     Patch: typeof Patch;
 
+    // registration
+    nodetype(type: string, def?: NodeDefinition): void;
+    nodetype(type: string, func: () => NodeDefinition): void;
+    channeltype(type: string, def?: ChannelDefiniton): void;
+    channeltype(type: string, func: () => ChannelDefiniton): void;
+    renderer(alias: string, def: RendererDefinition): void;
+    noderenderer(type: string, alias: string, def: NodeRendererDefinition): void;
+    noderenderer(type: string, alias: string, func: () => NodeRendererDefinition): void;
+    channelrenderer(type: string, alias: string, def: ChannelRendererDefinition): void;
+    channelrenderer(type: string, alias: string, func: () => ChannelRendererDefinition): void;
+    nodedescription(type: string, description: string): void;
+    style(alias: string, renderer: string, def: StyleDefinition): void;
+    style(alias: string, renderer: string, def: () => StyleDefinition): void;
+    toolkiticon(toolkit: string, icon: string): void;
+    nodetypeicon(type: string, icon: string): void;
+
     addPatch(): Patch;
+    // TODO: add addPatch variants
+    addClosedPatch(): Patch;
+    // TODO: add addClosedPatch variants
+    renderNext(aliases: Array<string>, targets: Array<string>, config?: RendererConfig): void;
+    renderNext(alias: string, target: string, config?: RendererConfig): void;
+    renderNext(aliases: Array<string>, target: string, config?: RendererConfig): void;
+    renderNext(alias: string, targets: Array<String>, config?: RendererConfig): void;
+    stopRendering(): void;
 };
 
 module.exports = Rpd;

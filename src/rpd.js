@@ -75,7 +75,7 @@ function /*Rpd.*/addPatch(arg0, arg1, arg2) {
 
 function /*Rpd.*/addClosedPatch(arg0, arg1) {
     var name = !is_object(arg0) ? arg0 : undefined; var def = arg1 || arg0;
-    var instance = new Patch(arg0, arg1 || arg0);
+    var instance = new Patch(name, def);
     rpdEvent['network/add-patch'].emit(instance);
     return instance;
 }
