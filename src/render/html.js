@@ -1,4 +1,10 @@
-(function() {
+;(function(global) {
+  "use strict";
+
+var Rpd = global.Rpd;
+if (typeof Rpd === "undefined" && typeof require !== "undefined") {
+    Rpd = require('rpd');
+}
 
 var ƒ = Rpd.unit;
 
@@ -236,7 +242,7 @@ return function(networkRoot, userConfig) {
                 limitSrc = tree.patches[currentPatch.id];
 
             // find a rectange to place the new node, and actually place it there
-            var nodeSize = styledNode.size;
+            var nodeSize = styledNode.size,
                 nodePos = placing.nextPosition(node, nodeSize, { width:  limitSrc.node().offsetWidth,
                                                                  height: limitSrc.node().offsetHeight });
 
@@ -794,4 +800,4 @@ Rpd.HtmlRenderer = HtmlRenderer;
 
 Rpd.renderer('html', HtmlRenderer);
 
-})();
+})(this);

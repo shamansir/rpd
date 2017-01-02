@@ -1,3 +1,11 @@
+;(function(global) {
+  "use strict";
+
+var Rpd = global.Rpd;
+if (typeof Rpd === "undefined" && typeof require !== "undefined") {
+    Rpd = require('rpd');
+}
+
 function S(type) {
     return function(v) {
         return Spread.adapt(v, type);
@@ -212,3 +220,5 @@ Rpd.nodetype('anm/render', function() {
         process: function() { }
     };
 });
+
+})(this);

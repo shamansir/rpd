@@ -1,4 +1,10 @@
-(function() {
+;(function(global) {
+  "use strict";
+
+var Rpd = global.Rpd;
+if (typeof Rpd === "undefined" && typeof require !== "undefined") {
+    Rpd = require('rpd');
+}
 
 var numberToHex = RpdUtils.numberToHex;
 var toHexColor = RpdUtils.toHexColor;
@@ -377,4 +383,4 @@ Rpd.nodetypeicon('util/mouse-pos-by-bang', '🖱');
 //Rpd.nodetypeicon('util/bounded-number', '⩫');
 //Rpd.nodetypeicon('util/sum-of-three', '∑');
 
-})();
+})(this);

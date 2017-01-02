@@ -1,3 +1,11 @@
+;(function(global) {
+  "use strict";
+
+var Rpd = global.Rpd;
+if (typeof Rpd === "undefined" && typeof require !== "undefined") {
+    Rpd = require('rpd');
+}
+
 Rpd.style('compact-v', 'svg', (function() {
 
 var d3 = d3 || d3_tiny;
@@ -258,3 +266,5 @@ function bezierByH(x0, y0, x1, y1) {
 }
 
 } })());
+
+})(this);

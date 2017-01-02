@@ -1,3 +1,11 @@
+;(function(global) {
+  "use strict";
+
+var Rpd = global.Rpd;
+if (typeof Rpd === "undefined" && typeof require !== "undefined") {
+    Rpd = require('rpd');
+}
+
 Rpd.navigation = (function() {
 
     var SEPARATOR = '+';
@@ -114,3 +122,5 @@ Rpd.navigation = (function() {
     return new Navigation();
 
 })();
+
+}(this));

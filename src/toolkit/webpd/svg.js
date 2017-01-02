@@ -1,4 +1,10 @@
-(function() {
+;(function(global) {
+  "use strict";
+
+var Rpd = global.Rpd;
+if (typeof Rpd === "undefined" && typeof require !== "undefined") {
+    Rpd = require('rpd');
+}
 
 var d3 = d3 || d3_tiny;
 
@@ -398,4 +404,4 @@ Rpd.noderenderer('wpd/audio-control', 'svg', function(node) {
     };
 });
 
-})();
+})(this);

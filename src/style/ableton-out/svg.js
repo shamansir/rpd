@@ -1,3 +1,11 @@
+;(function(global) {
+  "use strict";
+
+var Rpd = global.Rpd;
+if (typeof Rpd === "undefined" && typeof require !== "undefined") {
+    Rpd = require('rpd');
+}
+
 Rpd.style('ableton-out', 'svg', function(config) {
 
 var d3 = d3 || d3_tiny;
@@ -370,3 +378,5 @@ function getPos(elm) { var bounds = elm.getBoundingClientRect();
                        return { x: bounds.left, y: bounds.top } };
 
 });
+
+})(this);

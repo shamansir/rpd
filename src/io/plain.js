@@ -1,6 +1,11 @@
 ;(function(global) {
   "use strict";
 
+var Rpd = global.Rpd;
+if (typeof Rpd === "undefined" && typeof require !== "undefined") {
+    Rpd = require('rpd');
+}
+
 var COMMAND_SEPARATOR = '\n';
 var ARGS_SEPARATOR = ' ';
 

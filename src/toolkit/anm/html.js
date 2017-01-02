@@ -1,3 +1,11 @@
+;(function(global) {
+  "use strict";
+
+var Rpd = global.Rpd;
+if (typeof Rpd === "undefined" && typeof require !== "undefined") {
+    Rpd = require('rpd');
+}
+
 Rpd.channelrenderer('anm/number', 'html', {
     /* show: function(target, value) { }, */
     edit: function(target, inlet, valueIn) {
@@ -141,3 +149,5 @@ function createOption(value, selected) {
 function clearNode(node) {
     while (node.firstChild) { node.removeChild(node.firstChild); }
 }
+
+})(this);

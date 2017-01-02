@@ -1,4 +1,10 @@
-(function() {
+;(function(global) {
+  "use strict";
+
+var Rpd = global.Rpd;
+if (typeof Rpd === "undefined" && typeof require !== "undefined") {
+    Rpd = require('rpd');
+}
 
 function stopPropagation(event) {
     event.stopPropagation();
@@ -604,4 +610,4 @@ Rpd.noderenderer('util/nodelist', 'svg', {
     }
 });
 
-})();
+})(this);
