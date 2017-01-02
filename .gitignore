@@ -5,3 +5,4 @@ spec/lib
 spec/Runner.html
 compiler.jar
 docs/compiled
+flow-typed/

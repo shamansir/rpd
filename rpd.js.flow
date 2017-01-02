@@ -1,0 +1,23 @@
+/* @flow */
+
+export type Node: {
+
+};
+
+export type Inlet: {
+
+};
+
+export type Outlet: {
+
+};
+
+export type Link: {
+
+};
+
+declare var Rpd: {
+
+};
+
+module.exports = Rpd;

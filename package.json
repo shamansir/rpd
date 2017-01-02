@@ -20,7 +20,7 @@
     "user-interface"
   ],
   "dependencies": {
-    "kefir": "rpominov/kefir"
+    "kefir": "^3.7.0"
   },
   "devDependencies": {
     "del": "^2.2.0",
@@ -40,7 +40,6 @@
     "gulp-util": "^3.0.6",
     "gulp-watch": "^4.3.5",
     "highlight.js": "^9.3.0",
-    "jasmine": "latest",
     "jasmine-core": "^2.3.4",
     "karma": "^0.13.9",
     "karma-chrome-launcher": "^0.1.12",
