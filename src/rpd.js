@@ -211,6 +211,7 @@ Patch.prototype.removeNode = function(node) {
     node.turnOff();
     this.event['patch/remove-node'].emit(node);
     this.events.unplug(node.events);
+    return this;
 }
 Patch.prototype.open = function(parent) {
     this.event['patch/open'].emit(parent);
