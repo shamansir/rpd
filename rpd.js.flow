@@ -7,8 +7,7 @@ export type Event = {
 export type Value = any;
 
 export type PatchDefinition = {
-    name: string;
-    // TODO
+    handle?: { [event: string]: (event: Event) => void };
 }
 
 export type NodeDefinition = {
@@ -20,7 +19,7 @@ export type NodeDefinition = {
               ) => void;
     process?: (inlets_values: { [alias: string]: Value },
                prev_inlets_values: { [alias: string]: Value }
-              ) => void | { [ alias: string ]: Value };
+              ) => void | { [ alias: string ]: Value | KefirStream };
     tune?: (updates_stream: KefirStream) => KefirStream;
     handle?: { [event: string]: (event: Event) => void };
 }
@@ -72,20 +71,41 @@ export type OutletRendererDefinition = {
 
 export type ChannelRendererDefinition = InletRendererDefinition | OutletRendererDefinition;
 
-export type RendererConfig = {
-}
+export type RendererConfig = { /* TODO */ }
 
 export type KefirStream = { /* TODO */ }
 
-export type RendererDefinition = {
-    name: string;
-    // TODO
+export type RendererDefinition = (Patch) => (
+    (networkRoot: HTMLElement, config: RendererConfig) => {
+        [ event: string ]: Value
+    }
+)
+
+export type StyleDefinitionObject = {
+    edgePadding: { horizontal: number, vertical: number };
+    boxPadding: { horizontal: number, vertical: number };
+    createCanvas: (patch: Patch, parent: HTMLElement) => { element: HTMLElement };
+    createNode: (node: Node, render: NodeRendererDefinition,
+                 description: string, icon: string
+                ) => {
+                       element: HTMLElement;
+                       size?: { width: number, height: number };
+                     };
+    createInlet: (inlet: Inlet, render: InletRendererDefinition) => { element: HTMLElement };
+    createOutlet: (outlet: Inlet, render: OutletRendererDefinition) => { element: HTMLElement };
+    createLink: (link: Link) => { element: HTMLElement /* TODO */ };
+    getInletPos: (inlet: Inlet) => { x: number, y: number };
+    getOutletPos: (outlet: Outlet) => { x: number, y: number };
+    getLocalPos: (pos: { x: number, y: number }) => { x: number, y: number };
+    onPatchSwitch?: (patch: Patch, canvas: HTMLElement) => void;
+    onNodeRemove?: (node: Node) => void;
 }
 
-export type StyleDefinition = {
-    name: string;
-    // TODO
-}
+export type StyleDefinition = (config: any) => StyleDefinitionObject;
+
+export type IOModule = { /* TODO */ }
+
+export type NavigationModule = { /* TODO */ }
 
 declare class Patch {
     Patch(name: string, def?: PatchDefinition): Patch;
