@@ -1,41 +1,74 @@
 /* @flow */
 
+export type Event = {
+    // TODO;
+}
+
+export type Value = any;
+
 export type PatchDefinition = {
     name: string;
     // TODO
 }
 
 export type NodeDefinition = {
-    name: string;
-    // TODO
+    title?: string;
+    inlets?: { [alias: string]: InletDefinition };
+    outlets?: { [alias: string]: OutletDefinition };
+    prepare?: (inlets: { [alias: string]: Inlet },
+               outlets: { [alias: string]: Outlet }
+              ) => void;
+    process?: (inlets_values: { [alias: string]: Value },
+               prev_inlets_values: { [alias: string]: Value }
+              ) => void | { [ alias: string ]: Value };
+    tune?: (updates_stream: KefirStream) => KefirStream;
+    handle?: { [event: string]: (event: Event) => void };
 }
 
 export type NodeRendererDefinition = {
-    name: string;
-    // TODO
+    size?: { width: number, height: number };
+    first?: (body: HTMLElement) =>
+              void | { [ inlet_alias: string ]: {
+                  default?: any,
+                  valueOut?: KefirStream
+              } };
+     always?: (body: HTMLElement,
+               inlets_values: { [alias: string]: Value },
+               outlets_values: { [alias: string]: Value }
+              ) => void;
 }
 
 export type InletDefinition = {
-    name: string;
-    // TODO
-}
-
-export type InletRendererDefinition = {
-    name: string;
-    // TODO
+    label?: string;
+    default?: Value;
+    hidden?: boolean;
+    cold?: boolean;
+    readonly?: boolean;
+    allow?: Array<string>;
+    accept?: (value: Value) => boolean;
+    adapt?: (value: Value) => Value;
+    show?: (value: Value) => string;
+    tune?: (updates_stream: KefirStream) => KefirStream;
+    handle?: { [event: string]: (event: Event) => void };
 }
 
 export type OutletDefinition = {
-    name: string;
-    // TODO
-}
-
-export type OutletRendererDefinition = {
-    name: string;
-    // TODO
+    label?: string;
+    show?: (value: Value) => string;
+    tune?: (updates_stream: KefirStream) => KefirStream;
+    handle?: { [event: string]: (event: Event) => void };
 }
 
 export type ChannelDefiniton = InletDefinition | OutletDefinition;
+
+export type InletRendererDefinition = {
+    show?: (target: HTMLElement, value: Value, repr: string) => void;
+    edit?: (target: HTMLElement, inlet: Inlet, valueIn: KefirStream) => KefirStream;
+};
+
+export type OutletRendererDefinition = {
+    show?: (target: HTMLElement, value: Value, repr: string) => void;
+};
 
 export type ChannelRendererDefinition = InletRendererDefinition | OutletRendererDefinition;
 
@@ -56,9 +89,18 @@ export type StyleDefinition = {
 
 declare class Patch {
     Patch(name: string, def?: PatchDefinition): Patch;
-    render(aliases: Array<string>, targets: Array<string>, config?: RendererConfig): Patch;
-    render(alias: string, target: string, config?: RendererConfig): Patch;
-    addNode(type: string, title: string, def?: NodeDefinition): Node;
+    render(aliases: Array<string>,
+           targets: Array<string>,
+           config?: RendererConfig
+          ): Patch;
+    render(alias: string,
+           target: string,
+           config?: RendererConfig
+          ): Patch;
+    addNode(type: string,
+            title: string,
+            def?: NodeDefinition | () => NodeDefinition
+           ): Node;
     // TODO: more addNode variations
     removeNode(node: Node): Patch;
     open(parent: Patch): Patch;
@@ -71,12 +113,23 @@ declare class Patch {
 }
 
 declare class Node {
-    Node(type: string, patch: Patch, def?: NodeDefinition, render?: NodeRendererDefinition, callback?: (node: Node) => void): Node;
+    Node(type: string,
+         patch: Patch,
+         def?: NodeDefinition,
+         render?: NodeRendererDefinition | () => NodeRendererDefinition,
+         callback?: (node: Node) => void
+        ): Node;
     turnOn(): Node;
     turnOff(): Node;
-    addInlet(type: string, alias: string, def?: InletDefinition): Inlet;
+    addInlet(type: string,
+             alias: string,
+             def?: InletDefinition | () => InletDefinition
+            ): Inlet;
     // TODO: more addInlet variations
-    addOutlet(type: string, alias: string, def?: OutletDefinition): Outlet;
+    addOutlet(type: string,
+              alias: string,
+              def?: OutletDefinition | () => OutletDefinition
+             ): Outlet;
     // TODO: more addOutlet variations
     removeInlet(inlet: Inlet): Node;
     removeOutlet(outlet: Outlet): Node;
@@ -84,7 +137,12 @@ declare class Node {
 };
 
 declare class Inlet {
-    Inlet(type: string, node: Node, alias?: string, def?: InletDefinition, render?: InletRendererDefinition): Inlet;
+    Inlet(type: string,
+          node: Node,
+          alias?: string,
+          def?: InletDefinition | () => InletDefinition,
+          render?: InletRendererDefinition | () => InletRendererDefinition
+         ): Inlet;
     receive(value: any): Inlet; // FIXME: value: any except KefirStream
     stream(stream: KefirStream): Inlet;
     toDefault(): Inlet;
@@ -92,7 +150,12 @@ declare class Inlet {
 };
 
 declare class Outlet {
-    Outlet(type: string, node: Node, alias?: string, def?: OutletDefinition, render?: OutletRendererDefinition): Outlet;
+    Outlet(type: string,
+           node: Node,
+           alias?: string,
+           def?: OutletDefinition | () => OutletDefinition,
+           render?: OutletRendererDefinition | () => OutletRendererDefinition
+          ): Outlet;
     connect(inlet: Inlet): Link;
     disconnect(link: Link): Outlet;
     send(value: any): Outlet; // FIXME: value: any except KefirStream
