@@ -6,6 +6,9 @@ export type Event = {
 
 export type Value = any;
 
+export type AllEvents = KefirStream;
+export type EventMap = { [ event: string ]: KefirStream };
+
 export type PatchDefinition = {
     handle?: { [event: string]: (event: Event) => void };
 }
@@ -69,6 +72,149 @@ export type OutletRendererDefinition = {
     show?: (target: HTMLElement, value: Value, repr: string) => void;
 };
 
+declare class Patch {
+    Patch(name: string, def?: PatchDefinition): Patch;
+    render(aliases: Array<string>,
+           targets: Array<string>,
+           config?: RendererConfig
+          ): Patch;
+    render(alias: string,
+           target: string,
+           config?: RendererConfig
+          ): Patch;
+    addNode(type: string,
+            title: string,
+            def?: NodeDefinition | () => NodeDefinition
+           ): Node;
+    // TODO: more addNode variations
+    removeNode(node: Node): Patch;
+    open(parent: Patch): Patch;
+    close(): Patch;
+    inputs(list: Array<Inlet>): Patch;
+    outputs(list: Array<Outlet>): Patch;
+    project(node: Node): Patch;
+    moveCanvas(x: number, y: number): Patch;
+    resizeCanvas(width: number, height: number): Patch;
+    event: EventMap;
+    events: AllEvents;
+}
+
+declare class Node {
+    Node(type: string,
+         patch: Patch,
+         def?: NodeDefinition,
+         render?: NodeRendererDefinition | () => NodeRendererDefinition,
+         callback?: (node: Node) => void
+        ): Node;
+    turnOn(): Node;
+    turnOff(): Node;
+    addInlet(type: string,
+             alias: string,
+             def?: InletDefinition | () => InletDefinition
+            ): Inlet;
+    // TODO: more addInlet variations
+    addOutlet(type: string,
+              alias: string,
+              def?: OutletDefinition | () => OutletDefinition
+             ): Outlet;
+    // TODO: more addOutlet variations
+    removeInlet(inlet: Inlet): Node;
+    removeOutlet(outlet: Outlet): Node;
+    move(x: number, y: number): Node;
+    event: EventMap;
+    events: AllEvents;
+};
+
+declare class Inlet {
+    Inlet(type: string,
+          node: Node,
+          alias?: string,
+          def?: InletDefinition | () => InletDefinition,
+          render?: InletRendererDefinition | () => InletRendererDefinition
+         ): Inlet;
+    receive(value: any): Inlet; // FIXME: value: any except KefirStream
+    stream(stream: KefirStream): Inlet;
+    toDefault(): Inlet;
+    allows(outlet: Outlet): boolean;
+    event: EventMap;
+    events: AllEvents;
+};
+
+declare class Outlet {
+    Outlet(type: string,
+           node: Node,
+           alias?: string,
+           def?: OutletDefinition | () => OutletDefinition,
+           render?: OutletRendererDefinition | () => OutletRendererDefinition
+          ): Outlet;
+    connect(inlet: Inlet): Link;
+    disconnect(link: Link): Outlet;
+    send(value: any): Outlet; // FIXME: value: any except KefirStream
+    stream(stream: KefirStream): Outlet;
+    toDefault(): Outlet;
+    event: EventMap;
+    events: AllEvents;
+};
+
+declare class Link {
+    Link(outlet: Outlet, inlet: Inlet, label?: string): Link;
+    pass(value: any): Link;
+    enable(): Link;
+    disable(): Link;
+    disconnect(): Link;
+    event: EventMap;
+    events: AllEvents;
+};
+
+declare var HiddenTypes : {
+    Patch: typeof Patch;
+    Node: typeof Node;
+    Inlet: typeof Inlet;
+    Outlet: typeof Outlet;
+    Link: typeof Link;
+}
+
+declare var Rpd : {
+    VERSION: string;
+
+    _: typeof HiddenTypes;
+
+    // FIXME: remove this block later
+    Patch: typeof Patch;
+
+    event: EventMap;
+    events: AllEvents;
+
+    // registration
+    nodetype(type: string, def?: NodeDefinition): void;
+    nodetype(type: string, func: () => NodeDefinition): void;
+    channeltype(type: string, def?: ChannelDefiniton): void;
+    channeltype(type: string, func: () => ChannelDefiniton): void;
+    renderer(alias: string, def: RendererDefinition): void;
+    noderenderer(type: string, alias: string, def: NodeRendererDefinition): void;
+    noderenderer(type: string, alias: string, func: () => NodeRendererDefinition): void;
+    channelrenderer(type: string, alias: string, def: ChannelRendererDefinition): void;
+    channelrenderer(type: string, alias: string, func: () => ChannelRendererDefinition): void;
+    nodedescription(type: string, description: string): void;
+    style(alias: string, renderer: string, def: StyleDefinition): void;
+    style(alias: string, renderer: string, def: () => StyleDefinition): void;
+    toolkiticon(toolkit: string, icon: string): void;
+    nodetypeicon(type: string, icon: string): void;
+
+    addPatch(): Patch;
+    // TODO: add addPatch variants
+    addClosedPatch(): Patch;
+    // TODO: add addClosedPatch variants
+    renderNext(aliases: Array<string>, targets: Array<string>, config?: RendererConfig): void;
+    renderNext(alias: string, target: string, config?: RendererConfig): void;
+    renderNext(aliases: Array<string>, target: string, config?: RendererConfig): void;
+    renderNext(alias: string, targets: Array<String>, config?: RendererConfig): void;
+    stopRendering(): void;
+
+    stringify: Stringify;
+    autoStringify: AutoStringify;
+};
+
 export type ChannelRendererDefinition = InletRendererDefinition | OutletRendererDefinition;
 
 export type RendererConfig = { /* TODO */ }
@@ -107,127 +253,14 @@ export type IOModule = { /* TODO */ }
 
 export type NavigationModule = { /* TODO */ }
 
-declare class Patch {
-    Patch(name: string, def?: PatchDefinition): Patch;
-    render(aliases: Array<string>,
-           targets: Array<string>,
-           config?: RendererConfig
-          ): Patch;
-    render(alias: string,
-           target: string,
-           config?: RendererConfig
-          ): Patch;
-    addNode(type: string,
-            title: string,
-            def?: NodeDefinition | () => NodeDefinition
-           ): Node;
-    // TODO: more addNode variations
-    removeNode(node: Node): Patch;
-    open(parent: Patch): Patch;
-    close(): Patch;
-    inputs(list: Array<Inlet>): Patch;
-    outputs(list: Array<Outlet>): Patch;
-    project(node: Node): Patch;
-    moveCanvas(x: number, y: number): Patch;
-    resizeCanvas(width: number, height: number): Patch;
+export type Stringify {
+    patch: (Patch) => String;
+    node: (Node) => String;
+    inlet: (Inlet) => String;
+    outlet: (Outlet) => String;
+    link: (Link) => String;
 }
 
-declare class Node {
-    Node(type: string,
-         patch: Patch,
-         def?: NodeDefinition,
-         render?: NodeRendererDefinition | () => NodeRendererDefinition,
-         callback?: (node: Node) => void
-        ): Node;
-    turnOn(): Node;
-    turnOff(): Node;
-    addInlet(type: string,
-             alias: string,
-             def?: InletDefinition | () => InletDefinition
-            ): Inlet;
-    // TODO: more addInlet variations
-    addOutlet(type: string,
-              alias: string,
-              def?: OutletDefinition | () => OutletDefinition
-             ): Outlet;
-    // TODO: more addOutlet variations
-    removeInlet(inlet: Inlet): Node;
-    removeOutlet(outlet: Outlet): Node;
-    move(x: number, y: number): Node;
-};
-
-declare class Inlet {
-    Inlet(type: string,
-          node: Node,
-          alias?: string,
-          def?: InletDefinition | () => InletDefinition,
-          render?: InletRendererDefinition | () => InletRendererDefinition
-         ): Inlet;
-    receive(value: any): Inlet; // FIXME: value: any except KefirStream
-    stream(stream: KefirStream): Inlet;
-    toDefault(): Inlet;
-    allows(outlet: Outlet): boolean;
-};
-
-declare class Outlet {
-    Outlet(type: string,
-           node: Node,
-           alias?: string,
-           def?: OutletDefinition | () => OutletDefinition,
-           render?: OutletRendererDefinition | () => OutletRendererDefinition
-          ): Outlet;
-    connect(inlet: Inlet): Link;
-    disconnect(link: Link): Outlet;
-    send(value: any): Outlet; // FIXME: value: any except KefirStream
-    stream(stream: KefirStream): Outlet;
-    toDefault(): Outlet;
-};
-
-declare class Link {
-    Link(outlet: Outlet, inlet: Inlet, label?: string): Link;
-    pass(value: any): Link;
-    enable(): Link;
-    disable(): Link;
-    disconnect(): Link;
-};
-
-declare var HiddenTypes : {
-    Patch: typeof Patch;
-}
-
-declare var Rpd : {
-    VERSION: string;
-
-    _: typeof HiddenTypes;
-
-    // FIXME: remove this block later
-    Patch: typeof Patch;
-
-    // registration
-    nodetype(type: string, def?: NodeDefinition): void;
-    nodetype(type: string, func: () => NodeDefinition): void;
-    channeltype(type: string, def?: ChannelDefiniton): void;
-    channeltype(type: string, func: () => ChannelDefiniton): void;
-    renderer(alias: string, def: RendererDefinition): void;
-    noderenderer(type: string, alias: string, def: NodeRendererDefinition): void;
-    noderenderer(type: string, alias: string, func: () => NodeRendererDefinition): void;
-    channelrenderer(type: string, alias: string, def: ChannelRendererDefinition): void;
-    channelrenderer(type: string, alias: string, func: () => ChannelRendererDefinition): void;
-    nodedescription(type: string, description: string): void;
-    style(alias: string, renderer: string, def: StyleDefinition): void;
-    style(alias: string, renderer: string, def: () => StyleDefinition): void;
-    toolkiticon(toolkit: string, icon: string): void;
-    nodetypeicon(type: string, icon: string): void;
-
-    addPatch(): Patch;
-    // TODO: add addPatch variants
-    addClosedPatch(): Patch;
-    // TODO: add addClosedPatch variants
-    renderNext(aliases: Array<string>, targets: Array<string>, config?: RendererConfig): void;
-    renderNext(alias: string, target: string, config?: RendererConfig): void;
-    renderNext(aliases: Array<string>, target: string, config?: RendererConfig): void;
-    renderNext(alias: string, targets: Array<String>, config?: RendererConfig): void;
-    stopRendering(): void;
-};
+export type AutoStringify = (Path | Node | Inlet | Outlet | Link) => String;
 
 module.exports = Rpd;
