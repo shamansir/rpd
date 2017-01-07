@@ -51,7 +51,7 @@
     "yargs": "^3.25.0"
   },
   "scripts": {
-    "test": "gulp test"
+    "test": "gulp test && flow check"
   },
   "license": "MIT"
 }

@@ -1,53 +1,5 @@
 /* @flow */
 
-export type ChannelRendererDefinition = InletRendererDefinition | OutletRendererDefinition;
-
-export type RendererConfig = { /* TODO */ }
-
-export type KefirStream = { /* TODO */ }
-
-export type RendererDefinition = (Patch) => (
-    (networkRoot: HTMLElement, config: RendererConfig) => {
-        [ event: string ]: Value
-    }
-)
-
-export type StyleDefinitionObject = {
-    edgePadding: { horizontal: number, vertical: number };
-    boxPadding: { horizontal: number, vertical: number };
-    createCanvas: (patch: Patch, parent: HTMLElement) => { element: HTMLElement };
-    createNode: (node: Node, render: NodeRendererDefinition,
-                 description: string, icon: string
-                ) => {
-                       element: HTMLElement;
-                       size?: { width: number, height: number };
-                     };
-    createInlet: (inlet: Inlet, render: InletRendererDefinition) => { element: HTMLElement };
-    createOutlet: (outlet: Inlet, render: OutletRendererDefinition) => { element: HTMLElement };
-    createLink: (link: Link) => { element: HTMLElement /* TODO */ };
-    getInletPos: (inlet: Inlet) => { x: number, y: number };
-    getOutletPos: (outlet: Outlet) => { x: number, y: number };
-    getLocalPos: (pos: { x: number, y: number }) => { x: number, y: number };
-    onPatchSwitch?: (patch: Patch, canvas: HTMLElement) => void;
-    onNodeRemove?: (node: Node) => void;
-}
-
-export type StyleDefinition = (config: any) => StyleDefinitionObject;
-
-export type IOModule = { /* TODO */ }
-
-export type NavigationModule = { /* TODO */ }
-
-export type Stringify = {
-    patch: (Patch) => String;
-    node: (Node) => String;
-    inlet: (Inlet) => String;
-    outlet: (Outlet) => String;
-    link: (Link) => String;
-}
-
-export type AutoStringify = (Path | Node | Inlet | Outlet | Link) => String;
-
 export type Event = {
     // TODO;
 }
@@ -214,6 +166,54 @@ declare class Link {
     events: AllEvents;
 };
 
+export type ChannelRendererDefinition = InletRendererDefinition | OutletRendererDefinition;
+
+export type RendererConfig = { /* TODO */ }
+
+export type KefirStream = { /* TODO */ }
+
+export type RendererDefinition = (Patch) => (
+    (networkRoot: HTMLElement, config: RendererConfig) => {
+        [ event: string ]: Value
+    }
+)
+
+export type StyleDefinitionObject = {
+    edgePadding: { horizontal: number, vertical: number };
+    boxPadding: { horizontal: number, vertical: number };
+    createCanvas: (patch: Patch, parent: HTMLElement) => { element: HTMLElement };
+    createNode: (node: Node, render: NodeRendererDefinition,
+                 description: string, icon: string
+                ) => {
+                       element: HTMLElement;
+                       size?: { width: number, height: number };
+                     };
+    createInlet: (inlet: Inlet, render: InletRendererDefinition) => { element: HTMLElement };
+    createOutlet: (outlet: Inlet, render: OutletRendererDefinition) => { element: HTMLElement };
+    createLink: (link: Link) => { element: HTMLElement /* TODO */ };
+    getInletPos: (inlet: Inlet) => { x: number, y: number };
+    getOutletPos: (outlet: Outlet) => { x: number, y: number };
+    getLocalPos: (pos: { x: number, y: number }) => { x: number, y: number };
+    onPatchSwitch?: (patch: Patch, canvas: HTMLElement) => void;
+    onNodeRemove?: (node: Node) => void;
+}
+
+export type StyleDefinition = (config: any) => StyleDefinitionObject;
+
+export type IOModule = { /* TODO */ }
+
+export type NavigationModule = { /* TODO */ }
+
+export type Stringify = {
+    patch: (Patch) => String;
+    node: (Node) => String;
+    inlet: (Inlet) => String;
+    outlet: (Outlet) => String;
+    link: (Link) => String;
+}
+
+export type AutoStringify = (Patch | Node | Inlet | Outlet | Link) => String;
+
 declare var HiddenTypes : {
     Patch: typeof Patch;
     Node: typeof Node;
@@ -249,7 +249,7 @@ declare var Rpd : {
     toolkiticon(toolkit: string, icon: string): void;
     nodetypeicon(type: string, icon: string): void;
 
-    addPatch(): Patch;
+    addPatch(name: string): Patch;
     // TODO: add addPatch variants
     addClosedPatch(): Patch;
     // TODO: add addClosedPatch variants

@@ -2,7 +2,7 @@ language: node_js
 node_js:
     - "0.12"
     - "iojs"
-script: gulp test
+script: npm test
 before_script:
     - npm install -g gulp
     - gulp get-deps

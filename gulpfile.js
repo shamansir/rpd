@@ -232,11 +232,11 @@ gulp.task('test', function(done) {
         configFile: __dirname + '/' + KARMA_CONF_PATH,
         singleRun: true
     }, function() {
-        var gulpFlow = new GulpFlow();
-        gulp.src("./spec/*.flow.js")
-            //.pipe(header("/* @flow */"))
-            .pipe(gulpFlow.check())
-            .pipe(gulpFlow.markdownReporter());
+        // var gulpFlow = new GulpFlow();
+        // gulp.src("./spec/*.flow.js")
+        //     .pipe(header("/* @flow */"))
+        //     .pipe(gulpFlow.check())
+        //     .pipe(gulpFlow.markdownReporter());
         done();
     }).start();
 });
