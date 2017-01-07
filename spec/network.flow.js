@@ -1,6 +1,6 @@
 /* @flow */
 
-import Rpd from '../src/rpd.js';
+import Rpd from '../rpd.js.flow';
 
 import type {Patch} from '../rpd.js.flow';
 

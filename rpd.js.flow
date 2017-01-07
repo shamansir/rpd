@@ -225,6 +225,8 @@ declare var HiddenTypes : {
 declare var Rpd : {
     VERSION: string;
 
+    //Rpd: typeof Rpd;
+
     _: typeof HiddenTypes;
 
     // FIXME: remove this block later
