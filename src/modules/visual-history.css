@@ -10,14 +10,14 @@
     font-size: 10px;
 }
 
-.visual-history > ul {
+.visual-history > ul.list {
     margin: 0;
     padding: 0;
     list-style-type: none;
     background-color: darkcyan;
 }
 
-.visual-history > ul > li {
+.visual-history > ul.list > li {
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.5);
     padding: 3px;
@@ -35,4 +35,32 @@
 .visual-history .update-details {
     display: inline;
     padding-left: 3px;
+}
+
+.visual-history > ul.filter {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    background-color: darkslategray;
+}
+
+.visual-history > ul.filter > li {
+    display: inline-block;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 3px;
+    margin: 2px;
+    color: white;
+}
+
+.visual-history > ul.filter > li input {
+    margin-left: 5px;
+}
+
+.visual-history .counter {
+    background-color: black;
+    color: white;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 10px 10px 0 0;
 }

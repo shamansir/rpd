@@ -68,10 +68,10 @@ var UPDATES_LIMIT = 500;
 
 Rpd.visualHistory = function(target, type) {
     var root = d3.select(target).classed('visual-history', true);
-    var filter = root.append('div').classed('filter', true);
+    var filter = root.append('ul').classed('filter', true);
     var item, checkbox;
     knownEvents.forEach(function(eventName) {
-        item = filter.append('div').classed('item', true);
+        item = filter.append('li').classed('item', true);
         item.append('span').text(eventName);
         checkbox = item.append('input').attr('type', 'checkbox');
         if (filterEvents[eventName]) checkbox.attr('checked', true);
@@ -79,7 +79,9 @@ Rpd.visualHistory = function(target, type) {
             filterEvents[eventName] = !filterEvents[eventName];
         });
     });
-    var ul = root.append('ul');
+    var counter = root.append('div').classed('counter', true);
+    counter.text('0/0 Updates');
+    var ul = root.append('ul').classed('list', true);
     var li, div, updateType;
     var updatesCount = 0;
     var updatesInList = 0;
@@ -90,6 +92,7 @@ Rpd.visualHistory = function(target, type) {
             ul.selectAll('*').remove();
             updatesInList = 0;
         }
+        counter.text(updatesInList + '/' + updatesCount + ' Updates');
         li = ul.append('li').attr('id', 'update-' + updatesCount);
         li.append('span').classed('update-type', true).text((updateTitle[updateType] || updateType) + ':');
         div = li.append('div').classed('update-details', true);
