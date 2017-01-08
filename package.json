@@ -25,7 +25,7 @@
   "devDependencies": {
     "del": "^2.2.0",
     "google-closure-compiler": "^20150901.0.0",
-    "flow-bin": "^0.31.1",
+    "flow-bin": "^0.37.4",
     "gulp": "^3.9.0",
     "gulp-closure-compiler": "^0.3.0",
     "gulp-concat": "^2.6.0",
