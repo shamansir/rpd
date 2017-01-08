@@ -83,7 +83,7 @@ declare class Patch {
            config?: RendererConfig
           ): Patch;
     addNode(type: string,
-            title: string,
+            title?: string,
             def?: NodeDefinition | () => NodeDefinition
            ): Node;
     // TODO: more addNode variations
@@ -231,6 +231,10 @@ declare var Rpd : {
 
     // FIXME: remove this block later
     Patch: typeof Patch;
+    Node: typeof Node;
+    Inlet: typeof Inlet;
+    Outlet: typeof Outlet;
+    Link: typeof Link;
 
     event: EventMap;
     events: AllEvents;

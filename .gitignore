@@ -6,3 +6,5 @@ spec/Runner.html
 compiler.jar
 docs/compiled
 flow-typed/
+babel-build/
+.babelrc
