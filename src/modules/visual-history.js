@@ -9,29 +9,83 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
 var d3 = d3_tiny || d3;
 
 var renderUpdate = {
+    'inlet/update': function(update) {
+        return d3.select(document.createElement('span')).text([
+            '<' + update.value + '>',
+            ' -> ',
+            update.inlet.alias + ' (' + update.inlet.node.def.title + ')',
+        ].join('')).node();
+    },
+    'outlet/update': function(update) {
+        return d3.select(document.createElement('span')).text([
+            update.outlet.alias + ' (' + update.outlet.node.def.title + ')',
+            ' -> ',
+            '<' + update.value + '>'
+        ].join('')).node();
+    },
     'link/pass': function(update) {
-        return d3.select(document.createElement('span')).text(update.link.outlet.alias + ' -> ' + update.value + ' -> ' + update.link.inlet.alias).node();
+        return d3.select(document.createElement('span')).text([
+            update.link.outlet.alias + ' (' + update.link.outlet.node.def.title + ')',
+            ' -> ',
+            '<' + update.value + '>',
+            ' -> ',
+            update.link.inlet.alias + ' (' + update.link.inlet.node.def.title + ')'
+        ].join('')).node();
+    },
+    'node/process': function(update) {
+        return d3.select(document.createElement('span')).text([
+            update.node.def.title,
+            ' : ',
+            update.inlets ? Object.keys(update.inlets).join(',') : '<Nothing>',
+            ' -> ',
+            update.outlets ? Object.keys(update.outlets).join(',') : '<Nothing>'
+        ].join('')).node();
     }
 }
 
 var updateTitle = {
     'link/pass': 'Pass Value Thru the Link',
     'inlet/update': 'Inlet Receives',
-    'outlet/update': 'Outlet Sends Value'
+    'outlet/update': 'Outlet Sends Value',
+    'node/process': 'Node Processes Input'
 }
 
-var filterEvents = [ 'link/pass' ];
+var knownEvents = [
+    'link/pass',
+    'node/process',
+    'inlet/update',
+    'outlet/update'
+];
+
+var filterEvents = {
+    'link/pass': true,
+    'node/process': true,
+    'inlet/update': true,
+    'outlet/update': true
+};
 
 var UPDATES_LIMIT = 500;
 
 Rpd.visualHistory = function(target, type) {
-    var ul = d3.select(target).classed('visual-history', true)
-               .append('ul');
+    var root = d3.select(target).classed('visual-history', true);
+    var filter = root.append('div').classed('filter', true);
+    var item, checkbox;
+    knownEvents.forEach(function(eventName) {
+        item = filter.append('div').classed('item', true);
+        item.append('span').text(eventName);
+        checkbox = item.append('input').attr('type', 'checkbox');
+        if (filterEvents[eventName]) checkbox.attr('checked', true);
+        checkbox.on('click', function() {
+            filterEvents[eventName] = !filterEvents[eventName];
+        });
+    });
+    var ul = root.append('ul');
     var li, div, updateType;
     var updatesCount = 0;
     var updatesInList = 0;
     Rpd.events.onValue(function(update) {
         updateType = update.type;
+        if (filterEvents[updateType]) return;
         if (updatesInList > UPDATES_LIMIT) {
             ul.selectAll('*').remove();
             updatesInList = 0;
