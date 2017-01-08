@@ -1,0 +1,20 @@
+.visual-history {
+    position: absolute;
+    width: 300px;
+    height: 100%;
+    top: 0;
+    right: 0;
+    z-index: 10;
+    overflow-y: scroll;
+}
+
+.visual-history > ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    background-color: darkcyan;
+}
+
+.visual-history > ul > li {
+
+}
