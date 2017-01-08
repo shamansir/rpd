@@ -9,8 +9,18 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
 var d3 = d3_tiny || d3;
 
 var renderUpdate = {
-
+    'link/pass': function(update) {
+        return d3.select(document.createElement('span')).text(update.link.outlet.alias + ' -> ' + update.value + ' -> ' + update.link.inlet.alias).node();
+    }
 }
+
+var updateTitle = {
+    'link/pass': 'Pass Value Thru the Link',
+    'inlet/update': 'Inlet Receives',
+    'outlet/update': 'Outlet Sends Value'
+}
+
+var filterEvents = [ 'link/pass' ];
 
 var UPDATES_LIMIT = 500;
 
@@ -27,7 +37,7 @@ Rpd.visualHistory = function(target, type) {
             updatesInList = 0;
         }
         li = ul.append('li').attr('id', 'update-' + updatesCount);
-        li.append('span').classed('update-type', true).text(updateType);
+        li.append('span').classed('update-type', true).text((updateTitle[updateType] || updateType) + ':');
         div = li.append('div').classed('update-details', true);
         if (renderUpdate[updateType]) {
             div.append(renderUpdate[updateType](update));
