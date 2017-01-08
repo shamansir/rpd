@@ -6,7 +6,7 @@ script: npm test
 before_script:
     - npm install -g gulp
     - gulp get-deps
-    - npm install -g flow-typed
+    - npm install -g flow-bin
 
 # Google Chrome
 #
