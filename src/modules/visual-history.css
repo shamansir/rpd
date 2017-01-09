@@ -1,0 +1,70 @@
+.visual-history {
+    position: absolute;
+    width: 400px;
+    height: 100%;
+    top: 0;
+    right: 0;
+    z-index: 10;
+    overflow-y: scroll;
+    font-family: "Fira Code", "Fira Sans", Menlo, "Courier New", sans-serif;
+    font-size: 10px;
+}
+
+.visual-history > ul.list {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    background-color: darkcyan;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.visual-history > ul.list > li {
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 3px;
+    margin: 2px;
+    flex: 0 0 auto;
+}
+
+.visual-history .update-type {
+    border-radius: 3px;
+    margin: -2px 2px 2px -2px;
+    padding: 2px;
+    background-color: black;
+    color: white;
+}
+
+.visual-history .update-details {
+    display: inline;
+    padding-left: 3px;
+}
+
+.visual-history > ul.filter {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    background-color: darkslategray;
+    font-size: 9px;
+}
+
+.visual-history > ul.filter > li {
+    display: inline-block;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 3px;
+    margin: 2px;
+    color: white;
+}
+
+.visual-history > ul.filter > li input {
+    margin-left: 5px;
+}
+
+.visual-history .counter {
+    background-color: black;
+    color: white;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 10px 10px 0 0;
+}

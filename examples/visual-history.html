@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+
+        <!-- gulp html-head ==style quartz ==renderer html ==toolkit util ==root .. -->
+
+        <!-- Built with RPD v2.0.0 <http://shamansir.github.io/rpd> -->
+
+        <!-- RPD Renderer: html -->
+        <link rel="stylesheet" href="../src/render/html.css"></style>
+        <!-- RPD Style: quartz (html) -->
+        <link rel="stylesheet" href="../src/style/quartz/html.css"></style>
+        <!-- RPD Toolkit: util (html) -->
+        <link rel="stylesheet" href="../src/toolkit/util/html.css"></style>
+
+        <link rel="stylesheet" href="../src/modules/visual-history.css"></style>
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+
+        <!-- Kefir -->
+        <script src="../vendor/kefir.min.js"></script>
+        <!-- RPD -->
+        <script src="../src/rpd.js"></script>
+
+        <!-- RPD's d3_tiny.js -->
+        <script src="../src/d3_tiny.js"></script>
+        <!-- RPD Rendering Engine: -->
+        <script src="../src/render/shared.js"></script>
+        <!-- RPD Style: quartz (html) -->
+        <script src="../src/style/quartz/html.js"></script>
+        <!-- RPD Renderer: html -->
+        <script src="../src/render/html.js"></script>
+        <!-- RPD Toolkit: util -->
+        <script src="../src/toolkit/util/shared.js"></script>
+        <script src="../src/toolkit/util/toolkit.js"></script>
+        <!-- RPD Toolkit: util (html) -->
+        <script src="../src/toolkit/util/html.js"></script>
+
+        <script src="../src/modules/visual-history.js"></script>
+
+    </head>
+
+    <body>
+        <script src="./util-demo.js"></script>
+        <div id="patch-target"></div>
+        <div id="history-target"></div>
+        <script>
+            Rpd.visualHistory(document.getElementById('history-target'), 'html');
+
+            buildUtilDemoPatch('html', document.getElementById('patch-target'), { fullPage: true });
+        </script>
+    </body>
+</html>
