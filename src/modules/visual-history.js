@@ -19,6 +19,11 @@ var renderUpdate = {
             update.patch.title || '<Unnamed>'
         ]);
     },
+    'patch/is-ready': function(update) {
+        return spanWithText([
+            update.patch.title || '<Unnamed>'
+        ]);
+    },
     'patch/open': function(update) {
         return spanWithText([
             ' o ',
@@ -38,6 +43,12 @@ var renderUpdate = {
             update.node.def.title + ' (' + update.node.type + ')'
         ]);
     },
+    // patch/move-canvas,
+    // patch/resize-canvas,
+    // patch/set-inputs,
+    // patch/set-outputs,
+    // patch/refer,
+    // patch/project,
     'patch/remove-node': function(update) {
         return spanWithText([
             update.patch.title || '<Unnamed>',
@@ -45,24 +56,26 @@ var renderUpdate = {
             update.node.def.title + ' (' + update.node.type + ')'
         ]);
     },
-    'node/move': function(update) {
-        return spanWithText([
-            update.node.def.title,
-            ' => ',
-            update.position
-        ]);
-    },
     'node/turn-on': function(update) {
         return spanWithText([
             update.node.def.title
         ]);
     },
-    'node/turn-off': function(update) {
+    'node/is-ready': function(update) {
         return spanWithText([
             update.node.def.title
         ]);
     },
-    'node/is-ready': function(update) {
+    'node/process': function(update) {
+        return spanWithText([
+            update.node.def.title,
+            ' : ',
+            update.inlets ? Object.keys(update.inlets).join(',') : '<Nothing>',
+            ' -> ',
+            update.outlets ? Object.keys(update.outlets).join(',') : '<Nothing>'
+        ]);
+    },
+    'node/turn-off': function(update) {
         return spanWithText([
             update.node.def.title
         ]);
@@ -95,6 +108,13 @@ var renderUpdate = {
             update.outlet.alias + ' (' + update.outlet.type + ')'
         ]);
     },
+    'node/move': function(update) {
+        return spanWithText([
+            update.node.def.title,
+            ' => ',
+            update.position
+        ]);
+    },
     'inlet/update': function(update) {
         return spanWithText([
             '<' + update.value + '>',
@@ -116,12 +136,10 @@ var renderUpdate = {
             update.link.inlet.alias + ' (' + update.link.inlet.node.def.title + ')'
         ]);
     },
-    'link/pass': function(update) {
+    'outlet/disconnect': function(update) {
         return spanWithText([
             update.link.outlet.alias + ' (' + update.link.outlet.node.def.title + ')',
-            ' -> ',
-            '<' + update.value + '>',
-            ' -> ',
+            ' x=> ',
             update.link.inlet.alias + ' (' + update.link.inlet.node.def.title + ')'
         ]);
     },
@@ -139,15 +157,15 @@ var renderUpdate = {
             update.link.inlet.alias + ' (' + update.link.inlet.node.def.title + ')'
         ]);
     },
-    'node/process': function(update) {
+    'link/pass': function(update) {
         return spanWithText([
-            update.node.def.title,
-            ' : ',
-            update.inlets ? Object.keys(update.inlets).join(',') : '<Nothing>',
+            update.link.outlet.alias + ' (' + update.link.outlet.node.def.title + ')',
             ' -> ',
-            update.outlets ? Object.keys(update.outlets).join(',') : '<Nothing>'
+            '<' + update.value + '>',
+            ' -> ',
+            update.link.inlet.alias + ' (' + update.link.inlet.node.def.title + ')'
         ]);
-    }
+    },
 }
 
 var updateTitle = {
