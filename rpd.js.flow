@@ -74,12 +74,8 @@ export type OutletRendererDefinition = {
 
 declare class Patch {
     Patch(name: string, def?: PatchDefinition): Patch;
-    render(aliases: Array<string>,
-           targets: Array<string>,
-           config?: RendererConfig
-          ): Patch;
-    render(alias: string,
-           target: string,
+    render(alias: string | Array<string>,
+           targets: string | Array<string> | HTMLElement | Array<HTMLElement>,
            config?: RendererConfig
           ): Patch;
     addNode(type: string,
@@ -252,8 +248,8 @@ declare var Rpd : {
 
     addPatch(name?: string, def?: PatchDefinition, parent?: Patch): Patch;
     addClosedPatch(name?: string, def?: PatchDefinition): Patch;
-    renderNext(aliases: Array<string> | string,
-               targets: Array<string> | string,
+    renderNext(alias: string | Array<string>,
+               target: Array<string> | string | HTMLElement | Array<HTMLElement>,
                config?: RendererConfig): void;
     stopRendering(): void;
 
