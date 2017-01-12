@@ -35,3 +35,13 @@
 .rpd-inlet.rpd-readonly {
     cursor: default;
 }
+
+.rpd-values-on-hover .rpd-inlet .rpd-value-holder,
+.rpd-values-on-hover .rpd-outlet .rpd-value-holder {
+    visibility: hidden;
+}
+
+.rpd-values-on-hover .rpd-inlet:hover .rpd-value-holder,
+.rpd-values-on-hover .rpd-outlet:hover .rpd-value-holder {
+    visibility: visible;
+}
