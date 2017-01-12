@@ -141,3 +141,13 @@
 .rpd-collapse-nodelist.rpd-collapsed {
     right: 4px;
 }
+
+.rpd-values-on-hover .rpd-inlet .rpd-value-holder,
+.rpd-values-on-hover .rpd-outlet .rpd-value-holder {
+    visibility: hidden;
+}
+
+.rpd-values-on-hover .rpd-inlet:hover .rpd-value-holder,
+.rpd-values-on-hover .rpd-outlet:hover .rpd-value-holder {
+    visibility: visible;
+}

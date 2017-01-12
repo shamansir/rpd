@@ -216,12 +216,19 @@ var defaultKnobConf = {
     speed: 1.5,
     radius: 13,
     width: 40, // radius * 2 + margin
-    height: 40
+    height: 40,
+    //showIntTicks: false,
+    //stickToInts: false,
+    showGhost: true,
+    adaptAngle: null,
+    adaptValue: null
 };
 
 function createKnob(state, conf) {
     var lastValue = 0;
     //var state = { min: 0, max: 100 };
+
+    var adaptAngle = conf.adaptAngle || function(s, v) { return v * 360; };
 
     return {
         init: function(parent) {
@@ -252,7 +259,7 @@ function createKnob(state, conf) {
             Kefir.fromEvents(parent, 'mousedown')
                  .map(stopPropagation)
                  .flatMap(function() {
-                     handGhost.style('visibility', 'visible');
+                     if (conf.showGhost) handGhost.style('visibility', 'visible');
                      var values =
                         Kefir.fromEvents(document.body, 'mousemove')
                              //.throttle(16)
@@ -274,14 +281,15 @@ function createKnob(state, conf) {
                             });
                      values.last().onValue(function(val) {
                          lastValue = val;
-                         handGhost.attr('transform', 'rotate(' + (lastValue * 360) + ')')
+                         handGhost.attr('transform', 'rotate(' + adaptAngle(state, lastValue) + ')')
                                   .style('visibility', 'hidden');
                          submit.emit(lastValue);
                      });
                      return values;
                  }).onValue(function(value) {
-                     text.text(adaptToState(state, value));
-                     hand.attr('transform', 'rotate(' + (value * 360) + ')');
+                     var valueText = adaptToState(state, value);
+                     text.text(conf.adaptValue ? conf.adaptValue(valueText) : valueText);
+                     hand.attr('transform', 'rotate(' + adaptAngle(state, value) + ')');
                  });
             return submit;
         }
@@ -306,6 +314,33 @@ Rpd.noderenderer('util/knob', 'svg', function() {
     return {
         size: { width: defaultKnobConf.width,
                 height: defaultKnobConf.height },
+        first: function(bodyElm) {
+            var submit = knob.init(bodyElm);
+            return {
+                'submit': { valueOut: submit }
+            };
+        },
+        always: function(bodyElm, inlets, outlets) {
+            state.min = inlets.min || 0;
+            state.max = inlets.max || 0;
+        }
+    };
+});
+
+Rpd.noderenderer('util/dial', 'svg', function() {
+    // TODO: make it "sticky", so the hand would stick to int positions
+    var state = { min: 0, max: 100 };
+    var myKnobConf = {
+        speed: defaultKnobConf.speed,
+        radius: defaultKnobConf.radius,
+        width: defaultKnobConf.width,
+        height: defaultKnobConf.height,
+        adaptValue: function(value) { return Math.floor(value); }
+    };
+    var knob = createKnob(state, myKnobConf);
+    return {
+        size: { width: myKnobConf.width,
+                height: myKnobConf.height },
         first: function(bodyElm) {
             var submit = knob.init(bodyElm);
             return {

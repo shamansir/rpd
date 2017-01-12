@@ -207,6 +207,19 @@ Rpd.nodetype('util/knob', {
     process: function(inlets) { return { number: adaptToState(inlets, inlets.submit) }; }
 });
 
+Rpd.nodetype('util/dial', {
+    title: 'dial',
+    inlets: {
+        'min': { type: 'util/number', default: 0 },
+        'max': { type: 'util/number', default: 100 },
+        'submit': { type: 'util/number', default: 0, hidden: true }
+    },
+    outlets: {
+        'number': { type: 'util/wholenumber' }
+    },
+    process: function(inlets) { return { number: Math.floor(adaptToState(inlets, inlets.submit)) }; }
+});
+
 Rpd.channeltype('util/numbers', { show: howMuch('number', 'numbers') });
 
 var DEFAULT_KNOB_COUNT = 4;
@@ -372,6 +385,7 @@ Rpd.nodetypeicon('util/number',    '🔢'); // 'ℕ'
 Rpd.nodetypeicon('util/log',       '🗒');
 Rpd.nodetypeicon('util/nodelist',  '📃');
 Rpd.nodetypeicon('util/knob',      '🎛');
+Rpd.nodetypeicon('util/dial',      '🎛');
 Rpd.nodetypeicon('util/knobs',     '🎛');
 Rpd.nodetypeicon('util/color',     '🏮');
 Rpd.nodetypeicon('util/bang',      '⊙');
