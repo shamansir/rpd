@@ -84,7 +84,7 @@ declare class Patch {
           ): Patch;
     addNode(type: string,
             title?: string,
-            def?: NodeDefinition | () => NodeDefinition
+            def?: NodeDefinition | (() => NodeDefinition)
            ): Node;
     // TODO: more addNode variations
     removeNode(node: Node): Patch;
@@ -103,19 +103,19 @@ declare class Node {
     Node(type: string,
          patch: Patch,
          def?: NodeDefinition,
-         render?: NodeRendererDefinition | () => NodeRendererDefinition,
+         render?: NodeRendererDefinition | (() => NodeRendererDefinition),
          callback?: (node: Node) => void
         ): Node;
     turnOn(): Node;
     turnOff(): Node;
     addInlet(type: string,
              alias: string,
-             def?: InletDefinition | () => InletDefinition
+             def?: InletDefinition | (() => InletDefinition)
             ): Inlet;
     // TODO: more addInlet variations
     addOutlet(type: string,
               alias: string,
-              def?: OutletDefinition | () => OutletDefinition
+              def?: OutletDefinition | (() => OutletDefinition)
              ): Outlet;
     // TODO: more addOutlet variations
     removeInlet(inlet: Inlet): Node;
@@ -129,8 +129,8 @@ declare class Inlet {
     Inlet(type: string,
           node: Node,
           alias?: string,
-          def?: InletDefinition | () => InletDefinition,
-          render?: InletRendererDefinition | () => InletRendererDefinition
+          def?: InletDefinition | (() => InletDefinition),
+          render?: InletRendererDefinition | (() => InletRendererDefinition)
          ): Inlet;
     receive(value: any): Inlet; // FIXME: value: any except KefirStream
     stream(stream: KefirStream): Inlet;
@@ -144,8 +144,8 @@ declare class Outlet {
     Outlet(type: string,
            node: Node,
            alias?: string,
-           def?: OutletDefinition | () => OutletDefinition,
-           render?: OutletRendererDefinition | () => OutletRendererDefinition
+           def?: OutletDefinition | (() => OutletDefinition),
+           render?: OutletRendererDefinition | (() => OutletRendererDefinition)
           ): Outlet;
     connect(inlet: Inlet): Link;
     disconnect(link: Link): Outlet;
@@ -240,29 +240,21 @@ declare var Rpd : {
     events: AllEvents;
 
     // registration
-    nodetype(type: string, def?: NodeDefinition): void;
-    nodetype(type: string, func: () => NodeDefinition): void;
-    channeltype(type: string, def?: ChannelDefiniton): void;
-    channeltype(type: string, func: () => ChannelDefiniton): void;
+    nodetype(type: string, def: NodeDefinition | (() => NodeDefinition)): void;
+    channeltype(type: string, def: ChannelDefiniton | (() => ChannelDefiniton)): void;
     renderer(alias: string, def: RendererDefinition): void;
-    noderenderer(type: string, alias: string, def: NodeRendererDefinition): void;
-    noderenderer(type: string, alias: string, func: () => NodeRendererDefinition): void;
-    channelrenderer(type: string, alias: string, def: ChannelRendererDefinition): void;
-    channelrenderer(type: string, alias: string, func: () => ChannelRendererDefinition): void;
+    noderenderer(type: string, alias: string, def: NodeRendererDefinition | (() => NodeRendererDefinition)): void;
+    channelrenderer(type: string, alias: string, def: ChannelRendererDefinition | (() => ChannelRendererDefinition)): void;
     nodedescription(type: string, description: string): void;
-    style(alias: string, renderer: string, def: StyleDefinition): void;
-    style(alias: string, renderer: string, def: () => StyleDefinition): void;
+    style(alias: string, renderer: string, def: StyleDefinition | (() => StyleDefinition)): void;
     toolkiticon(toolkit: string, icon: string): void;
     nodetypeicon(type: string, icon: string): void;
 
-    addPatch(name: string): Patch;
-    // TODO: add addPatch variants
-    addClosedPatch(): Patch;
-    // TODO: add addClosedPatch variants
-    renderNext(aliases: Array<string>, targets: Array<string>, config?: RendererConfig): void;
-    renderNext(alias: string, target: string, config?: RendererConfig): void;
-    renderNext(aliases: Array<string>, target: string, config?: RendererConfig): void;
-    renderNext(alias: string, targets: Array<String>, config?: RendererConfig): void;
+    addPatch(name?: string, def?: PatchDefinition, parent?: Patch): Patch;
+    addClosedPatch(name?: string, def?: PatchDefinition): Patch;
+    renderNext(aliases: Array<string> | string,
+               targets: Array<string> | string,
+               config?: RendererConfig): void;
     stopRendering(): void;
 
     stringify: Stringify;
