@@ -75,7 +75,7 @@ function /*Rpd.*/addPatch(arg0, arg1, arg2) {
 
 function /*Rpd.*/addClosedPatch(arg0, arg1) {
     var name = !is_object(arg0) ? arg0 : undefined; var def = arg1 || arg0;
-    var instance = new Patch(arg0, arg1 || arg0);
+    var instance = new Patch(name, def);
     rpdEvent['network/add-patch'].emit(instance);
     return instance;
 }
@@ -211,6 +211,7 @@ Patch.prototype.removeNode = function(node) {
     node.turnOff();
     this.event['patch/remove-node'].emit(node);
     this.events.unplug(node.events);
+    return this;
 }
 Patch.prototype.open = function(parent) {
     this.event['patch/open'].emit(parent);
@@ -755,13 +756,12 @@ function subscribe(events, handlers) {
 }
 
 function make_silent_error(subject, subject_name) {
-    var err = make_error(subject, subject_name);
-    err.silent = true; return err;
+    return make_error(subject, subject_name, null, false, true);
 }
 
-function make_error(subject, subject_name, message, is_system) {
+function make_error(subject, subject_name, message, is_system, is_silent) {
     return { type: subject_name + '/error', system: is_system || false,
-             subject: subject, message: message };
+             subject: subject, message: message, silent: is_silent || false };
 }
 
 function report_error(subject, subject_name, message, is_system) {

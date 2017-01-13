@@ -16,7 +16,9 @@ var gulp = require('gulp'),
     markdown = require('gulp-markdown'),
     hljs = require('highlight.js'),
     frontMatter = require('gulp-front-matter'),
-    layout = require('gulp-layout');
+    layout = require('gulp-layout'),
+    // tests
+    GulpFlow = require("gulp-flowcheck");
 
 var Paths = {
     Root: '.',
@@ -229,7 +231,18 @@ gulp.task('test', function(done) {
     new Server({
         configFile: __dirname + '/' + KARMA_CONF_PATH,
         singleRun: true
-    }, done).start();
+    }, function(result) {
+        // var gulpFlow = new GulpFlow();
+        // gulp.src("./spec/*.flow.js")
+        //     .pipe(header("/* @flow */"))
+        //     .pipe(gulpFlow.check())
+        //     .pipe(gulpFlow.markdownReporter());
+        if (result > 0) {
+            return done(new Error('Karma exited with status code ' + result));
+        }
+
+        done();
+    }).start();
 });
 
 gulp.task('help', function() { console.log(yargs.help()); });
