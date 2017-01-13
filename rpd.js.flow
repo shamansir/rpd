@@ -2,9 +2,7 @@
 
 import Kefir from 'kefir';
 
-export type Event = {
-    // TODO;
-}
+export type Event = any;
 
 export type Value = any;
 
@@ -43,8 +41,9 @@ export type NodeRendererDefinition = {
 }
 
 export type InletDefinition = {
+    type?: string;
     label?: string;
-    default?: Value;
+    default?: Value | KefirStream;
     hidden?: boolean;
     cold?: boolean;
     readonly?: boolean;
@@ -57,6 +56,7 @@ export type InletDefinition = {
 }
 
 export type OutletDefinition = {
+    type?: string;
     label?: string;
     show?: (value: Value) => string;
     tune?: (updates_stream: KefirStream) => KefirStream;
@@ -84,7 +84,6 @@ declare class Patch {
             title?: string,
             def?: NodeDefinition | (() => NodeDefinition)
            ): Node;
-    // TODO: more addNode variations
     removeNode(node: Node): Patch;
     open(parent: Patch): Patch;
     close(): Patch;
@@ -110,12 +109,10 @@ declare class Node {
              alias: string,
              def?: InletDefinition | (() => InletDefinition)
             ): Inlet;
-    // TODO: more addInlet variations
     addOutlet(type: string,
               alias: string,
               def?: OutletDefinition | (() => OutletDefinition)
              ): Outlet;
-    // TODO: more addOutlet variations
     removeInlet(inlet: Inlet): Node;
     removeOutlet(outlet: Outlet): Node;
     move(x: number, y: number): Node;
@@ -166,7 +163,7 @@ declare class Link {
 
 export type ChannelRendererDefinition = InletRendererDefinition | OutletRendererDefinition;
 
-export type RendererConfig = { /* TODO */ }
+export type RendererConfig = any; /* TODO */
 
 export type KefirStream = Kefir.Observable<*>;
 
@@ -177,8 +174,8 @@ export type RendererDefinition = (Patch) => (
 )
 
 export type StyleDefinitionObject = {
-    edgePadding: { horizontal: number, vertical: number };
-    boxPadding: { horizontal: number, vertical: number };
+    edgePadding?: { horizontal: number, vertical: number };
+    boxPadding?: { horizontal: number, vertical: number };
     createCanvas: (patch: Patch, parent: HTMLElement) => { element: HTMLElement };
     createNode: (node: Node, render: NodeRendererDefinition,
                  description: string, icon: string
@@ -196,11 +193,11 @@ export type StyleDefinitionObject = {
     onNodeRemove?: (node: Node) => void;
 }
 
-export type StyleDefinition = (config: any) => StyleDefinitionObject;
+export type StyleDefinition = ((config: any) => StyleDefinitionObject);
 
-export type IOModule = { /* TODO */ }
+export type IOModule = any; /* TODO */
 
-export type NavigationModule = { /* TODO */ }
+export type NavigationModule = any; /* TODO */
 
 export type Stringify = {
     patch: (Patch) => String;
@@ -227,7 +224,6 @@ declare var Rpd : {
 
     _: typeof HiddenTypes;
 
-    // FIXME: remove this block later
     Patch: typeof Patch;
     Node: typeof Node;
     Inlet: typeof Inlet;
@@ -244,7 +240,7 @@ declare var Rpd : {
     noderenderer(type: string, alias: string, def: NodeRendererDefinition | (() => NodeRendererDefinition)): void;
     channelrenderer(type: string, alias: string, def: ChannelRendererDefinition | (() => ChannelRendererDefinition)): void;
     nodedescription(type: string, description: string): void;
-    style(alias: string, renderer: string, def: StyleDefinition | (() => StyleDefinition)): void;
+    style(alias: string, renderer: string, def: StyleDefinition): void;
     toolkiticon(toolkit: string, icon: string): void;
     nodetypeicon(type: string, icon: string): void;
 

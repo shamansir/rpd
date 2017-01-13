@@ -10,13 +10,9 @@ Rpd.renderNext('html', '#some-id', {});
 Rpd.renderNext('html', '#some-id', {
     // TODO
 });
-Rpd.renderNext('html', '#some-id', function() {
-    return {};
-});
-Rpd.renderNext('html', '#some-id', function() {
-    return {
-        // TODO
-    };
+Rpd.renderNext('html', '#some-id', {});
+Rpd.renderNext('html', '#some-id', {
+    valuesOnHover: true
 });
 Rpd.stopRendering();
 
@@ -26,14 +22,17 @@ Rpd.addPatch('Foobar').render([ 'html', 'svg' ], '#some-id');
 //Rpd.addPatch('Foobar').render('svg', [ document.body, document.body ]);
 Rpd.addPatch('Foobar').render('html', '#some-id', {})
 Rpd.addPatch('Foobar').render('html', '#some-id', {
-    // TODO
+    valuesOnHover: true
 });
 Rpd.addPatch('Foobar').render('html', '#some-id', function() {
     return {};
 });
 Rpd.addPatch('Foobar').render('html', '#some-id', function() {
     return {
-        // TODO
+        title: 'Foobar',
+        handle: {
+            'patch/open': function() {}
+        }
     };
 });
 const patch : Rpd.Patch = Rpd.addPatch('Foobar');
