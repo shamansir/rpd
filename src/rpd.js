@@ -205,7 +205,7 @@ Patch.prototype.addNode = function(type, arg1, arg2, arg3) {
         node.turnOn();
     });
 
-    return null;
+    return node;
 }
 Patch.prototype.removeNode = function(node) {
     node.turnOff();
