@@ -906,7 +906,8 @@ return {
 
     'VERSION': VERSION,
 
-    '_': { 'Patch': Patch, 'Node': Node, 'Inlet': Inlet, 'Outlet': Outlet, 'Link': Link },
+    //'_': { 'Patch': Patch, 'Node': Node, 'Inlet': Inlet, 'Outlet': Outlet, 'Link': Link },
+    'Patch': Patch, 'Node': Node, 'Inlet': Inlet, 'Outlet': Outlet, 'Link': Link,
 
     'unit': ƒ,
     'not': function(value) { return !value; },

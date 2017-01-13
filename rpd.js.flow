@@ -225,8 +225,6 @@ declare var Rpd : {
 
     //Rpd: typeof Rpd;
 
-    _: typeof HiddenTypes;
-
     // FIXME: remove this block later
     Patch: typeof Patch;
     Node: typeof Node;

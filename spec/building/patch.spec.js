@@ -14,7 +14,8 @@ describe('building: patch', function() {
         expect(node).toBeDefined();
     });
 
-    it('is not allowed to start from constructor', function() {
+    xit('is not allowed to start from constructor', function() {
+        // see issue #406
         expect(function() {
             new Rpd.Patch();
         //}).toReportError('patch/error');

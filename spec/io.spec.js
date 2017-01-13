@@ -388,7 +388,7 @@ describe('import and export', function() {
                           type: 'outlet/connect',
                           inlet: jasmine.objectContaining({ alias: 'Inlet' }),
                           outlet: jasmine.objectContaining({ alias: 'Outlet' }),
-                          link: jasmine.any(Rpd._.Link)
+                          link: jasmine.any(Rpd.Link)
                       }) ]
                 );
             });
