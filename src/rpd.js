@@ -386,7 +386,7 @@ Node.prototype.addInlet = function(type, alias, arg2, arg3, arg4) {
 
     this.event['node/add-inlet'].emit(inlet);
     inlet.toDefault();
-    return inlet;
+    return node;
 }
 Node.prototype.addOutlet = function(type, alias, arg2, arg3, arg4) {
     var def = arg3 ? arg3 : (is_object(arg2) ? (arg2 || {}) : {});
