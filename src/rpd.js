@@ -904,7 +904,7 @@ function autoStringify(value) {
 
 return {
 
-    'VERSION': VRSION,
+    'VERSION': VERSION,
 
     '_': { 'Patch': Patch, 'Node': Node, 'Inlet': Inlet, 'Outlet': Outlet, 'Link': Link },
 
