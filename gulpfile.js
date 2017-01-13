@@ -231,12 +231,16 @@ gulp.task('test', function(done) {
     new Server({
         configFile: __dirname + '/' + KARMA_CONF_PATH,
         singleRun: true
-    }, function() {
+    }, function(result) {
         // var gulpFlow = new GulpFlow();
         // gulp.src("./spec/*.flow.js")
         //     .pipe(header("/* @flow */"))
         //     .pipe(gulpFlow.check())
         //     .pipe(gulpFlow.markdownReporter());
+        if (result > 0) {
+            return done(new Error('Karma exited with status code ' + result));
+        }
+
         done();
     }).start();
 });
