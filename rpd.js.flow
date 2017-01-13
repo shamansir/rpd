@@ -1,5 +1,7 @@
 /* @flow */
 
+import Kefir from 'kefir';
+
 export type Event = {
     // TODO;
 }
@@ -166,7 +168,7 @@ export type ChannelRendererDefinition = InletRendererDefinition | OutletRenderer
 
 export type RendererConfig = { /* TODO */ }
 
-export type KefirStream = { /* TODO */ }
+export type KefirStream = Kefir.Observable<*>;
 
 export type RendererDefinition = (Patch) => (
     (networkRoot: HTMLElement, config: RendererConfig) => {
