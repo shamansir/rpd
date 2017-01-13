@@ -3,23 +3,23 @@
     function prettify(Rpd) {
         if (Rpd.PRETTIFIED) return;
 
-        Rpd.Patch.prototype.jasmineToString = function() {
+        Rpd._.Patch.prototype.jasmineToString = function() {
             return Rpd.stringify.patch(this);
         }
 
-        Rpd.Node.prototype.jasmineToString = function() {
+        Rpd._.Node.prototype.jasmineToString = function() {
             return Rpd.stringify.node(this);
         }
 
-        Rpd.Inlet.prototype.jasmineToString = function() {
+        Rpd._.Inlet.prototype.jasmineToString = function() {
             return Rpd.stringify.inlet(this);
         }
 
-        Rpd.Outlet.prototype.jasmineToString = function() {
+        Rpd._.Outlet.prototype.jasmineToString = function() {
             return Rpd.stringify.outlet(this);
         }
 
-        Rpd.Link.prototype.jasmineToString = function() {
+        Rpd._.Link.prototype.jasmineToString = function() {
             return Rpd.stringify._link(this);
         }
 
