@@ -21,7 +21,7 @@ export type NodeDefinition = {
                outlets: { [alias: string]: Outlet }
               ) => void;
     process?: (inlets_values: { [alias: string]: Value },
-               prev_inlets_values: { [alias: string]: Value }
+               prev_inlets_values?: { [alias: string]: Value }
               ) => void | { [ alias: string ]: Value | KefirStream };
     tune?: (updates_stream: KefirStream) => KefirStream;
     handle?: { [event: string]: (event: Event) => void };
@@ -29,7 +29,8 @@ export type NodeDefinition = {
 
 export type NodeRendererDefinition = {
     size?: { width: number, height: number };
-    first?: (body: HTMLElement) =>
+    first?: (body: HTMLElement,
+             configIn?: KefirStream) =>
               void | { [ inlet_alias: string ]: {
                   default?: any,
                   valueOut?: KefirStream

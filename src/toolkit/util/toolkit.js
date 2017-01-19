@@ -199,12 +199,12 @@ Rpd.nodetype('util/knob', {
     inlets: {
         'min': { type: 'util/number', default: 0 },
         'max': { type: 'util/number', default: 100 },
-        'submit': { type: 'util/number', default: 0, hidden: true }
+        'knob': { type: 'util/number', default: 0, hidden: true }
     },
     outlets: {
         'number': { type: 'util/number' }
     },
-    process: function(inlets) { return { number: adaptToState(inlets, inlets.submit) }; }
+    process: function(inlets) { return { number: adaptToState(inlets, inlets.knob) }; }
 });
 
 Rpd.nodetype('util/dial', {
@@ -212,12 +212,12 @@ Rpd.nodetype('util/dial', {
     inlets: {
         'min': { type: 'util/number', default: 0 },
         'max': { type: 'util/number', default: 100 },
-        'submit': { type: 'util/number', default: 0, hidden: true }
+        'dial': { type: 'util/number', default: 0, hidden: true }
     },
     outlets: {
         'number': { type: 'util/wholenumber' }
     },
-    process: function(inlets) { return { number: Math.floor(adaptToState(inlets, inlets.submit)) }; }
+    process: function(inlets) { return { number: Math.floor(adaptToState(inlets, inlets.dial)) }; }
 });
 
 Rpd.channeltype('util/numbers', { show: howMuch('number', 'numbers') });
