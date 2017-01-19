@@ -188,10 +188,10 @@ describe('building: node', function() {
 
             var propsObj = { foo: 'bar' };
 
-            node.sendProps(propsObj);
+            node.configure(propsObj);
 
             expect(updateSpy).toHaveBeenCalledWith(
-                jasmine.objectContaining({ type: 'node/send-props',
+                jasmine.objectContaining({ type: 'node/configure',
                                            props: propsObj
                                          })
             );

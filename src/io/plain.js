@@ -131,8 +131,8 @@ var exportSpec = {
     'node/move': function(update) {
         return [ 'node/move', update.node.id ].concat(update.position);
     },
-    'node/send-props': function(update) {
-        return [ 'node/send-props', update.node.id ].concat(JSON.stringify(update.props));
+    'node/configure': function(update) {
+        return [ 'node/configure', update.node.id ].concat(JSON.stringify(update.props));
     },
     'outlet/connect': function(update) {
         return [ 'outlet/connect', update.outlet.id, update.inlet.id, update.link.id ];
@@ -219,8 +219,8 @@ function makeImportSpec() {
         'node/move': function(command) {
             nodes[command[0]].move(parseFloat(command[1]), parseFloat(command[2]));
         },
-        'node/send-props': function(command) {
-            nodes[command[0]].sendProps(JSON.parse(command[1]));
+        'node/configure': function(command) {
+            nodes[command[0]].configure(JSON.parse(command[1]));
         },
         'outlet/connect': function(command) {
             links[command[2]] = outlets[command[0]].connect(inlets[command[1]]);

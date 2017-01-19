@@ -379,10 +379,10 @@ describe('import and export', function() {
                     function() {
                         var patch = Rpd.addPatch('Foo');
                         var node = patch.addNode('spec/empty', 'Props');
-                        node.sendProps({ foo: 'bar' });
+                        node.configure({ foo: 'bar' });
                     },
                     [ jasmine.objectContaining({
-                          type: 'node/send-props',
+                          type: 'node/configure',
                           node: jasmine.objectContaining({
                                 def: jasmine.objectContaining({ title: 'Props' })
                             }),

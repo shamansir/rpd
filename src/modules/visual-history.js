@@ -115,7 +115,7 @@ var renderUpdate = {
             update.position
         ]);
     },
-    'node/send-props': function(update) {
+    'node/configure': function(update) {
         return spanWithText([
             update.node.def.title,
             ' => ',
@@ -197,7 +197,7 @@ var updateTitle = {
     'node/add-outlet': 'Add Outlet to the Node',
     'node/remove-outlet': 'Remove Outlet from the Node',
     'node/move': 'Move Node',
-    'node/send-props': 'Send Props to Node',
+    'node/configure': 'Configure Properties of the Node',
     'inlet/update': 'Inlet Receives',
     'outlet/update': 'Outlet Sends Value',
     'outlet/connect': 'Connect Outlet to Inlet',
