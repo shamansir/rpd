@@ -115,6 +115,13 @@ var renderUpdate = {
             update.position
         ]);
     },
+    'node/send-props': function(update) {
+        return spanWithText([
+            update.node.def.title,
+            ' => ',
+            '( '+ JSON.stringify(update.props).substring(0, 20) + ' )'
+        ]);
+    },
     'inlet/update': function(update) {
         return spanWithText([
             '<' + update.value + '>',
@@ -190,6 +197,7 @@ var updateTitle = {
     'node/add-outlet': 'Add Outlet to the Node',
     'node/remove-outlet': 'Remove Outlet from the Node',
     'node/move': 'Move Node',
+    'node/send-props': 'Send Props to Node',
     'inlet/update': 'Inlet Receives',
     'outlet/update': 'Outlet Sends Value',
     'outlet/connect': 'Connect Outlet to Inlet',

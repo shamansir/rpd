@@ -182,6 +182,22 @@ describe('building: node', function() {
 
     });
 
+    it('allows to send rendering props', function() {
+        withNewPatch(function(patch, updateSpy) {
+            var node = patch.addNode('spec/empty');
+
+            var propsObj = { foo: 'bar' };
+
+            node.sendProps(propsObj);
+
+            expect(updateSpy).toHaveBeenCalledWith(
+                jasmine.objectContaining({ type: 'node/send-props',
+                                           props: propsObj
+                                         })
+            );
+        });
+    })
+
     xit('allows to substitute/extend renderer', function() {
         // i#311
     });

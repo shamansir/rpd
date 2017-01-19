@@ -261,7 +261,8 @@ function Node(type, patch, def, render, callback) {
         'node/remove-inlet':  [ 'inlet' ],
         'node/add-outlet':    [ 'outlet' ],
         'node/remove-outlet': [ 'outlet' ],
-        'node/move':          [ 'position' ]
+        'node/move':          [ 'position' ],
+        'node/send-props':    [ 'props' ]
     };
     this.event = create_event_map(event_types);
     this.events = create_events_stream(event_types, this.event, 'node', this);
@@ -412,6 +413,10 @@ Node.prototype.removeOutlet = function(outlet) {
 }
 Node.prototype.move = function(x, y) {
     this.event['node/move'].emit([ x, y ]);
+    return this;
+}
+Node.prototype.sendProps = function(props) {
+    this.event['node/send-props'].emit(props);
     return this;
 }
 

@@ -116,6 +116,7 @@ declare class Node {
     removeInlet(inlet: Inlet): Node;
     removeOutlet(outlet: Outlet): Node;
     move(x: number, y: number): Node;
+    sendProps(props: any): Node;
     event: EventMap;
     events: AllEvents;
 };
