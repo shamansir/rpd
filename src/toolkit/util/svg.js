@@ -293,9 +293,7 @@ function createKnob(state, conf) {
                      text.text(conf.adaptValue ? conf.adaptValue(valueText) : valueText);
                      hand.attr('transform', 'rotate(' + adaptAngle(state, value) + ')');
                  });
-            return submit.merge(valueIn
-                ? valueIn.map(function(v) { return adaptToState(state, v); })
-                : Kefir.never());
+            return submit.merge(valueIn ? valueIn : Kefir.never());
         }
     }
 }

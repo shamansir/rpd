@@ -1,7 +1,6 @@
 var RpdUtils = (function() {
 
 function adaptToState(state, value) {
-    console.log(state.min, state.max, value);
     return Math.floor((state.min + ((state.max - state.min) * value)) * 100) / 100;
 }
 
