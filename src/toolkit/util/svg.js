@@ -231,7 +231,7 @@ function createKnob(state, conf) {
     var adaptAngle = conf.adaptAngle || function(s, v) { return v * 360; };
 
     return {
-        init: function(parent) {
+        init: function(parent, valueIn) {
             var hand, handGhost, face, text;
             var submit = Kefir.emitter();
             d3.select(parent)
@@ -286,12 +286,14 @@ function createKnob(state, conf) {
                          submit.emit(lastValue);
                      });
                      return values;
-                 }).onValue(function(value) {
+                 })
+                 .merge(valueIn || Kefir.never())
+                 .onValue(function(value) {
                      var valueText = adaptToState(state, value);
                      text.text(conf.adaptValue ? conf.adaptValue(valueText) : valueText);
                      hand.attr('transform', 'rotate(' + adaptAngle(state, value) + ')');
                  });
-            return submit;
+            return submit.merge(valueIn ? valueIn : Kefir.never());
         }
     }
 }
@@ -314,10 +316,12 @@ Rpd.noderenderer('util/knob', 'svg', function() {
     return {
         size: { width: defaultKnobConf.width,
                 height: defaultKnobConf.height },
-        first: function(bodyElm) {
-            var submit = knob.init(bodyElm);
+        first: function(bodyElm, configurationIn) {
+            var submit = knob.init(bodyElm,
+                                   configurationIn.filter(function(c) { return c.hasOwnProperty('knob'); })
+                                                  .map(function(c) { return c.knob; }));
             return {
-                'submit': { valueOut: submit }
+                'knob': { valueOut: submit }
             };
         },
         always: function(bodyElm, inlets, outlets) {
@@ -341,10 +345,12 @@ Rpd.noderenderer('util/dial', 'svg', function() {
     return {
         size: { width: myKnobConf.width,
                 height: myKnobConf.height },
-        first: function(bodyElm) {
-            var submit = knob.init(bodyElm);
+        first: function(bodyElm, configurationIn) {
+            var submit = knob.init(bodyElm,
+                                   configurationIn.filter(function(c) { return c.hasOwnProperty('dial'); })
+                                                  .map(function(c) { return c.dial; }));
             return {
-                'submit': { valueOut: submit }
+                'dial': { valueOut: submit }
             };
         },
         always: function(bodyElm, inlets, outlets) {

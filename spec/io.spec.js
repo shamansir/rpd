@@ -374,6 +374,25 @@ describe('import and export', function() {
                   }));
             });
 
+            it('sending configuration', function() {
+                testAction(
+                    function() {
+                        var patch = Rpd.addPatch('Foo');
+                        var node = patch.addNode('spec/empty', 'Props');
+                        node.configure({ foo: 'bar' });
+                    },
+                    [ jasmine.objectContaining({
+                          type: 'node/configure',
+                          node: jasmine.objectContaining({
+                                def: jasmine.objectContaining({ title: 'Props' })
+                            }),
+                          props: jasmine.objectContaining({
+                              foo: 'bar'
+                          })
+                      }) ]
+                );
+            });
+
             it('connecting outlet to inlet', function() {
                 testAction(
                     function() {

@@ -223,7 +223,7 @@ return function(networkRoot, userConfig) {
                                                tree.patches[currentPatch.id].node());
 
             // use custom node body renderer, if defined
-            if (render.first) subscribeUpdates(node, render.first.bind(node)(nodeElm.select('.rpd-process-target').node()));
+            if (render.first) subscribeUpdates(node, render.first.bind(node)(nodeElm.select('.rpd-process-target').node(), node.event['node/configure']));
 
             // if node body could be re-rendered, update links (since body element bounds could change)
             if (render.always) {

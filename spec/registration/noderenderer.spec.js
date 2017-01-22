@@ -219,4 +219,8 @@ describe('registration: node renderer', function() {
 
     });
 
+    // TODO: test using ASCII-Renderer
+    xit('calls `first` method of renderer with node body and incoming configuration stream', function() {});
+    xit('calls `always` method of renderer with node body', function() {});
+
 });
