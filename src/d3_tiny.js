@@ -79,6 +79,8 @@ Selection.prototype.remove = function() {
 
 Selection.prototype.node = function(i) { return this.selection[i || 0]; }
 
+Selection.prototype.parent = function() { return new Selection(this.selection.length ? this.selection[0].parentNode : []); }
+
 Selection.prototype.on = function(event, handler) {
     return modify(this, function() { return handler; },
                   function(subj, handler) { subj.addEventListener(event, handler) });
@@ -89,9 +91,7 @@ Selection.prototype.data = function(val) {
     return modify(this, val, function(subj, data) { subj.__data__ = data; });
 }
 
-Selection.prototype.call = function(fn) {
-    fn(this); return this;
-}
+Selection.prototype.call = function(fn) { fn(this); return this; }
 
 return { 'ns': { 'prefix': { 'svg': 'http://www.w3.org/2000/svg', 'html': 'http://www.w3.org/1999/xhtml' } },
          'select': function(v, root) { return new Selection(v, root); },

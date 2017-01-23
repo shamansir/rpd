@@ -415,7 +415,7 @@ return function(networkRoot, userConfig) {
                 var valueRepr = inlet.def.show ? inlet.def.show(update.value)
                                                : update.value;
                 if (render.show) {
-                    render.show.bind(inlet)(valueElm.node(), update.value, valueRepr);
+                    render.show.bind(inlet)(valueElm.parent().node(), update.value, valueRepr);
                 } else {
                     valueElm.text(valueRepr);
                 }
@@ -438,7 +438,7 @@ return function(networkRoot, userConfig) {
                 var valueRepr = outlet.def.show ? outlet.def.show(update.value)
                                                 : update.value;
                 if (render.show) {
-                    render.show.bind(outlet)(valueElm.node(), update.value, valueRepr);
+                    render.show.bind(outlet)(valueElm.parent().node(), update.value, valueRepr);
                 } else {
                     valueElm.text(valueRepr);
                 }
