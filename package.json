@@ -1,8 +1,8 @@
 {
   "name": "rpd",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "RPD is a minimal framework for building Node-Based User Interfaces, powered by Reactive Programming",
-  "author": "Ulric Wilfred <shaman.sir@gmail.com>",
+  "author": "Ulric Wilfred <shaman.sir@gmail.com> (http://shamansir.github.io)",
   "homepage": "http://shamansir.github.io/rpd",
   "repository": {
     "type": "git",
@@ -13,12 +13,21 @@
   },
   "keywords": [
     "functional-reactive-programming",
+    "reactive-programming",
     "node-user-interface",
+    "dataflow-programming",
+    "flow-based-programming",
+    "generative-art",
+    "graphics-programming",
+    "pure-data",
     "reactive",
     "nodes",
     "streams",
-    "user-interface"
+    "reactive-streams",
+    "user-interface",
+    "visualisation"
   ],
+  "main": "./src/rpd.js",
   "dependencies": {
     "kefir": "^3.7.0"
   },
@@ -53,6 +62,12 @@
   },
   "scripts": {
     "test": "gulp test && flow check"
+  },
+  "directories": {
+    "lib": "./src",
+    "bin": "./src",
+    "doc": "./docs",
+    "example": "./examples"
   },
   "license": "MIT"
 }
