@@ -12,10 +12,69 @@ RPD with default options can be downloaded here:
 * HTML renderer, Quartz style, no I/O: [`rpd-html.min.js`][default-html-js]  (_~40KB_, _~11KB_ gzipped) + [`rpd-html.css`][default-html-css] (_~10KB_, _~2KB_ gzipped);
 
 You'll also need [Kefir.js][kefir], since RPD code is based on Reactive Streams, which it provides.
-​
 
 But default options restrict your choice, while RPD provides truly a lot more. See [Compilation](#Compilation) section below for details. And you are surely safe to transfer your network code to use it with other options, if you already have one, the only requirement could be is to change few string values.
+
+### NPM
+
+You also may install RPD from NPM and use the unminified sources from `./node_modules/rpd/src` for development, and then use compiled version in production.
+
+So, install the latest RPD with `npm`:
+
+```sh
+$ npm install rpd --no-optional
+```
 ​
+To build everything, you'll need `gulp` build tool installed globally:
+
+```sh
+$ npm install -g gulp
+```
+
+And then just use the `gulp html-head` command from `./node_modules/rpd` to get the list of files you need to include in your HTML file to make everything work, like this:
+
+```sh
+$ cd ./node_modules/rpd
+$ gulp html-head --root ./node_modules/rpd
+```
+
+This returns you the default setup (HTML rendering and Quartz style), but there are much more options [described below](#compilation-options). These options may be used both for compilation and to generate `html-head`.
+
+So, to compile your version in one file (actually, two, `./dist/rpd.min.js` and `./dist/rpd.css`), just use:
+
+```sh
+$ gulp # -- here you may pass the same options you used for `html-head`
+```
+
+To get the complete list of commands could be used with `gulp`, use:
+
+```sh
+$ gulp help
+```
+​
+If you want to run examples, you'll need to install optional dependencies as well, so omit the `--no-optional` flag this time:
+
+```sh
+$ cd <YourProjectDir>
+$ npm install rpd
+$ ls -laF ./node_modules/rpd/examples/
+```
+
+Then just try to open pages under `./examples` directory. If they are still not working, ensure you also have installed optional dependencies like `codemirror`, `p5` etc.
+
+### Clone
+
+You may do the same things as above using Github:
+
+```sh
+$ git clone git@github.com:shamansir/rpd.git
+$ npm install
+$ npm install -g gulp
+$ gulp help
+$ gulp [<..options>] # if you want to compile your custom version
+$ gulp html-head --root <PathToYourClone> [<..options>] # if you want to use unminified sourses
+```
+
 ### Setup
 ​
 To use either downloaded or compiled version of RPD, you need to include three files in a page head:
@@ -55,7 +114,7 @@ To use either downloaded or compiled version of RPD, you need to include three f
 > to build them, so it is always easy to get what is included just by looking
 > inside.
 
-For the local version, paths would be `./dist/rpd.css`, `./vendor/kefir.min.js` and `./dist/rpd.min.js` respectively.
+For the local version, paths would be `./dist/rpd.css`, `./node_modules/kefir/dist/kefir.min.js` and `./dist/rpd.min.js` respectively.
 ​
 To test if it works and see it in action, add the target `div` to the `body` and some code to the bottom of the page:
 ​
@@ -83,7 +142,7 @@ To test if it works and see it in action, add the target `div` to the `body` and
         metro1.outlets['bang'].connect(genA.inlets['bang']);
         metro2.outlets['bang'].connect(genB.inlets['bang']);
     </script>
-</body>    
+</body>
 ```
 
 Detailed instructions on constructing your own Patch Network you may find [in the Network section](./network.html).
@@ -119,6 +178,8 @@ $ gulp help
 ```
 
 There are a lot more options and commands than I describe here, but in contrast with this literary text, `gulp help` provides you with far more bureaucratic style.
+
+Also note
 ​
 Now it's time to use all the powers and to configure your preferences:
 
@@ -127,7 +188,7 @@ Now it's time to use all the powers and to configure your preferences:
     * _`svg`_: renders your Patch using SVG tags;
 * *Styles* (`-s` or `--style`): determines the look of your nodes and backgrounds, see [list of styles below](#styles-and-renderers) or [examples](../examples.htm);
     * _`quartz`_ (HTML & SVG): intended to be used on a full page; default style, normal-sized font, rounded borders for the nodes, connectors are circles, inlets are placed in a vertical column on the left side of the node and distributed over this side, outlets are placed in a vertical column on the right side of the node and distributed over this side;
-    * _`pd`_ (HTML & SVG): intended to be used on a full page; normal-sized font, rectangular nodes, header takes the left connectors are circles, inlets are placed in a horizontal row on the top side of the node, outlets are placed in a horizontal row on the bottom side of the node;   
+    * _`pd`_ (HTML & SVG): intended to be used on a full page; normal-sized font, rectangular nodes, header takes the left connectors are circles, inlets are placed in a horizontal row on the top side of the node, outlets are placed in a horizontal row on the bottom side of the node;
     * _`plain`_ (HTML & SVG): intended to be used on a small areas, most minimal style, majorly in black and white; font size is small, nodes are rectangular, titles do not belong to the nodes, inlets are placed in a horizontal row above the node, outlets are placed in a horizontal row below the node;
     * _`compact`_ (HTML & SVG): intended to be used on a small areas; font size is small, nodes are rectangular, node headers are tiny on the left side or absent, inlets are placed in a horizontal row above the node, outlets are placed in a horizontal row below the node;
     * _`compact-v`_ (SVG only): intended to be used on a small areas; font size is small, nodes are rectangular, node headers are tiny or absent, on the top side, inlets are placed in a vertical column on the right side of the node, outlets are placed in a vertical column on the left side the node;

@@ -29,12 +29,12 @@
   ],
   "main": "./src/rpd.js",
   "dependencies": {
-    "kefir": "^3.7.0"
+    "kefir": "^3.7.1"
   },
   "devDependencies": {
     "del": "^2.2.0",
-    "google-closure-compiler": "^20150901.0.0",
     "flow-bin": "^0.37.4",
+    "google-closure-compiler": "^20150901.0.0",
     "gulp": "^3.9.0",
     "gulp-closure-compiler": "^0.3.0",
     "gulp-concat": "^2.6.0",
@@ -50,8 +50,8 @@
     "gulp-size": "^2.0.0",
     "gulp-util": "^3.0.6",
     "gulp-watch": "^4.3.5",
-    "highlight.js": "^9.3.0",
-    "jasmine-core": "^2.3.4",
+    "jasmine": "^2.5.3",
+    "jasmine-core": "^2.5.2",
     "karma": "^0.13.9",
     "karma-chrome-launcher": "^0.1.12",
     "karma-jasmine": "^0.3.5",
@@ -59,6 +59,14 @@
     "karma-nyan-reporter": "^0.0.60",
     "through2": "^2.0.0",
     "yargs": "^3.25.0"
+  },
+  "optionalDependencies": {
+    "codemirror": "^5.23.0",
+    "d3": "^4.5.0",
+    "highlight.js": "^9.9.0",
+    "p5": "^0.5.7",
+    "timbre": "^14.11.25",
+    "webpd": "^0.4.2"
   },
   "scripts": {
     "test": "gulp test && flow check"

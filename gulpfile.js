@@ -6,8 +6,6 @@ var gulp = require('gulp'),
     del = require('del'),
     concat = require('gulp-concat'),
     gzip = require('gulp-gzip'),
-    // to get vendor files
-    download = require('gulp-download'),
     // to build documentation
     fs = require('fs'),
     rename = require('gulp-rename'),
@@ -24,10 +22,10 @@ var Paths = {
     Root: '.',
     Destination: './dist',
     Src: function() { return Paths.Root + '/src'; },
-    Vendor: function() { return Paths.Root + '/vendor'; },
+    NodeModules: function() { return Paths.Root + '/node_modules'; },
     Rpd: function() { return Paths.Src() + '/rpd.js'; },
-    Kefir: function() { return Paths.Vendor() + '/kefir.min.js'; },
-    D3: function() { return Paths.Vendor() + '/d3.min.js'; },
+    Kefir: function() { return Paths.NodeModules() + '/kefir.min.js'; },
+    D3: function() { return Paths.NodeModules() + '/d3.min.js'; },
     D3Tiny: function() { return Paths.Src() + '/d3_tiny.js'; },
     RenderModel: function() { return Paths.Src() + '/render/shared.js'; },
     Renderer: function(renderer) { return Paths.Src() + '/render/' + renderer; },
@@ -48,8 +46,6 @@ var yargs = require('yargs')
             .command('help', 'show this message')
             .command('build [options]', '(default) compile the RPD library with given options, if specified; all the options listed below are supported')
             .command('build-with-gzip [options]', 'additionally to what `build` performs, compile the gzipped version of the library; all the options listed below are supported')
-            .command('get-deps', 'download the dependencies (currently only Kefir.js) required for using RPD to `./vendor` directory; may be called only once to get the most recent version of the dependencies')
-            .command('get-dev-deps', 'download the development dependencies required for developing with RPD or running the examples to `./vendor` directory;  may be called only once to get the most recent version of the dependencies')
             .command('test', 'run the Jasmine tests to check if API is consistent (the same command runs on Travis CI)')
             .command('list-options [options]', 'get the information for given options, may be used to be sure if you specified all the options correctly without compiling the library; all the options listed below are supported')
             .command('html-head [options]', 'get the full list of all the required files with given options to include into HTML file head if you use not the compiled version, but the files from `./src` directly; all the options listed below are supported')
@@ -115,23 +111,8 @@ var Server = require('karma').Server;
 var KARMA_CONF_PATH = 'spec/karma.conf.js';
 var CLOSURE_COMPILER_PATH = 'node_modules/google-closure-compiler/compiler.jar';
 
-var DEPENDENCIES = [ 'https://cdn.jsdelivr.net/kefir/3.0.0/kefir.min.js' ];
-
 var DOC_HIGHLIGHT_STYLE = 'docco', // default, tomorrow, foundation, github-gist, xcode
     DOC_HIGHLIGHT_STYLE_FILENAME = DOC_HIGHLIGHT_STYLE + '.min.css';
-
-var DEV_DEPENDENCIES = [
-               'https://cdn.jsdelivr.net/kefir/3.3.0/kefir.min.js', // Kefir
-               'http://mohayonao.github.io/timbre.js/timbre.js', // timbre
-               'http://player-dev.animatron.com/latest/bundle/animatron.min.js', // animatron
-               'https://raw.githubusercontent.com/sebpiq/WebPd/master/dist/webpd-latest.min.js', // WebPd
-               'https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.19/p5.min.js', // p5
-               'https://d3js.org/d3.v4.min.js', // d3
-               'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.js',
-               'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.css',
-               'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/mode/javascript/javascript.min.js',
-               'http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/styles/' + DOC_HIGHLIGHT_STYLE_FILENAME // highlight.js style for documentation
-             ];
 
 var COMPILATION_LEVELS = {
     'whitespace': 'WHITESPACE_ONLY',
@@ -146,14 +127,6 @@ var valueColor = gutil.colors.yellow,
     infoColor = gutil.colors.black;
 
 gulp.task('default', ['build']);
-
-gulp.task('get-deps', function() {
-    download(DEPENDENCIES).pipe(gulp.dest('./vendor'));
-});
-
-gulp.task('get-dev-deps', function() {
-    download(DEV_DEPENDENCIES).pipe(gulp.dest('./vendor'));
-});
 
 gulp.task('build', ['check-paths', 'list-opts', 'concat-css'], function() {
     var targetName = argv['target-name'];
@@ -436,8 +409,8 @@ gulp.task('docs-clean-dir', function() {
 });
 
 gulp.task('docs-copy-dependencies', function() {
-    var dependencies = ['./vendor/kefir.min.js',
-                        './vendor/d3.v3.min.js',
+    var dependencies = ['./node_modules/kefir/dist/kefir.min.js',
+                        './node_modules/d3/build/d3.min.js',
                         './examples/docs-patch.js',
                         './dist/rpd-docs.css',
                         './dist/rpd-docs.min.js'/*,
@@ -474,6 +447,7 @@ gulp.task('docs-copy-assets', function() {
 });
 
 gulp.task('docs-copy-vendor', function() {
+    // FIXME: all vendor files are moved to node_modules now
     return gulp.src([ './vendor/*.*' ])
                .pipe(gulp.dest('./docs/compiled/vendor'));
 });
@@ -510,6 +484,7 @@ gulp.task('docs-copy-root-assets', function() {
 });
 
 gulp.task('docs-copy-highlight-css', function() {
+    // FIXME: all vendor files are moved to node_modules now
     return gulp.src('./vendor/' + DOC_HIGHLIGHT_STYLE_FILENAME)
                .pipe(rename('highlight-js.min.css'))
                .pipe(gulp.dest('./docs/compiled/'));
