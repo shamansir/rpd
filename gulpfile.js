@@ -713,7 +713,7 @@ function getHtmlHead(options) {
         console.log('  <!-- ' + comment + ' -->')
     }
     function cssFile(path) {
-        console.log('  <link rel="stylesheet" href="' + path + '"></style>');
+        console.log('  <link rel="stylesheet" href="' + path + '"></link>');
     }
     function jsFile(path) {
         console.log('  <script src="' + path + '"></script>');
