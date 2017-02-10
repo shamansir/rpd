@@ -161,3 +161,8 @@
 .rpd-util-nodelist .rpd-nodelist-list text.rpd-nodelist-icon {
     transform: translate(3px,0);
 }
+
+.rpd-inlet.rpd-util-number foreignobject,
+.rpd-outlet.rpd-util-number foreignobject {
+    transform: translate(-43px,1px);
+}

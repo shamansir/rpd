@@ -1,3 +1,11 @@
+.rpd-util-nodelist .rpd-nodelist-search text,
+.rpd-node.rpd-util-palette .rpd-process .rpd-util-palette-variant *,
+.rpd-util-nodelist .rpd-process *,
+.rpd-util-dial .rpd-process *,
+.rpd-util-knob .rpd-process * {
+    pointer-events: all;
+}
+
 .rpd-inlet.rpd-util-number foreignobject,
 .rpd-outlet.rpd-util-number foreignobject {
     transform: translate(-2px,-8px);
@@ -18,7 +26,6 @@
 
 .rpd-node.rpd-util-palette .rpd-process .rpd-util-palette-variant * {
     cursor: pointer;
-    pointer-events: all;
 }
 
 .rpd-util-palette-variant.rpd-util-palette-active-variant {
@@ -37,7 +44,6 @@
 .rpd-util-nodelist .rpd-nodelist-search text {
     /* font-size: 1.5em; */
     fill: darkred;
-    pointer-events: all;
     transition: fill 0.2s ease-in;
     /* background-color: lightgray; */
 }
