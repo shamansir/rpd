@@ -4,8 +4,8 @@ node_js:
     - "iojs"
 script: npm test
 before_script:
+    - npm install --no-optional
     - npm install -g gulp
-    - gulp get-deps
     - npm install -g flow-bin
     - flow version
 
