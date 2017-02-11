@@ -2,10 +2,13 @@
 
 import Rpd from '../../rpd';
 
+let twoDivs: Array<HTMLElement> = [ document.createElement('div'),
+                                    document.createElement('div') ];
+
 Rpd.renderNext('html', '#some-id');
-Rpd.renderNext('html', document.body);
+Rpd.renderNext('html', document.createElement('div'));
 Rpd.renderNext([ 'html', 'svg' ], '#some-id');
-//Rpd.renderNext('svg', [ document.body, document.body ]);
+Rpd.renderNext('svg', twoDivs);
 Rpd.renderNext('html', '#some-id', {});
 Rpd.renderNext('html', '#some-id', {
     // TODO
@@ -17,9 +20,9 @@ Rpd.renderNext('html', '#some-id', {
 Rpd.stopRendering();
 
 Rpd.addPatch('Foobar').render('html', '#some-id');
-Rpd.addPatch('Foobar').render('html', document.body);
+Rpd.addPatch('Foobar').render('html', document.createElement('div'));
 Rpd.addPatch('Foobar').render([ 'html', 'svg' ], '#some-id');
-//Rpd.addPatch('Foobar').render('svg', [ document.body, document.body ]);
+Rpd.addPatch('Foobar').render('svg', twoDivs);
 Rpd.addPatch('Foobar').render('html', '#some-id', {})
 Rpd.addPatch('Foobar').render('html', '#some-id', {
     valuesOnHover: true
