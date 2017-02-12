@@ -30,7 +30,7 @@
 * _renderers_: HTML, SVG
 * _inlets_:
     * `what`: `core/any`
-* _outlets_: _node_
+* _outlets_: _none_
 
 ##### `util/number`
 
@@ -58,7 +58,7 @@
 * _outlets_:
     * `number`: `util/number`
 
-##### `util/comment`   
+##### `util/comment`
 
 * _renderers_: HTML, SVG
 * _inlets_:
@@ -101,6 +101,15 @@
     * `max`: `util/number` (`100`)
 * _outlets_:
     * `number`: `util/number`
+
+##### `util/dial`
+
+* _renderers_: SVG
+* _inlets_:
+    * `min`: `util/number` (`0`)
+    * `max`: `util/number` (`100`)
+* _outlets_:
+    * `number`: `util/wholenumber`
 
 ##### `util/knobs`
 

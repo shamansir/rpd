@@ -10,7 +10,7 @@
 
 <a href="http://shamansir.github.io/rpd" title="Reactive Patch Development">
     <img src="https://rawgit.com/shamansir/rpd/v2.0.0/docs/rpd.svg" width="140px" height="140px" />
-</a>    
+</a>
 
 **[Closed Milestones](https://github.com/shamansir/rpd/milestones?state=closed)**
 
@@ -66,7 +66,7 @@ Constructing a network of nodes:
 var patch = Rpd.addPatch('Example');
 
 var firstNode = patch.addNode('core/basic', 'Test');
-var boolOutlet = firstNode.addOutlet('core/boolean', 'bool', {
+var boolOutlet = firstNode.addOutlet('util/boolean', 'bool', {
     default: true;
 });
 firstNode.addOutlet('util/number', { default: 1 });
