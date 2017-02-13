@@ -58,7 +58,7 @@
     "karma-mocha-reporter": "^2.2.2",
     "karma-nyan-reporter": "^0.2.5",
     "through2": "^2.0.0",
-    "yargs": "^6.6.0"
+    "yargs": ">3.25.0 <4.0.0"
   },
   "optionalDependencies": {
     "codemirror": "^5.23.0",
