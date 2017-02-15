@@ -642,16 +642,6 @@ function getCssFiles(options) {
     options.renderer.forEach(function(renderer) {
         list.push(Paths.Renderer(renderer) + '.css');
     });
-    options.style.forEach(function(style) {
-        options.renderer.forEach(function(renderer) {
-            list.push(Paths.StyleRenderer(style, renderer) + '.css');
-        });
-    });
-    options['user-style'].forEach(function(style) {
-        options.renderer.forEach(function(renderer) {
-            list.push(Paths.UserStyleRenderer(style, renderer) + '.css');
-        });
-    });
     options.toolkit.forEach(function(toolkit) {
         options.renderer.forEach(function(renderer) {
             list.push(Paths.ToolkitRenderer(toolkit, renderer) + '.css');
@@ -660,6 +650,16 @@ function getCssFiles(options) {
     options['user-toolkit'].forEach(function(toolkit) {
         options.renderer.forEach(function(renderer) {
             list.push(Paths.UserToolkitRenderer(toolkit, renderer) + '.css');
+        });
+    });
+    options.style.forEach(function(style) {
+        options.renderer.forEach(function(renderer) {
+            list.push(Paths.StyleRenderer(style, renderer) + '.css');
+        });
+    });
+    options['user-style'].forEach(function(style) {
+        options.renderer.forEach(function(renderer) {
+            list.push(Paths.UserStyleRenderer(style, renderer) + '.css');
         });
     });
     return list;

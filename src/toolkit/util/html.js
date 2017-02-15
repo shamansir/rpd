@@ -36,6 +36,8 @@ Rpd.channelrenderer('util/number', 'html', {
     }
 });
 
+Rpd.channelrenderer('util/wholenumber', 'html', Rpd.allChannelRenderers['util/number']['html']);
+
 Rpd.noderenderer('util/number', 'html', {
     first: function(bodyElm) {
         var valInput = document.createElement('input');

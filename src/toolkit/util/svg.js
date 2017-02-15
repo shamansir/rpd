@@ -41,6 +41,10 @@ Rpd.channelrenderer('util/number', 'svg', {
     }
 });
 
+/* ========================= util/wholenumber ========================= */
+
+Rpd.channelrenderer('util/wholenumber', 'svg', Rpd.allChannelRenderers['util/number']['svg']);
+
 /* ========================= util/random ========================= */
 
 Rpd.noderenderer('util/random', 'svg', function() {
