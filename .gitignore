@@ -2,7 +2,6 @@
 .idea/
 node_modules/
 dist/
-vendor/
 examples/.pd
 spec/lib
 spec/Runner.html

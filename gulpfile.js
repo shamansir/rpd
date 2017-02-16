@@ -6,6 +6,8 @@ var gulp = require('gulp'),
     del = require('del'),
     concat = require('gulp-concat'),
     gzip = require('gulp-gzip'),
+    // to get vendor files
+    download = require('gulp-download'),
     // to build documentation
     fs = require('fs'),
     rename = require('gulp-rename'),
@@ -409,15 +411,15 @@ gulp.task('docs-clean-dir', function() {
 });
 
 gulp.task('docs-copy-dependencies', function() {
-    var dependencies = ['./node_modules/kefir/dist/kefir.min.js',
-                        './node_modules/d3/build/d3.min.js',
-                        './examples/docs-patch.js',
-                        './dist/rpd-docs.css',
-                        './dist/rpd-docs.min.js'/*,
-                        './dist/rpd-html.css',
-                        './dist/rpd-html.min.js',
-                        './dist/rpd-svg.css',
-                        './dist/rpd-svg.min.js'*/];
+    var dependencies = [ './node_modules/kefir/dist/kefir.min.js',
+                         './node_modules/d3/build/d3.min.js',
+                         './examples/docs-patch.js',
+                         './dist/rpd-docs.css',
+                         './dist/rpd-docs.min.js'/*,
+                         './dist/rpd-html.css',
+                         './dist/rpd-html.min.js',
+                         './dist/rpd-svg.css',
+                         './dist/rpd-svg.min.js'*/ ];
 
     var lastChecked;
     try {
@@ -447,8 +449,28 @@ gulp.task('docs-copy-assets', function() {
 });
 
 gulp.task('docs-copy-vendor', function() {
-    // FIXME: all vendor files are moved to node_modules now
-    return gulp.src([ './vendor/*.*' ])
+    var vendorDependencies = [
+                './node_modules/kefir/dist/kefir.min.js', // Kefir
+                './node_modules/timbre/timbre.dev.js', // timbre
+                './node_modules/webpd/dist/webpd-latest.min.js', // WebPd
+                './node_modules/p5/lib/p5.min.js', // p5
+                './node_modules/d3/build/d3.min.js', // d3
+                './node_modules/codemirror/lib/codemirror.js',
+                './node_modules/codemirror/lib/codemirror.css',
+                './node_modules/codemirror/mode/javascript/javascript.min.js',
+                //'./node_modules/highlight.js/lib/highlight.js',
+                //'./node_modules/highlight.js/lib/languages/javascript.js',
+                './node_modules/highlight.js/styles/' + DOC_HIGHLIGHT_STYLE_FILENAME // highlight.js style for documentation ];
+    ];
+    return gulp.src(vendorDependencies)
+               .pipe(gulp.dest('./docs/compiled/vendor'));
+});
+
+gulp.task('docs-download-vendor', function() {
+    var vendorDependencies = [
+        'http://player-dev.animatron.com/latest/bundle/animatron.min.js' // animatron
+    ];
+    return download(vendorDependencies)
                .pipe(gulp.dest('./docs/compiled/vendor'));
 });
 
@@ -484,15 +506,14 @@ gulp.task('docs-copy-root-assets', function() {
 });
 
 gulp.task('docs-copy-highlight-css', function() {
-    // FIXME: all vendor files are moved to node_modules now
-    return gulp.src('./vendor/' + DOC_HIGHLIGHT_STYLE_FILENAME)
+    return gulp.src('./docs/vendor/' + DOC_HIGHLIGHT_STYLE_FILENAME)
                .pipe(rename('highlight-js.min.css'))
                .pipe(gulp.dest('./docs/compiled/'));
 });
 
 gulp.task('docs', [ 'docs-clean-dir', 'docs-copy-dependencies',
                     'docs-copy-root-assets', 'docs-copy-assets', 'docs-copy-vendor',
-                    'docs-copy-examples', 'docs-copy-highlight-css' ], function() {
+                    'docs-download-vendor', 'docs-copy-examples', 'docs-copy-highlight-css' ], function() {
 
     //var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
@@ -501,7 +522,7 @@ gulp.task('docs', [ 'docs-clean-dir', 'docs-copy-dependencies',
     return result;
 });
 
-gulp.task('docs-watch', [ 'docs-copy-dependencies', 'docs-copy-assets',
+gulp.task('docs-watch', [ 'docs-copy-dependencies', 'docs-copy-assets', 'docs-copy-vendor',
                           'docs-copy-examples', 'docs-copy-highlight-css'], function() {
     //var utils = require('./docs/utils.js');
     var config = require('./docs/config.json');
