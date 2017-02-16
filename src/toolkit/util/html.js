@@ -180,7 +180,7 @@ Rpd.noderenderer('util/metro', 'html', function() {
     }
 });
 
-var d3 = d3 || d3_tiny;
+var d3 = Rpd.d3;
 
 var NodeList = RpdUtils.NodeList;
 var getNodeTypesByToolkit = RpdUtils.getNodeTypesByToolkit;

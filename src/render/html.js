@@ -39,7 +39,7 @@ var NODE_LAYER = 0, // normally, nodes are layed out below everything
     LINKDRAG_LAYER = 3; // dragged links are above normal nodes and their links, and also above dragged nodes
 
 // either use the full d3.js library or the super-tiny version provided with RPD
-var d3 = d3 || d3_tiny;
+var d3 = Rpd.d3;
 
 var Render = Rpd.Render; // everything common between renderers
 

@@ -6,7 +6,7 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
     Rpd = require('rpd');
 }
 
-var d3 = d3 || d3_tiny;
+var d3 = Rpd.d3;
 
 // TODO: nodes have different size depending on their content
 var defaultSize = { width: 50, height: 18 };

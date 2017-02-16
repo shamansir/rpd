@@ -31,7 +31,7 @@ var defaultConfig = {
 };
 
 // either use the full d3.js library or the super-tiny version provided with RPD
-var d3 = d3 || d3_tiny;
+var d3 = Rpd.d3;
 
 var Render = Rpd.Render; // everything common between renderers
 

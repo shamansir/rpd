@@ -83,7 +83,7 @@ function applyCodeExample2() {
     // d3_tiny is a 100-lined JavaScript included in RPD distribution
     // which supports basic d3.js functions like `.select`, `.attr` & s.o.,
     // fully compatible with "big" d3.js
-    var d3 = d3 || d3_tiny;
+    var d3 = Rpd.d3;
 
     Rpd.noderenderer('user/maybe-flag', 'svg', function() {
         var textElm;

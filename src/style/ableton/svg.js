@@ -8,7 +8,7 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
 
 Rpd.style('ableton', 'svg', function(config) {
 
-var d3 = d3 || d3_tiny;
+var d3 = Rpd.d3;
 
 function _createSvgElement(name) {
     return document.createElementNS(d3.ns.prefix.svg, name);

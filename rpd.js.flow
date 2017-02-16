@@ -222,6 +222,7 @@ declare var HiddenTypes : {
 declare var Rpd : {
     VERSION: string;
 
+    d3: typeof d3;
     //Rpd: typeof Rpd;
 
     _: typeof HiddenTypes;

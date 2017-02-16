@@ -667,8 +667,8 @@ function getCssFiles(options) {
 
 function getJsFiles(options) {
     var list = [];
-    list.push(Paths.Rpd());
     if (!options.d3) list.push(Paths.D3Tiny());
+    list.push(Paths.Rpd());
     list.push(Paths.RenderModel());
     options.style.forEach(function(style) {
         options.renderer.forEach(function(renderer) {
@@ -754,13 +754,13 @@ function getHtmlHead(options) {
     });
     console.log();
     comment('Kefir'); jsFile(Paths.Kefir());
-    comment('RPD'); jsFile(Paths.Rpd());
-    console.log();
     if (options.d3) {
         comment('d3.js'); jsFile(Paths.D3());
     } else {
         comment('RPD\'s d3_tiny.js'); jsFile(Paths.D3Tiny());
     }
+    comment('RPD'); jsFile(Paths.Rpd());
+    console.log();
     comment('RPD Rendering Engine:');
     jsFile(Paths.RenderModel());
     options.style.forEach(function(style) {

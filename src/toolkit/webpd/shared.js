@@ -5,7 +5,7 @@ function isAltShiftAnd(evt, val) { return evt.shiftKey && isAltAnd(evt, val); }
 
 var PdView = (function() {
 
-    var d3 = d3 || d3_tiny;
+    var d3 = Rpd.d3;
 
     var ƒ = Rpd.unit,
         not = Rpd.not;

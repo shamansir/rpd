@@ -11,7 +11,7 @@ function stopPropagation(event) {
     return event;
 }
 
-var d3 = d3 || d3_tiny;
+var d3 = Rpd.d3;
 
 function svgNode(name) { return document.createElementNS(d3.ns.prefix.svg, name); }
 function htmlNode(name) { return document.createElementNS(d3.ns.prefix.html, name); }
