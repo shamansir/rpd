@@ -163,11 +163,19 @@ RPD provides following features (though probably I forgot a dozen):
 
 ## Using
 
-See [Setup](http://shamansir.guthub.io/rpd/sections/setup.html) and [Network](http://shamansir.guthub.io/rpd/sections/network.html) sections in Official Documentation.
+See [Setup](http://shamansir.github.io/rpd/sections/setup.html) and [Network](http://shamansir.github.io/rpd/sections/network.html) sections in Official Documentation.
+
+Just as a quick note (detailed descriptions are for the pages mentioned above), RPD is available from NPM since latest versions, so just do:
+
+```sh
+npm install rpd --no-optional
+```
+
+Or, if you plan to run examples locally from `node_modules`, omit the `--no-optional` flag.
 
 ## Participating
 
-See [Participation](http://shamansir.guthub.io/rpd/sections/participate.html) sections in Official Documentation.
+See [Participation](http://shamansir.github.io/rpd/sections/participate.html) sections in Official Documentation.
 
 Feel free to fix issues or do Pull Requests!
 
@@ -188,10 +196,7 @@ Feel free to fix issues or do Pull Requests!
 [kefir]: http://rpominov.github.io/kefir/
 [kefir-src]: http://rpominov.github.io/kefir/dist/kefir.min.js
 [timbre]: http://mohayonao.github.io/timbre.js/
-[timbre-src]: http://mohayonao.github.io/timbre.js/timbre.js
 [animatron]: http://animatron.com
-<!-- [animatron-src]: http://player.animatron.com/latest/bundle/animatron.min.js -->
-[animatron-src]: http://shamansir.github.io/rpd/vendor/anm-player.min.js
 [puredata]: http://puredata.info/
 [closure-compiler]: https://developers.google.com/closure/compiler/
 

@@ -16,7 +16,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      './vendor/kefir.min.js',
+      './node_modules/kefir/dist/kefir.min.js',
 
       './src/rpd.js',
       './src/io/json.js',

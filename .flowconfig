@@ -1,8 +1,9 @@
 [version]
-^0.37.4
+^0.38.0
 
 [ignore]
 .*/node_modules/.*/test/.*
+.*/node_modules/.*/tests/.*
 
 [include]
 

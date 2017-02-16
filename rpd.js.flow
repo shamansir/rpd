@@ -2,6 +2,8 @@
 
 import Kefir from 'kefir';
 
+import d3 from 'd3';
+
 export type Event = any;
 
 export type Value = any;

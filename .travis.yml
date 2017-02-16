@@ -1,11 +1,11 @@
 language: node_js
 node_js:
-    - "0.12"
+    - "7.5.0"
     - "iojs"
 script: npm test
 before_script:
+    - npm install --no-optional
     - npm install -g gulp
-    - gulp get-deps
     - npm install -g flow-bin
     - flow version
 
