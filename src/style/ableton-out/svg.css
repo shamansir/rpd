@@ -27,11 +27,6 @@
     display: none;
 }
 
-.rpd-inlet.rpd-util-number foreignobject, .rpd-outlet.rpd-util-number foreignobject {
-    transform: translate(-43px,1px);
-    font-size: 8px;
-}
-
 .rpd-inlet text.rpd-name,
 .rpd-outlet text.rpd-name {
     font-size: 9px;
@@ -163,6 +158,13 @@
 }
 
 .rpd-inlet.rpd-util-number foreignobject,
-.rpd-outlet.rpd-util-number foreignobject {
+.rpd-inlet.rpd-util-wholenumber foreignobject {
     transform: translate(-43px,1px);
+}
+
+.rpd-inlet.rpd-util-number foreignobject,
+.rpd-outlet.rpd-util-number foreignobject,
+.rpd-inlet.rpd-util-wholenumber foreignobject,
+.rpd-outlet.rpd-util-wholenumber foreignobject {
+    font-size: 8px;
 }

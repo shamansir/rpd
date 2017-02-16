@@ -7,14 +7,14 @@
 }
 
 .rpd-inlet.rpd-util-number foreignobject,
-.rpd-outlet.rpd-util-number foreignobject {
+.rpd-inlet.rpd-util-wholenumber foreignobject {
     transform: translate(-2px,-8px);
     /* text-align: end; */
     /* text-anchor: end; */
 }
 
 .rpd-inlet.rpd-util-number input[type=number],
-.rpd-outlet.rpd-util-number input[type=number] {
+.rpd-inlet.rpd-util-wholenumber input[type=number] {
     border: 1px solid lightgray;
     background-color: #eee;
     font-size: 0.8em;

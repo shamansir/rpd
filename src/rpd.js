@@ -952,7 +952,18 @@ return {
     'short_uid': short_uid,
 
     'stringify': stringify,
-    'autoStringify': autoStringify
+    'autoStringify': autoStringify,
+
+    'd3': (function(global) {
+        var d3_;
+        if (typeof require === 'function') {
+            try { d3_ = require('d3'); }
+            catch(e) { d3_ = (typeof global.d3 !== 'undefined') ? global.d3 : global.d3_tiny; }
+        } else {
+            d3_ = (typeof global.d3 !== 'undefined') ? global.d3 : global.d3_tiny;
+        }
+        return d3_;
+    })(global)
 }
 
 })();
@@ -960,7 +971,7 @@ return {
 if (typeof define === 'function' && define.amd) {
     define([], function() { return Rpd; });
     global.Rpd = Rpd;
-} else if (typeof module === "object" && typeof exports === "object") {
+} else if (typeof module === 'object' && typeof exports === 'object') {
     module.exports = Rpd;
     Rpd.Rpd = Rpd;
 } else {

@@ -19,6 +19,11 @@ function howMuch(single, plural) {
     };
 }
 
+Rpd.channeltype('util/boolean', {
+    default: false,
+    adapt: function(val) { return val ? 'true' : 'false' }
+});
+
 Rpd.channeltype('util/number', {
     default: 0,
     readonly: false,
@@ -32,7 +37,6 @@ Rpd.channeltype('util/number', {
 
 Rpd.channeltype('util/wholenumber', {
     default: 0,
-    readonly: true,
     allow: [ 'util/number' ],
     accept: function(val) {
         if (val === Infinity) return true;
@@ -269,7 +273,10 @@ Rpd.nodetype('util/log', {
     inlets: {
         'what': { type: 'core/any' }
     },
-    process: function(inlets) { }
+    process: function(inlets) {
+        // logging is done in the node renderer,
+        // since it depends on the way of output (i.e. browser vs console)
+    }
 });
 
 Rpd.nodetype('util/letter', {

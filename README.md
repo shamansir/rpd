@@ -66,7 +66,7 @@ Constructing a network of nodes:
 var patch = Rpd.addPatch('Example');
 
 var firstNode = patch.addNode('core/basic', 'Test');
-var boolOutlet = firstNode.addOutlet('core/boolean', 'bool', {
+var boolOutlet = firstNode.addOutlet('util/boolean', 'bool', {
     default: true;
 });
 firstNode.addOutlet('util/number', { default: 1 });

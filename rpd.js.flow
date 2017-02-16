@@ -2,6 +2,8 @@
 
 import Kefir from 'kefir';
 
+import d3 from 'd3';
+
 export type Event = any;
 
 export type Value = any;
@@ -222,6 +224,7 @@ declare var HiddenTypes : {
 declare var Rpd : {
     VERSION: string;
 
+    d3: typeof d3;
     //Rpd: typeof Rpd;
 
     _: typeof HiddenTypes;

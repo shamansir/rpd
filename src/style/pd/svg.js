@@ -8,7 +8,7 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
 
 Rpd.style('pd', 'svg', (function() {
 
-var d3 = d3 || d3_tiny;
+var d3 = Rpd.d3;
 
 // we need this canvas to be shared between all instances of a function below,
 // it is used to measure node header width, since it contains text, we need

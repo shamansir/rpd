@@ -36,6 +36,8 @@ Rpd.channelrenderer('util/number', 'html', {
     }
 });
 
+Rpd.channelrenderer('util/wholenumber', 'html', Rpd.allChannelRenderers['util/number']['html']);
+
 Rpd.noderenderer('util/number', 'html', {
     first: function(bodyElm) {
         var valInput = document.createElement('input');
@@ -178,7 +180,7 @@ Rpd.noderenderer('util/metro', 'html', function() {
     }
 });
 
-var d3 = d3 || d3_tiny;
+var d3 = Rpd.d3;
 
 var NodeList = RpdUtils.NodeList;
 var getNodeTypesByToolkit = RpdUtils.getNodeTypesByToolkit;

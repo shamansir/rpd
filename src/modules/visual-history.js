@@ -6,7 +6,7 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
     Rpd = require('rpd');
 }
 
-var d3 = d3_tiny || d3;
+var d3 = Rpd.d3;
 
 function spanWithText(text) {
     return d3.select(document.createElement('span')).text(text.join('')).node();
