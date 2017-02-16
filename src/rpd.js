@@ -6,7 +6,7 @@ if ((typeof Kefir === 'undefined') &&
     (typeof require !== 'undefined')) Kefir = require('kefir');
 if (!Kefir) throw new Error('Kefir.js (https://github.com/rpominov/kefir) is required for Rpd to work');
 
-var VERSION = 'v2.1.1';
+var VERSION = 'v3.0.0-alpha';
 
 var Rpd = (function() {
 

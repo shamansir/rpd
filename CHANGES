@@ -1,8 +1,47 @@
+v3.0.0-alpha
+
+* add `Rpd.d3` as a unique way to access `d3` or `d3_tiny` (breaking)
+* Remove `/vendor` dependencies and move to `/node_modules` (breaking)
+
+v2.1.3
+
+Summaries the versions v2.1.0, v2.1.1, v2.1.2 and v2.1.3.
+
+The corresponding milestone is [v2.1.x](https://github.com/shamansir/rpd/milestone/9?closed=1)
+
+* Now we're at NPM: https://www.npmjs.com/package/rpd/
+* Flow type definitions: (PR https://github.com/shamansir/rpd/pull/409)
+* Ability to configure node body (PR https://github.com/shamansir/rpd/pull/415)
+* New styles, Ableton and Ableton-out (PR https://github.com/shamansir/rpd/pull/397)
+* Visual History (PR https://github.com/shamansir/rpd/pull/397)
+* `util/dial` node
+* Different fixes
+
+v2.0.1
+
+All the changes `v2.0.0` has:
+- Better UI;
+- Massive API changes and improvements in the sake of consistency;
+- Ability to connect patches ("models", maiden name) and navigate between them;
+- Simplified renderers;
+- SVG Renderer;
+- Import/Export;
+- Quartz & PD "modes" are now separate "styles" (which reduces resulting file size);
+- Improved building, with Gulp;
+- [And much more...](https://github.com/shamansir/rpd/milestone/1?closed=1)
+
+`v2.0.1` [adds](https://github.com/shamansir/rpd/compare/v2.0...v2.0.1):
+- Minor styling and rendering fixes
+- Update to Kefir v3.3.0
+- Update to d3 v4.0
+
+**NB:** No binaries, since user is intended to compile personal RPD version with preferred options.
+
 v2.0
 
 * Tons of changes, will be listed later
 
-v1.5
+v0.1.5
 
 *  Added tests, running with Jasmine and Karma
 *  Updated to Kefir 2.6
@@ -12,3 +51,7 @@ v1.5
 *  Added `render` objects to corresponding events so they use them instead of
    asking node/channel instances for this object
 *  Node updates are fired only after `node/ready` event
+
+v0.1.0
+
+
