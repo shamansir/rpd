@@ -1,3 +1,5 @@
+var d3 = Rpd.d3;
+
 function applyRpdLogoPatch(logoNode, planetsSvgNode, patchTargetNode) {
     var logoBox = logoNode.getBoundingClientRect();
 
@@ -16,7 +18,7 @@ function applyRpdLogoPatch(logoNode, planetsSvgNode, patchTargetNode) {
       .style('position', 'absolute')
       .style('left', (logoBox.left - widthRequiredForNodes) + 'px').style('top', (logoBox.top - topMargin) + 'px')
 
-    <!-- ****** Register Patch Types ****** -->
+    /* ======= Register Patch Types ======= */
 
     Rpd.nodetype('docs/logo-anim', {
         inlets: {
@@ -34,7 +36,7 @@ function applyRpdLogoPatch(logoNode, planetsSvgNode, patchTargetNode) {
         }
     });
 
-    <!-- ****** Building Patch Network ****** -->
+    /* ======= Building Patch Network ======= */
 
     Rpd.renderNext('svg', patchTargetNode,
                    { style: 'compact-v', nodeMovingAllowed: false });
@@ -51,7 +53,7 @@ function applyRpdLogoPatch(logoNode, planetsSvgNode, patchTargetNode) {
 
     animNode.move(widthRequiredForNodes - 5, 10);
 
-    <!-- ****** Animation with D3 ****** -->
+    /* ======= Animation with D3 ======= */
 
     attachPlanetsAnimation(planetsSvgNode, logoNode,
                            {}, animationWidth, animationHeight);

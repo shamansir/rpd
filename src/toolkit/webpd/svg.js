@@ -14,7 +14,7 @@ var defaultSize = { width: 50, height: 18 };
 var view = new PdView(defaultSize, function() { return document.body; });
 
 function _createSvgElement(name) {
-    return document.createElementNS(d3.ns.prefix.svg, name);
+    return document.createElementNS(d3.namespaces.svg, name);
 }
 
 Rpd.noderenderer('wpd/number', 'svg', function(node) {

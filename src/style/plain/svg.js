@@ -14,7 +14,7 @@ var socketPadding = 30, // distance between inlets/outlets in SVG units
     socketsMargin = 5; // distance between first/last inlet/outlet and body edge
 
 function _createSvgElement(name) {
-    return document.createElementNS(d3.ns.prefix.svg, name);
+    return document.createElementNS(d3.namespaces.svg, name);
 }
 
 function getPos(elm) { var bounds = elm.getBoundingClientRect();

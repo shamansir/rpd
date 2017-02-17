@@ -16,7 +16,7 @@ var nodeHeight = 18;
 var connectorWidth = 7;
 
 function _createSvgElement(name) {
-    return document.createElementNS(d3.ns.prefix.svg, name);
+    return document.createElementNS(d3.namespaces.svg, name);
 }
 
 function getPos(elm) { var bounds = elm.getBoundingClientRect();

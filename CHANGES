@@ -1,7 +1,8 @@
-v3.0.0-alpha
+v3.0.0-alpha.1
 
 * add `Rpd.d3` as a unique way to access `d3` or `d3_tiny` (breaking)
 * Remove `/vendor` dependencies and move to `/node_modules` (breaking)
+* `d3.ns` was changed to `d3.namespaces` in d3.js 4.0, so `d3_tiny.ns` should be too (breaking)
 
 v2.1.3
 
@@ -15,6 +16,7 @@ The corresponding milestone is [v2.1.x](https://github.com/shamansir/rpd/milesto
 * New styles, Ableton and Ableton-out (PR https://github.com/shamansir/rpd/pull/397)
 * Visual History (PR https://github.com/shamansir/rpd/pull/397)
 * `util/dial` node
+* Ability to `require('rpd')`
 * Different fixes
 
 v2.0.1

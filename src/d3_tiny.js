@@ -93,7 +93,8 @@ Selection.prototype.data = function(val) {
 
 Selection.prototype.call = function(fn) { fn(this); return this; }
 
-return { 'ns': { 'prefix': { 'svg': 'http://www.w3.org/2000/svg', 'html': 'http://www.w3.org/1999/xhtml' } },
+return { 'namespaces': { 'svg': 'http://www.w3.org/2000/svg',
+                         'html': 'http://www.w3.org/1999/xhtml' },
          'select': function(v, root) { return new Selection(v, root); },
          'selectAll': function(v, root) { return new Selection(v, root, true); } };
 

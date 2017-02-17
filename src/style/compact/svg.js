@@ -15,7 +15,7 @@ var socketPadding = 25, // distance between inlets/outlets in SVG units
 var headerWidth = 10; // width of a node header in SVG units
 
 function _createSvgElement(name) {
-    return document.createElementNS(d3.ns.prefix.svg, name);
+    return document.createElementNS(d3.namespaces.svg, name);
 }
 
 function getPos(elm) { var bounds = elm.getBoundingClientRect();

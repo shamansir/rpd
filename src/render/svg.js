@@ -54,7 +54,7 @@ var nodeTypes = Rpd.allNodeTypes,
     nodeTypeIcons = Rpd.allNodeTypeIcons;
 
 function _createSvgElement(name) {
-    return document.createElementNS(d3.ns.prefix.svg, name);
+    return document.createElementNS(d3.namespaces.svg, name);
 }
 
 function SvgRenderer(patch) {
@@ -102,7 +102,7 @@ return function(networkRoot, userConfig) {
                                              .attr('height', docElm.property('clientHeight'));
             }
 
-            var patchCanvas = svg.append(style.createCanvas(patch, networkRoot).element)
+            var patchCanvas = svg.append(style.createCanvas(patch, networkRoot.node()).element)
                                .classed('rpd-style-' + config.style, true)
                                .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
                                .classed('rpd-show-boxes', config.showBoxes)

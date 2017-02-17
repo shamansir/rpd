@@ -13,8 +13,8 @@ function stopPropagation(event) {
 
 var d3 = Rpd.d3;
 
-function svgNode(name) { return document.createElementNS(d3.ns.prefix.svg, name); }
-function htmlNode(name) { return document.createElementNS(d3.ns.prefix.html, name); }
+function svgNode(name) { return document.createElementNS(d3.namespaces.svg, name); }
+function htmlNode(name) { return document.createElementNS(d3.namespaces.html, name); }
 
 // FIXME: some nodes below are written with d3 / d3_tiny usage, some are not
 
