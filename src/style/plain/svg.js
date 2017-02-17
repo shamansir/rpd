@@ -10,6 +10,8 @@ Rpd.style('plain', 'svg', (function() {
 
 var d3 = Rpd.d3;
 
+var ƒ = Rpd.unit;
+
 var socketPadding = 30, // distance between inlets/outlets in SVG units
     socketsMargin = 5; // distance between first/last inlet/outlet and body edge
 
@@ -70,7 +72,7 @@ return {
 
         // append tooltip with description
         nodeElm.select('.rpd-header')
-               .append(_createSvgElement('title'))
+               .append(ƒ(_createSvgElement('title')))
                .text(description ? (description + ' (' + node.type + ')') : node.type);
 
         // append remove button

@@ -10,6 +10,8 @@ Rpd.style('quartz', 'svg', function(config) {
 
 var d3 = Rpd.d3;
 
+var ƒ = Rpd.unit;
+
 function _createSvgElement(name) {
     return document.createElementNS(d3.namespaces.svg, name);
 }
@@ -105,7 +107,7 @@ return {
 
         // append tooltip with description
         nodeElm.select('.rpd-header')
-               .append(_createSvgElement('title'))
+               .append(ƒ(_createSvgElement('title')))
                .text(description ? (description + ' (' + node.type + ')') : node.type);
 
         // append remove button

@@ -6,8 +6,6 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
     Rpd = require('rpd');
 }
 
-var ƒ = Rpd.unit;
-
 var defaultConfig = {
     style: 'quartz',
     // network takes the full page, so the target element will be resized
@@ -32,6 +30,8 @@ var defaultConfig = {
 
 // either use the full d3.js library or the super-tiny version provided with RPD
 var d3 = Rpd.d3;
+
+var ƒ = Rpd.unit;
 
 var Render = Rpd.Render; // everything common between renderers
 
@@ -102,17 +102,19 @@ return function(networkRoot, userConfig) {
                                              .attr('height', docElm.property('clientHeight'));
             }
 
-            var patchCanvas = svg.append(style.createCanvas(patch, networkRoot.node()).element)
+            var patchCanvas = svg.append(ƒ(style.createCanvas(patch, networkRoot.node())).element)
                                .classed('rpd-style-' + config.style, true)
                                .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
                                .classed('rpd-show-boxes', config.showBoxes)
                                .data(update.patch);
 
-            tree.patches[patch.id] = svg.data({ canvas: patchCanvas,
-                                                width: docElm.property('clientWidth'),
-                                                height: docElm.property('clientHeight'),
-                                                patch: update.patch
-                                              });
+            svg.data({ canvas: patchCanvas,
+                       width: docElm.property('clientWidth'),
+                       height: docElm.property('clientHeight'),
+                       patch: update.patch
+                     });
+
+            tree.patches[patch.id] = svg;
 
             // resize network root on window resize
             if (config.fullPage) updateCanvasHeightOnResize(window, document, svg, svg.select('.rpd-background'));
@@ -136,7 +138,7 @@ return function(networkRoot, userConfig) {
             if ((config.closeParent || config.fullPage) && update.parent) update.parent.close();
             currentPatch = update.patch;
             var newCanvas = tree.patches[update.patch.id];
-            networkRoot.append(newCanvas.node());
+            networkRoot.append(ƒ(newCanvas.node()));
 
             tree.patchToLinks[update.patch.id].updateAll();
             if (style.onPatchSwitch) style.onPatchSwitch(currentPatch, newCanvas.node());
@@ -153,7 +155,7 @@ return function(networkRoot, userConfig) {
             var nodeBox = tree.nodes[node.id];
 
             nodeBox.select('.rpd-node').classed('rpd-patch-reference', true);
-            nodeBox.data().processTarget.append(_createSvgElement('text'))
+            nodeBox.data().processTarget.append(ƒ(_createSvgElement('text')))
                                                 .text('[' + (update.target.name || update.target.id) + ']');
 
             // add the ability to enter the patch by clicking node body (TODO: move to special node type)
@@ -193,7 +195,7 @@ return function(networkRoot, userConfig) {
 
             var nodeBox = d3.select(_createSvgElement('g')).attr('class', 'rpd-node-box');
             var styledNode = style.createNode(node, render, nodeDescriptions[node.type], nodeTypeIcons[node.type]);
-            var nodeElm = nodeBox.append(styledNode.element);
+            var nodeElm = nodeBox.append(ƒ(styledNode.element));
 
             // store targets information and node canvas element itself
             tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets'),
@@ -263,7 +265,7 @@ return function(networkRoot, userConfig) {
 
             // append to the the patch canvas node
             var patchCanvas = tree.patches[node.patch.id].data().canvas;
-            patchCanvas.append(nodeBox.node());
+            patchCanvas.append(ƒ(nodeBox.node()));
 
         },
 
@@ -330,7 +332,7 @@ return function(networkRoot, userConfig) {
                                          inletElm.select('.rpd-value-holder'),
                                          inletElm.select('.rpd-value'),
                                          d3.select(_createSvgElement('g')));
-                inletElm.select('.rpd-value-holder').append(editor.editorElm.node());
+                inletElm.select('.rpd-value-holder').append(ƒ(editor.editorElm.node()));
             }
 
             tree.inlets[inlet.id] = inletElm.data({
@@ -349,7 +351,7 @@ return function(networkRoot, userConfig) {
             // listen for clicks in connector and allow to edit links this way
             connectivity.subscribeInlet(inlet, inletElm.select('.rpd-connector'));
 
-            inletsTarget.append(inletElm.node());
+            inletsTarget.append(ƒ(inletElm.node()));
         },
 
         'node/add-outlet': function(update) {
@@ -376,7 +378,7 @@ return function(networkRoot, userConfig) {
             // listen for clicks in connector and allow to edit links this way
             connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
 
-            outletsTarget.append(outletElm.node());
+            outletsTarget.append(ƒ(outletElm.node()));
         },
 
         'node/remove-inlet': function(update) {

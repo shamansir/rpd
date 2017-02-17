@@ -124,7 +124,7 @@ return function(networkRoot, userConfig) {
             if ((config.closeParent || config.fullPage) && update.parent) update.parent.close();
             currentPatch = update.patch;
             var newCanvas = tree.patches[update.patch.id];
-            networkRoot.append(newCanvas.node());
+            networkRoot.append(ƒ(newCanvas.node()));
 
             tree.patchToLinks[update.patch.id].updateAll();
             if (style.onPatchSwitch) style.onPatchSwitch(currentPatch, newCanvas.node());
@@ -171,7 +171,7 @@ return function(networkRoot, userConfig) {
 
             var nodeBox = d3.select(document.createElement('div')).attr('class', 'rpd-node-box');
             var styledNode = style.createNode(node, render, nodeDescriptions[node.type], nodeTypeIcons[node.type]);
-            var nodeElm = nodeBox.append(styledNode.element);
+            var nodeElm = nodeBox.append(ƒ(styledNode.element));
 
             nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                    .classed('rpd-'+node.type.replace('/','-'), true);
@@ -262,7 +262,7 @@ return function(networkRoot, userConfig) {
             }
 
             // append to the the patch canvas node
-            tree.patches[patch.id].append(nodeBox.node());
+            tree.patches[patch.id].append(ƒ(nodeBox.node()));
 
         },
 
@@ -326,7 +326,7 @@ return function(networkRoot, userConfig) {
                                          inletElm.select('.rpd-value-holder'),
                                          inletElm.select('.rpd-value'),
                                          d3.select(document.createElement('div')));
-                inletElm.select('.rpd-value-holder').append(editor.editorElm.node());
+                inletElm.select('.rpd-value-holder').append(ƒ(editor.editorElm.node()));
             }
 
             tree.inlets[inlet.id] = inletElm.data({
@@ -344,7 +344,7 @@ return function(networkRoot, userConfig) {
             // listen for clicks in connector and allow to edit links this way
             connectivity.subscribeInlet(inlet, inletElm.select('.rpd-connector'));
 
-            inletsTarget.append(inletElm.node());
+            inletsTarget.append(ƒ(inletElm.node()));
         },
 
         'node/add-outlet': function(update) {
@@ -368,7 +368,7 @@ return function(networkRoot, userConfig) {
             // listen for clicks in connector and allow to edit links this way
             connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
 
-            outletsTarget.append(outletElm.node());
+            outletsTarget.append(ƒ(outletElm.node()));
         },
 
         'node/remove-inlet': function(update) {

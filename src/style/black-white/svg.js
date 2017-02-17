@@ -10,6 +10,8 @@ Rpd.style('black-white', 'svg', function(config) {
 
 var d3 = Rpd.d3;
 
+var ƒ = Rpd.unit;
+
 function _createSvgElement(name) {
     return document.createElementNS(d3.namespaces.svg, name);
 }
@@ -46,7 +48,7 @@ return {
     createCanvas: function(patch, parent) {
         var canvas = d3.select(_createSvgElement('g'))
                        .classed('rpd-patch', true);
-        canvas.append(defs.node());
+        canvas.append(ƒ(defs.node()));
         canvas.append('rect').attr('width', '100%').attr('height', '100%')
                              .attr('fill', 'url(#polka)');
         return { element: canvas.node() };
@@ -120,7 +122,7 @@ return {
 
         // append tooltip with description
         nodeElm.select('.rpd-header')
-               .append(_createSvgElement('title'))
+               .append(ƒ(_createSvgElement('title')))
                .text(description ? (description + ' (' + node.type + ')') : node.type);
 
         // append remove button

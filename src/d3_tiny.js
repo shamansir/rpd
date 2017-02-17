@@ -66,7 +66,7 @@ Selection.prototype.selectAll = function(v) { return new Selection(v, this.selec
 
 Selection.prototype.append = function(name) {
     var selection = [];
-    modify(this, (typeof name === 'string') ? document.createElementNS(this.namespace, name) : name,
+    modify(this, (typeof name === 'string') ? document.createElementNS(this.namespace, name) : name(),
                  function(subj, elm) { subj.appendChild(elm); selection.push(elm); });
     return new Selection(selection);
 };

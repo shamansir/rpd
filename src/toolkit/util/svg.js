@@ -13,6 +13,8 @@ function stopPropagation(event) {
 
 var d3 = Rpd.d3;
 
+var ƒ = Rpd.unit;
+
 function svgNode(name) { return document.createElementNS(d3.namespaces.svg, name); }
 function htmlNode(name) { return document.createElementNS(d3.namespaces.html, name); }
 
@@ -113,7 +115,7 @@ Rpd.noderenderer('util/bang', 'svg', {
                        .attr('r', 9).attr('fill', 'black')
                        .style('cursor', 'pointer')
                        .style('pointer-events', 'all');
-        d3.select(bodyElm).append(circle.node());
+        d3.select(bodyElm).append(ƒ(circle.node()));
         var circleClicks = Kefir.fromEvents(circle.node(), 'click');
         circleClicks.onValue(function() {
             circle.classed('rpd-util-bang-fresh', true);
@@ -138,7 +140,7 @@ Rpd.noderenderer('util/metro', 'svg', function() {
                        .attr('r', 9).attr('fill', 'black')
                        .style('cursor', 'pointer')
                        .style('pointer-events', 'all');
-            d3.select(bodyElm).append(circle.node());
+            d3.select(bodyElm).append(ƒ(circle.node()));
         },
         always: function(bodyElm, inlets, outlets) {
             if (outlets.bang) {
@@ -517,15 +519,15 @@ Rpd.noderenderer('util/nodelist', 'svg', {
 
                 var bodyRect = bodyGroup.node().getBoundingClientRect();
 
-                var foreignDiv = bodyGroup.append(svgNode('foreignObject'))
-                                       .append(htmlNode('div'))
+                var foreignDiv = bodyGroup.append(ƒ(svgNode('foreignObject')))
+                                       .append(ƒ(htmlNode('div')))
                                        .style('width', (nodeListSize.width - 20) + 'px')
                                        .style('height', (nodeListSize.height - inputHeight) + 'px')
                                        .style('overflow-y', 'scroll')
                                        .style('position', 'fixed').style('left', 10 + 'px')
                                                                   .style('top', inputHeight + 'px');
 
-                nodeListSvg = foreignDiv.append(svgNode('svg'))
+                nodeListSvg = foreignDiv.append(ƒ(svgNode('svg')))
                                         .classed('rpd-nodelist-list', true)
                                         .attr('width', (nodeListSize.width - 12) + 'px');
                 var lastY = 0;
@@ -630,7 +632,7 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                 input.setAttribute('type', 'text');
                 input.style.width = inputWidth + 'px';
                 foElm.appendChild(input);
-                searchGroup.append(foElm);
+                searchGroup.append(ƒ(foElm));
                 return d3.select(input);
             },
             createClearSearchButton: function() {

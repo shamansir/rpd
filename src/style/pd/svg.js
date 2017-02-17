@@ -10,6 +10,8 @@ Rpd.style('pd', 'svg', (function() {
 
 var d3 = Rpd.d3;
 
+var ƒ = Rpd.unit;
+
 // we need this canvas to be shared between all instances of a function below,
 // it is used to measure node header width, since it contains text, we need
 // some hidden element to measure string width in pixels
@@ -67,7 +69,7 @@ return {
         var fakeName = d3.select(_createSvgElement('text'))
                          .attr('class', 'rpd-fake-name')
                          .text(node.def.title || node.type).attr('x', -1000).attr('y', -1000);
-        globalLastCanvas.append(fakeName.node());
+        globalLastCanvas.append(ƒ(fakeName.node()));
         var headerWidth = fakeName.node().getBBox().width + 12;
         fakeName.remove();
 
@@ -113,7 +115,7 @@ return {
 
         // append tooltip with description
         nodeElm.select('.rpd-header')
-               .append(_createSvgElement('title'))
+               .append(ƒ(_createSvgElement('title')))
                .text(description ? (description + ' (' + node.type + ')') : node.type);
 
         // append remove button

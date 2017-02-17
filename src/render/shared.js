@@ -8,9 +8,9 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
 
 Rpd.Render = (function() {
 
-var ƒ = Rpd.unit;
-
 var d3 = Rpd.d3;
+
+var ƒ = Rpd.unit;
 
 // =============================================================================
 // ============================= Placing =======================================
@@ -124,7 +124,7 @@ VLink.prototype.update = function() {
     return this;
 }
 VLink.prototype.appendTo = function(target) {
-    target.append(this.element.node());
+    target.append(ƒ(this.element.node()));
     return this;
 }
 VLink.prototype.removeFrom = function(target) {
