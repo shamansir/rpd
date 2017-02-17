@@ -38,9 +38,6 @@ var NODE_LAYER = 0, // normally, nodes are layed out below everything
     LINK_LAYER = 2, // normal links are above the normal nodes, but below the dragged nodes
     LINKDRAG_LAYER = 3; // dragged links are above normal nodes and their links, and also above dragged nodes
 
-// either use the full d3.js library or the super-tiny version provided with RPD
-var d3 = Rpd.d3;
-
 var Render = Rpd.Render; // everything common between renderers
 
 var tree = {

@@ -11,14 +11,10 @@ function stopPropagation(event) {
     return event;
 }
 
-var d3 = Rpd.d3;
-
 var ƒ = Rpd.unit;
 
 function svgNode(name) { return document.createElementNS(d3.namespaces.svg, name); }
 function htmlNode(name) { return document.createElementNS(d3.namespaces.html, name); }
-
-// FIXME: some nodes below are written with d3 / d3_tiny usage, some are not
 
 /* ========================= util/number ========================= */
 

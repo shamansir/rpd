@@ -8,8 +8,6 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
 
 Rpd.style('plain', 'svg', (function() {
 
-var d3 = Rpd.d3;
-
 var ƒ = Rpd.unit;
 
 var socketPadding = 30, // distance between inlets/outlets in SVG units

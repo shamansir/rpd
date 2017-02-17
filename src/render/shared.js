@@ -8,8 +8,6 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
 
 Rpd.Render = (function() {
 
-var d3 = Rpd.d3;
-
 var ƒ = Rpd.unit;
 
 // =============================================================================

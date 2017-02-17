@@ -29,6 +29,7 @@
   ],
   "main": "./src/rpd.js",
   "dependencies": {
+    "d3-selection": "^1.0.3",
     "kefir": "^3.7.1"
   },
   "devDependencies": {

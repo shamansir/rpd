@@ -6,8 +6,6 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
     Rpd = require('rpd');
 }
 
-var d3 = Rpd.d3;
-
 var ƒ = Rpd.unit;
 
 // TODO: nodes have different size depending on their content

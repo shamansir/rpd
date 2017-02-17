@@ -85,8 +85,6 @@ function buildUtilDemoPatch(renderer, target, conf) {
         }
     });
 
-    var d3 = Rpd.d3;
-
     Rpd.noderenderer('user/maybe-flag', 'svg', function() {
         var textElm;
         return {

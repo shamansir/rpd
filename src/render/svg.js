@@ -28,9 +28,6 @@ var defaultConfig = {
     effectTime: 1000
 };
 
-// either use the full d3.js library or the super-tiny version provided with RPD
-var d3 = Rpd.d3;
-
 var ƒ = Rpd.unit;
 
 var Render = Rpd.Render; // everything common between renderers

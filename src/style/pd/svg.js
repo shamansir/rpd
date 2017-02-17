@@ -8,8 +8,6 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
 
 Rpd.style('pd', 'svg', (function() {
 
-var d3 = Rpd.d3;
-
 var ƒ = Rpd.unit;
 
 // we need this canvas to be shared between all instances of a function below,
