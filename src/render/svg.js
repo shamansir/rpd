@@ -101,7 +101,7 @@ return function(networkRoot, userConfig) {
                                              .attr('height', docElm.property('clientHeight'));
             }
 
-            var patchCanvas = svg.append(ƒ(style.createCanvas(patch, networkRoot.node())).element)
+            var patchCanvas = svg.append(ƒ(style.createCanvas(patch, networkRoot.node()).element))
                                .classed('rpd-style-' + config.style, true)
                                .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
                                .classed('rpd-show-boxes', config.showBoxes);
