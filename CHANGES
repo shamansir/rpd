@@ -1,7 +1,11 @@
+v3.0.0-alpha.2
+
+* No more `d3_tiny` and so no more `Rpd.d3` :) (breaking)
+
 v3.0.0-alpha.1
 
-* add `Rpd.d3` as a unique way to access `d3` or `d3_tiny` (breaking)
 * Remove `/vendor` dependencies and move to `/node_modules` (breaking)
+* Add `Rpd.d3` as a unique way to access `d3` or `d3_tiny` (breaking)
 * `d3.ns` was changed to `d3.namespaces` in d3.js 4.0, so `d3_tiny.ns` should be too (breaking)
 
 v2.1.3

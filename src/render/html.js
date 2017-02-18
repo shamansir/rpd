@@ -38,10 +38,9 @@ var NODE_LAYER = 0, // normally, nodes are layed out below everything
     LINK_LAYER = 2, // normal links are above the normal nodes, but below the dragged nodes
     LINKDRAG_LAYER = 3; // dragged links are above normal nodes and their links, and also above dragged nodes
 
-// either use the full d3.js library or the super-tiny version provided with RPD
-var d3 = Rpd.d3;
-
 var Render = Rpd.Render; // everything common between renderers
+
+var δ = Render.data;
 
 var tree = {
     patches: {},
@@ -104,7 +103,9 @@ return function(networkRoot, userConfig) {
                   .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
                   .classed('rpd-show-boxes', config.showBoxes);
 
-            tree.patches[patch.id] = canvas.data({ patch: update.patch });
+            δ(canvas, { patch: update.patch });
+
+            tree.patches[patch.id] = canvas;
 
             // initialize the node placing (helps in determining the position where new node should be located)
             tree.patchToPlacing[patch.id] = new Render.Placing(style);
@@ -124,7 +125,7 @@ return function(networkRoot, userConfig) {
             if ((config.closeParent || config.fullPage) && update.parent) update.parent.close();
             currentPatch = update.patch;
             var newCanvas = tree.patches[update.patch.id];
-            networkRoot.append(newCanvas.node());
+            networkRoot.append(ƒ(newCanvas.node()));
 
             tree.patchToLinks[update.patch.id].updateAll();
             if (style.onPatchSwitch) style.onPatchSwitch(currentPatch, newCanvas.node());
@@ -141,10 +142,10 @@ return function(networkRoot, userConfig) {
             var nodeBox = tree.nodes[node.id];
 
             nodeBox.select('.rpd-node').classed('rpd-patch-reference', true);
-            nodeBox.data().processTarget.text('[' + (update.target.name || update.target.id) + ']');
+            δ(nodeBox).processTarget.text('[' + (update.target.name || update.target.id) + ']');
 
             // add the ability to enter the patch by clicking node body (TODO: move to special node type)
-            Kefir.fromEvents(nodeBox.data().processTarget.node(), 'click')
+            Kefir.fromEvents(δ(nodeBox).processTarget.node(), 'click')
                  .onValue((function(current, target) {
                     return function() {
                         target.open(current);
@@ -171,18 +172,19 @@ return function(networkRoot, userConfig) {
 
             var nodeBox = d3.select(document.createElement('div')).attr('class', 'rpd-node-box');
             var styledNode = style.createNode(node, render, nodeDescriptions[node.type], nodeTypeIcons[node.type]);
-            var nodeElm = nodeBox.append(styledNode.element);
+            var nodeElm = nodeBox.append(ƒ(styledNode.element));
 
             nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                    .classed('rpd-'+node.type.replace('/','-'), true);
 
             nodeBox.style('z-index', NODE_LAYER);
 
-            // store targets information and node root element itself
-            tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets-target'),
-                                                 outletsTarget: nodeElm.select('.rpd-outlets-target'),
-                                                 processTarget: nodeElm.select('.rpd-process-target'),
-                                                 pos: { x: 0, y: 0 } });
+            δ(nodeBox, { inletsTarget:  nodeElm.select('.rpd-inlets-target'),
+                         outletsTarget: nodeElm.select('.rpd-outlets-target'),
+                         processTarget: nodeElm.select('.rpd-process-target'),
+                         pos: { x: 0, y: 0 } });
+
+            tree.nodes[node.id] = nodeBox;
 
             var nodeLinks = new VLinks();
             tree.nodeToLinks[node.id] = nodeLinks;
@@ -195,7 +197,7 @@ return function(networkRoot, userConfig) {
                         { start: function() {
                             nodeBox.classed('rpd-dragging', true);
                             nodeBox.style('z-index', NODEDRAG_LAYER);
-                            return nodeBox.data().pos;
+                            return δ(nodeBox).pos;
                           },
                           drag: function(pos) {
                               nodeBox.style('left', pos.x + 'px');
@@ -246,8 +248,8 @@ return function(networkRoot, userConfig) {
                 nodePos = placing.nextPosition(node, nodeSize, { width:  limitSrc.node().offsetWidth,
                                                                  height: limitSrc.node().offsetHeight });
 
-            nodeElm.select('.rpd-body').style('min-width',  Math.floor(nodeSize.width) + 'px');
-            nodeElm.select('.rpd-body').style('height', Math.floor(nodeSize.height) + 'px'); // height is min-height for table cells
+            nodeElm.select('.rpd-body').style('min-width',  Math.floor(nodeSize.width) + 'px')
+                                       .style('height', Math.floor(nodeSize.height) + 'px'); // height is min-height for table cells
 
             node.move(nodePos.x, nodePos.y); // x and y positions will be set in node/move event handler
 
@@ -262,7 +264,7 @@ return function(networkRoot, userConfig) {
             }
 
             // append to the the patch canvas node
-            tree.patches[patch.id].append(nodeBox.node());
+            tree.patches[patch.id].append(ƒ(nodeBox.node()));
 
         },
 
@@ -287,9 +289,9 @@ return function(networkRoot, userConfig) {
         'node/move': function(update) {
             var nodeBox = tree.nodes[update.node.id];
             var position = update.position;
-            nodeBox.style('left', Math.floor(position[0]) + 'px');
-            nodeBox.style('top',  Math.floor(position[1]) + 'px');
-            nodeBox.data().pos = { x: position[0], y: position[1] };
+            nodeBox.style('left', Math.floor(position[0]) + 'px')
+                   .style('top',  Math.floor(position[1]) + 'px');
+            δ(nodeBox).pos = { x: position[0], y: position[1] };
         },
 
         'node/process': function(update) {
@@ -298,7 +300,7 @@ return function(networkRoot, userConfig) {
 
             // update node body with custom renderer, if defined
             if (render.always) {
-                var bodyElm = tree.nodes[node.id].data().processTarget.node();
+                var bodyElm = δ(tree.nodes[node.id]).processTarget.node();
                 render.always.bind(node)(bodyElm, update.inlets, update.outlets);
             }
         },
@@ -309,7 +311,7 @@ return function(networkRoot, userConfig) {
 
             if (inlet.def.hidden) return;
 
-            var inletsTarget = tree.nodes[update.node.id].data().inletsTarget;
+            var inletsTarget = δ(tree.nodes[update.node.id]).inletsTarget;
             var render = update.render;
 
             var inletElm = d3.select(style.createInlet(inlet, render).element);
@@ -326,15 +328,17 @@ return function(networkRoot, userConfig) {
                                          inletElm.select('.rpd-value-holder'),
                                          inletElm.select('.rpd-value'),
                                          d3.select(document.createElement('div')));
-                inletElm.select('.rpd-value-holder').append(editor.editorElm.node());
+                inletElm.select('.rpd-value-holder').append(ƒ(editor.editorElm.node()));
             }
 
-            tree.inlets[inlet.id] = inletElm.data({
+            δ(inletElm, {
                 connector: inletElm.select('.rpd-connector'),
                 value: inletElm.select('.rpd-value'),
                 vlinks: new VLinks(), // links associated with this inlet
                 editor: editor
             });
+
+            tree.inlets[inlet.id] = inletElm;
 
             // adds `rpd-error` CSS class and removes it by timeout
             inlet.event['inlet/update'].onError(function() {
@@ -344,36 +348,38 @@ return function(networkRoot, userConfig) {
             // listen for clicks in connector and allow to edit links this way
             connectivity.subscribeInlet(inlet, inletElm.select('.rpd-connector'));
 
-            inletsTarget.append(inletElm.node());
+            inletsTarget.append(ƒ(inletElm.node()));
         },
 
         'node/add-outlet': function(update) {
 
             var outlet = update.outlet;
 
-            var outletsTarget = tree.nodes[update.node.id].data().outletsTarget;
+            var outletsTarget = δ(tree.nodes[update.node.id]).outletsTarget;
             var render = update.render;
 
             var outletElm = d3.select(style.createOutlet(outlet, render).element);
 
-            outletElm.classed('rpd-'+outlet.type.replace('/','-'), true);
-            outletElm.classed('rpd-stale', true);
+            outletElm.classed('rpd-'+outlet.type.replace('/','-'), true)
+                     .classed('rpd-stale', true);
 
-            tree.outlets[outlet.id] = outletElm.data({
+            δ(outletElm, {
                 connector: outletElm.select('.rpd-connector'),
                 value: outletElm.select('.rpd-value'),
                 vlinks: new VLinks() // links associated with this outlet
             });
 
+            tree.outlets[outlet.id] = outletElm;
+
             // listen for clicks in connector and allow to edit links this way
             connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
 
-            outletsTarget.append(outletElm.node());
+            outletsTarget.append(ƒ(outletElm.node()));
         },
 
         'node/remove-inlet': function(update) {
             var inlet = update.inlet;
-            var inletData = tree.inlets[inlet.id].data();
+            var inletData = δ(tree.inlets[inlet.id]);
 
             inletData.vlinks.forEach(function(vlink) {
                 vlink.get().disconnect();
@@ -388,7 +394,7 @@ return function(networkRoot, userConfig) {
 
         'node/remove-outlet': function(update) {
             var outlet = update.outlet;
-            var outletData = tree.outlets[outlet.id].data();
+            var outletData = δ(tree.outlets[outlet.id]);
 
             outletData.vlinks.forEach(function(vlink) {
                 vlink.get().disconnect();
@@ -409,7 +415,7 @@ return function(networkRoot, userConfig) {
             var render = update.render;
 
             var inletElm = tree.inlets[inlet.id];
-            var valueElm = inletElm.data().value;
+            var valueElm = δ(inletElm).value;
 
             if (!valueElm.empty()) {
                 var valueRepr = inlet.def.show ? inlet.def.show(update.value)
@@ -432,7 +438,7 @@ return function(networkRoot, userConfig) {
             var render = update.render;
 
             var outletElm = tree.outlets[outlet.id];
-            var valueElm = outletElm.data().value;
+            var valueElm = δ(outletElm).value;
 
             if (!valueElm.empty()) {
                 var valueRepr = outlet.def.show ? outlet.def.show(update.value)
@@ -458,8 +464,8 @@ return function(networkRoot, userConfig) {
             var outletElm = tree.outlets[outlet.id];
             var inletElm  = tree.inlets[inlet.id];
 
-            var outletData = outletElm.data();
-            var inletData  = inletElm.data();
+            var outletData = δ(outletElm);
+            var inletData  = δ(inletElm);
 
             if (!config.inletAcceptsMultipleLinks && (inletData.vlinks.count() === 1)) {
                 throw new Error('Inlet is already connected to a link');
@@ -502,8 +508,8 @@ return function(networkRoot, userConfig) {
             var outlet = link.outlet;
             var inlet  = link.inlet;
 
-            var outletData = tree.outlets[outlet.id].data();
-            var inletData  = tree.inlets[inlet.id].data();
+            var outletData = δ(tree.outlets[outlet.id]);
+            var inletData  = δ(tree.inlets[inlet.id]);
 
             // forget all references
             tree.links[link.id] = null;
@@ -523,7 +529,7 @@ return function(networkRoot, userConfig) {
 
         'link/enable': function(update) {
             var inlet = update.link.inlet;
-            var inletData  = tree.inlets[inlet.id].data();
+            var inletData = δ(tree.inlets[inlet.id]);
             if (inletData.editor) inletData.editor.disable();
 
             tree.links[update.link.id].enable();
@@ -541,7 +547,7 @@ return function(networkRoot, userConfig) {
 
 function patchByHash(tree) {
     return function(hash) {
-        return tree.patches[hash].data().patch;
+        return δ(tree.patches[hash]).patch;
     }
 }
 
@@ -555,7 +561,7 @@ function updateCanvasHeightOnResize(_window, _document, networkRoot, canvas) {
              networkRoot.style('height', value + 'px');
              canvas.style('height', value + 'px');
          });
-    networkRoot.data({
+    δ(networkRoot, {
         subscribedToResize: true
     });
 }
@@ -574,7 +580,7 @@ function awaiting(a, b) {
 var Connectivity = (function() {
 
     function getLinks(inlet) {
-        return tree.inlets[inlet.id].data().vlinks;
+        return δ(tree.inlets[inlet.id]).vlinks;
     }
     function hasLinks(inlet) {
         return function() {
@@ -751,7 +757,7 @@ function ValueEditor(inlet, render, canvas, valueHolder, valueElm, editorElm) {
                                        cancelEditing: !val[0] }; })
          .onValue(function(conf) {
             if (conf.startEditing) {
-                var inletData = tree.inlets[inlet.id].data();
+                var inletData = δ(tree.inlets[inlet.id]);
                 if (inletData.link) inletData.link.disable();
                 valueIn.emit(conf.lastValue);
                 valueHolder.classed('rpd-editor-enabled', true);

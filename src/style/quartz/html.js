@@ -8,8 +8,6 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
 
 Rpd.style('quartz', 'html', function(config) {
 
-var d3 = Rpd.d3;
-
 var lastCanvas;
 
 var inletToConnector = {},

@@ -1,6 +1,6 @@
 {
   "name": "rpd",
-  "version": "3.0.0-alpha",
+  "version": "3.0.0-alpha.1",
   "description": "RPD is a minimal framework for building Node-Based User Interfaces, powered by Reactive Programming",
   "author": "Ulric Wilfred <shaman.sir@gmail.com> (http://shamansir.github.io)",
   "homepage": "http://shamansir.github.io/rpd",
@@ -29,6 +29,7 @@
   ],
   "main": "./src/rpd.js",
   "dependencies": {
+    "d3-selection": "^1.0.3",
     "kefir": "^3.7.1"
   },
   "devDependencies": {

@@ -10,8 +10,6 @@ Rpd.Render = (function() {
 
 var ƒ = Rpd.unit;
 
-var d3 = Rpd.d3;
-
 // =============================================================================
 // ============================= Placing =======================================
 // =============================================================================
@@ -124,7 +122,7 @@ VLink.prototype.update = function() {
     return this;
 }
 VLink.prototype.appendTo = function(target) {
-    target.append(this.element.node());
+    target.append(ƒ(this.element.node()));
     return this;
 }
 VLink.prototype.removeFrom = function(target) {
@@ -288,7 +286,16 @@ function reportErrorsToConsole(config) {
     });
 }
 
+function _data(selection, data) {
+    // FIXME: should use d3Selection.datum() eventually
+    //        see issue https://github.com/shamansir/rpd/issues/442
+    if (data) selection.node().__rpd_data__ = data;
+    else return selection.node().__rpd_data__;
+};
+
 return {
+    data: _data,
+
     Placing: GridPlacing,
     DragAndDrop: DragAndDrop,
     //Connectivity: Connectivity,

@@ -5,8 +5,6 @@ function isAltShiftAnd(evt, val) { return evt.shiftKey && isAltAnd(evt, val); }
 
 var PdView = (function() {
 
-    var d3 = Rpd.d3;
-
     var ƒ = Rpd.unit,
         not = Rpd.not;
 
@@ -37,9 +35,9 @@ var PdView = (function() {
         var view = this;
         document.addEventListener('DOMContentLoaded', function() {
             d3.select(view.getRoot())
-              .append(d3.select(editorNode)
-                        .style('display', 'none')
-                        .style('position', 'absolute').node());
+              .append(ƒ(d3.select(editorNode)
+                          .style('display', 'none')
+                          .style('position', 'absolute').node()));
 
             Kefir.fromEvents(view.getRoot(), 'keydown')
                           .filter(function(evt) { return isAltAnd(evt, 69/*E*/) })

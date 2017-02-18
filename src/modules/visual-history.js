@@ -6,7 +6,7 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
     Rpd = require('rpd');
 }
 
-var d3 = Rpd.d3;
+var ƒ = Rpd.unit;
 
 function spanWithText(text) {
     return d3.select(document.createElement('span')).text(text.join('')).node();
@@ -253,7 +253,7 @@ Rpd.visualHistory = function(target, type) {
         li.append('span').classed('update-type', true).text((updateTitle[updateType] || updateType) + ':');
         div = li.append('div').classed('update-details', true);
         if (renderUpdate[updateType]) {
-            div.append(renderUpdate[updateType](update));
+            div.append(ƒ(renderUpdate[updateType](update)));
         } else {
             div.append('span').text('<Unknown>');
         }

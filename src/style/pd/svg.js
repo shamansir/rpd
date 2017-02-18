@@ -8,7 +8,9 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
 
 Rpd.style('pd', 'svg', (function() {
 
-var d3 = Rpd.d3;
+var ƒ = Rpd.unit;
+
+var δ = Rpd.Render.data;
 
 // we need this canvas to be shared between all instances of a function below,
 // it is used to measure node header width, since it contains text, we need
@@ -67,7 +69,7 @@ return {
         var fakeName = d3.select(_createSvgElement('text'))
                          .attr('class', 'rpd-fake-name')
                          .text(node.def.title || node.type).attr('x', -1000).attr('y', -1000);
-        globalLastCanvas.append(fakeName.node());
+        globalLastCanvas.append(ƒ(fakeName.node()));
         var headerWidth = fakeName.node().getBBox().width + 12;
         fakeName.remove();
 
@@ -113,7 +115,7 @@ return {
 
         // append tooltip with description
         nodeElm.select('.rpd-header')
-               .append(_createSvgElement('title'))
+               .append(ƒ(_createSvgElement('title')))
                .text(description ? (description + ' (' + node.type + ')') : node.type);
 
         // append remove button
@@ -127,10 +129,15 @@ return {
                });
 
         // append placeholders for inlets, outlets and a target element to render body into
-        nodeElm.append('g').attr('class', 'rpd-inlets').data({ position: { x: 0, y: 0 } });
-        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (headerWidth + ((width - headerWidth) / 2)) + ',' + (height / 2) + ')');
-        nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + 0 + ',' + height + ')')
-                                                        .data({ position: { x: 0, y: height } });
+        var inletsGroup = nodeElm.append('g').attr('class', 'rpd-inlets');
+        var processGroup = nodeElm.append('g').attr('class', 'rpd-process')
+                                              .attr('transform', 'translate(' + (headerWidth + ((width - headerWidth) / 2)) + ','
+                                                                              + (height / 2) + ')');
+        var outletsGroup = nodeElm.append('g').attr('class', 'rpd-outlets')
+                                              .attr('transform', 'translate(' + 0 + ',' + height + ')');
+
+        δ(inletsGroup, { position: { x: 0, y: 0 } });
+        δ(outletsGroup, { position: { x: 0, y: height } });
 
         nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                .classed('rpd-'+node.type.replace('/','-'), true);
@@ -156,12 +163,12 @@ return {
             inletElms.forEach(function(inletElm, idx) {
                 var inletPos = findInletPos(idx);
                 inletElm.attr('transform',  'translate(' + inletPos.x + ',' + inletPos.y + ')');
-                //inletElm.data().position = inletPos;
+                //δ(inletElm).position = inletPos;
             });
             outletElms.forEach(function(outletElm, idx) {
                 var outletPos = findOutletPos(idx);
                 outletElm.attr('transform',  'translate(' + outletPos.x + ',' + outletPos.y + ')');
-                //outletElm.data().position = outletPos;
+                //δ(outletElm).position = outletPos;
             });
         }
 

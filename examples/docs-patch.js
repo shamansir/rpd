@@ -1,5 +1,3 @@
-var d3 = Rpd.d3;
-
 function applyRpdLogoPatch(logoNode, planetsSvgNode, patchTargetNode) {
     var logoBox = logoNode.getBoundingClientRect();
 

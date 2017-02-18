@@ -8,7 +8,9 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
 
 Rpd.style('blender', 'svg', function(config) {
 
-var d3 = Rpd.d3;
+var ƒ = Rpd.unit;
+
+var δ = Rpd.Render.data;
 
 function _createSvgElement(name) {
     return document.createElementNS(d3.namespaces.svg, name);
@@ -165,7 +167,7 @@ return {
     createCanvas: function(patch, parent) {
         var canvas = d3.select(_createSvgElement('g'))
                        .classed('rpd-patch', true);
-        canvas.append(defs.node());
+        canvas.append(ƒ(defs.node()));
         canvas.append('rect').attr('width', '100%').attr('height', '100%')
                              .attr('fill', 'url(#blueprint)');
         return { element: canvas.node() };
@@ -245,7 +247,7 @@ return {
 
         // append tooltip with description
         nodeElm.select('.rpd-header')
-               .append(_createSvgElement('title'))
+               .append(ƒ(_createSvgElement('title')))
                .text(description ? (description + ' (' + node.type + ')') : node.type);
 
         // append remove button
@@ -260,12 +262,16 @@ return {
                });
 
         // append placeholders for inlets, outlets and a target element to render body into
-        nodeElm.append('g').attr('class', 'rpd-inlets').attr('transform', 'translate(' + 0 + ',' + headerHeight + ')')
-                                                       .data({ position: { x: 0, y: headerHeight } });
-        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (inletsMargin + (pivot.x * width)) + ','
-                                                                                        + (headerHeight + ((height - headerHeight) * pivot.y)) + ')');
-        nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + fullNodeWidth + ',' + headerHeight + ')')
-                                                        .data({ position: { x: width, y: headerHeight } });
+        var inletsGroup = nodeElm.append('g').attr('class', 'rpd-inlets')
+                                             .attr('transform', 'translate(' + 0 + ',' + headerHeight + ')');
+        var processGroup = nodeElm.append('g').attr('class', 'rpd-process')
+                                              .attr('transform', 'translate(' + (inletsMargin + (pivot.x * width)) + ','
+                                                                              + (headerHeight + ((height - headerHeight) * pivot.y)) + ')');
+        var outletsGroup = nodeElm.append('g').attr('class', 'rpd-outlets')
+                                              .attr('transform', 'translate(' + fullNodeWidth + ',' + headerHeight + ')');
+
+        δ(inletsGroup, { position: { x: 0, y: headerHeight } });
+        δ(outletsGroup, { position: { x: width, y: headerHeight } });
 
         nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                .classed('rpd-'+node.type.replace('/','-'), true);
@@ -297,12 +303,12 @@ return {
             inletElms.forEach(function(inletElm, idx) {
                 var inletPos = findInletPos(idx);
                 inletElm.attr('transform',  'translate(' + inletPos.x + ',' + inletPos.y + ')');
-                //inletElm.data().position = inletPos;
+                //δ(inletElm).position = inletPos;
             });
             outletElms.forEach(function(outletElm, idx) {
                 var outletPos = findOutletPos(idx);
                 outletElm.attr('transform',  'translate(' + outletPos.x + ',' + outletPos.y + ')');
-                //outletElm.data().position = outletPos;
+                //δ(outletElm).position = outletPos;
             });
         }
 
