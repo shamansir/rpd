@@ -10,6 +10,8 @@ Rpd.style('compact', 'svg', (function() {
 
 var ƒ = Rpd.unit;
 
+var δ = Rpd.Render.data;
+
 var socketPadding = 25, // distance between inlets/outlets in SVG units
     socketsMargin = 20; // distance between first/last inlet/outlet and body edge
 var headerWidth = 10; // width of a node header in SVG units
@@ -102,11 +104,15 @@ return {
                });
 
         // append placeholders for inlets, outlets and a target element to render body into
-        nodeElm.append('g').attr('class', 'rpd-inlets').datum({ position: { x: 0, y: 0 } });
-        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (headerWidth + (width * pivot.x)) + ','
-                                                                                        + (pivot.y * height) + ')');
-        nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + 0 + ',' + height + ')')
-                                                        .datum({ position: { x: 0, y: height } });
+        var inletsGroup =  nodeElm.append('g').attr('class', 'rpd-inlets');
+        var processNode = nodeElm.append('g').attr('class', 'rpd-process')
+                                             .attr('transform', 'translate(' + (headerWidth + (width * pivot.x)) + ','
+                                                                             + (pivot.y * height) + ')');
+        var outletsGroup = nodeElm.append('g').attr('class', 'rpd-outlets')
+                                              .attr('transform', 'translate(' + 0 + ',' + height + ')');
+
+        δ(inletsGroup, { position: { x: 0, y: 0 } });
+        δ(outletsGroup, { position: { x: 0, y: height } });
 
         nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                .classed('rpd-'+node.type.replace('/','-'), true);
@@ -132,12 +138,12 @@ return {
             inletElms.forEach(function(inletElm, idx) {
                 var inletPos = findInletPos(idx);
                 inletElm.attr('transform',  'translate(' + inletPos.x + ',' + inletPos.y + ')');
-                //inletElm.datum().position = inletPos;
+                //δ(inletElm).position = inletPos;
             });
             outletElms.forEach(function(outletElm, idx) {
                 var outletPos = findOutletPos(idx);
                 outletElm.attr('transform',  'translate(' + outletPos.x + ',' + outletPos.y + ')');
-                //outletElm.datum().position = outletPos;
+                //δ(outletElm).position = outletPos;
             });
         }
 

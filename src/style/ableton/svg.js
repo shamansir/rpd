@@ -10,6 +10,8 @@ Rpd.style('ableton', 'svg', function(config) {
 
 var ƒ = Rpd.unit;
 
+var δ = Rpd.Render.data;
+
 function _createSvgElement(name) {
     return document.createElementNS(d3.namespaces.svg, name);
 }
@@ -197,12 +199,16 @@ return {
                });
 
         // append placeholders for inlets, outlets and a target element to render body into
-        nodeElm.append('g').attr('class', 'rpd-inlets').attr('transform', 'translate(' + 0 + ',' + headerHeight + ')')
-                                                       .datum({ position: { x: 0, y: headerHeight } });
-        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (inletsMargin + (pivot.x * width)) + ','
-                                                                                        + (headerHeight + ((height - headerHeight) * pivot.y)) + ')');
-        nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + fullNodeWidth + ',' + headerHeight + ')')
-                                                        .datum({ position: { x: width, y: headerHeight } });
+        var inletsGroup = nodeElm.append('g').attr('class', 'rpd-inlets')
+                                             .attr('transform', 'translate(' + 0 + ',' + headerHeight + ')');
+        var processGroup = nodeElm.append('g').attr('class', 'rpd-process')
+                                              .attr('transform', 'translate(' + (inletsMargin + (pivot.x * width)) + ','
+                                                                              + (headerHeight + ((height - headerHeight) * pivot.y)) + ')');
+        var outletsGroup = nodeElm.append('g').attr('class', 'rpd-outlets')
+                                              .attr('transform', 'translate(' + fullNodeWidth + ',' + headerHeight + ')');
+
+        δ(inletsGroup, { position: { x: 0, y: headerHeight } });
+        δ(outletsGroup, { position: { x: width, y: headerHeight } });
 
         nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                .classed('rpd-'+node.type.replace('/','-'), true);
@@ -237,12 +243,12 @@ return {
             inletElms.forEach(function(inletElm, idx) {
                 var inletPos = findInletPos(idx);
                 inletElm.attr('transform',  'translate(' + inletPos.x + ',' + inletPos.y + ')');
-                //inletElm.datum().position = inletPos;
+                //δ(inletElm).position = inletPos;
             });
             outletElms.forEach(function(outletElm, idx) {
                 var outletPos = findOutletPos(idx);
                 outletElm.attr('transform',  'translate(' + outletPos.x + ',' + outletPos.y + ')');
-                //outletElm.datum().position = outletPos;
+                //δ(outletElm).position = outletPos;
             });
         }
 

@@ -10,6 +10,8 @@ Rpd.style('plain', 'svg', (function() {
 
 var ƒ = Rpd.unit;
 
+var δ = Rpd.Render.data;
+
 var socketPadding = 30, // distance between inlets/outlets in SVG units
     socketsMargin = 5; // distance between first/last inlet/outlet and body edge
 
@@ -84,10 +86,14 @@ return {
                });
 
         // append placeholders for inlets, outlets and a target element to render body into
-        nodeElm.append('g').attr('class', 'rpd-inlets').datum({ position: { x: 0, y: 0 } });
-        nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (width * pivot.x) + ',' + (height * pivot.y) + ')');
-        nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + 0 + ',' + height + ')')
-                                                        .datum({ position: { x: 0, y: height } });
+        var inletsGroup = nodeElm.append('g').attr('class', 'rpd-inlets');
+        var processGroup = nodeElm.append('g').attr('class', 'rpd-process')
+                                              .attr('transform', 'translate(' + (width * pivot.x) + ',' + (height * pivot.y) + ')');
+        var outletsGroup = nodeElm.append('g').attr('class', 'rpd-outlets')
+                                              .attr('transform', 'translate(' + 0 + ',' + height + ')');
+
+        δ(inletsGroup, { position: { x: 0, y: 0 } });
+        δ(outletsGroup, { position: { x: 0, y: height } });
 
         nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                .classed('rpd-'+node.type.replace('/','-'), true);

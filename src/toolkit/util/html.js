@@ -6,6 +6,8 @@ if (typeof Rpd === "undefined" && typeof require !== "undefined") {
     Rpd = require('rpd');
 }
 
+var δ = Rpd.Render.data;
+
 Rpd.channelrenderer('util/boolean', 'html', {
     /* show: function(target, value) { }, */
     /* edit: function(target, inlet, valueIn) {
@@ -223,7 +225,7 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                           var elmData = { def: nodeTypeDef,
                                                           element: li };
 
-                                          li.datum(elmData);
+                                          δ(li, elmData);
 
                                           li.append('span').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType] || String.fromCharCode(160));
                                           li.append('span').attr('class', 'rpd-nodelist-fulltypename')

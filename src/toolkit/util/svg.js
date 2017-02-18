@@ -13,6 +13,8 @@ function stopPropagation(event) {
 
 var ƒ = Rpd.unit;
 
+var δ = Rpd.Render.data;
+
 function svgNode(name) { return document.createElementNS(d3.namespaces.svg, name); }
 function htmlNode(name) { return document.createElementNS(d3.namespaces.html, name); }
 
@@ -516,11 +518,11 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                 var bodyRect = bodyGroup.node().getBoundingClientRect();
 
                 var foreignDiv = bodyGroup.append(ƒ(svgNode('foreignObject')))
-                                       .append(ƒ(htmlNode('div')))
-                                       .style('width', (nodeListSize.width - 20) + 'px')
-                                       .style('height', (nodeListSize.height - inputHeight) + 'px')
-                                       .style('overflow-y', 'scroll')
-                                       .style('position', 'fixed').style('left', 10 + 'px')
+                                          .append(ƒ(htmlNode('div')))
+                                          .style('width', (nodeListSize.width - 20) + 'px')
+                                          .style('height', (nodeListSize.height - inputHeight) + 'px')
+                                          .style('overflow-y', 'scroll')
+                                         .style('position', 'fixed').style('left', 10 + 'px')
                                                                   .style('top', inputHeight + 'px');
 
                 nodeListSvg = foreignDiv.append(ƒ(svgNode('svg')))
@@ -558,7 +560,7 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                                                           hasDescription: hasDescription,
                                                           initialY: lastY };
 
-                                          g.datum(elmData);
+                                          δ(g, elmData);
 
                                           g.append('rect').attr('class', 'rpd-nodelist-item-bg')
                                                           .attr('x', 0).attr('y', -5).attr('rx', 5).attr('ry', 5)
