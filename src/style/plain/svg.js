@@ -84,10 +84,10 @@ return {
                });
 
         // append placeholders for inlets, outlets and a target element to render body into
-        nodeElm.append('g').attr('class', 'rpd-inlets').data({ position: { x: 0, y: 0 } });
+        nodeElm.append('g').attr('class', 'rpd-inlets').datum({ position: { x: 0, y: 0 } });
         nodeElm.append('g').attr('class', 'rpd-process').attr('transform', 'translate(' + (width * pivot.x) + ',' + (height * pivot.y) + ')');
         nodeElm.append('g').attr('class', 'rpd-outlets').attr('transform', 'translate(' + 0 + ',' + height + ')')
-                                                        .data({ position: { x: 0, y: height } });
+                                                        .datum({ position: { x: 0, y: height } });
 
         nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                .classed('rpd-'+node.type.replace('/','-'), true);

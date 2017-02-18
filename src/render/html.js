@@ -101,7 +101,9 @@ return function(networkRoot, userConfig) {
                   .classed('rpd-values-' + (config.valuesOnHover ? 'on-hover' : 'always-shown'), true)
                   .classed('rpd-show-boxes', config.showBoxes);
 
-            tree.patches[patch.id] = canvas.data({ patch: update.patch });
+            canvas.datum({ patch: update.patch });
+
+            tree.patches[patch.id] = canvas;
 
             // initialize the node placing (helps in determining the position where new node should be located)
             tree.patchToPlacing[patch.id] = new Render.Placing(style);
@@ -138,10 +140,10 @@ return function(networkRoot, userConfig) {
             var nodeBox = tree.nodes[node.id];
 
             nodeBox.select('.rpd-node').classed('rpd-patch-reference', true);
-            nodeBox.data().processTarget.text('[' + (update.target.name || update.target.id) + ']');
+            nodeBox.datum().processTarget.text('[' + (update.target.name || update.target.id) + ']');
 
             // add the ability to enter the patch by clicking node body (TODO: move to special node type)
-            Kefir.fromEvents(nodeBox.data().processTarget.node(), 'click')
+            Kefir.fromEvents(nodeBox.datum().processTarget.node(), 'click')
                  .onValue((function(current, target) {
                     return function() {
                         target.open(current);
@@ -173,13 +175,13 @@ return function(networkRoot, userConfig) {
             nodeElm.classed('rpd-'+node.type.slice(0, node.type.indexOf('/'))+'-toolkit-node', true)
                    .classed('rpd-'+node.type.replace('/','-'), true);
 
-            nodeBox.style('z-index', NODE_LAYER);
+            nodeBox.style('z-index', NODE_LAYER)
+                   .datum({ inletsTarget:  nodeElm.select('.rpd-inlets-target'),
+                            outletsTarget: nodeElm.select('.rpd-outlets-target'),
+                            processTarget: nodeElm.select('.rpd-process-target'),
+                            pos: { x: 0, y: 0 } });
 
-            // store targets information and node root element itself
-            tree.nodes[node.id] = nodeBox.data({ inletsTarget:  nodeElm.select('.rpd-inlets-target'),
-                                                 outletsTarget: nodeElm.select('.rpd-outlets-target'),
-                                                 processTarget: nodeElm.select('.rpd-process-target'),
-                                                 pos: { x: 0, y: 0 } });
+            tree.nodes[node.id] = nodeBox;
 
             var nodeLinks = new VLinks();
             tree.nodeToLinks[node.id] = nodeLinks;
@@ -192,7 +194,7 @@ return function(networkRoot, userConfig) {
                         { start: function() {
                             nodeBox.classed('rpd-dragging', true);
                             nodeBox.style('z-index', NODEDRAG_LAYER);
-                            return nodeBox.data().pos;
+                            return nodeBox.datum().pos;
                           },
                           drag: function(pos) {
                               nodeBox.style('left', pos.x + 'px');
@@ -286,7 +288,7 @@ return function(networkRoot, userConfig) {
             var position = update.position;
             nodeBox.style('left', Math.floor(position[0]) + 'px');
             nodeBox.style('top',  Math.floor(position[1]) + 'px');
-            nodeBox.data().pos = { x: position[0], y: position[1] };
+            nodeBox.datum().pos = { x: position[0], y: position[1] };
         },
 
         'node/process': function(update) {
@@ -295,7 +297,7 @@ return function(networkRoot, userConfig) {
 
             // update node body with custom renderer, if defined
             if (render.always) {
-                var bodyElm = tree.nodes[node.id].data().processTarget.node();
+                var bodyElm = tree.nodes[node.id].datum().processTarget.node();
                 render.always.bind(node)(bodyElm, update.inlets, update.outlets);
             }
         },
@@ -306,7 +308,7 @@ return function(networkRoot, userConfig) {
 
             if (inlet.def.hidden) return;
 
-            var inletsTarget = tree.nodes[update.node.id].data().inletsTarget;
+            var inletsTarget = tree.nodes[update.node.id].datum().inletsTarget;
             var render = update.render;
 
             var inletElm = d3.select(style.createInlet(inlet, render).element);
@@ -326,12 +328,14 @@ return function(networkRoot, userConfig) {
                 inletElm.select('.rpd-value-holder').append(ƒ(editor.editorElm.node()));
             }
 
-            tree.inlets[inlet.id] = inletElm.data({
+            inletElm.datum({
                 connector: inletElm.select('.rpd-connector'),
                 value: inletElm.select('.rpd-value'),
                 vlinks: new VLinks(), // links associated with this inlet
                 editor: editor
             });
+
+            tree.inlets[inlet.id] = inletElm;
 
             // adds `rpd-error` CSS class and removes it by timeout
             inlet.event['inlet/update'].onError(function() {
@@ -348,19 +352,20 @@ return function(networkRoot, userConfig) {
 
             var outlet = update.outlet;
 
-            var outletsTarget = tree.nodes[update.node.id].data().outletsTarget;
+            var outletsTarget = tree.nodes[update.node.id].datum().outletsTarget;
             var render = update.render;
 
             var outletElm = d3.select(style.createOutlet(outlet, render).element);
 
-            outletElm.classed('rpd-'+outlet.type.replace('/','-'), true);
-            outletElm.classed('rpd-stale', true);
+            outletElm.classed('rpd-'+outlet.type.replace('/','-'), true)
+                     .classed('rpd-stale', true)
+                     .datum({
+                        connector: outletElm.select('.rpd-connector'),
+                        value: outletElm.select('.rpd-value'),
+                        vlinks: new VLinks() // links associated with this outlet
+                    });
 
-            tree.outlets[outlet.id] = outletElm.data({
-                connector: outletElm.select('.rpd-connector'),
-                value: outletElm.select('.rpd-value'),
-                vlinks: new VLinks() // links associated with this outlet
-            });
+            tree.outlets[outlet.id] = outletElm;
 
             // listen for clicks in connector and allow to edit links this way
             connectivity.subscribeOutlet(outlet, outletElm.select('.rpd-connector'));
@@ -370,7 +375,7 @@ return function(networkRoot, userConfig) {
 
         'node/remove-inlet': function(update) {
             var inlet = update.inlet;
-            var inletData = tree.inlets[inlet.id].data();
+            var inletData = tree.inlets[inlet.id].datum();
 
             inletData.vlinks.forEach(function(vlink) {
                 vlink.get().disconnect();
@@ -385,7 +390,7 @@ return function(networkRoot, userConfig) {
 
         'node/remove-outlet': function(update) {
             var outlet = update.outlet;
-            var outletData = tree.outlets[outlet.id].data();
+            var outletData = tree.outlets[outlet.id].datum();
 
             outletData.vlinks.forEach(function(vlink) {
                 vlink.get().disconnect();
@@ -406,7 +411,7 @@ return function(networkRoot, userConfig) {
             var render = update.render;
 
             var inletElm = tree.inlets[inlet.id];
-            var valueElm = inletElm.data().value;
+            var valueElm = inletElm.datum().value;
 
             if (!valueElm.empty()) {
                 var valueRepr = inlet.def.show ? inlet.def.show(update.value)
@@ -429,7 +434,7 @@ return function(networkRoot, userConfig) {
             var render = update.render;
 
             var outletElm = tree.outlets[outlet.id];
-            var valueElm = outletElm.data().value;
+            var valueElm = outletElm.datum().value;
 
             if (!valueElm.empty()) {
                 var valueRepr = outlet.def.show ? outlet.def.show(update.value)
@@ -455,8 +460,8 @@ return function(networkRoot, userConfig) {
             var outletElm = tree.outlets[outlet.id];
             var inletElm  = tree.inlets[inlet.id];
 
-            var outletData = outletElm.data();
-            var inletData  = inletElm.data();
+            var outletData = outletElm.datum();
+            var inletData  = inletElm.datum();
 
             if (!config.inletAcceptsMultipleLinks && (inletData.vlinks.count() === 1)) {
                 throw new Error('Inlet is already connected to a link');
@@ -499,8 +504,8 @@ return function(networkRoot, userConfig) {
             var outlet = link.outlet;
             var inlet  = link.inlet;
 
-            var outletData = tree.outlets[outlet.id].data();
-            var inletData  = tree.inlets[inlet.id].data();
+            var outletData = tree.outlets[outlet.id].datum();
+            var inletData  = tree.inlets[inlet.id].datum();
 
             // forget all references
             tree.links[link.id] = null;
@@ -520,7 +525,7 @@ return function(networkRoot, userConfig) {
 
         'link/enable': function(update) {
             var inlet = update.link.inlet;
-            var inletData  = tree.inlets[inlet.id].data();
+            var inletData  = tree.inlets[inlet.id].datum();
             if (inletData.editor) inletData.editor.disable();
 
             tree.links[update.link.id].enable();
@@ -538,7 +543,7 @@ return function(networkRoot, userConfig) {
 
 function patchByHash(tree) {
     return function(hash) {
-        return tree.patches[hash].data().patch;
+        return tree.patches[hash].datum().patch;
     }
 }
 
@@ -552,7 +557,7 @@ function updateCanvasHeightOnResize(_window, _document, networkRoot, canvas) {
              networkRoot.style('height', value + 'px');
              canvas.style('height', value + 'px');
          });
-    networkRoot.data({
+    networkRoot.datum({
         subscribedToResize: true
     });
 }
@@ -571,7 +576,7 @@ function awaiting(a, b) {
 var Connectivity = (function() {
 
     function getLinks(inlet) {
-        return tree.inlets[inlet.id].data().vlinks;
+        return tree.inlets[inlet.id].datum().vlinks;
     }
     function hasLinks(inlet) {
         return function() {
@@ -748,7 +753,7 @@ function ValueEditor(inlet, render, canvas, valueHolder, valueElm, editorElm) {
                                        cancelEditing: !val[0] }; })
          .onValue(function(conf) {
             if (conf.startEditing) {
-                var inletData = tree.inlets[inlet.id].data();
+                var inletData = tree.inlets[inlet.id].datum();
                 if (inletData.link) inletData.link.disable();
                 valueIn.emit(conf.lastValue);
                 valueHolder.classed('rpd-editor-enabled', true);

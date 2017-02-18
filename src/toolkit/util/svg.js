@@ -558,7 +558,7 @@ Rpd.noderenderer('util/nodelist', 'svg', {
                                                           hasDescription: hasDescription,
                                                           initialY: lastY };
 
-                                          g.data(elmData);
+                                          g.datum(elmData);
 
                                           g.append('rect').attr('class', 'rpd-nodelist-item-bg')
                                                           .attr('x', 0).attr('y', -5).attr('rx', 5).attr('ry', 5)

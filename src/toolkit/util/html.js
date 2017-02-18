@@ -223,7 +223,7 @@ Rpd.noderenderer('util/nodelist', 'html', {
                                           var elmData = { def: nodeTypeDef,
                                                           element: li };
 
-                                          li.data(elmData);
+                                          li.datum(elmData);
 
                                           li.append('span').attr('class', 'rpd-nodelist-icon').text(nodeTypeIcons[nodeType] || String.fromCharCode(160));
                                           li.append('span').attr('class', 'rpd-nodelist-fulltypename')
