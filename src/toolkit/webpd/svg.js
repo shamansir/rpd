@@ -213,7 +213,7 @@ Rpd.noderenderer('wpd/toggle', 'svg', function(node) {
                          group.append(ƒ(d3.select(_createSvgElement('line'))
                                           .attr('x1', size.width).attr('y1', 0)
                                           .attr('x2', 0).attr('y2', size.height)
-                                          .node());
+                                          .node()));
                      });
             view.addSelection(bodyElm, node);
             view.addValueSend(rect.node(), this, 'receive', function() {

@@ -16,7 +16,7 @@ var ƒ = Rpd.unit;
 var δ = Rpd.Render.data;
 
 function svgNode(name) { return document.createElementNS(d3.namespaces.svg, name); }
-function htmlNode(name) { return document.createElementNS(d3.namespaces.html, name); }
+function htmlNode(name) { return document.createElementNS(d3.namespaces.xhtml, name); }
 
 /* ========================= util/number ========================= */
 
