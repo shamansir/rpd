@@ -37,12 +37,21 @@ function buildUtilDemoPatch(renderer, target, conf) {
 
     model.addNode('util/color').move(270, 200);
 
-    var bounded = model.addNode('util/bounded-number');
-    bounded.inlets['max'].receive(255);
-    bounded.move(60, 240);
+    var commentText;
+    if (renderer !== 'svg') {
+        var bounded = model.addNode('util/bounded-number');
+        bounded.inlets['max'].receive(255);
+        bounded.move(60, 240);
+        commentText = 'connect `bounded number` node \'out\' to any inlet of color node';
+    } else {
+        var knob = model.addNode('util/knob');
+        knob.inlets['max'].receive(255);
+        knob.move(60, 240);
+        commentText = 'connect `knob` node \'number\' outlet to any inlet of color node';
+    }
 
     var comment = model.addNode('util/comment');
-    comment.inlets['text'].receive('connect bounded number node \'out\' to any inlet of color node');
+    comment.inlets['text'].receive(commentText);
     comment.inlets['width'].receive(130);
     comment.move(150, 230);
 
@@ -84,8 +93,6 @@ function buildUtilDemoPatch(renderer, target, conf) {
                              fromCodePoint(55356) + fromCodePoint(inlets.letterB.charCodeAt(0) - 97 + 56806) };
         }
     });
-
-    var d3 = d3 || d3_tiny;
 
     Rpd.noderenderer('user/maybe-flag', 'svg', function() {
         var textElm;
