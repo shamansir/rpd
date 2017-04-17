@@ -4,12 +4,22 @@ import Kefir from 'kefir';
 
 import d3 from 'd3';
 
+// =================================================================== EVENTS .
+
+export type PatchAddNodeEvent = {
+    type: string = 'patch/add-node';
+    patch: Patch;
+    node: Node;
+};
+
 export type Event = any;
 
 export type Value = any;
 
 export type AllEvents = KefirStream;
 export type EventMap = { [ event: string ]: KefirStream };
+
+// ============================================================== DEFINITIONS .
 
 export type PatchDefinition = {
     handle?: { [event: string]: (event: Event) => void };
@@ -76,6 +86,8 @@ export type InletRendererDefinition = {
 export type OutletRendererDefinition = {
     show?: (target: HTMLElement, value: Value, repr: string) => void;
 };
+
+// ============================================================= MAIN CLASSES .
 
 declare class Patch {
     Patch(name: string, def?: PatchDefinition): Patch;
@@ -165,6 +177,8 @@ declare class Link {
     events: AllEvents;
 };
 
+// ================================================================ RENDERERS .
+
 export type ChannelRendererDefinition = InletRendererDefinition | OutletRendererDefinition;
 
 export type RendererConfig = any; /* TODO */
@@ -199,6 +213,8 @@ export type StyleDefinitionObject = {
 
 export type StyleDefinition = ((config: any) => StyleDefinitionObject);
 
+// ==================================================================== OTHER .
+
 export type IOModule = any; /* TODO */
 
 export type NavigationModule = any; /* TODO */
@@ -220,6 +236,8 @@ declare var HiddenTypes : {
     Outlet: typeof Outlet;
     Link: typeof Link;
 }
+
+// ====================================================================== RPD .
 
 declare var Rpd : {
     VERSION: string;
