@@ -33,6 +33,8 @@
     "kefir": "^3.7.1"
   },
   "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-flow": "^6.23.0",
     "del": "^2.2.0",
     "flow-bin": "^0.38.0",
     "google-closure-compiler": "^20170124.0.0",
