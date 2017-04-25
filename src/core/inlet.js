@@ -1,3 +1,25 @@
+import Kefir from 'kefir';
+
+import {
+    extract_toolkit,
+    short_uid,
+    adapt_to_obj,
+    report_error,
+    report_system_error,
+    join_definitions,
+    prepare_render_obj,
+    join_render_definitions,
+    create_event_map,
+    make_silent_error,
+    subscribe,
+    is_defined
+} from './utils';
+
+import {
+    channeltypes,
+    channelrenderers
+} from './register';
+
 // =============================================================================
 // ================================== Inlet ====================================
 // =============================================================================
@@ -72,3 +94,5 @@ Inlet.prototype.allows = function(outlet) {
     }
     return true;
 }
+
+export default Inlet;

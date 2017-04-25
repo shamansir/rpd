@@ -2,6 +2,20 @@
 // =========================== registration ====================================
 // =============================================================================
 
+//var PATCH_PROPS = [ 'title', '*handle' ];
+var nodetypes = {}; var NODE_PROPS = [ 'title', '*inlets', '*outlets', 'prepare', 'process', 'tune', '*handle' ];
+var channeltypes = {}; var INLET_PROPS = [ 'label', 'default', 'hidden', 'cold', 'readonly', 'allow', 'accept', 'adapt', 'tune', 'show', '*handle' ];
+                       var OUTLET_PROPS = [ 'label', 'tune', 'show', '*handle' ];
+                       var CHANNEL_PROPS = INLET_PROPS;
+var noderenderers = {}; var NODE_RENDERER_PROPS = [ 'prepare', 'size', 'first', 'always' ];
+var channelrenderers = {}; var CHANNEL_RENDERER_PROPS = [ 'prepare', 'show', 'edit' ];
+var nodedescriptions = {};
+var styles = {};
+var nodetypeicons = {};
+var toolkiticons = {};
+
+var renderer_registry = {};
+
 function nodetype(type, def) {
     nodetypes[type] = def || {};
 }

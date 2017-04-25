@@ -2,6 +2,8 @@
 // ================================== utils ====================================
 // =============================================================================
 
+function ƒ(v) { return function() { return v; } }
+
 function injectKefirEmitter() {
     Kefir.emitter = function() {
         var e, stream = Kefir.stream(function(_e) {
@@ -13,6 +15,25 @@ function injectKefirEmitter() {
         stream.emitEvent = function(x) { e && e.emitEvent(x); return this; }
         return stream.setName('emitter');
     }
+}
+
+function create_rendering_stream() {
+    var rendering = Kefir.emitter();
+    rendering.map(function(rule) {
+        return {
+            rule: rule,
+            func: function(patch) {
+                patch.render(rule.aliases, rule.targets, rule.config)
+            }
+        }
+    }).scan(function(prev, curr) {
+        if (prev) rpdEvent['network/add-patch'].offValue(prev.func);
+        rpdEvent['network/add-patch'].onValue(curr.func);
+        return curr;
+    }, null).last().onValue(function(last) {
+        rpdEvent['network/add-patch'].offValue(last.func);
+    });
+    return rendering;
 }
 
 function join_definitions(keys, src1, src2) {
@@ -38,25 +59,6 @@ function join_definitions(keys, src1, src2) {
         }
     }
     return trg;
-}
-
-function clone_obj(src) {
-    // this way is not a deep-copy and actually not cloning at all, but that's ok,
-    // since we use it few times for events, which are simple objects and the objects they
-    // pass, should be the same objects they got; just events by themselves should be different.
-    var res = {}; var keys = Object.keys(src);
-    for (var i = 0, il = keys.length; i < il; i++) {
-        res[keys[i]] = src[keys[i]];
-    }
-    return res;
-}
-
-function is_object(val) {
-    return (typeof val === 'object');
-}
-
-function is_defined(val) {
-    return (typeof val !== 'undefined');
 }
 
 function adapt_to_obj(val, subj) {
@@ -164,4 +166,23 @@ function get_style(name, renderer) {
 function extract_toolkit(type) {
     var slashPos = type.indexOf('/');
     return (slashPos >= 0) ? type.substring(0, slashPos) : '';
+}
+
+function clone_obj(src) {
+    // this way is not a deep-copy and actually not cloning at all, but that's ok,
+    // since we use it few times for events, which are simple objects and the objects they
+    // pass, should be the same objects they got; just events by themselves should be different.
+    var res = {}; var keys = Object.keys(src);
+    for (var i = 0, il = keys.length; i < il; i++) {
+        res[keys[i]] = src[keys[i]];
+    }
+    return res;
+}
+
+function is_object(val) {
+    return (typeof val === 'object');
+}
+
+function is_defined(val) {
+    return (typeof val !== 'undefined');
 }
