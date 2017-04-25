@@ -58,6 +58,8 @@
     "karma-jasmine": "^1.1.0",
     "karma-mocha-reporter": "^2.2.2",
     "karma-nyan-reporter": "^0.2.5",
+    "rollup": "^0.41.6",
+    "rollup-watch": "^3.2.2",
     "through2": "^2.0.0",
     "yargs": ">3.25.0 <4.0.0"
   },
