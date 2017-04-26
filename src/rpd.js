@@ -1,3 +1,5 @@
+/* @flow */
+
 import Kefir from 'kefir';
 
 import Inlet from 'core/inlet';

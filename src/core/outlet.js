@@ -1,3 +1,34 @@
+import Kefir from 'kefir';
+
+import Link from './link.js';
+
+import {
+    // js extensions
+    short_uid,
+    adapt_to_obj,
+    is_defined,
+    // errors
+    report_error,
+    report_system_error,
+    // events
+    create_event_map,
+    create_events_stream,
+    subscribe,
+    // definitions
+    extract_toolkit,
+    join_definitions,
+    prepare_render_obj,
+    join_render_definitions
+} from './utils';
+
+import {
+    channeltypes,
+    channelrenderers,
+    OUTLET_PROPS,
+    CHANNEL_RENDERER_PROPS
+} from './register';
+
+
 // =============================================================================
 // ================================= Outlet ====================================
 // =============================================================================
@@ -82,3 +113,5 @@ Outlet.prototype.toDefault = function() {
     }
     return this;
 }
+
+export default Outlet;

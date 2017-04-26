@@ -1,23 +1,30 @@
 import Kefir from 'kefir';
 
 import {
-    extract_toolkit,
+    // js extensions
     short_uid,
     adapt_to_obj,
+    is_defined,
+    // errors
     report_error,
     report_system_error,
+    make_silent_error,
+    // events
+    create_event_map,
+    create_events_stream,
+    subscribe,
+    // definitions
+    extract_toolkit,
     join_definitions,
     prepare_render_obj,
-    join_render_definitions,
-    create_event_map,
-    make_silent_error,
-    subscribe,
-    is_defined
+    join_render_definitions
 } from './utils';
 
 import {
     channeltypes,
-    channelrenderers
+    channelrenderers,
+    INLET_PROPS,
+    CHANNEL_RENDERER_PROPS
 } from './register';
 
 // =============================================================================

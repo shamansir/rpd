@@ -1,3 +1,17 @@
+import Kefir from 'kefir';
+
+import {
+    // js extensions
+    ƒ,
+    short_uid,
+    // errors
+    report_error,
+    make_silent_error,
+    // events
+    create_event_map,
+    create_events_stream
+} from './utils';
+
 // =============================================================================
 // ================================= Link ======================================
 // =============================================================================
@@ -68,3 +82,5 @@ Link.prototype.disconnect = function() {
     this.outlet.disconnect(this);
     return this;
 }
+
+export default Link;
