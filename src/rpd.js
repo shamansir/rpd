@@ -2,7 +2,15 @@
 
 import Kefir from 'kefir';
 
-import Inlet from 'core/inlet';
+import Patch from './core/patch.js';
+import Node from './core/node.js';
+import Inlet from './core/inlet.js';
+import Outlet from './core/outlet.js';
+import Link from './core/link.js';
+
+import * from './core/utils.js';
+import * from './core/register.js';
+import * from './core/stringify.js';
 
 var VERSION = 'v3.0.0-alpha';
 
@@ -39,25 +47,6 @@ function /*Rpd.*/addClosedPatch(arg0, arg1) {
     var instance = new Patch(name, def);
     rpdEvent['network/add-patch'].emit(instance);
     return instance;
-}
-
-function create_rendering_stream() {
-    var rendering = Kefir.emitter();
-    rendering.map(function(rule) {
-        return {
-            rule: rule,
-            func: function(patch) {
-                patch.render(rule.aliases, rule.targets, rule.config)
-            }
-        }
-    }).scan(function(prev, curr) {
-        if (prev) rpdEvent['network/add-patch'].offValue(prev.func);
-        rpdEvent['network/add-patch'].onValue(curr.func);
-        return curr;
-    }, null).last().onValue(function(last) {
-        rpdEvent['network/add-patch'].offValue(last.func);
-    });
-    return rendering;
 }
 
 nodetype('core/basic', {});
