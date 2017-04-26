@@ -1,3 +1,9 @@
+import Patch from './patch.js';
+import Node from './node.js';
+import Inlet from './inlet.js';
+import Outlet from './outlet.js';
+import Link from './link.js';
+
 // =============================================================================
 // ========================== stringification ==================================
 // =============================================================================
@@ -42,7 +48,9 @@ stringify.link = function(link) {
               ' ]';
 };
 
-function autoStringify(value) {
+export stringify;
+
+export function autoStringify(value) {
     if (value instanceof Patch)  { return stringify.patch(value); }
     if (value instanceof Node)   { return stringify.node(value); }
     if (value instanceof Inlet)  { return stringify.inlet(value); }

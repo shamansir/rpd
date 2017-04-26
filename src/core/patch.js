@@ -1,3 +1,25 @@
+/* @flow */
+import Kefir from 'kefir';
+
+import {
+    // js extensions
+    short_uid,
+    clone_obj,
+    is_object,
+    // errors
+    report_system_error,
+    // events
+    create_event_map,
+    create_events_stream,
+    subscribe
+} from './utils';
+
+import {
+    renderer_registry,
+    inject_render,
+    join_render_definitions
+} from './register';
+
 // =============================================================================
 // ================================== Patch ====================================
 // =============================================================================
@@ -169,3 +191,5 @@ Patch.prototype.resizeCanvas = function(width, height) {
     this.event['patch/resize-canvas'].emit([width, height]);
     return this;
 }
+
+export default Patch;

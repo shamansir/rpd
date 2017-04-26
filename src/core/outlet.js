@@ -19,14 +19,14 @@ import {
     join_definitions,
     prepare_render_obj,
     join_render_definitions
-} from './utils';
+} from './utils.js';
 
 import {
     channeltypes,
     channelrenderers,
     OUTLET_PROPS,
     CHANNEL_RENDERER_PROPS
-} from './register';
+} from './register.js';
 
 
 // =============================================================================

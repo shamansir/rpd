@@ -41,6 +41,25 @@ function /*Rpd.*/addClosedPatch(arg0, arg1) {
     return instance;
 }
 
+function create_rendering_stream() {
+    var rendering = Kefir.emitter();
+    rendering.map(function(rule) {
+        return {
+            rule: rule,
+            func: function(patch) {
+                patch.render(rule.aliases, rule.targets, rule.config)
+            }
+        }
+    }).scan(function(prev, curr) {
+        if (prev) rpdEvent['network/add-patch'].offValue(prev.func);
+        rpdEvent['network/add-patch'].onValue(curr.func);
+        return curr;
+    }, null).last().onValue(function(last) {
+        rpdEvent['network/add-patch'].offValue(last.func);
+    });
+    return rendering;
+}
+
 nodetype('core/basic', {});
 nodetype('core/reference', {});
 channeltype('core/any', {});

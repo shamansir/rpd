@@ -88,6 +88,19 @@ function join_render_definitions(keys, user_render, type_render) {
     return result;
 }
 
+export function inject_render(update, alias) {
+    var type = update.type;
+    if ((type === 'patch/add-node') || (type === 'node/process')) {
+        update.render = update.node.render[alias] || {};
+    } else if ((type === 'node/add-inlet')  || (type === 'inlet/update')) {
+        update.render = update.inlet.render[alias] || {};
+    } else if ((type === 'node/add-outlet')  || (type === 'outlet/update')) {
+        update.render = update.outlet.render[alias] || {};
+    }
+    return update;
+}
+
+
 function create_event_map(conf) {
     var map = {}; var types = Object.keys(conf);
     for (var i = 0, type; i < types.length; i++) {
@@ -102,6 +115,7 @@ function adapt_events(type, spec) {
     if (spec.length === 1) return function(value) { var evt = {}; evt.type = type; evt[spec[0]] = value; return evt; };
     if (spec.length > 1)   return function(event) { event = clone_obj(event); event.type = type; return event; };
 }
+
 function create_events_stream(conf, event_map, subj_as, subj) {
     var stream = Kefir.pool(); var types = Object.keys(conf);
     for (var i = 0; i < types.length; i++) {
@@ -143,26 +157,6 @@ function short_uid() {
     return ("0000" + (Math.random() * Math.pow(36,4) << 0).toString(36)).slice(-4);
 }
 
-function inject_render(update, alias) {
-    var type = update.type;
-    if ((type === 'patch/add-node') || (type === 'node/process')) {
-        update.render = update.node.render[alias] || {};
-    } else if ((type === 'node/add-inlet')  || (type === 'inlet/update')) {
-        update.render = update.inlet.render[alias] || {};
-    } else if ((type === 'node/add-outlet')  || (type === 'outlet/update')) {
-        update.render = update.outlet.render[alias] || {};
-    }
-    return update;
-}
-
-function get_style(name, renderer) {
-    if (!name) report_system_error(null, 'network', 'Unknown style requested: \'' + name + '\'');
-    if (!styles[name]) report_system_error(null, 'network', 'Style \'' + name + '\' is not registered');
-    var style = styles[name][renderer];
-    if (!style) report_system_error(null, 'network', 'Style \'' + name + '\' has no definition for \'' + renderer + '\' renderer');
-    return style;
-}
-
 function extract_toolkit(type) {
     var slashPos = type.indexOf('/');
     return (slashPos >= 0) ? type.substring(0, slashPos) : '';
@@ -186,3 +180,15 @@ function is_object(val) {
 function is_defined(val) {
     return (typeof val !== 'undefined');
 }
+
+export injectKefirEmitter;
+// core
+export create_rendering_stream;
+// js extensions
+export ƒ, short_uid, clone_obj, is_object, is_defined, adapt_to_obj;
+// errors
+export make_silent_error, make_error, report_error, report_system_error;
+// exvents
+export subscribe, create_event_map, adapt_events;
+// definitions (FIXME: move to register.js?)
+export join_definitions, prepare_render_obj, join_render_definitions, inject_render, extract_toolkit;
