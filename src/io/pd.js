@@ -40,11 +40,13 @@ Rpd.import.pd = function(lines) {
 
     var rootPatch = Rpd.addPatch('PD');
     var model = new PdModel(rootPatch, webPdPatch); // it is wrong to do it here as well
-                                                    // since PdModel is defined for toolkit, not the import
+                                                    // since PdModel is defined for toolkit,
+                                                    // not the import
     rootPatch.model = model;
 
     var nodeToInlets = {},
-        nodeToOutlets = {};
+        nodeToOutlets = {},
+        nodeToProto = {};
 
     function pushInlet(update) {
         if (!nodeToInlets[update.node.id]) nodeToInlets[update.node.id] = [];
@@ -73,6 +75,7 @@ Rpd.import.pd = function(lines) {
         var proto = pdNode.proto,
             nodeType = cmdToType[proto];
         var node = rootPatch.addNode(nodeType || 'wpd/object');
+        nodeToProto[node.id] = proto;
         node.move(pdNode.layout.x, pdNode.layout.y);
         // node.webPdObject = webPdPatch.objects[idx];
         model.markResolvedAndApply(node, proto, pdNode.args, webPdPatch.objects[idx]);
@@ -89,7 +92,15 @@ Rpd.import.pd = function(lines) {
         if (nodeToOutlets[fromNode.id] && nodeToInlets[toNode.id]) {
             var outlet = nodeToOutlets[fromNode.id][outletIdx],
                 inlet = nodeToInlets[toNode.id][inletIdx];
-            if (inlet && outlet) { outlet.connect(inlet, (outlet.type === 'wpd/dsp') ? 'wpd/dsp' : 'wpd/value'); }
+            if (!inlet.allows(outlet)) {
+                // FIXME: actually, a dirty hack
+                console.warn('Different types of channels were encountered while connecting',
+                             'from', nodeToProto[fromNode.id], 'outlet', outletIdx, outlet.type,
+                             'to', nodeToProto[toNode.id], 'inlet', inletIdx, inlet.type,
+                             ', rewriting the outlet type');
+                outlet.type = inlet.type;
+            }
+            if (inlet && outlet) { outlet.connect(inlet); }
             else { console.error('Failed to connect object ' + fromNodeIdx + ' to object ' + toNodeIdx); };
         } else { console.error('Failed to connect object ' + fromNodeIdx + ' to object ' + toNodeIdx); };
     });
