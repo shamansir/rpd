@@ -47,6 +47,7 @@ Rpd.import.pd = function(lines) {
         nodeToOutlets = {};
 
     function pushInlet(update) {
+        if (update.inlet.def.hidden) return;
         if (!nodeToInlets[update.node.id]) nodeToInlets[update.node.id] = [];
         nodeToInlets[update.node.id].push(update.inlet);
     }
