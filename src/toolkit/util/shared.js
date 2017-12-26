@@ -1,3 +1,6 @@
+;(function(global) {
+    "use strict";
+
 var RpdUtils = (function() {
 
 function adaptToState(state, value) {
@@ -205,3 +208,15 @@ return {
 };
 
 })();
+
+if (typeof define === 'function' && define.amd) {
+    define([], function() { return RpdUtils; });
+    global.RpdUtils = RpdUtils;
+} else if (typeof module === 'object' && typeof exports === 'object') {
+    module.exports = RpdUtils;
+    if (typeof Rpd !== 'undefined') Rpd.RpdUtils = RpdUtils;
+} else {
+    global.RpdUtils = RpdUtils;
+}
+
+}(this));
