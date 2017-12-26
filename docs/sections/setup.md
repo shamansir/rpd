@@ -146,6 +146,47 @@ To test if it works and see it in action, add the target `div` to the `body` and
 ```
 
 Detailed instructions on constructing your own Patch Network you may find [in the Network section](./network.html).
+
+### Setup from `node_modules`
+
+If you have RPD installed to local `node_modules`, you have an option to include all the required files one by one. For example to get SVG version with Ableton Style and Util Toolkit, you'll need to include `Kefir`, `d3-selection` and then:
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+
+        <!-- Kefir.js library -->
+        <script src="http://rawgit.com/rpominov/kefir/gh-pages/dist/kefir.min.js"></script>
+
+        <!-- d3.js or d3_tiny somewhere here -->
+
+        <!-- RPD core -->
+        <script src="./node_modules/rpd/src/rpd.js"></script>
+        <!-- RPD SVG Renderer -->
+        <script src="./node_modules/rpd/render/shared.js"></script>
+        <link rel="stylesheet"
+              href="./node_modules/rpd/src/render/svg.css"></link>
+        <script src="./node_modules/rpd/render/svg.css"></script>
+        <!-- RPD Ableton style -->
+        <link rel="stylesheet"
+              href="./node_modules/rpd/src/style/ableton/svg.css"></link>
+        <script src="./node_modules/rpd/src/style/ableton/svg.js"></script>
+        <!-- RPD Util Toolkit -->
+        <script src="./node_modules/rpd/src/toolkit/util/shared.js"></script>
+        <link rel="stylesheet"
+              href="./node_modules/rpd/src/toolkit/util/toolkit.js"></link>
+        <script src="./node_modules/rpd/src/toolkit/util/svg.js"></script>
+
+    </head>
+    <body>
+        <!-- ... -->
+    </body>
+</html>
+```
+
+This works for any Renderer, Style of Toollit in RPD, it just needs a corresponding `.css` file, `.js` file and, if exists, `shared.js` file included.
 ​
 ### Compilation
 ​
