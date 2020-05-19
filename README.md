@@ -1,5 +1,11 @@
 # RPD — Reactive Patch Development v3.x
 
+## Important notice
+
+This project has a successor now, named *Noodle*: https://github.com/shamansir/noodle, which is very close to be finished and released and, of course, have documentation, like RPD has. *Noodle* is written in PureScript, the very type-safe and pure functional language and so it is much more reliable and shouldn't cause runtime issues most of the time. It still has FFI to/from JavaScript, though. Another benefit — it can easily be used at server side and so the Networks require no rewriting at all, may be it will even get Terminal renderer at some point.
+
+That way I wasn't supporting this project while I was writing the successor, and I am sorry for that. It should be working, but the features/fixes are freezed for the moment.
+
 **Official Documentation & Examples**: [http://shamansir.github.io/rpd](http://shamansir.github.io/rpd)
 
 [![Join the chat at https://gitter.im/shamansir/rpd](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/shamansir/rpd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
