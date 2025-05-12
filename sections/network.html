@@ -101,7 +101,7 @@
 <script>
     var targetElement = document.getElementById('patch-target');
     var patch = Rpd.render('svg', targetElement, { style: 'quartz' });
-    var randomNode = patch.addNode('util/random', 'Random');    
+    var randomNode = patch.addNode('util/random', 'Random');
     var numberNode = patch.addNode('util/number', 'Number');
     randomNode.outlets['random'].connect(numberNode.inlets['in']);
     randomNode.inlets['min'].receive(10);
@@ -264,7 +264,7 @@ var myRandomGeneratorNode = patch.addNode('core/basic', 'My Random 0-255', {
     process: function() {
         if (inlets.bang) {
             return { 'random': Math.floor(Math.random() * 256) };
-        }    
+        }
     }
 });
 var randomOutlet = myRandomGeneratorNode.addOutlet('util/number', 'random');
@@ -345,7 +345,7 @@ randomNode.outlets[<span class="hljs-string">'random'</span>].send(<span class="
 <p>Of course you may use <code>inlet.receive</code> or <code>outlet.send</code> in any moment after the corresponding Inlet or Outlet was created. If you want, use <code>setTimeout</code> to postpone the update or <code>setInterval</code> to send value each period of time. But I have a better suggestion for you.</p>
 <p>You may schedule the updates using the Stream approach. Streams are sequences of data distributed over time, and they are the major part of Reactive Programming, so you may find more details on this topic in any documentation covering FRP. Using Streams provides truly a lot of possibilities and combinations, since data flows may be combined and transformed in a lot of ways independently of time when a data itself was produced.</p>
 <p>But let me give just the basic example here, so you may either realise the full potential if you already know something about them, or head to FRP docs if you ever plan to use Streams and need complex workflows.</p>
-<p>Out of the box, RPD uses <a href="http://rpominov.github.io/kefir">Kefir</a> library for Streams, since it&#39;s very tiny and neat <!-- laconic --> at the same time. Both Inlets and Outlets have <code>stream</code> method, which plugs given Kefir Stream into the flow:</p>
+<p>Out of the box, RPD uses <a href="https://rpominov.github.io/kefir">Kefir</a> library for Streams, since it&#39;s very tiny and neat <!-- laconic --> at the same time. Both Inlets and Outlets have <code>stream</code> method, which plugs given Kefir Stream into the flow:</p>
 <pre><code class="lang-javascript">randomNode.inlets[<span class="hljs-string">'bang'</span>].stream(Kefir.interval(<span class="hljs-number">1000</span>, {}));
 randomNode.outlets[<span class="hljs-string">'random'</span>].stream(Kefir.sequentially(<span class="hljs-number">1000</span>, [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]));
 </code></pre>

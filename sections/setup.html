@@ -97,10 +97,10 @@
 <h3 id="download">Download</h3>
 <p>RPD with default options can be downloaded here:</p>
 <ul>
-<li>SVG renderer, Quartz style, no I/O: <a href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.min.js"><code>rpd-svg.min.js</code></a> (<em>38KB</em>, <em>~11KB</em> gzipped) + <a href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.css"><code>rpd-svg.css</code></a> (<em>3.7KB</em>, <em>~1KB</em> gzipped);</li>
-<li>HTML renderer, Quartz style, no I/O: <a href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.min.js"><code>rpd-html.min.js</code></a>  (<em>~40KB</em>, <em>~11KB</em> gzipped) + <a href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css"><code>rpd-html.css</code></a> (<em>~10KB</em>, <em>~2KB</em> gzipped);</li>
+<li>SVG renderer, Quartz style, no I/O: <a href="https://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.min.js"><code>rpd-svg.min.js</code></a> (<em>38KB</em>, <em>~11KB</em> gzipped) + <a href="https://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.css"><code>rpd-svg.css</code></a> (<em>3.7KB</em>, <em>~1KB</em> gzipped);</li>
+<li>HTML renderer, Quartz style, no I/O: <a href="https://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.min.js"><code>rpd-html.min.js</code></a>  (<em>~40KB</em>, <em>~11KB</em> gzipped) + <a href="https://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css"><code>rpd-html.css</code></a> (<em>~10KB</em>, <em>~2KB</em> gzipped);</li>
 </ul>
-<p>You&#39;ll also need <a href="http://github.com/rpominov/kefir">Kefir.js</a>, since RPD code is based on Reactive Streams, which it provides.</p>
+<p>You&#39;ll also need <a href="https://github.com/rpominov/kefir">Kefir.js</a>, since RPD code is based on Reactive Streams, which it provides.</p>
 <p>But default options restrict your choice, while RPD provides truly a lot more. See <a href="#Compilation">Compilation</a> section below for details. And you are surely safe to transfer your network code to use it with other options, if you already have one, the only requirement could be is to change few string values.</p>
 <h3 id="setup">Setup</h3>
 <p>To use either downloaded or compiled version of RPD, you need to include three files in a page head:</p>
@@ -113,17 +113,17 @@
              rules (both Renderer and Style selected at compilation stage are
              listed in the top lines of this file) --&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"stylesheet"</span>
-              <span class="hljs-attr">href</span>=<span class="hljs-string">"http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css"</span>&gt;</span>
+              <span class="hljs-attr">href</span>=<span class="hljs-string">"https://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css"</span>&gt;</span>
         <span class="hljs-tag">&lt;/<span class="hljs-name">link</span>&gt;</span>
 
         <span class="hljs-comment">&lt;!-- Kefir.js library --&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"http://rawgit.com/rpominov/kefir/gh-pages/dist/kefir.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://rawgit.com/rpominov/kefir/gh-pages/dist/kefir.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 
         <span class="hljs-comment">&lt;!-- RPD Library, compiled with the options you specified (all these
              options are listed in the first lines of this file, so you may
              distinguish `rpd.js` compiled with different options even while it
              has the same name for all the versions) --&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 
     <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
@@ -205,7 +205,7 @@ Now it&#39;s time to use all the powers and to configure your preferences:</p>
 </li>
 <li><em>Toolkits</em> (<code>-t</code> or <code>--toolkit</code>): there are some predefined toolkits (sets of nodes) in the repository, but except the WebPD, for now they only demonstrate some special aspect of the possibilities you have (i.e. configuring the example sketch for Processing.js toolkit), rather than provide all-sufficient toolboxes;<ul>
 <li><em><code>util</code></em> (HTML &amp; SVG): optional <code>util</code> toolkit with channels to transfer numbers, node with random generator, nodes with spinner to select numbers and some other primitive examples;</li>
-<li><em><code>anm</code></em> (only HTML): the toolkit to demonstrate connection with <a href="http://animatron.com/player/">Animatron Player</a> to create generative graphics;</li>
+<li><em><code>anm</code></em> (only HTML): the toolkit to demonstrate connection with <a href="https://animatron.com/player/">Animatron Player</a> to create generative graphics;</li>
 <li><em><code>webpd</code></em> (only SVG): the toolkit in development, intended to be able to load and run <a href="https://puredata.info/">PureData</a> patches using <a href="https://github.com/sebpiq/WebPd">WebPd</a>, PureData is mostly used to procedurally generate audio with the help of Node-driven interface;</li>
 <li><em><code>timbre</code></em> (only HTML): the toolkit to demonstrate connection with [timbre.js][timbre] which is an JavaScript API to procedurally generate audio;</li>
 </ul>
@@ -228,7 +228,7 @@ Every of the listed options may be specified several times, but for Renderers an
 <p><strong>NB:</strong> Please be aware that, as noted above, some <em>styles</em> or <em>toolkits</em> work only with <em>particular renderers</em>.</p>
 <p>Both <code>gulp build</code> (defaults to <code>gulp</code>) and <code>gulp build-with-gzip</code> report the resulting file size, since options may affect it in different directions and it could be meaningful for you.</p>
 <p>Also, you may select the name of the output file with <code>--target-name</code> or <code>-o</code> option.</p>
-<!-- If you plan to use [d3.js](http://d3js.org/), you may want to exclude the super-tiny version of d3 from compilation using `--no-d3-tiny` flag (though actually it adds not a lot, since it's tiny) -->
+<!-- If you plan to use [d3.js](https://d3js.org/), you may want to exclude the super-tiny version of d3 from compilation using `--no-d3-tiny` flag (though actually it adds not a lot, since it's tiny) -->
 <p>I recommend you to visit the <a href="../examples.html">examples page</a>, there you may find several examples for different combinations of styles and renderers used to compile the same patch.</p>
 <p>More details on building Patch Networks by yourself, you may find on <a href="./sections/network.html">the corresponding page</a>.</p>
 <h3 id="styles-and-renderers">Styles and Renderers</h3>
@@ -290,7 +290,7 @@ Every of the listed options may be specified several times, but for Renderers an
 <td><span class="negative">✘</span></td>
 <td><span class="positive">✔</span></td>
 <td>Vertical</td>
-<td>Style, almost completely looking like <a href="http://blender.org">Blender</a> <a href="https://www.blender.org/manual/render/blender_render/materials/nodes/index.html">Material Editor</a></td>
+<td>Style, almost completely looking like <a href="https://blender.org">Blender</a> <a href="https://www.blender.org/manual/render/blender_render/materials/nodes/index.html">Material Editor</a></td>
 </tr>
 <tr>
 <td><code>webpd</code></td>
@@ -328,7 +328,7 @@ Every of the listed options may be specified several times, but for Renderers an
 <td><code>timbre</code></td>
 <td><span class="positive">✔</span></td>
 <td><span class="positive">✔</span></td>
-<td>Nodes intended to help user generate sound with <a href="http://mohayonao.github.io/timbre.js/">timbre.js</a> in future, but has only five basic nodes for the moment</td>
+<td>Nodes intended to help user generate sound with <a href="https://mohayonao.github.io/timbre.js/">timbre.js</a> in future, but has only five basic nodes for the moment</td>
 </tr>
 <tr>
 <td><code>webpd</code></td>
@@ -340,13 +340,13 @@ Every of the listed options may be specified several times, but for Renderers an
 <td><code>anm</code></td>
 <td><span class="positive">✔</span></td>
 <td><span class="positive">✔</span></td>
-<td>Demonstrates the ability to generate graphics with <a href="https://github.com/Animatron/player">Animatron Player</a>, includes Spreads logic like the ones <a href="http://www.vvvvjs.com/">VVVV</a> has</td>
+<td>Demonstrates the ability to generate graphics with <a href="https://github.com/Animatron/player">Animatron Player</a>, includes Spreads logic like the ones <a href="https://www.vvvvjs.com/">VVVV</a> has</td>
 </tr>
 <tr>
 <td>[<code>processing</code>]</td>
 <td><span class="negative">✘</span></td>
 <td><span class="positive">✔</span></td>
-<td>Used only in examples, has some Node types to demonstrate how to work with <a href="http://p5js.org">P5.js</a></td>
+<td>Used only in examples, has some Node types to demonstrate how to work with <a href="https://p5js.org">P5.js</a></td>
 </tr>
 </tbody>
 </table>

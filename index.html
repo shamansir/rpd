@@ -97,7 +97,7 @@
     <div id="patch-target"></div>
     <svg id="planets" width="500px" height="140px"></svg>
     <svg id="rpd-logo" width="140px" height="140px" viewBox="0 0 387 343" version="1.1"
-     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+     xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink">
     <title>rpd-logo</title>
     <defs></defs>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -113,18 +113,18 @@
 <!-- sun and moon -->
 <!-- circle particles -->
 <!-- logo color shift -->
-<p>( <a href="http://github.com/shamansir/rpd">GitHub</a> | <a href="./examples.html">Examples</a> | <a href="./sections/api.html">API</a> | <a href="http://github.com/shamansir/rpd/issues">Issues</a> | <a href="#terminology">Terminology</a> <!-- | [Tests](...) --> )</p>
+<p>( <a href="https://github.com/shamansir/rpd">GitHub</a> | <a href="./examples.html">Examples</a> | <a href="./sections/api.html">API</a> | <a href="https://github.com/shamansir/rpd/issues">Issues</a> | <a href="#terminology">Terminology</a> <!-- | [Tests](...) --> )</p>
 <h3 id="what-is-rpd-">What is RPD?</h3>
 <p>RPD is the abbreviation for <em>Reactive Patch Development</em>...</p>
-<p>...or, actually, whatever you decide. It is the library which brings node-based user interfaces to the modern web, in full their power (when you know how to use it) and in a very elegant and minimalistic way. <em>Node-based</em> is something like the thing you&#39;ll (probably) see above if you move your mouse cursor, or any other pointing device, above the RPD logo — (almost) nothing to do with <a href="http://nodejs.org">node.js</a>. Some people also say that with such user interfaces they do <em>Flow Programming</em>. If you are wondering yet, what that means, <em>Node-based</em> interface is the one where man may visually connect different low-level components using their inputs and outputs and observe the result in real time, take <!-- consider? --> <a href="https://puredata.info/">PureData</a>, <a href="quartzcomposer">QuartzComposer</a>, <a href="https://vvvv.org/">VVVV</a>, <a href="https://www.nodebox.net/">NodeBox</a>, <a href="http://www.native-instruments.com/en/products/komplete/synths/reaktor-6/">Reaktor</a> etc. for example.</p>
+<p>...or, actually, whatever you decide. It is the library which brings node-based user interfaces to the modern web, in full their power (when you know how to use it) and in a very elegant and minimalistic way. <em>Node-based</em> is something like the thing you&#39;ll (probably) see above if you move your mouse cursor, or any other pointing device, above the RPD logo — (almost) nothing to do with <a href="https://nodejs.org">node.js</a>. Some people also say that with such user interfaces they do <em>Flow Programming</em>. If you are wondering yet, what that means, <em>Node-based</em> interface is the one where man may visually connect different low-level components using their inputs and outputs and observe the result in real time, take <!-- consider? --> <a href="https://puredata.info/">PureData</a>, <a href="quartzcomposer">QuartzComposer</a>, <a href="https://vvvv.org/">VVVV</a>, <a href="https://www.nodebox.net/">NodeBox</a>, <a href="https://www.native-instruments.com/en/products/komplete/synths/reaktor-6/">Reaktor</a> etc. for example.</p>
 <p>RPD brings DataFlow Programming to the Web both in the <em>elegant</em> and <em>minimal</em> ways.</p>
 <!-- TODO: video or some example patch, processing patch from vimeo? -->
-<p><em>Elegancy</em> is achieved both with providing you a very simple API for building these powerful things, and (thanks to the reactive streams, powered by <a href="http://rpominov.github.io/kefir/">Kefir.js library</a>) pure functional approach in the core, so it&#39;s easy for you to operate with sequences of data over time in any way you want, and also every action performed, (such as adding a node, or connecting something, or sending a value) is atomic, so it can easily be rolled back or stored in, and so restored from, some file.</p>
+<p><em>Elegancy</em> is achieved both with providing you a very simple API for building these powerful things, and (thanks to the reactive streams, powered by <a href="https://rpominov.github.io/kefir/">Kefir.js library</a>) pure functional approach in the core, so it&#39;s easy for you to operate with sequences of data over time in any way you want, and also every action performed, (such as adding a node, or connecting something, or sending a value) is atomic, so it can easily be rolled back or stored in, and so restored from, some file.</p>
 <!-- an example of defining simple node (and channel?) type and connecting it to a patch,
 show streams and simple values -->
 <p><em>Minimalism</em> is another goal of this library, which implies the RPD library size
 is kept as minimal as possible, so your customer may load the interface you created using 3G internet or wi-fi limited to some very low speed. Don&#39;t ask me why may it happen, it still happens everywhere. Minimalism is here not in paranoid amounts, though&mdash;if feature requires a bit more code, or some task gets very complex with less code, we for sure will add some more code for the sake of simplicity.</p>
-<p>The default configuration with SVG renderer and Quartz style included takes <em>11KB</em> when compiled, minimized and gzipped! (30KB not gzipped). Though you also need <a href="http://rpominov.github.io/kefir/">latest Kefir.js</a>, the only required dependency to make it work, which adds just ~10KB more, since <a href="http://rpominov.github.io">Kefir.js author</a> also likes minimalism in his code.</p>
+<p>The default configuration with SVG renderer and Quartz style included takes <em>11KB</em> when compiled, minimized and gzipped! (30KB not gzipped). Though you also need <a href="https://rpominov.github.io/kefir/">latest Kefir.js</a>, the only required dependency to make it work, which adds just ~10KB more, since <a href="https://rpominov.github.io">Kefir.js author</a> also likes minimalism in his code.</p>
 <p>If you feel that&#39;s you know everything in this field and this library is definitely what you need (and no doubts, it is!), you may either download the <a href="./sections/setup.html#download">version with default configuration</a> or go straight to <a href="./sections/setup.html#compilation">Building Section</a> to discover how easy it is to grab a code and configure yourself a custom one. If you still feel unsafe, stay with me for a bit.</p>
 <h3 id="features">Features</h3>
 <ul>
@@ -135,7 +135,7 @@ is kept as minimal as possible, so your customer may load the interface you crea
 <li>Import/Export of Networks from/to JSON or Plain Text out-of-the-box;</li>
 <li>Very powerful, and both super-simple and minimal, API allowing you to create your custom Node Toolkits;</li>
 <li>Everything is configurable and optional at the same time, how you render the Node, the way it looks, the way it processes data, the way input and output channels behave;</li>
-<li>Powered by <a href="http://rpominov.github.io/kefir/">Kefir</a> library, so allows you to include <em>Reactive Streams</em> of any complexity into the flow of your Network;</li>
+<li>Powered by <a href="https://rpominov.github.io/kefir/">Kefir</a> library, so allows you to include <em>Reactive Streams</em> of any complexity into the flow of your Network;</li>
 <li><em>tons of features more...</em></li>
 </ul>
 <h3 id="code-examples">Code Examples</h3>
@@ -339,7 +339,7 @@ Rpd.nodetype(<span class="hljs-string">'my/scene'</span>, {
 
 <span class="hljs-comment">/* ============== Renderer for Canvas-driven Scene ============== */</span>
 
-<span class="hljs-keyword">var</span> SVG_XMLNS = <span class="hljs-string">'http://www.w3.org/2000/svg'</span>;
+<span class="hljs-keyword">var</span> SVG_XMLNS = <span class="hljs-string">'https://www.w3.org/2000/svg'</span>;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">lerp</span>(<span class="hljs-params">v1, v2, pos</span>) </span>{
   <span class="hljs-keyword">return</span> (v1 + ((v2 - v1) * pos));
@@ -485,7 +485,7 @@ The resulting structure of Nodes and connections defines the way data flows in t
 <p><em>Link</em> is what connects single Outlet to single Inlet. Always one to one. It may be disabled, so it will not deliver all the data which comes inside, but keep the connection.</p>
 <!-- TODO Nodes from different toolkits -->
 <h4 id="toolkit">Toolkit</h4>
-<p><em>Toolkit</em> is a group of Node and Channel Types lying in (preferrably, but not required) one namespace. For example, <a href="http://p5js.org">Processing.js</a> Toolkit may define Nodes and Channels which control the configuration of a Processing Sketch, use and convert data types specific to Processing and so on.</p>
+<p><em>Toolkit</em> is a group of Node and Channel Types lying in (preferrably, but not required) one namespace. For example, <a href="https://p5js.org">Processing.js</a> Toolkit may define Nodes and Channels which control the configuration of a Processing Sketch, use and convert data types specific to Processing and so on.</p>
 <!-- TODO SVG and HTML -->
 <h4 id="rendering-flow">Rendering Flow</h4>
 <p><img src="./assets/render-flow.png" width="800px" alt="Render Flow"></img></p>
@@ -493,7 +493,7 @@ The resulting structure of Nodes and connections defines the way data flows in t
 <p>When you need to render a Patch, you need to know three things: which Renderer you want to use, which Style you prefer visually and the Target where you want everything to be injected. Style is optional, though, since <code>quartz</code> is the default one to be used, but sad things happen, and you may dislike it. So, to satisfy every taste, several Styles are included in RPD distribution. You actually may use same configuration to render several Patches, but let&#39;s leave it to <a href="./api.html">API docs</a> for now.</p>
 <p>The engine of the rendering process is Actions. They are fired on every change of the value, when new Connection between Outlet and Inlet is established, or instead someone removed the Connection, or someone moved one Node etc. To the Rendering System there is no matter who did this Action, User or API call.</p>
 <blockquote>
-<p>If you know what <a href="https://facebook.github.io/flux/">Flux</a> or <a href="http://elm-lang.org/">Elm</a> is, it is almost the same Action concept you&#39;ve met there; if you don&#39;t know about both, just replace Action term with Event term here and below.</p>
+<p>If you know what <a href="https://facebook.github.io/flux/">Flux</a> or <a href="https://elm-lang.org/">Elm</a> is, it is almost the same Action concept you&#39;ve met there; if you don&#39;t know about both, just replace Action term with Event term here and below.</p>
 </blockquote>
 <p>So, for example you chose <code>&#39;svg&#39;</code> Renderer to render your Patch. What happens then? On every user or logical Action, this Renderer is notified. Then this Renderer decides which (preferably, the tiniest one) part of the Network it should re-render. If Node or Channel (Inlet or Outlet) is required to be updated, it searches for the corresponding Node Renderer or Channel Renderer, the one assigned to this Renderer. Node/Channel Renderer can render particular type of the Node/Channel (and then it&#39;s called Node/Channel Type Renderer) or it may be overridden for the specific instance of the Node/Channel (and then it&#39;s called Node/Channel Instance Renderer). If something else was updated, Renderer re-renders this part itself, without delegation. No, actually, it sometimes passes some updates to Style, just Node/Channel Renderer step is skipped in this case.</p>
 <p>In its turn, Node/Channel Renderer renders the body of the Node (<code>&#39;svg&#39;</code> Renderer uses SVG elements for that) or a value of the Channel (same, with SVG elements). Then the result of the rendering is injected into a structure, provided by selected Style.</p>

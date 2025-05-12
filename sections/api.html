@@ -202,7 +202,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="util-toolkit"><code>util</code> Toolkit</h3><p>List of Nodes, which currently exist in <code>util</code> Toolkit <a href="http://github.com/shamansir/rpd/blob/master/src/toolkit/util/toolkit.md">is located here</a>.</p>
+<h3 id="util-toolkit"><code>util</code> Toolkit</h3><p>List of Nodes, which currently exist in <code>util</code> Toolkit <a href="https://github.com/shamansir/rpd/blob/master/src/toolkit/util/toolkit.md">is located here</a>.</p>
 <h3 id="naming-rules">Naming rules</h3>
 <p>Probably you already noticed that naming style in API is different from method to method. I&#39;d like to assure you that everything is under control and has a system before studying out any method. And the rules are simple:</p>
 <ul>
@@ -377,10 +377,10 @@ Rpd.noderenderer(<span class="hljs-string">'docs/color'</span>, <span class="hlj
     };
 });
 </code></pre>
-<p>This function may optionally return the object which allows to attach default values or streams of the values to the existing inlets. <!-- #354 --> It is very useful when you want to have some complex control (or several ones) in the Node body, so you add control there and pass its changes <a href="http://rpominov.github.io/kefir/">Stream</a> (for example, <code>&#39;change&#39;</code> event) to an existing hidden inlet.</p>
+<p>This function may optionally return the object which allows to attach default values or streams of the values to the existing inlets. <!-- #354 --> It is very useful when you want to have some complex control (or several ones) in the Node body, so you add control there and pass its changes <a href="https://rpominov.github.io/kefir/">Stream</a> (for example, <code>&#39;change&#39;</code> event) to an existing hidden inlet.</p>
 <p>Don&#39;t be afraid, usually you&#39;ll need Kefir Streams only to transfer events to the Inlet, so it will be just <code>return Kefir.fromEvents(myControl, &#39;change&#39;);</code> here... Or may be you&#39;ll find useful to also <code>.map</code> values to something. And <code>.throttle</code> them in some cases... Streams could appear very useful!</p>
 <p>So, first, for every inlet returned, you may specify <code>&#39;default&#39;</code> property, which could be a function returning a default value (so you will be able to initialize your control with this value in this function) or just some value.</p>
-<p>And, second, you may specify <code>&#39;valueOut&#39;</code> <a href="http://rpominov.github.io/kefir/">Stream</a>, which should emit new value when you want to update inlet value. Usually it is ok to pass <code>&#39;change&#39;</code> events Stream from your control there.</p>
+<p>And, second, you may specify <code>&#39;valueOut&#39;</code> <a href="https://rpominov.github.io/kefir/">Stream</a>, which should emit new value when you want to update inlet value. Usually it is ok to pass <code>&#39;change&#39;</code> events Stream from your control there.</p>
 <p>What <code>bodyElm</code> is, depends on the Renderer you use for rendering. For example, for <code>&#39;html&#39;</code> Renderer it is HTML Element and for <code>&#39;svg&#39;</code> renderer it is SVG Element, correspondingly.</p>
 <p>NB: It is highly recommended not to change <code>bodyElm</code> attributes or especially remove it from the flow. In most cases adding DOM children to it will satisfy all your needs. It is not the strict law, however — don&#39;t feel like someone prevents you — you&#39;re grown-ups, you know when you may break some <del>rules</del> HTML Elements.</p>
 <pre><code class="lang-javascript"><span class="hljs-comment">// sends random number to a hidden inlet immediately after a link inside the Node body was clicked</span>
@@ -488,7 +488,7 @@ Rpd.channelrenderer(<span class="hljs-string">'docs/foo'</span>, <span class="hl
 <p>This function may convert new received value to some renderable element. For example, you may define <code>my/vector</code> Channel type which renders as the direction this vector points to, in SVG:</p>
 <pre><code class="lang-javascript">Rpd.channeltype(<span class="hljs-string">'docs/vector'</span>, {});
 
-<span class="hljs-keyword">var</span> SVG_XMLNS = <span class="hljs-string">'http://www.w3.org/2000/svg'</span>;
+<span class="hljs-keyword">var</span> SVG_XMLNS = <span class="hljs-string">'https://www.w3.org/2000/svg'</span>;
 <span class="hljs-keyword">var</span> radius = <span class="hljs-number">7</span>;
 Rpd.channelrenderer(<span class="hljs-string">'docs/vector'</span>, <span class="hljs-string">'svg'</span>, {
     show: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">target, value</span>) </span>{
@@ -520,8 +520,8 @@ Rpd.channelrenderer(<span class="hljs-string">'docs/vector'</span>, <span class=
 <p>If you want to let user edit the value not (or <em>not only</em>) in the Node body, but also when she clicks the value near to the Inlet, you may use this method to provide her that. <!-- Though it also depends on [the rendering process configuration](./network.html#rendering-configuration), there is an option to disable value editors named ... TODO ? -->. This method is called only for Inlets, not for Outlets, since only input values are allowed to be changed without connections.</p>
 <p><code>target</code> is the element (HTML Element for <code>&#39;html&#39;</code> Renderer, SVG Element for <code>&#39;svg&#39;</code> Renderer and so on) where you should put your own element, the one representing the value, into.</p>
 <p><code>inlet</code> is the Inlet where editor was attached.</p>
-<p><code>valueIn</code> is the <a href="http://rpominov.github.io/kefir/">stream</a> of incoming values, so you may update the editor with new values. It is also useful to filter values when editor has user focus, so she won&#39;t distract from the process of changing the value.</p>
-<p>The function should return a <a href="http://rpominov.github.io/kefir/">stream</a> of outgoing values, so every time user selects or confirms some value, it should be passed to this stream.</p>
+<p><code>valueIn</code> is the <a href="https://rpominov.github.io/kefir/">stream</a> of incoming values, so you may update the editor with new values. It is also useful to filter values when editor has user focus, so she won&#39;t distract from the process of changing the value.</p>
+<p>The function should return a <a href="https://rpominov.github.io/kefir/">stream</a> of outgoing values, so every time user selects or confirms some value, it should be passed to this stream.</p>
 <pre><code class="lang-javascript">Rpd.channelrenderer(<span class="hljs-string">'docs/color'</span>, <span class="hljs-string">'html'</span>, {
     show: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">target, value</span>) </span>{
         <span class="hljs-comment">// see `show` code above</span>
@@ -704,7 +704,7 @@ patch.addNode(..., ..., &lt;node-definition&gt;);
 });
 </code></pre>
 <p>Though it is not obligatory to process all the inlets or to send data to every outlet—in some cases this function not cares about input or output at all. When Node Type defines no <code>process</code> function or it wasn&#39;t defined in <code>patch.addNode</code> method, node makes actually nothing.</p>
-<p>Another important thing to notice is that you may return <a href="http://rpominov.github.io/kefir/">Kefir Stream</a> as an outlet value, so the values from this stream will be sent to the outlet just when they are triggered. In this case, however, you should make the stream finite or stop this stream manually, or else streams for one inlet will merge with every next call to <code>process</code> function. For the real life example, see <code>util/metro</code> node definition in <code>src/toolkit/util/toolkit.js</code> file.</p>
+<p>Another important thing to notice is that you may return <a href="https://rpominov.github.io/kefir/">Kefir Stream</a> as an outlet value, so the values from this stream will be sent to the outlet just when they are triggered. In this case, however, you should make the stream finite or stop this stream manually, or else streams for one inlet will merge with every next call to <code>process</code> function. For the real life example, see <code>util/metro</code> node definition in <code>src/toolkit/util/toolkit.js</code> file.</p>
 <p>Sometimes you may want to trigger <code>process</code> function manually with some new data, but you don&#39;t want to send it through user inlet. Adding hidden inlet for your internal data is a common trick often used even in Toolkits provided with RPD distribution:</p>
 <pre><code class="lang-javascript">Rpd.channeltype(<span class="hljs-string">'docs/bang'</span>, {
     adapt: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">value</span>) </span>{
@@ -773,10 +773,10 @@ Rpd.nodetyperenderer(<span class="hljs-string">'docs/inlet-or-body'</span>, <spa
         always: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bodyElm, inlets</span>) </span>{
             <span class="hljs-keyword">if</span> (inlets[<span class="hljs-string">'from-other-node'</span>] &amp;&amp;
                 (!inlets[<span class="hljs-string">'from-node-body'</span>] ||
-                 ( inlets[<span class="hljs-string">'from-other-node'</span>].time &gt;  
+                 ( inlets[<span class="hljs-string">'from-other-node'</span>].time &gt;
                    inlets[<span class="hljs-string">'from-node-body'</span>].time ))) {
               input.value = inlets[<span class="hljs-string">'from-other-node'</span>].value;
-            }  
+            }
         }
     };
 });
@@ -784,7 +784,7 @@ Rpd.nodetyperenderer(<span class="hljs-string">'docs/inlet-or-body'</span>, <spa
 <p>As another option, you may add timestamps to Inlets&#39; values using their own <code>tune</code> function, or using the <code>tune</code> function of the Node, which is described just below and by chance there&#39;s an example which shows how to do it.</p>
 <p>Receives Node instance as <code>this</code>.</p>
 <h5 id="-tune-function-updates_stream-updates_stream-"><code>tune</code>: <code>function</code>: <code>(updates_stream) → updates_stream</code></h5>
-<p>This function allows you to tune all the updates from the inlets, so, for example, you may skip every second update from specific inlet, or every second update in general. Or you may multiply every new numeric value by 10. It gets the <a href="http://rpominov.github.io/kefir/">Kefir Stream</a> which represents all the updates from the node inlets merged. When you return the same stream you received from this function, it changes nothing in the process.</p>
+<p>This function allows you to tune all the updates from the inlets, so, for example, you may skip every second update from specific inlet, or every second update in general. Or you may multiply every new numeric value by 10. It gets the <a href="https://rpominov.github.io/kefir/">Kefir Stream</a> which represents all the updates from the node inlets merged. When you return the same stream you received from this function, it changes nothing in the process.</p>
 <p>Each update in <code>updates_stream</code> stream is the object in a form <code>{ inlet, value }</code>, where <code>inlet</code> is <code>Inlet</code> instance which received the update and <code>value</code> is the new value received. You should return the same structure from this function, but you are free to substitute values or even inlets.</p>
 <p>Some examples:</p>
 <pre><code class="lang-javascript">Rpd.nodetype(<span class="hljs-string">'docs/delay'</span>, {
@@ -916,7 +916,7 @@ burritoFactoryNode.addInlet(<span class="hljs-string">'docs/to-go'</span>, <span
                 <span class="hljs-keyword">return</span> burrito;
             }
         });
-    }     
+    }
 });
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">wrap</span>(<span class="hljs-params">burrito</span>) </span>{ <span class="hljs-keyword">return</span> [ burrito ]; }
@@ -990,7 +990,7 @@ var outlet = Rpd.addOutlet(..., ..., &lt;channel-definition&gt;);
     <span class="hljs-keyword">default</span>: <span class="hljs-string">'black'</span>
 });
 </code></pre>
-<p>This value can be any type, but also a <a href="http://rpominov.github.io/kefir/">Kefir Stream</a>, so you may configure this inlet to receive several or infinite amount of values just from the start:</p>
+<p>This value can be any type, but also a <a href="https://rpominov.github.io/kefir/">Kefir Stream</a>, so you may configure this inlet to receive several or infinite amount of values just from the start:</p>
 <pre><code class="lang-javascript">Rpd.channeltype(<span class="hljs-string">'docs/alarm'</span>, {
     <span class="hljs-comment">// ring every 24 hours by default</span>
     <span class="hljs-keyword">default</span>: Kefir.interval(<span class="hljs-number">1000</span> * <span class="hljs-number">60</span> * <span class="hljs-number">60</span> * <span class="hljs-number">24</span>, <span class="hljs-string">'./nokia-sound.wav'</span>)
@@ -1094,7 +1094,7 @@ var outlet = Rpd.addOutlet(..., ..., &lt;channel-definition&gt;);
 <!-- TODO: test -->
 <p>Receives Inlet instance as <code>this</code>.</p>
 <h5 id="-tune-function-values_stream-values_stream-"><code>tune</code>: <code>function</code>: <code>(values_stream) → values_stream</code></h5>
-<p>With the help of <code>tune</code> function you may freely modify the incoming stream of values, delay them, filter them or even reduce them to something else. When you know the power of <a href="http://rpominov.github.io/kefir/">Streams</a>, you are literally the Master of this Inlet. On the other hand, when something unpredictable happens with values coming through, you may confuse the user, so if you hardly modify them, please pay attention to additionally describe or demonstrate why/how you do it, in the UI of your Node or somewhere nearby.</p>
+<p>With the help of <code>tune</code> function you may freely modify the incoming stream of values, delay them, filter them or even reduce them to something else. When you know the power of <a href="https://rpominov.github.io/kefir/">Streams</a>, you are literally the Master of this Inlet. On the other hand, when something unpredictable happens with values coming through, you may confuse the user, so if you hardly modify them, please pay attention to additionally describe or demonstrate why/how you do it, in the UI of your Node or somewhere nearby.</p>
 <pre><code class="lang-javascript">Rpd.channeltype(<span class="hljs-string">'docs/synchronized'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
     tune: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">stream</span>) </span>{
         <span class="hljs-comment">// emit last received value exactly with a second pause</span>
@@ -1119,7 +1119,7 @@ myNode.addInlet(<span class="hljs-string">'docs/date'</span>, <span class="hljs-
 myNode.addInlet(<span class="hljs-string">'docs/radians'</span>, <span class="hljs-string">'angle'</span>).receive(<span class="hljs-built_in">Math</span>.PI);
 </code></pre>
 <h4 id="inlet-stream"><code>inlet.stream(stream)</code></h4><p>Force this inlet to receive stream of values. RPD uses <code>Kefir</code> library to provide streams. Value streams provide practically infinite possibilities, you can send values with time intervals, throttle values by time, combine different streams in unlimited ways, actually everything.</p>
-<p>You may find complex examples at <a href="http://rpominov.github.io/kefir/">Kefir library page</a>. Also, usually it is quite easy to convert streams from some another Stream-based library, like RxJS, when you want to use such.</p>
+<p>You may find complex examples at <a href="https://rpominov.github.io/kefir/">Kefir library page</a>. Also, usually it is quite easy to convert streams from some another Stream-based library, like RxJS, when you want to use such.</p>
 <pre><code class="lang-javascript"><span class="hljs-comment">// empty object is treated like a bang trigger for `util/bang` channel instances</span>
 myNode.addInlet(<span class="hljs-string">'util/bang'</span>, <span class="hljs-string">'bang'</span>).stream(Kefir.interval(<span class="hljs-number">3000</span>, {}));
 
@@ -1186,12 +1186,12 @@ var outlet = Rpd.addOutlet(..., ..., &lt;channel-definition&gt;);
 <p>This function is used to show user-friendly string when displaying the value of the Outlet. For example, when your Outlet receives an array of values, by default it will be shown as <code>[Array]</code> or if it&#39;s an object, as <code>[Object]</code> (since by default it just uses <code>.toString</code> method of JavaScript), not too user-friendly, isn&#39;t it?</p>
 <p>Receives Outlet instance as <code>this</code>.</p>
 <h5 id="-tune-function-values_stream-values_stream-"><code>tune</code>: <code>function</code>: <code>(values_stream) → values_stream</code></h5>
-<p>Tuning function is very powerful and allows you to control the outgoing stream of values, modifying some, skipping some, delaying some, or applying a combination of these actions and so completely changing what happens. <a href="http://rpominov.github.io/kefir/">Kefir streams</a> are what allows to do all these magical things.</p>
+<p>Tuning function is very powerful and allows you to control the outgoing stream of values, modifying some, skipping some, delaying some, or applying a combination of these actions and so completely changing what happens. <a href="https://rpominov.github.io/kefir/">Kefir streams</a> are what allows to do all these magical things.</p>
 <p>But please be aware that when stream of values is heavily modified, user may feel uncomfortable, while it could not be obvious without seeing what happens inside. So try to modify it so user won&#39;t see the effect or explain what happens with the help of the UI. For example, when you filter output stream, explain why it is filtered in the body of the Node or better provide user control over filtering with new Inlet.</p>
 <pre><code class="lang-javascript">Rpd.channeltype(<span class="hljs-string">'docs/mouse-pos'</span>, {
     tune: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">stream</span>) </span>{
         <span class="hljs-comment">// output mouse events with a minimum distance of 10 milliseconds</span>
-        stream.throttle(<span class="hljs-number">10</span>);  
+        stream.throttle(<span class="hljs-number">10</span>);
     }
 });
 </code></pre>
@@ -1237,7 +1237,7 @@ outlet.send(<span class="hljs-built_in">Math</span>.PI); <span class="hljs-comme
 myNode.addOutlet(<span class="hljs-string">'docs/date'</span>, <span class="hljs-string">'date'</span>).send(<span class="hljs-built_in">Date</span>.parse(<span class="hljs-string">'Mar 18, 2016'</span>););
 myNode.addOutlet(<span class="hljs-string">'docs/radians'</span>, <span class="hljs-string">'angle'</span>).send(<span class="hljs-built_in">Math</span>.PI / <span class="hljs-number">2</span>);
 </code></pre>
-<h4 id="outlet-stream"><code>outlet.stream(stream)</code></h4><p>Force this outlet to receive the stream of values, any stream constructed with <a href="http://rpominov.github.io/kefir/">Kefir API</a>. These values may be distributed over time in any way you want, and last till infinity or till the stream will end.</p>
+<h4 id="outlet-stream"><code>outlet.stream(stream)</code></h4><p>Force this outlet to receive the stream of values, any stream constructed with <a href="https://rpominov.github.io/kefir/">Kefir API</a>. These values may be distributed over time in any way you want, and last till infinity or till the stream will end.</p>
 <p>Yet, same as with <code>outlet.send</code>, value may be declined or modified on the receiving ends, when they exist (without interrupting the stream).</p>
 <pre><code class="lang-javascript"><span class="hljs-comment">// empty object is treated like a bang trigger for `util/bang` channel instances</span>
 myNode.addOutlet(<span class="hljs-string">'util/bang'</span>).stream(Kefir.interval(<span class="hljs-number">3000</span>, {}));

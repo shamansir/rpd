@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2011-2014 by Animatron.
  * All rights are reserved.
- * 
+ *
  * Animatron Player is licensed under the MIT License.
- * 
+ *
  * v1.3, built at Tue Mar 03 2015 00:47:12 GMT+0100 (CET) / 2015-03-02T23:47:12.566Z
  */
 
@@ -6167,7 +6167,7 @@ CSeg.prototype._ensure_params = function(start) {
     this._params = this._calc_params(start);
 };
 CSeg.prototype._calc_params = function(start) {
-    // See http://www.planetclegg.com/projects/WarpingTextToSplines.html
+    // See https://www.planetclegg.com/projects/WarpingTextToSplines.html
     var pts = this.pts;
     var params = [];
     var p0x = start[0];
@@ -7250,7 +7250,7 @@ Audio.prototype.clone = function() {
     return clone;
 };
 
-// workaround, see http://stackoverflow.com/questions/10365335/decodeaudiodata-returning-a-null-error
+// workaround, see https://stackoverflow.com/questions/10365335/decodeaudiodata-returning-a-null-error
 function syncStream(node){
   var buf8 = new Uint8Array(node.buf);
   buf8.indexOf = Array.prototype.indexOf;
@@ -7544,7 +7544,7 @@ var Animation = require('./animation/animation.js'),
  * If you have an URL to Animatron-compatible JSON snapshot, you may load a Player
  * without any JS, with:
  *
- * `<div id="my-precious-player" anm-src="http://example.com/animation.json" anm-width="100" anm-height="200"/></div>`
+ * `<div id="my-precious-player" anm-src="https://example.com/animation.json" anm-width="100" anm-height="200"/></div>`
  *
  * It is recommended to always specify both width and height of a Player, if you know
  * them before. If animation is loaded synchronously and it has some size specified in
@@ -10995,7 +10995,7 @@ $DE.ajax = function(url, callback, errback, method, headers) {
 };
 
 $DE.getCookie = function(name) {
-    // from http://www.codelib.net/javascript/cookies.html
+    // from https://www.codelib.net/javascript/cookies.html
     var s = $doc.cookie, i;
     if (s)
     for (i=0, s=s.split('; '); i<s.length; i++) {
@@ -11161,7 +11161,7 @@ $DE.getElementById = function(id) {
     return $doc.getElementById(id);
 };
 /* FIXME: replace with elm.getBoundingClientRect();
-   see http://stackoverflow.com/questions/8070639/find-elements-position-in-browser-scroll */
+   see https://stackoverflow.com/questions/8070639/find-elements-position-in-browser-scroll */
 // returns position on a screen, _including_ scroll
 $DE.findElementPosition = function(elm) {
     if (elm.getBoundingClientRect) {
@@ -11932,9 +11932,9 @@ module.exports = anm;
  * particular font in a browser using JavaScript and CSS.
  *
  * Author : Lalit Patel
- * Website: http://www.lalit.org/lab/javascript-css-font-detect/
+ * Website: https://www.lalit.org/lab/javascript-css-font-detect/
  * License: Apache Software License 2.0
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *          https://www.apache.org/licenses/LICENSE-2.0
  * Version: 0.15 (21 Sep 2009)
  *          Changed comparision font to default from sans-default-default,
  *          as in FF3.0 font of child element didn't fallback

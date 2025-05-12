@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="155px" height="381px" viewBox="0 0 155 381" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+<svg width="155px" height="381px" viewBox="0 0 155 381" version="1.1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink" xmlns:sketch="https://www.bohemiancoding.com/sketch/ns">
     <title>renderer </title>
-    <description>Created with Sketch (http://www.bohemiancoding.com/sketch)</description>
+    <description>Created with Sketch (https://www.bohemiancoding.com/sketch)</description>
     <defs>
         <radialGradient cx="50%" cy="47.1940104%" fx="50%" fy="47.1940104%" r="56.8925142%" id="radialGradient-1" stop-color="#FFFFFF">
             <stop offset="0%"></stop>

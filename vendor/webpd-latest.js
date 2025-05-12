@@ -4,7 +4,7 @@
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       https://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -198,7 +198,7 @@ BiquadFilterNode.type and OscillatorNode.type.
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -342,7 +342,7 @@ var Pd = module.exports = {
     patchData.nodes.forEach(function(nodeData) {
       var proto = nodeData.proto
         , obj
-      
+
       if (proto === 'graph') {
         var arrayNodeData = nodeData.subpatch.nodes[0]
         obj = patch._createObject('array', arrayNodeData.args || [])
@@ -353,12 +353,12 @@ var Pd = module.exports = {
         try {
           obj = patch._createObject(proto, nodeData.args || [])
         } catch (err) {
-          if (err instanceof errors.UnkownObjectError) 
+          if (err instanceof errors.UnkownObjectError)
             errorList.push([ err.message, err ])
           else throw err
         }
       }
-      
+
       if (proto === 'pd') Pd._preparePatch(obj, nodeData.subpatch)
       createdObjs[nodeData.id] = obj
     })
@@ -368,7 +368,7 @@ var Pd = module.exports = {
       var sourceObj = createdObjs[conn.source.id]
         , sinkObj = createdObjs[conn.sink.id]
       if (!sourceObj || !sinkObj) {
-        var errMsg = 'invalid connection ' + conn.source.id 
+        var errMsg = 'invalid connection ' + conn.source.id
           + '.* -> ' + conn.sink.id + '.*'
         return errorList.push([ errMsg, new Error(errMsg) ])
       }
@@ -376,7 +376,7 @@ var Pd = module.exports = {
         sourceObj.o(conn.source.port).connect(sinkObj.i(conn.sink.port))
       } catch (err) {
         if (err instanceof errors.InvalidPortletError) {
-          var errMsg = 'invalid connection ' + conn.source.id + '.' + conn.source.port 
+          var errMsg = 'invalid connection ' + conn.source.id + '.' + conn.source.port
             + ' -> ' + conn.sink.id + '.' + conn.sink.port
           return errorList.push([ errMsg, err ])
         }
@@ -420,7 +420,7 @@ if (typeof window !== 'undefined') window.Pd = Pd
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 var EventEmitter = require('events').EventEmitter
@@ -456,7 +456,7 @@ exports.declareObjects = function(library) {
 
       if (receiveName && receiveName !== '-' && receiveName !== 'empty') {
         this.receiveName = receiveName
-        // ! because the extend method instantiates the object for inheritance, 
+        // ! because the extend method instantiates the object for inheritance,
         // we need this "if"
         if (this._onMessageReceived) {
           this._onMessageReceived = this._onMessageReceived.bind(this)
@@ -481,15 +481,15 @@ exports.declareObjects = function(library) {
 
     _sendMessage: function(args) {
       this.o(0).message(args)
-      if (this.sendName) 
+      if (this.sendName)
         pdGlob.emitter.emit('msg:' + this.sendName, args)
     }
 
   })
 
-  
+
   library['symbolatom'] = _BaseControl.extend({
-    
+
     type: 'symbolatom',
 
     init: function(args) {
@@ -535,7 +535,7 @@ exports.declareObjects = function(library) {
 
 
   library['floatatom'] = _BaseNumber.extend({
-    
+
     type: 'floatatom',
 
     init: function(args) {
@@ -560,7 +560,7 @@ exports.declareObjects = function(library) {
         , receiveName = args[3]
         , sendName = args[4]
         , initialValue = args[5] || 0
-      _BaseNumber.prototype.init.apply(this, 
+      _BaseNumber.prototype.init.apply(this,
         [pdInit, receiveName, sendName, minValue, maxValue, initialValue])
     }
 
@@ -610,7 +610,7 @@ exports.declareObjects = function(library) {
         else this.value = this.nonZeroValue
         this._sendMessage(utils.timeTag([value], args))
       } else return console.error('invalid message received ' + args)
-      
+
     }
 
   })
@@ -625,7 +625,7 @@ exports.declareObjects = function(library) {
         , receiveName = args[3]
         , sendName = args[4]
         , initialValue = args[5] || 0
-      _BaseNumber.prototype.init.apply(this, 
+      _BaseNumber.prototype.init.apply(this,
         [pdInit, receiveName, sendName, minValue, maxValue, initialValue])
     }
 
@@ -703,7 +703,7 @@ exports.declareObjects = function(library) {
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -712,7 +712,7 @@ var _ = require('underscore')
   , errors = require('./errors')
   , portlets = require('./portlets')
   , utils = require('./utils')
-  
+
 
 // Base class for objects and patches. Example :
 //
@@ -749,7 +749,7 @@ _.extend(BaseNode.prototype, {
   doResolveArgs: false,
 
   // Lists of the class of portlets.
-  outletDefs: [], 
+  outletDefs: [],
   inletDefs: [],
 
   // This method is called when the object is created.
@@ -815,7 +815,7 @@ _.extend(BaseNode.prototype, {
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -901,7 +901,7 @@ _.extend(Patch.prototype, BaseNode.prototype, mixins.UniqueIdsMixin, EventEmitte
     var obj
     objArgs = objArgs || []
 
-    // Check that `type` is valid and create the object  
+    // Check that `type` is valid and create the object
     if (pdGlob.library.hasOwnProperty(type)) {
       var constructor = pdGlob.library[type]
       if (constructor.prototype.doResolveArgs)
@@ -983,7 +983,7 @@ var isOutletObject = function(obj) {
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -1021,7 +1021,7 @@ _.extend(PdObject.prototype, BaseNode.prototype, {
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 var _ = require('underscore')
@@ -1073,10 +1073,10 @@ InvalidPortletError.prototype.constructor = InvalidPortletError
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
- 
+
 // Scheduler to handle timing
 exports.Clock = {
 
@@ -1131,10 +1131,10 @@ exports.Storage = {
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
- 
+
 var EventEmitter = require('events').EventEmitter
   , _ = require('underscore')
   , pdGlob = require('../global')
@@ -1194,9 +1194,9 @@ _.extend(Reference.prototype, EventEmitterMixin, {
 
     this.name = name
     this._stopListening()
-    if (resolved) 
+    if (resolved)
       this._setResolved(resolved)
-    
+
     // If the object was not found, we listen to subsequent new objects of `referencedType`
     // being registered in case the object we're waiting for comes up.
     else {
@@ -1280,7 +1280,7 @@ _.extend(EventReceiver.prototype, {
   removeListener: function(emitter, eventName, handler) {
     this._handlers = _.reject(this._handlers, function(handlerData) {
       var rejected = (handlerData[0] === emitter
-            && handlerData[1] === eventName 
+            && handlerData[1] === eventName
             && handlerData[2] === handler)
       if (rejected) emitter.removeListener(eventName, handler)
       return rejected
@@ -1314,7 +1314,7 @@ EventReceiver.prototype.on = EventReceiver.prototype.addListener
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -1358,7 +1358,7 @@ _.extend(Portlet.prototype, {
 
 /************************* Public API **********************/
 
-  // Connects the calling portlet with `otherPortlet` 
+  // Connects the calling portlet with `otherPortlet`
   // Returns true if a connection was indeed established.
   connect: function(otherPortlet) {
     if (this.connections.indexOf(otherPortlet) !== -1) return false
@@ -1371,7 +1371,7 @@ _.extend(Portlet.prototype, {
     return true
   },
 
-  // Generic function for disconnecting the calling portlet 
+  // Generic function for disconnecting the calling portlet
   // from  `otherPortlet`. Returns true if a disconnection was indeed made
   disconnect: function(otherPortlet) {
     var connInd = this.connections.indexOf(otherPortlet)
@@ -1408,7 +1408,7 @@ var Outlet = exports.Outlet = Portlet.extend({})
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -1430,7 +1430,7 @@ exports.getDollarResolver = function(rawOutArray) {
 
   // Simple helper to throw en error if the index is out of range
   var getElem = function(array, ind) {
-    if (ind >= array.length || ind < 0) 
+    if (ind >= array.length || ind < 0)
       throw new Error('$' + (ind + 1) + ': argument number out of range')
     return array[ind]
   }
@@ -1475,7 +1475,7 @@ exports.getDollarResolver = function(rawOutArray) {
 
   return function(inArray) {
     return transfer.map(function(func, i) { return func(inArray) })
-  } 
+  }
 }
 
 
@@ -1530,7 +1530,7 @@ exports.getTimeTag = function(args) {
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -1549,12 +1549,12 @@ exports.settings = {
 }
 
 
-// true if dsp is started, false otherwise 
+// true if dsp is started, false otherwise
 exports.isStarted = false
 
 
 // Global event emitter.
-// We whitelist all known events, just as a way to keep a list of them 
+// We whitelist all known events, just as a way to keep a list of them
 var emitter = exports.emitter = new EventEmitter()
 emitter.emit = function(eventName) {
   var valid = false
@@ -1621,7 +1621,7 @@ exports.namedObjects = {
       , ind
     if (!objList) return
     ind = objList.indexOf(obj)
-    if (ind === -1) return 
+    if (ind === -1) return
     objList.splice(ind, 1)
     exports.emitter.emit('namedObjects:unregistered:' + type, obj)
   },
@@ -1656,7 +1656,7 @@ exports.namedObjects = {
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 var _ = require('underscore')
@@ -1683,7 +1683,7 @@ exports.declareObjects = function(library) {
       this._eventReceiver = new mixins.EventReceiver()
       this._onMessageReceived = this._onMessageReceived.bind(this)
       this._eventReceiver.on(this, 'changed:name', function(oldName, newName) {
-        if (oldName) 
+        if (oldName)
           self._eventReceiver.removeListener(pdGlob.emitter, 'msg:' + oldName, self._onMessageReceived)
         self._eventReceiver.on(pdGlob.emitter, 'msg:' + newName, self._onMessageReceived)
       })
@@ -1776,7 +1776,7 @@ exports.declareObjects = function(library) {
   })
 
   library['text'] = PdObject.extend({
-    
+
     type: 'text',
 
     init: function(args) {
@@ -1891,7 +1891,7 @@ exports.declareObjects = function(library) {
       this.valRight = args[0] || 0
       this.valLeft = 0
     },
-    
+
     // Must be overriden
     compute: function() { return }
   })
@@ -1940,7 +1940,7 @@ exports.declareObjects = function(library) {
     ],
     outletDefs: [portlets.Outlet],
 
-    // Must be overriden    
+    // Must be overriden
     checkInput: function(inVal) {},
 
     // Must be overriden
@@ -1998,14 +1998,14 @@ exports.declareObjects = function(library) {
     type: 'mtof',
     maxMidiNote: 8.17579891564 * Math.exp((0.0577622650 * 1499)),
     // TODO: round output ?
-    compute: function(note) { 
+    compute: function(note) {
       var out = 0
       if (!_.isNumber(note))
         return console.error('invalid [mtof] value ' + note)
       if (note <= -1500) out = 0
       else if (note > 1499) out = this.maxMidiNote
       else out = 8.17579891564 * Math.exp((0.0577622650 * note))
-      return out 
+      return out
     }
   })
 
@@ -2015,11 +2015,11 @@ exports.declareObjects = function(library) {
   })
 
   library['spigot'] = PdObject.extend({
-    
+
     type: 'spigot',
 
     inletDefs: [
-      
+
       portlets.Inlet.extend({
         message: function(args) {
           if (this.obj.passing) this.obj.o(0).message(args)
@@ -2110,7 +2110,7 @@ exports.declareObjects = function(library) {
   })
 
   library['pack'] = PdObject.extend({
-    
+
     type: 'pack',
 
     outletDefs: [portlets.Outlet],
@@ -2126,7 +2126,7 @@ exports.declareObjects = function(library) {
       for (i = 0; i < length; i++) {
         if (i === 0)
           this.inlets[i] = new _PackInlet0(this, i)
-        else 
+        else
           this.inlets[i] = new _PackInletN(this, i)
         if (args[i] === 'float') this.memory[i] = 0
         else if (args[i] === 'symbol') this.memory[i] = 'symbol'
@@ -2162,7 +2162,7 @@ exports.declareObjects = function(library) {
     init: function(args) {
       var i, length
       if (args.length === 0) args = [0]
-      if (args.length > 1) this.inlets.pop() 
+      if (args.length > 1) this.inlets.pop()
 
       for (i = 0, length = args.length; i < length; i++)
         this.outlets[i] = new portlets.Outlet(this, i)
@@ -2260,7 +2260,7 @@ exports.declareObjects = function(library) {
           counter++
         }
       } else while (this._looping) sendBang()
-        
+
       this._looping = false
     },
 
@@ -2314,12 +2314,12 @@ exports.declareObjects = function(library) {
     type: 'metro',
 
     inletDefs: [
-    
+
       portlets.Inlet.extend({
         message: function(args) {
           var msg = args[0]
           if (msg === 'bang') this.obj._restartMetroTick(utils.getTimeTag(args))
-          else if (msg === 'stop') this.obj._stopMetroTick() 
+          else if (msg === 'stop') this.obj._stopMetroTick()
           else {
             if (!_.isNumber(msg))
               return console.error('invalid [metro] value ' + msg)
@@ -2378,14 +2378,14 @@ exports.declareObjects = function(library) {
     _restartMetroTick: function(timeTag) {
       // If a rate change was made and `_restartMetroTick` is called before the next tick,
       // we should do this to avoid `_restartMetroTick` to be called twice recursively,
-      // which would cause _metroHandle to not be unscheduled properly... 
+      // which would cause _metroHandle to not be unscheduled properly...
       if (this._metroTick === this._metroTickRateChange)
         this._metroTick = this._metroTickNormal
       this._stopMetroTick()
       this._startMetroTick(timeTag)
     },
 
-    _metroTickNormal: function(timeTag) { 
+    _metroTickNormal: function(timeTag) {
       this.outlets[0].message(utils.timeTag(['bang'], timeTag))
     },
 
@@ -2409,7 +2409,7 @@ exports.declareObjects = function(library) {
             this.obj._stopDelay()
             this.obj._startDelay(utils.getTimeTag(args))
           } else if (msg === 'stop') {
-            this.obj._stopDelay() 
+            this.obj._stopDelay()
           } else {
             this.obj.setDelay(msg)
             this.obj._stopDelay()
@@ -2417,7 +2417,7 @@ exports.declareObjects = function(library) {
           }
         }
       }),
-      
+
       portlets.Inlet.extend({
         message: function(args) {
           var delay = args[0]
@@ -2489,11 +2489,11 @@ exports.declareObjects = function(library) {
       })
 
     ],
-    
+
     outletDefs: [portlets.Outlet],
 
     init: function() {
-      // Reference time, the timer count starts from this  
+      // Reference time, the timer count starts from this
       this.refTime = 0
     }
 
@@ -2514,7 +2514,7 @@ exports.declareObjects = function(library) {
         }
       })
     ],
-    
+
     outletDefs: [portlets.Outlet],
 
     init: function() {
@@ -2564,12 +2564,12 @@ exports.declareObjects = function(library) {
             , arg, url, arrayNames
           args = args.slice(1)
           if (command === 'read') {
-            
+
             // Handle options
             while (args.length && args[0][0] === '-') {
               arg = args.shift()
               if (arg === '-resize') doResize = true
-              
+
               else if (arg === '-wave' && arg === '-aiff'
                     && arg === '-nextstep' && arg === '-raw'
                     && arg === '-bytes' && arg === '-nframes')
@@ -2581,7 +2581,7 @@ exports.declareObjects = function(library) {
             url = args.shift()
             arrayNames = args
 
-            // GET the audio resource 
+            // GET the audio resource
             pdGlob.storage.get(url, function(err, arrayBuffer) {
               if (err) return console.error('could not load file : ' + err)
 
@@ -2611,7 +2611,7 @@ exports.declareObjects = function(library) {
                   array.setData(channelData, doResize)
                 })
 
-                // Send the amount of frames read to the outlet 
+                // Send the amount of frames read to the outlet
                 self.obj.o(0).message([Math.min(arrays[0].size, audioData[0].length)])
               })
             })
@@ -2620,7 +2620,7 @@ exports.declareObjects = function(library) {
         }
       })
     ],
-    
+
     outletDefs: [ portlets.Outlet ]
 
   })
@@ -2646,7 +2646,7 @@ exports.declareObjects = function(library) {
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 var _ = require('underscore')
@@ -2674,7 +2674,7 @@ exports.declareObjects = function(library) {
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -2746,13 +2746,13 @@ exports.declareObjects = function(library) {
 
 
   // TODO : When phase is set, the current oscillator will be immediately disconnected,
-  // while ideally, it should be disconnected only at `timeTag` 
+  // while ideally, it should be disconnected only at `timeTag`
   library['osc~'] = _OscBase.extend({
 
     type: 'osc~',
 
     _createOscillator: function(phase, timeTag) {
-      phase = phase * 2 * Math.PI 
+      phase = phase * 2 * Math.PI
       this._oscNode = pdGlob.audio.context.createOscillator()
       this._oscNode.setPeriodicWave(pdGlob.audio.context.createPeriodicWave(
         new Float32Array([0, Math.cos(phase)]),
@@ -2784,7 +2784,7 @@ exports.declareObjects = function(library) {
       this._oscNode.type = 'sawtooth'
       this._oscNode.start(timeTag / 1000)
       this._oscNode.connect(this._gainNode)
-      
+
       this._offsetNode = new WAAOffset(pdGlob.audio.context)
       this._offsetNode.offset.value = 1
       this._offsetNode.connect(this._gainNode)
@@ -2850,7 +2850,7 @@ exports.declareObjects = function(library) {
   // issues filed for chrome here : https://code.google.com/p/chromium/issues/detail?id=471675
   // and firefox here : https://bugzilla.mozilla.org/show_bug.cgi?id=1149053
 
-  // Another possible technique would be to use 2 WaveShaperNodes one with the sign function, 
+  // Another possible technique would be to use 2 WaveShaperNodes one with the sign function,
   // The other with acos.
 
   // TODO : When phase is set, the current oscillator will be immediately disconnected,
@@ -2884,7 +2884,7 @@ exports.declareObjects = function(library) {
       this._bufferSource.buffer = buffer
       this._bufferSource.loop = true
       this._bufferSource.start(pdGlob.futureTime / 1000 || 0)
-      
+
       this.o(0).setWaa(this._bufferSource, 0)
       this.i(0).setWaa(this._bufferSource.playbackRate, 0)
       this.i(0).message([this.frequency])
@@ -2987,7 +2987,7 @@ exports.declareObjects = function(library) {
         // and creating new lines if interrupting something in its middle.
         _pushToQueue: function(t1, v2, duration) {
           var i = 0, line, newLines = []
-          
+
           // Find the point in the queue where we should insert the new line.
           while ((line = this._queue[i++]) && (t1 >= line.t2)) 1
           this._queue = this._queue.slice(0)
@@ -3017,7 +3017,7 @@ exports.declareObjects = function(library) {
             }
 
           // If there isn't any value in the queue yet, we fill in the gap with
-          // a straight line from `_lastValue` all the way to `t1` 
+          // a straight line from `_lastValue` all the way to `t1`
           } else {
             line = {
               t1: 0, v1: this._lastValue,
@@ -3218,15 +3218,15 @@ exports.declareObjects = function(library) {
 
   // Mixin for inlet 1 of Dsp arithmetics objects *~, +~, ...
   var _DspArithmValInletMixin = {
-    
+
     message: function(args) {
       var val = args[0]
       this.obj.setVal(val)
       if (!this.hasDspSource()) this._setValNoDsp(val, utils.getTimeTag(args))
     },
-    
+
     disconnection: function(outlet) {
-      portlets.DspInlet.prototype.disconnection.apply(this, arguments) 
+      portlets.DspInlet.prototype.disconnection.apply(this, arguments)
       if (outlet instanceof portlets.DspOutlet && !this.hasDspSource())
         this._setValNoDsp(this.obj.val, 0)
     }
@@ -3272,7 +3272,7 @@ exports.declareObjects = function(library) {
       portlets.DspInlet,
 
       portlets.DspInlet.extend(_DspArithmValInletMixin, {
-        _setValNoDsp: function(val, timeTag) { 
+        _setValNoDsp: function(val, timeTag) {
           if (this.obj._offsetNode)
             this.obj._offsetNode.offset.setValueAtTime(val, timeTag / 1000)
         }
@@ -3309,7 +3309,7 @@ exports.declareObjects = function(library) {
       portlets.DspInlet,
 
       portlets.DspInlet.extend(_DspArithmValInletMixin, {
-        _setValNoDsp: function(val, timeTag) { 
+        _setValNoDsp: function(val, timeTag) {
           if (this.obj._offsetNode)
             this.obj._offsetNode.offset.setValueAtTime(val, timeTag / 1000)
         }
@@ -3377,7 +3377,7 @@ exports.declareObjects = function(library) {
 
     inletDefs: [
       portlets.DspInlet.extend({
-        
+
         message: function(args) {
           var method = args[0]
           if (method === 'set')
@@ -3546,7 +3546,7 @@ exports.declareObjects = function(library) {
           this._eventReceiver.once(this._delWrite.resolved, 'started', this._onDelWriteStarted)
         }
       }
-        
+
     }
 
   })
@@ -3597,7 +3597,7 @@ exports.declareObjects = function(library) {
 
       this._gainInNode.connect(this._waveShaperNode)
       //this._waveShaperNode.connect(this._gainOutNode)
-      
+
       this.i(0).setWaa(this._gainInNode, 0)
       //this.o(0).setWaa(this._gainOutNode, 0)
       this.o(0).setWaa(this._waveShaperNode, 0)
@@ -3666,7 +3666,7 @@ exports.declareObjects = function(library) {
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -3677,7 +3677,7 @@ var _ = require('underscore')
 
 
 var Audio = exports.Audio = function(opts) {
-  if (typeof AudioContext === 'undefined') 
+  if (typeof AudioContext === 'undefined')
     return console.error('this environment doesn\'t support Web Audio API')
   this.channelCount = opts.channelCount
   this.setContext(opts.audioContext || new AudioContext)
@@ -3692,7 +3692,7 @@ Audio.prototype.start = function() {}
 Audio.prototype.stop = function() {}
 
 Audio.prototype.decode = function(arrayBuffer, done) {
-  this.context.decodeAudioData(arrayBuffer, 
+  this.context.decodeAudioData(arrayBuffer,
     function(audioBuffer) {
       var chArrays = [], ch
       for (ch = 0; ch < audioBuffer.numberOfChannels; ch++)
@@ -3735,7 +3735,7 @@ Clock.prototype.schedule = function(func, time, repetition) {
   var _func = function(event) {
       // In case the event is executed immediately
       if (event.timeTag == undefined)
-        event.timeTag = event.deadline * 1000 
+        event.timeTag = event.deadline * 1000
       func(event)
     }
     , event = this._waaClock.callbackAtTime(_func, time / 1000)
@@ -3790,7 +3790,7 @@ WebStorage.prototype.get = function(url, done) {
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with WebPd.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with WebPd.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -3891,7 +3891,7 @@ var DspOutlet = exports.DspOutlet = BaseOutlet.extend({
   },
 
   connection: function(inlet) {
-    if (!(inlet instanceof DspInlet)) 
+    if (!(inlet instanceof DspInlet))
       throw new Error('can only connect to DSP inlet')
     if (this._started) this._waaConnect(inlet)
   },
@@ -3930,7 +3930,7 @@ var DspOutlet = exports.DspOutlet = BaseOutlet.extend({
     delete this._waaConnections[this._getConnectionId(inlet)]
     connector.close()
   },
-  
+
   _waaUpdate: function(inlet) {
     this._waaConnections[this._getConnectionId(inlet)]
       .swapDestination(inlet._waa.node, inlet._waa.input)
@@ -4579,7 +4579,7 @@ function inspect(obj, opts) {
 exports.inspect = inspect;
 
 
-// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+// https://en.wikipedia.org/wiki/ANSI_escape_code#graphics
 inspect.colors = {
   'bold' : [1, 22],
   'italic' : [3, 23],
@@ -4670,7 +4670,7 @@ function formatValue(ctx, value, recurseTimes) {
   }
 
   // IE doesn't make error fields non-enumerable
-  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
+  // https://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
   if (isError(value)
       && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
     return formatError(value);
@@ -5028,7 +5028,7 @@ function hasOwnProperty(obj, prop) {
  *
  */
 
-// See http://puredata.info/docs/developer/PdFileFormat for the Pd file format reference
+// See https://puredata.info/docs/developer/PdFileFormat for the Pd file format reference
 
 var _ = require('underscore')
   , NODES = ['obj', 'floatatom', 'symbolatom', 'msg', 'text']
@@ -5094,7 +5094,7 @@ exports.parse = function(txt) {
 var recursParse = function(txt) {
 
   var currentTable = null       // last table name to add samples to
-    , idCounter = -1, nextId = function() { idCounter++; return idCounter } 
+    , idCounter = -1, nextId = function() { idCounter++; return idCounter }
     , patch = {nodes: [], connections: [], layout: undefined, args: []}
     , line, firstLine = true
     , nextLine = function() { txt = txt.slice(line.index + line[0].length) }
@@ -5126,7 +5126,7 @@ var recursParse = function(txt) {
             id: nextId(),
             subpatch: subpatch
           }, attrs))
-          // The remaining text is what was returned 
+          // The remaining text is what was returned
           txt = result[1]
 
         // Else this is the first line of the patch file
@@ -5141,7 +5141,7 @@ var recursParse = function(txt) {
         }
 
       } else throw new Error('invalid element type for chunk #N : ' + elementType)
-    //================ #X : patch elements ================// 
+    //================ #X : patch elements ================//
     } else if (chunkType === '#X') {
       var elementType = tokens[1]
 
@@ -5160,7 +5160,7 @@ var recursParse = function(txt) {
             currentTable.data.push(0)
           currentTable = null
         }
-        
+
         // Return `subpatch`, `remaining text`, `attrs`
         nextLine()
         return [patch, txt, {
@@ -5225,7 +5225,7 @@ var recursParse = function(txt) {
           }
         patch.nodes.push(table)
 
-        // remind the last table for handling correctly 
+        // remind the last table for handling correctly
         // the table related instructions which might follow.
         currentTable = table
 
@@ -5244,9 +5244,9 @@ var recursParse = function(txt) {
       // ---- coords : visual range of framsets ---- //
       } else if (elementType === 'coords') { // TODO ?
       } else throw new Error('invalid element type for chunk #X : ' + elementType)
-      
+
       nextLine()
-    //================ #A : array data ================// 
+    //================ #A : array data ================//
     } else if (chunkType === '#A') {
       // reads in part of an array/table of data, starting at the index specified in this line
       // name of the array/table comes from the the '#X array' and '#X restore' matches above
@@ -5265,7 +5265,7 @@ var recursParse = function(txt) {
 
     firstLine = false
   }
-  
+
   return [patch, '']
 }
 
@@ -5361,7 +5361,7 @@ var parseControls = function(proto, args, layout) {
 
 },{"underscore":23}],23:[function(require,module,exports){
 //     Underscore.js 1.4.4
-//     http://underscorejs.org
+//     https://underscorejs.org
 //     (c) 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
 //     Underscore may be freely distributed under the MIT license.
 
@@ -5913,7 +5913,7 @@ var parseControls = function(proto, args, layout) {
 
   // Generate an integer Array containing an arithmetic progression. A port of
   // the native Python `range()` function. See
-  // [the Python documentation](http://docs.python.org/library/functions.html#range).
+  // [the Python documentation](https://docs.python.org/library/functions.html#range).
   _.range = function(start, stop, step) {
     if (arguments.length <= 1) {
       stop = start || 0;
@@ -6186,7 +6186,7 @@ var parseControls = function(proto, args, layout) {
   // Internal recursive comparison function for `isEqual`.
   var eq = function(a, b, aStack, bStack) {
     // Identical objects are equal. `0 === -0`, but they aren't identical.
-    // See the Harmony `egal` proposal: http://wiki.ecmascript.org/doku.php?id=harmony:egal.
+    // See the Harmony `egal` proposal: https://wiki.ecmascript.org/doku.php?id=harmony:egal.
     if (a === b) return a !== 0 || 1 / a == 1 / b;
     // A strict comparison is necessary because `null == undefined`.
     if (a == null || b == null) return a === b;
@@ -6664,11 +6664,11 @@ Event.prototype.schedule = function(deadline) {
 
   if (this.clock.context.currentTime >= this._earliestTime) {
     this._execute()
-  
+
   } else if (this.clock._hasEvent(this)) {
     this.clock._removeEvent(this)
     this.clock._insertEvent(this)
-  
+
   } else this.clock._insertEvent(this)
 }
 
@@ -6700,7 +6700,7 @@ Event.prototype._execute = function() {
   // In the case `schedule` is called inside `func`, we need to avoid
   // overrwriting with yet another `schedule`.
   if (!this.clock._hasEvent(this) && this.isRepeated() && !this._cleared)
-    this.schedule(this.deadline + this.repeatTime) 
+    this.schedule(this.deadline + this.repeatTime)
 }
 
 // Updates cached times
@@ -6739,7 +6739,7 @@ WAAClock.prototype.timeStretch = function(tRef, events, ratio) {
   return events
 }
 
-// Removes all scheduled events and starts the clock 
+// Removes all scheduled events and starts the clock
 WAAClock.prototype.start = function() {
   if (this._started === false) {
     var self = this
@@ -6765,7 +6765,7 @@ WAAClock.prototype.stop = function() {
   if (this._started === true) {
     this._started = false
     this._clockNode.disconnect()
-  }  
+  }
 }
 
 // ---------- Private ---------- //
@@ -6825,7 +6825,7 @@ WAAClock.prototype._absTime = function(relTime) {
   return relTime + this.context.currentTime
 }
 
-// Converts from absolute time to relative time 
+// Converts from absolute time to relative time
 WAAClock.prototype._relTime = function(absTime) {
   return absTime - this.context.currentTime
 }
@@ -6838,12 +6838,12 @@ if (typeof window !== 'undefined') window.WAAOffsetNode = WAAOffsetNode
 var WAAOffsetNode = module.exports = function(context) {
   this.context = context
 
-  // Ones generator. We use only a single generator 
+  // Ones generator. We use only a single generator
   // for all WAAOfsetNodes in the same AudioContext
   this._ones = WAAOffsetNode._ones.filter(function(ones) {
     return ones.context === context
   })[0]
-  if (this._ones) this._ones = this._ones.ones 
+  if (this._ones) this._ones = this._ones.ones
   else {
     this._ones = context.createOscillator()
     this._ones.frequency.value = 0
@@ -6885,7 +6885,7 @@ var WAATableNode = module.exports = function(context) {
   this.position = context.createGain()
   this.position.connect(this._positionNode.offset)
   this.position.gain.value = 0
-  
+
   this._table = null
   Object.defineProperty(this, 'table', {
     get: function() { return this._table },
@@ -6949,7 +6949,7 @@ var WAAWhiteNoiseNode = module.exports = function(context) {
   // Generate a random buffer
   this._buffer = context.createBuffer(1, 131072, context.sampleRate)
   var channelArray = this._buffer.getChannelData(0), i
-  for (i = 0; i < 131072; i++) 
+  for (i = 0; i < 131072; i++)
     channelArray[i] = (Math.random() * 2) - 1
 
   this._prepareOutput()
@@ -6984,7 +6984,7 @@ if (typeof window !== 'undefined') window.WAAWire = WAAWire
 },{"./lib/WAAWire":35}],35:[function(require,module,exports){
 var WAAWire = module.exports = function(context) {
   this.context = context
-  
+
   this._source = null
   this._output = null
   this._destination = null
@@ -7015,7 +7015,7 @@ WAAWire.prototype.close = _withTimeArg('_close')
 WAAWire.prototype.atTime = function(time) {
   this._atTime = time
   return this
-} 
+}
 
 WAAWire.prototype._connect = function(time, source, destination, output, input) {
   if (this._gainNode) throw new Error('Wire already connected')
