@@ -13,7 +13,7 @@ No matter, have you [compiled](./setup.html#Compilation) your own customized ver
 <script>
     var targetElement = document.getElementById('patch-target');
     var patch = Rpd.render('svg', targetElement, { style: 'quartz' });
-    var randomNode = patch.addNode('util/random', 'Random');    
+    var randomNode = patch.addNode('util/random', 'Random');
     var numberNode = patch.addNode('util/number', 'Number');
     randomNode.outlets['random'].connect(numberNode.inlets['in']);
     randomNode.inlets['min'].receive(10);
@@ -227,7 +227,7 @@ var myRandomGeneratorNode = patch.addNode('core/basic', 'My Random 0-255', {
     process: function() {
         if (inlets.bang) {
             return { 'random': Math.floor(Math.random() * 256) };
-        }    
+        }
     }
 });
 var randomOutlet = myRandomGeneratorNode.addOutlet('util/number', 'random');
@@ -379,4 +379,4 @@ Rpd.import.json(jsonContent);
 
 To do the same, but with Plain Text format, just change `Rpd.export.json` and `Rpd.import.json` to `Rpd.export.plain` and `Rpd.import.plain`, and you're done!
 
-[kefir]: http://rpominov.github.io/kefir
+[kefir]: https://rpominov.github.io/kefir

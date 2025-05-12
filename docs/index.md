@@ -14,7 +14,7 @@ id: introduction
 <!-- circle particles -->
 <!-- logo color shift -->
 
-( [GitHub](http://github.com/shamansir/rpd) | [Examples](./examples.html) | [API](./sections/api.html) | [Issues](http://github.com/shamansir/rpd/issues) | [Terminology](#terminology) <!-- | [Tests](...) --> )
+( [GitHub](https://github.com/shamansir/rpd) | [Examples](./examples.html) | [API](./sections/api.html) | [Issues](https://github.com/shamansir/rpd/issues) | [Terminology](#terminology) <!-- | [Tests](...) --> )
 
 ### What is RPD?
 
@@ -47,7 +47,7 @@ If you feel that's you know everything in this field and this library is definit
 * Import/Export of Networks from/to JSON or Plain Text out-of-the-box;
 * Very powerful, and both super-simple and minimal, API allowing you to create your custom Node Toolkits;
 * Everything is configurable and optional at the same time, how you render the Node, the way it looks, the way it processes data, the way input and output channels behave;
-* Powered by [Kefir](http://rpominov.github.io/kefir/) library, so allows you to include _Reactive Streams_ of any complexity into the flow of your Network;
+* Powered by [Kefir](https://rpominov.github.io/kefir/) library, so allows you to include _Reactive Streams_ of any complexity into the flow of your Network;
 * _tons of features more..._
 
 ### Code Examples
@@ -269,7 +269,7 @@ Rpd.nodetype('my/scene', {
 
 /* ============== Renderer for Canvas-driven Scene ============== */
 
-var SVG_XMLNS = 'http://www.w3.org/2000/svg';
+var SVG_XMLNS = 'https://www.w3.org/2000/svg';
 
 function lerp(v1, v2, pos) {
   return (v1 + ((v2 - v1) * pos));
@@ -463,7 +463,7 @@ When you need to render a Patch, you need to know three things: which Renderer y
 
 The engine of the rendering process is Actions. They are fired on every change of the value, when new Connection between Outlet and Inlet is established, or instead someone removed the Connection, or someone moved one Node etc. To the Rendering System there is no matter who did this Action, User or API call.
 
-> If you know what [Flux](https://facebook.github.io/flux/) or [Elm](http://elm-lang.org/) is, it is almost the same Action concept you've met there; if you don't know about both, just replace Action term with Event term here and below.
+> If you know what [Flux](https://facebook.github.io/flux/) or [Elm](https://elm-lang.org/) is, it is almost the same Action concept you've met there; if you don't know about both, just replace Action term with Event term here and below.
 
 So, for example you chose `'svg'` Renderer to render your Patch. What happens then? On every user or logical Action, this Renderer is notified. Then this Renderer decides which (preferably, the tiniest one) part of the Network it should re-render. If Node or Channel (Inlet or Outlet) is required to be updated, it searches for the corresponding Node Renderer or Channel Renderer, the one assigned to this Renderer. Node/Channel Renderer can render particular type of the Node/Channel (and then it's called Node/Channel Type Renderer) or it may be overridden for the specific instance of the Node/Channel (and then it's called Node/Channel Instance Renderer). If something else was updated, Renderer re-renders this part itself, without delegation. No, actually, it sometimes passes some updates to Style, just Node/Channel Renderer step is skipped in this case.
 
@@ -525,10 +525,10 @@ _Module_ is any extension for the RPD functionality, not included in the library
 
 For example, _I/O Module_ records every action (or only some of the actions) performed to build the Network in some specific format, so it can optionally “replay” these actions later, in proper order.
 
-[node-js]: http://nodejs.org
-[kefir]: http://rpominov.github.io/kefir/
-[roman-pominov]: http://rpominov.github.io
-[processing-js]: http://p5js.org
+[node-js]: https://nodejs.org
+[kefir]: https://rpominov.github.io/kefir/
+[roman-pominov]: https://rpominov.github.io
+[processing-js]: https://p5js.org
 
 [download-default]: TODO
 [building-section]: ./sections/building.html
@@ -539,7 +539,7 @@ For example, _I/O Module_ records every action (or only some of the actions) per
 [quartzcomposer]: https://en.wikipedia.org/wiki/Quartz_Composer
 [vvvv]: https://vvvv.org/
 [nodebox]: https://www.nodebox.net/
-[reaktor]: http://www.native-instruments.com/en/products/komplete/synths/reaktor-6/
+[reaktor]: https://www.native-instruments.com/en/products/komplete/synths/reaktor-6/
 
 <script defer src="./d3.v3.min.js"></script>
 <script defer src="./docs-patch.js"></script>

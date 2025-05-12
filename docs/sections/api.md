@@ -52,7 +52,7 @@ To control the rendering queue, you may use these methods:
     * [`patch.moveCanvas(x, y)`](#patch-movecanvas)
     * [`patch.resizeCanvas(width, height)`](#patch-resizecanvas)
 * [`Node`](#node)
-    * [`node.move(x, y)`](#node-move)    
+    * [`node.move(x, y)`](#node-move)
 
 When you want to build your own toolkit, you may decide to register your node & channel types and renderers using these methods:
 
@@ -92,7 +92,7 @@ To define node type or channel type, to configure some particular node or channe
 
 ### `util` Toolkit
 
-List of Nodes, which currently exist in `util` Toolkit [is located here](http://github.com/shamansir/rpd/blob/master/src/toolkit/util/toolkit.md).
+List of Nodes, which currently exist in `util` Toolkit [is located here](https://github.com/shamansir/rpd/blob/master/src/toolkit/util/toolkit.md).
 
 ### Naming rules
 
@@ -498,7 +498,7 @@ This function may convert new received value to some renderable element. For exa
 ```javascript
 Rpd.channeltype('docs/vector', {});
 
-var SVG_XMLNS = 'http://www.w3.org/2000/svg';
+var SVG_XMLNS = 'https://www.w3.org/2000/svg';
 var radius = 7;
 Rpd.channelrenderer('docs/vector', 'svg', {
     show: function(target, value) {
@@ -607,7 +607,7 @@ var patchTwo = Rpd.addPatch('SecondPatch')
                   .render([ 'html', 'svg' ], 'target-3', {
                       style: 'quartz',
                       linkForm: 'line'
-                  });                  
+                  });
 ```
 
 NB: Note that _closed_ Patches are not rendered immediately, unlike _opened_ ones. To get more details on _opening_ and _closing_ Patches, see [Rpd.addClosedPatch()](#rpd-addclosedpatch) description.
@@ -899,10 +899,10 @@ Rpd.nodetyperenderer('docs/inlet-or-body', 'html', function() {
         always: function(bodyElm, inlets) {
             if (inlets['from-other-node'] &&
                 (!inlets['from-node-body'] ||
-                 ( inlets['from-other-node'].time >  
+                 ( inlets['from-other-node'].time >
                    inlets['from-node-body'].time ))) {
               input.value = inlets['from-other-node'].value;
-            }  
+            }
         }
     };
 });
@@ -1075,7 +1075,7 @@ var burritoOutlet = burritoFactoryNode.addOutlet('docs/burrito', 'burrito', {
                 return burrito;
             }
         });
-    }     
+    }
 });
 
 function wrap(burrito) { return [ burrito ]; }
@@ -1484,7 +1484,7 @@ But please be aware that when stream of values is heavily modified, user may fee
 Rpd.channeltype('docs/mouse-pos', {
     tune: function(stream) {
         // output mouse events with a minimum distance of 10 milliseconds
-        stream.throttle(10);  
+        stream.throttle(10);
     }
 });
 ```
@@ -1622,4 +1622,4 @@ Remove the connection between given Outlet and Inlet. For ever. Unless new one w
 
 #### `navigation`
 
-[kefir]: http://rpominov.github.io/kefir/
+[kefir]: https://rpominov.github.io/kefir/

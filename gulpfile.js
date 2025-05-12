@@ -103,7 +103,7 @@ var yargs = require('yargs')
             .example('gulp -o /Users/hitchcock -n my-custom-rpd', 'write the files to `/Users/hitchcock/my-custom-rpd.css` and ' +
                           '`/Users/hitchcock/my-custom-rpd.min.js`')
             .example('gulp -z /Users/hitchcock/my-style -r svg -x json -n my-rpd', 'include user style located at `/Users/hitchcock/my-style`, add SVG renderer, add JSON I/O module and place the files at `./dist/my-rpd.min.js` and `./dist/my-rpd.css`')
-            .epilogue('See http://shamansir.github.io/rpd for detailed documentation. © shaman.sir, 2016');
+            .epilogue('See https://shamansir.github.io/rpd for detailed documentation. © shaman.sir, 2016');
 
 var argv = yargs.argv;
 
@@ -289,7 +289,7 @@ gulp.task('for-docs', [ 'setup-docs-configuration', 'build'/*,
 });
 
 var docsLocal = argv['docs-local'],
-    protocol = docsLocal ? 'http://' : '//';
+    protocol = docsLocal ? 'https://' : '//';
 
 var fiddleRe = new RegExp('<!-- fiddle: ([a-zA-Z0-9]+)( ([a-z,]+)/)? -->', 'g');
 var fiddleTemplate = '<script async src="' + protocol + 'jsfiddle.net/shaman_sir/\$1/embed/\$3/"></script>';
@@ -302,9 +302,9 @@ var injectFiddles = parser({
 
 var codepenRe = new RegExp('<!-- codepen: ([a-zA-Z0-9]+) -->', 'g');
 var codepenTemplate = '<p data-height="266" data-theme-id="21572" data-slug-hash="\$1" data-default-tab="result" ' +
-                      'data-user="shamansir" class="codepen">See the Pen <a href="http://codepen.io/shamansir/pen/\$1/">\$1</a> ' +
-                      'by Ulric Wilfred (<a href="http://codepen.io/shamansir">@shamansir</a>) on ' +
-                      '<a href="http://codepen.io">CodePen</a>.</p>' +
+                      'data-user="shamansir" class="codepen">See the Pen <a href="https://codepen.io/shamansir/pen/\$1/">\$1</a> ' +
+                      'by Ulric Wilfred (<a href="https://codepen.io/shamansir">@shamansir</a>) on ' +
+                      '<a href="https://codepen.io">CodePen</a>.</p>' +
                       '<script async src="' + protocol + 'assets.codepen.io/assets/embed/ei.js"></script>';
 var injectCodepens = parser({
     name: 'inject-codepens',
@@ -468,7 +468,7 @@ gulp.task('docs-copy-vendor', function() {
 
 gulp.task('docs-download-vendor', function() {
     var vendorDependencies = [
-        'http://player-dev.animatron.com/latest/bundle/animatron.min.js' // animatron
+        'https://player-dev.animatron.com/latest/bundle/animatron.min.js' // animatron
     ];
     return download(vendorDependencies)
                .pipe(gulp.dest('./docs/compiled/vendor'));
@@ -716,7 +716,7 @@ function getHtmlHead(options) {
     }
     console.log('  <meta charset=\'utf-8\' />');
     console.log();
-    comment('Built with RPD v' + pkg.version + ' <http://shamansir.github.io/rpd>');
+    comment('Built with RPD v' + pkg.version + ' <https://shamansir.github.io/rpd>');
     console.log();
     comment(getCommandString(options).replace(/--/g, '=='));
     console.log();

@@ -6,7 +6,7 @@ This project has a successor now, named *Noodle*: https://github.com/shamansir/n
 
 That way I wasn't supporting this project while I was writing the successor, and I am sorry for that. It should be working, but the features/fixes are freezed for the moment.
 
-**Official Documentation & Examples**: [http://shamansir.github.io/rpd](http://shamansir.github.io/rpd)
+**Official Documentation & Examples**: [https://shamansir.github.io/rpd](https://shamansir.github.io/rpd)
 
 [![Join the chat at https://gitter.im/shamansir/rpd](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/shamansir/rpd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -14,7 +14,7 @@ That way I wasn't supporting this project while I was writing the successor, and
 
 <!-- [![Code Climate](https://codeclimate.com/github/shamansir/rpd/badges/gpa.svg)](https://codeclimate.com/github/shamansir/rpd) -->
 
-<a href="http://shamansir.github.io/rpd" title="Reactive Patch Development">
+<a href="https://shamansir.github.io/rpd" title="Reactive Patch Development">
     <img src="https://rawgit.com/shamansir/rpd/v2.0.0/docs/rpd.svg" width="140px" height="140px" />
 </a>
 
@@ -28,7 +28,7 @@ That way I wasn't supporting this project while I was writing the successor, and
 
 _Version in development_: [v3.x](https://github.com/shamansir/rpd/milestone/11).
 
-(no [semantic versioning](http://semver.org/) was used before v2.0)
+(no [semantic versioning](https://semver.org/) was used before v2.0)
 
 **[NPM](https://www.npmjs.com/package/rpd/)**
 
@@ -36,7 +36,7 @@ A video of the engine v0.1.0 in action, demonstrates some of its features: [ [Wa
 
 [![Watch][video-img]][video]
 
-[ [Play online](http://shamansir.github.io/rpd/examples.html) ]
+[ [Play online](https://shamansir.github.io/rpd/examples.html) ]
 
 <!-- Examples grid -->
 
@@ -44,7 +44,7 @@ _(NB: Only modern browsers are supported, tested most in Chrome and Safari, no m
 
 ----
 
-**Surely visit** **[Documentation, Examples & More...](http://shamansir.github.io/rpd)**
+**Surely visit** **[Documentation, Examples & More...](https://shamansir.github.io/rpd)**
 
 ----
 
@@ -175,7 +175,7 @@ RPD provides following features (though probably I forgot a dozen):
 
 ## Using
 
-See [Setup](http://shamansir.github.io/rpd/sections/setup.html) and [Network](http://shamansir.github.io/rpd/sections/network.html) sections in Official Documentation.
+See [Setup](https://shamansir.github.io/rpd/sections/setup.html) and [Network](https://shamansir.github.io/rpd/sections/network.html) sections in Official Documentation.
 
 Just as a quick note (detailed descriptions are for the pages mentioned above), RPD is available from NPM since latest versions, so just do:
 
@@ -187,42 +187,42 @@ Or, if you plan to run examples locally from `node_modules`, omit the `--no-opti
 
 ## Participating
 
-See [Participation](http://shamansir.github.io/rpd/sections/participate.html) sections in Official Documentation.
+See [Participation](https://shamansir.github.io/rpd/sections/participate.html) sections in Official Documentation.
 
 Feel free to fix issues or do Pull Requests!
 
-[hosted-util]: http://shamansir.github.io/rpd/examples/util.html
-[hosted-pd]: http://shamansir.github.io/rpd/examples/pd.html
-[hosted-anm]: http://shamansir.github.io/rpd/examples/anm.html
+[hosted-util]: https://shamansir.github.io/rpd/examples/util.html
+[hosted-pd]: https://shamansir.github.io/rpd/examples/pd.html
+[hosted-anm]: https://shamansir.github.io/rpd/examples/anm.html
 
-[anm-toolkit-repo]: http://github.com/shamansir/rpd-animatron
+[anm-toolkit-repo]: https://github.com/shamansir/rpd-animatron
 [anm-toolkit-src]: https://github.com/shamansir/rpd-animatron/blob/master/toolkit.js
 [anm-renderer-src]: https://github.com/shamansir/rpd-animatron/blob/master/render/html.js
-[pd-toolkit-repo]: http://github.com/shamansir/rpd-puredata
+[pd-toolkit-repo]: https://github.com/shamansir/rpd-puredata
 [pd-toolkit-src]: https://github.com/shamansir/rpd-puredata/blob/master/toolkit.js
 [pd-renderer-src]: https://github.com/shamansir/rpd-puredata/blob/master/render/html.js
 
 [issues]: https://github.com/shamansir/rpd/issues
-[video]: http://vimeo.com/118197237
-[video-img]: http://shamansir.github.io/rpd/assets/rpd-vimeo.png
-[kefir]: http://rpominov.github.io/kefir/
-[kefir-src]: http://rpominov.github.io/kefir/dist/kefir.min.js
-[timbre]: http://mohayonao.github.io/timbre.js/
-[animatron]: http://animatron.com
-[puredata]: http://puredata.info/
+[video]: https://vimeo.com/118197237
+[video-img]: https://shamansir.github.io/rpd/assets/rpd-vimeo.png
+[kefir]: https://rpominov.github.io/kefir/
+[kefir-src]: https://rpominov.github.io/kefir/dist/kefir.min.js
+[timbre]: https://mohayonao.github.io/timbre.js/
+[animatron]: https://animatron.com
+[puredata]: https://puredata.info/
 [closure-compiler]: https://developers.google.com/closure/compiler/
 
 [engine-source]: https://github.com/shamansir/rpd/blob/master/src/rpd.js
 
-[core-html-src]: http://shamansir.github.io/rpd/dist/rpd-core-html.min.js
-[core-pd-html-src]: http://shamansir.github.io/rpd/dist/rpd-core-pd-html.min.js
-[core-anm-html-src]: http://shamansir.github.io/rpd/dist/rpd-core-anm-html.min.js
-[core-style]: http://shamansir.github.io/rpd/dist/rpd-core.css
-[core-pd-style]: http://shamansir.github.io/rpd/dist/rpd-core-pd.css
-[core-anm-style]: http://shamansir.github.io/rpd/dist/rpd-core-anm.css
+[core-html-src]: https://shamansir.github.io/rpd/dist/rpd-core-html.min.js
+[core-pd-html-src]: https://shamansir.github.io/rpd/dist/rpd-core-pd-html.min.js
+[core-anm-html-src]: https://shamansir.github.io/rpd/dist/rpd-core-anm-html.min.js
+[core-style]: https://shamansir.github.io/rpd/dist/rpd-core.css
+[core-pd-style]: https://shamansir.github.io/rpd/dist/rpd-core-pd.css
+[core-anm-style]: https://shamansir.github.io/rpd/dist/rpd-core-anm.css
 
-[core-gif]: http://shamansir.github.io/rpd/assets/core.gif
-[pd-gif]: http://shamansir.github.io/rpd/assets/pd.gif
-[anm-gif]: http://shamansir.github.io/rpd/assets/anm.gif
+[core-gif]: https://shamansir.github.io/rpd/assets/core.gif
+[pd-gif]: https://shamansir.github.io/rpd/assets/pd.gif
+[anm-gif]: https://shamansir.github.io/rpd/assets/anm.gif
 
-[logo]: http://shamansir.github.io/rpd/assets/logo-small.png
+[logo]: https://shamansir.github.io/rpd/assets/logo-small.png

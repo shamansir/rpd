@@ -4,7 +4,7 @@ var SHAPES = [ 'circle', 'rect', 'cross', 'diamond' ];
 
 var DEFAULT_COLOR = { r: 0xED, g: 0x22, b: 0x5D };
 
-var SVG_XMLNS = "http://www.w3.org/2000/svg";
+var SVG_XMLNS = "https://www.w3.org/2000/svg";
 
 // ============= Register p5/color channel type =============
 

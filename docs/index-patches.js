@@ -165,7 +165,7 @@ function applyCodeExample3() {
 
     /* ============== Renderer for Canvas-driven Scene ============== */
 
-    var SVG_XMLNS = 'http://www.w3.org/2000/svg';
+    var SVG_XMLNS = 'https://www.w3.org/2000/svg';
 
     function lerp(v1, v2, pos) {
       return (v1 + ((v2 - v1) * pos));

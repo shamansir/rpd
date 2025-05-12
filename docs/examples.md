@@ -26,7 +26,7 @@ NB: Versions of RPD used in these examples may appear not to be up-to-date, plea
 
 #### Videos
 
-Latest Videos from [RPD Vimeo Channel](http://vimeo.com/channels/rpdjs):
+Latest Videos from [RPD Vimeo Channel](https://vimeo.com/channels/rpdjs):
 
 <!-- 640x451 -->
 

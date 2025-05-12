@@ -2,11 +2,11 @@
   "name": "rpd",
   "version": "3.0.0-beta.2",
   "description": "RPD is a minimal framework for building Node-Based User Interfaces, powered by Reactive Programming",
-  "author": "Ulric Wilfred <shaman.sir@gmail.com> (http://shamansir.github.io)",
-  "homepage": "http://shamansir.github.io/rpd",
+  "author": "Ulric Wilfred <shaman.sir@gmail.com> (https://shamansir.github.io)",
+  "homepage": "https://shamansir.github.io/rpd",
   "repository": {
     "type": "git",
-    "url": "http://github.com/shamansir/rpd.git"
+    "url": "https://github.com/shamansir/rpd.git"
   },
   "bugs": {
     "url": "https://github.com/shamansir/rpd/issues"

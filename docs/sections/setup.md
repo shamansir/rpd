@@ -89,17 +89,17 @@ To use either downloaded or compiled version of RPD, you need to include three f
              rules (both Renderer and Style selected at compilation stage are
              listed in the top lines of this file) -->
         <link rel="stylesheet"
-              href="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css">
+              href="https://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css">
         </link>
 
         <!-- Kefir.js library -->
-        <script src="http://rawgit.com/rpominov/kefir/gh-pages/dist/kefir.min.js"></script>
+        <script src="https://rawgit.com/rpominov/kefir/gh-pages/dist/kefir.min.js"></script>
 
         <!-- RPD Library, compiled with the options you specified (all these
              options are listed in the first lines of this file, so you may
              distinguish `rpd.js` compiled with different options even while it
              has the same name for all the versions) -->
-        <script src="http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.min.js"></script>
+        <script src="https://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.min.js"></script>
 
     </head>
     <body>
@@ -158,7 +158,7 @@ If you have RPD installed to local `node_modules`, you have an option to include
         <meta charset="utf-8" />
 
         <!-- Kefir.js library -->
-        <script src="http://rawgit.com/rpominov/kefir/gh-pages/dist/kefir.min.js"></script>
+        <script src="https://rawgit.com/rpominov/kefir/gh-pages/dist/kefir.min.js"></script>
 
         <!-- d3.js or d3_tiny somewhere here -->
 
@@ -265,7 +265,7 @@ Both `gulp build` (defaults to `gulp`) and `gulp build-with-gzip` report the res
 
 Also, you may select the name of the output file with `--target-name` or `-o` option.
 
-<!-- If you plan to use [d3.js](http://d3js.org/), you may want to exclude the super-tiny version of d3 from compilation using `--no-d3-tiny` flag (though actually it adds not a lot, since it's tiny) -->
+<!-- If you plan to use [d3.js](https://d3js.org/), you may want to exclude the super-tiny version of d3 from compilation using `--no-d3-tiny` flag (though actually it adds not a lot, since it's tiny) -->
 
 I recommend you to visit the [examples page](../examples.html), there you may find several examples for different combinations of styles and renderers used to compile the same patch.
 
@@ -283,7 +283,7 @@ More details on building Patch Networks by yourself, you may find on [the corres
 | `ableton`   | <span class="negative">✘</span> | <span class="positive">✔</span> | Vertical    | Contrast-colored style inspired by [Ableton Live UI](https://en.wikipedia.org/wiki/Ableton_Live) with inner inlets/outlets names |
 | `ableton-out`   | <span class="negative">✘</span> | <span class="positive">✔</span> | Vertical    | Contrast-colored style inspired by [Ableton Live UI](https://en.wikipedia.org/wiki/Ableton_Live) with outer inlets/outlets names |
 | `black-white` | <span class="negative">✘</span> | <span class="positive">✔</span> | Vertical    | Black and White style looking like some schema from an 80's computer book |
-| `blender`     | <span class="negative">✘</span> | <span class="positive">✔</span> | Vertical    | Style, almost completely looking like [Blender](http://blender.org) [Material Editor](https://www.blender.org/manual/render/blender_render/materials/nodes/index.html) |
+| `blender`     | <span class="negative">✘</span> | <span class="positive">✔</span> | Vertical    | Style, almost completely looking like [Blender](https://blender.org) [Material Editor](https://www.blender.org/manual/render/blender_render/materials/nodes/index.html) |
 | `webpd`       | <span class="negative">✘</span> | <span class="positive">✔</span> | Horizontal  | Used to render [PureData](https://puredata.info/) Nodes with the help of [WebPd](https://github.com/sebpiq/WebPd) |
 
 ### Toolkits and Renderers
@@ -292,20 +292,20 @@ More details on building Patch Networks by yourself, you may find on [the corres
 |----------------|---------------------------------|---------------------------------|--------------------|
 | `core`         | <span class="positive">✔</span> | <span class="positive">✔</span> | Only `core/basic` Node type and `core/any` Channel type; always included, no option needed |
 | `util`         | <span class="positive">✔</span> | <span class="positive">✔</span> | Utility Nodes: numbers, colors, random generators, everything useful but not obligatory |
-| `timbre`       | <span class="positive">✔</span> | <span class="positive">✔</span> | Nodes intended to help user generate sound with [timbre.js](http://mohayonao.github.io/timbre.js/) in future, but has only five basic nodes for the moment |
+| `timbre`       | <span class="positive">✔</span> | <span class="positive">✔</span> | Nodes intended to help user generate sound with [timbre.js](https://mohayonao.github.io/timbre.js/) in future, but has only five basic nodes for the moment |
 | `webpd`        | <span class="positive">✔</span> | <span class="positive">✔</span> | The project with a plan to implement complete [PureData](https://puredata.info/) toolkit, but for the web, with the help of [WebPd](https://github.com/sebpiq/WebPd) library |
-| `anm`          | <span class="positive">✔</span> | <span class="positive">✔</span> | Demonstrates the ability to generate graphics with [Animatron Player](https://github.com/Animatron/player), includes Spreads logic like the ones [VVVV](http://www.vvvvjs.com/) has |
-| [`processing`] | <span class="negative">✘</span> | <span class="positive">✔</span> | Used only in examples, has some Node types to demonstrate how to work with [P5.js](http://p5js.org) |
+| `anm`          | <span class="positive">✔</span> | <span class="positive">✔</span> | Demonstrates the ability to generate graphics with [Animatron Player](https://github.com/Animatron/player), includes Spreads logic like the ones [VVVV](https://www.vvvvjs.com/) has |
+| [`processing`] | <span class="negative">✘</span> | <span class="positive">✔</span> | Used only in examples, has some Node types to demonstrate how to work with [P5.js](https://p5js.org) |
 
 ### Modules
 
 <!-- IN PROGRESS -->
 
-[kefir]: http://github.com/rpominov/kefir
-[default-svg-js]: http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.min.js
-[default-svg-css]: http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.css
-[default-html-js]: http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.min.js
-[default-html-css]: http://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css
-[animatron-player]: http://animatron.com/player/
+[kefir]: https://github.com/rpominov/kefir
+[default-svg-js]: https://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.min.js
+[default-svg-css]: https://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-svg.css
+[default-html-js]: https://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.min.js
+[default-html-css]: https://rawgit.com/shamansir/rpd/gh-pages/dist/v2.0.0/rpd-html.css
+[animatron-player]: https://animatron.com/player/
 [puredata]: https://puredata.info/
 [webpd]: https://github.com/sebpiq/WebPd
